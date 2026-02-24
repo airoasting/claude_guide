@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 활용 5단계 | ArgosAI Lab</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 48px 32px 40px;
+            background: #f4f4f4;
+            border-bottom: 3px solid #CC0000;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #CC0000;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover { opacity: 0.7; }
+
+        h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #1a1a1a;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        header p { font-size: 17px; color: #666; }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 48px 32px;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            padding-left: 16px;
+            border-left: 4px solid #CC0000;
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 24px;
+            padding-left: 20px;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 56px 0;
+        }
+
+        /* ── Gradient Bar ── */
+        .gradient-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, #e8f0fe, #1a365d);
+            border-radius: 8px;
+            padding: 12px 24px;
+            margin-bottom: 20px;
+        }
+
+        .gradient-bar span {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .gradient-bar span:first-child { color: #1a365d; }
+        .gradient-bar span:last-child { color: #fff; }
+
+        /* ── Level Cards (5열) ── */
+        .level-cards {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .level-card {
+            border-radius: 10px;
+            padding: 20px 14px;
+            text-align: center;
+            border: 1px solid transparent;
+            transition: transform 0.2s;
+        }
+
+        .level-card:hover { transform: translateY(-2px); }
+
+        .level-card .level-num {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .level-card .level-name {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .level-card .level-desc {
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .level-card .level-example {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* Level 1 */
+        .level-card.l1 { background: #e8f0fe; border-color: #d1e0fc; }
+        .level-card.l1 .level-num { color: #3b82f6; }
+        .level-card.l1 .level-name { color: #1e40af; }
+        .level-card.l1 .level-desc { color: #3b5998; }
+        .level-card.l1 .level-example { background: #d1e0fc; color: #1e40af; }
+
+        /* Level 2 */
+        .level-card.l2 { background: #c7d9f5; border-color: #a3c0f0; }
+        .level-card.l2 .level-num { color: #2563eb; }
+        .level-card.l2 .level-name { color: #1e3a8a; }
+        .level-card.l2 .level-desc { color: #2c4a80; }
+        .level-card.l2 .level-example { background: #a3c0f0; color: #1e3a8a; }
+
+        /* Level 3 */
+        .level-card.l3 { background: #7ba8e6; }
+        .level-card.l3 .level-num { color: #d1e0fc; }
+        .level-card.l3 .level-name { color: #fff; }
+        .level-card.l3 .level-desc { color: #e0e8f5; }
+        .level-card.l3 .level-example { background: rgba(255,255,255,0.2); color: #fff; }
+
+        /* Level 4 */
+        .level-card.l4 { background: #3b6db8; }
+        .level-card.l4 .level-num { color: #bdd4f8; }
+        .level-card.l4 .level-name { color: #fff; }
+        .level-card.l4 .level-desc { color: #d1e0fc; }
+        .level-card.l4 .level-example { background: rgba(255,255,255,0.15); color: #fff; }
+
+        /* Level 5 */
+        .level-card.l5 { background: #1a365d; }
+        .level-card.l5 .level-num { color: #7ba8e6; }
+        .level-card.l5 .level-name { color: #fff; }
+        .level-card.l5 .level-desc { color: #bdd4f8; }
+        .level-card.l5 .level-example { background: rgba(255,255,255,0.1); color: #bdd4f8; }
+
+        /* ── Comparison Table ── */
+        .table-wrap { overflow-x: auto; margin: 16px 0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            min-width: 700px;
+        }
+
+        thead { background: #1a1a1a; }
+
+        th {
+            text-align: left;
+            padding: 12px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 14px;
+            font-size: 13px;
+            color: #4a4a4a;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: top;
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #fafafa; }
+        td strong { color: #1a1a1a; }
+
+        /* ── Assessment Section ── */
+        .badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #CC0000;
+            background: #fff5f5;
+            border: 1px solid #CC0000;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .assessment-list {
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        .assessment-row {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .assessment-level {
+            min-width: 130px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .assessment-level .a-label {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .assessment-level .a-name {
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .assessment-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .assessment-content p {
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .assessment-percent {
+            min-width: 90px;
+            flex-shrink: 0;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        /* Row Colors */
+        .assessment-row.al1 { background: #e8f0fe; }
+        .assessment-row.al1 .a-label { color: #3b82f6; }
+        .assessment-row.al1 .a-name { color: #1e40af; }
+        .assessment-row.al1 .assessment-content p { color: #3b5998; }
+        .assessment-row.al1 .assessment-percent { color: #1e40af; }
+
+        .assessment-row.al2 { background: #c7d9f5; }
+        .assessment-row.al2 .a-label { color: #2563eb; }
+        .assessment-row.al2 .a-name { color: #1e3a8a; }
+        .assessment-row.al2 .assessment-content p { color: #2c4a80; }
+        .assessment-row.al2 .assessment-percent { color: #1e3a8a; }
+
+        .assessment-row.al3 { background: #7ba8e6; }
+        .assessment-row.al3 .a-label { color: #d1e0fc; }
+        .assessment-row.al3 .a-name { color: #fff; }
+        .assessment-row.al3 .assessment-content p { color: #e0e8f5; }
+        .assessment-row.al3 .assessment-percent { color: #fff; }
+
+        .assessment-row.al4 { background: #3b6db8; }
+        .assessment-row.al4 .a-label { color: #bdd4f8; }
+        .assessment-row.al4 .a-name { color: #fff; }
+        .assessment-row.al4 .assessment-content p { color: #d1e0fc; }
+        .assessment-row.al4 .assessment-percent { color: #fff; }
+
+        .assessment-row.al5 { background: #1a365d; }
+        .assessment-row.al5 .a-label { color: #7ba8e6; }
+        .assessment-row.al5 .a-name { color: #fff; }
+        .assessment-row.al5 .assessment-content p { color: #bdd4f8; }
+        .assessment-row.al5 .assessment-percent { color: #7ba8e6; }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 48px 32px;
+            border-top: 1px solid #e0e0e0;
+            background: #f4f4f4;
+        }
+
+        footer .footer-brand {
+            font-size: 14px;
+            font-weight: 700;
+            color: #CC0000;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        footer .footer-text { font-size: 13px; color: #999; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            header { padding: 36px 20px 28px; }
+            h1 { font-size: 32px; }
+            .container { padding: 32px 16px; }
+            .level-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .level-card:nth-child(5) { grid-column: 1 / -1; }
+            .level-card { padding: 16px 12px; }
+            .assessment-row { flex-direction: column; }
+            .assessment-level { min-width: auto; padding: 14px 20px 4px; }
+            .assessment-content { padding: 4px 20px 14px; border: none; }
+            .assessment-percent { min-width: auto; padding: 0 20px 14px; justify-content: flex-start; font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a class="back-link" href="index.html">← 목록으로</a>
+        <h1>나는 지금 몇 단계일까?</h1>
+        <p>현재 수준을 파악하고, 다음 단계를 설계하세요</p>
+    </header>
+
+    <main class="container">
+
+        <!-- 섹션 1: 자율주행 비유 -->
+        <section>
+            <h2>자율주행으로 이해하는 AI 활용 수준</h2>
+            <p class="section-subtitle">자율주행 기술의 발전 단계와 AI 활용 수준은 놀랍도록 비슷합니다</p>
+
+            <div class="gradient-bar">
+                <span>◀ 사람이 제어</span>
+                <span>시스템이 제어 ▶</span>
+            </div>
+
+            <div class="level-cards">
+                <div class="level-card l1">
+                    <div class="level-num">Level 1</div>
+                    <div class="level-name">보조</div>
+                    <div class="level-desc">운전자가 주도적으로 제어<br>시스템은 보조 역할</div>
+                    <span class="level-example">자동 주차 보조</span>
+                </div>
+                <div class="level-card l2">
+                    <div class="level-num">Level 2</div>
+                    <div class="level-name">부분 자동화</div>
+                    <div class="level-desc">핸들+속도 동시 제어<br>운전자가 항상 주시</div>
+                    <span class="level-example">차선 유지 주행</span>
+                </div>
+                <div class="level-card l3">
+                    <div class="level-num">Level 3</div>
+                    <div class="level-name">조건부 자동화</div>
+                    <div class="level-desc">특정 조건에서<br>시스템 완전 제어<br>위급 시 개입</div>
+                    <span class="level-example">고속도로 자율주행</span>
+                </div>
+                <div class="level-card l4">
+                    <div class="level-num">Level 4</div>
+                    <div class="level-name">고도 자동화</div>
+                    <div class="level-desc">특정 지역 내 완전 자율주행<br>사람 개입 불필요</div>
+                    <span class="level-example">무인 로보택시</span>
+                </div>
+                <div class="level-card l5">
+                    <div class="level-num">Level 5</div>
+                    <div class="level-name">완전 자동화</div>
+                    <div class="level-desc">모든 환경에서 완전 자율주행<br>핸들·페달 불필요</div>
+                    <span class="level-example">미래 기술</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- 섹션 2: AI 활용 5단계 비교표 -->
+        <section>
+            <h2>AI 활용 5단계 비교표</h2>
+            <p class="section-subtitle">자율주행 단계별로 AI 활용 수준을 매핑해보세요</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>자율주행 단계</th>
+                            <th>AI 활용 단계</th>
+                            <th>사용자 역할</th>
+                            <th>활용 기능</th>
+                            <th>ChatGPT</th>
+                            <th>Claude</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>L1</strong> 운전자 보조</td>
+                            <td><strong>대화</strong> (Chat)</td>
+                            <td>질문자</td>
+                            <td>궁금한 걸 물어보고 답을 받는 단계</td>
+                            <td>기본 대화</td>
+                            <td>기본 대화</td>
+                        </tr>
+                        <tr>
+                            <td><strong>L2</strong> 부분 자동화</td>
+                            <td><strong>페르소나</strong> (Persona)</td>
+                            <td>지시자</td>
+                            <td>나만의 AI 비서를 만들어<br>말투·판단 기준을 미리 설정</td>
+                            <td>Custom GPTs<br><small style="color:#999">(맞춤형 GPT)</small></td>
+                            <td>Projects<br><small style="color:#999">(프로젝트별 설정)</small></td>
+                        </tr>
+                        <tr>
+                            <td><strong>L3</strong> 조건부 자동화</td>
+                            <td><strong>산출</strong> (Production)</td>
+                            <td>검수자</td>
+                            <td>AI가 문서·PPT를 직접 만들고<br>사람은 결과만 확인·수정</td>
+                            <td>Canvas<br><small style="color:#999">(문서 편집)</small></td>
+                            <td>Artifacts<br><small style="color:#999">(결과물 생성)</small></td>
+                        </tr>
+                        <tr>
+                            <td><strong>L4</strong> 고도 자동화</td>
+                            <td><strong>워크플로우</strong> (Workflow)</td>
+                            <td>감독자</td>
+                            <td>조사→분석→보고서를 자동 연결<br>문제 생길 때만 개입</td>
+                            <td>Operator<br><small style="color:#999">(웹 자동화)</small></td>
+                            <td>Cowork · Code<br><small style="color:#999">(업무 자동화)</small></td>
+                        </tr>
+                        <tr>
+                            <td><strong>L5</strong> 완전 자동화</td>
+                            <td><strong>오케스트레이션</strong><br><small style="color:#999">(AI 총괄 지휘)</small></td>
+                            <td>설계자</td>
+                            <td>여러 AI가 스스로 협업<br>사람은 목표만 설정</td>
+                            <td>완전 자율 에이전트<br><small style="color:#999">(미구현)</small></td>
+                            <td>완전 자율 에이전트<br><small style="color:#999">(미구현)</small></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- 섹션 3: 나의 AI 활용 수준 평가 -->
+        <section>
+            <h2>나의 AI 활용 수준 평가</h2>
+            <p class="section-subtitle">현재 우리 조직은 어디에 있을까요?</p>
+
+            <span class="badge">가설적 수치</span>
+
+            <div class="assessment-list">
+                <div class="assessment-row al1">
+                    <div class="assessment-level">
+                        <div>
+                            <div class="a-label">L1</div>
+                            <div class="a-name">대화</div>
+                        </div>
+                    </div>
+                    <div class="assessment-content">
+                        <p>궁금한 걸 AI에게 물어보고 답을 받는 단계<br>이메일 초안, 회의 안건 정리, 아이디어 브레인스토밍 등</p>
+                    </div>
+                    <div class="assessment-percent">69%</div>
+                </div>
+                <div class="assessment-row al2">
+                    <div class="assessment-level">
+                        <div>
+                            <div class="a-label">L2</div>
+                            <div class="a-name">페르소나</div>
+                        </div>
+                    </div>
+                    <div class="assessment-content">
+                        <p>"내 스타일대로 답해줘"라고 AI를 미리 세팅하는 단계<br>말투·판단 기준·형식을 저장해두고 일관된 결과를 받음</p>
+                    </div>
+                    <div class="assessment-percent">20%</div>
+                </div>
+                <div class="assessment-row al3">
+                    <div class="assessment-level">
+                        <div>
+                            <div class="a-label">L3</div>
+                            <div class="a-name">산출</div>
+                        </div>
+                    </div>
+                    <div class="assessment-content">
+                        <p>"이런 방향으로 만들어줘"라고 지시하면 AI가 결과물을 생성<br>PPT 구조, 보고서, 분석표를 AI가 만들고 사람은 검수만</p>
+                    </div>
+                    <div class="assessment-percent">10%</div>
+                </div>
+                <div class="assessment-row al4">
+                    <div class="assessment-level">
+                        <div>
+                            <div class="a-label">L4</div>
+                            <div class="a-name">워크플로우</div>
+                        </div>
+                    </div>
+                    <div class="assessment-content">
+                        <p>여러 단계의 업무를 AI가 알아서 연결·실행하는 단계<br>데이터 수집→분석→보고서 작성까지 자동으로 흐름</p>
+                    </div>
+                    <div class="assessment-percent">1%</div>
+                </div>
+                <div class="assessment-row al5">
+                    <div class="assessment-level">
+                        <div>
+                            <div class="a-label">L5</div>
+                            <div class="a-name">오케스트레이션</div>
+                        </div>
+                    </div>
+                    <div class="assessment-content">
+                        <p>여러 AI가 팀처럼 역할을 나눠 스스로 협업하는 단계<br>사람은 목표만 설정하면 AI 팀이 알아서 완성</p>
+                    </div>
+                    <div class="assessment-percent">0%</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p class="footer-brand">ArgosAI Lab</p>
+        <p class="footer-text">Claude 실전 가이드</p>
+    </footer>
+</body>
+</html>

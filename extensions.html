@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>확장 프로그램 & 연동 | ArgosAI Lab</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        /* ── Header ── */
+        .back-link {
+            display: block;
+            text-align: center;
+            padding: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #CC0000;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        header {
+            text-align: center;
+            padding: 8px 32px 36px;
+            background: #f4f4f4;
+            border-bottom: 3px solid #CC0000;
+        }
+
+        .brand {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #CC0000;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 40px;
+            font-weight: 800;
+            color: #1a1a1a;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 8px;
+        }
+
+        header > p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 48px 40px 64px;
+        }
+
+        /* ── 시작 가이드 박스 ── */
+        .start-guide {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 52px;
+        }
+
+        .start-guide .sg-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #CC0000;
+            margin-bottom: 16px;
+        }
+
+        .start-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .start-step {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 16px 18px;
+        }
+
+        .start-step .ss-level {
+            font-size: 11px;
+            font-weight: 700;
+            color: #888;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .start-step .ss-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .start-step .ss-desc {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.55;
+        }
+
+        .start-step.highlight { background: #CC0000; }
+        .start-step.highlight .ss-level { color: rgba(255,255,255,0.7); }
+        .start-step.highlight .ss-desc { color: rgba(255,255,255,0.85); }
+
+        /* ── Section ── */
+        .ext-section {
+            margin-bottom: 56px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #1a1a1a;
+        }
+
+        .section-icon { font-size: 32px; }
+
+        .section-title-wrap h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: 1.2;
+        }
+
+        .section-title-wrap .section-sub {
+            font-size: 14px;
+            color: #888;
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        /* ── Tool Cards ── */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .tool-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 24px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .tool-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+            transform: translateY(-2px);
+        }
+
+        /* 고급 카드 — 약간 회색 톤 */
+        .tool-card.advanced {
+            background: #fafafa;
+            border-color: #d8d8d8;
+        }
+
+        .tool-card .tool-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #CC0000;
+            background: #fff5f5;
+            border: 1px solid #f0b0b0;
+            padding: 3px 10px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .tool-card .tool-badge.badge-green {
+            color: #1a7a3c;
+            background: #f0faf4;
+            border-color: #a0d8b5;
+        }
+
+        .tool-card .tool-badge.badge-blue {
+            color: #1a4fa0;
+            background: #f0f5ff;
+            border-color: #a0bef0;
+        }
+
+        .tool-card .tool-badge.badge-gray {
+            color: #555;
+            background: #f4f4f4;
+            border-color: #d0d0d0;
+        }
+
+        .tool-card .tool-badge.badge-orange {
+            color: #8a4a00;
+            background: #fff8f0;
+            border-color: #f0c890;
+        }
+
+        .tool-card h3 {
+            font-size: 17px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .tool-card p {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.65;
+            margin-bottom: 14px;
+        }
+
+        /* ── Install Button ── */
+        .tool-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #CC0000;
+            text-decoration: none;
+            border: 1.5px solid #CC0000;
+            padding: 6px 14px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .tool-link:hover {
+            background: #CC0000;
+            color: #fff;
+        }
+
+        /* ── How-to Box ── */
+        .howto-box {
+            background: #f9f9f9;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-top: 16px;
+        }
+
+        .howto-box .howto-title {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #CC0000;
+            margin-bottom: 12px;
+        }
+
+        .howto-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .howto-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .step-num {
+            min-width: 24px;
+            height: 24px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* ── Feature List ── */
+        .feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 14px;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        .feature-list li::before {
+            content: '→';
+            color: #CC0000;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* ── Example Prompt ── */
+        .prompt-box {
+            background: #1a1a1a;
+            color: #e8e8e8;
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-size: 13.5px;
+            line-height: 1.7;
+            margin-top: 14px;
+        }
+
+        .prompt-box .prompt-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #CC0000;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        /* ── Wide card (full width) ── */
+        .tool-card.full { grid-column: 1 / -1; }
+
+        /* ── Beta Badge ── */
+        .beta-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #7a4f00;
+            background: #fff3cd;
+            border: 1px solid #f0c040;
+            border-radius: 4px;
+            padding: 2px 8px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        /* ── Plan Info Table ── */
+        .plan-info {
+            margin-top: 16px;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 13px;
+        }
+
+        .plan-info-title {
+            background: #f4f4f4;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #666;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .plan-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .plan-table th {
+            background: #fafafa;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #888;
+            text-align: center;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .plan-table th:first-child { text-align: left; }
+
+        .plan-table td {
+            padding: 9px 12px;
+            font-size: 13px;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .plan-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .plan-table tr:last-child td { border-bottom: none; }
+
+        .plan-ok { color: #1a8a3c; font-weight: 700; }
+        .plan-limited { color: #b86a00; font-size: 12px; }
+        .plan-no { color: #bbb; }
+
+        /* ── Tip Banner ── */
+        .tip-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: #fff9e6;
+            border: 1px solid #f5d97a;
+            border-left: 4px solid #f0b800;
+            border-radius: 8px;
+            padding: 18px 22px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #5a4800;
+            line-height: 1.65;
+        }
+
+        .tip-banner .tip-icon { font-size: 20px; flex-shrink: 0; }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 16px 32px;
+            border-top: 1px solid #e0e0e0;
+            background: #f4f4f4;
+        }
+
+        footer .footer-brand {
+            font-size: 13px;
+            font-weight: 700;
+            color: #CC0000;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        footer .footer-text { font-size: 12px; color: #999; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 28px; }
+            .container { padding: 32px 20px 48px; }
+            .tool-grid { grid-template-columns: 1fr; }
+            .tool-card.full { grid-column: auto; }
+            .start-steps { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a class="back-link" href="index.html">← 목록으로</a>
+        <p class="brand">ArgosAI Lab</p>
+        <h1>쓰던 앱 안에서 바로 Claude</h1>
+        <p>Claude를 더 강력하게 만드는 도구 모음</p>
+    </header>
+
+    <main class="container">
+
+        <!-- 어디서 시작할까? -->
+        <div class="start-guide">
+            <p class="sg-title">어디서 시작할까?</p>
+            <div class="start-steps">
+                <div class="start-step">
+                    <p class="ss-level">① 지금 바로 (설치 없음)</p>
+                    <p class="ss-title">Claude.ai 활용</p>
+                    <p class="ss-desc">브라우저에서 claude.ai 열고 파일 첨부 → PPT 초안·엑셀 분석 즉시 가능</p>
+                </div>
+                <div class="start-step highlight">
+                    <p class="ss-level">② 지금 여기 — 설치 후 사용</p>
+                    <p class="ss-title">Chrome·PPT·Excel 연동</p>
+                    <p class="ss-desc">확장 프로그램 설치 → 쓰던 도구 안에서 바로 Claude 호출</p>
+                </div>
+                <div class="start-step">
+                    <p class="ss-level">③ 고급 (Claude Code 필요)</p>
+                    <p class="ss-title">브라우저 자동화·Slack·Notion</p>
+                    <p class="ss-desc">반복 작업을 AI가 알아서 처리. Claude Code 설치 필요</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ① Chrome 확장 프로그램 -->
+        <section class="ext-section">
+            <div class="section-header">
+                <span class="section-icon">🌐</span>
+                <div class="section-title-wrap">
+                    <h2>Chrome 확장 프로그램</h2>
+                    <p class="section-sub">브라우저에서 바로 Claude를 사용하는 방법</p>
+                </div>
+            </div>
+
+            <div class="tool-grid">
+                <div class="tool-card">
+                    <span class="tool-badge">공식 · 지금 바로</span>
+                    <h3>Claude 크롬 확장</h3>
+                    <p>Chrome에 설치하면 어느 웹페이지에서도 Claude를 바로 불러올 수 있습니다. 읽던 글 요약, 이메일 초안, 번역까지 탭 전환 없이 해결됩니다.</p>
+                    <ul class="feature-list">
+                        <li>보던 페이지 내용을 선택 → 바로 분석 요청</li>
+                        <li>화면 오른쪽 사이드 패널에서 Claude와 대화</li>
+                        <li>검색 결과를 Claude가 한눈에 정리</li>
+                    </ul>
+                    <div class="howto-box">
+                        <p class="howto-title">설치 방법</p>
+                        <div class="howto-steps">
+                            <div class="howto-step">
+                                <span class="step-num">1</span>
+                                <span>아래 버튼 클릭 → Chrome 웹스토어에서 <strong>추가</strong> 클릭</span>
+                            </div>
+                            <div class="howto-step">
+                                <span class="step-num">2</span>
+                                <span>주소창 오른쪽 퍼즐 아이콘 → Claude 아이콘 클릭</span>
+                            </div>
+                            <div class="howto-step">
+                                <span class="step-num">3</span>
+                                <span>기존 Claude.ai 계정으로 로그인 (새 가입 불필요)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a class="tool-link" style="margin-top:16px; display:inline-flex;" href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn" target="_blank">Chrome 웹스토어에서 설치 →</a>
+                </div>
+
+                <div class="tool-card advanced">
+                    <span class="tool-badge badge-orange">고급 · Claude Code 전용</span>
+                    <h3>Claude in Chrome — 브라우저 자동화</h3>
+                    <p>Claude Code가 Chrome 브라우저를 직접 조작하게 해주는 연동입니다. AI가 대신 버튼을 클릭하고, 데이터를 수집하고, 양식을 채웁니다.</p>
+                    <ul class="feature-list">
+                        <li>반복 클릭·입력 작업을 AI에게 통째로 맡기기</li>
+                        <li>여러 페이지에서 데이터를 자동으로 모아오기</li>
+                        <li>화면 캡처 + AI 분석을 자동으로 실행</li>
+                    </ul>
+                    <div class="howto-box">
+                        <p class="howto-title">사용 조건</p>
+                        <div class="howto-steps">
+                            <div class="howto-step">
+                                <span class="step-num">1</span>
+                                <span>Claude Code 설치 완료 상태여야 함</span>
+                            </div>
+                            <div class="howto-step">
+                                <span class="step-num">2</span>
+                                <span>Chrome 확장 설치 → Claude Code에서 연결 설정</span>
+                            </div>
+                            <div class="howto-step">
+                                <span class="step-num">3</span>
+                                <span>"이 사이트에서 ~를 자동으로 해줘"라고 지시</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ② PowerPoint (PPTX) -->
+        <section class="ext-section">
+            <div class="section-header">
+                <span class="section-icon">📊</span>
+                <div class="section-title-wrap">
+                    <h2>PowerPoint (PPTX) 연동</h2>
+                    <p class="section-sub">Claude로 슬라이드를 더 빠르게 만드는 방법</p>
+                </div>
+            </div>
+
+            <div class="tool-grid">
+                <div class="tool-card full">
+                    <span class="tool-badge">공식 애드인 · PowerPoint 내 설치</span>
+                    <span class="beta-badge">Beta</span>
+                    <h3>Claude for PowerPoint — PPT 안에서 바로 Claude 사용</h3>
+                    <p>PowerPoint를 열어놓은 상태에서 Claude를 직접 불러올 수 있는 공식 애드인입니다. 슬라이드를 보면서 내용 수정, 요약, 새 장 추가를 Claude에게 바로 요청합니다.</p>
+                    <ul class="feature-list">
+                        <li>PPT 파일 안에서 Claude와 직접 대화</li>
+                        <li>선택한 슬라이드 내용 요약·개선 요청</li>
+                        <li>새 슬라이드 내용을 Claude가 바로 채워주기</li>
+                        <li>Microsoft 365 계정 필요 (개인·기업 모두 가능)</li>
+                    </ul>
+                    <div class="plan-info">
+                        <div class="plan-info-title">사용 가능한 요금제</div>
+                        <table class="plan-table">
+                            <thead>
+                                <tr>
+                                    <th>요금제</th>
+                                    <th>월 요금</th>
+                                    <th>사용 가능</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Free</td>
+                                    <td style="font-size:12px;color:#888;">무료</td>
+                                    <td><span class="plan-no">✗ 미지원</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Pro</td>
+                                    <td style="font-size:12px;color:#888;">$20/월</td>
+                                    <td><span class="plan-ok">✓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Max</td>
+                                    <td style="font-size:12px;color:#888;">$100~200/월</td>
+                                    <td><span class="plan-ok">✓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Team</td>
+                                    <td style="font-size:12px;color:#888;">$25/인/월~</td>
+                                    <td><span class="plan-ok">✓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Enterprise</td>
+                                    <td style="font-size:12px;color:#888;">별도 계약</td>
+                                    <td><span class="plan-ok">✓</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <a class="tool-link" href="https://marketplace.microsoft.com/en-us/product/office/wa200010001?tab=overview" target="_blank" style="margin-top: 20px; display: inline-block;">Claude for PowerPoint 설치 →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ③ Excel / Google Sheets (XLS) -->
+        <section class="ext-section">
+            <div class="section-header">
+                <span class="section-icon">📈</span>
+                <div class="section-title-wrap">
+                    <h2>Excel 연동</h2>
+                    <p class="section-sub">데이터 분석과 자동화를 AI와 함께</p>
+                </div>
+            </div>
+
+            <div class="tool-grid">
+                <div class="tool-card full">
+                    <span class="tool-badge">공식 애드인 · Excel 내 설치</span>
+                    <span class="beta-badge">Beta</span>
+                    <h3>Claude for Excel — 엑셀 안에서 바로 Claude 사용</h3>
+                    <p>Excel을 열어놓은 상태에서 Claude를 직접 불러올 수 있는 공식 애드인입니다. 셀을 선택하고 Claude에게 수식 작성, 데이터 정리, 차트 제안을 바로 요청합니다.</p>
+                    <ul class="feature-list">
+                        <li>엑셀 파일 안에서 Claude와 직접 대화</li>
+                        <li>셀 선택 → "이 데이터로 차트 만들어줘" 바로 요청</li>
+                        <li>수식 오류를 Claude가 자동으로 찾아 수정 제안</li>
+                        <li>Microsoft 365 계정 필요 (개인·기업 모두 가능)</li>
+                    </ul>
+                    <div class="plan-info">
+                        <div class="plan-info-title">사용 가능한 요금제</div>
+                        <table class="plan-table">
+                            <thead>
+                                <tr>
+                                    <th>요금제</th>
+                                    <th>월 요금</th>
+                                    <th>사용 가능</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Free</td>
+                                    <td style="font-size:12px;color:#888;">무료</td>
+                                    <td><span class="plan-no">✗ 미지원</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Pro</td>
+                                    <td style="font-size:12px;color:#888;">$20/월</td>
+                                    <td><span class="plan-ok">✓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Max</td>
+                                    <td style="font-size:12px;color:#888;">$100~200/월</td>
+                                    <td><span class="plan-ok">✓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Team</td>
+                                    <td style="font-size:12px;color:#888;">$25/인/월~</td>
+                                    <td><span class="plan-ok">✓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Enterprise</td>
+                                    <td style="font-size:12px;color:#888;">별도 계약</td>
+                                    <td><span class="plan-ok">✓</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <a class="tool-link" href="https://marketplace.microsoft.com/en-us/product/saas/wa200009404?tab=overview" target="_blank" style="margin-top: 20px; display: inline-block;">Claude for Excel 설치 →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ④ 더 넓게 연결하기 -->
+        <section class="ext-section">
+            <div class="section-header">
+                <span class="section-icon">🔗</span>
+                <div class="section-title-wrap">
+                    <h2>더 넓게 연결하기</h2>
+                    <p class="section-sub">업무 도구별 Claude 연동 방법</p>
+                </div>
+            </div>
+
+            <div class="tool-grid">
+                <div class="tool-card">
+                    <span class="tool-badge badge-green">Slack</span>
+                    <h3>Claude for Slack</h3>
+                    <p>Slack 채널에 Claude 봇을 추가하면 팀원들과 함께 AI를 활용할 수 있습니다. @Claude를 멘션하면 바로 답해줍니다.</p>
+                    <ul class="feature-list">
+                        <li>@Claude 멘션으로 채널에서 바로 질문</li>
+                        <li>회의록 요약, 이메일 초안, 번역 요청</li>
+                        <li>팀 전체가 AI 결과를 함께 보며 협업</li>
+                    </ul>
+                </div>
+
+                <div class="tool-card advanced">
+                    <span class="tool-badge badge-orange">고급 · Claude Code + API 필요</span>
+                    <h3>Claude + Notion 연동</h3>
+                    <p>Claude Code에 Notion을 연결하면 AI가 노션 페이지를 직접 읽고, 만들고, 수정할 수 있습니다. 회의 내용을 자동으로 노션에 정리하는 작업도 가능합니다.</p>
+                    <ul class="feature-list">
+                        <li>미팅 메모를 노션 페이지로 자동 정리</li>
+                        <li>데이터베이스 항목 일괄 생성·업데이트</li>
+                        <li>Notion API 키 발급 + Claude Code 설정 필요</li>
+                    </ul>
+                </div>
+
+                <div class="tool-card advanced">
+                    <span class="tool-badge badge-orange">고급 · 개발자 전용</span>
+                    <h3>Claude for VS Code</h3>
+                    <p>코드 편집기 VS Code 안에서 Claude Code를 바로 사용할 수 있습니다. 코딩을 배우는 분이나 개발자가 코드를 작성·수정·설명받을 때 사용합니다.</p>
+                    <ul class="feature-list">
+                        <li>에러 메시지 선택 → "이 에러 고쳐줘" 바로 요청</li>
+                        <li>코드 옆에서 AI와 대화하며 기능 구현</li>
+                        <li>VS Code + Claude Code 모두 설치 필요</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p class="footer-brand">ArgosAI Lab</p>
+        <p class="footer-text">Claude 실전 가이드</p>
+    </footer>
+</body>
+</html>

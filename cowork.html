@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>코워크 실습 과제 | ArgosAI Lab</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 48px 32px 32px;
+            position: relative;
+            background: #f4f4f4;
+            border-bottom: 3px solid #CC0000;
+        }
+
+        .back-link {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #CC0000;
+            text-decoration: none;
+            margin-bottom: 12px;
+        }
+
+        .back-link:hover { text-decoration: underline; }
+
+        header h1 {
+            font-size: 40px;
+            font-weight: 800;
+            color: #1a1a1a;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 48px 32px 64px;
+        }
+
+        /* 난이도 범례 */
+        .legend {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 36px;
+            padding: 16px 20px;
+            background: #f9f9f9;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .legend-title {
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-stars {
+            color: #CC0000;
+            font-size: 12px;
+        }
+
+        /* 과제 카드 */
+        .task-card {
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .task-card:hover {
+            border-color: #CC0000;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            padding: 20px 24px;
+            cursor: pointer;
+            gap: 16px;
+            user-select: none;
+        }
+
+        .task-number {
+            font-size: 14px;
+            font-weight: 800;
+            color: #ffffff;
+            background: #CC0000;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .task-title-area {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+
+        .task-difficulty {
+            font-size: 13px;
+            color: #CC0000;
+            letter-spacing: 1px;
+        }
+
+        .task-toggle {
+            font-size: 20px;
+            color: #999;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .task-card.open .task-toggle {
+            transform: rotate(180deg);
+        }
+
+        .task-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .task-card.open .task-body {
+            max-height: 500px;
+        }
+
+        .task-content {
+            padding: 0 24px 24px;
+            padding-left: 76px;
+        }
+
+        .task-row {
+            margin-bottom: 16px;
+        }
+
+        .task-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .task-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .task-command {
+            font-size: 14px;
+            color: #1a1a1a;
+            background: #2d2d2d;
+            color: #ffffff;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            line-height: 1.5;
+        }
+
+        .task-effect {
+            font-size: 15px;
+            color: #4a4a4a;
+            padding: 10px 14px;
+            background: #f8f8f8;
+            border-left: 3px solid #CC0000;
+            border-radius: 0 6px 6px 0;
+        }
+
+        /* Connect & Skill 태그 */
+        .task-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .task-meta-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .meta-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+            margin-right: 2px;
+        }
+
+        .meta-tag {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 4px;
+        }
+
+        .meta-tag.connect {
+            background: #fff5f5;
+            color: #CC0000;
+            border: 1px solid #f0c0c0;
+        }
+
+        .meta-tag.skill {
+            background: #f4f4f4;
+            color: #555;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* 하단 팁 */
+        .tips-section {
+            margin-top: 48px;
+            padding: 24px;
+            background: #f9f9f9;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+        }
+
+        .tips-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .tips-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tips-list li {
+            font-size: 14px;
+            color: #4a4a4a;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .tips-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #CC0000;
+            font-weight: 700;
+        }
+
+        /* 푸터 */
+        footer {
+            text-align: center;
+            padding: 32px;
+            border-top: 1px solid #e0e0e0;
+            background: #f4f4f4;
+        }
+
+        footer .footer-brand {
+            font-size: 14px;
+            font-weight: 700;
+            color: #CC0000;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        footer .footer-text {
+            font-size: 13px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 40px 20px 24px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 32px 16px 48px; }
+            .task-header { padding: 16px; gap: 12px; }
+            .task-content { padding: 0 16px 20px; padding-left: 64px; }
+            .task-title { font-size: 16px; }
+            .legend { flex-wrap: wrap; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a class="back-link" href="index.html">← 목록으로</a>
+        <h1>코워크 실무 자동화 8가지 과제</h1>
+        <p>Claude와 함께 직접 해보며 익히는 8가지 실전 시나리오</p>
+    </header>
+
+    <main class="container">
+        <div class="legend">
+            <span class="legend-title">난이도</span>
+            <span class="legend-item"><span class="legend-stars">★</span> 입문</span>
+            <span class="legend-item"><span class="legend-stars">★★</span> 기초</span>
+            <span class="legend-item"><span class="legend-stars">★★★</span> 중급</span>
+            <span class="legend-item"><span class="legend-stars">★★★★</span> 고급</span>
+            <span class="legend-item"><span class="legend-stars">★★★★★</span> 실전</span>
+        </div>
+
+        <!-- 01 -->
+        <div class="task-card">
+            <div class="task-header" onclick="toggleTask(this)">
+                <span class="task-number">01</span>
+                <div class="task-title-area">
+                    <div class="task-title">이메일 검색 및 요약</div>
+                    <div class="task-difficulty">★☆☆☆☆</div>
+                </div>
+                <span class="task-toggle">▼</span>
+            </div>
+            <div class="task-body">
+                <div class="task-content">
+                    <div class="task-row">
+                        <div class="task-label">프롬프트</div>
+                        <div class="task-command">내 Gmail 받은편지함에서 지난 7일간 뉴스레터 메일을 모두 찾아줘. 각 뉴스레터에서 AI/LLM 관련 내용만 뽑아서 '핵심 3줄 요약 + 원문 링크'를 표 형식으로 정리해줘</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-label">기대 효과</div>
+                        <div class="task-effect">30분 이상 걸리던 뉴스레터 정리를 1분 만에 완료</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-meta">
+                            <div class="task-meta-group"><span class="meta-label">Connect</span><span class="meta-tag connect">Gmail</span></div>
+                            <div class="task-meta-group"><span class="meta-label">Skill</span><span class="meta-tag skill">검색</span><span class="meta-tag skill">요약</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 02 -->
+        <div class="task-card">
+            <div class="task-header" onclick="toggleTask(this)">
+                <span class="task-number">02</span>
+                <div class="task-title-area">
+                    <div class="task-title">워드 문서 생성</div>
+                    <div class="task-difficulty">★★☆☆☆</div>
+                </div>
+                <span class="task-toggle">▼</span>
+            </div>
+            <div class="task-body">
+                <div class="task-content">
+                    <div class="task-row">
+                        <div class="task-label">프롬프트</div>
+                        <div class="task-command">2025년 1분기 마케팅팀 OKR을 Word 문서로 만들어줘. Objective 3개, 각각 Key Result 3개씩. 표에 '목표 / KR / 측정 지표 / 진행률' 컬럼 포함. 파일명 2025_Q1_Marketing_OKR.docx로 저장</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-label">기대 효과</div>
+                        <div class="task-effect">반복 문서 양식을 즉시 완성, 팀원 공유 가능</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-meta">
+                            <div class="task-meta-group"><span class="meta-label">Connect</span><span class="meta-tag connect">Google Docs</span></div>
+                            <div class="task-meta-group"><span class="meta-label">Skill</span><span class="meta-tag skill">문서 생성</span><span class="meta-tag skill">템플릿</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 03 -->
+        <div class="task-card">
+            <div class="task-header" onclick="toggleTask(this)">
+                <span class="task-number">03</span>
+                <div class="task-title-area">
+                    <div class="task-title">파일 분석 및 시사점 도출</div>
+                    <div class="task-difficulty">★★☆☆☆</div>
+                </div>
+                <span class="task-toggle">▼</span>
+            </div>
+            <div class="task-body">
+                <div class="task-content">
+                    <div class="task-row">
+                        <div class="task-label">프롬프트</div>
+                        <div class="task-command">@보고서.pdf 이 파일을 읽고 분석해줘. 1) 핵심 주장 3가지 2) 데이터 근거 요약 3) 우리 팀에 적용 가능한 시사점을 정리해서 보고서_분석.md 파일로 저장해줘</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-label">기대 효과</div>
+                        <div class="task-effect">20페이지 보고서를 3분 만에 핵심만 파악</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-meta">
+                            <div class="task-meta-group"><span class="meta-label">Connect</span><span class="meta-tag connect">파일 시스템</span></div>
+                            <div class="task-meta-group"><span class="meta-label">Skill</span><span class="meta-tag skill">PDF 분석</span><span class="meta-tag skill">요약</span><span class="meta-tag skill">보고서</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 04 -->
+        <div class="task-card">
+            <div class="task-header" onclick="toggleTask(this)">
+                <span class="task-number">04</span>
+                <div class="task-title-area">
+                    <div class="task-title">데이터 분석 및 보고서 작성</div>
+                    <div class="task-difficulty">★★★☆☆</div>
+                </div>
+                <span class="task-toggle">▼</span>
+            </div>
+            <div class="task-body">
+                <div class="task-content">
+                    <div class="task-row">
+                        <div class="task-label">프롬프트</div>
+                        <div class="task-command">@매출데이터.xlsx 이 엑셀 파일 분석해줘. 월별 매출 추이 그래프, 상위 5개 제품 매출 비교, 전년 대비 증감률을 계산해서 차트 포함된 PowerPoint 보고서로 만들어줘. 파일명 월간_매출_리포트.pptx</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-label">기대 효과</div>
+                        <div class="task-effect">데이터 분석 + 차트 + PPT까지 한 번에 완성</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-meta">
+                            <div class="task-meta-group"><span class="meta-label">Connect</span><span class="meta-tag connect">Google Sheets</span></div>
+                            <div class="task-meta-group"><span class="meta-label">Skill</span><span class="meta-tag skill">데이터 분석</span><span class="meta-tag skill">차트</span><span class="meta-tag skill">PPT</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 05 -->
+        <div class="task-card">
+            <div class="task-header" onclick="toggleTask(this)">
+                <span class="task-number">05</span>
+                <div class="task-title-area">
+                    <div class="task-title">비주얼 디자인</div>
+                    <div class="task-difficulty">★★★☆☆</div>
+                </div>
+                <span class="task-toggle">▼</span>
+            </div>
+            <div class="task-body">
+                <div class="task-content">
+                    <div class="task-row">
+                        <div class="task-label">프롬프트</div>
+                        <div class="task-command">사내 AI 워크샵 안내 포스터를 HTML로 만들어줘. 일시: 3월 15일(토) 14:00, 장소: 본사 12층 대회의실, 대상: 전 직원. 모던한 디자인, A4 사이즈, 인쇄 가능하게</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-label">기대 효과</div>
+                        <div class="task-effect">디자이너 없이 1분 만에 포스터 완성</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-meta">
+                            <div class="task-meta-group"><span class="meta-label">Connect</span><span class="meta-tag connect">없음</span></div>
+                            <div class="task-meta-group"><span class="meta-label">Skill</span><span class="meta-tag skill">HTML/CSS</span><span class="meta-tag skill">디자인</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 06 -->
+        <div class="task-card">
+            <div class="task-header" onclick="toggleTask(this)">
+                <span class="task-number">06</span>
+                <div class="task-title-area">
+                    <div class="task-title">브라우저 검색 자동화</div>
+                    <div class="task-difficulty">★★★★☆</div>
+                </div>
+                <span class="task-toggle">▼</span>
+            </div>
+            <div class="task-body">
+                <div class="task-content">
+                    <div class="task-row">
+                        <div class="task-label">프롬프트</div>
+                        <div class="task-command">삼성전자, LG전자, SK하이닉스 채용 페이지를 검색해서 현재 올라온 AI/ML 관련 채용 직무를 비교표로 만들어줘. '회사명 / 직무명 / 주요 요구사항 / 우대사항' 컬럼으로 정리</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-label">기대 효과</div>
+                        <div class="task-effect">30분 이상 걸리던 수동 검색을 자동 처리</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-meta">
+                            <div class="task-meta-group"><span class="meta-label">Connect</span><span class="meta-tag connect">웹 브라우저</span></div>
+                            <div class="task-meta-group"><span class="meta-label">Skill</span><span class="meta-tag skill">웹 검색</span><span class="meta-tag skill">비교 분석</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 07 -->
+        <div class="task-card">
+            <div class="task-header" onclick="toggleTask(this)">
+                <span class="task-number">07</span>
+                <div class="task-title-area">
+                    <div class="task-title">워크플로우 자동화</div>
+                    <div class="task-difficulty">★★★★☆</div>
+                </div>
+                <span class="task-toggle">▼</span>
+            </div>
+            <div class="task-body">
+                <div class="task-content">
+                    <div class="task-row">
+                        <div class="task-label">프롬프트</div>
+                        <div class="task-command">매주 월요일 오전 9시에 자동 실행되는 주간 브리핑을 만들어줘. 내용: 지난주 팀 GitHub 커밋 요약 + 이번 주 Google Calendar 일정 + 주요 이슈. Slack #team-weekly 채널에 포스팅</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-label">기대 효과</div>
+                        <div class="task-effect">설정 1회 → 매주 자동으로 팀 브리핑 생성</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-meta">
+                            <div class="task-meta-group"><span class="meta-label">Connect</span><span class="meta-tag connect">GitHub</span><span class="meta-tag connect">Google Calendar</span><span class="meta-tag connect">Slack</span></div>
+                            <div class="task-meta-group"><span class="meta-label">Skill</span><span class="meta-tag skill">스케줄링</span><span class="meta-tag skill">요약</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 08 -->
+        <div class="task-card">
+            <div class="task-header" onclick="toggleTask(this)">
+                <span class="task-number">08</span>
+                <div class="task-title-area">
+                    <div class="task-title">뉴스 클리핑 자동화</div>
+                    <div class="task-difficulty">★★★★★</div>
+                </div>
+                <span class="task-toggle">▼</span>
+            </div>
+            <div class="task-body">
+                <div class="task-content">
+                    <div class="task-row">
+                        <div class="task-label">프롬프트</div>
+                        <div class="task-command">매일 아침 7시 자동 실행. '생성형 AI' 'LLM' 'Claude' 키워드로 최신 뉴스 검색 → 상위 10개 기사의 제목 + 3줄 요약 + 원문 링크를 표로 정리 → 내 Gmail로 발송. 메일 제목: [AI 데일리 브리핑] YYYY-MM-DD</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-label">기대 효과</div>
+                        <div class="task-effect">설정 1회 → 매일 아침 AI 뉴스 브리핑 자동 수신</div>
+                    </div>
+                    <div class="task-row">
+                        <div class="task-meta">
+                            <div class="task-meta-group"><span class="meta-label">Connect</span><span class="meta-tag connect">웹 브라우저</span><span class="meta-tag connect">Gmail</span></div>
+                            <div class="task-meta-group"><span class="meta-label">Skill</span><span class="meta-tag skill">웹 검색</span><span class="meta-tag skill">요약</span><span class="meta-tag skill">이메일</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tips-section">
+            <div class="tips-title">실습 팁</div>
+            <ul class="tips-list">
+                <li>입문 과제(01)부터 순서대로 진행하면 자연스럽게 난이도가 올라갑니다</li>
+                <li>명령어 예시를 그대로 복사하지 말고, 본인 업무에 맞게 바꿔서 시도해보세요</li>
+                <li>결과가 마음에 안 들면 구체적으로 수정 요청하세요 (예: "표 형식으로 바꿔줘")</li>
+                <li>고급 과제(06~08)는 자동화 & 확장 기능 페이지를 먼저 읽으면 이해가 빨라집니다</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <p class="footer-brand">ArgosAI Lab</p>
+        <p class="footer-text">Claude 실전 가이드</p>
+    </footer>
+
+    <script>
+        function toggleTask(header) {
+            const card = header.closest('.task-card');
+            card.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

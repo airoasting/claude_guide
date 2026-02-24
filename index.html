@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude 완전 정복 | ArgosAI Lab</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 48px 32px 32px;
+            position: relative;
+            background: #f4f4f4;
+            border-bottom: 3px solid #CC0000;
+        }
+
+        .brand {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #CC0000;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #1a1a1a;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 8px;
+        }
+
+        header > p:last-child {
+            font-size: 17px;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 28px 40px 36px;
+        }
+
+        /* 섹션 헤더 */
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            border-top: 2px solid #ebebeb;
+            padding-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        .section-num {
+            font-size: 28px;
+            font-weight: 800;
+            color: #CC0000;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1.2;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 17px;
+        }
+
+        .card-section {
+            margin-bottom: 52px;
+            scroll-margin-top: 80px;
+        }
+
+        .card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 24px 26px;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: transparent;
+            transition: background 0.25s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+
+        .card:hover::before {
+            background: #CC0000;
+        }
+
+        .card-icon {
+            font-size: 26px;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .card-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 0;
+            line-height: 1.3;
+        }
+
+        .card p {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 16px 32px;
+            border-top: 1px solid #e0e0e0;
+            background: #f4f4f4;
+        }
+
+        footer .footer-brand {
+            font-size: 13px;
+            font-weight: 700;
+            color: #CC0000;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        footer .footer-text {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* ── Claude 소개 배너 ── */
+        .intro-banner {
+            background: #f8f8f8;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+        }
+
+        .intro-banner-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .intro-banner-icon {
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .intro-banner-header strong {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .intro-banner-header p {
+            font-size: 14px;
+            color: #888;
+            margin: 0;
+        }
+
+        .intro-diff {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .diff-item {
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .diff-item.diff-claude-ai  { border-top: 3px solid #4A90D9; }
+        .diff-item.diff-cowork     { border-top: 3px solid #E8A020; }
+        .diff-item.diff-code       { border-top: 3px solid #CC0000; }
+
+        .diff-item strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .diff-item.diff-claude-ai strong { color: #4A90D9; }
+        .diff-item.diff-cowork strong    { color: #E8A020; }
+        .diff-item.diff-code strong      { color: #CC0000; }
+
+        /* ── 소요 시간 뱃지 ── */
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .badge-time {
+            font-size: 12px;
+            font-weight: 600;
+            color: #888;
+            background: #f4f4f4;
+            border: 1px solid #e0e0e0;
+            padding: 2px 9px;
+            border-radius: 20px;
+        }
+
+        .badge-level {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 9px;
+            border-radius: 20px;
+        }
+
+        .badge-level.beginner {
+            color: #2a7a2a;
+            background: #edf7ed;
+            border: 1px solid #c3e6c3;
+        }
+
+        .badge-level.intermediate {
+            color: #7a5a00;
+            background: #fdf8e1;
+            border: 1px solid #e8d98a;
+        }
+
+        .badge-level.advanced {
+            color: #7a2a2a;
+            background: #fdeaea;
+            border: 1px solid #e8aaaa;
+        }
+
+        /* ── 필수 준비 섹션 강조 ── */
+        .prerequisite-note {
+            font-size: 13px;
+            color: #888;
+            margin-top: 8px;
+            padding-left: 2px;
+        }
+
+        .prerequisite-note a {
+            color: #CC0000;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .prerequisite-note a:hover {
+            text-decoration: underline;
+        }
+
+        .section-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 17px;
+            margin-bottom: 28px;
+        }
+
+        .section-row .card-section { margin-bottom: 0; }
+
+        /* ── 시작 안내 박스 ── */
+        .start-guide {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-left: 4px solid #CC0000;
+            border-radius: 8px;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+        }
+
+        .guide-label {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #CC0000;
+            margin-bottom: 14px;
+        }
+
+        .guide-btn-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 0;
+        }
+
+        .guide-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 16px;
+            background: #fafafa;
+            border: 2px solid #d0d0d0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .guide-btn:hover {
+            background: #CC0000;
+            border-color: #CC0000;
+            color: #ffffff;
+        }
+
+        .guide-btn-num {
+            color: #CC0000;
+            font-weight: 800;
+            font-size: 16px;
+        }
+
+        .guide-btn:hover .guide-btn-num {
+            color: #ffffff;
+        }
+
+        /* ── 난이도별 카드 배경색 ── */
+        .card:has(.badge-level.beginner)     { background: #f3fbf3; }
+        .card:has(.badge-level.intermediate) { background: #fdfbef; }
+        .card:has(.badge-level.advanced)     { background: #fef4f4; }
+
+        /* ── 강조 카드 (AI 5단계) ── */
+        .card.featured {
+            border-left: 4px solid #CC0000;
+            background: #f3fbf3;
+        }
+
+        .card.featured .card-icon {
+            font-size: 32px;
+        }
+
+        .card.featured h2 {
+            font-size: 20px;
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 40px 24px 24px; }
+            h1 { font-size: 32px; }
+            .container { padding: 24px 20px 32px; }
+            .cards { grid-template-columns: 1fr; }
+            .card { padding: 24px 20px; }
+            .section-row { grid-template-columns: 1fr; }
+            .guide-btn-row { grid-template-columns: 1fr 1fr; gap: 6px; }
+            .guide-btn { font-size: 13px; padding: 7px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <p class="brand">ArgosAI Lab</p>
+        <h1>Claude 완전 정복</h1>
+        <p>비개발자도 10분 만에 시작하는 실전 가이드</p>
+    </header>
+
+    <main class="container">
+
+        <!-- Claude 소개 배너 -->
+        <div class="intro-banner">
+            <div class="intro-banner-header">
+                <span class="intro-banner-icon">💡</span>
+                <strong>Claude가 처음이라면?</strong>
+                <p>Anthropic이 만든 AI 서비스 · 세 가지 사용 방식</p>
+            </div>
+            <div class="intro-diff">
+                <div class="diff-item diff-claude-ai">
+                    <strong>Claude.ai</strong>브라우저에서 바로 대화하는 웹 서비스. 설치 불필요.
+                </div>
+                <div class="diff-item diff-cowork">
+                    <strong>Claude Cowork</strong>Claude Desktop + MCP 연결로 Gmail·Docs·Slack 등 실무 도구를 자동화하는 과제 모음.
+                </div>
+                <div class="diff-item diff-code">
+                    <strong>Claude Code</strong>터미널에서 코드 작업에 특화된 개발 도구. 설치 필요.
+                </div>
+            </div>
+        </div>
+
+        <!-- 섹션 바로가기 버튼 -->
+        <div class="guide-btn-row">
+            <a class="guide-btn" href="#section-1"><span class="guide-btn-num">①</span> 내 수준 파악</a>
+            <a class="guide-btn" href="#section-2"><span class="guide-btn-num">②</span> 바로 써보기</a>
+            <a class="guide-btn" href="#section-3"><span class="guide-btn-num">③</span> Claude Code 준비</a>
+            <a class="guide-btn" href="#section-4"><span class="guide-btn-num">④</span> Claude Code 실전</a>
+            <a class="guide-btn" href="#section-5"><span class="guide-btn-num">⑤</span> 심화 · 자동화</a>
+        </div>
+
+        <!-- ① 내 수준 파악 -->
+        <div class="card-section" id="section-1">
+            <div class="section-header">
+                <span class="section-num">①</span>
+                <span class="section-title">내 수준 파악</span>
+            </div>
+            <section class="cards" style="grid-template-columns: 1fr;">
+                <a class="card featured" href="ai-levels.html">
+                    <div class="card-title-row">
+                        <span class="card-icon">📊</span>
+                        <h2>나는 지금 몇 단계일까?</h2>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge-time">⏱ 5분</span>
+                        <span class="badge-level beginner">입문</span>
+                    </div>
+                    <p>자율주행 1~5단계 비유로 내 AI 활용 수준을 진단합니다. 5분이면 나만의 학습 로드맵이 생깁니다.</p>
+                </a>
+            </section>
+        </div>
+
+        <!-- ② 바로 써보기 -->
+        <div class="card-section" id="section-2">
+            <div class="section-header">
+                <span class="section-num">②</span>
+                <span class="section-title">바로 써보기</span>
+            </div>
+            <section class="cards" style="grid-template-columns: repeat(3, 1fr);">
+                <a class="card" href="cowork.html">
+                    <div class="card-title-row">
+                        <span class="card-icon">🎯</span>
+                        <h2>코워크 실무 자동화 8가지 과제</h2>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge-time">⏱ 과제별 상이</span>
+                        <span class="badge-level intermediate">중급</span>
+                    </div>
+                    <p>Gmail 정리, 보고서 초안, Slack 요약… Claude가 실제 업무를 대신 처리하는 8가지 실습. Claude Desktop + MCP 설치 필요.</p>
+                </a>
+                <a class="card" href="skills.html">
+                    <div class="card-title-row">
+                        <span class="card-icon">🎨</span>
+                        <h2>나만의 Skills 만들기</h2>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge-time">⏱ 20분</span>
+                        <span class="badge-level intermediate">중급</span>
+                    </div>
+                    <p>이메일은 이렇게, 보고서는 저렇게 — 내 스타일을 Claude에게 등록하면 한 마디로 완성됩니다.</p>
+                </a>
+                <a class="card" href="extensions.html">
+                    <div class="card-title-row">
+                        <span class="card-icon">🧩</span>
+                        <h2>쓰던 앱 안에서 바로 Claude</h2>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge-time">⏱ 10분</span>
+                        <span class="badge-level beginner">입문</span>
+                    </div>
+                    <p>Chrome, PowerPoint, Excel을 그대로 쓰면서 AI를 연결합니다. 새 프로그램을 배울 필요가 없습니다.</p>
+                </a>
+            </section>
+        </div>
+
+        <!-- ③ Claude Code 준비 -->
+        <div class="card-section" id="section-3">
+            <div class="section-header">
+                <span class="section-num">③</span>
+                <span class="section-title">Claude Code 준비</span>
+            </div>
+            <section class="cards" style="grid-template-columns: 1fr 1fr;">
+                <a class="card" href="github-guide.html">
+                    <div class="card-title-row">
+                        <span class="card-icon">🐙</span>
+                        <h2>Git &amp; GitHub 쉽게 이해하기</h2>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge-time">⏱ 20분</span>
+                        <span class="badge-level beginner">필수 선행</span>
+                    </div>
+                    <p>버전 관리가 처음이어도 괜찮습니다. Claude Code 시작 전 필수 환경을 비개발자 눈높이로 안내합니다.</p>
+                </a>
+                <a class="card" href="glossary.html">
+                    <div class="card-title-row">
+                        <span class="card-icon">📖</span>
+                        <h2>모르는 용어, 바로 찾기</h2>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge-time">⏱ 필요할 때</span>
+                        <span class="badge-level beginner">참고</span>
+                    </div>
+                    <p>터미널, 커밋, 브랜치… 낯선 단어가 나올 때마다 펼쳐보는 비개발자 전용 사전입니다.</p>
+                </a>
+            </section>
+        </div>
+
+        <!-- ④ Claude Code 실전 -->
+        <div class="card-section" id="section-4">
+            <div class="section-header">
+                <span class="section-num">④</span>
+                <span class="section-title">Claude Code 실전</span>
+            </div>
+            <section class="cards">
+                <a class="card" href="checklist.html">
+                    <div class="card-title-row">
+                        <span class="card-icon">✅</span>
+                        <h2>클로드 코드 22단계로 따라하기</h2>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge-time">⏱ 단계별</span>
+                        <span class="badge-level advanced">고급</span>
+                    </div>
+                    <p>기초부터 고급까지 22개 항목. 체크할수록 내가 무엇을 모르는지 보입니다.</p>
+                </a>
+                <a class="card" href="cheatsheet.html">
+                    <div class="card-title-row">
+                        <span class="card-icon">⌨️</span>
+                        <h2>복사해서 바로 쓰는 명령어</h2>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge-time">⏱ 레퍼런스</span>
+                        <span class="badge-level intermediate">중급</span>
+                    </div>
+                    <p>외울 필요 없습니다. 자주 쓰는 슬래시 명령어와 단축키를 한 곳에 모았습니다.</p>
+                </a>
+                <a class="card" href="claude-md-templates.html">
+                    <div class="card-title-row">
+                        <span class="card-icon">📋</span>
+                        <h2>CLAUDE.md로 내 규칙 알려주기</h2>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge-time">⏱ 10분</span>
+                        <span class="badge-level intermediate">중급</span>
+                    </div>
+                    <p>"이 프로젝트에서는 한국어로 답해줘" — Claude의 행동을 프로젝트별로 설정하는 파일 템플릿입니다.</p>
+                </a>
+            </section>
+        </div>
+
+        <!-- ⑤ 심화 -->
+        <div class="card-section" id="section-5">
+            <div class="section-header">
+                <span class="section-num">⑤</span>
+                <span class="section-title">심화 · 자동화</span>
+            </div>
+            <section class="cards" style="grid-template-columns: 1fr 1fr;">
+                <a class="card" href="multi-agent.html">
+                    <div class="card-title-row">
+                        <span class="card-icon">🤖</span>
+                        <h2>AI 팀 만들어 복잡한 업무 해결</h2>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge-time">⏱ 15분</span>
+                        <span class="badge-level advanced">고급</span>
+                    </div>
+                    <p>Claude 여러 개가 역할을 나눠 일합니다. 혼자 못 하는 작업도 팀으로 처리하는 구조를 설계하세요.</p>
+                </a>
+                <a class="card" href="automation.html">
+                    <div class="card-title-row">
+                        <span class="card-icon">⚡</span>
+                        <h2>반복 업무, AI가 알아서 처리하게</h2>
+                    </div>
+                    <div class="card-meta">
+                        <span class="badge-time">⏱ 15분</span>
+                        <span class="badge-level advanced">고급</span>
+                    </div>
+                    <p>스킬·후크·에이전트를 조합하면 매일 하던 반복 업무가 자동으로 돌아갑니다.</p>
+                </a>
+            </section>
+        </div>
+
+    </main>
+
+    <footer>
+        <p class="footer-brand">ArgosAI Lab</p>
+        <p class="footer-text">Claude 실전 가이드</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실전 체크리스트 | Claude Code</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 48px 32px 40px;
+            background: #f4f4f4;
+            border-bottom: 3px solid #CC0000;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #CC0000;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover { opacity: 0.7; }
+
+        h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #1a1a1a;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 17px;
+            color: #666;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 48px 32px;
+        }
+
+        /* Progress */
+        .progress-container {
+            background: #f4f4f4;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 48px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-text {
+            font-weight: 700;
+            font-size: 15px;
+            color: #1a1a1a;
+        }
+
+        .progress-percent {
+            font-weight: 800;
+            font-size: 20px;
+            color: #CC0000;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #CC0000;
+            border-radius: 4px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        .progress-levels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .progress-levels .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .dot-l1 { background: #22c55e; }
+        .dot-l2 { background: #3b82f6; }
+        .dot-l3 { background: #a855f7; }
+
+        /* Level Sections */
+        .level-section {
+            margin-bottom: 48px;
+        }
+
+        .level-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .level-badge {
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            padding: 4px 14px;
+            border-radius: 4px;
+        }
+
+        .level-1 .level-badge { background: #22c55e; }
+        .level-2 .level-badge { background: #3b82f6; }
+        .level-3 .level-badge { background: #a855f7; }
+
+        .level-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            flex: 1;
+        }
+
+        .level-count {
+            font-size: 13px;
+            color: #999;
+            font-weight: 600;
+        }
+
+        /* Tip Cards */
+        .tip-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+
+        .tip-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .tip-header {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .tip-number {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f4f4;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #666;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+
+        .tip-title {
+            flex: 1;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .tip-toggle {
+            font-size: 12px;
+            color: #999;
+            transition: transform 0.2s;
+        }
+
+        .tip-card.open .tip-toggle {
+            transform: rotate(180deg);
+        }
+
+        .tip-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .tip-card.open .tip-content {
+            max-height: 500px;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0 20px 20px 66px;
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 6px 0;
+            font-size: 14px;
+            color: #4a4a4a;
+        }
+
+        .checklist li input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin-top: 2px;
+            accent-color: #CC0000;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .checklist li.checked span {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        /* Master Check */
+        .master-check {
+            background: #f4f4f4;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .master-check h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        .master-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .master-item:last-child { border-bottom: none; }
+
+        .master-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #CC0000;
+            cursor: pointer;
+        }
+
+        .master-label strong {
+            display: block;
+            font-size: 15px;
+            color: #1a1a1a;
+        }
+
+        .master-label span {
+            font-size: 13px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .reset-btn {
+            display: block;
+            margin: 0 auto;
+            padding: 10px 28px;
+            background: none;
+            border: 1px solid #CC0000;
+            color: #CC0000;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #CC0000;
+            color: #fff;
+        }
+
+        footer {
+            text-align: center;
+            padding: 48px 32px;
+            border-top: 1px solid #e0e0e0;
+            background: #f4f4f4;
+        }
+
+        footer .footer-brand {
+            font-size: 14px;
+            font-weight: 700;
+            color: #CC0000;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        footer .footer-text {
+            font-size: 13px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 36px 20px 28px; }
+            h1 { font-size: 32px; }
+            .container { padding: 32px 16px; }
+            .checklist { padding-left: 46px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a class="back-link" href="index.html">← 목록으로</a>
+        <h1>클로드 코드 22단계로 따라하기</h1>
+        <p>22개 항목을 하나씩 체크하며 마스터하세요.</p>
+    </header>
+
+    <main class="container">
+        <div class="progress-container">
+            <div class="progress-header">
+                <span class="progress-text">진행률</span>
+                <span class="progress-percent" id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-levels">
+                <span><span class="dot dot-l1"></span>Level 1: <span id="l1Count">0/0</span></span>
+                <span><span class="dot dot-l2"></span>Level 2: <span id="l2Count">0/0</span></span>
+                <span><span class="dot dot-l3"></span>Level 3: <span id="l3Count">0/0</span></span>
+            </div>
+        </div>
+
+        <!-- Level 1 -->
+        <section class="level-section level-1">
+            <div class="level-header">
+                <span class="level-badge">Level 1</span>
+                <span class="level-title">기초 - 단계별로 천천히</span>
+                <span class="level-count">7개 팁</span>
+            </div>
+
+            <div class="tip-card" data-tip="1">
+                <div class="tip-header">
+                    <span class="tip-number">1</span>
+                    <span class="tip-title">설치하기</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="1-1"><span>Node.js가 설치되어 있는지 확인</span></li>
+                        <li><input type="checkbox" data-id="1-2"><span>터미널에서 Claude Code 패키지 설치</span></li>
+                        <li><input type="checkbox" data-id="1-3"><span>claude를 입력해서 처음 실행하기</span></li>
+                        <li><input type="checkbox" data-id="1-4"><span>Anthropic 계정으로 인증 완료</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="2">
+                <div class="tip-header">
+                    <span class="tip-number">2</span>
+                    <span class="tip-title">첫 프로젝트 만들기</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="2-1"><span>새로운 작업 폴더를 하나 만들기</span></li>
+                        <li><input type="checkbox" data-id="2-2"><span>"스탑워치 웹페이지를 만들어줘" 입력</span></li>
+                        <li><input type="checkbox" data-id="2-3"><span>만들어진 결과물을 브라우저로 열어보기</span></li>
+                        <li><input type="checkbox" data-id="2-4"><span>결과물이 정상 동작하는지 직접 클릭해서 테스트</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="3">
+                <div class="tip-header">
+                    <span class="tip-number">3</span>
+                    <span class="tip-title">CLAUDE.md 활용</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="3-1"><span>/init을 입력하여 프로젝트 초기화</span></li>
+                        <li><input type="checkbox" data-id="3-2"><span>자동으로 만들어진 CLAUDE.md 내용 살펴보기</span></li>
+                        <li><input type="checkbox" data-id="3-3"><span>프로젝트에 맞는 규칙이 어떻게 설정되는지 파악</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="4">
+                <div class="tip-header">
+                    <span class="tip-number">4</span>
+                    <span class="tip-title">Esc로 중단/복구</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="4-1"><span>진행 중인 작업에서 Esc 키로 멈추기</span></li>
+                        <li><input type="checkbox" data-id="4-2"><span>한 번 더 Esc를 눌러 이전 상태로 되돌리기</span></li>
+                        <li><input type="checkbox" data-id="4-3"><span>되돌리기 후 파일이 원래대로 복구되었는지 확인</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="5">
+                <div class="tip-header">
+                    <span class="tip-number">5</span>
+                    <span class="tip-title">/doctor로 환경 점검</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="5-1"><span>/doctor를 실행하여 환경 점검</span></li>
+                        <li><input type="checkbox" data-id="5-2"><span>진단 결과에서 문제 여부 확인</span></li>
+                        <li><input type="checkbox" data-id="5-3"><span>제안된 해결 방법이 있다면 적용</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="6">
+                <div class="tip-header">
+                    <span class="tip-number">6</span>
+                    <span class="tip-title">이미지 & 에러 입력</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="6-1"><span>에러 메시지 복사 후 붙여넣기</span></li>
+                        <li><input type="checkbox" data-id="6-2"><span>스크린샷을 드래그앤드롭으로 입력하기</span></li>
+                        <li><input type="checkbox" data-id="6-3"><span>Claude가 이미지를 인식하고 분석하는지 확인</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="7">
+                <div class="tip-header">
+                    <span class="tip-number">7</span>
+                    <span class="tip-title">작업 목록(To-Do) 확인</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="7-1"><span>복잡한 요청을 하면 Claude가 자동으로 작업 목록을 생성하는 것 확인</span></li>
+                        <li><input type="checkbox" data-id="7-2"><span>작업이 진행될 때마다 체크 표시가 업데이트되는 것 관찰</span></li>
+                        <li><input type="checkbox" data-id="7-3"><span>"작업 목록 보여줘"라고 요청해서 현재 진행 상황 확인</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Level 2 -->
+        <section class="level-section level-2">
+            <div class="level-header">
+                <span class="level-badge">Level 2</span>
+                <span class="level-title">중급 - 나도 바이브코딩</span>
+                <span class="level-count">11개 팁</span>
+            </div>
+
+            <div class="tip-card" data-tip="8">
+                <div class="tip-header">
+                    <span class="tip-number">8</span>
+                    <span class="tip-title">자동 승인 모드</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="8-1"><span>Shift + Tab으로 자동 승인 모드 전환</span></li>
+                        <li><input type="checkbox" data-id="8-2"><span>하단 표시줄에서 현재 모드 확인</span></li>
+                        <li><input type="checkbox" data-id="8-3"><span>파일 생성·수정이 자동 승인되어 빠르게 진행되는 것 확인</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="9">
+                <div class="tip-header">
+                    <span class="tip-number">9</span>
+                    <span class="tip-title">Plan 모드 활용</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="9-1"><span>Shift + Tab을 한 번 더 눌러 Plan 모드로 전환</span></li>
+                        <li><input type="checkbox" data-id="9-2"><span>복잡한 기능에 대해 설계를 요청</span></li>
+                        <li><input type="checkbox" data-id="9-3"><span>코드를 작성하지 않고 계획만 수립하는 과정 관찰</span></li>
+                        <li><input type="checkbox" data-id="9-4"><span>제안된 계획을 확인하고 승인 또는 수정 지시</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="10">
+                <div class="tip-header">
+                    <span class="tip-number">10</span>
+                    <span class="tip-title">깊이 생각하기 (Extended Thinking)</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="10-1"><span>별도 설정 없이 기본 활성화되어 있는지 확인 (기본값: ON)</span></li>
+                        <li><input type="checkbox" data-id="10-2"><span>Option+T (Mac) / Alt+T (Win)으로 켜고 끄기 테스트</span></li>
+                        <li><input type="checkbox" data-id="10-3"><span>간단한 질문 vs 복잡한 질문의 응답 품질 차이 비교</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="11">
+                <div class="tip-header">
+                    <span class="tip-number">11</span>
+                    <span class="tip-title">@ 파일 참조</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="11-1"><span>@파일명을 입력하여 원하는 파일을 직접 지정</span></li>
+                        <li><input type="checkbox" data-id="11-2"><span>@폴더명으로 특정 폴더 전체를 참조</span></li>
+                        <li><input type="checkbox" data-id="11-3"><span>필요한 파일을 명시하여 정확도 높이기</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="12">
+                <div class="tip-header">
+                    <span class="tip-number">12</span>
+                    <span class="tip-title">/model 모델 전환</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="12-1"><span>/model을 입력하여 사용 가능한 모델 목록 확인</span></li>
+                        <li><input type="checkbox" data-id="12-2"><span>Haiku, Sonnet, Opus를 바꿔가며 테스트</span></li>
+                        <li><input type="checkbox" data-id="12-3"><span>모델별 속도와 품질 차이를 직접 비교</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="13">
+                <div class="tip-header">
+                    <span class="tip-number">13</span>
+                    <span class="tip-title">/compact 대화 정리</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="13-1"><span>대화가 길어지면 /compact로 요약</span></li>
+                        <li><input type="checkbox" data-id="13-2"><span>대화 내용이 압축되어 정리되는 것 확인</span></li>
+                        <li><input type="checkbox" data-id="13-3"><span>/compact 뒤에 지시사항을 추가해서 원하는 방식으로 정리</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="14">
+                <div class="tip-header">
+                    <span class="tip-number">14</span>
+                    <span class="tip-title">PDF 문서 분석</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="14-1"><span>PDF 파일을 끌어다 놓기</span></li>
+                        <li><input type="checkbox" data-id="14-2"><span>문서 내용을 Claude가 읽고 분석하는지 확인</span></li>
+                        <li><input type="checkbox" data-id="14-3"><span>기획서나 문서를 기반으로 구현 요청해보기</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="15">
+                <div class="tip-header">
+                    <span class="tip-number">15</span>
+                    <span class="tip-title">효과적인 프롬프트</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="15-1"><span>원하는 결과를 구체적으로 서술하는 연습</span></li>
+                        <li><input type="checkbox" data-id="15-2"><span>참고할 예시나 스타일을 함께 전달</span></li>
+                        <li><input type="checkbox" data-id="15-3"><span>수정할 파일 경로를 직접 명시</span></li>
+                        <li><input type="checkbox" data-id="15-4"><span>출력 형식이나 구조를 미리 지정</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="16">
+                <div class="tip-header">
+                    <span class="tip-number">16</span>
+                    <span class="tip-title">작은 단위로 나누기</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="16-1"><span>큰 기능을 작은 조각으로 나누기</span></li>
+                        <li><input type="checkbox" data-id="16-2"><span>한 번에 한 가지만 요청하기</span></li>
+                        <li><input type="checkbox" data-id="16-3"><span>각 단계마다 결과를 확인하고 다음으로 진행</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="17">
+                <div class="tip-header">
+                    <span class="tip-number">17</span>
+                    <span class="tip-title">! 즉시 실행</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="17-1"><span>!ls 또는 !npm start처럼 느낌표(!) 뒤에 명령어를 붙여 실행</span></li>
+                        <li><input type="checkbox" data-id="17-2"><span>별도 확인 과정 없이 곧바로 실행되는 것 확인</span></li>
+                        <li><input type="checkbox" data-id="17-3"><span>반복적인 간단 명령에 적극 활용</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="18">
+                <div class="tip-header">
+                    <span class="tip-number">18</span>
+                    <span class="tip-title">메모리 활용</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="18-1"><span>"이건 기억해줘"라고 말하면 다음 세션에도 유지되는지 확인</span></li>
+                        <li><input type="checkbox" data-id="18-2"><span>/memory로 현재 저장된 메모리 내용 확인</span></li>
+                        <li><input type="checkbox" data-id="18-3"><span>반복되는 선호사항(코딩 스타일, 언어 등)을 메모리에 저장</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Level 3 -->
+        <section class="level-section level-3">
+            <div class="level-header">
+                <span class="level-badge">Level 3</span>
+                <span class="level-title">고급 - 완전 정복</span>
+                <span class="level-count">4개 팁</span>
+            </div>
+
+            <div class="tip-card" data-tip="19">
+                <div class="tip-header">
+                    <span class="tip-number">19</span>
+                    <span class="tip-title">대화로 계획 세우기</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="19-1"><span>"코딩 전에 먼저 나한테 질문해줘"라고 요청</span></li>
+                        <li><input type="checkbox" data-id="19-2"><span>Claude의 질문에 답변하면서 요구사항을 구체화</span></li>
+                        <li><input type="checkbox" data-id="19-3"><span>정리된 계획서를 확인하고 구현 시작 전에 최종 검토</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="20">
+                <div class="tip-header">
+                    <span class="tip-number">20</span>
+                    <span class="tip-title">/context 기억 상태 확인</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="20-1"><span>/context를 실행하여 현재 상태 확인</span></li>
+                        <li><input type="checkbox" data-id="20-2"><span>Claude가 현재 기억하고 있는 양 확인</span></li>
+                        <li><input type="checkbox" data-id="20-3"><span>기억 한도에 가까워지면 자동으로 정리되는 것 이해</span></li>
+                        <li><input type="checkbox" data-id="20-4"><span>새 작업을 시작할 때 /clear로 깔끔하게 리셋</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="21">
+                <div class="tip-header">
+                    <span class="tip-number">21</span>
+                    <span class="tip-title">HANDOFF.md 인수인계</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="21-1"><span>"지금까지 내용을 HANDOFF.md로 정리해줘" 요청</span></li>
+                        <li><input type="checkbox" data-id="21-2"><span>대화 초기화 후 @HANDOFF.md를 참조하여 작업 재개</span></li>
+                        <li><input type="checkbox" data-id="21-3"><span>이전 내용을 기억한 채로 작업이 이어지는지 확인</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-card" data-tip="22">
+                <div class="tip-header">
+                    <span class="tip-number">22</span>
+                    <span class="tip-title">나만의 명령어 만들기</span>
+                    <span class="tip-toggle">▼</span>
+                </div>
+                <div class="tip-content">
+                    <ul class="checklist">
+                        <li><input type="checkbox" data-id="22-1"><span>.claude/commands/ 폴더 새로 만들기</span></li>
+                        <li><input type="checkbox" data-id="22-2"><span>마크다운(.md) 파일에 나만의 명령어 정의</span></li>
+                        <li><input type="checkbox" data-id="22-3"><span>/project:명령어 형태로 직접 실행해보기</span></li>
+                        <li><input type="checkbox" data-id="22-4"><span>개인 전용 명령어는 홈(~/.claude/commands/)에 저장</span></li>
+                    </ul>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Master Check -->
+        <div class="master-check">
+            <h3>마스터 체크</h3>
+            <div class="master-item">
+                <input type="checkbox" id="master-1">
+                <div class="master-label">
+                    <strong>Level 1 완료</strong>
+                    <span>"혼자서 프로젝트를 시작할 수 있다"</span>
+                </div>
+            </div>
+            <div class="master-item">
+                <input type="checkbox" id="master-2">
+                <div class="master-label">
+                    <strong>Level 2 완료</strong>
+                    <span>"바이브코딩으로 빠르게 만들 수 있다"</span>
+                </div>
+            </div>
+            <div class="master-item">
+                <input type="checkbox" id="master-3">
+                <div class="master-label">
+                    <strong>Level 3 완료</strong>
+                    <span>"Claude Code를 완전히 내 것으로 만들었다"</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="reset-btn" onclick="resetProgress()">진행률 초기화</button>
+    </main>
+
+    <footer>
+        <p class="footer-brand">ArgosAI Lab</p>
+        <p class="footer-text">Claude 실전 가이드</p>
+    </footer>
+
+    <script>
+        // Accordion toggle
+        document.querySelectorAll('.tip-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const card = header.parentElement;
+                card.classList.toggle('open');
+            });
+        });
+
+        // Checkbox state management
+        function saveState() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][data-id]');
+            const state = {};
+            checkboxes.forEach(cb => {
+                state[cb.dataset.id] = cb.checked;
+            });
+            // Master checkboxes
+            ['master-1', 'master-2', 'master-3'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) state[id] = el.checked;
+            });
+            localStorage.setItem('checklist-state', JSON.stringify(state));
+            updateProgress();
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('checklist-state');
+            if (saved) {
+                const state = JSON.parse(saved);
+                Object.keys(state).forEach(id => {
+                    const el = document.querySelector(`[data-id="${id}"]`) || document.getElementById(id);
+                    if (el) {
+                        el.checked = state[id];
+                        if (el.closest('li')) {
+                            el.closest('li').classList.toggle('checked', state[id]);
+                        }
+                    }
+                });
+            }
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const all = document.querySelectorAll('input[type="checkbox"][data-id]');
+            const checked = document.querySelectorAll('input[type="checkbox"][data-id]:checked');
+            const total = all.length;
+            const done = checked.length;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+            document.getElementById('progressPercent').textContent = pct + '%';
+            document.getElementById('progressFill').style.width = pct + '%';
+
+            // Level counts
+            [1, 2, 3].forEach(level => {
+                const levelAll = document.querySelectorAll(`.level-${level} input[type="checkbox"][data-id]`);
+                const levelDone = document.querySelectorAll(`.level-${level} input[type="checkbox"][data-id]:checked`);
+                document.getElementById(`l${level}Count`).textContent = `${levelDone.length}/${levelAll.length}`;
+            });
+        }
+
+        // Event listeners
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (this.closest('li')) {
+                    this.closest('li').classList.toggle('checked', this.checked);
+                }
+                saveState();
+            });
+        });
+
+        function resetProgress() {
+            if (!confirm('진행률을 초기화하시겠습니까?')) return;
+            localStorage.removeItem('checklist-state');
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+                if (cb.closest('li')) cb.closest('li').classList.remove('checked');
+            });
+            updateProgress();
+        }
+
+        // Initialize
+        loadState();
+    </script>
+</body>
+</html>
