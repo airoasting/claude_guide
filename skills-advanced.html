@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills 고급 — 자동화 패턴 | AI Roasting</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 48px 32px 40px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a1a 100%);
+            border-bottom: 3px solid #CC0000;
+        }
+
+        .back-link {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #e8706a;
+            text-decoration: none;
+            margin-bottom: 12px;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        header h1 {
+            font-size: 40px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 16px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .header-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e8706a;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(232,112,106,0.3);
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 48px 32px 64px;
+        }
+
+        /* ── Section ── */
+        .section-block {
+            margin-bottom: 0;
+            padding: 40px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .section-block:last-of-type { border-bottom: none; }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            padding-left: 16px;
+            border-left: 4px solid #CC0000;
+            margin-bottom: 6px;
+        }
+
+        .section-subtitle {
+            font-size: 15px;
+            color: #666;
+            padding-left: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* ── 퀵 네비 ── */
+        .quick-nav {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 40px;
+        }
+
+        .quick-nav-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .quick-nav-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .quick-nav-list a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            text-decoration: none;
+            padding: 6px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+
+        .quick-nav-list a:hover {
+            color: #CC0000;
+            border-color: #CC0000;
+            background: #fff5f5;
+        }
+
+        .quick-nav-list a .qn-num {
+            font-size: 11px;
+            font-weight: 800;
+            color: #CC0000;
+        }
+
+        /* ── 코드 블록 ── */
+        .code-box {
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .code-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: #2d2d2d;
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .code-bar span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #999;
+        }
+
+        .copy-btn {
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            background: #CC0000;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover { background: #a00; transform: scale(1.03); }
+
+        .code-body {
+            padding: 20px 24px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            color: #e0e0e0;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .code-body .comment { color: #666; }
+        .code-body .keyword { color: #CC0000; font-weight: 600; }
+        .code-body .value { color: #f59e0b; }
+        .code-body .string { color: #10B981; }
+        .code-body .dynamic { color: #60A5FA; font-weight: 600; }
+
+        /* ── 정보 박스 ── */
+        .info-box {
+            font-size: 13px;
+            color: #666;
+            padding: 14px 16px 14px 20px;
+            background: #FFFBEB;
+            border: 1px solid #FDE68A;
+            border-left: 4px solid #F59E0B;
+            border-radius: 8px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .info-box strong { color: #B45309; }
+
+        .info-box.blue {
+            background: #EFF6FF;
+            border-color: #BFDBFE;
+            border-left-color: #3B82F6;
+        }
+
+        .info-box.blue strong { color: #1D4ED8; }
+
+        .info-box.green {
+            background: #F0FDF4;
+            border-color: #BBF7D0;
+            border-left-color: #10B981;
+        }
+
+        .info-box.green strong { color: #059669; }
+
+        .info-box.red {
+            background: #FEF2F2;
+            border-color: #FECACA;
+            border-left-color: #CC0000;
+        }
+
+        .info-box.red strong { color: #CC0000; }
+
+        .info-box.purple {
+            background: #FAF5FF;
+            border-color: #E9D5FF;
+            border-left-color: #8B5CF6;
+        }
+
+        .info-box.purple strong { color: #7C3AED; }
+
+        /* ── 비교 테이블 ── */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .compare-table thead { background: #1a1a1a; }
+
+        .compare-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .compare-table td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: #444;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: top;
+        }
+
+        .compare-table tbody tr:last-child td { border-bottom: none; }
+        .compare-table tbody tr:hover { background: #fafafa; }
+
+        /* ── 단계 카드 ── */
+        .step-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .step-card {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            transition: border-color 0.2s;
+        }
+
+        .step-card:hover { border-color: #CC0000; }
+
+        .step-num {
+            font-size: 20px;
+            font-weight: 900;
+            color: #CC0000;
+            flex-shrink: 0;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        .step-body { flex: 1; }
+        .step-body strong { font-size: 15px; font-weight: 700; color: #1a1a1a; display: block; margin-bottom: 4px; }
+        .step-body p { font-size: 13px; color: #666; line-height: 1.6; margin: 0; }
+
+        /* ── 2열 카드 ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .col-card {
+            padding: 20px;
+            background: #f9f9f9;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+        }
+
+        .col-card h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .col-card p { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 8px; }
+        .col-card .highlight { font-size: 13px; color: #CC0000; font-weight: 600; }
+
+        /* ── 3열 카드 ── */
+        .three-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .three-col .col-card h4 { font-size: 15px; }
+
+        /* ── 변수 테이블 ── */
+        .var-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .var-table thead { background: #1a1a1a; }
+
+        .var-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .var-table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #444;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: top;
+        }
+
+        .var-table tbody tr:last-child td { border-bottom: none; }
+        .var-table tbody tr:hover { background: #fafafa; }
+
+        .var-table code {
+            background: #f4f4f4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #CC0000;
+        }
+
+        /* ── 실습 박스 ── */
+        .practice-box {
+            border: 2px solid #CC0000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .practice-header {
+            background: #CC0000;
+            color: #fff;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .practice-header span { font-size: 20px; }
+        .practice-header h3 { font-size: 16px; font-weight: 700; }
+        .practice-body { padding: 24px; }
+
+        .practice-prompt {
+            background: #2d2d2d;
+            color: #e0e0e0;
+            padding: 16px 18px;
+            border-radius: 8px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            margin: 12px 0;
+            white-space: pre-wrap;
+        }
+
+        /* ── 선행 조건 박스 ── */
+        .prereq-box {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-left: 4px solid #CC0000;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 40px;
+        }
+
+        .prereq-box h3 { font-size: 15px; font-weight: 700; color: #CC0000; margin-bottom: 8px; }
+        .prereq-box p { font-size: 13px; color: #666; line-height: 1.6; }
+        .prereq-box a { color: #CC0000; text-decoration: none; font-weight: 600; }
+        .prereq-box a:hover { text-decoration: underline; }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            border-radius: 16px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 48px;
+        }
+
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: #aaa; margin-bottom: 24px; line-height: 1.6; }
+
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .cta-btn.primary { background: #CC0000; color: #fff; }
+        .cta-btn.primary:hover { background: #a00; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.2); }
+
+        /* ── 참고 자료 ── */
+        .ref-section { margin-top: 48px; padding-top: 32px; border-top: 1px solid #e0e0e0; }
+        .ref-title { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 14px; }
+        .ref-links { display: flex; flex-direction: column; gap: 8px; }
+
+        .ref-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #1a1a1a;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .ref-link:hover { border-color: #CC0000; background: #fff5f5; color: #CC0000; }
+        .ref-link .ref-icon { font-size: 18px; flex-shrink: 0; }
+        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #888; margin-left: auto; flex-shrink: 0; }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 24px 32px;
+            border-top: 1px solid #e0e0e0;
+            background: #f4f4f4;
+        }
+
+        footer .footer-brand { font-size: 13px; font-weight: 700; color: #CC0000; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+        footer .footer-text { font-size: 12px; color: #999; }
+
+        @media (max-width: 768px) {
+            header { padding: 40px 20px 24px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 32px 16px 48px; }
+            .two-col, .three-col { grid-template-columns: 1fr; }
+            .quick-nav-list { gap: 6px; }
+            .quick-nav-list a { font-size: 12px; padding: 5px 10px; }
+            .cta-section { padding: 32px 20px; }
+            .cta-section h3 { font-size: 18px; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+            .compare-table, .var-table { font-size: 12px; }
+            .compare-table th, .compare-table td,
+            .var-table th, .var-table td { padding: 10px 12px; }
+            .ref-link .ref-desc { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a class="back-link" href="index.html">← 목록으로</a>
+        <h1>Skills 고급 — 자동화 패턴</h1>
+        <p>동적 컨텍스트, 변수 치환, CI/CD 연동으로 스킬을 진짜 자동화 도구로 만듭니다</p>
+        <span class="header-badge">Claude Code 고급</span>
+        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 16px;">
+            <a href="skills.html" style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.2)'">← 기본</a>
+            <a href="skills-intermediate.html" style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.2)'">← 중급</a>
+            <span style="font-size: 13px; font-weight: 700; color: #fff; background: #CC0000; padding: 6px 18px; border-radius: 20px;">고급 ← 지금 여기</span>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- 선행 조건 -->
+        <div class="prereq-box">
+            <h3>이 페이지를 보기 전에</h3>
+            <p><a href="skills.html">Skills 기본</a>과 <a href="skills-intermediate.html">Skills 중급</a>을 먼저 읽었다는 전제로 작성되었습니다.<br>
+            Reference/Task 스킬의 차이, SKILL.md 구조, 폴더 설계를 이해하고 있어야 합니다.</p>
+        </div>
+
+        <!-- 퀵 네비게이션 -->
+        <div class="quick-nav">
+            <div class="quick-nav-title">📍 이 페이지 한눈에 보기</div>
+            <div class="quick-nav-list">
+                <a href="#sec1"><span class="qn-num">①</span> 동적 컨텍스트 주입</a>
+                <a href="#sec2"><span class="qn-num">②</span> 변수 치환</a>
+                <a href="#sec3"><span class="qn-num">③</span> context:fork</a>
+                <a href="#sec4"><span class="qn-num">④</span> allowed-tools 제어</a>
+                <a href="#sec5"><span class="qn-num">⑤</span> CI/CD 연동</a>
+                <a href="#sec6"><span class="qn-num">⑥</span> 성능 최적화</a>
+            </div>
+        </div>
+
+        <!-- ① 동적 컨텍스트 주입 -->
+        <div class="section-block" id="sec1">
+            <h2 class="section-title">① 동적 컨텍스트 주입</h2>
+            <p class="section-subtitle">스킬 실행 시 "지금 상황"을 자동으로 읽어와서 Claude에게 알려줍니다</p>
+
+            <div class="info-box blue">
+                <strong>이게 뭔가요?</strong><br>
+                SKILL.md 안에 <code style="background:#fff;padding:2px 6px;border-radius:3px;">!</code> 명령어를 넣으면, 스킬 실행할 때 <strong>그 순간의 실시간 정보</strong>를 Claude에게 전달합니다.<br>
+                <strong>비유:</strong> 요리 레시피에 "지금 냉장고에 뭐가 있는지 확인해"가 자동으로 실행되는 것.
+            </div>
+
+            <div class="code-box">
+                <div class="code-bar">
+                    <span>동적 컨텍스트 예시 — SKILL.md</span>
+                </div>
+                <div class="code-body"><span class="comment">---</span>
+<span class="keyword">name:</span> <span class="value">스마트 코드 리뷰</span>
+<span class="keyword">description:</span> <span class="value">현재 브랜치 변경사항을 자동 분석하고 리뷰합니다</span>
+<span class="keyword">command:</span> <span class="string">/review</span>
+<span class="comment">---</span>
+
+<span class="comment"># 스마트 코드 리뷰</span>
+
+현재 프로젝트 상태:
+<span class="dynamic">!git diff --stat</span>           <span class="comment">← 변경된 파일 목록을 자동으로 가져옴</span>
+<span class="dynamic">!git log --oneline -5</span>      <span class="comment">← 최근 5개 커밋을 자동으로 가져옴</span>
+
+프로젝트 설정:
+<span class="dynamic">!cat package.json</span>          <span class="comment">← package.json 내용을 자동으로 읽어옴</span>
+
+<span class="comment">## Instructions</span>
+위 정보를 바탕으로 코드 리뷰를 진행하세요:
+1. 변경된 파일 각각에 대해 리뷰
+2. 버그 가능성, 성능 이슈, 보안 문제 체크
+3. 개선 제안을 구체적으로 제시</div>
+            </div>
+
+            <div class="two-col">
+                <div class="col-card" style="border-left: 3px solid #60A5FA;">
+                    <h4>작동 원리</h4>
+                    <p><code style="background:#fff;padding:2px 6px;border-radius:3px;">!</code>로 시작하는 줄은 스킬 실행 시 <strong>셸 명령어로 실행</strong>되고, 그 결과가 Claude에게 전달됩니다.</p>
+                    <div class="highlight">→ 매번 수동으로 정보를 붙여넣을 필요 없음</div>
+                </div>
+                <div class="col-card" style="border-left: 3px solid #10B981;">
+                    <h4>자주 쓰는 명령어</h4>
+                    <p>
+                        <code style="background:#fff;padding:2px 6px;border-radius:3px;">!git status</code> 현재 변경사항<br>
+                        <code style="background:#fff;padding:2px 6px;border-radius:3px;">!cat 파일명</code> 파일 내용 읽기<br>
+                        <code style="background:#fff;padding:2px 6px;border-radius:3px;">!ls src/</code> 폴더 구조 파악
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>⚠️ 주의:</strong> <code style="background:#fff;padding:2px 6px;border-radius:3px;">!</code> 명령어는 실제 터미널 명령을 실행합니다. <code>rm</code>이나 <code>delete</code> 같은 위험한 명령은 절대 넣지 마세요.
+            </div>
+        </div>
+
+        <!-- ② 변수 치환 -->
+        <div class="section-block" id="sec2">
+            <h2 class="section-title">② 변수 치환 — $ARGUMENTS와 친구들</h2>
+            <p class="section-subtitle">스킬에 넘기는 정보를 변수로 받아서 유연하게 사용합니다</p>
+
+            <div class="info-box blue">
+                <strong>변수 치환이 뭔가요?</strong><br>
+                <code style="background:#fff;padding:2px 6px;border-radius:3px;">/report 2월 3주차</code>라고 치면, "2월 3주차"가 자동으로 스킬 안의 <code style="background:#fff;padding:2px 6px;border-radius:3px;">$ARGUMENTS</code> 위치에 들어갑니다.<br>
+                <strong>비유:</strong> 편지 양식에서 "○○○님께"의 빈칸이 자동으로 채워지는 것.
+            </div>
+
+            <h3 style="font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px;">사용 가능한 변수 목록</h3>
+            <table class="var-table">
+                <thead>
+                    <tr>
+                        <th>변수</th>
+                        <th>자동으로 들어가는 값</th>
+                        <th>예시</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>$ARGUMENTS</code></td>
+                        <td>사용자가 명령어 뒤에 입력한 텍스트 전체</td>
+                        <td>/review <strong>src/App.tsx</strong></td>
+                    </tr>
+                    <tr>
+                        <td><code>$GIT_BRANCH</code></td>
+                        <td>현재 Git 브랜치 이름</td>
+                        <td>feature/login-page</td>
+                    </tr>
+                    <tr>
+                        <td><code>$GIT_REMOTE_URL</code></td>
+                        <td>원격 저장소 URL</td>
+                        <td>github.com/my-team/project</td>
+                    </tr>
+                    <tr>
+                        <td><code>$DATE</code></td>
+                        <td>오늘 날짜</td>
+                        <td>2026-02-25</td>
+                    </tr>
+                    <tr>
+                        <td><code>$CWD</code></td>
+                        <td>현재 작업 디렉토리 경로</td>
+                        <td>/Users/me/my-project</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="font-size: 17px; font-weight: 700; color: #1a1a1a; margin: 24px 0 16px;">실전 예시: 변수 활용 스킬</h3>
+            <div class="code-box">
+                <div class="code-bar">
+                    <span>변수 치환 활용 — SKILL.md</span>
+                </div>
+                <div class="code-body"><span class="comment">---</span>
+<span class="keyword">name:</span> <span class="value">커밋 메시지 생성기</span>
+<span class="keyword">description:</span> <span class="value">변경사항을 분석해서 커밋 메시지를 자동 생성합니다</span>
+<span class="keyword">command:</span> <span class="string">/commit-msg</span>
+<span class="comment">---</span>
+
+<span class="comment"># 커밋 메시지 생성기</span>
+
+현재 브랜치: <span class="dynamic">$GIT_BRANCH</span>
+날짜: <span class="dynamic">$DATE</span>
+추가 요청사항: <span class="dynamic">$ARGUMENTS</span>
+
+변경 내역:
+<span class="dynamic">!git diff --cached --stat</span>
+
+<span class="comment">## Instructions</span>
+1. 위 변경 내역을 분석합니다
+2. 컨벤셔널 커밋 형식으로 메시지를 작성합니다
+   - feat: 새 기능 / fix: 버그 수정 / refactor: 리팩터링
+3. 한국어로 작성하되, 커밋 타입은 영어로 유지합니다
+4. 사용자의 추가 요청사항이 있으면 반영합니다</div>
+            </div>
+
+            <div class="info-box green">
+                <strong>사용 방법:</strong><br>
+                <code style="background:#fff;padding:2px 6px;border-radius:3px;">/commit-msg</code> → 기본 커밋 메시지 생성<br>
+                <code style="background:#fff;padding:2px 6px;border-radius:3px;">/commit-msg 긴급 핫픽스임을 강조해줘</code> → $ARGUMENTS에 추가 요청이 들어감
+            </div>
+        </div>
+
+        <!-- ③ context:fork -->
+        <div class="section-block" id="sec3">
+            <h2 class="section-title">③ context:fork — 독립 실행 모드</h2>
+            <p class="section-subtitle">스킬을 별도 공간에서 실행해서, 기존 대화를 방해하지 않습니다</p>
+
+            <div class="info-box blue">
+                <strong>context:fork가 뭔가요?</strong><br>
+                보통 스킬은 현재 대화 안에서 실행됩니다. 그런데 <code style="background:#fff;padding:2px 6px;border-radius:3px;">context: fork</code>를 쓰면 <strong>별도의 새 대화</strong>에서 실행됩니다.<br>
+                <strong>비유:</strong> 사무실에서 일하는 중에 회의실에서 따로 미팅하고, 결과만 가져오는 것.
+            </div>
+
+            <div class="code-box">
+                <div class="code-bar">
+                    <span>context:fork 사용 예시</span>
+                </div>
+                <div class="code-body"><span class="comment">---</span>
+<span class="keyword">name:</span> <span class="value">백그라운드 분석기</span>
+<span class="keyword">description:</span> <span class="value">코드 품질 분석을 별도 프로세스에서 실행합니다</span>
+<span class="keyword">command:</span> <span class="string">/analyze</span>
+<span class="keyword">context:</span> <span class="string">fork</span>           <span class="comment">← 별도 공간에서 실행!</span>
+<span class="comment">---</span>
+
+<span class="comment"># 코드 품질 분석기</span>
+
+<span class="comment">## Instructions</span>
+1. 전체 소스 코드를 스캔합니다
+2. 코딩 컨벤션 위반 사항을 찾습니다
+3. 성능 개선 포인트를 식별합니다
+4. 분석 결과를 reports/analysis.md에 저장합니다</div>
+            </div>
+
+            <div class="two-col">
+                <div class="col-card">
+                    <h4>언제 쓰나요?</h4>
+                    <p>• 시간이 오래 걸리는 작업 (전체 코드 분석)<br>• 현재 대화 맥락을 유지하고 싶을 때<br>• 여러 스킬을 동시에 실행하고 싶을 때</p>
+                </div>
+                <div class="col-card">
+                    <h4>주의할 점</h4>
+                    <p>• fork된 스킬은 현재 대화 내용을 알 수 없음<br>• 결과는 파일로 저장해야 다시 볼 수 있음<br>• 복잡한 상호작용이 필요한 작업에는 부적합</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ④ allowed-tools 제어 -->
+        <div class="section-block" id="sec4">
+            <h2 class="section-title">④ allowed-tools — Claude가 쓸 수 있는 도구 제한</h2>
+            <p class="section-subtitle">보안과 안전을 위해, 스킬이 할 수 있는 행동 범위를 제한합니다</p>
+
+            <div class="info-box blue">
+                <strong>왜 제한이 필요한가요?</strong><br>
+                스킬이 실수로 중요한 파일을 삭제하거나 시스템을 변경하는 것을 방지합니다.<br>
+                <strong>비유:</strong> 신입 직원에게 "이 서류만 작성하세요. 다른 서류함은 열지 마세요"라고 하는 것.
+            </div>
+
+            <div class="code-box">
+                <div class="code-bar">
+                    <span>allowed-tools 설정 예시</span>
+                </div>
+                <div class="code-body"><span class="comment">---</span>
+<span class="keyword">name:</span> <span class="value">안전한 보고서 생성기</span>
+<span class="keyword">command:</span> <span class="string">/safe-report</span>
+<span class="keyword">allowed-tools:</span>
+  - <span class="string">Read</span>              <span class="comment">← 파일 읽기만 허용</span>
+  - <span class="string">Write</span>             <span class="comment">← 파일 쓰기 허용</span>
+  - <span class="string">Bash(git log*)</span>    <span class="comment">← git log 명령만 허용 (다른 Bash 명령은 불가)</span>
+<span class="comment">---</span>
+
+<span class="comment"># 이 스킬은 위 3가지 도구만 사용할 수 있습니다</span>
+<span class="comment"># 파일 삭제, 시스템 명령, 네트워크 접근 등은 차단됩니다</span></div>
+            </div>
+
+            <h3 style="font-size: 17px; font-weight: 700; color: #1a1a1a; margin: 24px 0 16px;">주요 도구 목록</h3>
+            <table class="var-table">
+                <thead>
+                    <tr>
+                        <th>도구</th>
+                        <th>할 수 있는 일</th>
+                        <th>제한 패턴 예시</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Read</code></td>
+                        <td>파일 읽기</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><code>Write</code></td>
+                        <td>파일 쓰기/생성</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><code>Edit</code></td>
+                        <td>파일 수정</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><code>Bash</code></td>
+                        <td>터미널 명령 실행</td>
+                        <td><code>Bash(git*)</code> → git 관련 명령만</td>
+                    </tr>
+                    <tr>
+                        <td><code>Glob</code></td>
+                        <td>파일 검색</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><code>Grep</code></td>
+                        <td>텍스트 검색</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box green">
+                <strong>💡 팁:</strong> 보고서 생성 스킬은 <code style="background:#fff;padding:2px 6px;border-radius:3px;">Read + Write</code>만 허용하면 충분합니다. <code>Bash</code>까지 열어주면 예상치 못한 명령이 실행될 수 있으니, 필요한 만큼만 열어주세요.
+            </div>
+        </div>
+
+        <!-- ⑤ CI/CD 연동 -->
+        <div class="section-block" id="sec5">
+            <h2 class="section-title">⑤ CI/CD 파이프라인 연동</h2>
+            <p class="section-subtitle">스킬을 자동화 파이프라인에 연결하면, 코드 변경 시 자동으로 실행됩니다</p>
+
+            <div class="info-box blue">
+                <strong>CI/CD가 뭔가요?</strong><br>
+                코드를 올리면(push) 자동으로 테스트하고 배포하는 시스템입니다.<br>
+                <strong>비유:</strong> 편의점에 물건을 발주하면, 자동으로 검수→진열→가격표 부착이 실행되는 것.
+            </div>
+
+            <h3 style="font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px;">GitHub Actions에서 스킬 실행하기</h3>
+            <div class="code-box">
+                <div class="code-bar">
+                    <span>.github/workflows/skill-review.yml</span>
+                </div>
+                <div class="code-body"><span class="keyword">name:</span> <span class="value">Auto Code Review</span>
+<span class="keyword">on:</span>
+  <span class="value">pull_request</span>:           <span class="comment">← PR이 생성될 때마다 실행</span>
+    <span class="keyword">types:</span> [<span class="string">opened</span>, <span class="string">synchronize</span>]
+
+<span class="keyword">jobs:</span>
+  <span class="value">review</span>:
+    <span class="keyword">runs-on:</span> <span class="string">ubuntu-latest</span>
+    <span class="keyword">steps:</span>
+      - <span class="keyword">uses:</span> <span class="string">actions/checkout@v4</span>
+      - <span class="keyword">name:</span> <span class="value">Claude Code 리뷰 실행</span>
+        <span class="keyword">run:</span> |
+          <span class="string">npx @anthropic-ai/claude-code \</span>
+            <span class="string">--skill /review \</span>
+            <span class="string">--output reports/review.md</span>
+        <span class="keyword">env:</span>
+          <span class="value">ANTHROPIC_API_KEY</span>: <span class="dynamic">${{ secrets.ANTHROPIC_API_KEY }}</span></div>
+            </div>
+
+            <div class="three-col">
+                <div class="col-card" style="border-top: 3px solid #3B82F6;">
+                    <h4>PR 자동 리뷰</h4>
+                    <p>PR 생성 시 코드 리뷰 스킬이 자동 실행됩니다.</p>
+                </div>
+                <div class="col-card" style="border-top: 3px solid #10B981;">
+                    <h4>자동 문서 생성</h4>
+                    <p>코드 변경 시 API 문서를 자동으로 업데이트합니다.</p>
+                </div>
+                <div class="col-card" style="border-top: 3px solid #F59E0B;">
+                    <h4>릴리즈 노트</h4>
+                    <p>배포 시 변경사항을 요약한 릴리즈 노트를 자동 생성합니다.</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>⚠️ 필수 설정:</strong> GitHub Actions에서 사용하려면 <code style="background:#fff;padding:2px 6px;border-radius:3px;">ANTHROPIC_API_KEY</code>를 리포지토리 Secrets에 등록해야 합니다. Settings → Secrets and variables → Actions에서 설정하세요.
+            </div>
+        </div>
+
+        <!-- ⑥ 성능 최적화 -->
+        <div class="section-block" id="sec6">
+            <h2 class="section-title">⑥ 성능 최적화 — 빠르고 정확한 스킬 만들기</h2>
+            <p class="section-subtitle">스킬이 느리거나 결과가 부정확할 때 적용하는 최적화 기법</p>
+
+            <div class="step-cards">
+                <div class="step-card">
+                    <span class="step-num">1</span>
+                    <div class="step-body">
+                        <strong>컨텍스트를 최소화하세요</strong>
+                        <p>SKILL.md가 길수록 Claude가 처리할 정보가 많아져 느려집니다. <strong>꼭 필요한 정보만</strong> 넣으세요.<br>
+                        <code style="background:#f4f4f4;padding:2px 6px;border-radius:4px;">!cat package.json</code> 대신 <code style="background:#f4f4f4;padding:2px 6px;border-radius:4px;">!cat package.json | head -20</code>처럼 필요한 부분만 가져오세요.</p>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <span class="step-num">2</span>
+                    <div class="step-body">
+                        <strong>Instructions를 명확하게 쓰세요</strong>
+                        <p>모호한 지시 → Claude가 여러 번 시도 → 느려짐. <strong>"A를 하고, B를 하고, C를 출력해"</strong>처럼 단계별로 구체적으로.</p>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <span class="step-num">3</span>
+                    <div class="step-body">
+                        <strong>allowed-tools를 제한하세요</strong>
+                        <p>사용할 도구를 지정하면 Claude가 <strong>불필요한 탐색을 하지 않아</strong> 더 빨리 실행됩니다.</p>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <span class="step-num">4</span>
+                    <div class="step-body">
+                        <strong>복잡한 스킬은 분리하세요</strong>
+                        <p>하나의 스킬이 너무 많은 일을 하면 정확도가 떨어집니다. <strong>기능별로 스킬을 나누고</strong>, 필요하면 순차적으로 실행하세요.</p>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <span class="step-num">5</span>
+                    <div class="step-body">
+                        <strong>Examples를 3개 이상 넣으세요</strong>
+                        <p>좋은 예시가 많을수록 Claude가 정확하게 이해합니다. 특히 <strong>경계 케이스</strong>(예외 상황)를 넣으면 결과물 품질이 크게 올라갑니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box purple">
+                <strong>성능 체크리스트:</strong><br>
+                ☐ SKILL.md가 200줄 이하인가?<br>
+                ☐ 동적 컨텍스트(<code style="background:#fff;padding:2px 6px;border-radius:3px;">!</code>)가 3개 이하인가?<br>
+                ☐ allowed-tools가 설정되어 있나?<br>
+                ☐ Instructions가 5단계 이내인가?<br>
+                ☐ Examples가 3개 이상인가?
+            </div>
+        </div>
+
+        <!-- 참고 자료 -->
+        <div class="ref-section">
+            <div class="ref-title">📚 Skills 시리즈 전체 보기</div>
+            <div class="ref-links">
+                <a class="ref-link" href="skills.html">
+                    <span class="ref-icon">📗</span>
+                    Skills 기본 — Claude.ai 스킬 입문
+                    <span class="ref-desc">기본</span>
+                </a>
+                <a class="ref-link" href="skills-intermediate.html">
+                    <span class="ref-icon">📘</span>
+                    Skills 중급 — 실전 스킬 만들기
+                    <span class="ref-desc">중급</span>
+                </a>
+                <a class="ref-link" href="https://code.claude.com/docs/ko/skills" target="_blank" rel="noopener">
+                    <span class="ref-icon">💻</span>
+                    Claude Code Skills 공식 문서
+                    <span class="ref-desc">한국어 · 공식 가이드</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- CTA 섹션 -->
+        <div class="cta-section">
+            <h3>Skills 마스터! 다음은?</h3>
+            <p>스킬의 기본부터 고급 자동화까지 모두 배웠습니다.<br>이제 멀티 에이전트와 전체 워크플로우 자동화를 살펴보세요.</p>
+            <div class="cta-buttons">
+                <a class="cta-btn primary" href="multi-agent.html">🤖 멀티 에이전트 →</a>
+                <a class="cta-btn secondary" href="automation.html">⚡ 자동화 →</a>
+            </div>
+        </div>
+    </main>
+
+    <nav class="page-nav" style="max-width: 960px; margin: 0 auto; padding: 0 32px 48px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+        <a href="skills-intermediate.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">← 이전: Skills 중급</a>
+        <a href="checklist.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff; margin-left: auto;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">다음: 22단계 체크리스트 →</a>
+    </nav>
+
+    <footer>
+        <p class="footer-brand">AI Roasting</p>
+        <p class="footer-text">Claude 실전 가이드</p>
+    </footer>
+</body>
+</html>
