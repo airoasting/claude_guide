@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>클로드 코드 101 | AI Roasting</title>
+    <meta name="description" content="터미널 없이 Claude Desktop에서 자연어로 코드를 만드는 가장 쉬운 방법. 계획서부터 실행까지.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--ant-orange), #f5a88a);
+            z-index: 2000;
+            width: 0%;
+            transition: width 0.12s linear;
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* PAGE LOAD ANIMATIONS */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes badgePop {
+            0%   { opacity: 0; transform: scale(0.7); }
+            65%  { opacity: 1; transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 4px 16px rgba(217,119,87,0.35); }
+            50%       { box-shadow: 0 4px 28px rgba(217,119,87,0.65); }
+        }
+        @keyframes shimmer {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* SCROLL ANIMATIONS */
+        .anim {
+            opacity: 0;
+            transform: translateY(26px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+        .anim.slide-left  { transform: translateX(-26px); }
+        .anim.slide-right { transform: translateX(26px); }
+        .anim.scale-in    { transform: scale(0.94); }
+        .anim.visible     { opacity: 1; transform: none; }
+
+        .anim.d1 { transition-delay: 0.07s; }
+        .anim.d2 { transition-delay: 0.14s; }
+        .anim.d3 { transition-delay: 0.21s; }
+        .anim.d4 { transition-delay: 0.28s; }
+        .anim.d5 { transition-delay: 0.35s; }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,130,90,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        header::after {
+            content: '';
+            position: absolute; bottom: -70px; left: -40px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(180,60,30,0.10) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+            animation: fadeIn 0.5s ease 0.15s both;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+            animation: fadeInDown 0.7s ease 0.05s both;
+        }
+        header > p {
+            font-size: 16px;
+            color: rgba(255,255,255,0.72);
+            position: relative; z-index: 1;
+            animation: fadeInUp 0.6s ease 0.3s both;
+        }
+        .header-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+
+        /* Sub Menu */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 150px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #B0544A; color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title { font-size: 13px; font-weight: 700; color: #3A3530; white-space: nowrap; }
+        .sm-sub   { font-size: 11px; color: #999; white-space: nowrap; }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* Step Navigator */
+        .step-nav {
+            display: flex; align-items: center; justify-content: center;
+            margin: 26px 0 20px; gap: 0;
+            max-width: 80%; margin-left: auto; margin-right: auto;
+            animation: fadeIn 0.5s ease 0.1s both;
+        }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* Header Page Links */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative; z-index: 1;
+            animation: fadeInUp 0.5s ease 0.65s both;
+        }
+        .header-page-link {
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px; font-weight: 600;
+            padding: 9px 22px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+        }
+        .header-page-link:hover { background: rgba(255,255,255,0.13); color: #fff; transform: translateY(-1px); }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* Mode Tabs */
+        .mode-tabs {
+            display: inline-flex; gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px; padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+            animation: fadeIn 0.5s ease 0.48s both;
+        }
+        .mode-tab {
+            font-size: 13px; font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px; border-radius: 20px;
+            cursor: pointer; transition: all 0.2s; user-select: none;
+        }
+        .mode-tab.active { background: rgba(255,255,255,0.18); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* CONTAINER */
+        .container { max-width: 860px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* 뉴모피즘 카드 */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .nm-card:hover {
+            box-shadow: 8px 8px 20px #C8C4BD, -8px -8px 20px #FFFFFF;
+            transform: translateY(-2px);
+        }
+        .nm-card h2 {
+            font-size: 18px; font-weight: 700; color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+        }
+        .nm-card p, .nm-card li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; padding-left: 20px; }
+
+        /* 섹션 구분 */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 28px 0; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--ant-orange); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px; border-radius: 20px; white-space: nowrap;
+        }
+        .step-divider.visible .step-badge { animation: badgePop 0.5s ease both; }
+
+        /* 인셋 박스 */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--ant-orange); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* 팁 박스 */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { font-size: 11px; font-weight: 700; color: var(--ant-orange); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tip-box p { font-size: 13px; color: #5C5650; line-height: 1.7; }
+
+        /* 강조 박스 */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(217,119,87,0.08) 0%, rgba(217,119,87,0.03) 100%);
+            border: 1.5px solid rgba(217,119,87,0.25);
+            border-radius: 16px;
+            padding: 22px 26px; margin: 20px 0;
+        }
+        .highlight-box .hl-title { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* 히어로 통계 */
+        .hero-stats { display: flex; gap: 14px; margin: 20px 0; }
+        .stat-item {
+            flex: 1;
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px 16px; text-align: center;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .stat-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 6px 6px 18px #C8C4BD, -6px -6px 18px #FFFFFF;
+        }
+        .stat-icon { font-size: 30px; margin-bottom: 8px; }
+        .stat-label { font-size: 13px; font-weight: 700; color: #3A3530; line-height: 1.4; }
+        .stat-sub { font-size: 11px; color: #999; margin-top: 4px; }
+
+        /* 단계 흐름 */
+        .flow-steps { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+        .flow-step {
+            display: flex; align-items: flex-start; gap: 16px;
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 16px 20px;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .flow-step:hover {
+            transform: translateX(5px);
+            box-shadow: 6px 6px 16px #C8C4BD, -6px -6px 16px #FFFFFF;
+        }
+        .flow-num {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--ant-orange); color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-top: 1px;
+            transition: transform 0.2s ease;
+        }
+        .flow-step:hover .flow-num { transform: scale(1.15); }
+        .flow-content { flex: 1; }
+        .flow-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 3px; }
+        .flow-desc { font-size: 13px; color: #888; line-height: 1.5; }
+
+        /* 비교 그리드 */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm {
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm); padding: 20px;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .compare-nm:hover {
+            transform: translateY(-3px);
+            box-shadow: 6px 6px 18px #C8C4BD, -6px -6px 18px #FFFFFF;
+        }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 13px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+
+        /* 프롬프트 예시 */
+        .prompt-example { background: #1A1917; border-radius: 12px; padding: 18px 22px; margin: 14px 0; }
+        .prompt-label {
+            font-size: 11px; font-weight: 700; color: #D97757; letter-spacing: 1px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .prompt-text { font-size: 13px; color: #E8E4DC; line-height: 1.8; font-family: 'Pretendard', monospace; white-space: pre-line; }
+        .prompt-copy-btn {
+            padding: 3px 10px; flex-shrink: 0; margin-left: 8px;
+            background: #333; border: 1px solid #555;
+            color: #ccc; font-size: 11px; font-weight: 600;
+            border-radius: 4px; cursor: pointer; transition: all 0.2s;
+        }
+        .prompt-copy-btn:hover { background: #D97757; border-color: #D97757; color: #fff; }
+        .prompt-copy-btn.copied { background: #22c55e; border-color: #22c55e; color: #fff; }
+
+        /* 아코디언 */
+        .acc-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+        .acc-toggle {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 14px; transition: transform 0.3s;
+        }
+        .acc-header.open .acc-toggle { transform: rotate(180deg); }
+        .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, opacity 0.3s ease; opacity: 0; }
+        .acc-body.open { max-height: 1200px; opacity: 1; }
+
+        /* CTA 섹션 */
+        .cta-section {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            border-radius: 20px; padding: 44px 32px;
+            text-align: center; margin-top: 36px;
+            position: relative; overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute; top: -60px; right: -40px;
+            width: 280px; height: 280px;
+            background: radial-gradient(circle, rgba(212,130,90,0.22) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; position: relative; z-index: 1; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.7; position: relative; z-index: 1; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; position: relative; z-index: 1; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 13px 28px; border-radius: 14px;
+            font-size: 14px; font-weight: 700;
+            text-decoration: none; transition: all 0.22s;
+        }
+        .cta-btn.primary {
+            background: #fff; color: #7A1E0C;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            animation: glowPulse 2.8s ease-in-out infinite;
+        }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-2px) scale(1.02); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* 다운로드 버튼 */
+        .dl-btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: var(--ant-orange); color: #fff;
+            text-decoration: none; font-size: 15px; font-weight: 700;
+            padding: 14px 32px; border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(217,119,87,0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .dl-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(217,119,87,0.48); }
+        .dl-btn span { font-size: 18px; }
+
+        /* 푸터 */
+        footer { background: var(--ant-dark); text-align: center; padding: 32px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.28); }
+
+        @media (max-width: 768px) {
+            .container { padding: 24px 18px 60px; }
+            header { padding: 24px 20px 32px; }
+            header h1 { font-size: 28px; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .hero-stats { flex-direction: column; gap: 10px; }
+            .sub-menu { padding: 10px 8px; }
+            .sub-menu a { padding: 6px 12px; }
+            .sm-title { font-size: 12px; }
+            .sm-sub { font-size: 10px; }
+            .sm-num { width: 24px; height: 24px; font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<header>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="project-intro.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="cowork-intro.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="claude-code-101.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="agent-design.html">5</a>
+    </nav>
+    <a href="index.html" class="back-link">← 목록으로</a>
+    <h1>클로드 코드 101</h1>
+    <p>오늘 안에 첫 자동화를 완성하세요. 터미널 없이, 채팅 하나로</p>
+    <div class="mode-tabs">
+        <span class="mode-tab active" id="tab-nocode" onclick="switchMode('nocode')">노코드</span>
+        <span class="mode-tab" id="tab-cli" onclick="switchMode('cli')">CLI</span>
+    </div>
+    <div class="header-pages" id="pages-nocode">
+        <a href="claude-code-101.html" class="header-page-link active"><span class="hpl-icon">🖥️</span> 클로드 코드 101</a>
+        <a href="claude-code-tasks.html" class="header-page-link"><span class="hpl-icon">🎯</span> 실전 과제 7가지</a>
+        <a href="github-guide.html" class="header-page-link"><span class="hpl-icon">🐙</span> Git &amp; GitHub</a>
+    </div>
+    <div class="header-pages" id="pages-cli" style="display:none;">
+        <a href="checklist.html" class="header-page-link"><span class="hpl-icon">✅</span> 22단계 따라하기</a>
+        <a href="cheatsheet.html" class="header-page-link"><span class="hpl-icon">⚡</span> 복사해서 바로 쓰는 명령어</a>
+        <a href="claude-md-templates.html" class="header-page-link"><span class="hpl-icon">📄</span> Claude.md</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#intro" class="active" data-sec="intro">
+        <span class="sm-num">1</span>
+        <span class="sm-title">Claude Code란?</span>
+        <span class="sm-sub">개념</span>
+    </a>
+    <a href="#plan" data-sec="plan">
+        <span class="sm-num">2</span>
+        <span class="sm-title">계획 먼저</span>
+        <span class="sm-sub">준비</span>
+    </a>
+    <a href="#execute" data-sec="execute">
+        <span class="sm-num">3</span>
+        <span class="sm-title">실행하기</span>
+        <span class="sm-sub">실전</span>
+    </a>
+    <a href="#tips" data-sec="tips">
+        <span class="sm-num">4</span>
+        <span class="sm-title">잘 쓰는 법</span>
+        <span class="sm-sub">팁</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <div class="step-divider anim"><span class="step-badge">Step 1</span></div>
+
+    <!-- 섹션 1: Claude Code란? -->
+    <section class="content-section" id="intro">
+
+        <div class="nm-card anim">
+            <h2>Claude Code, 터미널 없이도 됩니다</h2>
+            <p class="card-subtitle">검은 화면(터미널) 없이 Claude Desktop에서 바로 시작할 수 있습니다</p>
+
+            <p>Claude Code는 원래 터미널(CLI)로 쓰는 도구입니다. 하지만 <strong>Claude Desktop 앱</strong>을 사용하면 검은 화면 없이 채팅 방식으로 같은 기능을 쓸 수 있습니다. 코딩을 전혀 몰라도 "파일 정리해줘", "간단한 앱 만들어줘"를 자연어로 요청하면 됩니다.</p>
+        </div>
+
+        <div class="compare-grid">
+            <div class="compare-nm anim slide-left">
+                <div class="cmp-header">
+                    <div class="cmp-dot" style="background:#3a7a5a;"></div>
+                    <h4>노코드 방식 (이 가이드)</h4>
+                </div>
+                <ul>
+                    <li>Claude Desktop 앱 실행</li>
+                    <li>Code 모드 선택</li>
+                    <li>채팅으로 자연어 요청</li>
+                    <li>진행 상황 채팅에서 확인</li>
+                </ul>
+            </div>
+            <div class="compare-nm anim slide-right">
+                <div class="cmp-header">
+                    <div class="cmp-dot" style="background:#2a4a7a;"></div>
+                    <h4>터미널 방식 (CLI)</h4>
+                </div>
+                <ul>
+                    <li>터미널(검은 화면) 실행</li>
+                    <li><code style="background:rgba(0,0,0,0.07); padding:1px 6px; border-radius:4px;">claude</code> 명령어 입력</li>
+                    <li>슬래시 명령어 활용</li>
+                    <li>더 세밀한 제어 가능</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 히어로 통계 -->
+        <div class="hero-stats">
+            <div class="stat-item anim d1">
+                <div class="stat-icon">💻</div>
+                <div class="stat-label">코딩 지식 불필요</div>
+                <div class="stat-sub">자연어로 요청</div>
+            </div>
+            <div class="stat-item anim d2">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-label">5분이면 첫 결과</div>
+                <div class="stat-sub">설치 후 바로 시작</div>
+            </div>
+            <div class="stat-item anim d3">
+                <div class="stat-icon">🆓</div>
+                <div class="stat-label">무료로 시작</div>
+                <div class="stat-sub">Claude.ai 계정으로</div>
+            </div>
+        </div>
+
+        <div class="tip-box anim">
+            <div class="tip-label">노코드 방식의 현실적인 한계</div>
+            <p>파일 정리, 스크립트 생성, 소규모 앱 제작에는 충분합니다. 복잡한 개발 환경 설정이나 대규모 프로젝트는 CLI 방식이 더 적합합니다. 노코드로 시작해서 필요할 때 CLI로 넘어가면 됩니다.</p>
+        </div>
+    </section>
+
+    <div class="step-divider anim"><span class="step-badge">Step 2</span></div>
+
+    <!-- 섹션 2: 계획 먼저 -->
+    <section class="content-section" id="plan">
+
+        <div class="nm-card anim">
+            <h2>실행 전, 계획서부터 만드세요</h2>
+            <p class="card-subtitle">시행착오를 줄이는 가장 중요한 습관</p>
+
+            <p>Claude Code에게 바로 "만들어줘"라고 하면 안 됩니다. <strong>방향이 잘못된 채로 작업이 시작되면 중간에 되돌리기 어렵습니다.</strong> 실행 전에 채팅에서 계획서를 먼저 만드세요.</p>
+
+            <div class="highlight-box" style="margin-top:18px;">
+                <div class="hl-title">💡 멀티 페르소나 기법으로 계획서 만들기</div>
+                <p><strong>멀티 페르소나란?</strong> Claude 채팅 한 번에 여러 전문가 시각을 동시에 얻는 방법입니다. 기획자, 개발자, 사용자 시점으로 각각 검토하면 혼자 생각할 때 놓치는 것들이 보입니다.</p>
+                <ul>
+                    <li><strong>기획자:</strong> "이 기능이 진짜 필요한가? 더 간단한 방법은?"</li>
+                    <li><strong>개발자:</strong> "구현 시 기술적 제약은? 예상 복잡도는?"</li>
+                    <li><strong>사용자:</strong> "실제로 쓸 때 불편하지 않나? 빠진 건 없나?"</li>
+                </ul>
+            </div>
+
+            <p style="margin-top:14px;">토론 결과를 <strong>.md 파일(마크다운 문서)</strong>로 저장하면 Claude Code가 이 파일을 참고해서 훨씬 정확하게 작업합니다.</p>
+        </div>
+
+        <div class="nm-card anim">
+            <h2>계획서 프롬프트 예시</h2>
+            <p class="card-subtitle">Claude 채팅에서 먼저 이렇게 물어보세요</p>
+
+            <div class="prompt-example">
+                <div class="prompt-label">STEP 1 · 채팅에서 멀티 페르소나 토론 요청</div>
+                <div class="prompt-text">나는 [만들고 싶은 것]을 만들려고 해.
+
+다음 3명의 전문가가 각자 시각으로 검토해줘:
+1. 기획자: 목적과 범위가 적절한지, 더 쉬운 접근법은 없는지
+2. 시니어 개발자: 기술적으로 무엇이 필요한지, 함정은 무엇인지
+3. 실사용자: 쓰다 보면 뭐가 불편할 것 같은지
+
+토론 후 합의된 최종 계획을 정리해줘.</div>
+            </div>
+
+            <div class="prompt-example" style="margin-top:12px;">
+                <div class="prompt-label">STEP 2 · 계획서를 .md 파일로 저장 요청</div>
+                <div class="prompt-text">위 계획을 PLAN.md 파일로 저장해줘.
+형식: 목적, 기능 목록, 제약사항, 실행 순서 포함</div>
+            </div>
+
+            <div class="tip-box" style="margin-top:16px;">
+                <div class="tip-label">왜 .md 파일인가?</div>
+                <p>Claude Code는 프로젝트 폴더의 파일을 읽습니다. PLAN.md를 폴더에 두면 "PLAN.md를 참고해서 만들어줘"라고 할 수 있어서 매번 설명을 반복하지 않아도 됩니다.</p>
+            </div>
+        </div>
+
+        <div class="nm-card anim">
+            <div class="acc-header" onclick="toggleAcc(this)">
+                <div>
+                    <h2 style="border:none; padding-left:0; margin-bottom:4px;">PLAN.md 기본 템플릿</h2>
+                    <p class="card-subtitle" style="padding-left:0; margin-bottom:0;">클릭해서 템플릿 구조 펼치기</p>
+                </div>
+                <span class="acc-toggle">▾</span>
+            </div>
+            <div class="acc-body">
+                <p class="card-subtitle" style="padding-left:0; margin-top:12px;">처음엔 이 구조로 시작하세요. Claude에게 "이 형식으로 PLAN.md 만들어줘"라고 해도 됩니다</p>
+
+                <div class="prompt-example">
+                    <div class="prompt-label">PLAN.md 구조</div>
+                    <div class="prompt-text"># 프로젝트명
+
+## 목적
+[이걸 왜 만드는가, 한 문장으로]
+
+## 핵심 기능
+- 기능 1
+- 기능 2
+- 기능 3
+
+## 제약사항
+- [시간, 예산, 기술 제약]
+- [절대 건드리면 안 되는 것]
+
+## 실행 순서
+1. 1단계
+2. 2단계
+3. 3단계
+
+## 하지 말 것
+- 사용자 확인 없이 파일 삭제 금지
+- [기타 주의사항]
+
+## 중요 메모
+- [작업하다 발견한 것, 결정 사항 계속 추가]</div>
+                </div>
+
+                <div class="highlight-box" style="margin-top:18px;">
+                    <div class="hl-title">🔄 멀티 페르소나로 PLAN.md 고도화하기</div>
+                    <p>초안이 생기면 그냥 쓰지 말고, <strong>채팅에서 한 번 더 검토</strong>시키세요. 혼자 생각할 때 놓친 것들이 보입니다.</p>
+                </div>
+
+                <div class="prompt-example" style="margin-top:12px;">
+                    <div class="prompt-label">PLAN.md 고도화 프롬프트</div>
+                    <div class="prompt-text">아래는 내 PLAN.md야. 3명의 전문가 시각으로 검토해줘:
+
+1. 기획자: 목적과 기능 범위가 적절한지, 빠진 건 없는지
+2. 개발자: 기술적으로 실현 가능한지, 순서가 맞는지
+3. 실사용자: 실제로 쓸 때 불편한 점은 없는지
+
+검토 후 개선된 PLAN.md를 다시 작성해줘.
+
+---
+[PLAN.md 내용 붙여넣기]</div>
+                </div>
+
+                <div class="tip-box" style="margin-top:16px;">
+                    <div class="tip-label">핵심 팁</div>
+                    <p>PLAN.md는 한 번 만들고 끝이 아닙니다. Claude Code가 작업 중 "이 부분은 어떻게 할까요?"라고 물으면 그 내용을 PLAN.md에 추가하며 계속 다듬으세요. 규칙은 구체적으로 적을수록 좋습니다. "예쁘게"보다 "배경 흰색, 텍스트 16px 이상"이 훨씬 정확합니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="step-divider anim"><span class="step-badge">Step 3</span></div>
+
+    <!-- 섹션 3: 실행하기 -->
+    <section class="content-section" id="execute">
+
+        <div class="nm-card anim">
+            <h2>Claude Desktop에서 Code 모드 실행</h2>
+            <p class="card-subtitle">계획서가 준비됐으면 이제 실행입니다</p>
+
+            <div class="flow-steps">
+                <div class="flow-step anim d1">
+                    <div class="flow-num">1</div>
+                    <div class="flow-content">
+                        <div class="flow-title">Claude Desktop 앱 실행</div>
+                        <div class="flow-desc">claude.com/download에서 설치 후 실행합니다. Claude.ai 웹사이트와 다른 별도 앱입니다.</div>
+                    </div>
+                </div>
+                <div class="flow-step anim d2">
+                    <div class="flow-num">2</div>
+                    <div class="flow-content">
+                        <div class="flow-title">채팅창에서 Code 모드 선택</div>
+                        <div class="flow-desc">채팅 입력창 옆 메뉴에서 "Claude Code"를 선택합니다. 이 모드에서 파일 시스템 접근이 활성화됩니다.</div>
+                    </div>
+                </div>
+                <div class="flow-step anim d3">
+                    <div class="flow-num">3</div>
+                    <div class="flow-content">
+                        <div class="flow-title">작업 폴더 지정</div>
+                        <div class="flow-desc">Claude가 작업할 폴더를 지정합니다. PLAN.md를 이 폴더에 미리 넣어두세요.</div>
+                    </div>
+                </div>
+                <div class="flow-step anim d4">
+                    <div class="flow-num">4</div>
+                    <div class="flow-content">
+                        <div class="flow-title">자연어로 요청</div>
+                        <div class="flow-desc">"PLAN.md를 참고해서 만들어줘"라고 입력하면 됩니다. 코드를 전혀 몰라도 됩니다.</div>
+                    </div>
+                </div>
+                <div class="flow-step anim d5">
+                    <div class="flow-num">5</div>
+                    <div class="flow-content">
+                        <div class="flow-title">진행 확인 및 수정 요청</div>
+                        <div class="flow-desc">Claude가 작업하는 과정이 채팅에 표시됩니다. 방향이 다르면 "이 부분은 이렇게 바꿔줘"라고 바로 개입하면 됩니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align:center; margin-top:24px;">
+                <a href="https://claude.com/download" target="_blank" rel="noopener" class="dl-btn">
+                    Claude Desktop 다운로드 <span>→</span>
+                </a>
+                <p style="font-size:12px; color:#aaa; margin-top:8px;">무료 · Mac · Windows</p>
+            </div>
+        </div>
+
+        <div class="nm-card anim">
+            <h2>자연어 요청 예시</h2>
+            <p class="card-subtitle">이렇게 말하면 됩니다</p>
+
+            <div class="prompt-example">
+                <div class="prompt-label">예시 1 · 파일 정리 자동화</div>
+                <div class="prompt-text">다운로드 폴더에 파일이 너무 많아.
+확장자별로 폴더를 만들어서 정리하는 스크립트 만들어줘.
+pdf는 /문서, jpg와 png는 /사진, 나머지는 /기타 폴더로.</div>
+            </div>
+
+            <div class="prompt-example" style="margin-top:12px;">
+                <div class="prompt-label">예시 2 · 간단한 웹 페이지 제작</div>
+                <div class="prompt-text">PLAN.md를 참고해서 팀 주간 업무 보고용
+간단한 HTML 페이지 만들어줘.
+제출자 이름, 이번 주 한 일, 다음 주 할 일 입력란이 있으면 돼.</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="step-divider anim"><span class="step-badge">Step 4</span></div>
+
+    <!-- 섹션 4: 잘 쓰는 법 -->
+    <section class="content-section" id="tips">
+
+        <div class="nm-card anim">
+            <h2>노코드 클로드 코드, 잘 쓰는 법</h2>
+            <p class="card-subtitle">알아두면 실패 확률을 크게 줄이는 습관들</p>
+
+            <div class="inset-box">
+                <div class="inset-label">핵심 원칙</div>
+                <p><strong>작게 시작해서 확인하며 확장하세요.</strong> 한 번에 너무 많이 요청하면 중간에 방향이 틀어져도 되돌리기 어렵습니다. "1단계만 먼저 만들어줘, 확인하고 이어서 진행할게"가 훨씬 안전합니다.</p>
+            </div>
+
+            <ul style="margin-top:16px;">
+                <li><strong>백업 먼저:</strong> Claude Code는 파일을 직접 수정하거나 삭제합니다. 중요한 파일은 별도 폴더에 복사해두세요.</li>
+                <li><strong>구체적으로 요청:</strong> "예쁘게 만들어줘"보다 "배경은 흰색, 텍스트는 16px 이상, 버튼은 파란색"이 훨씬 정확합니다.</li>
+                <li><strong>중간에 멈추기:</strong> 예상과 다른 방향으로 가면 바로 "잠깐, 이 부분은 다시 생각해보자"라고 개입하세요.</li>
+                <li><strong>PLAN.md 계속 업데이트:</strong> 작업 중 발견한 내용과 결정 사항을 PLAN.md에 계속 추가하세요. 멀티 페르소나로 주기적으로 재검토하면 방향이 흔들리지 않습니다.</li>
+            </ul>
+        </div>
+
+        <!-- CTA 섹션 -->
+        <div class="cta-section anim">
+            <h3>이제 직접 만들어볼 차례입니다</h3>
+            <p>클로드 코드 101을 익혔다면 다음 단계로 넘어가세요.<br>스탑워치, 반려동물 웹사이트, 엑셀 대시보드 등 7가지 실전 프로젝트가 기다립니다.</p>
+            <div class="cta-buttons">
+                <a class="cta-btn primary" href="claude-code-tasks.html">🎯 실전 과제 7가지 →</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <p class="footer-brand">AI Roasting</p>
+    <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+    <p class="footer-text" style="margin-top:8px; opacity:0.4;">© 2026 AI Roasting. All rights reserved.</p>
+</footer>
+
+<script>
+// Mode Tabs
+function switchMode(mode) {
+    document.getElementById('tab-nocode').classList.toggle('active', mode === 'nocode');
+    document.getElementById('tab-cli').classList.toggle('active', mode === 'cli');
+    document.getElementById('pages-nocode').style.display = mode === 'nocode' ? 'flex' : 'none';
+    document.getElementById('pages-cli').style.display = mode === 'cli' ? 'flex' : 'none';
+}
+
+// Accordion
+function toggleAcc(header) {
+    var body = header.nextElementSibling;
+    var isOpen = header.classList.contains('open');
+    header.classList.toggle('open', !isOpen);
+    body.classList.toggle('open', !isOpen);
+}
+
+// Prompt Copy Buttons
+document.querySelectorAll('.prompt-example').forEach(function(box) {
+    var label = box.querySelector('.prompt-label');
+    var btn = document.createElement('button');
+    btn.className = 'prompt-copy-btn';
+    btn.textContent = '복사';
+    btn.addEventListener('click', function() {
+        var text = box.querySelector('.prompt-text').textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '복사됨!';
+            btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+    if (label) label.appendChild(btn);
+    else box.appendChild(btn);
+});
+
+// Scroll Progress Bar
+(function() {
+    var bar = document.getElementById('progressBar');
+    function update() {
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = (docHeight > 0 ? (scrollTop / docHeight) * 100 : 0) + '%';
+    }
+    window.addEventListener('scroll', update, { passive: true });
+})();
+
+// Scroll Animations
+(function() {
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.anim').forEach(function(el) { observer.observe(el); });
+})();
+
+// Sub Menu Scroll Spy
+(function() {
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l) {
+        var s = document.getElementById(l.dataset.sec);
+        if (s) sections.push({ id: l.dataset.sec, el: s, link: l });
+    });
+
+    function update() {
+        var scrollY = window.scrollY + 120;
+        var current = sections[0];
+        for (var i = 0; i < sections.length; i++) {
+            if (sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l) { l.classList.remove('active'); });
+        if (current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if (activeLink) {
+            var nav = document.getElementById('subMenu');
+            var lRect = activeLink.getBoundingClientRect();
+            var nRect = nav.getBoundingClientRect();
+            if (lRect.left < nRect.left || lRect.right > nRect.right) {
+                activeLink.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+        }
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+})();
+</script>
+
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
+</body>
+</html>

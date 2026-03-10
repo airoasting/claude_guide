@@ -5,74 +5,498 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CLAUDE.md 템플릿 | Claude Code</title>
     <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
-            background: #ffffff;
-            color: #1a1a1a;
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
             line-height: 1.6;
         }
 
+        /* ── Header ── */
         header {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
             text-align: center;
-            padding: 48px 32px 40px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a1a 100%);
-            border-bottom: 3px solid #CC0000;
+            position: relative;
+            overflow: hidden;
         }
-
-        .back-link {
-            display: inline-block;
-            color: #e8706a;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            transition: opacity 0.2s;
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,130,90,0.18) 0%, transparent 60%);
+            pointer-events: none;
         }
-
-        .back-link:hover { opacity: 0.7; }
-
-        h1 {
+        header h1 {
             font-size: 44px;
             font-weight: 800;
             color: #ffffff;
             letter-spacing: -1px;
             margin-bottom: 8px;
+            position: relative; z-index: 1;
         }
 
-        header p { font-size: 17px; color: rgba(255,255,255,0.6); }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
 
+        header p { font-size: 16px; color: rgba(255,255,255,0.72); position: relative; z-index: 1; }
+
+        .header-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Header Page Links ── */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+        }
+        .header-page-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 22px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Mode Tabs ── */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 10px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* ── Container ── */
         .container {
-            max-width: 800px;
+            max-width: 960px;
             margin: 0 auto;
             padding: 48px 32px;
         }
 
-        /* Template Header */
-        .template-header {
+        /* ── Section Header ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
             margin-bottom: 20px;
+            padding: 16px 24px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 16px;
         }
 
-        .template-header h2 {
-            font-size: 22px;
+        .section-num {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #D97757, #C4613E);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 17px;
             font-weight: 700;
-            color: #1a1a1a;
+            color: #3A3530;
+            flex: 1;
+        }
+
+        /* ── NM Card ── */
+        .nm-card {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow);
+            border-radius: 20px;
+            padding: 28px;
+            overflow: hidden;
+        }
+
+        /* ── Info Box ── */
+        .info-box {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid #F59E0B;
+            border-radius: 16px;
+            padding: 22px 24px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+
+        .info-box p:last-child { margin-bottom: 0; }
+
+        .info-box code {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--ant-orange);
+            display: inline-block;
+        }
+
+        /* ── File Location Card ── */
+        .location-card {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .location-icon { font-size: 28px; flex-shrink: 0; }
+        .location-text { flex: 1; }
+        .location-text strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+        }
+        .location-path {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            color: var(--ant-orange);
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            padding: 3px 10px;
+            border-radius: 6px;
+            display: inline-block;
             margin-bottom: 4px;
         }
-
-        .template-header p {
-            font-size: 15px;
-            color: #666;
+        .location-note {
+            font-size: 12px;
+            color: #9A9590;
+            margin-top: 4px;
+            display: block;
         }
 
-        /* Code Block */
+        /* ── Scope Cards (Global vs Project) ── */
+        .scope-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 16px;
+        }
+        .scope-card {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px;
+            padding: 16px 18px;
+            border-top: 3px solid transparent;
+        }
+        .scope-card.project { border-top-color: var(--ant-orange); }
+        .scope-card.global { border-top-color: #6B8CFF; }
+        .scope-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .scope-card.project .scope-label { color: var(--ant-orange); }
+        .scope-card.global .scope-label { color: #6B8CFF; }
+        .scope-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 4px;
+        }
+        .scope-desc {
+            font-size: 13px;
+            color: #7A7570;
+            line-height: 1.5;
+        }
+        .scope-card code {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 11px;
+            color: var(--ant-orange);
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            padding: 1px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        /* ── Before / After Card ── */
+        .ba-card {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow);
+            border-radius: 20px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+        .ba-card h4 {
+            font-size: 15px;
+            font-weight: 800;
+            color: #3A3530;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ba-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .ba-col {
+            padding: 14px 16px;
+            border-radius: 12px;
+        }
+        .ba-col.before {
+            background: rgba(239, 68, 68, 0.06);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+        }
+        .ba-col.after {
+            background: rgba(34, 197, 94, 0.06);
+            border: 1px solid rgba(34, 197, 94, 0.15);
+        }
+        .ba-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .ba-col.before .ba-label { color: #EF4444; }
+        .ba-col.after .ba-label { color: #22C55E; }
+        .ba-col ul { list-style: none; padding: 0; }
+        .ba-col li {
+            font-size: 13px;
+            color: #5C5650;
+            padding: 5px 0 5px 18px;
+            position: relative;
+            line-height: 1.5;
+        }
+        .ba-col.before li::before {
+            content: '✗';
+            position: absolute;
+            left: 0;
+            color: #EF4444;
+            font-size: 11px;
+            top: 7px;
+        }
+        .ba-col.after li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #22C55E;
+            font-size: 11px;
+            top: 7px;
+        }
+
+        /* ── Template Tabs ── */
+        .template-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            padding: 10px 22px;
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Pretendard', sans-serif;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            color: #7A7570;
+        }
+        .tab-btn.active {
+            background: var(--ant-orange);
+            box-shadow: 0 4px 14px rgba(217,119,87,0.4);
+            color: #fff;
+        }
+        .template-panel { display: none; }
+        .template-panel.active { display: block; }
+
+        /* ── Code Block ── */
         .code-block {
             position: relative;
-            background: #1a1a1a;
-            border-radius: 8px;
+            background: #1A1917;
+            border-radius: 14px;
             padding: 24px;
-            margin-bottom: 32px;
             overflow: auto;
             max-height: 600px;
         }
@@ -91,20 +515,21 @@
             float: right;
             top: 0;
             padding: 6px 16px;
-            background: #333;
-            border: 1px solid #555;
-            color: #e0e0e0;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.8);
             font-size: 12px;
-            font-weight: 600;
-            border-radius: 4px;
+            font-weight: 700;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
             z-index: 1;
+            font-family: 'Pretendard', sans-serif;
         }
 
         .copy-btn:hover {
-            background: #CC0000;
-            border-color: #CC0000;
+            background: var(--ant-orange);
+            border-color: var(--ant-orange);
             color: #fff;
         }
 
@@ -114,146 +539,482 @@
             color: #fff;
         }
 
-        /* Tips Section */
-        .tips {
-            background: #f4f4f4;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 28px;
-            margin-bottom: 40px;
+        /* ── Tips Card ── */
+        .tips-card {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow);
+            border-radius: 20px;
+            padding: 28px 32px;
         }
 
-        .tips h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: #1a1a1a;
-        }
-
-        .tips ul {
+        .tips-card ul {
             list-style: none;
             padding: 0;
         }
 
-        .tips li {
+        .tips-card li {
             font-size: 14px;
-            color: #4a4a4a;
-            padding: 8px 0;
-            padding-left: 20px;
+            color: #5C5650;
+            padding: 10px 0;
+            padding-left: 22px;
             position: relative;
-            line-height: 1.5;
+            line-height: 1.6;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
         }
 
-        .tips li::before {
-            content: '•';
+        .tips-card li:last-child { border-bottom: none; }
+
+        .tips-card li::before {
+            content: '·';
             position: absolute;
-            left: 0;
-            color: #CC0000;
-            font-weight: 700;
-        }
-
-        .tips code {
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            background: #e8e8e8;
-            border: 1px solid #d0d0d0;
-            padding: 1px 6px;
-            border-radius: 3px;
-            font-size: 12px;
-            color: #CC0000;
-        }
-
-        /* Usage Section */
-        .usage {
-            margin-bottom: 32px;
-        }
-
-        .usage h3 {
+            left: 6px;
+            color: var(--ant-orange);
+            font-weight: 900;
             font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            padding-left: 16px;
-            border-left: 4px solid #CC0000;
-            color: #1a1a1a;
+            line-height: 1.4;
+        }
+
+        .tips-card code {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--ant-orange);
+            display: inline-block;
+        }
+
+        /* ── Usage Steps ── */
+        .usage-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         .usage-step {
-            margin-bottom: 24px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px;
+            padding: 20px 24px;
         }
 
         .usage-step h4 {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1a1a1a;
-            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .usage-step .code-example {
-            background: #1a1a1a;
+        .usage-step h4 .step-badge {
+            width: 26px;
+            height: 26px;
             border-radius: 8px;
+            background: linear-gradient(135deg, #D97757, #C4613E);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .usage-step p {
+            font-size: 13px;
+            color: #7A7570;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .code-example {
+            background: #1A1917;
+            border-radius: 10px;
             padding: 16px 20px;
         }
 
-        .usage-step .code-example code {
+        .code-example code {
             font-family: 'SF Mono', 'Fira Code', monospace;
             color: #e0e0e0;
             font-size: 14px;
             background: none;
-            border: none;
+            box-shadow: none;
             padding: 0;
             display: block;
             white-space: pre;
             line-height: 1.6;
         }
 
-        footer {
-            text-align: center;
-            padding: 48px 32px;
-            border-top: 1px solid #e0e0e0;
-            background: #f4f4f4;
+        .init-result {
+            margin-top: 12px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 10px;
+            padding: 14px 18px;
         }
-
-        footer .footer-brand {
-            font-size: 14px;
+        .init-result .ir-label {
+            font-size: 11px;
             font-weight: 700;
-            color: #CC0000;
-            letter-spacing: 1.5px;
+            color: #22C55E;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
             margin-bottom: 8px;
         }
+        .init-result p {
+            font-size: 13px;
+            color: #5C5650;
+            line-height: 1.6;
+            margin: 0;
+        }
 
-        footer .footer-text { font-size: 13px; color: #999; }
+        /* ── Top 5 Card ── */
+        .top5-card {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow);
+            border-radius: 20px;
+            padding: 28px 32px;
+        }
+
+        .top5-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .top5-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            padding: 14px 16px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .top5-item:hover {
+            box-shadow: var(--nm-shadow);
+            transform: translateY(-1px);
+        }
+
+        .top5-badge {
+            font-size: 12px;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, #D97757, #C4613E);
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .top5-content strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 4px;
+        }
+
+        .rule-code-block {
+            position: relative;
+            background: #1A1917;
+            border-radius: 10px;
+            padding: 12px 80px 12px 16px;
+            margin-top: 8px;
+        }
+
+        .rule-code-block code {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            color: #e0e0e0;
+            font-size: 13px;
+            background: none;
+            box-shadow: none;
+            padding: 0;
+            display: block;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .rule-copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Pretendard', sans-serif;
+            letter-spacing: 0.3px;
+        }
+
+        .rule-copy-btn:hover {
+            background: var(--ant-orange);
+            border-color: var(--ant-orange);
+            color: #fff;
+        }
+
+        .rule-copy-btn.copied {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: #fff;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            height: 2px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 2px;
+            margin: 40px 0;
+        }
+
+        /* ── Page Nav ── */
+        .page-nav {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 32px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .page-nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: var(--ant-orange);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 12px 22px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px;
+            transition: all 0.2s;
+        }
+
+        .page-nav a:hover {
+            box-shadow: var(--nm-shadow);
+            transform: translateY(-1px);
+        }
+
+        .page-nav a:active {
+            box-shadow: var(--nm-inset);
+        }
+
+        /* ── Footer ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 32px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.28); }
 
         @media (max-width: 768px) {
             header { padding: 36px 20px 28px; }
-            h1 { font-size: 32px; }
+            header h1 { font-size: 30px; }
             .container { padding: 32px 16px; }
+            .tips-card { padding: 20px 16px; }
+            .top5-card { padding: 20px 16px; }
+            .page-nav { flex-direction: column; }
+            .ba-grid { grid-template-columns: 1fr; }
+            .scope-cards { grid-template-columns: 1fr; }
+            .template-tabs { flex-direction: column; }
         }
     </style>
 </head>
 <body>
     <header>
+        <nav class="step-nav">
+            <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="project-intro.html">1</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="chrome-plugin.html">2</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="cowork-intro.html">3</a>
+            <div class="step-line"></div>
+            <a class="step-node active" href="claude-code-101.html">4</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="agent-design.html">5</a>
+        </nav>
+
         <a class="back-link" href="index.html">← 목록으로</a>
         <h1>CLAUDE.md로 내 규칙 알려주기</h1>
         <p>프로젝트 최상위 폴더에 복사해서 바로 사용하세요</p>
+        <div class="mode-tabs">
+            <span class="mode-tab" id="tab-nocode" onclick="switchMode('nocode')">노코드</span>
+            <span class="mode-tab active" id="tab-cli" onclick="switchMode('cli')">CLI</span>
+        </div>
+        <div class="header-pages" id="pages-nocode" style="display:none;">
+            <a href="claude-code-101.html" class="header-page-link"><span class="hpl-icon">🖥️</span> 클로드 코드 101</a>
+            <a href="claude-code-tasks.html" class="header-page-link"><span class="hpl-icon">🎯</span> 실전 과제 7가지</a>
+            <a href="github-guide.html" class="header-page-link"><span class="hpl-icon">🐙</span> Git & GitHub</a>
+        </div>
+        <div class="header-pages" id="pages-cli">
+            <a href="checklist.html" class="header-page-link"><span class="hpl-icon">✅</span> 22단계 따라하기</a>
+            <a href="cheatsheet.html" class="header-page-link"><span class="hpl-icon">⚡</span> 복사해서 바로 쓰는 명령어</a>
+            <a href="claude-md-templates.html" class="header-page-link active"><span class="hpl-icon">📄</span> Claude.md</a>
+        </div>
     </header>
+
+    <!-- 서브 메뉴 -->
+    <nav class="sub-menu" id="subMenu">
+        <a href="#what" class="active" data-sec="what">
+            <span class="sm-num">1</span>
+            <span class="sm-title">개요</span>
+            <span class="sm-sub">CLAUDE.md란?</span>
+        </a>
+        <a href="#template" data-sec="template">
+            <span class="sm-num">2</span>
+            <span class="sm-title">템플릿</span>
+            <span class="sm-sub">복사해서 사용</span>
+        </a>
+        <a href="#tips" data-sec="tips">
+            <span class="sm-num">3</span>
+            <span class="sm-title">팁 8가지</span>
+            <span class="sm-sub">알아두면 유용</span>
+        </a>
+        <a href="#usage" data-sec="usage">
+            <span class="sm-num">4</span>
+            <span class="sm-title">사용 방법</span>
+            <span class="sm-sub">3단계</span>
+        </a>
+        <a href="#top5" data-sec="top5">
+            <span class="sm-num">5</span>
+            <span class="sm-title">TOP 5 규칙</span>
+            <span class="sm-sub">비개발자 추천</span>
+        </a>
+    </nav>
 
     <main class="container">
 
-        <!-- 비개발자 안내 -->
-        <div style="background: #FFFBEB; border: 1.5px solid #FDE68A; border-radius: 12px; padding: 22px 24px; margin-bottom: 32px;">
-            <p style="font-size: 15px; font-weight: 700; color: #B45309; margin-bottom: 8px;">CLAUDE.md가 뭔가요?</p>
-            <p style="font-size: 14px; color: #4a4a4a; line-height: 1.7;">프로젝트 폴더에 넣어두면, Claude가 <strong>"이 프로젝트에선 이렇게 일해야 하는구나"</strong>를 자동으로 인식하는 규칙 파일입니다. 마치 새 팀원에게 건네는 <strong>업무 매뉴얼</strong>과 같습니다.</p>
-            <p style="font-size: 13px; color: #888; margin-top: 8px;">아래 템플릿에서 <code style="background:#fff;padding:2px 6px;border-radius:3px;">[대괄호]</code> 안의 내용만 내 프로젝트에 맞게 바꾸면 됩니다. 또는 Claude에게 "CLAUDE.md 만들어줘"라고 요청해도 됩니다.</p>
-        </div>
+        <!-- 개요 -->
+        <section class="content-section" id="what">
+            <div class="section-header">
+                <span class="section-num">1</span>
+                <span class="section-title">CLAUDE.md가 뭔가요?</span>
+            </div>
+            <div class="info-box">
+                <p>프로젝트 폴더에 넣어두면, Claude가 <strong>"이 프로젝트에선 이렇게 일해야 하는구나"</strong>를 자동으로 인식하는 규칙 파일입니다. 마치 새 팀원에게 건네는 <strong>업무 매뉴얼</strong>과 같습니다.</p>
+                <p style="margin-top: 10px; font-size: 13px; color: #9A9590;">아래 템플릿에서 <code>[대괄호]</code> 안의 내용만 내 프로젝트에 맞게 바꾸면 됩니다. 또는 Claude에게 "CLAUDE.md 만들어줘"라고 요청해도 됩니다.</p>
+            </div>
 
-        <!-- 기본 템플릿 -->
-        <div class="template-header">
-            <h2>CLAUDE.md 기본 템플릿</h2>
-            <p>어떤 프로젝트에도 적용 가능</p>
-        </div>
-        <div class="code-block">
-            <button class="copy-btn" onclick="copyTemplate(this)">복사</button>
-            <pre># Project: [프로젝트명]
+            <!-- 파일 위치 -->
+            <div class="location-card">
+                <span class="location-icon">📁</span>
+                <div class="location-text">
+                    <strong>어디에 파일을 만드나요?</strong>
+                    <span class="location-path">내 프로젝트 폴더/CLAUDE.md</span>
+                    <span class="location-note">프로젝트 최상위 폴더(루트)에 <code>CLAUDE.md</code>라는 이름으로 파일을 만들면 Claude가 자동으로 읽습니다. 터미널에서 프로젝트 폴더에 들어간 뒤 claude를 실행하면 됩니다.</span>
+                </div>
+            </div>
+
+            <!-- 글로벌 vs 프로젝트 -->
+            <div class="scope-cards">
+                <div class="scope-card project">
+                    <div class="scope-label">프로젝트용</div>
+                    <div class="scope-title">이 프로젝트에만 적용</div>
+                    <div class="scope-desc">특정 프로젝트 폴더 안에 두는 규칙. 해당 프로젝트에서 Claude를 실행할 때만 읽힙니다.</div>
+                    <code>프로젝트폴더/CLAUDE.md</code>
+                </div>
+                <div class="scope-card global">
+                    <div class="scope-label">글로벌 (전체 적용)</div>
+                    <div class="scope-title">모든 프로젝트에 적용</div>
+                    <div class="scope-desc">"항상 한국어로 답해줘" 같은 나만의 기본 설정. 어느 프로젝트에서나 공통으로 적용됩니다.</div>
+                    <code>~/.claude/CLAUDE.md</code>
+                </div>
+            </div>
+
+            <!-- Before / After -->
+            <div class="ba-card">
+                <h4>📊 CLAUDE.md가 있을 때 vs 없을 때</h4>
+                <div class="ba-grid">
+                    <div class="ba-col before">
+                        <div class="ba-label">CLAUDE.md 없음</div>
+                        <ul>
+                            <li>영어로 답변이 돌아옴</li>
+                            <li>코드 수정 이유를 설명 안 해줌</li>
+                            <li>중요한 파일을 실수로 건드림</li>
+                            <li>매번 같은 규칙을 다시 말해야 함</li>
+                        </ul>
+                    </div>
+                    <div class="ba-col after">
+                        <div class="ba-label">CLAUDE.md 있음</div>
+                        <ul>
+                            <li>항상 한국어로 답변</li>
+                            <li>변경 사항마다 이유를 설명해줌</li>
+                            <li>보호 파일은 자동으로 건드리지 않음</li>
+                            <li>규칙을 기억하고 일관되게 작업</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- 템플릿 -->
+        <section class="content-section" id="template">
+            <div class="section-header">
+                <span class="section-num">2</span>
+                <span class="section-title">CLAUDE.md 템플릿</span>
+            </div>
+            <div class="nm-card">
+                <div class="template-tabs">
+                    <button class="tab-btn active" onclick="switchTab('simple', this)">📋 비개발자용 (간단)</button>
+                    <button class="tab-btn" onclick="switchTab('full', this)">⚙️ 개발자·기술자용 (풀버전)</button>
+                </div>
+
+                <!-- 비개발자용 템플릿 -->
+                <div class="template-panel active" id="panel-simple">
+                    <p style="font-size: 14px; color: #7A7570; margin-bottom: 16px;">코드를 몰라도 바로 쓸 수 있는 간단 버전. <code>[대괄호]</code> 안만 바꾸세요</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyTemplate(this)">복사</button>
+                        <pre># 프로젝트: [프로젝트 이름]
+# 예시: 팀 주간 보고서 자동화, 고객 데이터 정리 도구 등
+
+## 이 프로젝트는
+[한 줄 설명]
+# 예시: 매주 월요일 팀 보고서를 자동으로 만들어주는 도구
+
+## 답변 규칙
+- 모든 답변과 주석은 한국어로 작성할 것
+- 코드를 수정했다면 왜 바꿨는지 간단히 설명할 것
+- 전문 용어를 사용할 경우 쉬운 말로 풀어서 함께 설명할 것
+- 한 번에 하나씩만 변경하고, 변경 전 내용을 알려줄 것
+
+## 절대 하지 마세요
+- 파일 삭제 전 반드시 사용자 확인 받을 것
+- .env 파일은 절대 수정하지 말 것
+- [결제·개인정보 관련 코드는 수정 전 반드시 확인. 해당 없으면 삭제]
+- 요청하지 않은 기능을 추가하지 말 것
+
+## 자주 쓰는 명령어
+- `[실행 명령어]` (예: npm start, python app.py)
+
+## 주의사항
+- [중요한 파일이나 폴더 이름 적기]
+- [예: "data/ 폴더 안 파일은 수정하지 말 것"]</pre>
+                    </div>
+                </div>
+
+                <!-- 개발자용 템플릿 -->
+                <div class="template-panel" id="panel-full">
+                    <p style="font-size: 14px; color: #7A7570; margin-bottom: 16px;">기술 스택과 개발 규칙까지 포함한 풀버전. 어떤 프로젝트에도 적용 가능</p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyTemplate(this)">복사</button>
+                        <pre># Project: [프로젝트명]
 
 ## Overview
 [프로젝트 한 줄 설명]
@@ -286,7 +1047,7 @@ src/
 ## Git Conventions
 - 커밋: `feat: 기능 설명` / `fix: 버그 설명` / `refactor: 변경 설명`
 - 브랜치: `feature/기능명`, `fix/버그명`
-# ※ 커밋(commit) = 지금까지 바꾼 코드를 "이 시점의 버전"으로 저장하는 것. 문서의 '다른 이름으로 저장'과 비슷합니다.
+# ※ 커밋(commit) = 지금까지 바꾼 코드를 "이 시점의 버전"으로 저장하는 것
 
 ## Commands
 - `[개발 서버 실행 명령어]` - 개발 서버 실행
@@ -297,84 +1058,182 @@ src/
 ## Important Notes
 - [프로젝트별 주의사항을 여기에 작성]
 - [예: "결제 관련 코드는 반드시 확인 후 수정"]</pre>
-        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
 
         <!-- 사용 팁 -->
-        <div class="tips">
-            <h3>💡 사용 팁</h3>
-            <ul>
-                <li>프로젝트 시작할 때 <code>/init</code> 먼저 실행</li>
-                <li>규칙은 구체적으로 - "코드 정리해줘"보다 "함수마다 설명 주석 추가해줘"</li>
-                <li>자주 하는 실수 적어두기 - Claude가 같은 실수 반복 안 함</li>
-                <li>명령어 정리해두기 - Claude가 빌드/테스트 알아서 실행</li>
-                <li>CLAUDE.md는 500줄 이내로 유지 - 너무 길면 핵심을 놓칠 수 있음</li>
-                <li><code>.claudeignore</code> 파일로 Claude가 읽지 않을 파일/폴더 지정 가능</li>
-                <li>CLAUDE.md에서 파일 경로를 적으면 Claude가 자동으로 찾아봄 (예: <code>docs/api-spec.md를 참고할 것</code>)</li>
-                <li><code>[대괄호]</code> 안의 내용은 본인 프로젝트에 맞게 바꿔 쓰세요</li>
-            </ul>
-        </div>
+        <section class="content-section" id="tips">
+            <div class="section-header">
+                <span class="section-num">3</span>
+                <span class="section-title">사용 팁 8가지</span>
+            </div>
+            <div class="tips-card">
+                <ul>
+                    <li>프로젝트 시작할 때 <code>/init</code> 먼저 실행. Claude가 프로젝트를 분석해 CLAUDE.md 초안을 자동으로 만들어줌</li>
+                    <li>규칙은 구체적으로. "코드 정리해줘"보다 "함수마다 설명 주석 추가해줘"</li>
+                    <li>자주 하는 실수 적어두기. Claude가 같은 실수 반복 안 함</li>
+                    <li>명령어 정리해두기. Claude가 빌드/테스트 알아서 실행</li>
+                    <li>CLAUDE.md는 500줄 이내로 유지. 너무 길면 핵심을 놓칠 수 있음</li>
+                    <li><code>.claudeignore</code> 파일로 Claude가 읽지 않을 파일/폴더 지정 가능</li>
+                    <li>CLAUDE.md에서 파일 경로를 적으면 Claude가 자동으로 찾아봄 (예: <code>docs/api-spec.md를 참고할 것</code>)</li>
+                    <li><code>[대괄호]</code> 안의 내용은 본인 프로젝트에 맞게 바꿔 쓰세요</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="divider"></div>
 
         <!-- 사용 방법 -->
-        <div class="usage">
-            <h3>사용 방법</h3>
-
-            <div class="usage-step">
-                <h4>1. 새 프로젝트 시작 시</h4>
-                <div class="code-example">
-                    <code>cd my-project
+        <section class="content-section" id="usage">
+            <div class="section-header">
+                <span class="section-num">4</span>
+                <span class="section-title">사용 방법 3단계</span>
+            </div>
+            <div class="usage-steps">
+                <div class="usage-step">
+                    <h4>
+                        <span class="step-badge">1</span>
+                        새 프로젝트: /init으로 자동 생성
+                    </h4>
+                    <p>프로젝트 폴더에서 Claude를 실행한 뒤 <code>/init</code>을 입력하면 Claude가 프로젝트 구조를 분석하고 CLAUDE.md 초안을 직접 만들어줍니다.</p>
+                    <div class="code-example">
+                        <code>cd my-project
 claude
 > /init</code>
+                    </div>
+                    <div class="init-result">
+                        <div class="ir-label">✓ /init 실행 결과</div>
+                        <p>Claude가 폴더 구조, 파일 유형, 기존 설정을 읽고 "이 프로젝트에 맞는 CLAUDE.md를 작성했습니다"라고 응답합니다. 생성된 파일을 열어 내용을 확인하고 필요한 부분만 수정하면 됩니다.</p>
+                    </div>
                 </div>
-            </div>
-
-            <div class="usage-step">
-                <h4>2. Claude에게 수정 요청</h4>
-                <div class="code-example">
-                    <code>> CLAUDE.md에 다음 규칙 추가해줘:
+                <div class="usage-step">
+                    <h4>
+                        <span class="step-badge">2</span>
+                        기존 프로젝트: 템플릿 붙여넣기
+                    </h4>
+                    <p>이미 진행 중인 프로젝트라면 위 템플릿을 복사해 프로젝트 폴더에 <code>CLAUDE.md</code> 파일로 저장하세요.</p>
+                    <div class="code-example">
+                        <code># 프로젝트 폴더에서 파일 생성
+touch CLAUDE.md
+# 그 다음 위 템플릿을 붙여넣고 [대괄호] 내용을 수정</code>
+                    </div>
+                </div>
+                <div class="usage-step">
+                    <h4>
+                        <span class="step-badge">3</span>
+                        Claude에게 규칙 추가 요청
+                    </h4>
+                    <p>작업 중 새로운 규칙이 필요하면 Claude에게 직접 요청하면 됩니다.</p>
+                    <div class="code-example">
+                        <code>> CLAUDE.md에 다음 규칙 추가해줘:
 > - 모든 API 응답에 타임스탬프 포함</code>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- 비개발자 실전 활용 -->
-        <div style="background: #f9fafb; border: 1px solid #e0e0e0; border-radius: 12px; padding: 28px; margin-top: 32px;">
-            <h3 style="font-size: 18px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; padding-left: 14px; border-left: 4px solid #CC0000;">비개발자가 자주 넣는 규칙 TOP 5</h3>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <div style="display: flex; gap: 12px; align-items: flex-start;">
-                    <span style="font-size: 12px; font-weight: 800; color: #fff; background: #CC0000; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">1</span>
-                    <div><strong style="font-size: 14px; color: #1a1a1a;">한국어로 답변</strong><br><span style="font-size: 13px; color: #666;">→ <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;">모든 답변과 주석은 한국어로 작성할 것</code></span></div>
-                </div>
-                <div style="display: flex; gap: 12px; align-items: flex-start;">
-                    <span style="font-size: 12px; font-weight: 800; color: #fff; background: #CC0000; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">2</span>
-                    <div><strong style="font-size: 14px; color: #1a1a1a;">코드 설명 의무화</strong><br><span style="font-size: 13px; color: #666;">→ <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;">코드 수정 시 왜 바꿨는지 간단한 주석 추가</code></span></div>
-                </div>
-                <div style="display: flex; gap: 12px; align-items: flex-start;">
-                    <span style="font-size: 12px; font-weight: 800; color: #fff; background: #CC0000; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">3</span>
-                    <div><strong style="font-size: 14px; color: #1a1a1a;">확인 후 수정</strong><br><span style="font-size: 13px; color: #666;">→ <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;">데이터베이스 구조 변경 전 반드시 사용자 확인 받을 것</code></span></div>
-                </div>
-                <div style="display: flex; gap: 12px; align-items: flex-start;">
-                    <span style="font-size: 12px; font-weight: 800; color: #fff; background: #CC0000; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">4</span>
-                    <div><strong style="font-size: 14px; color: #1a1a1a;">파일 보호</strong><br><span style="font-size: 13px; color: #666;">→ <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;">.env 파일은 절대 수정하지 말 것</code></span></div>
-                </div>
-                <div style="display: flex; gap: 12px; align-items: flex-start;">
-                    <span style="font-size: 12px; font-weight: 800; color: #fff; background: #CC0000; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">5</span>
-                    <div><strong style="font-size: 14px; color: #1a1a1a;">스타일 유지</strong><br><span style="font-size: 13px; color: #666;">→ <code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;">기존 코드 스타일과 동일한 패턴을 유지할 것</code></span></div>
+        <div class="divider"></div>
+
+        <!-- TOP 5 -->
+        <section class="content-section" id="top5">
+            <div class="section-header">
+                <span class="section-num">5</span>
+                <span class="section-title">비개발자가 자주 넣는 규칙 TOP 5</span>
+            </div>
+            <div class="top5-card">
+                <div class="top5-list">
+                    <div class="top5-item">
+                        <span class="top5-badge">1</span>
+                        <div class="top5-content">
+                            <strong>한국어로 답변</strong>
+                            <div class="rule-code-block">
+                                <button class="rule-copy-btn" onclick="copyRule(this)">복사</button>
+                                <code>모든 답변과 주석은 한국어로 작성할 것</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="top5-item">
+                        <span class="top5-badge">2</span>
+                        <div class="top5-content">
+                            <strong>코드 설명 의무화</strong>
+                            <div class="rule-code-block">
+                                <button class="rule-copy-btn" onclick="copyRule(this)">복사</button>
+                                <code>코드 수정 시 왜 바꿨는지 간단한 주석 추가</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="top5-item">
+                        <span class="top5-badge">3</span>
+                        <div class="top5-content">
+                            <strong>확인 후 수정</strong>
+                            <div class="rule-code-block">
+                                <button class="rule-copy-btn" onclick="copyRule(this)">복사</button>
+                                <code>데이터베이스 구조 변경 전 반드시 사용자 확인 받을 것</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="top5-item">
+                        <span class="top5-badge">4</span>
+                        <div class="top5-content">
+                            <strong>파일 보호</strong>
+                            <div class="rule-code-block">
+                                <button class="rule-copy-btn" onclick="copyRule(this)">복사</button>
+                                <code>.env 파일은 절대 수정하지 말 것</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="top5-item">
+                        <span class="top5-badge">5</span>
+                        <div class="top5-content">
+                            <strong>스타일 유지</strong>
+                            <div class="rule-code-block">
+                                <button class="rule-copy-btn" onclick="copyRule(this)">복사</button>
+                                <code>기존 코드 스타일과 동일한 패턴을 유지할 것</code>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
+
     </main>
 
-        <nav class="page-nav" style="max-width: 800px; margin: 0 auto; padding: 0 32px 48px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-            <a href="automation.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">← 이전: 멀티 에이전트 자동화</a>
-            <a href="github-guide.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff; margin-left: auto;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">다음: Git & GitHub 가이드 →</a>
-        </nav>
+    <nav class="page-nav">
+        <a href="cheatsheet.html">← 이전: 복사해서 바로 쓰는 명령어</a>
+        <a href="skills.html">다음: Skill 기본 →</a>
+    </nav>
 
     <footer>
         <p class="footer-brand">AI Roasting</p>
-        <p class="footer-text">Claude 실전 가이드</p>
+        <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+        <p class="footer-text" style="margin-top:8px; opacity:0.4;">© 2026 AI Roasting. All rights reserved.</p>
     </footer>
 
     <script>
+// ── Mode Tabs ──
+function switchMode(mode) {
+    document.getElementById('tab-nocode').classList.toggle('active', mode === 'nocode');
+    document.getElementById('tab-cli').classList.toggle('active', mode === 'cli');
+    document.getElementById('pages-nocode').style.display = mode === 'nocode' ? 'flex' : 'none';
+    document.getElementById('pages-cli').style.display = mode === 'cli' ? 'flex' : 'none';
+}
+
+        function copyRule(btn) {
+            const code = btn.parentElement.querySelector('code');
+            navigator.clipboard.writeText(code.textContent).then(() => {
+                btn.textContent = '복사됨!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '복사';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
         function copyTemplate(btn) {
             const pre = btn.parentElement.querySelector('pre');
             navigator.clipboard.writeText(pre.textContent).then(() => {
@@ -386,6 +1245,37 @@ claude
                 }, 2000);
             });
         }
+
+        function switchTab(type, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.template-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('panel-' + type).classList.add('active');
+        }
+
+        // Sub menu active state tracking on scroll
+        const sections = document.querySelectorAll('.content-section');
+        const navLinks = document.querySelectorAll('.sub-menu a');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    navLinks.forEach(link => {
+                        link.classList.toggle('active', link.dataset.sec === id);
+                    });
+                }
+            });
+        }, { rootMargin: '-20% 0px -70% 0px' });
+
+        sections.forEach(section => observer.observe(section));
     </script>
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
 </body>
 </html>

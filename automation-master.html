@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자동화 마스터 코스 | AI Roasting</title>
+    <meta name="description" content="에이전트, 서브에이전트, 스킬, 후크를 조합해 나만의 AI 팀을 설계하는 최종 코스.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --gold: #B8860B;
+            --gold-dark: #8B6914;
+            --gold-light: #DAA520;
+            --ant-dark: #1A1917;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #8B6914 0%, #6B4F0A 40%, #4A3507 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255,215,0,0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.72); position: relative; z-index: 1; }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,215,0,0.9); border-color: rgba(255,215,0,0.9); color: #4A3507; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Mode Tabs ── */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            text-decoration: none;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* ── Header Page Links ── */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .header-page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 22px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(184,134,11,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--gold);
+            box-shadow: 0 2px 8px rgba(184,134,11,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--gold); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #9B7D3A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 860px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--gold);
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; padding-left: 20px; }
+
+        /* ── 섹션 구분 ── */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 28px 0; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--gold); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px; border-radius: 20px; white-space: nowrap;
+        }
+
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 14px 24px; margin: 16px 0;
+            display: flex; align-items: center; gap: 14px;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--gold); white-space: nowrap; flex-shrink: 0;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; margin: 0; }
+
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--gold);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 강조 박스 ── */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(184,134,11,0.08) 0%, rgba(184,134,11,0.03) 100%);
+            border: 1.5px solid rgba(184,134,11,0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin: 20px 0;
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 0; text-align: center; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── Hero 타자기 ── */
+        .hero-question {
+            font-size: 28px;
+            font-weight: 800;
+            color: #3A3530;
+            text-align: center;
+            min-height: 44px;
+            margin-bottom: 8px;
+        }
+        .hero-question .cursor {
+            display: inline-block;
+            width: 3px; height: 32px;
+            background: var(--gold);
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink 0.7s step-end infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        .hero-sub { font-size: 15px; color: #888; text-align: center; margin-top: 12px; }
+        .hero-badge {
+            display: inline-block;
+            font-size: 12px; font-weight: 700;
+            color: var(--gold);
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 18px;
+            border-radius: 20px;
+            margin-top: 16px;
+            letter-spacing: 1px;
+        }
+
+        /* ── 스크롤 애니메이션 ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.15s; }
+        .reveal-delay-2 { transition-delay: 0.3s; }
+        .reveal-delay-3 { transition-delay: 0.45s; }
+
+        /* ── 가치 제안 그리드 ── */
+        .value-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .value-nm {
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm); padding: 20px;
+            display: flex; align-items: flex-start; gap: 14px;
+            transition: all 0.3s;
+        }
+        .value-nm:hover { transform: translateY(-2px); box-shadow: var(--nm-shadow); }
+        .value-nm .vn-icon { font-size: 24px; flex-shrink: 0; }
+        .value-nm .vn-text { font-size: 14px; color: #5C5650; line-height: 1.6; }
+        .value-nm .vn-text strong { color: #3A3530; }
+
+        /* ── 선수 지식 ── */
+        .prereq-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 16px 22px;
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 24px;
+        }
+        .prereq-box a { color: var(--gold); font-weight: 600; text-decoration: none; }
+        .prereq-box a:hover { text-decoration: underline; }
+
+        /* ── 설계 질문 카드 ── */
+        .design-q-grid { display: grid; gap: 14px; margin: 18px 0; }
+        .design-q-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .design-q-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .design-q-card {
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm); overflow: hidden;
+            transition: all 0.3s;
+        }
+        .design-q-card:hover { transform: translateY(-2px); box-shadow: var(--nm-shadow); }
+        .design-q-top {
+            background: #2D3748; color: #fff; padding: 14px 18px;
+            font-size: 14px; font-weight: 700;
+        }
+        .design-q-top .q-num { font-size: 12px; font-weight: 600; opacity: 0.6; margin-right: 6px; }
+        .design-q-body { padding: 18px; }
+        .design-q-body .dq-role { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px; }
+        .design-q-body .dq-desc { font-size: 12px; color: #999; margin-bottom: 8px; }
+        .design-q-body .dq-example {
+            font-size: 12px; color: #5C5650; font-style: italic;
+            background: var(--nm-bg); border-radius: 10px;
+            box-shadow: var(--nm-inset);
+            padding: 8px 12px; border-left: 3px solid var(--gold);
+        }
+
+        /* ── 패턴 카드 ── */
+        .pattern-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 18px 0; }
+        .pattern-nm {
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm); padding: 24px;
+            transition: all 0.3s;
+        }
+        .pattern-nm:hover { transform: translateY(-4px); box-shadow: var(--nm-shadow); }
+        .pattern-nm .pn-label { font-size: 11px; font-weight: 800; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+        .pattern-nm .pn-name { font-size: 17px; font-weight: 800; color: #3A3530; margin-bottom: 12px; }
+        .pattern-nm .pn-diagram {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 16px; color: var(--gold); font-weight: 700;
+            margin-bottom: 12px; line-height: 1.8;
+            background: var(--nm-bg); border-radius: 10px;
+            box-shadow: var(--nm-inset);
+            padding: 12px 16px; text-align: center;
+        }
+        .pattern-nm .pn-desc { font-size: 13px; color: #888; line-height: 1.6; }
+
+        /* ── 뉴모 테이블 ── */
+        .nm-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .nm-table-wrap table { width: 100%; border-collapse: collapse; }
+        .nm-table-wrap thead { background: var(--ant-dark); }
+        .nm-table-wrap th {
+            text-align: left; padding: 12px 16px;
+            font-size: 14px; font-weight: 600; color: #fff;
+        }
+        .nm-table-wrap td {
+            padding: 12px 16px; font-size: 14px; color: #5C5650;
+            border-bottom: 1px solid #E8E4DE;
+        }
+        .nm-table-wrap tbody tr:last-child td { border-bottom: none; }
+        .nm-table-wrap tbody tr:hover { background: rgba(184,134,11,0.04); }
+
+        /* ── 시나리오 카드 ── */
+        .scenario-nm {
+            background: var(--nm-bg); border-radius: 20px;
+            box-shadow: var(--nm-shadow); padding: 28px 32px;
+            margin-bottom: 20px;
+        }
+        .scenario-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .scenario-num {
+            background: var(--gold); color: #fff; font-size: 12px; font-weight: 700;
+            padding: 4px 14px; border-radius: 100px;
+        }
+        .scenario-title { font-size: 18px; font-weight: 800; color: #3A3530; }
+        .scenario-desc { font-size: 14px; color: #888; margin-bottom: 16px; line-height: 1.6; }
+
+        /* ── 프롬프트 박스 ── */
+        .prompt-box {
+            background: var(--ant-dark); color: #e0e0e0;
+            padding: 20px 24px; border-radius: 14px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px; line-height: 1.8;
+            white-space: pre-wrap; margin: 12px 0;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 14px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .scenario-result { font-size: 13px; font-weight: 600; color: var(--gold); margin-top: 8px; }
+
+        /* ── 워크플로우 스텝 ── */
+        .wf-steps { display: flex; flex-direction: column; gap: 0; margin: 18px 0; }
+        .wf-step {
+            display: flex; gap: 20px; align-items: flex-start;
+            padding: 16px 0;
+        }
+        .wf-step-num {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: 800; color: var(--gold);
+            flex-shrink: 0; position: relative; z-index: 1;
+        }
+        .wf-step-content { flex: 1; padding-top: 8px; }
+        .wf-step-label { font-size: 12px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .wf-step-desc { font-size: 14px; color: #5C5650; line-height: 1.6; }
+        .wf-connector {
+            width: 2px; height: 20px;
+            background: linear-gradient(to bottom, var(--gold), rgba(184,134,11,0.3));
+            margin-left: 21px;
+        }
+
+        /* ── 설계 원칙 ── */
+        .principle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 18px 0; }
+        .principle-nm {
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm); padding: 24px;
+            transition: all 0.3s;
+        }
+        .principle-nm:hover { transform: translateY(-3px); box-shadow: var(--nm-shadow); }
+        .principle-nm .pr-icon { font-size: 28px; margin-bottom: 10px; }
+        .principle-nm .pr-title { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .principle-nm .pr-desc { font-size: 13px; color: #888; line-height: 1.6; }
+
+        /* ── 프롬프트 모음 ── */
+        .prompt-collection {
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            border: 2px dashed rgba(184,134,11,0.3);
+            padding: 24px; margin-bottom: 16px;
+        }
+        .prompt-collection h4 {
+            font-size: 14px; font-weight: 700; color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        /* ── 체크리스트 ── */
+        .grad-checklist {
+            background: var(--nm-bg); border-radius: 20px;
+            box-shadow: var(--nm-shadow); padding: 32px;
+            margin-top: 24px;
+        }
+        .grad-checklist h3 { font-size: 20px; font-weight: 800; color: #3A3530; text-align: center; margin-bottom: 8px; }
+        .grad-progress {
+            background: var(--nm-bg); border-radius: 20px;
+            box-shadow: var(--nm-inset);
+            height: 12px; margin: 20px 0;
+            overflow: hidden;
+        }
+        .grad-progress-bar {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+            border-radius: 20px;
+            transition: width 0.5s ease;
+        }
+        .grad-progress-text { text-align: center; font-size: 13px; color: #999; margin-bottom: 16px; }
+        .check-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px; margin-bottom: 8px;
+            background: var(--nm-bg); border-radius: 12px;
+            box-shadow: var(--nm-shadow-sm);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .check-item:hover { transform: translateX(4px); }
+        .check-item.checked { box-shadow: var(--nm-inset); }
+        .check-item.checked label { text-decoration: line-through; color: #bbb; }
+        .check-item input[type="checkbox"] {
+            width: 20px; height: 20px; accent-color: var(--gold);
+            cursor: pointer; flex-shrink: 0;
+        }
+        .check-item label { cursor: pointer; flex: 1; font-size: 14px; color: #5C5650; }
+
+        /* ── 졸업 축하 ── */
+        .grad-celebration {
+            text-align: center; padding: 24px;
+            display: none;
+        }
+        .grad-celebration.show { display: block; animation: fadeInUp 0.5s ease; }
+        .grad-celebration .gc-emoji { font-size: 48px; margin-bottom: 12px; }
+        .grad-celebration .gc-title { font-size: 20px; font-weight: 800; color: var(--gold); margin-bottom: 8px; }
+        .grad-celebration .gc-desc { font-size: 14px; color: #888; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── confetti ── */
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; overflow: hidden; }
+        .confetti-piece {
+            position: absolute; top: -20px;
+            width: 10px; height: 10px;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg) scale(0.3); opacity: 0; }
+        }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(150deg, #8B6914 0%, #6B4F0A 40%, #4A3507 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #6B4F0A; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* ── 푸터 ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 32px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.28); }
+
+        /* ── 반응형 ── */
+        @media (max-width: 768px) {
+            header { padding: 36px 20px 28px; }
+            header h1 { font-size: 30px; }
+            .container { padding: 24px 16px 60px; }
+            .pattern-grid { grid-template-columns: 1fr; }
+            .principle-grid { grid-template-columns: 1fr; }
+            .value-grid { grid-template-columns: 1fr; }
+            .design-q-grid.cols-2, .design-q-grid.cols-3 { grid-template-columns: 1fr; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .header-pages { flex-direction: column; gap: 8px; max-width: 280px; }
+            .hero-question { font-size: 22px; min-height: 36px; }
+            .nm-card { padding: 22px 18px; }
+            .scenario-nm { padding: 22px 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="project-intro.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="cowork-intro.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="agent-design.html">5</a>
+    </nav>
+    <a href="index.html" class="back-link">&larr; 목록으로</a>
+    <h1>자동화 마스터 코스</h1>
+    <p>4가지 도구를 조합해 나만의 AI 팀을 설계합니다</p>
+    <div class="mode-tabs">
+        <a class="mode-tab" href="agent-design.html">설계</a>
+        <a class="mode-tab" href="skills.html">스킬</a>
+        <span class="mode-tab active">최종</span>
+    </div>
+    <div class="header-pages">
+        <a href="automation-master.html" class="header-page-link active"><span class="hpl-icon">🏆</span> 자동화 실전 적용</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#design" class="active" data-sec="design">
+        <span class="sm-num">1</span>
+        <span class="sm-title">설계</span>
+        <span class="sm-sub">5가지 질문</span>
+    </a>
+    <a href="#pattern" data-sec="pattern">
+        <span class="sm-num">2</span>
+        <span class="sm-title">패턴</span>
+        <span class="sm-sub">4가지 구조</span>
+    </a>
+    <a href="#scenario" data-sec="scenario">
+        <span class="sm-num">3</span>
+        <span class="sm-title">실전</span>
+        <span class="sm-sub">시나리오</span>
+    </a>
+    <a href="#workflow" data-sec="workflow">
+        <span class="sm-num">4</span>
+        <span class="sm-title">조합</span>
+        <span class="sm-sub">워크플로우</span>
+    </a>
+    <a href="#prompts" data-sec="prompts">
+        <span class="sm-num">5</span>
+        <span class="sm-title">프롬프트</span>
+        <span class="sm-sub">모음</span>
+    </a>
+    <a href="#graduate" data-sec="graduate">
+        <span class="sm-num">🎓</span>
+        <span class="sm-title">졸업</span>
+        <span class="sm-sub">체크리스트</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- ═══ HERO ═══ -->
+    <div style="padding-top: 8px;"></div>
+    <section>
+        <div class="nm-card" style="text-align:center; padding: 48px 32px;">
+            <div class="hero-question" id="heroQ1"></div>
+            <div class="hero-question" id="heroQ2" style="min-height:36px; font-size:24px; color:#888; font-weight:600;"></div>
+            <p class="hero-sub">에이전트, 서브에이전트, 스킬, 후크. 이 4가지를 조합하면 됩니다.</p>
+            <span class="hero-badge">🏆 최종 코스</span>
+        </div>
+    </section>
+
+    <!-- ═══ ① 가치 제안 ═══ -->
+    <section class="reveal">
+        <div class="nm-card">
+            <h2>이 코스를 마치면</h2>
+            <div class="value-grid" style="margin-top: 18px;">
+                <div class="value-nm reveal reveal-delay-1">
+                    <span class="vn-icon">🏗️</span>
+                    <div class="vn-text"><strong>AI 팀을 직접 설계</strong>할 수 있습니다. 에이전트, 서브에이전트, 스킬, 후크를 목적에 맞게 조합합니다.</div>
+                </div>
+                <div class="value-nm reveal reveal-delay-2">
+                    <span class="vn-icon">🔄</span>
+                    <div class="vn-text"><strong>반복 업무를 자동화</strong>합니다. 주간보고, 코드 리뷰, 데이터 정리를 명령 하나로 처리합니다.</div>
+                </div>
+                <div class="value-nm reveal reveal-delay-1">
+                    <span class="vn-icon">📋</span>
+                    <div class="vn-text"><strong>프롬프트를 복사해서 바로 적용</strong>합니다. 코드를 직접 쓸 필요 없이, Claude에게 요청만 하면 됩니다.</div>
+                </div>
+                <div class="value-nm reveal reveal-delay-2">
+                    <span class="vn-icon">🎓</span>
+                    <div class="vn-text"><strong>Claude 완전 정복 과정을 졸업</strong>합니다. 진단부터 자동화까지, 전체 학습 여정을 마무리합니다.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 선수 지식 -->
+    <div class="prereq-box reveal">
+        <span style="font-size: 18px;">📖</span>
+        <p style="font-size: 14px; color: #888;">이 코스는 <a href="automation.html">AI 자동화의 4가지 도구</a>를 먼저 읽은 뒤 진행하면 더 잘 이해됩니다.</p>
+    </div>
+
+    <!-- ═══ ② 설계 템플릿 ═══ -->
+    <div class="step-divider"><span class="step-badge">STEP 1</span></div>
+    <div class="content-section" id="design"></div>
+    <section class="reveal">
+        <div class="nm-card">
+            <h2>설계 템플릿</h2>
+            <p class="card-subtitle">5가지 질문에 답하면, 나만의 AI 팀이 설계됩니다</p>
+
+            <div class="inset-box">
+                <div class="inset-label">목적과 기준</div>
+                <p>무엇을, 왜 자동화하고 싶은지 먼저 정리합니다.</p>
+            </div>
+
+            <div class="design-q-grid cols-2" style="margin-top: 16px;">
+                <div class="design-q-card reveal reveal-delay-1">
+                    <div class="design-q-top"><span class="q-num">Q1.</span> 나는 왜 이것을 하고 싶은가?</div>
+                    <div class="design-q-body">
+                        <p style="font-size: 13px; color: #999; margin-bottom: 8px;">직접 작성해보세요</p>
+                        <div class="dq-example">예: "매주 3시간 걸리는 주간보고를 30분으로 줄이고 싶다"</div>
+                    </div>
+                </div>
+                <div class="design-q-card reveal reveal-delay-2">
+                    <div class="design-q-top"><span class="q-num">Q2.</span> 좋은 결과물의 기준은 무엇인가?</div>
+                    <div class="design-q-body">
+                        <p style="font-size: 13px; color: #999; margin-bottom: 8px;">직접 작성해보세요</p>
+                        <div class="dq-example">예: "팀장이 바로 승인할 수 있는 형식의 보고서"</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inset-box" style="margin-top: 24px;">
+                <div class="inset-label">역할과 도구</div>
+                <p>누가, 어떻게 일할지 정합니다.</p>
+            </div>
+
+            <div class="design-q-grid cols-3">
+                <div class="design-q-card reveal reveal-delay-1">
+                    <div class="design-q-top"><span class="q-num">Q3.</span> 팀장(에이전트)의 역할은?</div>
+                    <div class="design-q-body">
+                        <div class="dq-role">에이전트 (Agent)</div>
+                        <div class="dq-desc">전체를 총괄하고 최종 판단을 내리는 AI</div>
+                        <div class="dq-example">예: 보고서 전체 구성 결정</div>
+                    </div>
+                </div>
+                <div class="design-q-card reveal reveal-delay-2">
+                    <div class="design-q-top"><span class="q-num">Q4.</span> 팀원(서브에이전트)은?</div>
+                    <div class="design-q-body">
+                        <div class="dq-role">서브에이전트 (Sub-Agent)</div>
+                        <div class="dq-desc">각 분야를 담당하는 전문가 AI</div>
+                        <div class="dq-example">예: 커밋 분석, 이슈 분석 담당</div>
+                    </div>
+                </div>
+                <div class="design-q-card reveal reveal-delay-3">
+                    <div class="design-q-top"><span class="q-num">Q5.</span> 공통 도구(스킬)는?</div>
+                    <div class="design-q-body">
+                        <div class="dq-role">스킬 (Skill)</div>
+                        <div class="dq-desc">모든 팀원이 사용하는 공유 도구</div>
+                        <div class="dq-example">예: /weekly-report 명령어</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">TIP</div>
+                <p>5가지 질문을 다 채울 필요는 없습니다. Q1, Q3만 정해도 첫 자동화를 시작할 수 있습니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ ③ 기본 구조 패턴 ═══ -->
+    <div class="step-divider"><span class="step-badge">STEP 2</span></div>
+    <div class="content-section" id="pattern"></div>
+    <section class="reveal">
+        <div class="nm-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h2>기본 구조 패턴</h2>
+                    <p class="card-subtitle">AI에게 일을 맡기는 4가지 방법</p>
+                </div>
+                <a href="agent-design.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--nm-bg); box-shadow: var(--nm-shadow-sm); border-radius: 10px; font-size: 12px; font-weight: 700; color: var(--gold); text-decoration: none; white-space: nowrap; transition: all 0.2s; flex-shrink: 0; margin-top: 4px;" onmouseover="this.style.boxShadow='var(--nm-inset)'" onmouseout="this.style.boxShadow='var(--nm-shadow-sm)'">자세히 보기 →</a>
+            </div>
+
+            <div class="pattern-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="pattern-nm reveal reveal-delay-1">
+                    <div class="pn-label">패턴 1 <span style="color:var(--gold); font-weight:700;">SOLO</span></div>
+                    <div class="pn-name">단독으로 수행하기</div>
+                    <div class="pn-diagram">나 → A</div>
+                    <div class="pn-desc">하나의 AI가 처음부터 끝까지 혼자 처리합니다.<br><br><strong>예시:</strong> 이메일 초안 작성, 문서 요약</div>
+                </div>
+                <div class="pattern-nm reveal reveal-delay-2">
+                    <div class="pn-label">패턴 2 <span style="color:var(--gold); font-weight:700;">PIPELINE</span></div>
+                    <div class="pn-name">순차적 업무</div>
+                    <div class="pn-diagram">나 → A → B → C</div>
+                    <div class="pn-desc">한 에이전트가 끝나면 다음 에이전트가 시작합니다.<br><br><strong>예시:</strong> 데이터 수집 → 분석 → 보고서 작성</div>
+                </div>
+                <div class="pattern-nm reveal reveal-delay-1">
+                    <div class="pn-label">패턴 3 <span style="color:var(--gold); font-weight:700;">TEAM</span></div>
+                    <div class="pn-name">팀으로 나눠서</div>
+                    <div class="pn-diagram">나 → [A, B, C] → 결과</div>
+                    <div class="pn-desc">여러 에이전트가 동시에 작업합니다.<br><br><strong>예시:</strong> 매출, 고객, 재고 데이터를 동시 분석</div>
+                </div>
+                <div class="pattern-nm reveal reveal-delay-2">
+                    <div class="pn-label">패턴 4 <span style="color:var(--gold); font-weight:700;">ORCHESTRA</span></div>
+                    <div class="pn-name">지휘자 세우기</div>
+                    <div class="pn-diagram">나 → Main ⇄ [A, B, C]</div>
+                    <div class="pn-desc">메인 에이전트가 서브에이전트를 관리하고 조율합니다.<br><br><strong>예시:</strong> Claude Code의 기본 작업 방식</div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">TIP</div>
+                <p>처음에는 패턴 1(Solo)부터 시작하세요. 익숙해지면 패턴 2, 3, 4로 확장합니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ ④ 실전 시나리오 ═══ -->
+    <div class="step-divider"><span class="step-badge">STEP 3</span></div>
+    <div class="content-section" id="scenario"></div>
+    <section class="reveal">
+        <div class="nm-card" style="margin-bottom: 20px;">
+            <h2>실전 시나리오</h2>
+            <p class="card-subtitle">실제 업무에 바로 적용할 수 있는 3가지 자동화 레시피</p>
+        </div>
+
+        <!-- 시나리오 1 -->
+        <div class="scenario-nm reveal">
+            <div class="scenario-header">
+                <span class="scenario-num">시나리오 1</span>
+                <span class="scenario-title">매주 월요일 주간보고 자동화</span>
+            </div>
+            <div class="scenario-desc">매주 반복되는 주간보고서 작성. 지난주 작업 내역을 자동으로 수집하고, 정해진 양식으로 정리합니다.</div>
+
+            <div class="nm-table-wrap">
+                <table>
+                    <thead><tr><th>역할</th><th>담당</th><th>하는 일</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>에이전트</strong></td><td>보고서 총괄</td><td>전체 구성 결정, 최종 문서 생성</td></tr>
+                        <tr><td><strong>서브에이전트 1</strong></td><td>커밋 분석</td><td>지난주 git 커밋 내역 수집 및 요약</td></tr>
+                        <tr><td><strong>서브에이전트 2</strong></td><td>이슈 분석</td><td>완료/진행 중 이슈 정리</td></tr>
+                        <tr><td><strong>스킬</strong></td><td>/weekly-report</td><td>한 줄 명령어로 전체 프로세스 시작</td></tr>
+                        <tr><td><strong>후크</strong></td><td>완료 알림</td><td>보고서 생성 후 Slack 알림</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 16px; padding: 14px 26px;">
+                <div class="hl-title">복사해서 바로 쓰는 프롬프트</div>
+            </div>
+            <div class="prompt-box" id="prompt1">매주 월요일마다 실행할 수 있는 주간보고 자동화 스킬을 만들어줘.
+
+- /weekly-report 라고 치면 실행되게
+- 지난주 git 커밋 내역을 자동으로 읽어서 요약
+- 완료된 이슈와 진행 중인 이슈를 분류
+- 주간 보고서 양식(날짜, 완료 항목, 진행 중, 다음 주 계획)으로 정리
+- reports/ 폴더에 markdown으로 저장<button class="copy-btn" onclick="copyPrompt('prompt1')">복사</button></div>
+            <p class="scenario-result">→ Claude가 스킬 파일과 보고서 템플릿을 자동으로 만들어 줍니다</p>
+        </div>
+
+        <!-- 시나리오 2 -->
+        <div class="scenario-nm reveal">
+            <div class="scenario-header">
+                <span class="scenario-num">시나리오 2</span>
+                <span class="scenario-title">코드 리뷰 자동화</span>
+            </div>
+            <div class="scenario-desc">PR(Pull Request)이 올라오면 자동으로 코드를 분석하고, 개선 사항을 제안합니다.</div>
+
+            <div class="nm-table-wrap">
+                <table>
+                    <thead><tr><th>역할</th><th>담당</th><th>하는 일</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>에이전트</strong></td><td>리뷰 총괄</td><td>전체 코드 품질 판단, 최종 리뷰 작성</td></tr>
+                        <tr><td><strong>서브에이전트 1</strong></td><td>보안 검사</td><td>보안 취약점 탐색</td></tr>
+                        <tr><td><strong>서브에이전트 2</strong></td><td>성능 검사</td><td>성능 이슈 분석</td></tr>
+                        <tr><td><strong>스킬</strong></td><td>/code-review</td><td>대상 파일 지정해서 리뷰 시작</td></tr>
+                        <tr><td><strong>후크</strong></td><td>자동 포맷팅</td><td>파일 저장 시 코드 스타일 자동 정리</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 16px; padding: 14px 26px;">
+                <div class="hl-title">복사해서 바로 쓰는 프롬프트</div>
+            </div>
+            <div class="prompt-box" id="prompt2">코드 리뷰를 자동화하는 스킬을 만들어줘.
+
+- /code-review 라고 치면 실행
+- $ARGUMENTS로 대상 파일이나 폴더를 받아서
+- 보안 취약점, 성능 이슈, 코드 스타일을 동시에 검사
+- 결과를 심각도(높음/중간/낮음)로 분류해서 보여줘
+- 개선 제안도 함께 포함<button class="copy-btn" onclick="copyPrompt('prompt2')">복사</button></div>
+            <p class="scenario-result">→ /code-review src/login.js 로 바로 실행 가능</p>
+        </div>
+
+        <!-- 시나리오 3 -->
+        <div class="scenario-nm reveal">
+            <div class="scenario-header">
+                <span class="scenario-num">시나리오 3</span>
+                <span class="scenario-title">데이터 정리 자동화</span>
+            </div>
+            <div class="scenario-desc">엑셀이나 CSV 파일을 받으면 자동으로 정리하고, 요약 보고서를 만듭니다.</div>
+
+            <div class="nm-table-wrap">
+                <table>
+                    <thead><tr><th>역할</th><th>담당</th><th>하는 일</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>에이전트</strong></td><td>분석 총괄</td><td>데이터 구조 파악, 분석 방향 결정</td></tr>
+                        <tr><td><strong>서브에이전트 1</strong></td><td>데이터 정제</td><td>중복 제거, 형식 통일, 빈 값 처리</td></tr>
+                        <tr><td><strong>서브에이전트 2</strong></td><td>통계 분석</td><td>핵심 지표 계산, 트렌드 파악</td></tr>
+                        <tr><td><strong>스킬</strong></td><td>/data-clean</td><td>파일명 지정해서 정리 시작</td></tr>
+                        <tr><td><strong>후크</strong></td><td>결과 저장</td><td>분석 완료 시 자동으로 결과 파일 저장</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 16px; padding: 14px 26px;">
+                <div class="hl-title">복사해서 바로 쓰는 프롬프트</div>
+            </div>
+            <div class="prompt-box" id="prompt3">데이터 정리를 자동화하는 스킬을 만들어줘.
+
+- /data-clean 이라고 치면 실행
+- $ARGUMENTS로 CSV나 Excel 파일 경로를 받아서
+- 중복 행 제거, 빈 셀 처리, 날짜 형식 통일
+- 핵심 통계(합계, 평균, 최대, 최소)를 자동 계산
+- 정리된 파일 + 요약 보고서를 같은 폴더에 저장<button class="copy-btn" onclick="copyPrompt('prompt3')">복사</button></div>
+            <p class="scenario-result">→ /data-clean sales_2024.csv 로 바로 실행 가능</p>
+        </div>
+    </section>
+
+    <!-- ═══ ⑤ 워크플로우 조합 ═══ -->
+    <div class="step-divider"><span class="step-badge">STEP 4</span></div>
+    <div class="content-section" id="workflow"></div>
+    <section class="reveal">
+        <div class="nm-card">
+            <h2>워크플로우 조합</h2>
+            <p class="card-subtitle">4가지 도구를 연결하면 완전 자동화가 됩니다</p>
+
+            <div class="highlight-box">
+                <p>에이전트 + 서브에이전트 + 스킬 + 후크. 이 4가지를 조합하면 <strong style="color: var(--gold);">"명령 하나로 시작부터 끝까지 자동 실행"</strong>되는 워크플로우를 만들 수 있습니다. 마치 공장의 자동화 라인처럼요.</p>
+            </div>
+
+            <div class="wf-steps">
+                <div class="wf-step reveal reveal-delay-1">
+                    <div class="wf-step-num">1</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">스킬로 시작</div>
+                        <div class="wf-step-desc"><code style="font-family: 'SF Mono', monospace; background: var(--nm-bg); box-shadow: var(--nm-inset); padding: 2px 10px; border-radius: 6px; font-size: 13px; color: var(--gold); border: none;">/project:feature</code> 명령어 한 줄로 전체 프로세스 시작</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step reveal reveal-delay-1">
+                    <div class="wf-step-num">2</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">에이전트가 계획</div>
+                        <div class="wf-step-desc">어떻게 만들지 전략을 먼저 세움</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step reveal reveal-delay-2">
+                    <div class="wf-step-num">3</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">서브에이전트가 동시 작업</div>
+                        <div class="wf-step-desc">여러 전문가가 동시에 분석하고 구현</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step reveal reveal-delay-2">
+                    <div class="wf-step-num">4</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">후크가 자동 검사</div>
+                        <div class="wf-step-desc">파일이 수정될 때마다 자동으로 품질 검사</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step reveal reveal-delay-3">
+                    <div class="wf-step-num">5</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">후크가 알림</div>
+                        <div class="wf-step-desc">모든 작업이 끝나면 자동으로 결과 알림</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 설계 원칙 -->
+    <section class="reveal">
+        <div class="nm-card">
+            <h2>설계 원칙</h2>
+            <p class="card-subtitle">멀티 에이전트를 성공적으로 운영하기 위한 4가지 원칙</p>
+
+            <div class="principle-grid">
+                <div class="principle-nm reveal reveal-delay-1">
+                    <div class="pr-icon">🌱</div>
+                    <div class="pr-title">작은 것부터 시작</div>
+                    <div class="pr-desc">에이전트 1개에서 2개로, 2개에서 조합으로. 한 번에 복잡한 구조를 만들지 마세요.</div>
+                </div>
+                <div class="principle-nm reveal reveal-delay-2">
+                    <div class="pr-icon">🎯</div>
+                    <div class="pr-title">역할을 명확히 분리</div>
+                    <div class="pr-desc">각 에이전트에 하나의 명확한 역할을 부여하세요. 역할이 겹치면 혼란이 생깁니다.</div>
+                </div>
+                <div class="principle-nm reveal reveal-delay-1">
+                    <div class="pr-icon">🛡️</div>
+                    <div class="pr-title">실패에 대비</div>
+                    <div class="pr-desc">한 에이전트가 실패해도 전체가 멈추지 않도록 설계하세요.</div>
+                </div>
+                <div class="principle-nm reveal reveal-delay-2">
+                    <div class="pr-icon">👤</div>
+                    <div class="pr-title">사람이 감독</div>
+                    <div class="pr-desc">최종 확인과 중요한 결정은 항상 사람이 합니다.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ ⑥ 프롬프트 모음 ═══ -->
+    <div class="step-divider"><span class="step-badge">STEP 5</span></div>
+    <div class="content-section" id="prompts"></div>
+    <section class="reveal">
+        <div class="nm-card">
+            <h2>프롬프트 모음</h2>
+            <p class="card-subtitle">Claude Code에 복사해서 바로 쓸 수 있는 자동화 프롬프트</p>
+
+            <div class="prompt-collection reveal">
+                <h4>스킬 생성 요청</h4>
+                <div class="prompt-box" id="prompt4">매주 월요일마다 실행할 수 있는 스킬을 만들어줘.
+- /weekly-report 라고 치면 실행되게
+- 이번 주 git 커밋 내역을 자동으로 읽어서
+- 주간 보고서 양식으로 정리해줘
+- reports/ 폴더에 저장해줘<button class="copy-btn" onclick="copyPrompt('prompt4')">복사</button></div>
+            </div>
+
+            <div class="prompt-collection reveal">
+                <h4>후크 설정 요청</h4>
+                <div class="prompt-box" id="prompt5">파일을 저장할 때마다 자동으로 실행되는 후크를 만들어줘.
+- .js 파일이 수정되면 ESLint 자동 실행
+- 에러가 있으면 바로 알려줘
+- 에러가 없으면 "통과"라고만 표시<button class="copy-btn" onclick="copyPrompt('prompt5')">복사</button></div>
+            </div>
+
+            <div class="prompt-collection reveal">
+                <h4>멀티 에이전트 설계 요청</h4>
+                <div class="prompt-box" id="prompt6">아래 업무를 자동화하는 멀티 에이전트 구조를 설계해줘.
+
+업무: [여기에 자동화하고 싶은 업무를 설명]
+
+조건:
+- 에이전트(팀장), 서브에이전트(팀원), 스킬(도구), 후크(알람) 역할을 나눠줘
+- 각 역할이 하는 일을 구체적으로 설명해줘
+- 실행할 수 있는 스킬 파일도 함께 만들어줘<button class="copy-btn" onclick="copyPrompt('prompt6')">복사</button></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ ⑦ 졸업 체크리스트 ═══ -->
+    <div class="step-divider"><span class="step-badge">FINAL</span></div>
+    <div class="content-section" id="graduate"></div>
+    <section class="reveal">
+        <div class="grad-checklist">
+            <h3>🎓 졸업 체크리스트</h3>
+            <p style="font-size: 14px; color: #888; text-align: center; margin-bottom: 8px;">아래 항목을 모두 체크하면, Claude 완전 정복 과정을 졸업합니다!</p>
+
+            <div class="grad-progress">
+                <div class="grad-progress-bar" id="progressBar"></div>
+            </div>
+            <p class="grad-progress-text" id="progressText">0 / 7 완료</p>
+
+            <div class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" id="chk1">
+                <label for="chk1"><strong>에이전트, 서브에이전트, 스킬, 후크</strong>의 차이를 설명할 수 있다</label>
+            </div>
+            <div class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" id="chk2">
+                <label for="chk2"><strong>순차, 병렬, 오케스트레이터</strong> 패턴의 차이를 이해한다</label>
+            </div>
+            <div class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" id="chk3">
+                <label for="chk3"><strong>스킬 하나</strong>를 직접 만들어봤다 (또는 Claude에게 만들어달라고 요청했다)</label>
+            </div>
+            <div class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" id="chk4">
+                <label for="chk4"><strong>후크 하나</strong>를 설정해봤다 (또는 Claude에게 설정해달라고 요청했다)</label>
+            </div>
+            <div class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" id="chk5">
+                <label for="chk5"><strong>실전 시나리오 1개</strong> 이상을 내 업무에 적용해봤다</label>
+            </div>
+            <div class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" id="chk6">
+                <label for="chk6"><strong>설계 원칙 4가지</strong>를 기억하고 있다</label>
+            </div>
+            <div class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" id="chk7">
+                <label for="chk7">나만의 <strong>자동화 아이디어</strong>를 하나 이상 구상했다</label>
+            </div>
+
+            <div class="grad-celebration" id="celebration">
+                <div class="gc-emoji">🎉🏆🎓</div>
+                <div class="gc-title">축하합니다! Claude 완전 정복 과정을 졸업했습니다!</div>
+                <div class="gc-desc">이제 여러분은 AI 자동화 전문가입니다. 배운 것을 실무에 적용해보세요.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-section reveal">
+        <div style="font-size: 48px; margin-bottom: 16px;">🎉</div>
+        <h3 style="font-size: 26px; margin-bottom: 12px;">축하합니다!</h3>
+        <p style="font-size: 16px; color: rgba(255,255,255,0.9); margin-bottom: 8px; font-weight: 700;">진단부터 자동화 마스터까지, 총 5단계 코스를 모두 완주했습니다.</p>
+        <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 20px 0 24px;">
+            <span style="background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 600;">진단</span>
+            <span style="color: rgba(255,255,255,0.4);">→</span>
+            <span style="background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 600;">1. 프로젝트</span>
+            <span style="color: rgba(255,255,255,0.4);">→</span>
+            <span style="background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 600;">2. 플러그인</span>
+            <span style="color: rgba(255,255,255,0.4);">→</span>
+            <span style="background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 600;">3. Claude Cowork</span>
+            <span style="color: rgba(255,255,255,0.4);">→</span>
+            <span style="background: rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 600;">4. Claude Code</span>
+            <span style="color: rgba(255,255,255,0.4);">→</span>
+            <span style="background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: #fff; font-weight: 800; border: 1px solid rgba(255,255,255,0.3);">5. 자동화 마스터</span>
+        </div>
+        <p>이제 여러분만의 AI 팀을 직접 설계하고 운영할 준비가 됐습니다.<br>배운 것을 실무에 적용해보세요.</p>
+        <div class="cta-buttons">
+            <a href="index.html" class="cta-btn primary">🏠 목록으로 돌아가기</a>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p class="footer-brand">AI Roasting</p>
+    <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+    <p class="footer-text" style="margin-top:6px;">© 2026 AI Roasting. All rights reserved.</p>
+</footer>
+
+<script>
+// ── 타자기 효과 ──
+(function(){
+    var q1 = '자동화의 끝판왕에 오신 것을 환영합니다';
+    var q2 = '4가지 도구로 나만의 AI 팀을 만드세요';
+    var el1 = document.getElementById('heroQ1');
+    var el2 = document.getElementById('heroQ2');
+    var i = 0, j = 0;
+
+    function typeQ1(){
+        if(i <= q1.length){
+            el1.innerHTML = q1.substring(0, i) + '<span class="cursor"></span>';
+            i++;
+            setTimeout(typeQ1, 50);
+        } else {
+            el1.innerHTML = q1;
+            setTimeout(typeQ2, 300);
+        }
+    }
+    function typeQ2(){
+        if(j <= q2.length){
+            el2.innerHTML = q2.substring(0, j) + '<span class="cursor"></span>';
+            j++;
+            setTimeout(typeQ2, 50);
+        } else {
+            el2.innerHTML = q2;
+        }
+    }
+    setTimeout(typeQ1, 600);
+})();
+
+// ── 스크롤 Reveal 애니메이션 ──
+(function(){
+    var reveals = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+            if(e.isIntersecting){
+                e.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    reveals.forEach(function(el){ observer.observe(el); });
+})();
+
+// ── Sub Menu Scroll Spy ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l){ var s = document.getElementById(l.dataset.sec); if(s) sections.push({id:l.dataset.sec, el:s, link:l}); });
+
+    function update(){
+        var scrollY = window.scrollY + 120;
+        var current = sections[0];
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                activeLink.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    update();
+})();
+
+// ── 프롬프트 복사 ──
+function copyPrompt(id) {
+    var box = document.getElementById(id);
+    var text = box.textContent.replace('복사', '').trim();
+    navigator.clipboard.writeText(text).then(function(){
+        var btn = box.querySelector('.copy-btn');
+        btn.textContent = '완료!';
+        setTimeout(function(){ btn.textContent = '복사'; }, 2000);
+    });
+}
+
+// ── 체크리스트 ──
+var STORAGE_KEY = 'ai_roasting_master_checklist';
+
+function loadChecklist() {
+    try {
+        var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        Object.keys(saved).forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.checked = saved[id];
+                if (saved[id]) el.closest('.check-item').classList.add('checked');
+            }
+        });
+        updateProgress();
+    } catch(e) {}
+}
+
+function saveChecklist() {
+    var data = {};
+    document.querySelectorAll('.check-item input[type="checkbox"]').forEach(function(cb) {
+        data[cb.id] = cb.checked;
+    });
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function toggleCheck(item) {
+    var cb = item.querySelector('input[type="checkbox"]');
+    cb.checked = !cb.checked;
+    item.classList.toggle('checked', cb.checked);
+    saveChecklist();
+    updateProgress();
+}
+
+function updateProgress() {
+    var total = document.querySelectorAll('.check-item input[type="checkbox"]').length;
+    var checked = document.querySelectorAll('.check-item input[type="checkbox"]:checked').length;
+    var pct = Math.round((checked / total) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressText').textContent = checked + ' / ' + total + ' 완료';
+
+    var celeb = document.getElementById('celebration');
+    if (checked === total) {
+        celeb.classList.add('show');
+        launchConfetti();
+    } else {
+        celeb.classList.remove('show');
+    }
+}
+
+// ── 졸업 축하 confetti ──
+var confettiLaunched = false;
+function launchConfetti() {
+    if (confettiLaunched) return;
+    confettiLaunched = true;
+    var container = document.createElement('div');
+    container.className = 'confetti-container';
+    document.body.appendChild(container);
+    var colors = ['#B8860B', '#DAA520', '#FFD700', '#8B6914', '#F5DEB3', '#FF6B6B', '#4ECDC4'];
+    for (var i = 0; i < 60; i++) {
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = Math.random() * 2 + 's';
+        piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+        piece.style.width = (6 + Math.random() * 8) + 'px';
+        piece.style.height = (6 + Math.random() * 8) + 'px';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        container.appendChild(piece);
+    }
+    setTimeout(function(){ container.remove(); confettiLaunched = false; }, 4000);
+}
+
+document.addEventListener('DOMContentLoaded', loadChecklist);
+</script>
+
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
+</body>
+</html>

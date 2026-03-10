@@ -4,754 +4,1128 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claude Cowork란? | AI Roasting</title>
+    <meta name="description" content="Claude Desktop에서 내 PC 파일과 외부 서비스를 AI에 직접 연결하는 Cowork 기능을 알아봅니다.">
     <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
-            background: #ffffff;
-            color: #1a1a1a;
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
             line-height: 1.6;
         }
 
+        /* ── KEYFRAMES ── */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes floatOrb {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50%       { transform: translateY(-14px) scale(1.04); }
+        }
+        @keyframes floatOrb2 {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50%       { transform: translateY(10px) scale(0.97); }
+        }
+        @keyframes bounceIcon {
+            0%, 100% { transform: translateY(0); }
+            40%       { transform: translateY(-7px); }
+            60%       { transform: translateY(-3px); }
+        }
+        @keyframes pulseRing {
+            0%   { box-shadow: 0 0 0 0 rgba(217,119,87,0.35); }
+            70%  { box-shadow: 0 0 0 10px rgba(217,119,87,0); }
+            100% { box-shadow: 0 0 0 0 rgba(217,119,87,0); }
+        }
+        @keyframes slideLeft {
+            from { opacity: 0; transform: translateX(-18px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideRight {
+            from { opacity: 0; transform: translateX(18px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.7); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        @keyframes shimmerLine {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* ── SCROLL REVEAL ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.55s cubic-bezier(.25,.8,.25,1),
+                        transform 0.55s cubic-bezier(.25,.8,.25,1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-left  { opacity: 0; transform: translateX(-22px); transition: opacity 0.5s ease, transform 0.5s ease; }
+        .reveal-right { opacity: 0; transform: translateX(22px);  transition: opacity 0.5s ease, transform 0.5s ease; }
+        .reveal-left.visible,
+        .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+        .delay-1  { transition-delay: 0.08s; }
+        .delay-2  { transition-delay: 0.16s; }
+        .delay-3  { transition-delay: 0.24s; }
+        .delay-4  { transition-delay: 0.32s; }
+        .delay-5  { transition-delay: 0.40s; }
+        .delay-6  { transition-delay: 0.48s; }
+
+        /* ── HEADER ── */
         header {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
             text-align: center;
-            padding: 48px 32px 40px;
             position: relative;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a1a 100%);
-            border-bottom: 3px solid #CC0000;
+            overflow: hidden;
+        }
+        .header-orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .header-orb-1 {
+            width: 380px; height: 380px;
+            top: -120px; right: -60px;
+            background: radial-gradient(circle, rgba(212,130,90,0.22) 0%, transparent 65%);
+            animation: floatOrb 6s ease-in-out infinite;
+        }
+        .header-orb-2 {
+            width: 260px; height: 260px;
+            bottom: -80px; left: -40px;
+            background: radial-gradient(circle, rgba(255,180,120,0.13) 0%, transparent 65%);
+            animation: floatOrb2 8s ease-in-out infinite;
+        }
+        .header-orb-3 {
+            width: 160px; height: 160px;
+            top: 20px; left: 30%;
+            background: radial-gradient(circle, rgba(255,220,180,0.10) 0%, transparent 65%);
+            animation: floatOrb 10s ease-in-out infinite 2s;
         }
 
         .back-link {
             display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
             font-size: 14px;
             font-weight: 600;
-            color: #e8706a;
-            text-decoration: none;
-            margin-bottom: 12px;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+            animation: fadeIn 0.5s ease both;
         }
-
-        .back-link:hover { text-decoration: underline; }
+        .back-link:hover { color: #fff; }
 
         header h1 {
-            font-size: 40px;
+            font-size: 44px;
             font-weight: 800;
             color: #ffffff;
             letter-spacing: -1px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            position: relative; z-index: 1;
+            animation: fadeInDown 0.6s cubic-bezier(.25,.8,.25,1) 0.1s both;
         }
 
         header p {
             font-size: 16px;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.82);
+            position: relative; z-index: 1;
+            animation: fadeInUp 0.6s ease 0.25s both;
+            font-weight: 500;
         }
 
         .header-badge {
             display: inline-block;
             font-size: 13px;
             font-weight: 600;
-            color: #e8706a;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(232,112,106,0.3);
+            color: rgba(255,255,255,0.85);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.18);
             padding: 4px 16px;
             border-radius: 20px;
             margin-top: 12px;
+            position: relative; z-index: 1;
+            animation: fadeInUp 0.6s ease 0.35s both;
         }
 
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 48px 32px 64px;
+        /* ── Step Navigator ── */
+        .step-nav {
+            display: flex; align-items: center; justify-content: center;
+            margin: 26px 0 20px; gap: 0;
+            max-width: 80%; margin-left: auto; margin-right: auto;
+            animation: fadeIn 0.5s ease both;
+        }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0;
+            transition: all 0.25s;
+        }
+        .step-node.sn-diag { font-size: 11px; }
+        .step-node:hover {
+            border-color: rgba(255,255,255,0.7);
+            color: rgba(255,255,255,0.9);
+            background: rgba(0,0,0,0.3);
+            transform: scale(1.08);
+        }
+        .step-node.active {
+            background: rgba(255,255,255,0.95);
+            border-color: rgba(255,255,255,0.95);
+            color: #1A1917;
+        }
+        .step-line {
+            flex: 1; height: 2px;
+            background: rgba(255,255,255,0.5);
+            min-width: 13px; max-width: 34px;
+            border-radius: 2px;
         }
 
-        /* ── Section ── */
-        .section-block {
-            margin-bottom: 0;
-            padding: 40px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .section-block:last-of-type { border-bottom: none; }
-
-        .section-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1a1a1a;
-            padding-left: 16px;
-            border-left: 4px solid #CC0000;
-            margin-bottom: 6px;
-        }
-
-        .section-subtitle {
-            font-size: 15px;
-            color: #666;
-            padding-left: 20px;
-            margin-bottom: 24px;
-        }
-
-        /* ── 비유 카드 ── */
-        .analogy-box {
-            background: #f9f9f9;
-            border: 1px solid #e8e8e8;
-            border-radius: 12px;
-            padding: 28px;
-            margin-bottom: 24px;
-        }
-
-        .analogy-box h3 {
-            font-size: 17px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 12px;
-        }
-
-        .analogy-box p {
-            font-size: 14px;
-            color: #555;
-            line-height: 1.7;
-        }
-
-        /* ── 3열 카드 ── */
-        .three-col {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+        /* ── Header Page Links ── */
+        .header-pages {
+            display: flex;
+            justify-content: center;
             gap: 14px;
-            margin-bottom: 24px;
+            margin-top: 22px;
+            position: relative; z-index: 1;
+            animation: fadeInUp 0.6s ease 0.45s both;
+        }
+        .header-page-link {
+            display: flex;
+            align-items: center; justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px; font-weight: 600;
+            padding: 9px 22px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            min-width: 150px;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky; top: 0; z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex; justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1; max-width: 150px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.12); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active { background: rgba(217,119,87,0.10); border-radius: 14px; }
+        .sub-menu a.active .sm-num { background: var(--ant-orange); box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #B0544A; color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s;
+        }
+        .sm-title { font-size: 13px; font-weight: 700; color: #3A3530; white-space: nowrap; }
+        .sm-sub { font-size: 11px; color: #999; white-space: nowrap; }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 960px; margin: 0 auto; padding: 24px 32px; }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 32px;
+            margin-bottom: 28px;
+        }
+        .nm-card h2 {
+            font-size: 19px; font-weight: 700; color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px; color: #5C5650; line-height: 1.7;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; padding-left: 20px; }
+
+        /* ── 섹션 구분 ── */
+        .step-divider {
+            display: flex; align-items: center; gap: 16px;
+            margin: 24px 0 28px;
+        }
+        .step-divider::before, .step-divider::after {
+            content: ''; flex: 1; height: 1px; background: #E8E4DE;
+        }
+        .step-badge {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--ant-orange);
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px; border-radius: 20px;
+            white-space: nowrap;
         }
 
-        .col-card {
-            padding: 20px;
-            background: #f9f9f9;
-            border: 1px solid #e8e8e8;
-            border-radius: 10px;
-            text-align: center;
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px;
+            margin: 16px 0;
         }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--ant-orange); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
 
-        .col-card .card-icon { font-size: 32px; margin-bottom: 10px; }
-        .col-card h4 { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
-        .col-card p { font-size: 13px; color: #666; line-height: 1.5; }
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 22px;
+            margin: 16px 0;
+        }
+        .tip-box .tip-label {
+            font-size: 11px; font-weight: 700;
+            color: var(--ant-orange);
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .tip-box p { font-size: 13px; color: #5C5650; }
+
+        /* ── 공감 박스 ── */
+        .pain-box {
+            background: linear-gradient(135deg, rgba(217,119,87,0.06) 0%, rgba(217,119,87,0.02) 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(217,119,87,0.18);
+            padding: 22px 24px;
+            margin-bottom: 18px;
+        }
+        .pain-box .pain-label {
+            font-size: 13px; font-weight: 800;
+            color: var(--ant-orange); margin-bottom: 12px;
+        }
+        .pain-box ul { list-style: none; padding: 0; }
+        .pain-box ul li {
+            font-size: 14px; color: #5C5650;
+            padding: 5px 0 5px 24px;
+            position: relative;
+        }
+        .pain-box ul li::before {
+            content: '✓';
+            position: absolute; left: 0;
+            color: var(--ant-orange); font-weight: 700;
+        }
 
         /* ── 2열 비교 카드 ── */
-        .two-col {
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+        .compare-nm {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 22px;
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+        .compare-nm:hover { box-shadow: var(--nm-shadow); transform: translateY(-2px); }
+        .compare-nm .cmp-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 14px; padding-bottom: 12px;
+            border-bottom: 2px solid rgba(0,0,0,0.06);
+        }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 15px; font-weight: 700; color: #3A3530; }
+        .compare-nm p { font-size: 13px; color: #6C6660; line-height: 1.6; margin-bottom: 5px; }
+        .compare-nm .cmp-highlight {
+            font-size: 13px; color: var(--ant-orange); font-weight: 700;
+            margin-top: 10px; padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* ── 할 수 있는 일 그리드 ── */
+        .use-case-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 24px;
+            gap: 16px;
+            margin-top: 20px;
         }
-
-        .compare-card {
-            padding: 20px;
-            border: 1px solid #e8e8e8;
-            border-radius: 10px;
+        .use-case-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 22px 20px;
+            transition: box-shadow 0.3s, transform 0.3s;
         }
-
-        .compare-card h4 { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 2px solid #f0f0f0; }
-        .compare-card p { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 6px; }
-        .compare-card .highlight { font-size: 13px; color: #CC0000; font-weight: 600; }
-
-        /* ── 정보 박스 ── */
-        .info-box {
-            font-size: 13px;
-            color: #666;
-            padding: 14px 16px 14px 20px;
-            background: #FFFBEB;
-            border: 1px solid #FDE68A;
-            border-left: 4px solid #F59E0B;
-            border-radius: 8px;
-            line-height: 1.6;
-            margin-bottom: 20px;
+        .use-case-item:hover {
+            box-shadow: var(--nm-shadow);
+            transform: translateY(-3px);
         }
-
-        .info-box strong { color: #B45309; }
-
-        .info-box.blue {
-            background: #EFF6FF;
-            border-color: #BFDBFE;
-            border-left-color: #3B82F6;
+        .use-case-item:hover .uc-icon {
+            animation: bounceIcon 0.6s ease;
         }
-
-        .info-box.blue strong { color: #1D4ED8; }
-
-        .info-box.green {
-            background: #F0FDF4;
-            border-color: #BBF7D0;
-            border-left-color: #10B981;
-        }
-
-        .info-box.green strong { color: #059669; }
-
-        /* ── Cowork 화면 모형 ── */
-        .cowork-mockup {
-            background: #1e1e1e;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 32px;
-            border: 1px solid #333;
-        }
-
-        .mockup-titlebar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            background: #2d2d2d;
-            border-bottom: 1px solid #3a3a3a;
-        }
-
-        .mockup-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .mockup-dot.red { background: #ff5f57; }
-        .mockup-dot.yellow { background: #febc2e; }
-        .mockup-dot.green { background: #28c840; }
-
-        .mockup-titlebar span {
-            font-size: 13px;
-            color: #999;
-            margin-left: 8px;
-            font-weight: 500;
-        }
-
-        .mockup-body {
-            display: flex;
-            min-height: 280px;
-        }
-
-        .mockup-sidebar {
-            width: 180px;
-            background: #252525;
-            border-right: 1px solid #3a3a3a;
-            padding: 12px 0;
-            flex-shrink: 0;
-        }
-
-        .mockup-sidebar-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 7px 20px;
-            font-size: 13px;
-            color: #aaa;
-            cursor: default;
-        }
-
-        .mockup-sidebar-item.active {
-            background: #3a3a3a;
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .mockup-main {
-            flex: 1;
-            padding: 24px 28px;
-        }
-
-        .mockup-main h4 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 6px;
-        }
-
-        .mockup-main p {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 20px;
-        }
-
-        .mockup-connector-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
-
-        .mockup-connector-row {
-            display: flex;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid #3a3a3a;
-        }
-
-        .mockup-connector-row:last-child { border-bottom: none; }
-
-        .connector-icon-wrap {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #3a3a3a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 14px;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-
-        .connector-icon-wrap svg { width: 22px; height: 22px; }
-
-        .connector-svc-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: #ddd;
-            flex: 1;
-        }
-
-        .connector-btn {
-            font-size: 12px;
-            padding: 6px 16px;
-            border-radius: 6px;
-            border: 1px solid #555;
-            background: transparent;
-            color: #ccc;
-            cursor: default;
-            margin-left: 8px;
-        }
-
-        .connector-btn.connected {
-            border-color: transparent;
-            color: #5b9aff;
-            background: transparent;
-            font-weight: 600;
-        }
-
-        .connector-dots {
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #555;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #888;
-            margin-left: 6px;
-            letter-spacing: 1px;
-            cursor: default;
-        }
-
-        /* ── 연결 가이드 카드 ── */
-        .connect-guides {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .connect-guides-row {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-        }
-
-        .connect-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 20px;
-            transition: border-color 0.2s;
-        }
-
-        .connect-card:hover { border-color: #CC0000; }
-
-        .connect-card-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        .connect-icon { font-size: 28px; line-height: 1; }
-
-        .connect-card-header h3 { font-size: 16px; font-weight: 700; color: #1a1a1a; }
-
-        .step-label {
+        .use-case-item .uc-icon { font-size: 26px; margin-bottom: 10px; display: block; }
+        .use-case-item h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .use-case-item p { font-size: 13px; color: #6C6660; line-height: 1.6; }
+        .use-case-item .uc-example {
             display: inline-block;
-            font-size: 11px;
-            font-weight: 800;
-            color: #fff;
-            background: #CC0000;
-            padding: 2px 10px;
-            border-radius: 4px;
-            letter-spacing: 0.5px;
-            margin-right: 8px;
-            vertical-align: middle;
+            margin-top: 10px;
+            font-size: 12px; font-weight: 600;
+            color: var(--ant-orange);
+            background: rgba(217,119,87,0.08);
+            padding: 4px 10px; border-radius: 6px;
         }
 
-        .connect-steps {
-            list-style: none;
-            padding: 0;
+        /* ── 업무 카운트 배지 ── */
+        .count-badge-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .count-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--ant-orange);
+            color: #fff; font-size: 20px; font-weight: 900;
+            box-shadow: 0 4px 14px rgba(217,119,87,0.4);
+            animation: pulseRing 2.5s ease-in-out infinite;
+            flex-shrink: 0;
         }
+        .count-badge-text { font-size: 15px; font-weight: 700; color: #3A3530; }
+        .count-badge-sub { font-size: 12px; color: #888; margin-top: 2px; }
 
+        /* ── 서비스 카드 그리드 ── */
+        .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 20px 0 14px; }
+        .service-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+        .service-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 22px 18px;
+            text-align: center;
+            overflow: hidden;
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+        .service-card:hover { box-shadow: var(--nm-shadow); transform: translateY(-3px); }
+        .service-card:hover .svc-icon { animation: bounceIcon 0.6s ease; }
+        .svc-accent { height: 4px; border-radius: 3px; margin: -22px -18px 18px; }
+        .svc-icon { font-size: 30px; margin-bottom: 10px; display: block; }
+        .service-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .service-card p { font-size: 13px; color: #6C6660; line-height: 1.5; }
+
+        /* ── 설치 설정 카드 ── */
+        .setup-step-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 24px; margin-bottom: 16px;
+            transition: box-shadow 0.3s;
+        }
+        .setup-step-card:hover { box-shadow: var(--nm-shadow); }
+        .setup-step-card .ssh-header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 16px;
+        }
+        .ssh-icon { font-size: 22px; }
+        .ssh-badge {
+            display: inline-flex; align-items: center;
+            font-size: 11px; font-weight: 800;
+            color: #fff; background: var(--ant-orange);
+            padding: 3px 12px; border-radius: 6px; letter-spacing: 0.5px;
+        }
+        .ssh-title { font-size: 16px; font-weight: 700; color: #3A3530; }
+        .connect-steps { list-style: none; padding: 0; }
         .connect-steps li {
-            font-size: 13px;
-            color: #4a4a4a;
-            padding: 5px 0;
-            padding-left: 24px;
-            position: relative;
-            line-height: 1.5;
+            font-size: 13px; color: #5C5650;
+            padding: 5px 0 5px 26px;
+            position: relative; line-height: 1.5;
         }
-
         .connect-steps li::before {
-            position: absolute;
-            left: 0;
-            font-size: 12px;
-            font-weight: 800;
-            color: #CC0000;
-            width: 18px;
+            position: absolute; left: 0;
+            font-size: 12px; font-weight: 800; color: var(--ant-orange);
         }
-
         .connect-steps li:nth-child(1)::before { content: '①'; }
         .connect-steps li:nth-child(2)::before { content: '②'; }
         .connect-steps li:nth-child(3)::before { content: '③'; }
         .connect-steps li:nth-child(4)::before { content: '④'; }
-
-        .connect-steps code {
+        .setup-step-card code {
             font-family: 'SF Mono', 'Fira Code', monospace;
-            background: #f0f0f0;
-            border: 1px solid #ddd;
-            padding: 1px 6px;
-            border-radius: 3px;
-            font-size: 12px;
-            color: #CC0000;
+            background: rgba(0,0,0,0.07);
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 1px 6px; border-radius: 4px;
+            font-size: 12px; color: var(--ant-orange);
         }
-
         .connect-note {
-            font-size: 12px;
-            color: #888;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #f0f0f0;
+            font-size: 12px; color: #888;
+            margin-top: 10px; padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.06);
         }
-
         .download-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 12px;
-            padding: 10px 20px;
-            background: #CC0000;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            transition: background 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 16px; padding: 11px 24px;
+            background: var(--ant-orange);
+            color: #fff; text-decoration: none;
+            border-radius: 10px;
+            font-size: 14px; font-weight: 700;
+            box-shadow: 4px 4px 12px rgba(217,119,87,0.35);
+            transition: all 0.25s;
         }
-
-        .download-btn:hover { background: #a30000; }
-
-        .google-service-list {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
+        .download-btn:hover {
+            background: #C4623E;
+            transform: translateY(-2px);
+            box-shadow: 4px 6px 20px rgba(217,119,87,0.5);
         }
-
+        .google-service-list { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
         .google-service-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 6px 12px;
-            background: #f8f8f8;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            color: #333;
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 13px; font-weight: 600;
+            padding: 6px 14px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 8px; color: #3A3530;
+        }
+
+        /* ── Cowork 설정 화면 모형 ── */
+        .cowork-mockup {
+            background: #1e1e1e;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.28);
+        }
+        .mockup-titlebar {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 16px;
+            background: #2d2d2d;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .mockup-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .mockup-dot.red    { background: #ff5f57; }
+        .mockup-dot.yellow { background: #febc2e; }
+        .mockup-dot.green  { background: #28c840; }
+        .mockup-titlebar span { font-size: 13px; color: #999; margin-left: 8px; font-weight: 500; }
+        .mockup-body { display: flex; min-height: 260px; }
+        .mockup-sidebar {
+            width: 180px; background: #252525;
+            border-right: 1px solid #3a3a3a;
+            padding: 12px 0; flex-shrink: 0;
+        }
+        .mockup-sidebar-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 20px;
+            font-size: 13px; color: #aaa; cursor: default;
+        }
+        .mockup-sidebar-item.active { background: #3a3a3a; color: #fff; font-weight: 600; }
+        .mockup-main { flex: 1; padding: 20px 24px; }
+        .mockup-connector-list { display: flex; flex-direction: column; gap: 0; }
+        .mockup-connector-row {
+            display: flex; align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .mockup-connector-row:last-child { border-bottom: none; }
+        .connector-icon-wrap {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: #3a3a3a;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 14px; flex-shrink: 0; overflow: hidden;
+        }
+        .connector-icon-wrap svg { width: 22px; height: 22px; }
+        .connector-svc-name { font-size: 14px; font-weight: 500; color: #ddd; flex: 1; }
+        .connector-btn {
+            font-size: 12px; padding: 5px 14px;
+            border-radius: 6px; border: 1px solid #555;
+            background: transparent; color: #ccc;
+            cursor: default; margin-left: 8px;
+        }
+        .connector-btn.connected {
+            border-color: transparent; color: #5b9aff;
+            background: transparent; font-weight: 600;
+        }
+        .connector-dots {
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #555; border-radius: 6px;
+            font-size: 14px; color: #888; margin-left: 6px;
+            letter-spacing: 1px; cursor: default;
         }
 
         /* ── CTA 섹션 ── */
         .cta-section {
-            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
-            border-radius: 16px;
-            padding: 40px 32px;
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            border-radius: 20px;
+            padding: 48px 32px;
             text-align: center;
-            margin-top: 48px;
+            margin-top: 8px; margin-bottom: 28px;
+            position: relative; overflow: hidden;
         }
-
-        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
-        .cta-section p { font-size: 14px; color: #aaa; margin-bottom: 24px; line-height: 1.6; }
-
-        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-
+        .cta-section::before {
+            content: '';
+            position: absolute; top: -60px; right: -40px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,180,120,0.12) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .cta-section h3 {
+            font-size: 24px; font-weight: 800; color: #fff;
+            margin-bottom: 10px; position: relative; z-index: 1;
+        }
+        .cta-section p {
+            font-size: 15px; color: rgba(255,255,255,0.78);
+            margin-bottom: 28px; line-height: 1.7;
+            position: relative; z-index: 1;
+        }
+        .cta-buttons {
+            display: flex; justify-content: center; gap: 12px;
+            flex-wrap: nowrap; max-width: 680px;
+            margin: 0 auto; position: relative; z-index: 1;
+        }
         .cta-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            padding: 12px 28px;
-            border-radius: 8px;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; font-size: 14px; font-weight: 700;
+            padding: 13px 28px; border-radius: 10px;
             text-decoration: none;
-            transition: all 0.2s;
+            transition: all 0.25s;
+            white-space: nowrap; flex: 1; max-width: 320px;
         }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.3); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.78); border: 1px solid rgba(255,255,255,0.18); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.15); color: #fff; transform: translateY(-2px); }
 
-        .cta-btn.primary { background: #CC0000; color: #fff; }
-        .cta-btn.primary:hover { background: #a00; transform: translateY(-1px); }
-        .cta-btn.secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-        .cta-btn.secondary:hover { background: rgba(255,255,255,0.2); }
+        /* ── 페이지 네비 ── */
+        .page-nav {
+            max-width: 960px; margin: 0 auto;
+            padding: 0 32px 48px;
+            display: flex; justify-content: space-between;
+        }
+        .page-nav-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            text-decoration: none; color: #3A3530;
+            font-size: 13px; font-weight: 600;
+            padding: 10px 18px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 12px; transition: all 0.2s;
+        }
+        .page-nav-btn:hover { box-shadow: var(--nm-inset); color: var(--ant-orange); }
 
         /* ── Footer ── */
         footer {
+            background: var(--ant-dark);
             text-align: center;
-            padding: 32px;
-            border-top: 1px solid #e0e0e0;
-            background: #f4f4f4;
+            padding: 36px 32px 28px;
         }
+        footer .footer-brand { font-size: 12px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        footer .footer-text { font-size: 11px; color: rgba(255,255,255,0.28); }
 
-        footer .footer-brand {
-            font-size: 14px;
-            font-weight: 700;
-            color: #CC0000;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-
-        footer .footer-text { font-size: 13px; color: #999; }
-
+        /* ── 반응형 ── */
         @media (max-width: 768px) {
-            header { padding: 40px 20px 24px; }
+            header { padding: 24px 20px 32px; }
             header h1 { font-size: 28px; }
-            .container { padding: 32px 16px 48px; }
-            .three-col { grid-template-columns: 1fr; }
-            .two-col { grid-template-columns: 1fr; }
+            .container { padding: 20px 16px; }
+            .nm-card { padding: 22px 18px; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .use-case-grid { grid-template-columns: 1fr; }
+            .service-grid { grid-template-columns: 1fr; }
+            .service-grid-2 { grid-template-columns: 1fr; }
+            .page-nav { flex-direction: column; gap: 10px; }
+            .sub-menu { padding: 10px 8px; }
+            .sub-menu a { padding: 6px 12px; }
+            .sm-title { font-size: 12px; }
+            .sm-sub { font-size: 10px; }
+            .sm-num { width: 24px; height: 24px; font-size: 11px; }
             .mockup-sidebar { display: none; }
-            .mockup-integrations { grid-template-columns: 1fr 1fr 1fr; }
-            .connect-guides-row { grid-template-columns: 1fr; }
-            .cta-section { padding: 32px 20px; }
-            .cta-section h3 { font-size: 18px; }
+            .header-pages { gap: 8px; flex-wrap: wrap; }
+            .header-page-link { padding: 10px 14px; font-size: 12px; }
+            .cta-section { padding: 36px 20px; }
+            .cta-section h3 { font-size: 20px; }
             .cta-buttons { flex-direction: column; align-items: center; }
         }
     </style>
 </head>
 <body>
-    <header>
-        <a class="back-link" href="index.html">← 목록으로</a>
-        <h1>Claude Cowork란?</h1>
-        <p>Claude Desktop에서 내 PC 파일과 외부 서비스를 AI에 직접 연결합니다</p>
-        <span class="header-badge">Claude Desktop 활용</span>
-    </header>
 
-    <main class="container">
+<!-- ── HEADER ── -->
+<header>
+    <div class="header-orb header-orb-1"></div>
+    <div class="header-orb header-orb-2"></div>
+    <div class="header-orb header-orb-3"></div>
 
-        <!-- ① Cowork가 뭔가요? -->
-        <div class="section-block">
-            <h2 class="section-title">① Cowork가 뭔가요?</h2>
-            <p class="section-subtitle">Claude가 내 파일, 이메일, 캘린더를 직접 읽고 다루는 방식입니다</p>
-
-            <div class="analogy-box">
-                <h3>비유로 이해하기</h3>
-                <p><strong>Claude.ai</strong>는 카페에서 대화하는 것과 같습니다. 상대방이 똑똑하지만, 내 노트북은 볼 수 없습니다.<br><br>
-                <strong>Claude Cowork</strong>는 옆자리에 앉힌 것과 같습니다. 내 화면을 함께 보면서, 직접 파일을 열고, 이메일을 확인하고, 캘린더를 정리해줍니다.</p>
-            </div>
-
-            <div class="two-col">
-                <div class="compare-card" style="border-top: 3px solid #4A90D9;">
-                    <h4>💬 Claude.ai (웹)</h4>
-                    <p>브라우저에서 대화만 가능</p>
-                    <p>파일은 직접 복붙해야 함</p>
-                    <p>외부 서비스 연결 불가</p>
-                    <div class="highlight">→ "이 내용 정리해줘" (텍스트 복붙)</div>
-                </div>
-                <div class="compare-card" style="border-top: 3px solid #E8A020;">
-                    <h4>🤝 Claude Cowork (Desktop)</h4>
-                    <p>내 PC 폴더에 직접 접근</p>
-                    <p>Gmail, Calendar, Drive 연결</p>
-                    <p>파일 생성·수정·저장 가능</p>
-                    <div class="highlight">→ "내 이메일 정리해줘" (직접 접근)</div>
-                </div>
-            </div>
-
-            <div class="info-box blue">
-                <strong>핵심 차이:</strong> Claude.ai는 "대화"만 가능하지만, Cowork는 "행동"까지 합니다. 파일을 만들고, 이메일을 읽고, 일정을 확인하는 것이 가능합니다.
-            </div>
-        </div>
-
-        <!-- ② 뭘 연결할 수 있나요? -->
-        <div class="section-block">
-            <h2 class="section-title">② 뭘 연결할 수 있나요?</h2>
-            <p class="section-subtitle">현재 연결 가능한 서비스들입니다. 계속 추가되고 있습니다.</p>
-
-            <div class="three-col">
-                <div class="col-card" style="border-top: 3px solid #EA4335;">
-                    <div class="card-icon">📧</div>
-                    <h4>Gmail</h4>
-                    <p>이메일 검색·읽기·요약<br>뉴스레터 정리 자동화</p>
-                </div>
-                <div class="col-card" style="border-top: 3px solid #4285F4;">
-                    <div class="card-icon">📅</div>
-                    <h4>Google Calendar</h4>
-                    <p>일정 확인·생성·관리<br>주간 브리핑 자동화</p>
-                </div>
-                <div class="col-card" style="border-top: 3px solid #0F9D58;">
-                    <div class="card-icon">💾</div>
-                    <h4>Google Drive</h4>
-                    <p>파일 검색·읽기·정리<br>문서 자동 생성</p>
-                </div>
-            </div>
-
-            <div class="two-col">
-                <div class="col-card" style="border-top: 3px solid #555;">
-                    <div class="card-icon">📁</div>
-                    <h4>내 PC 폴더</h4>
-                    <p>로컬 파일 읽기·쓰기<br>PDF 분석, 문서 생성</p>
-                </div>
-                <div class="col-card" style="border-top: 3px solid #555;">
-                    <div class="card-icon">🌐</div>
-                    <h4>웹 브라우저</h4>
-                    <p>웹 검색·스크래핑<br>리서치 자동화</p>
-                </div>
-            </div>
-
-            <div class="info-box green">
-                <strong>💡 참고:</strong> Cowork 기능은 Claude Desktop 앱에서만 사용 가능합니다. 웹(claude.ai)에서는 사용할 수 없습니다.
-            </div>
-        </div>
-
-        <!-- ③ 설정 방법 -->
-        <div class="section-block">
-            <h2 class="section-title">③ 코워크 환경 설정하기</h2>
-            <p class="section-subtitle">Claude Desktop에서 서비스를 연결하면 바로 사용할 수 있습니다</p>
-
-            <!-- 연결 가이드: 3단계 -->
-            <div class="connect-guides">
-                <div class="connect-card">
-                    <div class="connect-card-header">
-                        <span class="connect-icon">💻</span>
-                        <h3><span class="step-label">STEP 1</span> Claude Desktop 설치</h3>
-                    </div>
-                    <ol class="connect-steps">
-                        <li>아래 버튼을 클릭하여 Claude Desktop을 다운로드합니다</li>
-                        <li>설치 파일을 실행하고 안내에 따라 설치를 완료합니다</li>
-                        <li>Claude 계정으로 로그인하면 준비 완료!</li>
-                    </ol>
-                    <a class="download-btn" href="https://claude.ai/download" target="_blank" rel="noopener">Claude Desktop 다운로드 ↗</a>
-                </div>
-
-                <div class="connect-guides-row">
-                    <div class="connect-card">
-                        <div class="connect-card-header">
-                            <span class="connect-icon">📁</span>
-                            <h3><span class="step-label">STEP 2</span> 폴더 연결</h3>
-                        </div>
-                        <ol class="connect-steps">
-                            <li>채팅 입력창 하단의 <code>+</code> 버튼 클릭</li>
-                            <li><code>Add folder</code> 선택</li>
-                            <li>작업할 폴더를 선택하면 바로 연결 완료</li>
-                        </ol>
-                        <p class="connect-note">💡 연결된 폴더의 파일을 읽고, 만들고, 수정할 수 있습니다</p>
-                    </div>
-
-                    <div class="connect-card">
-                        <div class="connect-card-header">
-                            <span class="connect-icon">🔗</span>
-                            <h3><span class="step-label">STEP 3</span> Google 서비스 연결</h3>
-                        </div>
-                        <div class="google-service-list">
-                            <span class="google-service-tag">📧 Gmail</span>
-                            <span class="google-service-tag">📅 Calendar</span>
-                            <span class="google-service-tag">💾 Drive</span>
-                        </div>
-                        <ol class="connect-steps">
-                            <li>Claude Desktop <code>설정</code> 열기</li>
-                            <li><code>커넥터</code> 탭 → 원하는 Google 서비스 선택</li>
-                            <li>Google 계정으로 로그인 & 권한 허용</li>
-                        </ol>
-                        <p class="connect-note">💡 세 서비스 모두 같은 방식으로 연결됩니다. 한 번 로그인하면 다른 서비스도 빠르게 추가할 수 있습니다</p>
-                    </div>
-                </div>
-
-                <!-- Claude Desktop 설정 화면 모형 (Step 3 참고 이미지) -->
-                <div class="cowork-mockup" style="margin-top: 14px;">
-                    <div class="mockup-titlebar">
-                        <span class="mockup-dot red"></span>
-                        <span class="mockup-dot yellow"></span>
-                        <span class="mockup-dot green"></span>
-                        <span>Claude Desktop — 설정</span>
-                    </div>
-                    <div class="mockup-body">
-                        <div class="mockup-sidebar">
-                            <div class="mockup-sidebar-item active">일반</div>
-                            <div class="mockup-sidebar-item">계정</div>
-                            <div class="mockup-sidebar-item">개인정보보호</div>
-                            <div class="mockup-sidebar-item">결제</div>
-                            <div class="mockup-sidebar-item">사용량</div>
-                            <div class="mockup-sidebar-item">기능</div>
-                            <div class="mockup-sidebar-item" style="color: #f59e0b; font-weight: 700;">커넥터 ←</div>
-                            <div class="mockup-sidebar-item">Claude Code</div>
-                            <div class="mockup-sidebar-item">협업</div>
-                            <div class="mockup-sidebar-item" style="margin-top: 16px; font-size: 11px; color: #666; font-weight: 400;">데스크톱 앱</div>
-                            <div class="mockup-sidebar-item">일반</div>
-                            <div class="mockup-sidebar-item">확장 프로그램</div>
-                            <div class="mockup-sidebar-item">개발자</div>
-                        </div>
-                        <div class="mockup-main">
-                            <div class="mockup-connector-list">
-                                <!-- Google Drive -->
-                                <div class="mockup-connector-row">
-                                    <div class="connector-icon-wrap">
-                                        <svg viewBox="0 0 24 24"><path d="M4.433 22l-1.6-2.77L8.433 8.6h4.8L7.633 22H4.433z" fill="#0066DA"/><path d="M15.567 22H7.633l2.8-4.8h10.4l-2.466 4.27L15.567 22z" fill="#00AC47"/><path d="M1.233 17.23L8.433 4.6h4.8L6.033 17.23l-2.4 2.77-2.4-2.77z" fill="#EA4335"/><path d="M20.833 17.2h-10.4l5.6-9.6h4.8l2.4 4.8-2.4 4.8z" fill="#00832D"/><path d="M13.233 4.6l5.6 9.6h-8.4L13.233 4.6z" fill="#2684FC"/><path d="M8.433 4.6l2.8 4.8-4.8 8.4L1.233 17.23 8.433 4.6z" fill="#FFBA00"/></svg>
-                                    </div>
-                                    <span class="connector-svc-name">Google Drive</span>
-                                    <span class="connector-btn connected">연결됨</span>
-                                    <span class="connector-dots">···</span>
-                                </div>
-                                <!-- GitHub -->
-                                <div class="mockup-connector-row">
-                                    <div class="connector-icon-wrap">
-                                        <svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
-                                    </div>
-                                    <span class="connector-svc-name">GitHub</span>
-                                    <span class="connector-btn connected">연결됨</span>
-                                    <span class="connector-dots">···</span>
-                                </div>
-                                <!-- Gmail -->
-                                <div class="mockup-connector-row">
-                                    <div class="connector-icon-wrap">
-                                        <svg viewBox="0 0 24 24"><path d="M2 6l10 6.5L22 6v12H2V6z" fill="#EA4335" opacity="0.2"/><path d="M22 6l-10 6.5L2 6" fill="none" stroke="#EA4335" stroke-width="1.5"/><path d="M2 6h20v12H2z" fill="none" stroke="#EA4335" stroke-width="1.2"/><path d="M2 6l10 6.5" stroke="#D93025" stroke-width="1.5" fill="none"/><path d="M22 6l-10 6.5" stroke="#D93025" stroke-width="1.5" fill="none"/><rect x="1" y="5" width="22" height="14" rx="2" fill="none" stroke="#aaa" stroke-width="0.5" opacity="0.3"/><path d="M2 6l10 7 10-7" fill="none" stroke="#C5221F" stroke-width="2"/><rect x="2" y="6" width="20" height="12" rx="1.5" fill="none" stroke="#888" stroke-width="0.4"/></svg>
-                                    </div>
-                                    <span class="connector-svc-name">Gmail</span>
-                                    <span class="connector-btn connected">연결됨</span>
-                                    <span class="connector-dots">···</span>
-                                </div>
-                                <!-- Google Calendar -->
-                                <div class="mockup-connector-row">
-                                    <div class="connector-icon-wrap">
-                                        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" fill="#fff" stroke="#4285F4" stroke-width="1.2"/><rect x="3" y="4" width="18" height="5" rx="1" fill="#4285F4"/><text x="12" y="18" text-anchor="middle" font-size="9" font-weight="700" fill="#1a73e8" font-family="Arial, sans-serif">31</text></svg>
-                                    </div>
-                                    <span class="connector-svc-name">Google Calendar</span>
-                                    <span class="connector-btn connected">연결됨</span>
-                                    <span class="connector-dots">···</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- CTA 섹션 -->
-        <div class="cta-section">
-            <h3>설정이 끝났으면, 실전 과제로!</h3>
-            <p>Gmail 정리, 보고서 작성, 데이터 분석... 8가지 실전 과제를 따라하며 익혀보세요.</p>
-            <div class="cta-buttons">
-                <a class="cta-btn primary" href="cowork.html">🎯 실전 과제 8가지 →</a>
-                <a class="cta-btn secondary" href="https://claude.ai/download" target="_blank" rel="noopener">💻 Claude Desktop 다운로드</a>
-            </div>
-        </div>
-    </main>
-
-    <nav class="page-nav" style="max-width: 960px; margin: 0 auto; padding: 0 32px 48px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-        <a href="extensions.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">← 이전: 쓰던 앱 안에서 Claude</a>
-        <a href="cowork.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff; margin-left: auto;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">다음: 코워크 실전 과제 →</a>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="project-intro.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="cowork-intro.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="agent-design.html">5</a>
     </nav>
+    <a class="back-link" href="index.html">← 목록으로</a>
+    <h1>Claude Cowork란?</h1>
+    <p>단순 반복 업무는 Claude에게. 나는 진짜 일에만 집중하세요.</p>
+    <span class="header-badge">Claude Desktop 활용</span>
+    <div class="header-pages">
+        <a href="cowork-intro.html" class="header-page-link active"><span class="hpl-icon">🤝</span> Cowork 소개</a>
+        <a href="cowork.html" class="header-page-link"><span class="hpl-icon">🎯</span> 실전 과제</a>
+    </div>
+</header>
 
-    <footer>
-        <p class="footer-brand">AI Roasting</p>
-        <p class="footer-text">Claude 실전 가이드</p>
-    </footer>
+<!-- ── SUB MENU ── -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec-what" class="active" data-sec="sec-what">
+        <span class="sm-num">1</span>
+        <span class="sm-title">Cowork란?</span>
+        <span class="sm-sub">개요</span>
+    </a>
+    <a href="#sec-tasks" data-sec="sec-tasks">
+        <span class="sm-num">2</span>
+        <span class="sm-title">할 수 있는 일</span>
+        <span class="sm-sub">활용</span>
+    </a>
+    <a href="#sec-connect" data-sec="sec-connect">
+        <span class="sm-num">3</span>
+        <span class="sm-title">연결 서비스</span>
+        <span class="sm-sub">기능</span>
+    </a>
+    <a href="#sec-setup" data-sec="sec-setup">
+        <span class="sm-num">4</span>
+        <span class="sm-title">환경 설정</span>
+        <span class="sm-sub">시작</span>
+    </a>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="container">
+
+    <!-- ① Cowork가 뭔가요? -->
+    <div class="step-divider content-section reveal" id="sec-what">
+        <span class="step-badge">STEP 1 · Cowork가 뭔가요?</span>
+    </div>
+
+    <div class="nm-card reveal">
+        <h2>Cowork가 뭔가요?</h2>
+        <p class="card-subtitle">Claude가 내 파일, 이메일, 캘린더를 직접 읽고 다루는 방식입니다</p>
+
+        <div class="pain-box reveal delay-1">
+            <div class="pain-label">🙋 이런 경험, 한 번쯤 있으셨나요?</div>
+            <ul>
+                <li>매주 같은 파일 정리를 손으로 반복하고 있다</li>
+                <li>이메일 답장 쓰는 데 하루 1시간 이상이 사라진다</li>
+                <li>자료를 모아서 보고서 쓰는 일이 귀찮아서 계속 미룬다</li>
+            </ul>
+        </div>
+
+        <div class="inset-box reveal delay-2">
+            <div class="inset-label">💡 비유로 이해하기</div>
+            <p><strong style="color:#3A3530;">Claude.ai</strong>는 카페에서 대화하는 것과 같습니다. 상대방이 아무리 똑똑해도, 내 노트북은 볼 수 없습니다.<br><br>
+            <strong style="color:#3A3530;">Claude Cowork</strong>는 옆자리에 앉힌 것과 같습니다. 내 화면을 함께 보면서, 직접 파일을 열고 이메일을 확인하고 캘린더를 정리해 줍니다.</p>
+        </div>
+
+        <div class="compare-grid">
+            <div class="compare-nm reveal-left visible">
+                <div class="cmp-header">
+                    <span class="cmp-dot" style="background:#4A90D9;"></span>
+                    <h4>💬 Claude.ai (웹)</h4>
+                </div>
+                <p>브라우저에서 대화만 가능</p>
+                <p>파일은 직접 복붙해야 함</p>
+                <p>외부 서비스 연결 불가</p>
+                <div class="cmp-highlight">→ "이 내용 정리해줘" (텍스트 복붙)</div>
+            </div>
+            <div class="compare-nm reveal-right visible">
+                <div class="cmp-header">
+                    <span class="cmp-dot" style="background:var(--ant-orange);"></span>
+                    <h4>🤝 Claude Cowork (Desktop)</h4>
+                </div>
+                <p>내 PC 폴더에 직접 접근</p>
+                <p>Gmail, Calendar, Drive 연결</p>
+                <p>파일 생성·수정·저장 가능</p>
+                <div class="cmp-highlight">→ "내 이메일 정리해줘" (직접 접근)</div>
+            </div>
+        </div>
+
+        <div class="tip-box reveal delay-3">
+            <div class="tip-label">핵심 차이</div>
+            <p>Claude.ai는 "대화"만 가능하지만, Cowork는 "행동"까지 합니다. 파일을 만들고, 이메일을 읽고, 일정을 확인하는 것이 모두 가능합니다.</p>
+        </div>
+    </div>
+
+    <!-- ② 이런 일을 할 수 있어요 -->
+    <div class="step-divider content-section reveal" id="sec-tasks">
+        <span class="step-badge">STEP 2 · 이런 일을 할 수 있어요</span>
+    </div>
+
+    <div class="nm-card reveal">
+        <h2>Cowork로 할 수 있는 일</h2>
+        <p class="card-subtitle">Claude가 직접 행동하는 6가지 대표 업무 유형</p>
+
+        <div class="count-badge-wrap">
+            <div class="count-badge">6</div>
+            <div>
+                <div class="count-badge-text">지금 당장 자동화할 수 있는 업무</div>
+                <div class="count-badge-sub">아래에서 내가 해당하는 것이 있는지 확인해 보세요</div>
+            </div>
+        </div>
+
+        <div class="use-case-grid">
+            <div class="use-case-item reveal delay-1">
+                <span class="uc-icon">📁</span>
+                <h4>파일 정리 및 자동화</h4>
+                <p>다운로드 폴더 정리, 파일명 일괄 변경, 중복 파일 제거를 한 번에 처리합니다.</p>
+                <span class="uc-example">"이 폴더 날짜별로 정리해줘"</span>
+            </div>
+            <div class="use-case-item reveal delay-2">
+                <span class="uc-icon">📊</span>
+                <h4>데이터 변환</h4>
+                <p>스크린샷·영수증·PDF 속 숫자를 스프레드시트로 변환합니다. 손으로 옮길 필요가 없습니다.</p>
+                <span class="uc-example">"이 영수증 사진들 엑셀로 만들어줘"</span>
+            </div>
+            <div class="use-case-item reveal delay-3">
+                <span class="uc-icon">📝</span>
+                <h4>문서 및 보고서 생성</h4>
+                <p>흩어진 메모와 자료를 읽고 보고서, 제안서, PPT 초안을 자동으로 작성합니다.</p>
+                <span class="uc-example">"회의 노트로 보고서 초안 써줘"</span>
+            </div>
+            <div class="use-case-item reveal delay-4">
+                <span class="uc-icon">📧</span>
+                <h4>이메일 관리</h4>
+                <p>Gmail을 직접 열어 중요 메일 분류, 뉴스레터 요약, 답장 초안을 작성합니다.</p>
+                <span class="uc-example">"이번 주 읽지 않은 메일 요약해줘"</span>
+            </div>
+            <div class="use-case-item reveal delay-5">
+                <span class="uc-icon">📅</span>
+                <h4>일정 및 미팅 정리</h4>
+                <p>캘린더를 확인해 주간 브리핑 작성, 회의록 정리, 일정 충돌 확인을 합니다.</p>
+                <span class="uc-example">"내일 일정 정리해서 알려줘"</span>
+            </div>
+            <div class="use-case-item reveal delay-6">
+                <span class="uc-icon">🔍</span>
+                <h4>리서치 자동화</h4>
+                <p>웹 브라우저를 직접 제어해 여러 페이지를 탐색하고 정보를 수집·정리합니다.</p>
+                <span class="uc-example">"경쟁사 가격 조사해서 표로 만들어줘"</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ③ 뭘 연결할 수 있나요? -->
+    <div class="step-divider content-section reveal" id="sec-connect">
+        <span class="step-badge">STEP 3 · 뭘 연결할 수 있나요?</span>
+    </div>
+
+    <div class="nm-card reveal">
+        <h2>연결 가능한 서비스</h2>
+        <p class="card-subtitle">현재 연결 가능한 서비스들입니다. 계속 추가되고 있습니다.</p>
+
+        <div class="service-grid">
+            <div class="service-card reveal delay-1">
+                <div class="svc-accent" style="background:#EA4335;"></div>
+                <span class="svc-icon">📧</span>
+                <h4>Gmail</h4>
+                <p>이메일 검색·읽기·요약<br>뉴스레터 정리 자동화</p>
+            </div>
+            <div class="service-card reveal delay-2">
+                <div class="svc-accent" style="background:#4285F4;"></div>
+                <span class="svc-icon">📅</span>
+                <h4>Google Calendar</h4>
+                <p>일정 확인·생성·관리<br>주간 브리핑 자동화</p>
+            </div>
+            <div class="service-card reveal delay-3">
+                <div class="svc-accent" style="background:#0F9D58;"></div>
+                <span class="svc-icon">💾</span>
+                <h4>Google Drive</h4>
+                <p>파일 검색·읽기·정리<br>문서 자동 생성</p>
+            </div>
+        </div>
+
+        <div class="service-grid-2">
+            <div class="service-card reveal delay-1">
+                <div class="svc-accent" style="background:#5C5650;"></div>
+                <span class="svc-icon">📁</span>
+                <h4>내 PC 폴더</h4>
+                <p>로컬 파일 읽기·쓰기<br>PDF 분석, 문서 생성</p>
+            </div>
+            <div class="service-card reveal delay-2">
+                <div class="svc-accent" style="background:#5C5650;"></div>
+                <span class="svc-icon">🌐</span>
+                <h4>웹 브라우저</h4>
+                <p>웹 검색·스크래핑<br>리서치 자동화</p>
+            </div>
+        </div>
+
+        <div class="tip-box reveal delay-3">
+            <div class="tip-label">💡 참고</div>
+            <p>Cowork 기능은 Claude Desktop 앱에서만 사용 가능합니다. 웹(claude.ai)에서는 사용할 수 없습니다.</p>
+        </div>
+    </div>
+
+    <!-- ④ 설정 방법 -->
+    <div class="step-divider content-section reveal" id="sec-setup">
+        <span class="step-badge">STEP 4 · 코워크 환경 설정하기</span>
+    </div>
+
+    <div class="nm-card reveal">
+        <h2>코워크 환경 설정하기</h2>
+        <p class="card-subtitle">Claude Desktop에서 서비스를 연결하면 바로 사용할 수 있습니다</p>
+
+        <!-- STEP 1: 설치 -->
+        <div class="setup-step-card reveal delay-1">
+            <div class="ssh-header">
+                <span class="ssh-icon">💻</span>
+                <span class="ssh-badge">STEP 1</span>
+                <span class="ssh-title">Claude Desktop 설치</span>
+            </div>
+            <ol class="connect-steps">
+                <li>아래 버튼을 클릭하여 Claude Desktop을 다운로드합니다</li>
+                <li>설치 파일을 실행하고 안내에 따라 설치를 완료합니다</li>
+                <li>Claude 계정으로 로그인하면 준비 완료!</li>
+            </ol>
+            <a class="download-btn" href="https://claude.ai/download" target="_blank" rel="noopener">Claude Desktop 다운로드 ↗</a>
+        </div>
+
+        <!-- STEP 2 & 3 나란히 -->
+        <div class="compare-grid">
+            <div class="setup-step-card reveal delay-2" style="margin-bottom:0;">
+                <div class="ssh-header">
+                    <span class="ssh-icon">📁</span>
+                    <span class="ssh-badge">STEP 2</span>
+                    <span class="ssh-title">폴더 연결</span>
+                </div>
+                <ol class="connect-steps">
+                    <li>채팅 입력창 하단의 <code>+</code> 버튼 클릭</li>
+                    <li><code>Add folder</code> 선택</li>
+                    <li>작업할 폴더를 선택하면 바로 연결 완료</li>
+                </ol>
+                <p class="connect-note">💡 연결된 폴더의 파일을 읽고, 만들고, 수정할 수 있습니다</p>
+            </div>
+
+            <div class="setup-step-card reveal delay-3" style="margin-bottom:0;">
+                <div class="ssh-header">
+                    <span class="ssh-icon">🔗</span>
+                    <span class="ssh-badge">STEP 3</span>
+                    <span class="ssh-title">Google 서비스 연결</span>
+                </div>
+                <div class="google-service-list">
+                    <span class="google-service-tag">📧 Gmail</span>
+                    <span class="google-service-tag">📅 Calendar</span>
+                    <span class="google-service-tag">💾 Drive</span>
+                </div>
+                <ol class="connect-steps">
+                    <li>Claude Desktop <code>설정</code> 열기</li>
+                    <li><code>커넥터</code> 탭에서 원하는 Google 서비스 선택</li>
+                    <li>Google 계정으로 로그인 후 권한 허용</li>
+                </ol>
+                <p class="connect-note">💡 세 서비스 모두 같은 방식으로 연결됩니다</p>
+            </div>
+        </div>
+
+        <!-- Claude Desktop 설정 화면 모형 -->
+        <div class="cowork-mockup reveal delay-4">
+            <div class="mockup-titlebar">
+                <span class="mockup-dot red"></span>
+                <span class="mockup-dot yellow"></span>
+                <span class="mockup-dot green"></span>
+                <span>Claude Desktop 설정</span>
+            </div>
+            <div class="mockup-body">
+                <div class="mockup-sidebar">
+                    <div class="mockup-sidebar-item">일반</div>
+                    <div class="mockup-sidebar-item">계정</div>
+                    <div class="mockup-sidebar-item">개인정보보호</div>
+                    <div class="mockup-sidebar-item">결제</div>
+                    <div class="mockup-sidebar-item">사용량</div>
+                    <div class="mockup-sidebar-item">기능</div>
+                    <div class="mockup-sidebar-item active" style="color: #f59e0b;">커넥터 ←</div>
+                    <div class="mockup-sidebar-item">Claude Code</div>
+                    <div class="mockup-sidebar-item">협업</div>
+                    <div class="mockup-sidebar-item" style="margin-top: 16px; font-size: 11px; color: #666; font-weight: 400; padding-left:20px;">데스크톱 앱</div>
+                    <div class="mockup-sidebar-item">일반</div>
+                    <div class="mockup-sidebar-item">확장 프로그램</div>
+                    <div class="mockup-sidebar-item">개발자</div>
+                </div>
+                <div class="mockup-main">
+                    <div class="mockup-connector-list">
+                        <div class="mockup-connector-row">
+                            <div class="connector-icon-wrap">
+                                <svg viewBox="0 0 24 24"><path d="M4.433 22l-1.6-2.77L8.433 8.6h4.8L7.633 22H4.433z" fill="#0066DA"/><path d="M15.567 22H7.633l2.8-4.8h10.4l-2.466 4.27L15.567 22z" fill="#00AC47"/><path d="M1.233 17.23L8.433 4.6h4.8L6.033 17.23l-2.4 2.77-2.4-2.77z" fill="#EA4335"/><path d="M20.833 17.2h-10.4l5.6-9.6h4.8l2.4 4.8-2.4 4.8z" fill="#00832D"/><path d="M13.233 4.6l5.6 9.6h-8.4L13.233 4.6z" fill="#2684FC"/><path d="M8.433 4.6l2.8 4.8-4.8 8.4L1.233 17.23 8.433 4.6z" fill="#FFBA00"/></svg>
+                            </div>
+                            <span class="connector-svc-name">Google Drive</span>
+                            <span class="connector-btn connected">연결됨</span>
+                            <span class="connector-dots">···</span>
+                        </div>
+                        <div class="mockup-connector-row">
+                            <div class="connector-icon-wrap">
+                                <svg viewBox="0 0 24 24" fill="#ccc"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+                            </div>
+                            <span class="connector-svc-name">GitHub</span>
+                            <span class="connector-btn connected">연결됨</span>
+                            <span class="connector-dots">···</span>
+                        </div>
+                        <div class="mockup-connector-row">
+                            <div class="connector-icon-wrap">
+                                <svg viewBox="0 0 24 24"><path d="M2 6l10 7 10-7" fill="none" stroke="#C5221F" stroke-width="2"/><rect x="2" y="6" width="20" height="12" rx="1.5" fill="none" stroke="#EA4335" stroke-width="1.2"/></svg>
+                            </div>
+                            <span class="connector-svc-name">Gmail</span>
+                            <span class="connector-btn connected">연결됨</span>
+                            <span class="connector-dots">···</span>
+                        </div>
+                        <div class="mockup-connector-row">
+                            <div class="connector-icon-wrap">
+                                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" fill="#fff" stroke="#4285F4" stroke-width="1.2"/><rect x="3" y="4" width="18" height="5" rx="1" fill="#4285F4"/><text x="12" y="18" text-anchor="middle" font-size="9" font-weight="700" fill="#1a73e8" font-family="Arial, sans-serif">31</text></svg>
+                            </div>
+                            <span class="connector-svc-name">Google Calendar</span>
+                            <span class="connector-btn connected">연결됨</span>
+                            <span class="connector-dots">···</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA 섹션 -->
+    <div class="cta-section reveal">
+        <h3>설정이 끝났다면, 지금 바로 실전으로!</h3>
+        <p>Gmail 정리, 보고서 작성, 데이터 분석까지.<br>8가지 실전 과제를 따라 하며 직접 익혀보세요.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn secondary" href="https://claude.ai/download" target="_blank" rel="noopener">💻 Claude Desktop 다운로드</a>
+            <a class="cta-btn primary" href="cowork.html">🎯 실전 과제 8가지 →</a>
+        </div>
+    </div>
+
+</main>
+
+
+<footer>
+    <p class="footer-brand">AI Roasting</p>
+    <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+    <p class="footer-text" style="margin-top:8px;opacity:0.5;">© 2026 AI Roasting. All rights reserved.</p>
+</footer>
+
+<script>
+    // 스크롤 기반 서브메뉴 활성 상태
+    const sections = [
+        document.getElementById('sec-what'),
+        document.getElementById('sec-tasks'),
+        document.getElementById('sec-connect'),
+        document.getElementById('sec-setup')
+    ];
+    const navLinks = document.querySelectorAll('.sub-menu a[data-sec]');
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.id;
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.dataset.sec === id);
+                });
+            }
+        });
+    }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+    sections.forEach(sec => { if (sec) sectionObserver.observe(sec); });
+
+    // 스크롤 리빌 애니메이션
+    const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    revealEls.forEach(el => revealObserver.observe(el));
+
+    // 비교 카드는 페이지 로드 직후에도 보여야 하므로 초기 뷰포트 내 요소 즉시 활성화
+    setTimeout(() => {
+        document.querySelectorAll('.reveal-left, .reveal-right').forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight) {
+                el.classList.add('visible');
+            }
+        });
+    }, 100);
+</script>
+
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
 </body>
 </html>

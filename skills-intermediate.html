@@ -4,662 +4,703 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skill 중급 — 실전 스킬 만들기 | AI Roasting</title>
+    <meta name="description" content="Claude Code에서 쓰는 진짜 업무 자동화 스킬을 직접 만들어봅니다. Reference 스킬과 Task 스킬, SKILL.md 심화, Hooks 연동까지.">
     <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+            --skill-blue: #3B82F6;
+            --skill-green: #10B981;
+            --skill-amber: #F59E0B;
+            --skill-purple: #8B5CF6;
+            --skill-pink: #EC4899;
+            --skill-cyan: #06B6D4;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
 
-        body {
-            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
-            background: #ffffff;
-            color: #1a1a1a;
-            line-height: 1.6;
-        }
-
+        /* ── HEADER ── */
         header {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
             text-align: center;
-            padding: 48px 32px 40px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a1a 100%);
-            border-bottom: 3px solid #CC0000;
+            position: relative;
+            overflow: hidden;
         }
-
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,130,90,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
         .back-link {
             display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
             font-size: 14px;
             font-weight: 600;
-            color: #e8706a;
-            text-decoration: none;
-            margin-bottom: 12px;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
         }
-        .back-link:hover { text-decoration: underline; }
-
+        .back-link:hover { color: #fff; }
         header h1 {
-            font-size: 40px;
+            font-size: 44px;
             font-weight: 800;
             color: #ffffff;
             letter-spacing: -1px;
             margin-bottom: 8px;
+            position: relative; z-index: 1;
         }
+        header p { font-size: 16px; color: rgba(255,255,255,0.72); position: relative; z-index: 1; }
 
-        header p {
-            font-size: 16px;
-            color: rgba(255,255,255,0.6);
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
         }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
 
-        .header-badge {
-            display: inline-block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #e8706a;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(232,112,106,0.3);
-            padding: 4px 16px;
-            border-radius: 20px;
-            margin-top: 12px;
-        }
-
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 48px 32px 64px;
-        }
-
-        /* ── Section ── */
-        .section-block {
-            margin-bottom: 0;
-            padding: 40px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .section-block:last-of-type { border-bottom: none; }
-
-        .section-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1a1a1a;
-            padding-left: 16px;
-            border-left: 4px solid #CC0000;
-            margin-bottom: 6px;
-        }
-
-        .section-subtitle {
-            font-size: 15px;
-            color: #666;
-            padding-left: 20px;
-            margin-bottom: 24px;
-        }
-
-        /* ── 퀵 네비 ── */
-        .quick-nav {
-            background: #fff;
-            border: 1px solid #e8e8e8;
-            border-radius: 12px;
-            padding: 20px 24px;
-            margin-bottom: 40px;
-        }
-
-        .quick-nav-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-        }
-
-        .quick-nav-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .quick-nav-list a {
+        /* ── Mode Tabs ── */
+        .mode-tabs {
             display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
             font-size: 13px;
-            font-weight: 600;
-            color: #555;
-            text-decoration: none;
-            padding: 6px 14px;
-            border: 1px solid #e0e0e0;
-            border-radius: 20px;
-            transition: all 0.2s;
-        }
-
-        .quick-nav-list a:hover {
-            color: #CC0000;
-            border-color: #CC0000;
-            background: #fff5f5;
-        }
-
-        .quick-nav-list a .qn-num {
-            font-size: 11px;
-            font-weight: 800;
-            color: #CC0000;
-        }
-
-        /* ── 비교 테이블 ── */
-        .compare-table {
-            width: 100%;
-            border-collapse: collapse;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #e0e0e0;
-            margin-bottom: 20px;
-        }
-
-        .compare-table thead { background: #1a1a1a; }
-
-        .compare-table th {
-            text-align: left;
-            padding: 12px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .compare-table td {
-            padding: 14px 16px;
-            font-size: 14px;
-            color: #444;
-            border-bottom: 1px solid #f0f0f0;
-            vertical-align: top;
-        }
-
-        .compare-table tbody tr:last-child td { border-bottom: none; }
-        .compare-table tbody tr:hover { background: #fafafa; }
-
-        /* ── 코드 블록 ── */
-        .code-box {
-            background: #1a1a1a;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
-
-        .code-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 20px;
-            background: #2d2d2d;
-            border-bottom: 1px solid #3a3a3a;
-        }
-
-        .code-bar span {
-            font-size: 13px;
-            font-weight: 600;
-            color: #999;
-        }
-
-        .copy-btn {
-            font-size: 12px;
             font-weight: 700;
-            color: #fff;
-            background: #CC0000;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 6px;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.2s;
+            user-select: none;
         }
-
-        .copy-btn:hover { background: #a00; transform: scale(1.03); }
-
-        .code-body {
-            padding: 20px 24px;
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 13px;
-            color: #e0e0e0;
-            line-height: 1.8;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        .code-body .comment { color: #666; }
-        .code-body .keyword { color: #CC0000; font-weight: 600; }
-        .code-body .value { color: #f59e0b; }
-        .code-body .string { color: #10B981; }
-
-        /* ── 단계 카드 ── */
-        .step-cards {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            margin-bottom: 24px;
-        }
-
-        .step-card {
-            display: flex;
-            gap: 16px;
-            align-items: flex-start;
-            padding: 20px;
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            transition: border-color 0.2s;
-        }
-
-        .step-card:hover { border-color: #CC0000; }
-
-        .step-num {
-            font-size: 20px;
-            font-weight: 900;
-            color: #CC0000;
-            flex-shrink: 0;
-            line-height: 1;
-            margin-top: 2px;
-        }
-
-        .step-body { flex: 1; }
-        .step-body strong { font-size: 15px; font-weight: 700; color: #1a1a1a; display: block; margin-bottom: 4px; }
-        .step-body p { font-size: 13px; color: #666; line-height: 1.6; margin: 0; }
-
-        /* ── 정보 박스 ── */
-        .info-box {
-            font-size: 13px;
-            color: #666;
-            padding: 14px 16px 14px 20px;
-            background: #FFFBEB;
-            border: 1px solid #FDE68A;
-            border-left: 4px solid #F59E0B;
-            border-radius: 8px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .info-box strong { color: #B45309; }
-
-        .info-box.blue {
-            background: #EFF6FF;
-            border-color: #BFDBFE;
-            border-left-color: #3B82F6;
-        }
-
-        .info-box.blue strong { color: #1D4ED8; }
-
-        .info-box.green {
-            background: #F0FDF4;
-            border-color: #BBF7D0;
-            border-left-color: #10B981;
-        }
-
-        .info-box.green strong { color: #059669; }
-
-        .info-box.red {
-            background: #FEF2F2;
-            border-color: #FECACA;
-            border-left-color: #CC0000;
-        }
-
-        .info-box.red strong { color: #CC0000; }
-
-        /* ── 2열 카드 ── */
-        .two-col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-
-        .col-card {
-            padding: 20px;
-            background: #f9f9f9;
-            border: 1px solid #e8e8e8;
-            border-radius: 10px;
-        }
-
-        .col-card h4 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .col-card p { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 8px; }
-        .col-card .highlight { font-size: 13px; color: #CC0000; font-weight: 600; }
-
-        /* ── 실습 박스 ── */
-        .practice-box {
-            border: 2px solid #CC0000;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
-
-        .practice-header {
-            background: #CC0000;
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
             color: #fff;
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
         }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
 
-        .practice-header span { font-size: 20px; }
-        .practice-header h3 { font-size: 16px; font-weight: 700; }
-
-        .practice-body { padding: 24px; }
-
-        .practice-step {
+        /* ── Header Page Links ── */
+        .header-pages {
             display: flex;
+            justify-content: center;
             gap: 14px;
-            align-items: flex-start;
-            margin-bottom: 18px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        .practice-step:last-child { margin-bottom: 0; }
-
-        .practice-step-num {
-            font-size: 12px;
-            font-weight: 800;
-            color: #fff;
-            background: #CC0000;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
+        .header-page-link {
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            margin-top: 2px;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 22px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1;
         }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
 
-        .practice-step-body strong {
-            display: block;
-            font-size: 14px;
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
             font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 4px;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 860px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; padding-left: 20px; }
+
+        /* ── 섹션 구분 ── */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 28px 0; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--ant-orange); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px; border-radius: 20px; white-space: nowrap;
         }
 
-        .practice-step-body span {
-            font-size: 13px;
-            color: #666;
-            line-height: 1.5;
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
         }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--ant-orange); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
 
-        .practice-prompt {
-            background: #2d2d2d;
-            color: #e0e0e0;
-            padding: 16px 18px;
-            border-radius: 8px;
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { font-size: 11px; font-weight: 700; color: var(--ant-orange); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 강조 박스 ── */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(217,119,87,0.08) 0%, rgba(217,119,87,0.03) 100%);
+            border: 1.5px solid rgba(217,119,87,0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin: 20px 0;
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* ── 비교 그리드 ── */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm { background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm); padding: 20px; transition: all 0.3s; }
+        .compare-nm:hover { transform: translateY(-3px); box-shadow: var(--nm-shadow); }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+        .compare-nm p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* ── 뉴모 테이블 ── */
+        .nm-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .nm-table-wrap table { width: 100%; border-collapse: collapse; }
+        .nm-table-wrap thead { background: var(--ant-dark); }
+        .nm-table-wrap th {
+            text-align: left; padding: 12px 16px;
+            font-size: 14px; font-weight: 600; color: #fff;
+        }
+        .nm-table-wrap td {
+            padding: 12px 16px; font-size: 14px; color: #5C5650;
+            border-bottom: 1px solid #E8E4DE;
+        }
+        .nm-table-wrap tbody tr:last-child td { border-bottom: none; }
+        .nm-table-wrap tbody tr:hover { background: rgba(217,119,87,0.04); }
+
+        /* ── 코드 블록 ── */
+        .ps-code {
+            background: var(--ant-dark); color: #e0e0e0;
+            border-radius: 12px; padding: 16px 18px;
             font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 13px;
-            line-height: 1.7;
-            margin: 12px 0 0;
-            white-space: pre-wrap;
+            font-size: 13px; line-height: 1.8;
+            margin-top: 12px; white-space: pre-wrap;
+            position: relative;
         }
+        .ps-code .highlight { color: var(--ant-orange); font-weight: 600; }
+        .ps-code .comment { color: #666; }
+        .ps-code .keyword { color: #CC4444; font-weight: 600; }
+        .ps-code .value { color: #f59e0b; }
+        .ps-code .string { color: #10B981; }
+        .copy-btn-nm {
+            position: absolute; top: 10px; right: 10px;
+            font-size: 11px; font-weight: 700;
+            color: #fff; background: var(--ant-orange);
+            border: none; padding: 5px 14px; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .copy-btn-nm:hover { background: #c56a4d; transform: scale(1.03); }
+
+        /* ── 실습 스텝 카드 ── */
+        .practice-steps { display: flex; flex-direction: column; gap: 18px; margin: 18px 0; }
+        .practice-step-card {
+            display: flex; gap: 20px; align-items: flex-start;
+            background: var(--nm-bg); border-radius: 18px;
+            box-shadow: var(--nm-shadow-sm); padding: 24px;
+            transition: all 0.3s;
+        }
+        .practice-step-card:hover { box-shadow: var(--nm-shadow); transform: translateX(4px); }
+        .ps-num {
+            width: 48px; height: 48px; border-radius: 14px;
+            background: var(--ant-orange);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 900; color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(217,119,87,0.3);
+        }
+        .ps-body { flex: 1; }
+        .ps-body h4 { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .ps-body p { font-size: 14px; color: #5C5650; line-height: 1.75; }
 
         /* ── 폴더 구조 ── */
         .folder-tree {
-            background: #1a1a1a;
-            border-radius: 10px;
+            background: var(--ant-dark);
+            border-radius: 12px;
             padding: 20px 24px;
             font-family: 'SF Mono', 'Fira Code', monospace;
             font-size: 13px;
             color: #e0e0e0;
             line-height: 1.8;
-            margin-bottom: 16px;
+            margin: 16px 0;
             white-space: pre;
             overflow-x: auto;
         }
-
         .folder-tree .folder { color: #ffd166; font-weight: 700; }
         .folder-tree .file { color: #10B981; }
-        .folder-tree .comment { color: #888; }
+        .folder-tree .f-comment { color: #888; }
+
+        /* ── 타임라인 ── */
+        .debug-timeline { display: flex; flex-direction: column; gap: 0; margin: 18px 0; position: relative; }
+        .debug-timeline::before {
+            content: ''; position: absolute; left: 23px; top: 0; bottom: 0;
+            width: 3px; background: linear-gradient(to bottom, var(--ant-orange), rgba(217,119,87,0.2));
+            border-radius: 3px;
+        }
+        .dt-step {
+            display: flex; gap: 20px; align-items: flex-start;
+            padding: 16px 0; position: relative;
+        }
+        .dt-dot {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 800; color: var(--ant-orange);
+            flex-shrink: 0; position: relative; z-index: 1;
+        }
+        .dt-content { flex: 1; }
+        .dt-content h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 4px; }
+        .dt-content p { font-size: 14px; color: #5C5650; line-height: 1.65; }
 
         /* ── CTA 섹션 ── */
         .cta-section {
-            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
-            border-radius: 16px;
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            border-radius: 20px;
             padding: 40px 32px;
             text-align: center;
-            margin-top: 48px;
+            margin-top: 36px;
         }
-
-        .cta-section h3 {
-            font-size: 22px;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 8px;
-        }
-
-        .cta-section p {
-            font-size: 14px;
-            color: #aaa;
-            margin-bottom: 24px;
-            line-height: 1.6;
-        }
-
-        .cta-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 480px; margin: 0 auto; }
         .cta-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            padding: 12px 28px;
-            border-radius: 8px;
-            text-decoration: none;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* ── 푸터 ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 32px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.28); }
+
+        /* ── 페이지 네비 ── */
+        .page-nav {
+            max-width: 860px; margin: 0 auto; padding: 0 32px 36px;
+            display: flex; justify-content: space-between; align-items: center; gap: 16px;
+        }
+        .page-nav-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            text-decoration: none; color: var(--ant-orange);
+            font-size: 14px; font-weight: 600;
+            padding: 10px 16px;
+            background: var(--nm-bg); border-radius: 12px;
+            box-shadow: var(--nm-shadow-sm);
             transition: all 0.2s;
         }
+        .page-nav-link:hover { box-shadow: var(--nm-inset); }
 
-        .cta-btn.primary { background: #CC0000; color: #fff; }
-        .cta-btn.primary:hover { background: #a00; transform: translateY(-1px); }
-        .cta-btn.secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-        .cta-btn.secondary:hover { background: rgba(255,255,255,0.2); }
-
-        /* ── 참고 자료 ── */
-        .ref-section {
-            margin-top: 48px;
-            padding-top: 32px;
-            border-top: 1px solid #e0e0e0;
+        /* ── 스크롤 애니메이션 ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
         }
-
-        .ref-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 14px;
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
+        .reveal-delay-1 { transition-delay: 0.15s; }
+        .reveal-delay-2 { transition-delay: 0.3s; }
+        .reveal-delay-3 { transition-delay: 0.45s; }
 
-        .ref-links {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        /* ── 트러블슈팅 아코디언 ── */
+        .trouble-accordion { margin: 18px 0; }
+        .trouble-item-nm {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            margin-bottom: 12px; overflow: hidden;
+            transition: all 0.3s;
         }
-
-        .ref-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            text-decoration: none;
-            color: #1a1a1a;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s;
+        .trouble-item-nm:hover { box-shadow: var(--nm-shadow); }
+        .trouble-q {
+            display: flex; align-items: center; gap: 12px;
+            padding: 16px 20px; cursor: pointer;
+            font-size: 14px; font-weight: 700; color: #3A3530;
         }
-
-        .ref-link:hover { border-color: #CC0000; background: #fff5f5; color: #CC0000; }
-        .ref-link .ref-icon { font-size: 18px; flex-shrink: 0; }
-        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #888; margin-left: auto; flex-shrink: 0; }
-
-        /* ── Footer ── */
-        footer {
-            text-align: center;
-            padding: 24px 32px;
-            border-top: 1px solid #e0e0e0;
-            background: #f4f4f4;
+        .trouble-q .tq-icon { font-size: 18px; flex-shrink: 0; }
+        .trouble-q .tq-arrow { margin-left: auto; font-size: 14px; color: #999; transition: transform 0.3s; flex-shrink: 0; }
+        .trouble-item-nm.open .trouble-q .tq-arrow { transform: rotate(180deg); }
+        .trouble-a {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding: 0 20px;
         }
-
-        footer .footer-brand {
-            font-size: 13px;
-            font-weight: 700;
-            color: #CC0000;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-
-        footer .footer-text { font-size: 12px; color: #999; }
+        .trouble-item-nm.open .trouble-a { max-height: 300px; padding: 0 20px 16px; }
+        .trouble-a p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .trouble-a strong { color: var(--ant-orange); }
 
         /* ── 선행 조건 박스 ── */
         .prereq-box {
-            background: #f9f9f9;
-            border: 1px solid #e0e0e0;
-            border-left: 4px solid #CC0000;
-            border-radius: 8px;
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
             padding: 20px 24px;
-            margin-bottom: 40px;
+            margin-bottom: 28px;
         }
-
         .prereq-box h3 {
             font-size: 15px;
             font-weight: 700;
-            color: #CC0000;
+            color: var(--ant-orange);
             margin-bottom: 8px;
         }
-
         .prereq-box p {
-            font-size: 13px;
-            color: #666;
-            line-height: 1.6;
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
         }
-
-        .prereq-box a { color: #CC0000; text-decoration: none; font-weight: 600; }
+        .prereq-box a { color: var(--ant-orange); text-decoration: none; font-weight: 600; }
         .prereq-box a:hover { text-decoration: underline; }
 
+        /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
-            header { padding: 40px 20px 24px; }
-            header h1 { font-size: 28px; }
-            .container { padding: 32px 16px 48px; }
-            .two-col { grid-template-columns: 1fr; }
-            .quick-nav-list { gap: 6px; }
-            .quick-nav-list a { font-size: 12px; padding: 5px 10px; }
-            .cta-section { padding: 32px 20px; }
-            .cta-section h3 { font-size: 18px; }
-            .cta-buttons { flex-direction: column; align-items: center; }
-            .ref-link .ref-desc { display: none; }
+            header { padding: 36px 20px 28px; }
+            header h1 { font-size: 30px; }
+            .container { padding: 24px 16px 64px; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .sm-title { font-size: 11px; }
+            .sm-sub { font-size: 10px; }
+            .header-pages { flex-direction: column; gap: 8px; max-width: 280px; }
+            .header-page-link { font-size: 12px; padding: 8px 16px; }
         }
     </style>
 </head>
 <body>
-    <header>
-        <a class="back-link" href="index.html">← 목록으로</a>
-        <h1>Skill 중급 — 실전 스킬 만들기</h1>
-        <p>Claude Code에서 쓰는 진짜 업무 자동화 스킬을 직접 만들어봅니다</p>
-        <span class="header-badge">Claude Code 활용</span>
-        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 16px;">
-            <a href="skills.html" style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.2)'">← 기본</a>
-            <span style="font-size: 13px; font-weight: 700; color: #fff; background: #CC0000; padding: 6px 18px; border-radius: 20px;">중급 ← 지금 여기</span>
-            <a href="skills-advanced.html" style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.color='#fff';this.style.borderColor='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.2)'">고급 →</a>
-        </div>
-    </header>
 
-    <main class="container">
+<header>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="project-intro.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="cowork-intro.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="agent-design.html">5</a>
+    </nav>
+    <a href="index.html" class="back-link">&larr; 목록으로</a>
+    <h1>Skill 중급</h1>
+    <p>Claude Code에서 쓰는 진짜 업무 자동화 스킬을 직접 만들어봅니다</p>
+    <div class="mode-tabs">
+        <span class="mode-tab" id="tab-design" onclick="switchMode('design')">설계</span>
+        <span class="mode-tab active" id="tab-skill" onclick="switchMode('skill')">스킬</span>
+        <span class="mode-tab" id="tab-final" onclick="switchMode('final')">최종</span>
+    </div>
+    <div class="header-pages" id="pages-design" style="display:none;">
+        <a href="agent-design.html" class="header-page-link"><span class="hpl-icon">🎯</span> 팀 구조 설계</a>
+        <a href="automation.html" class="header-page-link"><span class="hpl-icon">🤖</span> 4가지 핵심 요소</a>
+    </div>
+    <div class="header-pages" id="pages-skill">
+        <a href="skills.html" class="header-page-link"><span class="hpl-icon">🌱</span> 스킬 입문</a>
+        <a href="skills-intermediate.html" class="header-page-link active"><span class="hpl-icon">⚡</span> 스킬 중급</a>
+        <a href="skills-advanced.html" class="header-page-link"><span class="hpl-icon">🚀</span> 스킬 고급</a>
+    </div>
+    <div class="header-pages" id="pages-final" style="display:none;">
+        <a href="automation-master.html" class="header-page-link"><span class="hpl-icon">🏆</span> 마지막 자동화 실전 적용</a>
+    </div>
+</header>
 
-        <!-- 선행 조건 -->
-        <div class="prereq-box">
-            <h3>이 페이지를 보기 전에</h3>
-            <p>이 페이지는 <a href="skills.html">Skill 기본</a> 페이지를 먼저 읽었다는 전제로 작성되었습니다.<br>
-            Claude Code가 설치되어 있어야 합니다. 아직이라면 <a href="checklist.html">22단계 체크리스트</a>에서 설치 방법을 확인하세요.</p>
-        </div>
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#types" class="active" data-sec="types">
+        <span class="sm-num">1</span>
+        <span class="sm-title">스킬 유형</span>
+        <span class="sm-sub">2가지</span>
+    </a>
+    <a href="#skillmd" data-sec="skillmd">
+        <span class="sm-num">2</span>
+        <span class="sm-title">작성법</span>
+        <span class="sm-sub">심화</span>
+    </a>
+    <a href="#folder" data-sec="folder">
+        <span class="sm-num">3</span>
+        <span class="sm-title">폴더 구조</span>
+        <span class="sm-sub">설계</span>
+    </a>
+    <a href="#practice" data-sec="practice">
+        <span class="sm-num">4</span>
+        <span class="sm-title">실전 실습</span>
+        <span class="sm-sub">따라하기</span>
+    </a>
+    <a href="#hooks" data-sec="hooks">
+        <span class="sm-num">5</span>
+        <span class="sm-title">Hooks</span>
+        <span class="sm-sub">연동</span>
+    </a>
+    <a href="#debug" data-sec="debug">
+        <span class="sm-num">6</span>
+        <span class="sm-title">디버깅</span>
+        <span class="sm-sub">해결</span>
+    </a>
+</nav>
 
-        <!-- 퀵 네비게이션 -->
-        <div class="quick-nav">
-            <div class="quick-nav-title">📍 이 페이지 한눈에 보기</div>
-            <div class="quick-nav-list">
-                <a href="#sec1"><span class="qn-num">①</span> Reference vs Task 스킬</a>
-                <a href="#sec2"><span class="qn-num">②</span> SKILL.md 심화 작성법</a>
-                <a href="#sec3"><span class="qn-num">③</span> 폴더 구조 설계</a>
-                <a href="#sec4"><span class="qn-num">④</span> 실전 실습</a>
-                <a href="#sec5"><span class="qn-num">⑤</span> Hooks 연동</a>
-                <a href="#sec6"><span class="qn-num">⑥</span> 디버깅 & 테스트</a>
+<main class="container">
+
+    <!-- 선행 조건 -->
+    <div class="prereq-box reveal">
+        <h3>이 페이지를 보기 전에</h3>
+        <p>이 페이지는 <a href="skills.html">Skill 입문</a> 페이지를 먼저 읽었다는 전제로 작성되었습니다.<br>
+        Claude Code가 설치되어 있어야 합니다. 아직이라면 <a href="checklist.html">22단계 체크리스트</a>에서 설치 방법을 확인하세요.</p>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════
+         STEP 01 : 두 가지 스킬 유형
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="types"></div>
+    <div class="step-divider"><span class="step-badge">STEP 01 : TYPES</span></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>두 가지 스킬 유형 이해하기</h2>
+            <p class="card-subtitle">Claude Code 스킬은 "참고서"와 "레시피" 두 종류가 있습니다</p>
+
+            <div class="compare-grid">
+                <div class="compare-nm reveal reveal-delay-1" style="border-top: 3px solid var(--skill-blue);">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--skill-blue);"></div>
+                        <h4>Reference 스킬 (참고서)</h4>
+                    </div>
+                    <p>"이건 우리 회사 규칙이야. 참고해서 일해."<br>Claude가 <strong>읽고 참고</strong>만 합니다.</p>
+                    <p style="margin-top: 10px; font-size: 13px;"><strong>비유:</strong> 새로 들어온 직원에게 주는 회사 매뉴얼.<br>직원이 매번 펼쳐보면서 일하는 것.</p>
+                    <p style="margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--skill-blue);">코딩 스타일 가이드, 브랜드 톤앤매너, 프로젝트 구조 설명</p>
+                </div>
+                <div class="compare-nm reveal reveal-delay-2" style="border-top: 3px solid var(--skill-green);">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--skill-green);"></div>
+                        <h4>Task 스킬 (레시피)</h4>
+                    </div>
+                    <p>"이 명령어를 치면, 이 순서대로 실행해."<br>Claude가 <strong>직접 행동</strong>합니다.</p>
+                    <p style="margin-top: 10px; font-size: 13px;"><strong>비유:</strong> 요리 레시피. "/볶음밥"이라고 하면<br>재료 준비부터 완성까지 순서대로 실행.</p>
+                    <p style="margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--skill-green);">/report 치면 보고서 생성, /deploy 치면 배포 실행</p>
+                </div>
             </div>
         </div>
 
-        <!-- ① Reference vs Task 스킬 -->
-        <div class="section-block" id="sec1">
-            <h2 class="section-title">① 두 가지 스킬 유형 이해하기</h2>
-            <p class="section-subtitle">Claude Code 스킬은 "참고서"와 "레시피" 두 종류가 있습니다</p>
+        <div class="nm-card reveal">
+            <h2>한눈에 비교</h2>
 
-            <div class="two-col">
-                <div class="col-card" style="border-top: 3px solid #3B82F6;">
-                    <h4>📖 Reference 스킬 (참고서)</h4>
-                    <p>"이건 우리 회사 규칙이야. 참고해서 일해." — Claude가 <strong>읽고 참고</strong>만 합니다.</p>
-                    <p><strong>비유:</strong> 새로 들어온 직원에게 주는 회사 매뉴얼. 직원이 매번 펼쳐보면서 일하는 것.</p>
-                    <div class="highlight">→ 코딩 스타일 가이드, 브랜드 톤앤매너, 프로젝트 구조 설명</div>
-                </div>
-                <div class="col-card" style="border-top: 3px solid #10B981;">
-                    <h4>🍳 Task 스킬 (레시피)</h4>
-                    <p>"이 명령어를 치면, 이 순서대로 실행해." — Claude가 <strong>직접 행동</strong>합니다.</p>
-                    <p><strong>비유:</strong> 요리 레시피. "/볶음밥"이라고 하면 재료 준비부터 완성까지 순서대로 실행.</p>
-                    <div class="highlight">→ /report 치면 보고서 생성, /deploy 치면 배포 실행</div>
-                </div>
+            <div class="nm-table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>구분</th>
+                            <th>Reference 스킬 (참고서)</th>
+                            <th>Task 스킬 (레시피)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 600;">작동 방식</td>
+                            <td>Claude가 자동으로 읽고 참고</td>
+                            <td>사용자가 명령어를 입력하면 실행</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">호출 방법</td>
+                            <td>자동 (별도 명령 불필요)</td>
+                            <td><code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:4px;">/명령어</code> 입력</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">비유</td>
+                            <td>회사 매뉴얼을 항상 옆에 두기</td>
+                            <td>"이거 해줘"라고 시키기</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">실제 예시</td>
+                            <td>코딩 컨벤션, 브랜드 가이드</td>
+                            <td>보고서 생성, 코드 리뷰, 배포</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <table class="compare-table">
-                <thead>
-                    <tr>
-                        <th>구분</th>
-                        <th>Reference 스킬 (참고서)</th>
-                        <th>Task 스킬 (레시피)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style="font-weight: 600;">작동 방식</td>
-                        <td>Claude가 자동으로 읽고 참고</td>
-                        <td>사용자가 명령어를 입력하면 실행</td>
-                    </tr>
-                    <tr>
-                        <td style="font-weight: 600;">호출 방법</td>
-                        <td>자동 (별도 명령 불필요)</td>
-                        <td><code style="background:#f4f4f4;padding:2px 6px;border-radius:4px;">/명령어</code> 입력</td>
-                    </tr>
-                    <tr>
-                        <td style="font-weight: 600;">비유</td>
-                        <td>회사 매뉴얼을 항상 옆에 두기</td>
-                        <td>"이거 해줘"라고 시키기</td>
-                    </tr>
-                    <tr>
-                        <td style="font-weight: 600;">실제 예시</td>
-                        <td>코딩 컨벤션, 브랜드 가이드</td>
-                        <td>보고서 생성, 코드 리뷰, 배포</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="info-box blue">
-                <strong>💡 어떤 걸 써야 할까요?</strong><br>
-                "Claude가 항상 알고 있어야 하는 규칙" → <strong>Reference 스킬</strong><br>
-                "특정 명령어를 치면 실행되는 작업" → <strong>Task 스킬</strong>
+            <div class="tip-box">
+                <div class="tip-label">어떤 걸 써야 할까?</div>
+                <p>"Claude가 항상 알고 있어야 하는 규칙" → <strong>Reference 스킬</strong><br>
+                "특정 명령어를 치면 실행되는 작업" → <strong>Task 스킬</strong></p>
             </div>
         </div>
+    </section>
 
-        <!-- ② SKILL.md 심화 작성법 -->
-        <div class="section-block" id="sec2">
-            <h2 class="section-title">② SKILL.md 심화 작성법</h2>
-            <p class="section-subtitle">frontmatter(머리글)의 각 필드를 제대로 이해하면 스킬 품질이 달라집니다</p>
 
-            <h3 style="font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px;">Reference 스킬 구조</h3>
-            <div class="code-box">
-                <div class="code-bar">
-                    <span>Reference 스킬 — SKILL.md</span>
-                    <button class="copy-btn" onclick="copyRefSkill()">복사하기</button>
-                </div>
-                <div class="code-body" id="ref-skill-code"><span class="comment">---</span>
+    <!-- ═══════════════════════════════════════
+         STEP 02 : SKILL.md 심화 작성법
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="skillmd"></div>
+    <div class="step-divider"><span class="step-badge">STEP 02 : SKILL.MD</span></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>Reference 스킬 작성법</h2>
+            <p class="card-subtitle">frontmatter(머리글)의 각 필드를 제대로 이해하면 스킬 품질이 달라집니다</p>
+
+            <div class="ps-code" style="margin-top: 0;"><button class="copy-btn-nm" onclick="copyRefSkill()">복사</button><span class="comment">---</span>
 <span class="keyword">name:</span> <span class="value">프론트엔드 코딩 컨벤션</span>
 <span class="keyword">description:</span> |
   <span class="value">우리 팀의 프론트엔드 코딩 규칙입니다.</span>
@@ -679,19 +720,18 @@
 - pages/ → 라우팅 페이지
 - hooks/ → 커스텀 훅
 - utils/ → 유틸리티 함수</div>
-            </div>
 
-            <div class="info-box">
-                <strong>핵심:</strong> Reference 스킬에는 <code style="background:#fff;padding:2px 6px;border-radius:3px;">command</code> 필드가 없습니다. Claude가 관련 작업을 할 때 자동으로 참고합니다.
+            <div class="highlight-box" style="margin-top: 20px;">
+                <div class="hl-title">핵심 포인트</div>
+                <p>Reference 스킬에는 <code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:3px;">command</code> 필드가 없습니다.<br>Claude가 관련 작업을 할 때 자동으로 참고합니다.</p>
             </div>
+        </div>
 
-            <h3 style="font-size: 17px; font-weight: 700; color: #1a1a1a; margin: 32px 0 16px;">Task 스킬 구조</h3>
-            <div class="code-box">
-                <div class="code-bar">
-                    <span>Task 스킬 — SKILL.md</span>
-                    <button class="copy-btn" onclick="copyTaskSkill()">복사하기</button>
-                </div>
-                <div class="code-body" id="task-skill-code"><span class="comment">---</span>
+        <div class="nm-card reveal">
+            <h2>Task 스킬 작성법</h2>
+            <p class="card-subtitle">command, arguments, allowed-tools 필드를 활용하면 강력한 자동화가 가능합니다</p>
+
+            <div class="ps-code" style="margin-top: 0;"><button class="copy-btn-nm" onclick="copyTaskSkill()">복사</button><span class="comment">---</span>
 <span class="keyword">name:</span> <span class="value">주간 보고서 생성기</span>
 <span class="keyword">description:</span> <span class="value">팀의 주간 업무를 양식에 맞춰 보고서로 정리합니다</span>
 <span class="keyword">command:</span> <span class="string">/report</span>         <span class="comment"># ← 이 명령어로 실행!</span>
@@ -713,82 +753,111 @@
 3. reports/ 폴더에 마크다운 파일로 저장합니다
 
 <span class="comment">## Output Format</span>
-# 주간 보고서 — {period}
+# 주간 보고서 - {period}
 ## 완료된 작업
 ## 진행 중인 작업
 ## 다음 주 계획</div>
-            </div>
 
-            <div class="info-box green">
-                <strong>Task 스킬 핵심 필드:</strong><br>
-                • <code style="background:#fff;padding:2px 6px;border-radius:3px;">command</code> — 실행 명령어 (예: <code>/report</code>)<br>
-                • <code style="background:#fff;padding:2px 6px;border-radius:3px;">arguments</code> — 사용자가 추가로 입력하는 정보 (선택/필수 지정 가능)<br>
-                • <code style="background:#fff;padding:2px 6px;border-radius:3px;">allowed-tools</code> — Claude가 사용할 수 있는 도구를 제한 (보안에 유용)
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 20px;">
+                <div class="inset-box reveal reveal-delay-1" style="text-align: center; margin: 0;">
+                    <div style="font-size: 24px; margin-bottom: 6px;">⚡</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px;">command</div>
+                    <p style="font-size: 13px;">실행 명령어<br>예: <code>/report</code></p>
+                </div>
+                <div class="inset-box reveal reveal-delay-2" style="text-align: center; margin: 0;">
+                    <div style="font-size: 24px; margin-bottom: 6px;">📋</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px;">arguments</div>
+                    <p style="font-size: 13px;">사용자 입력 정보<br>선택/필수 지정 가능</p>
+                </div>
+                <div class="inset-box reveal reveal-delay-3" style="text-align: center; margin: 0;">
+                    <div style="font-size: 24px; margin-bottom: 6px;">🔒</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px;">allowed-tools</div>
+                    <p style="font-size: 13px;">Claude 도구 제한<br>보안에 유용</p>
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- ③ 폴더 구조 설계 -->
-        <div class="section-block" id="sec3">
-            <h2 class="section-title">③ 스킬 폴더 구조 설계하기</h2>
-            <p class="section-subtitle">SKILL.md 파일 하나가 아니라, 폴더째로 관리하면 더 강력합니다</p>
 
-            <h3 style="font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px;">기본 폴더 구조</h3>
+    <!-- ═══════════════════════════════════════
+         STEP 03 : 폴더 구조 설계
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="folder"></div>
+    <div class="step-divider"><span class="step-badge">STEP 03 : STRUCTURE</span></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>스킬 폴더 구조 설계하기</h2>
+            <p class="card-subtitle">SKILL.md 파일 하나가 아니라, 폴더째로 관리하면 더 강력합니다</p>
+
             <div class="folder-tree"><span class="folder">.claude/</span>
-  └── <span class="folder">skills/</span>                     <span class="comment">← 모든 스킬이 들어가는 폴더</span>
-      ├── <span class="folder">weekly-report/</span>           <span class="comment">← 주간 보고서 스킬</span>
-      │   ├── <span class="file">SKILL.md</span>              <span class="comment">← 스킬 정의 파일 (필수!)</span>
-      │   └── <span class="file">template.md</span>           <span class="comment">← 보고서 양식 템플릿</span>
-      ├── <span class="folder">code-review/</span>             <span class="comment">← 코드 리뷰 스킬</span>
+  └── <span class="folder">skills/</span>                     <span class="f-comment">← 모든 스킬이 들어가는 폴더</span>
+      ├── <span class="folder">weekly-report/</span>           <span class="f-comment">← 주간 보고서 스킬</span>
+      │   ├── <span class="file">SKILL.md</span>              <span class="f-comment">← 스킬 정의 파일 (필수!)</span>
+      │   └── <span class="file">template.md</span>           <span class="f-comment">← 보고서 양식 템플릿</span>
+      ├── <span class="folder">code-review/</span>             <span class="f-comment">← 코드 리뷰 스킬</span>
       │   ├── <span class="file">SKILL.md</span>
-      │   └── <span class="file">checklist.md</span>          <span class="comment">← 리뷰 체크리스트</span>
-      └── <span class="folder">coding-convention/</span>       <span class="comment">← Reference 스킬 (자동 참고)</span>
+      │   └── <span class="file">checklist.md</span>          <span class="f-comment">← 리뷰 체크리스트</span>
+      └── <span class="folder">coding-convention/</span>       <span class="f-comment">← Reference 스킬 (자동 참고)</span>
           └── <span class="file">SKILL.md</span></div>
 
-            <div class="info-box">
-                <strong>💡 왜 폴더 구조가 중요한가요?</strong><br>
-                SKILL.md 안에 모든 내용을 넣으면 너무 길어집니다. 양식 파일, 예시 파일 등을 <strong>별도 파일로 분리</strong>하면 SKILL.md에서 "template.md를 참고해서 작성해"라고만 쓰면 됩니다.
-            </div>
-
-            <h3 style="font-size: 17px; font-weight: 700; color: #1a1a1a; margin: 24px 0 16px;">프로젝트 vs 전역 스킬</h3>
-            <div class="two-col">
-                <div class="col-card">
-                    <h4>📁 프로젝트 스킬</h4>
-                    <p>프로젝트 폴더 안 <code style="background:#fff;padding:2px 4px;border-radius:3px;">.claude/skills/</code>에 넣으면<br><strong>이 프로젝트에서만</strong> 작동합니다.</p>
-                    <div class="highlight">→ 프로젝트별 보고서 양식, 코딩 규칙</div>
-                </div>
-                <div class="col-card">
-                    <h4>🌐 전역 스킬</h4>
-                    <p>홈 폴더 <code style="background:#fff;padding:2px 4px;border-radius:3px;">~/.claude/skills/</code>에 넣으면<br><strong>모든 프로젝트에서</strong> 작동합니다.</p>
-                    <div class="highlight">→ 이메일 양식, 개인 작업 스타일</div>
-                </div>
+            <div class="tip-box">
+                <div class="tip-label">왜 폴더 구조가 중요한가?</div>
+                <p>SKILL.md 안에 모든 내용을 넣으면 너무 길어집니다. 양식 파일, 예시 파일 등을 <strong>별도 파일로 분리</strong>하면 SKILL.md에서 "template.md를 참고해서 작성해"라고만 쓰면 됩니다.</p>
             </div>
         </div>
 
-        <!-- ④ 실전 실습 -->
-        <div class="section-block" id="sec4">
-            <h2 class="section-title">④ 실전 실습 — Task 스킬 만들어보기</h2>
-            <p class="section-subtitle">따라하면서 첫 Task 스킬을 완성합니다. 5분이면 됩니다.</p>
+        <div class="nm-card reveal">
+            <h2>프로젝트 vs 전역 스킬</h2>
+            <p class="card-subtitle">스킬을 어디에 넣느냐에 따라 적용 범위가 달라집니다</p>
 
-            <div class="practice-box">
-                <div class="practice-header">
-                    <span>🚀</span>
-                    <h3>실습: /todo 스킬 만들기</h3>
-                </div>
-                <div class="practice-body">
-                    <div class="practice-step">
-                        <span class="practice-step-num">1</span>
-                        <div class="practice-step-body">
-                            <strong>Claude Code에서 아래 명령어를 입력합니다</strong>
-                            <div class="practice-prompt">mkdir -p .claude/skills/todo-manager</div>
-                            <span>스킬을 넣을 폴더를 생성합니다.</span>
-                        </div>
+            <div class="compare-grid">
+                <div class="compare-nm reveal reveal-delay-1">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--skill-blue);"></div>
+                        <h4>프로젝트 스킬</h4>
                     </div>
-                    <div class="practice-step">
-                        <span class="practice-step-num">2</span>
-                        <div class="practice-step-body">
-                            <strong>SKILL.md 파일을 생성합니다</strong>
-                            <span>Claude Code에서 이렇게 요청하세요:</span>
-                            <div class="practice-prompt">.claude/skills/todo-manager/SKILL.md 파일을 만들어줘.
+                    <p>프로젝트 폴더 안 <code style="background:rgba(0,0,0,0.06);padding:2px 4px;border-radius:3px;">.claude/skills/</code>에 넣으면<br><strong>이 프로젝트에서만</strong> 작동합니다.</p>
+                    <p style="margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--skill-blue);">프로젝트별 보고서 양식, 코딩 규칙</p>
+                </div>
+                <div class="compare-nm reveal reveal-delay-2">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--skill-green);"></div>
+                        <h4>전역 스킬</h4>
+                    </div>
+                    <p>홈 폴더 <code style="background:rgba(0,0,0,0.06);padding:2px 4px;border-radius:3px;">~/.claude/skills/</code>에 넣으면<br><strong>모든 프로젝트에서</strong> 작동합니다.</p>
+                    <p style="margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--skill-green);">이메일 양식, 개인 작업 스타일</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════
+         STEP 04 : 실전 실습
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="practice"></div>
+    <div class="step-divider"><span class="step-badge">STEP 04 : PRACTICE</span></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>실전 실습: /todo 스킬 만들기</h2>
+            <p class="card-subtitle">따라하면서 첫 Task 스킬을 완성합니다. 5분이면 됩니다.</p>
+
+            <div class="practice-steps">
+                <div class="practice-step-card reveal reveal-delay-1">
+                    <div class="ps-num">1</div>
+                    <div class="ps-body">
+                        <h4>스킬 폴더 생성</h4>
+                        <p>Claude Code에서 아래 명령어를 입력합니다.</p>
+                        <div class="ps-code"><button class="copy-btn-nm" onclick="copyStep1()">복사</button>mkdir -p .claude/skills/todo-manager</div>
+                    </div>
+                </div>
+
+                <div class="practice-step-card reveal reveal-delay-2">
+                    <div class="ps-num">2</div>
+                    <div class="ps-body">
+                        <h4>SKILL.md 파일 생성</h4>
+                        <p>Claude Code에서 이렇게 요청하세요.</p>
+                        <div class="ps-code"><button class="copy-btn-nm" onclick="copyStep2()">복사</button>.claude/skills/todo-manager/SKILL.md 파일을 만들어줘.
 
 내용:
 ---
@@ -809,48 +878,55 @@ arguments:
 ## Instructions
 1. action이 "add"이면: TODO.md 파일에 새 항목 추가
 2. action이 "list"이면: TODO.md 파일의 현재 목록 표시
-3. action이 "done"이면: 해당 항목에 ✅ 체크 표시
+3. action이 "done"이면: 해당 항목에 체크 표시
 
 ## Format
 - [ ] 미완료 항목
 - [x] 완료된 항목</div>
-                        </div>
                     </div>
-                    <div class="practice-step">
-                        <span class="practice-step-num">3</span>
-                        <div class="practice-step-body">
-                            <strong>테스트해봅니다</strong>
-                            <div class="practice-prompt">/todo add "프로젝트 기획서 초안 작성"
+                </div>
+
+                <div class="practice-step-card reveal reveal-delay-3">
+                    <div class="ps-num">3</div>
+                    <div class="ps-body">
+                        <h4>테스트해봅니다</h4>
+                        <p>각각 실행해보세요. TODO.md 파일이 자동으로 생성되고 관리됩니다!</p>
+                        <div class="ps-code"><button class="copy-btn-nm" onclick="copyStep3()">복사</button>/todo add "프로젝트 기획서 초안 작성"
 /todo list
 /todo done "프로젝트 기획서 초안 작성"</div>
-                            <span>각각 실행해보세요. TODO.md 파일이 자동으로 생성되고 관리됩니다!</span>
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="info-box green">
-                <strong>축하합니다! 🎉</strong> 첫 Task 스킬을 만들었습니다. 이제 <code>/todo</code>만 치면 할 일 관리가 자동으로 됩니다. 이 원리를 응용하면 어떤 반복 작업이든 스킬로 만들 수 있습니다.
+            <div class="highlight-box">
+                <div class="hl-title">축하합니다!</div>
+                <p>첫 Task 스킬을 만들었습니다. 이제 <code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:3px;">/todo</code>만 치면 할 일 관리가 자동으로 됩니다. 이 원리를 응용하면 어떤 반복 작업이든 스킬로 만들 수 있습니다.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════
+         STEP 05 : Hooks 연동
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="hooks"></div>
+    <div class="step-divider"><span class="step-badge">STEP 05 : HOOKS</span></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>Hooks: 스킬 실행 전후에 자동 작업 추가</h2>
+            <p class="card-subtitle">스킬이 실행될 때 자동으로 무언가를 하고 싶다면 Hooks를 사용합니다</p>
+
+            <div class="highlight-box" style="margin-top: 0;">
+                <div class="hl-title">Hooks가 뭔가요?</div>
+                <p>스킬이 실행되기 <strong>전</strong>(pre)이나 <strong>후</strong>(post)에 자동으로 실행되는 명령어입니다.<br>
+                <strong>비유:</strong> 요리 레시피 실행 전에 "손 씻기"가 자동으로 실행되는 것과 같습니다.</p>
             </div>
         </div>
 
-        <!-- ⑤ Hooks 연동 -->
-        <div class="section-block" id="sec5">
-            <h2 class="section-title">⑤ Hooks — 스킬 실행 전후에 자동 작업 추가</h2>
-            <p class="section-subtitle">스킬이 실행될 때 자동으로 무언가를 하고 싶다면 Hooks를 사용합니다</p>
+        <div class="nm-card reveal">
+            <h2>Hooks 설정 방법</h2>
 
-            <div class="info-box blue">
-                <strong>Hooks가 뭔가요?</strong><br>
-                스킬이 실행되기 <strong>전</strong>(pre)이나 <strong>후</strong>(post)에 자동으로 실행되는 명령어입니다.<br>
-                <strong>비유:</strong> 요리 레시피 실행 전에 "손 씻기"가 자동으로 실행되는 것과 같습니다.
-            </div>
-
-            <h3 style="font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px;">Hooks 설정 방법</h3>
-            <div class="code-box">
-                <div class="code-bar">
-                    <span>.claude/settings.json — Hooks 설정</span>
-                </div>
-                <div class="code-body">{
+            <div class="ps-code" style="margin-top: 0;">{
   <span class="keyword">"hooks"</span>: {
     <span class="comment">// 스킬 실행 전에 자동으로 할 일</span>
     <span class="value">"pre-skill"</span>: [
@@ -868,203 +944,269 @@ arguments:
     ]
   }
 }</div>
-            </div>
+        </div>
 
-            <h3 style="font-size: 17px; font-weight: 700; color: #1a1a1a; margin: 24px 0 16px;">자주 쓰는 Hooks 패턴</h3>
-            <div class="step-cards">
-                <div class="step-card">
-                    <span class="step-num">1</span>
-                    <div class="step-body">
-                        <strong>실행 로그 남기기</strong>
-                        <p>누가 언제 어떤 스킬을 실행했는지 기록. 팀 프로젝트에서 유용합니다.</p>
-                    </div>
+        <div class="nm-card reveal">
+            <h2>자주 쓰는 Hooks 패턴</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px;">
+                <div class="inset-box reveal reveal-delay-1" style="text-align: center; margin: 0;">
+                    <div style="font-size: 24px; margin-bottom: 6px;">📝</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px;">실행 로그 남기기</div>
+                    <p style="font-size: 13px;">누가 언제 어떤 스킬을<br>실행했는지 기록</p>
                 </div>
-                <div class="step-card">
-                    <span class="step-num">2</span>
-                    <div class="step-body">
-                        <strong>결과물 자동 복사</strong>
-                        <p>스킬 실행 후 생성된 파일을 클립보드에 자동 복사. 바로 붙여넣기 가능.</p>
-                    </div>
+                <div class="inset-box reveal reveal-delay-2" style="text-align: center; margin: 0;">
+                    <div style="font-size: 24px; margin-bottom: 6px;">📋</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px;">결과물 자동 복사</div>
+                    <p style="font-size: 13px;">스킬 실행 후 결과물을<br>클립보드에 자동 복사</p>
                 </div>
-                <div class="step-card">
-                    <span class="step-num">3</span>
-                    <div class="step-body">
-                        <strong>입력값 검증</strong>
-                        <p>스킬 실행 전에 필요한 파일이 있는지, 설정이 맞는지 자동 체크.</p>
-                    </div>
+                <div class="inset-box reveal reveal-delay-3" style="text-align: center; margin: 0;">
+                    <div style="font-size: 24px; margin-bottom: 6px;">🔍</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px;">입력값 검증</div>
+                    <p style="font-size: 13px;">스킬 실행 전 필요한<br>파일/설정 자동 체크</p>
                 </div>
             </div>
 
-            <div class="info-box">
-                <strong>⚠️ 참고:</strong> Hooks는 셸(터미널) 명령어입니다. 복잡한 로직이 필요하면 별도 스크립트 파일을 만들어서 실행하는 것을 추천합니다.
+            <div class="tip-box" style="margin-top: 20px;">
+                <div class="tip-label">참고</div>
+                <p>Hooks는 셸(터미널) 명령어입니다. 복잡한 로직이 필요하면 별도 스크립트 파일을 만들어서 실행하는 것을 추천합니다.</p>
             </div>
 
-            <div style="background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 10px; padding: 20px 24px; margin-top: 16px;">
-                <p style="font-size: 14px; font-weight: 700; color: #059669; margin-bottom: 8px;">비개발자도 Hooks를 쓸 수 있어요!</p>
-                <p style="font-size: 13px; color: #4a4a4a; line-height: 1.7;">위의 JSON 코드를 직접 쓸 필요 없습니다. Claude Code에 이렇게 요청하세요:</p>
-                <div style="background: #1a1a1a; color: #e0e0e0; padding: 14px 18px; border-radius: 8px; font-family: 'SF Mono', monospace; font-size: 13px; line-height: 1.7; margin-top: 8px; white-space: pre-wrap;">"스킬 실행할 때마다 시간과 이름을 로그 파일에
+            <div class="highlight-box" style="margin-top: 16px; background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.03) 100%); border-color: rgba(16,185,129,0.25);">
+                <div class="hl-title">비개발자도 Hooks를 쓸 수 있어요!</div>
+                <p>위의 JSON 코드를 직접 쓸 필요 없습니다. Claude Code에 이렇게 요청하세요.</p>
+                <div class="ps-code" style="margin-top: 12px;">"스킬 실행할 때마다 시간과 이름을 로그 파일에
 기록하는 hook을 설정해줘"</div>
                 <p style="font-size: 12px; color: #888; margin-top: 8px;">→ Claude가 settings.json을 자동으로 수정해 줍니다.</p>
             </div>
         </div>
+    </section>
 
-        <!-- ⑥ 디버깅 & 테스트 -->
-        <div class="section-block" id="sec6">
-            <h2 class="section-title">⑥ 스킬이 안 될 때 — 디버깅 & 테스트</h2>
-            <p class="section-subtitle">스킬이 예상대로 작동하지 않을 때 확인할 체크리스트</p>
 
-            <div class="step-cards">
-                <div class="step-card">
-                    <span class="step-num">1</span>
-                    <div class="step-body">
-                        <strong>SKILL.md 위치가 맞나요?</strong>
-                        <p>반드시 <code style="background:#f4f4f4;padding:2px 6px;border-radius:4px;">.claude/skills/스킬이름/SKILL.md</code> 경로에 있어야 합니다.<br>
+    <!-- ═══════════════════════════════════════
+         STEP 06 : 디버깅 & 테스트
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="debug"></div>
+    <div class="step-divider"><span class="step-badge">STEP 06 : DEBUG</span></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>스킬이 안 될 때: 디버깅 체크리스트</h2>
+            <p class="card-subtitle">스킬이 예상대로 작동하지 않을 때 확인할 5가지</p>
+
+            <div class="debug-timeline">
+                <div class="dt-step reveal reveal-delay-1">
+                    <div class="dt-dot">1</div>
+                    <div class="dt-content">
+                        <h4>SKILL.md 위치가 맞나요?</h4>
+                        <p>반드시 <code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:4px;">.claude/skills/스킬이름/SKILL.md</code> 경로에 있어야 합니다.<br>
                         파일 이름은 정확히 <strong>SKILL.md</strong> (대문자)여야 합니다.</p>
                     </div>
                 </div>
-                <div class="step-card">
-                    <span class="step-num">2</span>
-                    <div class="step-body">
-                        <strong>frontmatter 형식이 맞나요?</strong>
-                        <p><code style="background:#f4f4f4;padding:2px 6px;border-radius:4px;">---</code>로 시작하고 <code style="background:#f4f4f4;padding:2px 6px;border-radius:4px;">---</code>로 끝나야 합니다. YAML 문법 오류(들여쓰기, 콜론 빠짐)를 확인하세요.</p>
+                <div class="dt-step reveal reveal-delay-2">
+                    <div class="dt-dot">2</div>
+                    <div class="dt-content">
+                        <h4>frontmatter 형식이 맞나요?</h4>
+                        <p><code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:4px;">---</code>로 시작하고 <code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:4px;">---</code>로 끝나야 합니다. YAML 문법 오류(들여쓰기, 콜론 빠짐)를 확인하세요.</p>
                     </div>
                 </div>
-                <div class="step-card">
-                    <span class="step-num">3</span>
-                    <div class="step-body">
-                        <strong>command 필드가 있나요? (Task 스킬만)</strong>
-                        <p>Task 스킬은 <code style="background:#f4f4f4;padding:2px 6px;border-radius:4px;">command: /명령어</code>가 반드시 있어야 합니다. 없으면 Reference 스킬로 취급됩니다.</p>
+                <div class="dt-step reveal reveal-delay-3">
+                    <div class="dt-dot">3</div>
+                    <div class="dt-content">
+                        <h4>command 필드가 있나요? (Task 스킬만)</h4>
+                        <p>Task 스킬은 <code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:4px;">command: /명령어</code>가 반드시 있어야 합니다. 없으면 Reference 스킬로 취급됩니다.</p>
                     </div>
                 </div>
-                <div class="step-card">
-                    <span class="step-num">4</span>
-                    <div class="step-body">
-                        <strong>Claude Code를 재시작해보세요</strong>
+                <div class="dt-step reveal">
+                    <div class="dt-dot">4</div>
+                    <div class="dt-content">
+                        <h4>Claude Code를 재시작해보세요</h4>
                         <p>스킬 파일을 수정한 후에는 Claude Code를 재시작해야 변경사항이 반영될 수 있습니다.</p>
                     </div>
                 </div>
-                <div class="step-card">
-                    <span class="step-num">5</span>
-                    <div class="step-body">
-                        <strong>"이 스킬 읽어봐"라고 물어보세요</strong>
-                        <p>Claude Code에 <code style="background:#f4f4f4;padding:2px 6px;border-radius:4px;">.claude/skills/ 폴더에 있는 스킬 목록을 보여줘</code>라고 하면 인식된 스킬을 확인할 수 있습니다.</p>
+                <div class="dt-step reveal">
+                    <div class="dt-dot">5</div>
+                    <div class="dt-content">
+                        <h4>"이 스킬 읽어봐"라고 물어보세요</h4>
+                        <p>Claude Code에 <code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:4px;">.claude/skills/ 폴더에 있는 스킬 목록을 보여줘</code>라고 하면 인식된 스킬을 확인할 수 있습니다.</p>
                     </div>
                 </div>
             </div>
-
-            <div class="info-box red">
-                <strong>흔한 실수 TOP 3:</strong><br>
-                ① SKILL.md 파일 이름을 <code>skill.md</code>(소문자)로 쓴 경우<br>
-                ② frontmatter에서 들여쓰기를 탭 대신 스페이스로 안 맞춘 경우<br>
-                ③ command에 <code>/</code>를 빼먹은 경우 (예: <code>report</code> → <code>/report</code>)
-            </div>
         </div>
 
-        <!-- 참고 자료 -->
-        <div class="ref-section">
-            <div class="ref-title">📚 더 배우고 싶다면</div>
-            <div class="ref-links">
-                <a class="ref-link" href="skills.html">
-                    <span class="ref-icon">📗</span>
-                    Skill 기본 — Claude.ai 스킬 입문
-                    <span class="ref-desc">기본 · 이전 단계</span>
-                </a>
-                <a class="ref-link" href="skills-advanced.html">
-                    <span class="ref-icon">📕</span>
-                    Skill 고급 — 동적 컨텍스트 & 자동화 패턴
-                    <span class="ref-desc">고급 · 다음 단계</span>
-                </a>
-                <a class="ref-link" href="https://code.claude.com/docs/ko/skills" target="_blank" rel="noopener">
-                    <span class="ref-icon">💻</span>
-                    Claude Code Skill 공식 문서
-                    <span class="ref-desc">한국어 · 공식 가이드</span>
-                </a>
+        <div class="nm-card reveal">
+            <h2>흔한 실수 TOP 3</h2>
+
+            <div class="trouble-accordion">
+                <div class="trouble-item-nm" onclick="toggleTrouble(this)">
+                    <div class="trouble-q">
+                        <span class="tq-icon">❌</span>
+                        SKILL.md 파일 이름을 소문자로 쓴 경우
+                        <span class="tq-arrow">▼</span>
+                    </div>
+                    <div class="trouble-a">
+                        <p><strong>원인:</strong> <code>skill.md</code>, <code>Skill.md</code> 등 소문자로 쓰면 Claude가 인식하지 못합니다.<br>
+                        <strong>해결:</strong> 반드시 <strong>SKILL.md</strong> (모두 대문자)로 이름을 지정하세요.</p>
+                    </div>
+                </div>
+                <div class="trouble-item-nm" onclick="toggleTrouble(this)">
+                    <div class="trouble-q">
+                        <span class="tq-icon">❌</span>
+                        frontmatter에서 들여쓰기를 잘못한 경우
+                        <span class="tq-arrow">▼</span>
+                    </div>
+                    <div class="trouble-a">
+                        <p><strong>원인:</strong> YAML 문법에서는 탭이 아닌 <strong>스페이스</strong>로 들여쓰기해야 합니다.<br>
+                        <strong>해결:</strong> 들여쓰기를 스페이스 2칸으로 통일하고, 콜론(:) 뒤에 반드시 스페이스를 넣으세요.</p>
+                    </div>
+                </div>
+                <div class="trouble-item-nm" onclick="toggleTrouble(this)">
+                    <div class="trouble-q">
+                        <span class="tq-icon">❌</span>
+                        command에 / 를 빼먹은 경우
+                        <span class="tq-arrow">▼</span>
+                    </div>
+                    <div class="trouble-a">
+                        <p><strong>원인:</strong> <code>command: report</code>처럼 슬래시 없이 쓰면 명령어로 인식되지 않습니다.<br>
+                        <strong>해결:</strong> 반드시 <code>command: /report</code>처럼 <strong>슬래시(/)를 포함</strong>해서 적으세요.</p>
+                    </div>
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- CTA 섹션 -->
-        <div class="cta-section">
-            <h3>스킬 만들기에 익숙해졌다면, 고급 패턴으로!</h3>
-            <p>동적 컨텍스트 주입, 변수 치환, CI/CD 연동까지.<br>스킬을 진짜 자동화 도구로 만드는 방법을 배워보세요.</p>
-            <div class="cta-buttons">
-                <a class="cta-btn primary" href="skills-advanced.html">📕 고급: 자동화 패턴 →</a>
-                <a class="cta-btn secondary" href="skills.html">← 기본으로 돌아가기</a>
-            </div>
+
+    <!-- ═══════════════════════════════════════
+         CTA : 다음 단계로
+         ═══════════════════════════════════════ -->
+    <div class="cta-section reveal">
+        <h3>스킬 만들기에 익숙해졌다면, 고급 패턴으로!</h3>
+        <p>동적 컨텍스트 주입, 변수 치환, CI/CD 연동까지.<br>스킬을 진짜 자동화 도구로 만드는 방법을 배워보세요.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn secondary" href="skills.html">← 스킬 입문으로 돌아가기</a>
+            <a class="cta-btn primary" href="skills-advanced.html">🚀 스킬 고급으로 →</a>
         </div>
-    </main>
+    </div>
 
-    <nav class="page-nav" style="max-width: 960px; margin: 0 auto; padding: 0 32px 48px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-        <a href="skills.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">← 이전: Skill 기본</a>
-        <a href="skills-advanced.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff; margin-left: auto;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">다음: Skill 고급 →</a>
-    </nav>
+</main>
 
-    <footer>
-        <p class="footer-brand">AI Roasting</p>
-        <p class="footer-text">Claude 실전 가이드</p>
-    </footer>
 
-    <script>
-        function copyRefSkill() {
-            const code = `---
-name: 프론트엔드 코딩 컨벤션
-description: |
-  우리 팀의 프론트엔드 코딩 규칙입니다.
-  React 컴포넌트 작성, 네이밍, 폴더 구조를
-  이 규칙에 맞춰 작업하세요.
----
+<footer>
+    <p class="footer-brand">AI Roasting</p>
+    <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+    <p class="footer-text" style="margin-top:8px; opacity:0.4;">&copy; 2026 AI Roasting. All rights reserved.</p>
+</footer>
 
-# 프론트엔드 코딩 컨벤션
+<script>
+// ── Mode Tabs ──
+function switchMode(mode) {
+    document.getElementById('tab-design').classList.toggle('active', mode === 'design');
+    document.getElementById('tab-skill').classList.toggle('active', mode === 'skill');
+    document.getElementById('tab-final').classList.toggle('active', mode === 'final');
+    document.getElementById('pages-design').style.display = mode === 'design' ? 'flex' : 'none';
+    document.getElementById('pages-skill').style.display = mode === 'skill' ? 'flex' : 'none';
+    document.getElementById('pages-final').style.display = mode === 'final' ? 'flex' : 'none';
+}
 
-## 네이밍 규칙
-- 컴포넌트: PascalCase (UserProfile.tsx)
-- 함수: camelCase (getUserData)
-- 상수: UPPER_SNAKE (MAX_RETRY_COUNT)
+// ── 스크롤 Reveal 애니메이션 ──
+(function(){
+    var reveals = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+            if(e.isIntersecting){
+                e.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
-## 폴더 구조
-- components/ → 재사용 UI 컴포넌트
-- pages/ → 라우팅 페이지
-- hooks/ → 커스텀 훅
-- utils/ → 유틸리티 함수`;
-            navigator.clipboard.writeText(code).then(() => {
-                const btns = document.querySelectorAll('.copy-btn');
-                btns[0].textContent = '복사 완료!';
-                setTimeout(() => { btns[0].textContent = '복사하기'; }, 2000);
-            });
+    reveals.forEach(function(el){ observer.observe(el); });
+})();
+
+// ── Sub Menu Scroll Spy ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l){ var s = document.getElementById(l.dataset.sec); if(s) sections.push({id:l.dataset.sec, el:s, link:l}); });
+
+    function update(){
+        var scrollY = window.scrollY + 120;
+        var current = sections[0];
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
         }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
 
-        function copyTaskSkill() {
-            const code = `---
-name: 주간 보고서 생성기
-description: 팀의 주간 업무를 양식에 맞춰 보고서로 정리합니다
-command: /report
-arguments:
-  - name: period
-    description: 보고 기간 (예: "2월 3주차")
-    required: true
-allowed-tools:
-  - Read
-  - Write
-  - Bash(git log*)
----
-
-# 주간 보고서 생성기
-
-## Instructions
-1. git log로 이번 주 커밋 내역을 수집합니다
-2. 수집한 내용을 아래 양식으로 정리합니다
-3. reports/ 폴더에 마크다운 파일로 저장합니다
-
-## Output Format
-# 주간 보고서 — {period}
-## 완료된 작업
-## 진행 중인 작업
-## 다음 주 계획`;
-            navigator.clipboard.writeText(code).then(() => {
-                const btns = document.querySelectorAll('.copy-btn');
-                btns[1].textContent = '복사 완료!';
-                setTimeout(() => { btns[1].textContent = '복사하기'; }, 2000);
-            });
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                activeLink.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+            }
         }
-    </script>
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    update();
+})();
+
+// ── 트러블슈팅 아코디언 ──
+function toggleTrouble(el) {
+    el.classList.toggle('open');
+}
+
+// ── 복사 함수들 ──
+function copyRefSkill() {
+    var code = '---\nname: 프론트엔드 코딩 컨벤션\ndescription: |\n  우리 팀의 프론트엔드 코딩 규칙입니다.\n  React 컴포넌트 작성, 네이밍, 폴더 구조를\n  이 규칙에 맞춰 작업하세요.\n---\n\n# 프론트엔드 코딩 컨벤션\n\n## 네이밍 규칙\n- 컴포넌트: PascalCase (UserProfile.tsx)\n- 함수: camelCase (getUserData)\n- 상수: UPPER_SNAKE (MAX_RETRY_COUNT)\n\n## 폴더 구조\n- components/ → 재사용 UI 컴포넌트\n- pages/ → 라우팅 페이지\n- hooks/ → 커스텀 훅\n- utils/ → 유틸리티 함수';
+    navigator.clipboard.writeText(code).then(function(){
+        var btns = document.querySelectorAll('.copy-btn-nm');
+        btns[0].textContent = '완료!';
+        setTimeout(function(){ btns[0].textContent = '복사'; }, 2000);
+    });
+}
+
+function copyTaskSkill() {
+    var code = '---\nname: 주간 보고서 생성기\ndescription: 팀의 주간 업무를 양식에 맞춰 보고서로 정리합니다\ncommand: /report\narguments:\n  - name: period\n    description: 보고 기간 (예: "2월 3주차")\n    required: true\nallowed-tools:\n  - Read\n  - Write\n  - Bash(git log*)\n---\n\n# 주간 보고서 생성기\n\n## Instructions\n1. git log로 이번 주 커밋 내역을 수집합니다\n2. 수집한 내용을 아래 양식으로 정리합니다\n3. reports/ 폴더에 마크다운 파일로 저장합니다\n\n## Output Format\n# 주간 보고서 - {period}\n## 완료된 작업\n## 진행 중인 작업\n## 다음 주 계획';
+    navigator.clipboard.writeText(code).then(function(){
+        var btns = document.querySelectorAll('.copy-btn-nm');
+        btns[1].textContent = '완료!';
+        setTimeout(function(){ btns[1].textContent = '복사'; }, 2000);
+    });
+}
+
+function copyStep1() {
+    navigator.clipboard.writeText('mkdir -p .claude/skills/todo-manager').then(function(){
+        var btns = document.querySelectorAll('.copy-btn-nm');
+        btns[2].textContent = '완료!';
+        setTimeout(function(){ btns[2].textContent = '복사'; }, 2000);
+    });
+}
+
+function copyStep2() {
+    var code = '.claude/skills/todo-manager/SKILL.md 파일을 만들어줘.\n\n내용:\n---\nname: TODO 관리자\ndescription: 프로젝트의 할 일 목록을 관리합니다\ncommand: /todo\narguments:\n  - name: action\n    description: "add, list, done 중 하나"\n    required: true\n  - name: task\n    description: "할 일 내용 (add 시 필수)"\n    required: false\n---\n\n# TODO 관리자\n\n## Instructions\n1. action이 "add"이면: TODO.md 파일에 새 항목 추가\n2. action이 "list"이면: TODO.md 파일의 현재 목록 표시\n3. action이 "done"이면: 해당 항목에 체크 표시\n\n## Format\n- [ ] 미완료 항목\n- [x] 완료된 항목';
+    navigator.clipboard.writeText(code).then(function(){
+        var btns = document.querySelectorAll('.copy-btn-nm');
+        btns[3].textContent = '완료!';
+        setTimeout(function(){ btns[3].textContent = '복사'; }, 2000);
+    });
+}
+
+function copyStep3() {
+    var code = '/todo add "프로젝트 기획서 초안 작성"\n/todo list\n/todo done "프로젝트 기획서 초안 작성"';
+    navigator.clipboard.writeText(code).then(function(){
+        var btns = document.querySelectorAll('.copy-btn-nm');
+        btns[4].textContent = '완료!';
+        setTimeout(function(){ btns[4].textContent = '복사'; }, 2000);
+    });
+}
+</script>
+
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
 </body>
 </html>

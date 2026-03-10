@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>엑셀에서 Claude 사용 | AI Roasting</title>
+    <meta name="description" content="Excel에서 Claude를 활용해 수식, 데이터 정리, 분석까지. 복잡한 스프레드시트 작업을 AI가 도와줍니다.">
+    <meta property="og:title" content="엑셀에서 Claude 사용 | AI Roasting">
+    <meta property="og:description" content="Excel에서 Claude를 활용해 수식, 데이터 정리, 분석까지.">
+    <meta property="og:type" content="website">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
+            line-height: 1.6;
+        }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,130,90,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+
+        header p { font-size: 16px; color: rgba(255,255,255,0.72); position: relative; z-index: 1; }
+
+        .header-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+
+        /* ── Header Page Links (뉴모피즘) ── */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+        }
+        .header-page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 22px;
+            min-width: 106px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Sub Menu (sticky) ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 150px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* ── CONTAINER ── */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 32px 48px;
+        }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 32px;
+            margin-bottom: 28px;
+        }
+
+        .nm-card h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+        }
+
+        .nm-card h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 8px;
+        }
+
+        .nm-card p, .nm-card li {
+            font-size: 15px;
+            color: #5C5650;
+            line-height: 1.7;
+        }
+
+        .nm-card ul, .nm-card ol {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .nm-card li { margin-bottom: 8px; }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 18px;
+            padding-left: 20px;
+        }
+
+        /* ── 섹션 구분 ── */
+        .step-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0 28px;
+        }
+        .step-divider::before,
+        .step-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #E8E4DE;
+        }
+        .step-badge {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ant-orange);
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px;
+            margin: 16px 0;
+        }
+
+        .inset-box > strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            margin-bottom: 6px;
+        }
+
+        .inset-box p, .inset-box li {
+            font-size: 14px;
+            color: #5C5650;
+        }
+
+        /* ── 스텝 리스트 ── */
+        .step-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .step-list li:last-child { border-bottom: none; }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            flex-shrink: 0;
+            width: 28px; height: 28px;
+            background: var(--ant-orange);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── 그리드 카드 ── */
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .use-case-item {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+        }
+
+        .use-case-item .uc-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .use-case-item h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+        }
+
+        .use-case-item p {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 22px;
+            margin: 16px 0;
+        }
+
+        .tip-box .tip-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .tip-box p {
+            font-size: 14px;
+            color: #5C5650;
+        }
+
+        /* ── 프롬프트 예시 ── */
+        .prompt-example {
+            background: var(--ant-dark);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin: 12px 0;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 10pt;
+            color: #E8E4DE;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        /* ── 프롬프트 복사 버튼 ── */
+        .prompt-copy {
+            position: absolute;
+            top: 10px; right: 12px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Pretendard', sans-serif;
+        }
+        .prompt-copy:hover { background: rgba(255,255,255,0.22); color: #fff; }
+        .prompt-copy.copied { background: rgba(217,119,87,0.4); border-color: var(--ant-orange); color: #fff; }
+
+        /* ── 수식 하이라이트 ── */
+        .formula-box {
+            background: #1a2332;
+            border-radius: 10px;
+            padding: 14px 20px;
+            margin: 10px 0;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 10pt;
+            color: #7EC8E3;
+            border-left: 3px solid #4CAF50;
+        }
+
+        /* ── 난이도 표시 ── */
+        .difficulty {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+        .difficulty.easy { background: rgba(58,154,58,0.12); color: #2a7a2a; }
+        .difficulty.medium { background: rgba(212,160,23,0.12); color: #7a5a00; }
+        .difficulty.hard { background: rgba(201,64,64,0.12); color: #8a2020; }
+
+        /* ── 비교 테이블 ── */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .compare-table th {
+            background: linear-gradient(135deg, #f0ebe4, #e8e2da);
+            padding: 13px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            text-align: left;
+            border-bottom: 2px solid rgba(188,95,44,0.15);
+        }
+
+        .compare-table td {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #5C5650;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .compare-table tbody tr:nth-child(even) td { background: rgba(0,0,0,0.018); }
+        .compare-table tr:last-child td { border-bottom: none; }
+
+        /* ── 임팩트 배너 ── */
+        .impact-banner {
+            display: flex;
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .impact-item {
+            flex: 1;
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 16px;
+            text-align: center;
+        }
+        .impact-num {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--ant-orange);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .impact-label {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.4;
+        }
+
+        /* ── CTA 박스 ── */
+        .cta-box {
+            background: linear-gradient(135deg, #A83820 0%, #7A1E0C 100%);
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+            margin-top: 32px;
+        }
+        .cta-box h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .cta-box p {
+            font-size: 15px;
+            color: rgba(255,255,255,0.75);
+            margin-bottom: 20px;
+        }
+        .cta-btn {
+            display: inline-block;
+            background: #fff;
+            color: #A83820;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 12px 28px;
+            border-radius: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+
+        /* ── 페이지 네비 ── */
+        .page-nav {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 32px 48px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .page-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            padding: 10px 18px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .page-nav-btn:hover { box-shadow: var(--nm-inset); color: var(--ant-orange); }
+
+        /* ── Footer ── */
+        footer {
+            background: var(--ant-dark);
+            text-align: center;
+            padding: 36px 32px 28px;
+        }
+        footer .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        footer .footer-text  { font-size: 12px; color: rgba(255,255,255,0.28); }
+
+        /* ── 반응형 ── */
+        @media (max-width: 768px) {
+            header { padding: 24px 20px 32px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 32px 18px; }
+            .nm-card { padding: 22px 18px; }
+            .use-case-grid { grid-template-columns: 1fr; }
+            .page-nav { flex-direction: column; gap: 10px; }
+            .header-pages { gap: 8px; }
+            .header-page-link { padding: 10px 14px; font-size: 12px; border-radius: 12px; }
+            .impact-banner { flex-wrap: wrap; }
+            .impact-item { min-width: calc(50% - 8px); }
+            .sub-menu { padding: 10px 8px; }
+            .sub-menu a { padding: 6px 12px; }
+        }
+
+        /* ── 실습 과제 아코디언 ── */
+        .task-accordion {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .task-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
+        }
+        .task-header:hover { background: rgba(0,0,0,0.02); }
+        .task-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .task-num {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--ant-orange);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .task-title-wrap { display: flex; flex-direction: column; gap: 3px; }
+        .task-title { font-size: 15px; font-weight: 700; color: #3A3530; }
+        .task-meta { font-size: 11px; color: var(--ant-orange); font-weight: 600; }
+        .task-toggle {
+            width: 32px; height: 32px;
+            border: none;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 50%;
+            font-size: 14px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .task-toggle:hover { color: var(--ant-orange); }
+        .task-accordion.open .task-toggle {
+            transform: rotate(180deg);
+            box-shadow: var(--nm-inset);
+            color: var(--ant-orange);
+        }
+        .task-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.35s ease;
+            padding: 0 20px;
+        }
+        .task-accordion.open .task-body {
+            max-height: 2400px;
+            padding: 0 20px 20px;
+        }
+        .task-follow { margin-top: 10px; font-size: 13px; color: #888; font-style: italic; }
+
+        /* ── 체크리스트 ── */
+        .checklist { list-style: none; padding: 0; margin: 8px 0 16px; }
+        .checklist li {
+            font-size: 13px; color: #5C5650;
+            padding: 6px 0 6px 22px;
+            position: relative;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .checklist li::before {
+            content: "□";
+            position: absolute; left: 0;
+            color: var(--ant-orange); font-weight: 700;
+        }
+
+        /* ── 포인트 박스 ── */
+        .point-box {
+            background: linear-gradient(135deg, rgba(188,95,44,0.07), rgba(188,95,44,0.03));
+            border-left: 3px solid var(--ant-orange);
+            border-radius: 0 8px 8px 0;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #5C5650;
+            margin-top: 12px;
+        }
+
+        /* ── 요약 테이블 ── */
+        .summary-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow);
+            overflow: hidden;
+            margin-top: 16px;
+        }
+        .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .summary-table thead th {
+            background: linear-gradient(135deg, #f0ebe4, #e8e2da);
+            padding: 12px 16px; font-weight: 700; color: var(--ant-orange); text-align: left;
+            border-bottom: 2px solid rgba(188,95,44,0.15);
+        }
+        .summary-table tbody td {
+            padding: 11px 16px; color: #5C5650;
+            border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle;
+        }
+        .summary-table tbody tr:last-child td { border-bottom: none; }
+        .summary-table tbody tr:nth-child(even) td { background: rgba(0,0,0,0.018); }
+        .summary-table .stars { color: var(--ant-orange); letter-spacing: -1px; }
+    </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="project-intro.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="excel-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="cowork-intro.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="agent-design.html">5</a>
+    </nav>
+    <a class="back-link" href="index.html">← 목록으로</a>
+    <h1>엑셀 Claude 플러그인</h1>
+    <p>엑셀 안에서 바로. 탭 전환 없이 우측 패널에서 Claude와 대화합니다</p>
+    <span class="header-badge">⏱ 15분 · 플러그인 실전</span>
+    <div class="header-pages">
+        <a href="chrome-plugin.html" class="header-page-link"><span class="hpl-icon">🌐</span> 크롬</a>
+        <a href="ppt-plugin.html" class="header-page-link"><span class="hpl-icon">📊</span> 파워포인트</a>
+        <a href="excel-plugin.html" class="header-page-link active"><span class="hpl-icon">📈</span> 엑셀</a>
+    </div>
+</header>
+
+<!-- ── SUB MENU ── -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec-why" class="active" data-sec="sec-why">
+        <span class="sm-num">1</span>
+        <span class="sm-title">왜 플러그인?</span>
+        <span class="sm-sub">소개</span>
+    </a>
+    <a href="#sec-install" data-sec="sec-install">
+        <span class="sm-num">2</span>
+        <span class="sm-title">설치하기</span>
+        <span class="sm-sub">설치</span>
+    </a>
+    <a href="#sec-panel" data-sec="sec-panel">
+        <span class="sm-num">3</span>
+        <span class="sm-title">패널 익히기</span>
+        <span class="sm-sub">시작</span>
+    </a>
+    <a href="#sec-features" data-sec="sec-features">
+        <span class="sm-num">4</span>
+        <span class="sm-title">핵심 기능</span>
+        <span class="sm-sub">기능</span>
+    </a>
+    <a href="#sec-scenarios" data-sec="sec-scenarios">
+        <span class="sm-num">5</span>
+        <span class="sm-title">실습 과제</span>
+        <span class="sm-sub">체험</span>
+    </a>
+    <a href="#sec-tips" data-sec="sec-tips">
+        <span class="sm-num">6</span>
+        <span class="sm-title">팁 & FAQ</span>
+        <span class="sm-sub">팁</span>
+    </a>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="container">
+
+    <!-- STEP 1: 왜 플러그인인가 -->
+    <div id="sec-why" class="content-section">
+    <div class="step-divider"><span class="step-badge">STEP 1 · 왜 플러그인인가?</span></div>
+    <div class="nm-card">
+        <h2>Claude.ai 탭 전환, 이제 그만</h2>
+        <p class="card-subtitle">엑셀 안에 Claude가 들어옵니다. 오른쪽 패널, 항상 대기</p>
+
+        <div class="impact-banner">
+            <div class="impact-item">
+                <div class="impact-num">0번</div>
+                <div class="impact-label">탭 전환<br>없이 작업</div>
+            </div>
+            <div class="impact-item">
+                <div class="impact-num">즉시</div>
+                <div class="impact-label">셀 선택 후<br>바로 질문</div>
+            </div>
+            <div class="impact-item">
+                <div class="impact-num">∞</div>
+                <div class="impact-label">수식·분석·<br>오류 해결</div>
+            </div>
+            <div class="impact-item">
+                <div class="impact-num" style="font-size:17px; line-height:1.3;">Pro·Max<br>Team·Ent</div>
+                <div class="impact-label">유료 플랜으로<br>사용 가능</div>
+            </div>
+        </div>
+
+        <p>지금까지의 방식을 생각해보세요. 수식이 막히면 → 구글 검색 → 스택오버플로우 → Claude.ai 탭 열기 → 복사 붙여넣기 → 엑셀로 돌아오기. 이 과정을 하루에 몇 번이나 반복하고 있나요?</p>
+        <p style="margin-top:10px;"><strong>엑셀 Claude 플러그인은 이 흐름을 끊습니다.</strong> 엑셀 우측에 항상 열려 있는 패널에서 작업 중인 셀을 선택한 채로 바로 질문할 수 있습니다. 맥락 전환 없이, 엑셀 안에서 AI 조수와 함께 일하는 방식입니다.</p>
+
+        <div class="use-case-grid" style="margin-top:20px;">
+            <div class="use-case-item">
+                <div class="uc-icon">🧮</div>
+                <h4>수식 즉시 생성</h4>
+                <p>막히는 수식을 패널에 설명하면 바로 만들어줍니다. 복사해서 셀에 붙여넣기만 하면 끝.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🔍</div>
+                <h4>오류 즉시 해결</h4>
+                <p>#REF!, #VALUE!, #N/A 오류가 뜨는 셀을 선택하고 "왜 오류가 나?"라고 물으면 원인과 해결책을 알려줍니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">📊</div>
+                <h4>데이터 분석 제안</h4>
+                <p>범위를 선택하고 "이 데이터로 뭘 볼 수 있어?"라고 물으면 분석 방향과 필요한 수식을 함께 제안합니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">📚</div>
+                <h4>수식 해설</h4>
+                <p>인수인계받은 복잡한 수식이 이해가 안 될 때, 해당 셀을 선택하고 "이 수식 설명해줘"라고 하면 됩니다.</p>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- STEP 2: 설치하기 -->
+    <div id="sec-install" class="content-section">
+    <div class="step-divider"><span class="step-badge">STEP 2 · 설치하기</span></div>
+
+    <div class="nm-card">
+        <h2>5분 설치 완료 가이드</h2>
+        <p class="card-subtitle">Microsoft AppSource에서 무료로 설치합니다</p>
+
+        <ol class="step-list">
+            <li>
+                <div>
+                    <strong style="color:#3A3530;">엑셀 상단 메뉴 → [삽입] 탭 클릭</strong>
+                    <p style="margin-top:4px; font-size:14px; color:#888;">리본 메뉴에서 삽입(Insert) 탭을 선택합니다.</p>
+                </div>
+            </li>
+            <li>
+                <div>
+                    <strong style="color:#3A3530;">[추가 기능] → [추가 기능 가져오기] 클릭</strong>
+                    <p style="margin-top:4px; font-size:14px; color:#888;">또는 상단 리본에서 "Office 추가 기능" 아이콘을 클릭합니다. Microsoft AppSource 창이 열립니다.</p>
+                </div>
+            </li>
+            <li>
+                <div>
+                    <strong style="color:#3A3530;">검색창에 "Claude" 입력 후 Anthropic Claude 선택</strong>
+                    <p style="margin-top:4px; font-size:14px; color:#888;">Anthropic이 만든 공식 Claude 추가 기능을 선택합니다.</p>
+                </div>
+            </li>
+            <li>
+                <div>
+                    <strong style="color:#3A3530;">[추가] 버튼 클릭 → 사용 약관 동의</strong>
+                    <p style="margin-top:4px; font-size:14px; color:#888;">설치가 완료되면 엑셀 우측에 Claude 사이드패널이 자동으로 열립니다.</p>
+                </div>
+            </li>
+            <li>
+                <div>
+                    <strong style="color:#3A3530;">Anthropic 계정으로 로그인</strong>
+                    <p style="margin-top:4px; font-size:14px; color:#888;">claude.ai에서 사용하는 계정과 동일합니다. <strong style="color:#A83820;">Claude 유료 플랜 (Pro / Max / Team / Enterprise) 필수.</strong></p>
+                </div>
+            </li>
+        </ol>
+
+        <div class="tip-box" style="margin-top:8px;">
+            <div class="tip-label">💡 설치 후 패널이 안 보이면</div>
+            <p>상단 리본 메뉴 → [홈] 탭 → 오른쪽 끝의 [추가 기능] 아이콘 클릭 → Claude 선택. 한번 설치하면 이후에는 이 경로로 바로 열 수 있습니다.</p>
+        </div>
+
+        <div class="inset-box" style="margin-top:12px;">
+            <strong>⚠️ 회사 PC에서 추가 기능 설치가 막혀 있다면?</strong>
+            <p>많은 기업에서 보안 정책상 AppSource 접근을 차단합니다. 이 경우 IT 부서에 "Anthropic Claude Office Add-in" 허용을 요청하세요. 또는 개인 Microsoft 계정으로 엑셀을 실행하면 우회할 수 있습니다.</p>
+        </div>
+    </div>
+    </div>
+
+    <!-- STEP 3: 패널 익히기 -->
+    <div id="sec-panel" class="content-section">
+    <div class="step-divider"><span class="step-badge">STEP 3 · 패널 익히기</span></div>
+
+    <div class="nm-card">
+        <h2>사이드패널 첫 화면 이해하기</h2>
+        <p class="card-subtitle">로그인 후 오른쪽에 열리는 패널 구조입니다</p>
+
+        <div class="use-case-grid">
+            <div class="use-case-item">
+                <div class="uc-icon">💬</div>
+                <h4>대화 창</h4>
+                <p>PPT 플러그인과 동일한 채팅 인터페이스. 질문을 입력하고 Enter를 누르면 됩니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">📋</div>
+                <h4>셀 참조 버튼</h4>
+                <p>현재 선택된 셀 또는 범위의 내용을 Claude에게 자동으로 전달합니다. 데이터를 직접 타이핑할 필요가 없습니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">📌</div>
+                <h4>수식 삽입</h4>
+                <p>Claude가 만든 수식 옆의 [셀에 삽입] 버튼을 누르면 현재 선택한 셀에 자동으로 입력됩니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🔄</div>
+                <h4>대화 초기화</h4>
+                <p>새로운 주제로 넘어갈 때는 초기화 버튼으로 대화를 리셋합니다. 이전 맥락이 영향을 주지 않습니다.</p>
+            </div>
+        </div>
+
+        <h3 style="margin-top:24px;">📌 핵심 워크플로우</h3>
+        <div class="inset-box">
+            <strong>① 셀/범위 선택 → ② 패널에서 질문 → ③ 수식 복사 또는 [삽입] 클릭</strong>
+            <p style="margin-top:8px;">이 세 단계가 엑셀 플러그인의 전부입니다. 탭 전환 없이 엑셀 화면을 벗어나지 않고 모든 작업이 완료됩니다.</p>
+        </div>
+
+        <div class="tip-box" style="margin-top:12px;">
+            <div class="tip-label">💡 패널 크기 조절</div>
+            <p>패널 왼쪽 경계선을 드래그하면 너비를 조절할 수 있습니다. 넓은 모니터라면 패널을 넓게, 노트북이라면 좁게 설정해두면 편합니다.</p>
+        </div>
+    </div>
+    </div>
+
+    <!-- STEP 4: 핵심 기능 -->
+    <div id="sec-features" class="content-section">
+    <div class="step-divider"><span class="step-badge">STEP 4 · 핵심 기능</span></div>
+
+    <div class="nm-card">
+        <h2>플러그인으로 할 수 있는 것들</h2>
+        <p class="card-subtitle">탭 전환 없이 엑셀 안에서 모두 해결합니다</p>
+
+        <h3>📌 수식 생성 <span class="difficulty easy">쉬움</span></h3>
+        <p>데이터 구조를 설명하면 바로 사용 가능한 수식을 만들어줍니다.</p>
+        <div class="prompt-example">A열 날짜, B열 제품명, C열 수량, D열 단가야.
+E2 셀에 매출액 수식 만들어줘.
+F2 셀에는 매출 100만원 이상이면 "대형", 50만원 이상이면 "중형", 나머지 "소형" 표시해줘.</div>
+        <div class="formula-box">=C2*D2</div>
+        <div class="formula-box">=IF(E2>=1000000,"대형",IF(E2>=500000,"중형","소형"))</div>
+
+        <h3 style="margin-top:24px;">📌 오류 해결 <span class="difficulty easy">쉬움</span></h3>
+        <p>오류가 난 셀을 선택한 상태에서 질문하면 원인과 수정 방법을 알려줍니다.</p>
+        <div class="prompt-example">E5 셀에 #REF! 오류가 나고 있어.
+현재 수식은 =VLOOKUP(B5,시트2!A:C,4,0) 인데 왜 오류가 나는지, 어떻게 고치면 되는지 알려줘.</div>
+
+        <h3 style="margin-top:24px;">📌 범위 분석 <span class="difficulty medium">보통</span></h3>
+        <p>A1:F50 같은 범위를 선택한 뒤 패널의 [범위 전송] 버튼을 누르고 질문하면, 해당 데이터를 기반으로 분석합니다.</p>
+        <div class="prompt-example">방금 선택한 범위는 1분기 지역별 매출 데이터야.
+1. 가장 성과가 좋은 지역 TOP 3를 뽑아줘.
+2. 전월 대비 성장률이 가장 높은 제품 카테고리를 알려줘.
+3. 이 데이터를 피벗 테이블로 만들려면 어떻게 설정하면 돼?</div>
+
+        <h3 style="margin-top:24px;">📌 수식 해설 <span class="difficulty easy">쉬움</span></h3>
+        <div class="prompt-example">이 수식이 뭘 하는 건지 단계별로 설명해줘:
+=IFERROR(INDEX(고객!B:B,MATCH(1,(고객!A:A=B2)*(고객!C:C="VIP"),0)),"미등록")</div>
+
+        <div class="tip-box" style="margin-top:16px;">
+            <div class="tip-label">💡 컨텍스트 유지</div>
+            <p>한 대화 안에서는 이전 내용이 유지됩니다. "방금 그 수식에서 조건을 하나 더 추가해줘"처럼 연속 질문이 가능합니다. 새로운 시트나 주제로 넘어갈 때는 대화를 초기화하세요.</p>
+        </div>
+    </div>
+    </div>
+
+    <!-- STEP 5: 실전 과제 -->
+    <div id="sec-scenarios" class="content-section">
+    <div class="step-divider"><span class="step-badge">STEP 5 · 실전 과제</span></div>
+
+    <div class="nm-card">
+        <h2>엑셀 × 클로드 7단계 실습 과제</h2>
+        <p class="card-subtitle">과제 1부터 순서대로, 마지막엔 엑셀을 AI로 다루는 사람이 됩니다</p>
+
+        <div class="inset-box" style="margin-bottom:20px;">
+            <strong>📦 준비물</strong>
+            <ul style="padding-left:18px;margin-top:6px;">
+                <li style="font-size:13px;color:#5C5650;margin-bottom:4px;">Claude 유료 플랜 (Pro / Max / Team / Enterprise)</li>
+                <li style="font-size:13px;color:#5C5650;margin-bottom:4px;">Microsoft Excel (데스크톱 또는 웹)</li>
+                <li style="font-size:13px;color:#5C5650;">Claude in Excel 애드인 설치 완료</li>
+            </ul>
+        </div>
+        <p style="margin-bottom:20px;font-size:14px;color:#5C5650;">각 과제를 클릭하면 상세 안내가 펼쳐집니다.</p>
+
+        <!-- 과제 01 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">1</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">뒤죽박죽 데이터, 30초 만에 정리</span>
+                        <span class="task-meta">데이터 정제 · 입문 · 20분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>다른 팀에서 받은 고객 명단. 이름 형식 제각각, 전화번호 하이픈 있다 없다, 이메일 대소문자도 뒤섞임. 매달 1시간씩 수작업으로 정리하던 그 비효율. 오늘로 끝냅니다.</p>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">프롬프트</h4>
+                <div class="prompt-example">[범위] 의 고객 데이터를 정제해줘.
+- 이름: [원하는 형식]
+- 전화번호: [원하는 형식]
+- 이메일: [규칙]
+- 처리 곤란한 행: [처리 방법]
+수정 전에 변경 사항 먼저 보여줘.</div>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>변경 사항을 먼저 보여줬는가?</li>
+                    <li>이름·전화·이메일이 원하는 형식으로 통일됐는가?</li>
+                    <li>정제 전후 변경 건수 요약이 나왔는가?</li>
+                </ul>
+                <div class="point-box"><strong>산출물:</strong> 깔끔한 고객 DB + 정제 전후 변경 건수 요약</div>
+            </div>
+        </div>
+
+        <!-- 과제 02 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">2</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">수식 무덤에서 탈출</span>
+                        <span class="task-meta">수식 해독 · 기초 · 25분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>전임자가 남긴 수식, 고치려면 건드리기도 무섭고 이해도 안 됩니다. 수식 셀을 클릭한 상태에서 질문하면 Claude가 셀 레벨 인용과 함께 즉시 설명합니다.</p>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">프롬프트</h4>
+                <div class="prompt-example">[셀 주소] 의 수식을 설명해줘.
+나는 [직책/배경] 이야.
+- [내가 가장 궁금한 것]
+- [또 다른 질문]</div>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>각 함수 인수가 무엇을 의미하는지 설명됐는가?</li>
+                    <li>개선된 수식 제안이 포함됐는가?</li>
+                    <li>이해가 안 되는 부분을 후속 질문으로 해결했는가?</li>
+                </ul>
+                <div class="point-box"><strong>산출물:</strong> 수식 해설 + 개선된 수식 제안</div>
+            </div>
+        </div>
+
+        <!-- 과제 03 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">3</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">숫자 뒤에 숨은 이야기 찾기</span>
+                        <span class="task-meta">인사이트 도출 · 기초 · 30분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>피벗테이블은 완성했는데 이 숫자가 좋은 건지 나쁜 건지 판단이 안 됩니다. 팀장이 "인사이트가 뭐냐"고 물어볼 때 식은땀 나는 그 순간.</p>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">프롬프트</h4>
+                <div class="prompt-example">[범위] 의 피벗테이블을 [관점: 예) 영업팀장 / CFO] 시각으로 분석해줘.
+가장 궁금한 것: [직접 질문 작성]
+보고 대상: [누구]
+요약: [몇 줄]</div>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>요청한 관점(팀장/CFO 등)에서 분석됐는가?</li>
+                    <li>숫자 외에 액션 포인트가 나왔는가?</li>
+                    <li>보고 대상에 맞는 언어와 분량으로 요약됐는가?</li>
+                </ul>
+                <div class="point-box"><strong>산출물:</strong> 경영 인사이트 요약 + 액션 포인트</div>
+            </div>
+        </div>
+
+        <!-- 과제 04 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">4</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">보고서 초안, AI로 쓰기</span>
+                        <span class="task-meta">팀 내부 보고서 · 실전 · 20분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>매주 금요일 오후 5시. 숫자는 다 나왔는데 글로 쓰는 데 1시간을 씁니다. 팀 내부용 주간 보고. 핵심은 간결함과 다음 주 방향입니다. 결과물은 사이드패널 텍스트로 출력되며, 복사해서 이메일·메신저에 붙여넣어 사용합니다.</p>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">프롬프트</h4>
+                <div class="prompt-example">[범위] 의 주간 실적으로 [받는 사람] 보고용 초안을 써줘.
+형식: [이메일 / 메신저]
+분량: [글자 수]
+반드시 넣을 것: [직접 결정]
+빼야 할 것: [직접 결정]</div>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>엑셀 데이터 수치가 그대로 초안에 반영됐는가?</li>
+                    <li>지정한 형식과 분량을 지켰는가?</li>
+                    <li>복사해서 바로 발송 가능한 수준인가?</li>
+                </ul>
+                <div class="point-box"><strong>산출물:</strong> 즉시 발송 가능한 팀 내부 보고 초안</div>
+            </div>
+        </div>
+
+        <!-- 과제 05 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">5</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">"만약에..."를 10번 해야 할 때</span>
+                        <span class="task-meta">시나리오 분석 · 실전 · 35분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>가격 올리면? 원가가 오르면? 수요가 줄면? Claude가 가정값 셀을 직접 변경하고 수식 의존성을 유지하면서 결과를 보여줍니다. 대화로 연속 시뮬레이션이 가능합니다. 본인의 실제 손익 파일로 진행하세요.</p>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">프롬프트</h4>
+                <div class="prompt-example">내 손익 모델에서 시나리오 분석을 해줘.
+가정값 셀: [직접 찾아서 입력]
+시나리오:
+A. [본인 상황에 맞게 직접 작성]
+B. [본인 상황에 맞게 직접 작성]
+각 시나리오별 [보고 싶은 지표] 를 표로 보여줘.
+수정 전에 어떤 셀을 바꿀 건지 먼저 알려줘.</div>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>수정 전에 어떤 셀을 바꿀 건지 먼저 알려줬는가?</li>
+                    <li>시나리오별 결과가 표 형태로 나왔는가?</li>
+                    <li>최적안 추천과 근거가 포함됐는가?</li>
+                </ul>
+                <div class="point-box"><strong>산출물:</strong> 시나리오 비교표 + 최적안 추천</div>
+            </div>
+        </div>
+
+        <!-- 과제 06 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">6</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">3개 팀 보고서, 한 번에 끝내기</span>
+                        <span class="task-meta">다중 시트 통합 분석 · 심화 · 45분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>영업·마케팅·운영 시트를 매달 머릿속에서 연결하는 데 반나절이 걸립니다. Claude는 멀티탭 워크북 전체를 한 번에 읽습니다.</p>
+                <div class="tip-box" style="margin:10px 0;">
+                    <div class="tip-label">⚠️ 주의</div>
+                    <p>시트당 500행 초과 시 불안정. 요약 시트를 먼저 만들어 전달하고, 날짜 컬럼 형식도 미리 통일해두세요.</p>
+                </div>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">프롬프트</h4>
+                <div class="prompt-example">[시트명1], [시트명2], [시트명3] 을 통합 분석해줘.
+각 시트:
+[시트명]: [내용 직접 설명]
+찾고 싶은 연결고리:
+- [직접 가설 작성: 예) A팀 성과가 나빠질 때 B팀도 영향 받나?]
+인과관계 가설을 [몇 개] 로 정리해줘.</div>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>3개 시트 데이터가 모두 반영됐는가?</li>
+                    <li>시트 간 연결고리와 상관관계가 나왔는가?</li>
+                    <li>인과관계 가설이 지정한 개수로 정리됐는가?</li>
+                </ul>
+                <div class="point-box"><strong>산출물:</strong> 시트 간 상관관계 분석 + 인과관계 가설</div>
+            </div>
+        </div>
+
+        <!-- 과제 07 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">7</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">임원 보고, 5분 안에 준비</span>
+                        <span class="task-meta">경영진 전략 브리핑 · 마스터 · 40분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>CFO가 갑자기 "오늘 오후 3시에 현황 보고해." 경영진은 현황 설명이 아니라 의사결정 근거를 원합니다. 과제 4(팀장 보고)와 구조 자체가 다릅니다: 현황→이슈→옵션→권고. 과제 6 파일을 그대로 활용합니다.</p>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">프롬프트</h4>
+                <div class="prompt-example">이 파일 전체를 [CFO / CEO] 보고용 브리핑으로 만들어줘.
+1. 현황 ([줄 수]): 지금 어디에 있는가, 숫자 근거 포함
+2. 이슈 ([개수]): 즉시 결정이 필요한 것
+3. 옵션 (각 이슈별 [개수]): 선택지와 트레이드오프
+4. 권고안: 네가 [직책] 라면 어떤 선택을 할 건지, 이유 포함
+발표 시간 [분] 기준.
+초안 말고, 내가 그대로 읽어도 되는 수준으로 써줘.</div>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>현황→이슈→옵션→권고 구조가 지켜졌는가?</li>
+                    <li>각 이슈별 선택지와 트레이드오프가 명확한가?</li>
+                    <li>권고안에 이유와 근거가 포함됐는가?</li>
+                </ul>
+                <div class="point-box"><strong>산출물:</strong> 경영진 의사결정용 브리핑 + 선택지별 트레이드오프 + 권고안</div>
+                <p class="task-follow">💡 팁: 과제 4와 7을 나란히 비교해보세요. 같은 데이터인데 보고 대상에 따라 구조 자체가 달라집니다. 이 차이를 몸으로 느끼는 것이 이 과제의 핵심입니다.</p>
+            </div>
+        </div>
+
+        <!-- 전체 요약 테이블 -->
+        <div style="margin-top:28px;">
+            <h3 style="font-size:16px;font-weight:700;color:#3A3530;margin-bottom:12px;">전체 과제 구조</h3>
+            <div class="summary-table-wrap">
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>과제</th>
+                        <th>난이도</th>
+                        <th>핵심 체험</th>
+                        <th>소요 시간</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1. 뒤죽박죽 데이터 정리</td><td><span class="stars">★</span>☆☆☆☆</td><td>데이터 정제 자동화</td><td>20분</td></tr>
+                    <tr><td>2. 수식 무덤에서 탈출</td><td><span class="stars">★★</span>☆☆☆</td><td>셀 선택 → 즉시 해독</td><td>25분</td></tr>
+                    <tr><td>3. 숫자 뒤에 숨은 이야기 찾기</td><td><span class="stars">★★</span>☆☆☆</td><td>관점 기반 인사이트 도출</td><td>30분</td></tr>
+                    <tr><td>4. 보고서 초안, AI로 쓰기</td><td><span class="stars">★★★</span>☆☆</td><td>데이터 → 보고 자동화</td><td>20분</td></tr>
+                    <tr><td>5. "만약에..."를 10번 해야 할 때</td><td><span class="stars">★★★</span>☆☆</td><td>연속 시나리오 시뮬레이션</td><td>35분</td></tr>
+                    <tr><td>6. 3개 팀 보고서, 한 번에 끝내기</td><td><span class="stars">★★★★</span>☆</td><td>멀티 시트 통합 분석</td><td>45분</td></tr>
+                    <tr><td>7. 임원 보고, 5분 안에 준비</td><td><span class="stars">★★★★★</span></td><td>경영진 브리핑 자동화</td><td>40분</td></tr>
+                </tbody>
+            </table>
+            </div>
+            <p style="font-size:13px;color:#888;margin-top:10px;text-align:right;">총 소요 시간: 약 3시간 35분</p>
+        </div>
+
+    </div>
+    </div>
+
+    <!-- STEP 6: 팁 & FAQ -->
+    <div id="sec-tips" class="content-section">
+    <div class="step-divider"><span class="step-badge">STEP 6 · 팁 & FAQ</span></div>
+
+    <div class="nm-card">
+        <h2>알아두면 유용한 팁</h2>
+        <p class="card-subtitle">플러그인을 200% 활용하는 방법</p>
+
+        <table class="compare-table">
+            <thead>
+                <tr>
+                    <th>상황</th>
+                    <th>이렇게 하세요</th>
+                    <th>효과</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>수식 오류 #REF!</strong></td>
+                    <td>오류 셀 선택 → "왜 오류야?" 입력</td>
+                    <td>원인 + 수정 수식 즉시 제공</td>
+                </tr>
+                <tr>
+                    <td><strong>수식 이름 모를 때</strong></td>
+                    <td>"~하고 싶어"라고 한국어로 설명</td>
+                    <td>적합한 수식 자동 선택·생성</td>
+                </tr>
+                <tr>
+                    <td><strong>범위 분석</strong></td>
+                    <td>범위 선택 → [범위 전송] → 질문</td>
+                    <td>데이터 직접 입력 없이 분석</td>
+                </tr>
+                <tr>
+                    <td><strong>수식 개선 요청</strong></td>
+                    <td>"이 수식 더 빠르게 만들 수 있어?"</td>
+                    <td>배열 수식, XLOOKUP 등으로 최적화</td>
+                </tr>
+                <tr>
+                    <td><strong>인수인계 파일 이해</strong></td>
+                    <td>복잡한 수식 셀 선택 → "설명해줘"</td>
+                    <td>단계별 해설 + 주석 추가 방법 안내</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="nm-card" style="margin-top:0;">
+        <h2>자주 묻는 질문</h2>
+        <p class="card-subtitle">플러그인 사용 중 생기는 궁금증</p>
+
+        <div class="inset-box">
+            <strong>Q. 플러그인이 무료인가요?</strong>
+            <p>설치는 무료이나, 사용하려면 <strong>Claude 유료 플랜 (Pro / Max / Team / Enterprise)</strong>이 필요합니다.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. 회사 데이터를 Claude에 보내도 안전한가요?</strong>
+            <p>민감한 데이터(개인정보, 매출 원장 등)는 가명 처리하거나 열 구조와 샘플 5~10행만 전송하세요. 전체 데이터를 보내지 않아도 수식 생성에는 충분합니다. Anthropic의 데이터 처리 정책은 anthropic.com에서 확인할 수 있습니다.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. Claude가 만든 수식이 틀릴 수도 있나요?</strong>
+            <p>드물지만 가능합니다. 데이터 구조를 정확하게 설명할수록 정확도가 높아집니다. 항상 샘플 데이터(5~10행)에서 먼저 테스트한 뒤 전체에 적용하세요.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. Microsoft 365 Copilot과 다른가요?</strong>
+            <p>다릅니다. Microsoft 365 Copilot은 Microsoft가 만든 AI로 별도 라이선스($30/월)가 필요합니다. Claude 플러그인은 Anthropic이 만든 독립적인 추가 기능으로, 기존 Microsoft 365 구독만 있으면 사용 가능합니다.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. Mac용 엑셀에서도 사용할 수 있나요?</strong>
+            <p>네. Mac용 Microsoft Excel(버전 16.0 이상)에서도 동일하게 지원합니다. 삽입 → 추가 기능 경로는 동일합니다.</p>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-box">
+        <h3>다음 단계: 클로드 코워크</h3>
+        <p>엑셀 플러그인을 넘어, 클로드와 함께 실제 업무 프로젝트를 진행하는 방법을 배워보세요.</p>
+        <a href="cowork-intro.html" class="cta-btn">클로드 코워크 시작하기 →</a>
+    </div>
+    </div>
+
+</main>
+
+
+<!-- ── Footer ── -->
+<footer>
+    <p class="footer-brand">AI Roasting</p>
+    <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+    <p class="footer-text" style="margin-top:10px;opacity:0.5;">© 2026 AI Roasting. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Sub Menu Scroll Spy ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l){
+        var s = document.getElementById(l.dataset.sec);
+        if(s) sections.push({id: l.dataset.sec, el: s, link: l});
+    });
+
+    function update(){
+        var scrollY = window.scrollY + 120;
+        var current = sections[0];
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                activeLink.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    update();
+})();
+
+// ── 아코디언 토글 ──
+function toggleTask(header){
+    var accordion = header.parentElement;
+    accordion.classList.toggle('open');
+}
+
+// ── 프롬프트 복사 버튼 ──
+(function(){
+    document.querySelectorAll('.prompt-example').forEach(function(el){
+        var btn = document.createElement('button');
+        btn.className = 'prompt-copy';
+        btn.textContent = '복사';
+        btn.onclick = function(){
+            var text = el.textContent.replace('복사','').replace('완료','').trim();
+            navigator.clipboard.writeText(text).then(function(){
+                btn.textContent = '완료';
+                btn.classList.add('copied');
+                setTimeout(function(){ btn.textContent = '복사'; btn.classList.remove('copied'); }, 1500);
+            });
+        };
+        el.appendChild(btn);
+    });
+})();
+</script>
+
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
+</body>
+</html>

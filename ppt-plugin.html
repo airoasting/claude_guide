@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파워포인트 Claude 플러그인 | AI Roasting</title>
+    <meta name="description" content="PowerPoint에 Claude 플러그인을 설치한 뒤 바로 쓰는 실전 가이드. 슬라이드 생성, 발표 스크립트, 디자인 제안까지 PPT 안에서 해결합니다.">
+    <meta property="og:title" content="파워포인트 Claude 플러그인 | AI Roasting">
+    <meta property="og:description" content="PowerPoint에 Claude 플러그인을 설치한 뒤 바로 쓰는 실전 가이드.">
+    <meta property="og:type" content="website">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
+            line-height: 1.6;
+        }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,130,90,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+
+        header p { font-size: 16px; color: rgba(255,255,255,0.72); position: relative; z-index: 1; }
+
+        .header-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+
+        /* ── Header Page Links (뉴모피즘) ── */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+        }
+        .header-page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 22px;
+            min-width: 106px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Sub Menu (sticky) ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 150px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* ── CONTAINER ── */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 32px 48px;
+        }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 32px;
+            margin-bottom: 28px;
+        }
+
+        .nm-card h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+        }
+
+        .nm-card h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 8px;
+        }
+
+        .nm-card p, .nm-card li {
+            font-size: 15px;
+            color: #5C5650;
+            line-height: 1.7;
+        }
+
+        .nm-card ul, .nm-card ol {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .nm-card li { margin-bottom: 8px; }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 18px;
+            padding-left: 20px;
+        }
+
+        /* ── 섹션 구분 ── */
+        .step-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0 28px;
+        }
+        .step-divider::before,
+        .step-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #E8E4DE;
+        }
+        .step-badge {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ant-orange);
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px;
+            margin: 16px 0;
+        }
+
+        .inset-box strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            margin-bottom: 6px;
+        }
+
+        .inset-box p, .inset-box li {
+            font-size: 14px;
+            color: #5C5650;
+        }
+
+        /* ── 스텝 리스트 ── */
+        .step-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .step-list li:last-child { border-bottom: none; }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            flex-shrink: 0;
+            width: 28px; height: 28px;
+            background: var(--ant-orange);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── 그리드 카드 ── */
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .use-case-item {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+        }
+
+        .use-case-item .uc-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .use-case-item h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+        }
+
+        .use-case-item p {
+            font-size: 13px;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 22px;
+            margin: 16px 0;
+        }
+
+        .tip-box .tip-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .tip-box p {
+            font-size: 14px;
+            color: #5C5650;
+        }
+
+        /* ── 프롬프트 예시 ── */
+        .prompt-example {
+            background: var(--ant-dark);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin: 12px 0;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            color: #E8E4DE;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        /* ── 프롬프트 복사 버튼 ── */
+        .prompt-copy {
+            position: absolute;
+            top: 10px; right: 12px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Pretendard', sans-serif;
+        }
+        .prompt-copy:hover { background: rgba(255,255,255,0.22); color: #fff; }
+        .prompt-copy.copied { background: rgba(217,119,87,0.4); border-color: var(--ant-orange); color: #fff; }
+
+        /* ── 워크플로우 스텝 ── */
+        .workflow-steps {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .wf-step {
+            flex: 1;
+            min-width: 140px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 16px;
+            text-align: center;
+            position: relative;
+        }
+
+        .wf-step::after {
+            content: '→';
+            position: absolute;
+            right: -14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: var(--ant-orange);
+            font-weight: 700;
+        }
+
+        .wf-step:last-child::after { display: none; }
+
+        .wf-step .wf-num {
+            display: inline-block;
+            width: 24px; height: 24px;
+            background: var(--ant-orange);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 50%;
+            line-height: 24px;
+            margin-bottom: 6px;
+        }
+
+        .wf-step .wf-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+        }
+
+        .wf-step .wf-desc {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* ── 실습 과제 아코디언 ── */
+        .task-accordion {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .task-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
+        }
+        .task-header:hover { background: rgba(0,0,0,0.02); }
+        .task-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .task-num {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--ant-orange);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .task-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #3A3530;
+        }
+        .task-stars {
+            font-size: 12px;
+            color: var(--ant-orange);
+            letter-spacing: -1px;
+            flex-shrink: 0;
+        }
+        .task-toggle {
+            width: 32px; height: 32px;
+            border: none;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 50%;
+            font-size: 14px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .task-toggle:hover { color: var(--ant-orange); }
+        .task-accordion.open .task-toggle {
+            transform: rotate(180deg);
+            box-shadow: var(--nm-inset);
+            color: var(--ant-orange);
+        }
+        .task-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.35s ease;
+            padding: 0 20px;
+        }
+        .task-accordion.open .task-body {
+            max-height: 2400px;
+            padding: 0 20px 20px;
+        }
+        .task-follow {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #888;
+            font-style: italic;
+        }
+
+        /* ── 과제 메타 (난이도·시간) ── */
+        .task-title-wrap { display: flex; flex-direction: column; gap: 3px; }
+        .task-meta { font-size: 11px; color: var(--ant-orange); font-weight: 600; }
+
+        /* ── 체크리스트 ── */
+        .checklist { list-style: none; padding: 0; margin: 8px 0 16px; }
+        .checklist li {
+            font-size: 13px; color: #5C5650;
+            padding: 4px 0 4px 22px;
+            position: relative; margin-bottom: 4px;
+        }
+        .checklist li::before {
+            content: '☐'; position: absolute; left: 0;
+            color: var(--ant-orange); font-size: 14px;
+        }
+
+        /* ── 포인트 박스 ── */
+        .point-box {
+            background: rgba(217,119,87,0.07);
+            border: 1px solid rgba(217,119,87,0.18);
+            border-radius: 10px;
+            padding: 14px 18px; margin: 14px 0 10px;
+            font-size: 13px; color: #3A3530; line-height: 1.65;
+        }
+        .point-box strong { color: var(--ant-orange); font-weight: 700; }
+
+        /* ── 턴 라벨 ── */
+        .turn-label {
+            display: inline-block;
+            font-size: 11px; font-weight: 800;
+            color: var(--ant-orange);
+            background: rgba(217,119,87,0.12);
+            border-radius: 6px; padding: 3px 10px;
+            margin: 12px 0 6px; letter-spacing: 0.3px;
+        }
+
+        /* ── 요약 테이블 ── */
+        .summary-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow);
+            overflow: hidden;
+            margin-top: 16px;
+        }
+        .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .summary-table thead th {
+            background: linear-gradient(135deg, #f0ebe4, #e8e2da);
+            padding: 12px 16px; font-weight: 700; color: var(--ant-orange); text-align: left;
+            border-bottom: 2px solid rgba(188,95,44,0.15);
+        }
+        .summary-table tbody td {
+            padding: 11px 16px; color: #5C5650;
+            border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: middle;
+        }
+        .summary-table tbody tr:last-child td { border-bottom: none; }
+        .summary-table tbody tr:nth-child(even) td { background: rgba(0,0,0,0.018); }
+        .summary-table .stars { color: var(--ant-orange); letter-spacing: -1px; }
+
+        /* ── PPT UI 데모 ── */
+        .ppt-ribbon-demo {
+            background: #2B2B2B;
+            border-radius: 10px;
+            padding: 10px 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .ppt-ribbon-tab {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            white-space: nowrap;
+        }
+        .ppt-ribbon-tab.active-tab {
+            background: rgba(217,119,87,0.3);
+            border-color: var(--ant-orange);
+            color: #fff;
+        }
+        .ppt-ribbon-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+        }
+
+        /* ── 비교 박스 ── */
+        .compare-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .compare-before {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 18px 20px;
+        }
+        .compare-after {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 20px;
+        }
+        .compare-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+        .compare-after .compare-label { color: var(--ant-orange); }
+        .compare-before p, .compare-after p {
+            font-size: 13px;
+            color: #5C5650;
+            line-height: 1.6;
+        }
+
+        /* ── ROI 배너 ── */
+        .roi-banner {
+            background: linear-gradient(135deg, rgba(168,56,32,0.08) 0%, rgba(217,119,87,0.12) 100%);
+            border: 1px solid rgba(217,119,87,0.25);
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin: 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .roi-item {
+            text-align: center;
+            flex: 1;
+            min-width: 100px;
+        }
+        .roi-num {
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--ant-orange);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .roi-desc {
+            font-size: 11px;
+            color: #888;
+        }
+
+        /* ── 페이지 네비 ── */
+        .page-nav {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 32px 48px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .page-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            padding: 10px 18px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .page-nav-btn:hover { box-shadow: var(--nm-inset); color: var(--ant-orange); }
+
+        /* ── Footer ── */
+        footer {
+            background: var(--ant-dark);
+            text-align: center;
+            padding: 36px 32px 28px;
+        }
+        footer .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        footer .footer-text  { font-size: 12px; color: rgba(255,255,255,0.28); }
+
+        /* ── 반응형 ── */
+        @media (max-width: 768px) {
+            header { padding: 24px 20px 32px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 32px 18px; }
+            .nm-card { padding: 22px 18px; }
+            .use-case-grid { grid-template-columns: 1fr; }
+            .compare-row { grid-template-columns: 1fr; }
+            .workflow-steps { flex-direction: column; }
+            .wf-step::after { display: none; }
+            .page-nav { flex-direction: column; gap: 10px; }
+            .header-pages { gap: 8px; }
+            .header-page-link { padding: 10px 14px; font-size: 12px; border-radius: 12px; }
+            .roi-banner { flex-direction: column; gap: 16px; }
+            .sub-menu { padding: 10px 8px; }
+            .sub-menu a { padding: 6px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="project-intro.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="ppt-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="cowork-intro.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="agent-design.html">5</a>
+    </nav>
+    <a class="back-link" href="index.html">← 목록으로</a>
+    <h1>파워포인트 Claude 플러그인</h1>
+    <p>설치 완료! 이제 PPT 패널에서 슬라이드 생성·스크립트·디자인을 바로 해결합니다</p>
+    <span class="header-badge">⏱ 15분 · 플러그인 실전</span>
+    <div class="header-pages">
+        <a href="chrome-plugin.html" class="header-page-link"><span class="hpl-icon">🌐</span> 크롬</a>
+        <a href="ppt-plugin.html" class="header-page-link active"><span class="hpl-icon">📊</span> 파워포인트</a>
+        <a href="excel-plugin.html" class="header-page-link"><span class="hpl-icon">📈</span> 엑셀</a>
+    </div>
+</header>
+
+<!-- ── SUB MENU ── -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec-why" class="active" data-sec="sec-why">
+        <span class="sm-num">1</span>
+        <span class="sm-title">왜 플러그인인가?</span>
+        <span class="sm-sub">소개</span>
+    </a>
+    <a href="#sec-start" data-sec="sec-start">
+        <span class="sm-num">2</span>
+        <span class="sm-title">패널 시작</span>
+        <span class="sm-sub">시작</span>
+    </a>
+    <a href="#sec-features" data-sec="sec-features">
+        <span class="sm-num">3</span>
+        <span class="sm-title">핵심 기능</span>
+        <span class="sm-sub">기능</span>
+    </a>
+    <a href="#sec-scenarios" data-sec="sec-scenarios">
+        <span class="sm-num">4</span>
+        <span class="sm-title">실전 활용</span>
+        <span class="sm-sub">시나리오</span>
+    </a>
+    <a href="#sec-practice" data-sec="sec-practice">
+        <span class="sm-num">5</span>
+        <span class="sm-title">실습 과제</span>
+        <span class="sm-sub">체험</span>
+    </a>
+    <a href="#sec-tips" data-sec="sec-tips">
+        <span class="sm-num">6</span>
+        <span class="sm-title">고급 팁</span>
+        <span class="sm-sub">팁·FAQ</span>
+    </a>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="container">
+
+    <!-- STEP 1 · 왜 플러그인인가 -->
+    <div class="step-divider content-section"><span class="step-badge">STEP 1 · 플러그인을 써야 하는 이유</span></div>
+    <div id="sec-why" class="nm-card content-section">
+        <h2>PPT 안에서 Claude를 쓰는 게 왜 다를까?</h2>
+        <p class="card-subtitle">Claude.ai 창 따로, PPT 창 따로, 이제 그 번거로움이 없어집니다</p>
+        <p>지금까지 Claude를 쓰는 방식: Claude.ai 탭으로 가서 요청 → 텍스트 복사 → PPT 창으로 이동 → 붙여넣기. 슬라이드 10장이면 이 반복을 최소 30번 합니다. <strong>플러그인은 이 동선을 완전히 제거합니다.</strong> PPT를 닫지 않고, 오른쪽 패널에서 바로 대화하고, 원하는 텍스트를 슬라이드에 직접 삽입합니다.</p>
+
+        <div class="compare-row" style="margin-top:20px;">
+            <div class="compare-before">
+                <div class="compare-label">Before: 기존 방식</div>
+                <p>① Claude.ai 탭 이동<br>② 프롬프트 입력 & 대기<br>③ 결과 복사<br>④ PPT로 복귀<br>⑤ 붙여넣기 & 서식 수정<br>⑥ (반복 × 슬라이드 수)</p>
+            </div>
+            <div class="compare-after">
+                <div class="compare-label">After: 플러그인</div>
+                <p>① PPT 열기<br>② 오른쪽 Claude 패널 클릭<br>③ 대화하면서 바로 적용<br>④ 슬라이드에 직접 삽입<br><br>끝. 탭 전환 0회.</p>
+            </div>
+        </div>
+
+        <div class="roi-banner">
+            <div class="roi-item">
+                <div class="roi-num">4~8h</div>
+                <div class="roi-desc">기존 발표 자료 제작 시간</div>
+            </div>
+            <div class="roi-item">
+                <div class="roi-num">→</div>
+                <div class="roi-desc"></div>
+            </div>
+            <div class="roi-item">
+                <div class="roi-num">45분</div>
+                <div class="roi-desc">플러그인 활용 시 평균</div>
+            </div>
+            <div class="roi-item">
+                <div class="roi-num">0회</div>
+                <div class="roi-desc">탭 전환 횟수</div>
+            </div>
+            <div class="roi-item">
+                <div class="roi-num">즉시</div>
+                <div class="roi-desc">슬라이드 직접 삽입</div>
+            </div>
+        </div>
+
+        <div class="use-case-grid">
+            <div class="use-case-item">
+                <div class="uc-icon">🎯</div>
+                <h4>컨텍스트 유지</h4>
+                <p>Claude 패널이 현재 슬라이드의 내용을 읽고, 문맥에 맞는 텍스트를 제안합니다. 처음부터 설명할 필요 없습니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">📥</div>
+                <h4>직접 삽입</h4>
+                <p>생성된 텍스트를 클릭 한 번으로 현재 슬라이드 텍스트 박스에 바로 삽입합니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🔄</div>
+                <h4>연속 수정</h4>
+                <p>"더 짧게", "강조 문구 추가", "공식 톤으로" 패널 안에서 즉시 반영됩니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">📋</div>
+                <h4>전체 덱 분석</h4>
+                <p>업로드된 PPT 파일 전체를 읽고 일관성, 논리 흐름, 개선점을 한 번에 피드백합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 2 · 패널 시작 -->
+    <div id="sec-start" class="step-divider content-section"><span class="step-badge">STEP 2 · 패널 시작하기</span></div>
+
+    <div class="nm-card">
+        <h2>Claude 패널 첫 화면: 이렇게 생겼습니다</h2>
+        <p class="card-subtitle">리본 오른쪽 끝 "클로드 열기" 버튼을 누르면 오른쪽 패널이 열립니다</p>
+
+        <ol class="step-list">
+            <li><div><strong>리본 오른쪽 끝 "클로드 열기" 클릭</strong><br>PowerPoint 리본 메뉴 맨 오른쪽에 <strong>클로드 열기</strong> 버튼이 있습니다. 클릭하면 화면 오른쪽에 Claude 패널이 열립니다.
+                <div style="margin-top:10px;">
+                    <img src="ribbon.png" alt="PowerPoint 리본 메뉴 - 추가 기능, 디자이너, Open Claude" style="width:30%; border-radius:10px; display:block;">
+                </div>
+            </div></li>
+            <li><div><strong>패널 첫 화면 확인</strong><br>패널이 열리면 상단에 <strong>Claude (베타)</strong> 표시가 보이고, 아래에 빠르게 시작할 수 있는 제안 카드 4개가 나타납니다:
+                <div style="margin-top:12px; display:flex; flex-direction:column; gap:8px;">
+                    <div style="background:#f5f0eb; border-radius:10px; padding:10px 14px; font-size:14px; color:#3A3530; border:1px solid #e0d8d0;">
+                        <strong>파워포인트에서 작업하기</strong>
+                    </div>
+                    <div style="background:#f5f0eb; border-radius:10px; padding:10px 14px; font-size:14px; color:#3A3530; border:1px solid #e0d8d0;">이 덱 요약하기</div>
+                    <div style="background:#f5f0eb; border-radius:10px; padding:10px 14px; font-size:14px; color:#3A3530; border:1px solid #e0d8d0;">차트 추가하기</div>
+                    <div style="background:#f5f0eb; border-radius:10px; padding:10px 14px; font-size:14px; color:#3A3530; border:1px solid #e0d8d0;">슬라이드 레이아웃 바꾸기</div>
+                    <div style="background:#f5f0eb; border-radius:10px; padding:10px 14px; font-size:14px; color:#3A3530; border:1px solid #e0d8d0;">슬라이드 상세 내용 추가하기</div>
+                </div>
+            </div></li>
+            <li><div><strong>슬라이드 선택 상태 확인</strong><br>패널 하단에 <strong>"슬라이드 1 선택됨"</strong>처럼 현재 선택된 슬라이드 번호가 표시됩니다. Claude가 어떤 슬라이드를 보고 있는지 알 수 있습니다. 슬라이드를 클릭해 바꾸면 패널도 따라 바뀝니다.</div></li>
+            <li><div><strong>대화 시작: 입력창 사용</strong><br>패널 하단의 <strong>입력창</strong>에 요청을 직접 타이핑하고 전송 버튼(→)을 누릅니다. 또는 위의 제안 카드를 클릭하면 해당 작업이 바로 실행됩니다.</div></li>
+        </ol>
+
+        <div class="tip-box">
+            <div class="tip-label">💡 패널이 안 보일 때</div>
+            <p>리본에 클로드 열기 버튼이 없다면: <strong>삽입 → 추가 기능 → 내 추가 기능</strong>에서 Claude Add-in을 찾아 활성화하세요. 설치 후 PPT를 재시작해야 보이는 경우도 있습니다.</p>
+        </div>
+    </div>
+
+    <!-- STEP 3 · 핵심 기능 -->
+    <div id="sec-features" class="step-divider content-section"><span class="step-badge">STEP 3 · 핵심 기능</span></div>
+
+    <div class="nm-card">
+        <h2>플러그인으로 할 수 있는 것 5가지</h2>
+        <p class="card-subtitle">PPT 패널에서 바로 실행되는 핵심 기능들</p>
+
+        <div class="use-case-grid">
+            <div class="use-case-item">
+                <div class="uc-icon">✍️</div>
+                <h4>1. 슬라이드 텍스트 생성·수정</h4>
+                <p>제목, 본문, 불릿 포인트를 패널에서 생성하고 클릭 한 번으로 슬라이드에 삽입합니다. "더 짧게", "강조해줘" 즉시 반영.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🧠</div>
+                <h4>2. 전체 덱 구조 설계</h4>
+                <p>주제만 말하면 목차와 각 슬라이드 흐름을 제안합니다. 슬라이드를 일괄 추가하는 것도 가능합니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🎤</div>
+                <h4>3. 발표자 노트 자동 작성</h4>
+                <p>슬라이드 내용을 읽고 발표 때 실제로 말할 스크립트를 노트 영역에 바로 입력합니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🔍</div>
+                <h4>4. 전체 덱 피드백</h4>
+                <p>완성된 발표 자료를 업로드하면 논리 흐름, 메시지 일관성, 텍스트 과다 슬라이드를 한 번에 진단합니다.</p>
+            </div>
+        </div>
+
+        <div class="use-case-grid" style="grid-template-columns:1fr; margin-top:12px;">
+            <div class="use-case-item">
+                <div class="uc-icon">🌐</div>
+                <h4>5. 다국어 즉시 번역</h4>
+                <p>슬라이드를 선택하고 "영어로 번역해줘"라고 요청하면, 각 텍스트 박스의 내용이 자연스러운 영어로 교체됩니다. 글로벌 발표 준비 시간을 대폭 단축합니다.</p>
+            </div>
+        </div>
+
+        <div class="tip-box" style="margin-top:16px;">
+            <div class="tip-label">⚠️ 중요: 플러그인 vs. claude.ai 차이</div>
+            <p>플러그인은 <strong>텍스트 콘텐츠 생성과 편집</strong>에 특화되어 있습니다. 이미지 자동 삽입, 애니메이션 설정, 차트 데이터 직접 입력은 아직 지원되지 않습니다. 디자인 레이아웃 변경은 직접 PPT에서 수행하세요.</p>
+        </div>
+    </div>
+
+    <!-- STEP 4 · 실전 활용 시나리오 -->
+    <div id="sec-scenarios" class="step-divider content-section"><span class="step-badge">STEP 4 · 실전 활용</span></div>
+
+    <div class="nm-card">
+        <h2>실전 활용 시나리오 6가지</h2>
+        <p class="card-subtitle">패널을 열고 바로 따라 할 수 있는 상황별 프롬프트</p>
+
+        <h3>📌 시나리오 1: 빈 슬라이드에 전체 구조 잡기</h3>
+        <p>새 PPT를 열고, Claude 패널에 발표 정보를 입력합니다. 목차부터 각 슬라이드 내용까지 한 번에 받습니다.</p>
+        <div class="prompt-example">나는 [팀/부서]의 [역할]이야.
+[청중]을 대상으로 [주제]에 대해 [시간]분 발표를 해야 해.
+
+핵심 메시지: [전달하고 싶은 것]
+발표 목적: [설득 / 보고 / 제안 / 공유]
+
+슬라이드 구성을 만들어줘. 각 슬라이드마다:
+- 슬라이드 제목
+- 핵심 포인트 3개 (불릿)
+- 발표자 노트 (실제로 말할 내용 2문장)
+를 포함해줘.</div>
+
+        <h3 style="margin-top:24px;">📌 시나리오 2: 선택한 슬라이드 텍스트 즉시 개선</h3>
+        <p>내용이 있는 슬라이드를 클릭해 선택한 뒤, 패널에서 개선을 요청합니다.</p>
+        <div class="prompt-example">현재 슬라이드의 텍스트를 개선해줘.
+- 텍스트 분량: 현재보다 30% 줄여줘
+- 불릿 포인트: 최대 3개로 압축
+- 제목: 더 강렬하게, 숫자나 동사로 시작
+- 톤: [격식체 / 대화체 / 강조체]
+개선된 버전 2개를 제안해줘.</div>
+
+        <h3 style="margin-top:24px;">📌 시나리오 3: 발표자 노트 전체 작성</h3>
+        <p>슬라이드가 완성되면, 패널에서 모든 슬라이드의 발표 스크립트를 한 번에 요청합니다.</p>
+        <div class="prompt-example">이 발표 덱의 모든 슬라이드에 발표자 노트를 작성해줘.
+
+조건:
+- 슬라이드당 3~4문장
+- 청중과의 상호작용 포인트 표시 (예: "여기서 청중에게 질문")
+- 자연스러운 대화체
+- 앞 슬라이드와 연결되는 전환 문구 포함</div>
+
+        <h3 style="margin-top:24px;">📌 시나리오 4: 경영진 보고용 요약 슬라이드</h3>
+        <p>상세 자료를 완성한 뒤, 경영진용 핵심 요약 슬라이드를 추가합니다.</p>
+        <div class="prompt-example">이 발표 자료 전체를 보고, 경영진에게 보고할
+Executive Summary 슬라이드 1장을 만들어줘.
+
+포함할 내용:
+- 핵심 문제/기회 (1문장)
+- 제안 방향 (3가지 이하)
+- 기대 효과 (숫자 포함)
+- 요청 사항 (결재/승인/피드백)
+
+내용은 임원이 30초 안에 파악할 수 있게 작성해줘.</div>
+
+        <h3 style="margin-top:24px;">📌 시나리오 5: 기존 자료 완성도 진단</h3>
+        <p>완성된 발표 자료를 패널에 올리고 약점을 찾아달라고 요청합니다.</p>
+        <div class="prompt-example">이 발표 자료 전체를 검토해줘.
+
+다음 관점에서 평가해줘 (각 항목 10점 만점):
+1. 논리 흐름: 스토리가 자연스러운가?
+2. 메시지 명확성: 핵심이 한 번에 전달되는가?
+3. 텍스트 양: 과도하게 많은 슬라이드가 있는가?
+4. 청중 관점: "그래서 나한테 무슨 의미?"에 답하는가?
+5. 행동 촉구: 발표 후 청중이 해야 할 일이 명확한가?
+
+점수가 낮은 항목의 구체적 개선 방법도 알려줘.</div>
+
+        <h3 style="margin-top:24px;">📌 시나리오 6: 글로벌 발표용 영어 번역</h3>
+        <p>한국어로 완성된 자료를 영어 버전으로 빠르게 전환합니다.</p>
+        <div class="prompt-example">이 발표 자료를 영어로 번역해줘.
+
+조건:
+- 직역 아닌 자연스러운 비즈니스 영어
+- 슬라이드 제목은 임팩트 있는 Action Title 형태로
+- 불릿 포인트는 동사 원형으로 시작
+- 발표자 노트도 함께 번역해줘
+
+번역된 텍스트를 슬라이드 순서대로 정리해줘.</div>
+    </div>
+
+    <!-- STEP 5 · 실습 과제 -->
+    <div id="sec-practice" class="step-divider content-section"><span class="step-badge">STEP 5 · 실습 과제</span></div>
+
+    <div class="nm-card">
+        <h2>파워포인트 × 클로드 플러그인: 셀프 실습 과제 7선</h2>
+        <p class="card-subtitle">과제 1부터 순서대로, 마지막엔 대화만으로 발표자료를 완성하는 사람이 됩니다</p>
+
+        <div class="inset-box" style="margin-bottom:20px;">
+            <strong>📦 준비물</strong>
+            <ul style="padding-left:18px;margin-top:6px;">
+                <li style="font-size:13px;color:#5C5650;margin-bottom:4px;">Claude 유료 플랜 (Pro / Max / Team / Enterprise)</li>
+                <li style="font-size:13px;color:#5C5650;margin-bottom:4px;">Microsoft PowerPoint (데스크톱 또는 웹)</li>
+                <li style="font-size:13px;color:#5C5650;">Claude in PowerPoint 애드인 설치 완료</li>
+            </ul>
+        </div>
+        <p style="margin-bottom:20px;font-size:14px;color:#5C5650;">각 과제를 클릭하면 상세 안내가 펼쳐집니다.</p>
+
+        <!-- 과제 1 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">1</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">웹 기사 하나로 슬라이드 3장 만들기</span>
+                        <span class="task-meta">★☆☆☆☆ · 10분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>관심 있는 뉴스 기사나 블로그 글의 URL을 클로드에게 주고, 핵심 내용을 슬라이드 3장으로 요약하게 하세요.</p>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">방법</h4>
+                <ol style="padding-left:18px;margin-bottom:12px;">
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">파워포인트를 열고 새 프레젠테이션을 시작합니다.</li>
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">클로드 플러그인 사이드바를 엽니다.</li>
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">아래 프롬프트를 입력합니다:</li>
+                </ol>
+                <div class="prompt-example">이 기사의 핵심 내용을 슬라이드 3장으로 요약해줘.
+1장: 주제 소개
+2장: 핵심 인사이트 3가지
+3장: 한 줄 결론
+
+URL: [여기에 기사 링크 붙여넣기]</div>
+                <div class="tip-box" style="margin-top:12px;">
+                    <div class="tip-label">⚠️ 주의</div>
+                    <p>유튜브 URL은 영상 내용을 읽지 못합니다. 텍스트 기반 웹페이지 URL을 사용하세요.</p>
+                </div>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>클로드가 기사 내용을 읽고 슬라이드를 생성했는가?</li>
+                    <li>3장의 구조가 요청한 대로 나왔는가?</li>
+                    <li>내가 타이핑한 건 프롬프트뿐인가?</li>
+                </ul>
+                <div class="point-box">
+                    <strong>포인트:</strong> URL 하나 던졌더니 슬라이드가 나왔습니다. 클로드 파워포인트 플러그인은 웹페이지를 직접 읽을 수 있습니다. 결과물은 스크린샷으로 남겨두세요. 과제 7 끝나고 비교할 겁니다.
+                </div>
+                <p class="task-follow">💡 팁: 자기 업종과 관련된 기사를 고르면 결과물이 실제로 쓸모 있습니다. "내일 팀 미팅에서 공유하고 싶은 기사"를 골라보세요.</p>
+            </div>
+        </div>
+
+        <!-- 과제 2 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">2</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">마음에 안 드는 슬라이드 1장, 컨설팅 스타일로 리디자인</span>
+                        <span class="task-meta">★★☆☆☆ · 10분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>디자인이 마음에 들지 않는 슬라이드 1장을 클로드에게 리디자인시키세요.</p>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">방법</h4>
+                <ol style="padding-left:18px;margin-bottom:10px;">
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">아래 내용을 슬라이드 1장에 그대로 복사해서 붙여넣으세요. (정보는 많지만 정리가 안 된 샘플입니다)</li>
+                </ol>
+                <div class="prompt-example" style="font-size:12px;">3분기 실적 현황
+매출액은 전년 동기 대비 23% 증가한 847억원을 기록했습니다
+영업이익률은 12.3%로 전분기 대비 2.1%p 개선되었습니다
+신규 고객 수는 1,847명으로 목표 대비 112% 달성했습니다
+해외 매출 비중이 처음으로 30%를 돌파했습니다
+B2B 부문이 전체 성장을 견인했으며 전년 대비 41% 성장했습니다
+다만 원자재 가격 상승으로 매출원가율이 2.3%p 상승했습니다
+4분기에는 신제품 3종 출시와 동남아 시장 진출이 예정되어 있습니다</div>
+                <ol start="2" style="padding-left:18px;margin-bottom:10px;">
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">그 슬라이드를 선택한 상태에서 클로드에게 입력합니다:</li>
+                </ol>
+                <div class="prompt-example">이 슬라이드를 전략 컨설팅 발표 스타일로 리디자인해줘.
+- 제목을 완성된 문장(액션 타이틀)으로 바꿔줘
+- 본문은 핵심 키워드 3개 이내로 줄여줘
+- 시각적으로 깔끔하게 정리해줘</div>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>제목이 명사형에서 문장형(액션 타이틀)으로 바뀌었는가?</li>
+                    <li>7줄의 텍스트가 3개 이내 핵심 포인트로 압축되었는가?</li>
+                    <li>레이아웃이 개선되었는가?</li>
+                </ul>
+                <div class="point-box">
+                    <strong>포인트:</strong> "슬라이드를 선택하고 → 구체적으로 지시한다." 이 패턴이 클로드 파워포인트의 기본 동작입니다. "예쁘게 해줘"는 안 됩니다. "액션 타이틀 + 키워드 3개 이내"처럼 조건을 걸어야 원하는 결과가 나옵니다.
+                </div>
+                <p class="task-follow">💡 더 해보기: 결과가 마음에 안 들면 "맥킨지 1-슬라이드-1-메시지 원칙으로, 제목 24pt, 본문 16pt로 다시 만들어줘"처럼 조건을 더 구체적으로 바꿔 재시도해보세요.</p>
+            </div>
+        </div>
+
+        <!-- 과제 3 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">3</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">내 회사 템플릿으로 새 섹션 5장 만들기</span>
+                        <span class="task-meta">★★★☆☆ · 15분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>회사 템플릿을 먼저 열고, 클로드에게 그 스타일에 맞춰 새 슬라이드 5장을 만들게 하세요.</p>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">방법</h4>
+                <ol style="padding-left:18px;margin-bottom:10px;">
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">회사 템플릿이 적용된 파워포인트 파일을 엽니다. (없다면 기본 테마 중 하나를 적용하세요.)</li>
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">클로드에게 입력합니다:</li>
+                </ol>
+                <div class="prompt-example">이 템플릿의 디자인 스타일을 유지하면서 "시장 분석" 섹션을 5장으로 만들어줘.
+구조:
+1장 - 섹션 표지: "시장 분석"
+2장 - 전체 시장 규모 (TAM)
+3장 - 유효 시장 규모 (SAM)
+4장 - 수익 가능 시장 (SOM)
+5장 - 핵심 시사점 요약
+
+각 슬라이드에 차트나 도형을 넣을 공간을 확보해줘.</div>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>기존 템플릿의 색상/폰트가 새 슬라이드에도 적용되었는가?</li>
+                    <li>5장의 구조가 요청한 순서대로 생성되었는가?</li>
+                    <li>차트 영역이 확보되어 직접 데이터를 넣을 수 있는 상태인가?</li>
+                </ul>
+                <div class="point-box">
+                    <strong>포인트:</strong> 클로드는 슬라이드 마스터(레이아웃, 폰트, 색상)를 읽고 따릅니다. 단, 템플릿이 먼저 열려 있어야 합니다. AI에게 일을 시킬 때, 환경을 먼저 세팅하는 것이 결과의 질을 결정합니다.
+                </div>
+                <p class="task-follow">💡 일부러 실패해보기: 템플릿을 적용하지 않은 빈 파일에서 같은 프롬프트를 입력해보세요. 선 조건 세팅이 왜 중요한지 바로 체감됩니다.</p>
+            </div>
+        </div>
+
+        <!-- 과제 4 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">4</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">글자 덩어리를 다이어그램으로 변환</span>
+                        <span class="task-meta">★★★☆☆ · 15분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>텍스트로 나열된 프로세스를 편집 가능한 다이어그램으로 변환하세요.</p>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">방법</h4>
+                <ol style="padding-left:18px;margin-bottom:10px;">
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">슬라이드 하나에 다음 텍스트를 작성합니다:</li>
+                </ol>
+                <div class="prompt-example" style="font-size:12px;">AI 도입 5단계:
+1. 현황 진단: 업무 프로세스 분석 및 자동화 가능 영역 식별
+2. 파일럿 선정: ROI가 높은 1-2개 업무 선정
+3. 에이전트 구축: 선정된 업무에 AI 에이전트 설계 및 배치
+4. 성과 측정: 도입 전후 효율성 비교 분석
+5. 확산 적용: 성공 사례 기반 조직 전체 롤아웃</div>
+                <ol start="2" style="padding-left:18px;margin-bottom:10px;">
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">그 슬라이드를 선택하고 클로드에게 입력합니다:</li>
+                </ol>
+                <div class="prompt-example">이 내용을 프로세스 플로우 다이어그램으로 시각화해줘.
+- 편집 가능한 네이티브 파워포인트 도형으로 만들어줘
+- 각 단계를 화살표로 연결해줘
+- 단계별로 색상 그라데이션을 적용해줘</div>
+                <ol start="3" style="padding-left:18px;margin-bottom:10px;">
+                    <li style="font-size:13px;color:#5C5650;">생성된 다이어그램의 도형을 클릭해서 직접 텍스트나 색상을 수정해봅니다.</li>
+                </ol>
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>텍스트가 시각적 다이어그램으로 변환되었는가?</li>
+                    <li>각 도형을 클릭해서 직접 편집할 수 있는가? (이미지가 아니라 네이티브 도형)</li>
+                    <li>도형의 색상이나 텍스트를 직접 바꿔보았는가?</li>
+                </ul>
+                <div class="point-box">
+                    <strong>포인트:</strong> 클로드가 만드는 건 이미지가 아니라 편집 가능한 네이티브 파워포인트 도형입니다. 하지만 완벽하지는 않습니다. <strong>AI가 80%를 만들고, 사람이 20%를 다듬는다.</strong> 이 비율을 기억하세요.
+                </div>
+                <p class="task-follow">💡 팁: 자기 회사의 실제 프로세스를 넣어보세요. "채용 프로세스 4단계", "고객 온보딩 6단계" 등. 결과물을 바로 업무에 쓸 수 있습니다.</p>
+            </div>
+        </div>
+
+        <!-- 과제 5 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">5</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">20장짜리 덱을 10장으로 압축하기</span>
+                        <span class="task-meta">★★★★☆ · 20분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>20장 내외의 발표자료를 클로드와의 대화를 통해 10장으로 압축하세요. 한 번의 지시가 아니라 <strong>여러 턴의 대화</strong>로 점진적으로 다듬습니다.</p>
+                <p style="font-size:13px;color:#888;margin:10px 0;">20장 내외의 발표자료를 엽니다. (없다면 과제 1~4 결과물을 합쳐서 사용하세요.)</p>
+
+                <div class="turn-label">1턴: 현황 파악</div>
+                <div class="prompt-example">이 덱의 전체 구조를 분석해줘.
+각 슬라이드의 역할과 핵심 메시지를 한 줄씩 정리해줘.</div>
+
+                <div class="turn-label">2턴: 압축 전략</div>
+                <div class="prompt-example">이 중에서 합칠 수 있는 슬라이드와 삭제해도 되는 슬라이드를 추천해줘.
+목표는 10장으로 줄이는 거야.</div>
+
+                <div class="turn-label">3턴: 실행</div>
+                <div class="prompt-example">네가 추천한 대로 실행해줘.
+- 슬라이드 5와 6을 하나로 합쳐줘
+- 슬라이드 12(부록)는 삭제해줘
+- 나머지는 네 추천대로 진행해줘</div>
+
+                <div class="turn-label">4턴: 스토리라인 점검</div>
+                <div class="prompt-example">압축된 10장의 흐름이 자연스러운지 확인해줘.
+어색한 부분이 있으면 순서를 재배치해줘.</div>
+
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>클로드가 전체 덱의 구조를 분석해서 보여주었는가?</li>
+                    <li>합치기/삭제 추천이 합리적이었는가?</li>
+                    <li>최종 10장의 스토리라인이 자연스러운가?</li>
+                    <li>4턴 이상의 대화를 통해 점진적으로 결과를 만들었는가?</li>
+                </ul>
+                <div class="point-box">
+                    <strong>포인트:</strong> 처음으로 멀티턴 대화를 경험합니다. 분석 → 전략 → 실행 → 점검 순서로 대화를 이끕니다. AI를 "도구"가 아니라 "팀원"처럼 쓰는 방법입니다.
+                </div>
+                <p class="task-follow">⚠️ 주의: 파일 용량이 30MB를 넘으면 플러그인이 처리하지 못합니다. 각 턴이 끝날 때마다 파일을 다른 이름으로 저장해두면 안전합니다.</p>
+            </div>
+        </div>
+
+        <!-- 과제 6 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">6</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">스피커 노트 생성 + 영어 버전 만들기</span>
+                        <span class="task-meta">★★★★☆ · 20분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>완성된 덱에 발표 스크립트(스피커 노트)를 추가하고, 전체 덱의 영어 버전을 만드세요.</p>
+                <p style="font-size:13px;color:#888;margin:8px 0 14px;">과제 5에서 압축한 덱(또는 본인의 발표자료)을 엽니다.</p>
+
+                <div class="turn-label">파트 A: 스피커 노트 생성</div>
+                <div class="prompt-example">각 슬라이드에 스피커 노트를 추가해줘.
+조건:
+- 각 노트는 말하기 기준 1~2분 분량
+- 청중은 이사회 임원진
+- 구어체로, "~입니다", "~하겠습니다" 체로 작성
+- 슬라이드에 없는 보충 설명이나 수치를 포함해줘</div>
+                <p style="font-size:13px;color:#5C5650;margin-bottom:10px;">스피커 노트가 추가된 걸 확인한 뒤, 발표자 보기에서 노트를 확인합니다.</p>
+
+                <div class="turn-label">파트 B: 영어 버전 생성</div>
+                <div class="prompt-example">이 전체 덱을 영어 버전으로 번역해줘.
+- 레이아웃과 디자인은 그대로 유지
+- 비즈니스 영어 톤으로 번역
+- 고유명사나 회사명은 원문 유지</div>
+
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>모든 슬라이드에 스피커 노트가 추가되었는가?</li>
+                    <li>노트의 톤이 이사회 발표에 적합한가?</li>
+                    <li>영어 버전의 레이아웃이 원본과 동일하게 유지되었는가?</li>
+                    <li>하나의 원본에서 2가지 산출물(노트 + 영어 버전)을 만들었는가?</li>
+                </ul>
+                <div class="point-box">
+                    <strong>포인트:</strong> 하나의 원본에서 여러 버전을 파생시키는 1→N 확장을 경험합니다. 한국어 덱 + 스피커 노트 + 영어 버전을 사람이 만들면 반나절입니다. 이걸 대화 몇 턴으로 끝낸다는 것이 AI 오케스트레이션의 레버리지입니다.
+                </div>
+                <p class="task-follow">💡 팁: "이사회 임원" 대신 "신입사원 온보딩"으로 청중을 바꾸면 같은 슬라이드인데 노트의 톤과 깊이가 완전히 달라집니다.</p>
+            </div>
+        </div>
+
+        <!-- 과제 7 -->
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">7</span>
+                    <div class="task-title-wrap">
+                        <span class="task-title">백지에서 전략 발표 덱 완성까지, 대화만으로</span>
+                        <span class="task-meta">★★★★★ · 30분</span>
+                    </div>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>빈 파워포인트를 열고, 처음부터 끝까지 <strong>대화만으로</strong> 전략 발표 덱을 완성하세요. 과제 1~6에서 배운 모든 기술을 하나로 통합합니다.</p>
+                <p style="font-size:13px;color:#888;margin:8px 0 14px;">회사 템플릿이 있다면 먼저 적용한 뒤 시작하세요.</p>
+
+                <div class="turn-label">1턴: 전체 구조 생성</div>
+                <div class="prompt-example">우리 회사에 AI 에이전트를 도입해야 하는 이유를 이사회에 발표할
+15장짜리 덱을 만들어줘.
+구조: 문제 인식 → 시장 기회 → 솔루션 제안 → 실행 로드맵 → 투자 요청(Ask)</div>
+
+                <div class="turn-label">2턴: 시각화 강화</div>
+                <div class="prompt-example">슬라이드 3의 시장 데이터를 차트로 바꿔줘.
+슬라이드 7의 추진 단계를 프로세스 플로우 다이어그램으로 시각화해줘.</div>
+
+                <div class="turn-label">3턴: 스토리라인 정제</div>
+                <div class="prompt-example">전체 덱의 흐름을 검토해줘.
+각 슬라이드 제목을 액션 타이틀(완성된 문장)로 바꿔줘.
+논리적 비약이 있는 부분이 있으면 보완해줘.</div>
+
+                <div class="turn-label">4턴: 발표 준비</div>
+                <div class="prompt-example">각 슬라이드에 스피커 노트를 추가해줘.
+청중은 이사회 임원으로, 1~2분 분량의 구어체로 작성해줘.</div>
+
+                <div class="turn-label">5턴: 다국어 확장 (선택)</div>
+                <div class="prompt-example">이 덱을 영어 버전으로도 만들어줘. 레이아웃은 유지해줘.</div>
+
+                <h4 style="margin:14px 0 8px;font-size:14px;font-weight:700;color:#3A3530;">체크포인트</h4>
+                <ul class="checklist">
+                    <li>백지 상태에서 시작했는가?</li>
+                    <li>15장 내외의 완성된 덱이 만들어졌는가?</li>
+                    <li>문제→기회→솔루션→로드맵→Ask 구조가 갖춰졌는가?</li>
+                    <li>차트/다이어그램 등 시각 요소가 포함되었는가?</li>
+                    <li>액션 타이틀이 적용되었는가?</li>
+                    <li>스피커 노트가 추가되었는가?</li>
+                    <li>전체 과정에서 슬라이드를 직접 편집한 적이 거의 없는가?</li>
+                </ul>
+                <div class="point-box">
+                    <strong>포인트:</strong> 과제 1에서 "기사 URL 하나로 3장"을 만들던 사람이, 지금 "백지에서 15장짜리 전략 덱"을 대화로 완성했습니다. 키보드를 잡은 건 클로드이고, 전략을 잡은 건 여러분입니다.<br><br>
+                    같은 도구를 써도 결과가 다른 이유는 지시하는 사람의 전문성이 다르기 때문입니다. AI 시대에도 전문성은 가치가 있습니다. 오히려 더 큰 가치를 갖습니다.
+                </div>
+                <p class="task-follow">⚠️ 주의: 각 턴이 끝날 때마다 파일을 다른 이름으로 저장하세요. (v1_구조, v2_시각화, v3_스토리라인...) 과제 1의 결과물과 과제 7의 결과물을 나란히 놓으면, 2시간 동안 무엇이 달라졌는지 눈에 보입니다.</p>
+            </div>
+        </div>
+
+        <!-- 전체 요약 테이블 -->
+        <div style="margin-top:28px;">
+            <h3 style="font-size:16px;font-weight:700;color:#3A3530;margin-bottom:12px;">전체 과제 구조</h3>
+            <div class="summary-table-wrap">
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>과제</th>
+                        <th>난이도</th>
+                        <th>핵심 체험</th>
+                        <th>소요 시간</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1. 웹 기사 → 슬라이드 3장</td><td><span class="stars">★</span>☆☆☆☆</td><td>첫 성공 경험 + 웹 브라우징</td><td>10분</td></tr>
+                    <tr><td>2. 슬라이드 리디자인</td><td><span class="stars">★★</span>☆☆☆</td><td>선택 → 구체적 지시 패턴</td><td>10분</td></tr>
+                    <tr><td>3. 템플릿 기반 섹션 생성</td><td><span class="stars">★★★</span>☆☆</td><td>템플릿 인식 + 선 조건 세팅</td><td>15분</td></tr>
+                    <tr><td>4. 텍스트 → 다이어그램</td><td><span class="stars">★★★</span>☆☆</td><td>네이티브 도형 + 80:20 법칙</td><td>15분</td></tr>
+                    <tr><td>5. 20장 → 10장 압축</td><td><span class="stars">★★★★</span>☆</td><td>멀티턴 대화 설계</td><td>20분</td></tr>
+                    <tr><td>6. 스피커 노트 + 영어 버전</td><td><span class="stars">★★★★</span>☆</td><td>1→N 확장</td><td>20분</td></tr>
+                    <tr><td>7. 백지 → 전략 덱 완성</td><td><span class="stars">★★★★★</span></td><td>풀 오케스트레이션</td><td>30분</td></tr>
+                </tbody>
+            </table>
+            </div>
+            <p style="font-size:13px;color:#888;margin-top:10px;text-align:right;">총 소요 시간: 약 2시간</p>
+        </div>
+    </div>
+
+    <!-- STEP 6 · 고급 팁 & FAQ -->
+    <div id="sec-tips" class="step-divider content-section"><span class="step-badge">STEP 6 · 고급 팁 & FAQ</span></div>
+
+    <div class="nm-card">
+        <h2>고급 팁 & 자주 묻는 질문</h2>
+        <p class="card-subtitle">더 잘 쓰기 위한 실무 노하우와 FAQ</p>
+
+        <h3>고급 팁 3가지</h3>
+
+        <div class="inset-box">
+            <strong>🏆 팁 1: 페르소나를 설정하면 결과가 달라진다</strong>
+            <p>패널 첫 메시지에 "너는 McKinsey 출신 전략 컨설턴트야. 경영진 보고서를 전문으로 써"라고 역할을 주면, 이후 모든 응답의 어조와 구조가 달라집니다. 발표 유형마다 맞는 페르소나를 실험해보세요.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>🏆 팁 2: "2가지 버전으로 줘"는 항상 유효하다</strong>
+            <p>모든 요청에 "2가지 버전으로 제안해줘"를 붙이세요. 항상 두 번째 버전이 더 마음에 드는 경우가 많습니다. A/B 비교가 선택을 쉽게 만듭니다.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>🏆 팁 3: 슬라이드 제목은 Action Title로</strong>
+            <p>"2023년 매출 현황" 대신 "매출 23% 성장, 핵심 동인 3가지"처럼 결론을 담은 Action Title을 요청하세요. 청중이 슬라이드를 훑어만 봐도 핵심을 파악합니다. Claude에게 "모든 슬라이드 제목을 Action Title로 바꿔줘"라고 요청하면 됩니다.</p>
+        </div>
+
+        <h3 style="margin-top:28px;">FAQ</h3>
+
+        <div class="inset-box">
+            <strong>Q. 플러그인과 claude.ai를 동시에 써도 되나요?</strong>
+            <p>물론입니다. 복잡한 아이디어 구체화나 긴 문서 참고는 claude.ai에서, 실제 슬라이드 적용은 플러그인에서 하는 방식이 가장 효율적입니다. 같은 계정으로 대화 내용이 연결되지는 않으므로 필요한 컨텍스트는 패널에 다시 붙여넣으세요.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. PPT 파일을 Claude가 직접 수정해서 저장하나요?</strong>
+            <p>아니요. 플러그인은 텍스트를 생성·제안하고, 삽입 버튼을 클릭하면 현재 선택된 텍스트 박스에 입력됩니다. 파일 저장은 PPT의 기본 저장 기능을 사용합니다. Claude가 직접 파일을 덮어쓰거나 저장하지는 않습니다.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. 이미지나 차트는 자동으로 넣어주나요?</strong>
+            <p>현재 플러그인은 텍스트 콘텐츠에 특화되어 있습니다. 이미지 자동 삽입이나 차트 데이터 입력은 지원되지 않습니다. 차트 종류와 데이터 구조는 Claude에게 제안받고, 실제 삽입은 PPT 차트 기능을 직접 활용하세요.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. Google Slides에서도 쓸 수 있나요?</strong>
+            <p>PowerPoint Add-in은 Microsoft Office 전용입니다. Google Slides에서는 Chrome 플러그인을 활용해서 비슷한 방식으로 사용할 수 있습니다. Google Slides 화면에서 Claude 크롬 패널을 열고 동일한 프롬프트를 활용하세요.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. 생성된 내용이 회사 보안에 문제가 없나요?</strong>
+            <p>Claude for Work(팀·엔터프라이즈 플랜) 사용 시, 입력 내용은 모델 학습에 사용되지 않습니다. 기밀 자료를 다룰 때는 반드시 플랜 약관을 확인하고, 필요 시 회사 IT 정책을 우선 따르세요.</p>
+        </div>
+
+        <div class="tip-box" style="margin-top:16px;">
+            <div class="tip-label">⚠️ 주의: AI 생성 데이터 검증 필수</div>
+            <p>Claude가 생성한 <strong>수치, 통계, 연도, 사례</strong>는 반드시 원본 소스에서 직접 확인하세요. AI가 그럴듯하게 생성한 숫자를 검증 없이 발표에 사용하면 신뢰도에 큰 문제가 생길 수 있습니다.</p>
+        </div>
+    </div>
+
+</main>
+
+<!-- ── 페이지 네비 ── -->
+<nav class="page-nav">
+    <a href="chrome-plugin.html" class="page-nav-btn">← 크롬 플러그인</a>
+    <a href="excel-plugin.html" class="page-nav-btn">다음: 엑셀 플러그인 →</a>
+</nav>
+
+<!-- ── Footer ── -->
+<footer>
+    <p class="footer-brand">AI Roasting</p>
+    <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+    <p class="footer-text" style="margin-top:10px;opacity:0.5;">© 2026 AI Roasting. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Sub Menu Scroll Spy ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l){
+        var s = document.getElementById(l.dataset.sec);
+        if(s) sections.push({id: l.dataset.sec, el: s, link: l});
+    });
+
+    function update(){
+        var scrollY = window.scrollY + 120;
+        var current = sections[0];
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                activeLink.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    update();
+})();
+
+// ── 아코디언 토글 ──
+function toggleTask(header){
+    var accordion = header.parentElement;
+    accordion.classList.toggle('open');
+}
+
+// ── 프롬프트 복사 버튼 ──
+(function(){
+    document.querySelectorAll('.prompt-example').forEach(function(el){
+        var btn = document.createElement('button');
+        btn.className = 'prompt-copy';
+        btn.textContent = '복사';
+        btn.onclick = function(){
+            var text = el.textContent.replace('복사','').replace('완료','').trim();
+            navigator.clipboard.writeText(text).then(function(){
+                btn.textContent = '완료';
+                btn.classList.add('copied');
+                setTimeout(function(){ btn.textContent = '복사'; btn.classList.remove('copied'); }, 1500);
+            });
+        };
+        el.appendChild(btn);
+    });
+})();
+</script>
+
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
+</body>
+</html>

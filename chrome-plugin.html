@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>크롬에서 Claude 사용 | AI Roasting</title>
+    <meta name="description" content="Chrome 브라우저에서 Claude를 바로 사용하는 방법. 설치부터 실전 활용까지 10분 가이드.">
+    <meta property="og:title" content="크롬에서 Claude 사용 | AI Roasting">
+    <meta property="og:description" content="Chrome 브라우저에서 Claude를 바로 사용하는 방법. 설치부터 실전 활용까지 10분 가이드.">
+    <meta property="og:type" content="website">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
+            line-height: 1.6;
+        }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,130,90,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+
+        header p { font-size: 16px; color: rgba(255,255,255,0.72); position: relative; z-index: 1; }
+
+        .header-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+
+        /* ── CONTAINER ── */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 32px;
+            margin-bottom: 28px;
+        }
+
+        .nm-card h2 {
+            font-size: 19px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+        }
+
+        .nm-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 8px;
+        }
+
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.7;
+        }
+
+        .nm-card ul, .nm-card ol {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .nm-card li {
+            margin-bottom: 8px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 18px;
+            padding-left: 20px;
+        }
+
+        /* ── 섹션 구분 ── */
+        .step-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0 28px;
+        }
+        .step-divider::before,
+        .step-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #E8E4DE;
+        }
+        .step-badge {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ant-orange);
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px;
+            margin: 16px 0;
+        }
+
+        .inset-box strong {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            margin-bottom: 6px;
+        }
+
+        .inset-box p, .inset-box li {
+            font-size: 13px;
+            color: #5C5650;
+        }
+
+        /* ── 스텝 리스트 ── */
+        .step-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .step-list li:last-child { border-bottom: none; }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            flex-shrink: 0;
+            width: 28px; height: 28px;
+            background: var(--ant-orange);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── 그리드 카드 ── */
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .use-case-item {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+        }
+
+        .use-case-item .uc-icon {
+            font-size: 23px;
+            margin-bottom: 8px;
+        }
+
+        .use-case-item h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+        }
+
+        .use-case-item p {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        /* ── 비교 테이블 ── */
+        .compare-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 16px;
+        }
+
+        .compare-table th {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            text-align: left;
+            border-radius: 10px 10px 0 0;
+            transition: box-shadow 0.3s ease;
+            cursor: default;
+        }
+        .compare-table th:hover {
+            box-shadow: var(--nm-inset);
+        }
+
+        .compare-table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #5C5650;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .compare-table tr:last-child td { border-bottom: none; }
+
+        /* 크롬 플러그인 컬럼 강조 */
+        .compare-table th:nth-child(2),
+        .compare-table td:nth-child(2) {
+            border-left: 2px solid var(--ant-orange);
+            border-right: 2px solid var(--ant-orange);
+        }
+        .compare-table th:nth-child(2) {
+            border-top: 2px solid var(--ant-orange);
+            border-radius: 10px 10px 0 0;
+        }
+        .compare-table tr:last-child td:nth-child(2) {
+            border-bottom: 2px solid var(--ant-orange);
+            border-radius: 0 0 10px 10px;
+        }
+
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 22px;
+            margin: 16px 0;
+        }
+
+        .tip-box .tip-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .tip-box p {
+            font-size: 13px;
+            color: #5C5650;
+        }
+
+        /* ── 프롬프트 예시 ── */
+        .prompt-example {
+            background: var(--ant-dark);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin: 12px 0;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            color: #E8E4DE;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            position: relative;
+        }
+        .prompt-copy {
+            position: absolute;
+            top: 8px; right: 8px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .prompt-copy:hover {
+            background: rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.8);
+        }
+        .prompt-copy.copied {
+            background: var(--ant-orange);
+            color: #fff;
+            border-color: var(--ant-orange);
+        }
+
+        /* ── 페이지 네비 ── */
+        .page-nav {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 32px 48px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .page-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: #3A3530;
+            font-size: 13px; font-weight: 600;
+            padding: 10px 18px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .page-nav-btn:hover { box-shadow: var(--nm-inset); color: var(--ant-orange); }
+
+        /* ── Footer ── */
+        footer {
+            background: var(--ant-dark);
+            text-align: center;
+            padding: 36px 32px 28px;
+        }
+        footer .footer-brand { font-size: 12px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        footer .footer-text  { font-size: 11px; color: rgba(255,255,255,0.28); }
+
+        /* ── Sub Menu (sticky, image-style) ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 150px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* ── 실습 과제 아코디언 ── */
+        .task-accordion {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .task-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
+        }
+        .task-header:hover { background: rgba(0,0,0,0.02); }
+        .task-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .task-num {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--ant-orange);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .task-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #3A3530;
+        }
+        .task-stars {
+            font-size: 12px;
+            color: var(--ant-orange);
+            letter-spacing: -1px;
+            flex-shrink: 0;
+        }
+        .task-toggle {
+            width: 32px; height: 32px;
+            border: none;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 50%;
+            font-size: 14px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .task-toggle:hover { color: var(--ant-orange); }
+        .task-accordion.open .task-toggle {
+            transform: rotate(180deg);
+            box-shadow: var(--nm-inset);
+            color: var(--ant-orange);
+        }
+        .task-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.35s ease;
+            padding: 0 20px;
+        }
+        .task-accordion.open .task-body {
+            max-height: 800px;
+            padding: 0 20px 20px;
+        }
+
+        /* ── Chrome UI 데모 버튼 ── */
+        .chrome-ui-demo {
+            background: #2A2A2A;
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .chrome-ui-btn {
+            width: 26px; height: 26px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .chrome-ui-sep {
+            width: 1px; height: 18px;
+            background: rgba(255,255,255,0.18);
+            margin: 0 2px;
+        }
+        .chrome-ui-group {
+            background: rgba(217,119,87,0.25);
+            border: 2px solid #D97757;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+        .chrome-ui-label {
+            font-size: 12px;
+            color: var(--ant-orange);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .task-body p {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.7;
+        }
+        .task-body .task-follow {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #888;
+        }
+        .task-body ul {
+            padding-left: 18px;
+            margin: 8px 0;
+        }
+        .task-body li {
+            font-size: 13px;
+            color: #5C5650;
+            margin-bottom: 4px;
+        }
+        .task-body .task-note {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #B0544A;
+            font-weight: 600;
+        }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Header Page Links (뉴모피즘) ── */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+        }
+        .header-page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 22px;
+            min-width: 106px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── 애니메이션 키프레임 ── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(217,119,87,0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(217,119,87,0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes heroGlow {
+            0%, 100% { opacity: 0.15; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ── Scroll Reveal ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal-scale.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Stagger delays for grid items */
+        .use-case-item.reveal:nth-child(1) { transition-delay: 0s; }
+        .use-case-item.reveal:nth-child(2) { transition-delay: 0.12s; }
+        .use-case-item.reveal:nth-child(3) { transition-delay: 0.24s; }
+        .use-case-item.reveal:nth-child(4) { transition-delay: 0.36s; }
+
+        /* ── 카드 호버 애니메이션 ── */
+        .nm-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .nm-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 8px 8px 20px #C5C1BA, -8px -8px 20px #FFFFFF;
+        }
+
+        /* ── 그리드 아이템 호버 ── */
+        .use-case-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .use-case-item:hover {
+            transform: translateY(-6px);
+            box-shadow: 6px 6px 16px #C5C1BA, -6px -6px 16px #FFFFFF;
+        }
+        .use-case-item:hover .uc-icon {
+            animation: float 2s ease-in-out infinite;
+        }
+
+        /* ── 스텝 배지 펄스 ── */
+        .step-badge {
+            transition: all 0.3s ease;
+        }
+        .step-badge:hover {
+            animation: pulse 1.5s ease infinite;
+        }
+
+        /* ── 헤더 애니메이션 ── */
+        header h1 {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        header > p {
+            animation: fadeInUp 0.8s ease 0.15s forwards;
+            opacity: 0;
+        }
+        .header-badge {
+            animation: fadeInUp 0.8s ease 0.3s forwards;
+            opacity: 0;
+        }
+        .header-pages {
+            animation: fadeInUp 0.8s ease 0.45s forwards;
+            opacity: 0;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -50px; left: 50%;
+            transform: translateX(-50%);
+            width: 600px; height: 300px;
+            background: radial-gradient(circle, rgba(255,200,150,0.12) 0%, transparent 60%);
+            pointer-events: none;
+            animation: heroGlow 4s ease-in-out infinite;
+        }
+
+        /* ── 히어로 숫자 카운터 ── */
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 18px;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-stat {
+            text-align: center;
+            animation: fadeInUp 0.8s ease 0.5s forwards;
+            opacity: 0;
+        }
+        .hero-stat-num {
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+            display: block;
+            line-height: 1.2;
+        }
+        .hero-stat-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.55);
+            font-weight: 500;
+        }
+        .hero-stat-divider {
+            width: 1px;
+            height: 36px;
+            background: rgba(255,255,255,0.15);
+            align-self: center;
+            animation: fadeInUp 0.8s ease 0.5s forwards;
+            opacity: 0;
+        }
+
+        /* ── 아코디언 개선 ── */
+        .task-accordion {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .task-accordion:hover {
+            transform: translateX(4px);
+            box-shadow: 6px 6px 14px #C5C1BA, -6px -6px 14px #FFFFFF;
+        }
+
+        /* ── 프롬프트 예시 애니메이션 ── */
+        .prompt-example {
+            transition: transform 0.3s ease;
+        }
+        .prompt-example:hover {
+            transform: scale(1.01);
+        }
+
+        /* ── 팁 박스 애니메이션 ── */
+        .tip-box {
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .tip-box:hover {
+            transform: translateX(4px);
+            border-left-color: #C04A2E;
+        }
+
+        /* ── 인셋 박스 호버 ── */
+        .inset-box {
+            transition: box-shadow 0.3s ease;
+        }
+        .inset-box:hover {
+            box-shadow: inset 3px 3px 8px #CECAC3, inset -3px -3px 8px #FFFFFF;
+        }
+
+        /* ── 비교 테이블 행 호버 ── */
+        .compare-table tbody tr {
+            transition: background 0.2s ease;
+        }
+        .compare-table tbody tr:hover {
+            background: rgba(217,119,87,0.05);
+        }
+
+        /* ── Step List 아이템 애니메이션 ── */
+        .step-list li {
+            transition: transform 0.2s ease;
+        }
+        .step-list li:hover {
+            transform: translateX(6px);
+        }
+
+        /* ── 시나리오 제목 인터랙션 ── */
+        .scenario-block h3 {
+            transition: color 0.2s ease, transform 0.2s ease;
+            cursor: default;
+        }
+        .scenario-block:hover h3 {
+            color: var(--ant-orange);
+            transform: translateX(4px);
+        }
+
+        /* ── 반응형 ── */
+        @media (max-width: 768px) {
+            header { padding: 24px 20px 32px; }
+            header h1 { font-size: 27px; }
+            .container { padding: 32px 18px; }
+            .nm-card { padding: 22px 18px; }
+            .use-case-grid { grid-template-columns: 1fr; }
+            .page-nav { flex-direction: column; gap: 10px; }
+            .sub-menu { padding: 10px 8px; }
+            .sub-menu a { padding: 6px 12px; }
+            .sm-title { font-size: 12px; }
+            .sm-sub { font-size: 10px; }
+            .sm-num { width: 24px; height: 24px; font-size: 11px; }
+            .header-pages { gap: 8px; }
+            .header-page-link { padding: 10px 14px; font-size: 12px; border-radius: 12px; }
+            .task-title { font-size: 13px; }
+            .task-header { padding: 14px 16px; }
+            .hero-stats { gap: 18px; }
+            .hero-stat-num { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="project-intro.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="cowork-intro.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="agent-design.html">5</a>
+    </nav>
+    <a class="back-link" href="index.html">← 목록으로</a>
+    <h1>크롬에서 Claude 사용</h1>
+    <p>탭을 왔다 갔다 하지 마세요. 지금 보고 있는 바로 그 페이지 위에서 AI가 일합니다</p>
+    <span class="header-badge">⏱ 10분 · 입문</span>
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <span class="hero-stat-num">30초</span>
+            <span class="hero-stat-label">설치 완료</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+            <span class="hero-stat-num">5가지</span>
+            <span class="hero-stat-label">핵심 기능</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+            <span class="hero-stat-num">7개</span>
+            <span class="hero-stat-label">실습 과제</span>
+        </div>
+    </div>
+    <div class="header-pages">
+        <a href="chrome-plugin.html" class="header-page-link active"><span class="hpl-icon">🌐</span> 크롬</a>
+        <a href="ppt-plugin.html" class="header-page-link"><span class="hpl-icon">📊</span> 파워포인트</a>
+        <a href="excel-plugin.html" class="header-page-link"><span class="hpl-icon">📈</span> 엑셀</a>
+    </div>
+</header>
+
+<!-- ── SUB MENU ── -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec-why" class="active" data-sec="sec-why">
+        <span class="sm-num">1</span>
+        <span class="sm-title">왜 크롬인가?</span>
+        <span class="sm-sub">소개</span>
+    </a>
+    <a href="#sec-install" data-sec="sec-install">
+        <span class="sm-num">2</span>
+        <span class="sm-title">설치</span>
+        <span class="sm-sub">시작</span>
+    </a>
+    <a href="#sec-features" data-sec="sec-features">
+        <span class="sm-num">3</span>
+        <span class="sm-title">핵심 기능</span>
+        <span class="sm-sub">기능</span>
+    </a>
+    <a href="#sec-scenarios" data-sec="sec-scenarios">
+        <span class="sm-num">4</span>
+        <span class="sm-title">실전 활용</span>
+        <span class="sm-sub">시나리오</span>
+    </a>
+    <a href="#sec-practice" data-sec="sec-practice">
+        <span class="sm-num">5</span>
+        <span class="sm-title">실습 과제</span>
+        <span class="sm-sub">체험</span>
+    </a>
+    <a href="#sec-tips" data-sec="sec-tips">
+        <span class="sm-num">6</span>
+        <span class="sm-title">고급 팁</span>
+        <span class="sm-sub">팁·FAQ</span>
+    </a>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="container">
+
+    <!-- 왜 크롬 플러그인인가? -->
+    <div class="step-divider content-section"><span class="step-badge">STEP 1 · 크롬에서 클로드 플러그인을 써야 하는 이유</span></div>
+    <div id="sec-why" class="nm-card content-section reveal">
+        <h2>왜 크롬에서 Claude를 써야 할까?</h2>
+        <p class="card-subtitle">당신의 업무 80%는 이미 크롬 안에서 일어나고 있습니다</p>
+        <p>이메일 작성, 뉴스 확인, 자료 검색, 보고서 리뷰. 이 모든 순간이 크롬 안에서 일어납니다. 그런데 왜 AI를 쓰려면 매번 다른 탭으로 이동해서 복사-붙여넣기를 해야 할까요?</p>
+        <p style="margin-top:10px;">크롬 플러그인을 설치하면, <strong>지금 보고 있는 바로 그 페이지 위에서</strong> Claude가 일합니다. 흐름이 끊기지 않습니다.</p>
+
+        <div class="use-case-grid">
+            <div class="use-case-item reveal">
+                <div class="uc-icon">⚡</div>
+                <h4>컨텍스트 전환 제로</h4>
+                <p>지금 보는 페이지에서 바로 질문. 답도 바로 여기서 받습니다.</p>
+            </div>
+            <div class="use-case-item reveal">
+                <div class="uc-icon">📋</div>
+                <h4>복사-붙여넣기 불필요</h4>
+                <p>웹 페이지 내용을 자동으로 읽습니다. 요약, 번역, 분석까지 한 번에.</p>
+            </div>
+            <div class="use-case-item reveal">
+                <div class="uc-icon">🔒</div>
+                <h4>업무 보안 유지</h4>
+                <p>민감한 정보를 외부로 옮기지 않습니다. 브라우저 안에서 끝.</p>
+            </div>
+            <div class="use-case-item reveal">
+                <div class="uc-icon">🚀</div>
+                <h4>클릭 한 번, 30초</h4>
+                <p>Chrome 웹스토어에서 설치 완료. 별도 프로그램 필요 없습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 설치 가이드 -->
+    <div id="sec-install" class="step-divider content-section"><span class="step-badge">STEP 2 · 설치</span></div>
+
+    <div class="nm-card reveal">
+        <h2>설치 & 초기 설정</h2>
+        <p class="card-subtitle">지금 바로 따라 해보세요. 30초면 끝납니다</p>
+
+        <ol class="step-list">
+            <li><div><strong>Chrome 웹스토어 접속</strong><br>Chrome 웹스토어에서 "Claude" 또는 "Anthropic"을 검색합니다.</div></li>
+            <li><div><strong>확장 프로그램 추가</strong><br>"Chrome에 추가" 버튼을 클릭합니다. 필요한 권한을 확인한 뒤 "확장 프로그램 추가"를 누릅니다.</div></li>
+            <li><div><strong>Claude 계정 로그인</strong><br>확장 프로그램 아이콘을 클릭하면 로그인 화면이 나타납니다. 기존 Claude 계정으로 로그인하거나, 새로 가입합니다.</div></li>
+            <li><div><strong>확장 프로그램 고정</strong><br>주소창 오른쪽의 퍼즐 아이콘(🧩)을 클릭하고, Claude 옆의 핀 아이콘을 눌러 항상 보이게 고정합니다.</div></li>
+            <li><div><strong>테스트 실행</strong><br>아무 웹 페이지에서 확장 프로그램 아이콘을 클릭하고 "이 페이지를 한 줄로 요약해줘"라고 입력합니다. 정상 작동하면 설치 완료입니다.</div></li>
+        </ol>
+
+        <div class="tip-box">
+            <div class="tip-label">💡 Tip</div>
+            <p>확장 프로그램이 잘 안 보이면, 주소창 옆 퍼즐 아이콘(🧩)을 클릭해서 숨겨진 확장 프로그램 목록을 확인하세요.</p>
+        </div>
+    </div>
+
+    <!-- 핵심 기능 -->
+    <div id="sec-features" class="step-divider content-section"><span class="step-badge">STEP 3 · 핵심 기능</span></div>
+
+    <div class="nm-card reveal">
+        <h2>핵심 기능 5가지</h2>
+        <p class="card-subtitle">이런 것까지 된다고? 한번 써보면 놀라는 기능들</p>
+
+        <div class="use-case-grid">
+            <div class="use-case-item reveal">
+                <div class="uc-icon">📰</div>
+                <h4>1. 웹 페이지 요약</h4>
+                <p>긴 기사, 보고서, 블로그 글의 핵심만 3줄로. 리서치 시간이 절반으로 줄어듭니다.</p>
+            </div>
+            <div class="use-case-item reveal">
+                <div class="uc-icon">🌍</div>
+                <h4>2. 실시간 번역</h4>
+                <p>구글 번역과 다릅니다. 맥락을 이해하는 자연스러운 한국어 번역을 제공합니다.</p>
+            </div>
+            <div class="use-case-item reveal">
+                <div class="uc-icon">✉️</div>
+                <h4>3. 이메일 작성 보조</h4>
+                <p>Gmail에서 바로 답장 초안 생성. 톤, 길이, 목적에 맞게 작성합니다.</p>
+            </div>
+            <div class="use-case-item reveal">
+                <div class="uc-icon">🔍</div>
+                <h4>4. 검색 결과 분석</h4>
+                <p>여러 탭을 열지 않아도 됩니다. 검색 결과를 한 번에 비교 분석합니다.</p>
+            </div>
+        </div>
+
+        <div class="use-case-grid" style="grid-template-columns:1fr; margin-top:12px;">
+            <div class="use-case-item reveal">
+                <div class="uc-icon">📝</div>
+                <h4>5. 텍스트 선택 후 즉시 작업</h4>
+                <p>텍스트를 드래그하면 바로 요약, 번역, 톤 변경, 핵심 추출이 가능합니다. 전체 페이지가 아니라 필요한 부분만 정확하게 처리합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 실전 활용 시나리오 -->
+    <div id="sec-scenarios" class="step-divider content-section"><span class="step-badge">STEP 4 · 실전 활용</span></div>
+
+    <div class="nm-card reveal">
+        <h2>실전 활용 시나리오 6가지</h2>
+        <p class="card-subtitle">"이걸 이렇게 쓴다고?" 내일 당장 써먹는 상황별 가이드</p>
+
+        <div class="scenario-block">
+        <h3>📌 시나리오 1: 아침 뉴스 브리핑</h3>
+        <p>매일 아침 뉴스 사이트에서 주요 기사를 열고 Claude에게 요약을 요청합니다.</p>
+        <div class="prompt-example">이 기사의 핵심 내용을 3가지 포인트로 정리해줘.
+우리 회사 마케팅팀에 공유할 수 있는 한 줄 요약도 추가해줘.</div>
+        </div>
+
+        <div class="scenario-block">
+        <h3 style="margin-top:24px;">📌 시나리오 2: 영문 리포트 빠른 파악</h3>
+        <p>해외 파트너가 보내준 영문 보고서를 번역하면서 핵심 수치를 추출합니다.</p>
+        <div class="prompt-example">이 페이지를 한국어로 번역해줘.
+특히 매출 수치와 성장률은 표로 정리해줘.</div>
+        </div>
+
+        <div class="scenario-block">
+        <h3 style="margin-top:24px;">📌 시나리오 3: 이메일 답장 초안</h3>
+        <p>Gmail에서 받은 메일을 보면서 바로 답장 초안을 생성합니다.</p>
+        <div class="prompt-example">이 이메일에 대한 답장을 작성해줘.
+정중하지만 일정 변경은 어려움을 알려주는 톤으로, 대안 일정 2개를 제안해줘.</div>
+        </div>
+
+        <div class="scenario-block">
+        <h3 style="margin-top:24px;">📌 시나리오 4: 경쟁사 분석</h3>
+        <p>경쟁사 웹사이트를 방문하면서 주요 특징을 분석합니다.</p>
+        <div class="prompt-example">이 웹사이트의 주요 서비스, 가격 정책, 차별화 포인트를 정리해줘.
+우리 서비스와 비교할 수 있는 표 형태로 만들어줘.</div>
+        </div>
+
+        <div class="scenario-block">
+        <h3 style="margin-top:24px;">📌 시나리오 5: 회의 자료 빠른 리뷰</h3>
+        <p>Google Docs나 Notion에서 공유된 회의 자료를 빠르게 파악합니다.</p>
+        <div class="prompt-example">이 문서의 핵심 결정 사항과 액션 아이템을 정리해줘.
+내가 담당해야 할 항목이 있으면 별도로 표시해줘.</div>
+        </div>
+
+        <div class="scenario-block">
+        <h3 style="margin-top:24px;">📌 시나리오 6: SNS 콘텐츠 작성</h3>
+        <p>참고할 글이나 기사를 보면서 SNS 포스팅을 바로 생성합니다.</p>
+        <div class="prompt-example">이 기사 내용을 바탕으로 LinkedIn 포스팅을 작성해줘.
+전문적이면서도 인사이트가 있는 톤으로, 300자 내외로 만들어줘.</div>
+        </div>
+    </div>
+
+    <!-- 실습 과제 -->
+    <div id="sec-practice" class="step-divider content-section"><span class="step-badge">STEP 5 · 실습 과제</span></div>
+
+    <div class="nm-card reveal">
+        <h2>7가지 실습 과제</h2>
+        <p class="card-subtitle">크롬 브라우저만 있으면, 지금 바로 AI 비서를 고용할 수 있습니다</p>
+        <p style="margin-bottom:20px;">각 과제를 클릭하면 상세 안내가 펼쳐집니다. 쉬운 것부터 도전해보세요!</p>
+
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">1</span>
+                    <span class="task-title">긴 텍스트 페이지를, 3줄로 요약하기</span>
+                    <span class="task-stars">★</span>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>관심 있는 뉴스 기사를 크롬에서 열고, Claude 사이드패널에 입력합니다:</p>
+                <div class="prompt-example">"이 페이지 내용을 3줄로 요약해줘.
+이 내용이 중요한 이유를 한 줄로 알려줘."</div>
+                <p class="task-follow">💬 후속 질문도 해보세요: "이 기사의 주장에 반론을 제기한다면?"</p>
+            </div>
+        </div>
+
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">2</span>
+                    <span class="task-title">웹사이트 3개를 동시에 비교 · 분석하기</span>
+                    <span class="task-stars">★★</span>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p><strong>크롬 브라우저 왼쪽 상단의 그룹 버튼</strong>을 클릭해 Claude 그룹을 열고, 그룹 안에서 탭 3개를 새로 열어 비교할 웹사이트에 각각 접속합니다:</p>
+                <div style="display:flex;align-items:center;gap:10px;margin:12px 0;">
+                    <div class="chrome-ui-demo">
+                        <div class="chrome-ui-btn">←</div>
+                        <div class="chrome-ui-btn">→</div>
+                        <div class="chrome-ui-btn">↻</div>
+                        <div class="chrome-ui-sep"></div>
+                        <div class="chrome-ui-btn">▭</div>
+                        <div class="chrome-ui-btn">▭</div>
+                        <div class="chrome-ui-sep"></div>
+                        <div class="chrome-ui-btn chrome-ui-group">⊞</div>
+                    </div>
+                    <span class="chrome-ui-label">← 이 버튼 클릭!</span>
+                </div>
+                <ol style="padding-left:18px;margin:0 0 12px;">
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">크롬 왼쪽 상단 그룹 버튼(⊞) 클릭 → Claude 그룹 열기</li>
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">그룹 안에서 <strong>탭 3개</strong> 새로 열기 (Ctrl+T / Cmd+T)</li>
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">각 탭에서 비교할 웹사이트 접속</li>
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">사이드패널에 아래 프롬프트 입력</li>
+                </ol>
+                <div class="prompt-example">"이 3개 탭의 내용을 비교해줘.
+공통점과 차이점을 테이블로 정리해줘."</div>
+            </div>
+        </div>
+
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">3</span>
+                    <span class="task-title">AI가 내 대신 클릭하고 입력합니다</span>
+                    <span class="task-stars">★★</span>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>Google Flights(<strong>flights.google.com</strong>)를 열고, 사이드패널에 입력합니다:</p>
+                <div class="prompt-example">"서울에서 도쿄로 가는 다음 달 왕복 항공권을 검색해줘.
+가장 저렴한 옵션 3개를 알려줘."</div>
+                <p class="task-follow">👀 Claude가 출발지·도착지·날짜를 직접 입력하고 검색 버튼을 클릭하는 것을 지켜보세요.</p>
+            </div>
+        </div>
+
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">4</span>
+                    <span class="task-title">로그인한 사이트에서도 일합니다</span>
+                    <span class="task-stars">★★★</span>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>Google Calendar(<strong>calendar.google.com</strong>)를 열고, 사이드패널에 입력합니다:</p>
+                <div class="prompt-example">"이번 주 내 일정을 확인하고, 회의가 몇 개인지 알려줘."</div>
+                <p class="task-follow">💡 캘린더를 안 쓰면 Gmail에서 "읽지 않은 메일 중 중요한 것 5개만 골라줘"로 해도 됩니다.</p>
+            </div>
+        </div>
+
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">5</span>
+                    <span class="task-title">스크린샷으로 명령하기</span>
+                    <span class="task-stars">★★★</span>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>아무 웹페이지를 열고, 오른쪽 사이드패널 하단의 <strong>+ 버튼</strong>을 클릭합니다:</p>
+                <div style="display:flex;align-items:center;gap:10px;margin:12px 0;">
+                    <div class="chrome-ui-demo" style="flex-direction:column;align-items:flex-start;gap:4px;padding:10px 14px;">
+                        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.08);">
+                            <span style="font-size:14px;">📷</span>
+                            <span style="color:#fff;font-size:13px;font-weight:600;">스크린샷 찍기</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;">
+                            <span style="font-size:14px;">🖼️</span>
+                            <span style="color:rgba(255,255,255,0.55);font-size:13px;">이미지 추가</span>
+                        </div>
+                        <div style="border-top:1px solid rgba(255,255,255,0.15);width:100%;margin:4px 0;"></div>
+                        <div style="display:flex;align-items:center;justify-content:flex-end;width:100%;gap:10px;">
+                            <span style="color:rgba(255,255,255,0.4);font-size:11px;">실행 전 확인 ∨</span>
+                            <div class="chrome-ui-btn chrome-ui-group" style="width:32px;height:32px;font-size:16px;border-radius:8px;">+</div>
+                        </div>
+                    </div>
+                    <span class="chrome-ui-label">← + 버튼 클릭 후<br>스크린샷 찍기 선택!</span>
+                </div>
+                <ol style="padding-left:18px;margin:0 0 12px;">
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">사이드패널 하단 <strong>+ 버튼</strong> 클릭</li>
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;"><strong>스크린샷 찍기</strong> 선택 → 화면 영역 드래그해서 캡처</li>
+                    <li style="font-size:13px;color:#5C5650;margin-bottom:6px;">캡처된 이미지와 함께 아래 프롬프트 입력</li>
+                </ol>
+                <div class="prompt-example">"이 화면에서 눈에 띄는 점 3가지를 알려줘."</div>
+            </div>
+        </div>
+
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">6</span>
+                    <span class="task-title">한 번 보여주면, 다음부턴 혼자 합니다</span>
+                    <span class="task-stars">★★★★</span>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>아래 두 가지 방법 중 하나로 <strong>Record workflow</strong>를 시작합니다:</p>
+
+                <!-- 방법 1: / 입력 -->
+                <div style="margin:12px 0 8px;font-size:12px;font-weight:800;color:var(--ant-orange);letter-spacing:1px;">방법 1 · 슬래시 명령어</div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                    <div class="chrome-ui-demo" style="flex-direction:column;align-items:flex-start;gap:0;padding:10px 14px;min-width:180px;">
+                        <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-bottom:6px;">입력창에 / 를 입력하면:</div>
+                        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.12);width:100%;box-sizing:border-box;">
+                            <span style="color:#D97757;font-size:13px;font-weight:800;">⏺</span>
+                            <span style="color:#fff;font-size:13px;font-weight:600;">Record workflow</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;width:100%;box-sizing:border-box;">
+                            <span style="color:rgba(255,255,255,0.4);font-size:13px;">✦</span>
+                            <span style="color:rgba(255,255,255,0.45);font-size:13px;">저장된 숏컷들…</span>
+                        </div>
+                    </div>
+                    <span class="chrome-ui-label">← 입력창에<br><strong style="font-size:16px;">/</strong> 입력 후 선택!</span>
+                </div>
+
+                <!-- 방법 2: 패널 버튼 -->
+                <div style="margin:0 0 8px;font-size:12px;font-weight:800;color:var(--ant-orange);letter-spacing:1px;">방법 2 · 오른쪽 패널 버튼</div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                    <div class="chrome-ui-demo" style="padding:10px 14px;">
+                        <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-right:8px;">실행 전 확인 ∨</div>
+                        <div class="chrome-ui-btn chrome-ui-group" style="width:30px;height:30px;font-size:15px;border-radius:8px;">↖</div>
+                        <div class="chrome-ui-btn" style="font-size:14px;">+</div>
+                        <div class="chrome-ui-btn" style="background:#C0522A;color:#fff;font-size:14px;">↑</div>
+                    </div>
+                    <span class="chrome-ui-label">← 커서(↖) 버튼 클릭<br><span style="font-size:11px;color:#999;">"Claude 가르치기"</span><br>→ Record workflow 선택!</span>
+                </div>
+
+                <p style="margin:4px 0 8px;">녹화 시작 후 아래 중 하나를 직접 수행합니다:</p>
+                <ul>
+                    <li>네이버 뉴스에서 관심 키워드 검색 → 상위 기사 3개 확인</li>
+                    <li>자주 보는 사이트 방문 → 최신 내용 확인</li>
+                    <li>Gmail 열기 → 읽지 않은 메일 확인</li>
+                </ul>
+                <p class="task-follow">🎙️ 작업하며 한국어로 음성 설명. 녹화 종료하면 숏컷이 자동 생성됩니다.<br>"/" 입력 후 숏컷을 선택해 재실행해보세요.</p>
+            </div>
+        </div>
+
+        <div class="task-accordion">
+            <div class="task-header" onclick="toggleTask(this)">
+                <div class="task-info">
+                    <span class="task-num">7</span>
+                    <span class="task-title">시키지 않아도 매일 아침 출근합니다</span>
+                    <span class="task-stars">★★★★</span>
+                </div>
+                <button class="task-toggle" aria-label="펼치기">▾</button>
+            </div>
+            <div class="task-body">
+                <p>사이드패널 오른쪽 상단 <strong>⋮ 버튼</strong>을 클릭하면 메뉴가 열립니다. <strong>🕐 작업으로 변환</strong>을 선택합니다:</p>
+
+                <!-- UI 데모 -->
+                <div style="margin:12px 0 16px;">
+                    <div class="chrome-ui-demo" style="flex-direction:column;align-items:stretch;padding:0;overflow:hidden;min-width:220px;max-width:260px;gap:0;">
+                        <!-- 상단 바 -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.1);">
+                            <span style="color:#fff;font-size:13px;font-weight:600;">Sonnet 4.6 ∨</span>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span style="color:rgba(255,255,255,0.5);font-size:14px;">⚡</span>
+                                <span style="color:rgba(255,255,255,0.5);font-size:14px;">⊕</span>
+                                <span style="color:#fff;font-size:16px;font-weight:700;cursor:pointer;">⋮</span>
+                            </div>
+                        </div>
+                        <!-- 드롭다운 메뉴 -->
+                        <div style="padding:6px 0;">
+                            <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(217,119,87,0.18);border-left:3px solid #D97757;">
+                                <span style="font-size:15px;">🕐</span>
+                                <span style="color:#fff;font-size:13px;font-weight:700;">작업으로 변환</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;">
+                                <span style="font-size:15px;">⚙️</span>
+                                <span style="color:rgba(255,255,255,0.45);font-size:13px;">설정</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <span style="font-size:15px;">🌐</span>
+                                    <span style="color:rgba(255,255,255,0.45);font-size:13px;">언어</span>
+                                </div>
+                                <span style="color:rgba(255,255,255,0.3);font-size:12px;">›</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:8px;">
+                        <span class="chrome-ui-label">⋮ 클릭 → <strong>작업으로 변환</strong> 선택!</span>
+                    </div>
+                </div>
+
+                <p style="margin:0 0 8px;">과제 6에서 만든 숏컷을 선택하고 스케줄을 설정합니다:</p>
+                <ul>
+                    <li>빈도: Daily / Weekly / Monthly</li>
+                    <li>시간: 예) 매일 오전 9:00</li>
+                </ul>
+                <p class="task-note">⚠️ 컴퓨터가 켜져 있고, 크롬이 열려 있어야 작동합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 고급 활용 팁 -->
+    <div id="sec-tips" class="step-divider content-section"><span class="step-badge">STEP 6 · 고급 팁 & FAQ</span></div>
+
+    <div class="nm-card reveal">
+        <h2>고급 활용 팁</h2>
+        <p class="card-subtitle">한 단계 더. 전문가처럼 크롬 플러그인을 활용하는 방법</p>
+
+        <div class="inset-box">
+            <strong>🎯 단축키 설정</strong>
+            <p>Chrome 주소창에 <strong>chrome://extensions/shortcuts</strong>를 입력하면 단축키 설정 페이지가 열립니다. Claude 확장 프로그램 항목에서 원하는 단축키를 지정하세요. <span style="white-space:nowrap">예시: <b>⌘+E</b> (Mac)</span></p>
+        </div>
+
+        <div class="inset-box">
+            <strong>📌 자주 쓰는 프롬프트 저장 (북마클릿)</strong>
+            <p style="margin-bottom:10px;">반복적으로 쓰는 프롬프트를 북마크바에 버튼처럼 저장해두면, 클릭 한 번으로 클립보드에 복사됩니다. 이후 Claude 사이드패널에 붙여넣기만 하면 됩니다.</p>
+            <p style="margin-bottom:6px;font-weight:600;font-size:13px;">📋 설정 방법</p>
+            <ol style="padding-left:18px;margin:0 0 10px;font-size:13px;color:#5C5650;line-height:2;">
+                <li>Chrome 북마크바에서 우클릭 → <b>페이지 추가</b></li>
+                <li>이름: <b>요약 프롬프트</b> (원하는 이름)</li>
+                <li>URL 칸에 아래 코드를 붙여넣기</li>
+                <li>저장 후, 북마크바의 버튼을 클릭하면 프롬프트가 자동 복사됩니다</li>
+            </ol>
+            <div class="prompt-example" style="font-size:12px;">javascript:(function(){navigator.clipboard.writeText('이 페이지 내용을 3줄로 요약해줘. 이 내용이 중요한 이유를 한 줄로 알려줘.');alert('✅ 프롬프트 복사 완료!');})();</div>
+        </div>
+
+        <div class="inset-box">
+            <strong>⚠️ 주의사항</strong>
+            <p>금융 정보, 개인정보가 포함된 페이지에서는 Claude에 전송되는 내용을 반드시 확인하세요. 사내 보안 정책에 따라 특정 사이트에서는 확장 프로그램 사용이 제한될 수 있습니다.</p>
+        </div>
+    </div>
+
+    <!-- 다른 도구와 비교 -->
+    <div id="sec-compare" class="step-divider content-section"><span class="step-badge">STEP 6 · 비교</span></div>
+
+    <div class="nm-card reveal">
+        <h2>Claude 크롬 플러그인 vs 다른 방법</h2>
+        <p class="card-subtitle">뭘 써야 할지 모르겠다면? 상황별 최적의 도구</p>
+
+        <table class="compare-table">
+            <thead>
+                <tr>
+                    <th>항목</th>
+                    <th>크롬 플러그인</th>
+                    <th>Claude.ai 웹</th>
+                    <th>Claude Desktop</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>웹 페이지 분석</strong></td>
+                    <td>⭐ 최적 (자동 인식)</td>
+                    <td>복사-붙여넣기 필요</td>
+                    <td>URL 입력 필요</td>
+                </tr>
+                <tr>
+                    <td><strong>이메일 작성</strong></td>
+                    <td>⭐ Gmail 내에서 직접</td>
+                    <td>별도 탭에서 작성</td>
+                    <td>별도 앱에서 작성</td>
+                </tr>
+                <tr>
+                    <td><strong>파일 분석</strong></td>
+                    <td>제한적</td>
+                    <td>파일 업로드 가능</td>
+                    <td>⭐ PC 파일 직접 접근</td>
+                </tr>
+                <tr>
+                    <td><strong>긴 대화</strong></td>
+                    <td>짧은 대화에 적합</td>
+                    <td>⭐ 긴 대화 가능</td>
+                    <td>⭐ 긴 대화 가능</td>
+                </tr>
+                <tr>
+                    <td><strong>설치 난이도</strong></td>
+                    <td>⭐ 30초</td>
+                    <td>설치 불필요</td>
+                    <td>앱 설치 필요</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="tip-box" style="margin-top:20px;">
+            <div class="tip-label">💡 추천 조합</div>
+            <p>빠른 웹 작업은 <strong>크롬 플러그인</strong>, 깊은 분석과 긴 대화는 <strong>Claude.ai</strong>, 파일 기반 업무는 <strong>Claude Desktop(코워크)</strong>을 사용하세요. 세 가지를 상황에 맞게 조합하면 업무 효율이 극대화됩니다.</p>
+        </div>
+    </div>
+
+    <!-- 자주 묻는 질문 -->
+    <div id="sec-faq" class="step-divider content-section"><span class="step-badge">FAQ</span></div>
+
+    <div class="nm-card reveal">
+        <h2>자주 묻는 질문</h2>
+        <p class="card-subtitle">처음 쓰는 분들이 가장 많이 묻는 질문 5가지</p>
+
+        <div class="inset-box">
+            <strong>Q. 무료로 사용할 수 있나요?</strong>
+            <p>아니요. Claude in Chrome은 유료 플랜(Pro, Max, Team, Enterprise)에서만 사용 가능합니다. 무료 플랜에서는 확장 프로그램에 접근할 수 없습니다.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. 회사 컴퓨터에서도 설치할 수 있나요?</strong>
+            <p>회사 IT 정책에 따라 다릅니다. Chrome 관리형 브라우저를 사용하는 경우, IT팀에 확장 프로그램 허용을 요청해야 할 수 있습니다.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. 내가 보는 웹 페이지 내용이 저장되나요?</strong>
+            <p>Claude에 전송한 내용은 대화 기록으로 저장될 수 있습니다. 민감한 정보는 전송 전에 확인하세요. Anthropic의 개인정보 처리방침을 참고하시기 바랍니다.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. 다른 브라우저에서도 사용할 수 있나요?</strong>
+            <p>현재 Chrome 기반 브라우저(Edge, Brave, Arc 등)에서 사용 가능합니다. Safari, Firefox는 별도의 방법이 필요합니다.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. 오프라인에서도 작동하나요?</strong>
+            <p>아닙니다. Claude는 클라우드 기반이므로 인터넷 연결이 필요합니다.</p>
+        </div>
+    </div>
+
+</main>
+
+<!-- ── 페이지 네비 ── -->
+<nav class="page-nav">
+    <a href="index.html" class="page-nav-btn">← 메인으로</a>
+    <a href="ppt-plugin.html" class="page-nav-btn">다음: 파워포인트 플러그인 →</a>
+</nav>
+
+<!-- ── Footer ── -->
+<footer>
+    <p class="footer-brand">AI Roasting</p>
+    <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+    <p class="footer-text" style="margin-top:10px;opacity:0.5;">© 2026 AI Roasting. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Sub Menu Scroll Spy ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l){ var s = document.getElementById(l.dataset.sec); if(s) sections.push({id:l.dataset.sec, el:s, link:l}); });
+
+    function update(){
+        var scrollY = window.scrollY + 120;
+        var current = sections[0];
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                activeLink.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    update();
+})();
+
+// ── 아코디언 토글 ──
+function toggleTask(header){
+    var accordion = header.parentElement;
+    accordion.classList.toggle('open');
+}
+
+// ── 프롬프트 복사 버튼 ──
+(function(){
+    document.querySelectorAll('.prompt-example').forEach(function(el){
+        var btn = document.createElement('button');
+        btn.className = 'prompt-copy';
+        btn.textContent = '복사';
+        btn.onclick = function(){
+            var text = el.textContent.replace('복사','').replace('완료','').trim();
+            navigator.clipboard.writeText(text).then(function(){
+                btn.textContent = '완료';
+                btn.classList.add('copied');
+                setTimeout(function(){ btn.textContent = '복사'; btn.classList.remove('copied'); }, 1500);
+            });
+        };
+        el.appendChild(btn);
+    });
+})();
+</script>
+<script>
+// ── Scroll Reveal (Intersection Observer) ──
+(function(){
+    var reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-scale');
+    if (!reveals.length) return;
+    var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+            if(entry.isIntersecting){
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(function(el){ observer.observe(el); });
+})();
+</script>
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
+</body>
+</html>

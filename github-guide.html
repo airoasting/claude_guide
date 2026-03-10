@@ -5,513 +5,938 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Git & GitHub 가이드 | Claude Code</title>
     <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
-            background: #ffffff;
-            color: #1a1a1a;
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
             line-height: 1.6;
         }
 
+        /* ── HEADER ── */
         header {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
             text-align: center;
-            padding: 48px 32px 40px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a1a 100%);
-            border-bottom: 3px solid #CC0000;
+            position: relative;
+            overflow: hidden;
         }
-
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,130,90,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
         .back-link {
             display: inline-block;
-            color: #e8706a;
+            color: rgba(255,255,255,0.65);
             text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 14px; font-weight: 600;
             margin-bottom: 20px;
-            transition: opacity 0.2s;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
         }
-
-        .back-link:hover { opacity: 0.7; }
-
-        h1 {
-            font-size: 44px;
-            font-weight: 800;
-            color: #ffffff;
-            letter-spacing: -1px;
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px; font-weight: 800;
+            color: #ffffff; letter-spacing: -1px;
             margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.72); position: relative; z-index: 1; }
+        .header-badge {
+            display: inline-block;
+            font-size: 13px; font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 16px; border-radius: 20px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
         }
 
-        header p { font-size: 17px; color: rgba(255,255,255,0.6); }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 48px 32px;
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
         }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Header Page Links ── */
+        .header-pages { display: flex; justify-content: center; gap: 14px; margin-top: 22px; position: relative; z-index: 1; }
+        .header-page-link {
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none; color: rgba(255,255,255,0.7);
+            font-size: 13px; font-weight: 600;
+            padding: 9px 22px; border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+        }
+        .header-page-link:hover { background: rgba(255,255,255,0.13); color: #fff; transform: translateY(-1px); }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Mode Tabs ── */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 960px; margin: 0 auto; padding: 48px 32px; }
 
         h2 {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1a1a1a;
-            padding-left: 16px;
-            border-left: 4px solid #CC0000;
+            font-size: 22px; font-weight: 700; color: #3A3530;
+            padding-left: 16px; border-left: 4px solid var(--ant-orange);
             margin-bottom: 20px;
         }
 
         .divider {
-            height: 1px;
-            background: #e0e0e0;
-            margin: 48px 0;
+            height: 2px; background: var(--nm-bg);
+            box-shadow: var(--nm-inset); margin: 48px 0; border-radius: 2px;
         }
 
-        /* Concept Cards */
-        .concept-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .concept-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-        }
-
-        .concept-card h3 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 4px;
-        }
-
-        .concept-card .en {
-            font-size: 12px;
-            color: #999;
-            margin-bottom: 8px;
-        }
-
-        .concept-card p {
-            font-size: 14px;
-            color: #4a4a4a;
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
-
-        .analogy {
-            font-size: 13px;
-            color: #666;
-            background: #f9f9f9;
-            border-left: 3px solid #CC0000;
-            padding: 8px 12px;
-            border-radius: 0 4px 4px 0;
-        }
-
-        /* Info Box */
-        .info-box {
-            background: #f4f4f4;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-
-        .info-box p {
-            font-size: 15px;
-            color: #4a4a4a;
-            line-height: 1.7;
-        }
-
-        .info-box .highlight {
-            color: #CC0000;
-            font-weight: 700;
-        }
-
-        /* Compare Box */
-        .compare-box {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            gap: 16px;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .compare-item {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 24px;
-            text-align: center;
-        }
-
-        .compare-item h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .compare-item .sub {
-            font-size: 13px;
-            color: #999;
-            margin-bottom: 12px;
-        }
-
-        .compare-item p {
-            font-size: 14px;
-            color: #4a4a4a;
-            line-height: 1.5;
-        }
-
-        .compare-arrow {
-            font-size: 24px;
-            color: #CC0000;
-            font-weight: 700;
-        }
-
-        .feature-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .feature-list li {
-            font-size: 14px;
-            color: #4a4a4a;
-            padding: 8px 0;
-            padding-left: 20px;
-            position: relative;
-        }
-
-        .feature-list li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #CC0000;
-            font-weight: 700;
-        }
-
-        /* Steps */
-        .step {
-            margin-bottom: 32px;
-        }
-
-        .step-header {
+        /* ── #1 오프닝 훅 배너 ── */
+        .hook-banner {
+            background: var(--ant-dark);
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-bottom: 40px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hook-banner::before {
+            content: '';
+            position: absolute; top: -40px; right: -20px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(217,119,87,0.2) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .hook-icon {
+            font-size: 48px; flex-shrink: 0;
+        }
+        .hook-text h3 {
+            font-size: 20px; font-weight: 800; color: #fff;
+            margin-bottom: 6px;
+        }
+        .hook-text p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+        .hook-url {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 13px; font-weight: 700;
+            color: var(--ant-orange);
+            background: rgba(217,119,87,0.1);
+            border: 1px solid rgba(217,119,87,0.3);
+            padding: 4px 14px; border-radius: 8px;
+            font-family: 'SF Mono', monospace;
         }
 
-        .step-number {
-            background: #CC0000;
-            color: #fff;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+        /* ── #2 전체 여정 타임라인 ── */
+        .journey {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
+            gap: 0;
+            margin-bottom: 32px;
+            flex-wrap: nowrap;
+        }
+        .journey-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+        .journey-icon {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+        }
+        .journey-label { font-size: 12px; font-weight: 700; color: #3A3530; text-align: center; }
+        .journey-sub { font-size: 11px; color: #999; text-align: center; }
+        .journey-arrow { font-size: 18px; color: var(--ant-orange); flex-shrink: 0; margin: 0 4px; padding-bottom: 24px; }
+
+        /* ── Concept Cards ── */
+        .concept-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+        .concept-card {
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px; padding: 20px; transition: box-shadow 0.25s;
+        }
+        .concept-card:hover { box-shadow: var(--nm-shadow); }
+        .concept-card h3 { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 4px; }
+        .concept-card .en { font-size: 12px; color: #999; margin-bottom: 8px; }
+        .concept-card p { font-size: 14px; color: #5C5650; margin-bottom: 8px; line-height: 1.5; }
+        .analogy {
+            font-size: 13px; color: #5C5650;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            border-left: 3px solid var(--ant-orange);
+            padding: 8px 12px; border-radius: 0 8px 8px 0;
+        }
+
+        /* ── Info Box ── */
+        .info-box {
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            border-radius: 12px; padding: 24px; margin-bottom: 20px;
+        }
+        .info-box p { font-size: 15px; color: #5C5650; line-height: 1.7; }
+        .info-box .highlight { color: var(--ant-orange); font-weight: 700; }
+
+        /* ── Note Box ── */
+        .note-box {
+            font-size: 13px; color: #888;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 10px; padding: 14px 18px;
+            margin-bottom: 20px; line-height: 1.7;
+        }
+        .note-box strong { color: #666; }
+
+        /* ── Compare Box ── */
+        .compare-box {
+            display: grid; grid-template-columns: 1fr auto 1fr;
+            gap: 16px; align-items: center; margin-bottom: 24px;
+        }
+        .compare-item {
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px; padding: 24px; text-align: center; transition: box-shadow 0.25s;
+        }
+        .compare-item:hover { box-shadow: var(--nm-shadow); }
+        .compare-item h3 { font-size: 18px; font-weight: 700; color: #3A3530; margin-bottom: 4px; }
+        .compare-item .sub { font-size: 13px; color: #999; margin-bottom: 12px; }
+        .compare-item p { font-size: 14px; color: #5C5650; line-height: 1.5; }
+        .compare-arrow { font-size: 24px; color: var(--ant-orange); font-weight: 700; }
+
+        .feature-list { list-style: none; padding: 0; }
+        .feature-list li { font-size: 14px; color: #5C5650; padding: 8px 0; padding-left: 20px; position: relative; }
+        .feature-list li::before { content: '✓'; position: absolute; left: 0; color: var(--ant-orange); font-weight: 700; }
+
+        /* ── #4 GitHub Pages 시각 카드 ── */
+        .pages-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin: 16px 0 20px;
+        }
+        .pages-card {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px;
+            padding: 20px 16px;
+            text-align: center;
+            position: relative;
+        }
+        .pages-card-num {
+            width: 28px; height: 28px;
+            background: var(--ant-orange);
+            color: #fff;
+            border-radius: 50%;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 10px;
+            box-shadow: 2px 2px 8px rgba(217,119,87,0.4);
+        }
+        .pages-card-icon { font-size: 26px; margin-bottom: 8px; }
+        .pages-card h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px; }
+        .pages-card p { font-size: 12px; color: #888; line-height: 1.5; }
+
+        /* ── #8 Steps 강화 ── */
+        .step {
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 16px; padding: 28px;
+            margin-bottom: 16px; transition: box-shadow 0.25s;
+            border-left: 4px solid transparent;
+        }
+        .step:hover { box-shadow: var(--nm-shadow); }
+        .step.step-1 { border-left-color: #6aab8e; }
+        .step.step-2 { border-left-color: var(--ant-orange); }
+        .step.step-3 { border-left-color: #5a8fbf; }
+
+        .step-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+        .step-number {
+            background: var(--ant-orange); color: #fff;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 800;
             flex-shrink: 0;
+            box-shadow: 3px 3px 10px rgba(217,119,87,0.4);
         }
+        .step.step-1 .step-number { background: #6aab8e; box-shadow: 3px 3px 10px rgba(106,171,142,0.4); }
+        .step.step-3 .step-number { background: #5a8fbf; box-shadow: 3px 3px 10px rgba(90,143,191,0.4); }
+        .step-header h3 { font-size: 18px; font-weight: 800; color: #3A3530; }
+        .step p { font-size: 14px; color: #5C5650; margin-bottom: 12px; line-height: 1.6; }
+        .step p:last-child { margin-bottom: 0; }
 
-        .step-header h3 {
-            font-size: 17px;
-            font-weight: 700;
-            color: #1a1a1a;
-        }
-
-        .step p {
-            font-size: 14px;
-            color: #4a4a4a;
-            margin-bottom: 12px;
-            line-height: 1.6;
-        }
-
-        /* Code Block */
+        /* ── #3 Code Block + 복사 버튼 ── */
+        .code-block-wrap { position: relative; margin-bottom: 12px; border-radius: 10px; overflow: hidden; background: #2d2d2d; }
         .code-block {
-            background: #1a1a1a;
-            border-radius: 8px;
-            padding: 20px 24px;
-            margin-bottom: 12px;
+            background: #2d2d2d;
+            border-radius: 0;
+            border: none;
+            outline: none;
+            box-shadow: none;
+            padding: 18px 24px;
+            padding-right: 72px;
             overflow-x: auto;
         }
-
         .code-block code {
             font-family: 'SF Mono', 'Fira Code', monospace;
-            background: none;
-            border: none;
-            padding: 0;
-            color: #e0e0e0;
-            font-size: 14px;
-            display: block;
-            white-space: pre;
-            line-height: 1.7;
+            background: none; border: none; padding: 0; box-shadow: none;
+            color: #e0e0e0; font-size: 14px;
+            display: block; white-space: pre; line-height: 1.7;
         }
-
-        .code-block .comment {
-            color: #6a9955;
+        .code-block .comment { color: #6a9955; }
+        .copy-btn {
+            position: absolute; top: 8px; right: 8px;
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.55);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 10px; border-radius: 6px;
+            font-size: 11px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+            font-family: 'Pretendard', sans-serif;
         }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .copy-btn.copied { background: rgba(100,200,100,0.2); color: #7fce7f; border-color: rgba(100,200,100,0.3); }
 
-        .code-note {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 16px;
-        }
+        .code-note { font-size: 13px; color: #888; margin-bottom: 16px; }
 
-        /* Tables */
+        /* ── Tables ── */
         .table-wrapper {
-            overflow-x: auto;
+            overflow-x: auto; border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm); margin-bottom: 16px;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
-
-        thead {
-            background: #1a1a1a;
-        }
-
-        th {
-            text-align: left;
-            padding: 12px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #fff;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 14px 16px;
-            font-size: 14px;
-            color: #4a4a4a;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
+        table { width: 100%; border-collapse: collapse; background: var(--nm-bg); overflow: hidden; }
+        thead { background: var(--ant-dark); }
+        th { text-align: left; padding: 12px 16px; font-size: 13px; font-weight: 600; color: #fff; letter-spacing: 0.5px; }
+        td { padding: 14px 16px; font-size: 14px; color: #5C5650; border-bottom: 1px solid rgba(206,202,195,0.4); }
         tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover { background: #fafafa; }
+        tbody tr:hover { background: rgba(206,202,195,0.25); }
 
         code {
             font-family: 'SF Mono', 'Fira Code', monospace;
-            background: #f4f4f4;
-            border: 1px solid #e0e0e0;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 13px;
-            color: #CC0000;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            padding: 2px 8px; border-radius: 6px;
+            font-size: 13px; color: var(--ant-orange);
         }
 
-        /* Key Point */
+        /* ── Key Point ── */
         .key-point {
-            background: #fff5f5;
-            border: 1px solid #fecaca;
-            border-left: 4px solid #CC0000;
-            border-radius: 8px;
-            padding: 16px 20px;
-            font-size: 15px;
-            font-weight: 600;
-            color: #1a1a1a;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange); border-radius: 12px;
+            padding: 16px 20px; font-size: 15px; font-weight: 600; color: #3A3530;
             margin-bottom: 20px;
         }
 
-        /* Vocab Table */
-        .vocab-table td:first-child {
-            font-weight: 700;
-            white-space: nowrap;
+        /* ── #9 용어 접기/펼치기 ── */
+        .vocab-table td:first-child { font-weight: 700; white-space: nowrap; color: #3A3530; }
+        .vocab-more-toggle {
+            display: flex; align-items: center; gap: 8px;
+            cursor: pointer; margin-top: 12px; margin-bottom: 4px;
+            font-size: 13px; font-weight: 700; color: var(--ant-orange);
+            padding: 10px 16px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 10px; border: none; width: 100%;
+            transition: box-shadow 0.2s;
+            font-family: 'Pretendard', sans-serif;
+        }
+        .vocab-more-toggle:hover { box-shadow: var(--nm-shadow); }
+        .vocab-more-toggle.open { box-shadow: var(--nm-inset); color: #B85C3A; }
+        .vocab-more { display: none; }
+        .vocab-more.open { display: table-row-group; }
+
+        /* ── #5 실수 & 해결 섹션 ── */
+        .error-grid { display: flex; flex-direction: column; gap: 12px; }
+        .error-card {
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px; padding: 20px 24px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start;
+        }
+        .error-situation { border-right: 1px solid rgba(206,202,195,0.6); padding-right: 16px; }
+        .error-label {
+            font-size: 10px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1.2px; margin-bottom: 6px;
+        }
+        .error-label.bad { color: #c0555a; }
+        .error-label.good { color: #6aab8e; }
+        .error-situation h4, .error-solution h4 {
+            font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 6px;
+        }
+        .error-situation p, .error-solution p { font-size: 13px; color: #5C5650; line-height: 1.5; }
+        .error-solution .claude-say {
+            font-size: 13px; font-weight: 600;
+            background: #2d2d2d; color: #e0e0e0;
+            padding: 8px 14px; border-radius: 8px;
+            font-family: 'SF Mono', monospace;
+            margin-top: 6px; display: block;
         }
 
-        footer {
+        /* ── #6 성공 체험 박스 ── */
+        .success-box {
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 20px; padding: 32px; margin-bottom: 20px;
             text-align: center;
-            padding: 48px 32px;
-            border-top: 1px solid #e0e0e0;
-            background: #f4f4f4;
+        }
+        .success-box h3 { font-size: 20px; font-weight: 800; color: #3A3530; margin-bottom: 8px; }
+        .success-box .sub { font-size: 14px; color: #888; margin-bottom: 24px; }
+        .before-after {
+            display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center;
+        }
+        .ba-item {
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            border-radius: 12px; padding: 20px;
+        }
+        .ba-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .ba-label.before { color: #999; }
+        .ba-label.after { color: #6aab8e; }
+        .ba-content { font-size: 14px; color: #5C5650; line-height: 1.6; }
+        .ba-url { font-size: 13px; font-weight: 700; color: var(--ant-orange); font-family: 'SF Mono', monospace; margin-top: 8px; display: block; }
+        .ba-arrow { font-size: 28px; color: var(--ant-orange); }
+
+        /* ── #7 CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%); border-radius: 20px;
+            padding: 40px 32px; text-align: center; margin-top: 40px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 14px; font-weight: 700;
+            padding: 12px 28px; border-radius: 10px;
+            text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* ── #10 체크리스트 ── */
+        .checklist-section {
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 20px; padding: 28px 32px; margin-top: 40px;
+        }
+        .checklist-title {
+            font-size: 16px; font-weight: 800; color: #3A3530;
+            margin-bottom: 16px; padding-left: 14px;
+            border-left: 4px solid var(--ant-orange);
+        }
+        .checklist { display: flex; flex-direction: column; gap: 10px; }
+        .check-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 18px; border-radius: 12px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            cursor: pointer; transition: all 0.2s; user-select: none;
+        }
+        .check-item:hover { box-shadow: var(--nm-shadow); }
+        .check-item.checked { box-shadow: var(--nm-inset); }
+        .check-box {
+            width: 24px; height: 24px; border-radius: 6px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 14px; transition: all 0.2s;
+        }
+        .check-item.checked .check-box {
+            background: var(--ant-orange); box-shadow: 2px 2px 8px rgba(217,119,87,0.4);
+            color: #fff;
+        }
+        .check-text { font-size: 14px; font-weight: 600; color: #3A3530; }
+        .check-item.checked .check-text { color: #999; text-decoration: line-through; }
+        .checklist-progress {
+            margin-top: 16px;
+            font-size: 13px; color: #888; text-align: right;
+        }
+        .progress-bar {
+            height: 6px; background: var(--nm-bg);
+            box-shadow: var(--nm-inset); border-radius: 3px;
+            margin-top: 6px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: var(--ant-orange);
+            border-radius: 3px; transition: width 0.4s ease;
+            box-shadow: 0 0 8px rgba(217,119,87,0.5);
         }
 
-        footer .footer-brand {
-            font-size: 14px;
-            font-weight: 700;
-            color: #CC0000;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 150px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title { font-size: 13px; font-weight: 700; color: #3A3530; white-space: nowrap; }
+        .sm-sub { font-size: 11px; color: #999; white-space: nowrap; }
+        .content-section { scroll-margin-top: 90px; }
 
-        footer .footer-text { font-size: 13px; color: #999; }
+        /* ── Step Divider + Badge ── */
+        .step-divider {
+            position: relative;
+            text-align: center;
+            margin: 40px 0 32px;
+        }
+        .step-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #CECAC3 20%, #CECAC3 80%, transparent);
+            transform: translateY(-50%);
+        }
+        .step-badge {
+            position: relative;
+            display: inline-block;
+            font-size: 13px; font-weight: 800; letter-spacing: 2px;
+            color: var(--ant-orange); text-transform: uppercase;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 8px 24px;
+            border-radius: 50px;
+            z-index: 1;
+        }
+        .step-goal {
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            border-radius: 14px; padding: 16px 22px;
+            margin-bottom: 28px;
+        }
+        .goal-label {
+            font-size: 11px; font-weight: 800; color: var(--ant-orange);
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;
+        }
+        .step-goal p { font-size: 15px; font-weight: 700; color: #3A3530; margin: 0; }
 
+        /* ── Section subheader ── */
+        .section-subhead { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 12px; }
+
+        /* ── Page Nav ── */
+        .page-nav { max-width: 960px; margin: 0 auto; padding: 0 32px 48px; display: flex; justify-content: space-between; }
+        .page-nav-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            text-decoration: none; color: #3A3530;
+            font-size: 13px; font-weight: 600;
+            padding: 10px 18px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 12px; transition: all 0.2s;
+        }
+        .page-nav-btn:hover { box-shadow: var(--nm-inset); color: var(--ant-orange); }
+
+        /* ── Footer ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 32px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.28); }
+
+        /* ── Responsive ── */
         @media (max-width: 768px) {
-            header { padding: 36px 20px 28px; }
-            h1 { font-size: 32px; }
+            header { padding: 24px 20px 32px; }
+            header h1 { font-size: 28px; }
             .container { padding: 32px 16px; }
             .concept-grid { grid-template-columns: 1fr; }
             .compare-box { grid-template-columns: 1fr; }
             .compare-arrow { transform: rotate(90deg); text-align: center; }
             th, td { padding: 10px 12px; font-size: 13px; }
+            .header-pages { gap: 8px; flex-wrap: wrap; }
+            .header-page-link { padding: 10px 14px; font-size: 12px; }
+            .page-nav { flex-direction: column; gap: 10px; }
+            .sub-menu { padding: 10px 8px; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .sm-title { font-size: 12px; }
+            .sm-sub { font-size: 10px; }
+            .sm-num { width: 24px; height: 24px; font-size: 11px; }
+            .hook-banner { flex-direction: column; text-align: center; padding: 24px 20px; }
+            .journey { flex-wrap: wrap; gap: 12px; }
+            .journey-arrow { display: none; }
+            .pages-cards { grid-template-columns: 1fr; }
+            .error-card { grid-template-columns: 1fr; }
+            .error-situation { border-right: none; border-bottom: 1px solid rgba(206,202,195,0.6); padding-right: 0; padding-bottom: 16px; }
+            .before-after { grid-template-columns: 1fr; }
+            .ba-arrow { transform: rotate(90deg); text-align: center; }
+            .cta-buttons { flex-direction: column; align-items: center; }
         }
     </style>
 </head>
 <body>
-    <header>
-        <a class="back-link" href="index.html">← 목록으로</a>
-        <h1>Git & GitHub 쉽게 이해하기</h1>
-        <p>비개발자를 위한 단계별 안내</p>
-    </header>
 
-    <main class="container">
+<!-- ── HEADER ── -->
+<header>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="project-intro.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="cowork-intro.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="claude-code-101.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="agent-design.html">5</a>
+    </nav>
+    <a class="back-link" href="index.html">← 목록으로</a>
+    <h1>Git & GitHub 쉽게 이해하기</h1>
+    <p>비개발자를 위한 단계별 안내</p>
+    <div class="mode-tabs">
+        <span class="mode-tab active" id="tab-nocode" onclick="switchMode('nocode')">노코드</span>
+        <span class="mode-tab" id="tab-cli" onclick="switchMode('cli')">CLI</span>
+    </div>
+    <div class="header-pages" id="pages-nocode">
+        <a href="claude-code-101.html" class="header-page-link"><span class="hpl-icon">🖥️</span> 클로드 코드 101</a>
+        <a href="claude-code-tasks.html" class="header-page-link"><span class="hpl-icon">🎯</span> 실전 과제 7가지</a>
+        <a href="github-guide.html" class="header-page-link active"><span class="hpl-icon">🐙</span> Git & GitHub</a>
+    </div>
+    <div class="header-pages" id="pages-cli" style="display:none;">
+        <a href="checklist.html" class="header-page-link"><span class="hpl-icon">✅</span> 22단계 따라하기</a>
+        <a href="cheatsheet.html" class="header-page-link"><span class="hpl-icon">⚡</span> 복사해서 바로 쓰는 명령어</a>
+        <a href="claude-md-templates.html" class="header-page-link"><span class="hpl-icon">📄</span> Claude.md</a>
+    </div>
+</header>
 
-        <!-- 섹션 1: Git이 뭔가요? -->
-        <section>
-            <h2>Git이 뭔가요?</h2>
+<!-- ── SUB MENU ── -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec-why" class="active" data-sec="sec-why">
+        <span class="sm-num">0</span>
+        <span class="sm-title">왜 할까?</span>
+        <span class="sm-sub">개요</span>
+    </a>
+    <a href="#sec-step1" data-sec="sec-step1">
+        <span class="sm-num">1</span>
+        <span class="sm-title">가입하기</span>
+        <span class="sm-sub">STEP 1</span>
+    </a>
+    <a href="#sec-step2" data-sec="sec-step2">
+        <span class="sm-num">2</span>
+        <span class="sm-title">올리기</span>
+        <span class="sm-sub">STEP 2</span>
+    </a>
+    <a href="#sec-step3" data-sec="sec-step3">
+        <span class="sm-num">3</span>
+        <span class="sm-title">공개하기</span>
+        <span class="sm-sub">STEP 3</span>
+    </a>
+    <a href="#sec-ref" data-sec="sec-ref">
+        <span class="sm-num">참</span>
+        <span class="sm-title">참고</span>
+        <span class="sm-sub">도움말</span>
+    </a>
+</nav>
 
-            <div class="info-box">
-                <p>Git은 <span class="highlight">파일의 변경 이력을 기록하고 관리하는 도구</span>입니다. 정식 명칭은 "분산 버전 관리 시스템(DVCS)"이고, GitHub은 이 Git 저장소를 클라우드에 올려 공유·협업할 수 있게 해주는 서비스입니다. 구글 독스에서 "버전 기록"을 보면 누가, 언제, 뭘 바꿨는지 볼 수 있죠? Git이 바로 그 역할을 합니다. 다만 코드 파일에 특화되어 있고, 훨씬 더 강력합니다.</p>
+<main class="container">
+
+    <!-- 섹션 0: 왜 할까? -->
+    <section class="content-section" id="sec-why">
+
+    <!-- ── 오프닝 훅 ── -->
+    <div class="hook-banner">
+        <div class="hook-icon">🚀</div>
+        <div class="hook-text">
+            <h3>이 단계를 마치면 내 코드가 인터넷에 공개됩니다</h3>
+            <p>GitHub를 쓰면 내가 만든 웹사이트가 아래와 같은 URL로 전 세계에 공유됩니다.<br>명령어 없이, Claude에게 말하는 것만으로 가능합니다.</p>
+            <span class="hook-url">https://내아이디.github.io/내프로젝트/</span>
+        </div>
+    </div>
+
+    <!-- Before/After훅 바로 다음 -->
+    <div class="success-box" style="margin-top: 24px;">
+        <h3>GitHub Pages를 켜면 이렇게 됩니다</h3>
+        <p class="sub">내 컴퓨터에만 있던 파일이 전 세계에서 접속 가능한 URL로 변합니다</p>
+        <div class="before-after">
+            <div class="ba-item">
+                <div class="ba-label before">BEFORE</div>
+                <div class="ba-content">
+                    내 컴퓨터 폴더 안에만 존재<br>
+                    나만 볼 수 있음<br>
+                    공유하려면 파일 전송 필요
+                </div>
             </div>
-
-            <div style="font-size: 13px; color: #888; background: #fafafa; border: 1px solid #f0f0f0; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; line-height: 1.7;">
-                <strong style="color: #666;">💬 "Git"이라는 이름은?</strong><br>
-                리눅스를 만든 리누스 토르발즈가 영국 속어 "git(재수 없는 놈)"을 자조적으로 붙인 이름입니다. 본인 말로는 "내 프로젝트엔 늘 내 이름을 붙인다. 먼저 Linux, 이번엔 Git." 유닉스에서 안 쓰이던 세 글자라 타이핑이 편하다는 실용적 이유도 있었고, 나중에 사람들이 "Global Information Tracker"라는 그럴듯한 뜻을 붙이기도 했습니다.
-            </div>
-
-            <div class="concept-grid">
-                <div class="concept-card">
-                    <h3>저장소</h3>
-                    <div class="en">Repository (레포)</div>
-                    <p>프로젝트의 모든 파일과 변경 기록이 담긴 폴더입니다.</p>
-                    <div class="analogy">비유: 프로젝트 전용 서류함</div>
-                </div>
-                <div class="concept-card">
-                    <h3>커밋</h3>
-                    <div class="en">Commit</div>
-                    <p>현재 상태를 "이 시점의 버전"으로 저장하는 것입니다.</p>
-                    <div class="analogy">비유: 문서의 "다른 이름으로 저장"</div>
-                </div>
-                <div class="concept-card">
-                    <h3>브랜치</h3>
-                    <div class="en">Branch</div>
-                    <p>원본에 영향 주지 않고 따로 작업할 수 있는 공간입니다.</p>
-                    <div class="analogy">비유: 원본 문서를 복사해서 수정하기</div>
-                </div>
-                <div class="concept-card">
-                    <h3>머지</h3>
-                    <div class="en">Merge</div>
-                    <p>따로 작업한 내용을 원본에 합치는 것입니다.</p>
-                    <div class="analogy">비유: 수정본을 원본에 반영하기</div>
+            <div class="ba-arrow">→</div>
+            <div class="ba-item">
+                <div class="ba-label after">AFTER</div>
+                <div class="ba-content">
+                    인터넷 어디서나 접속 가능<br>
+                    링크 하나로 누구에게나 공유<br>
+                    <span class="ba-url">hong.github.io/my-site/</span>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
 
-        <div class="divider"></div>
+    <!-- 전체 여정: 3단계 -->
+    <div class="journey" style="margin-top: 28px;">
+        <div class="journey-step">
+            <div class="journey-icon">👤</div>
+            <div class="journey-label">STEP 1</div>
+            <div class="journey-sub">가입하기</div>
+        </div>
+        <div class="journey-arrow">→</div>
+        <div class="journey-step">
+            <div class="journey-icon">⬆️</div>
+            <div class="journey-label">STEP 2</div>
+            <div class="journey-sub">Claude로 올리기</div>
+        </div>
+        <div class="journey-arrow">→</div>
+        <div class="journey-step">
+            <div class="journey-icon">🌐</div>
+            <div class="journey-label">STEP 3</div>
+            <div class="journey-sub">URL로 공개</div>
+        </div>
+    </div>
 
-        <!-- 섹션 2: GitHub가 뭔가요? -->
-        <section>
-            <h2>GitHub가 뭔가요?</h2>
+    </section><!-- /sec-why -->
 
-            <div class="compare-box">
-                <div class="compare-item">
-                    <h3>Git</h3>
-                    <div class="sub">내 컴퓨터</div>
-                    <p>변경 이력을 기록하는<br><strong>도구</strong></p>
-                </div>
-                <div class="compare-arrow">→</div>
-                <div class="compare-item">
-                    <h3>GitHub</h3>
-                    <div class="sub">인터넷 (클라우드)</div>
-                    <p>코드를 저장하고 공유하는<br><strong>공간</strong></p>
-                </div>
+    <!-- STEP 1: 가입하기 -->
+    <div class="step-divider"><div class="step-badge">STEP 1</div></div>
+    <section class="content-section" id="sec-step1">
+        <h2>GitHub 가입하기</h2>
+        <div class="step-goal">
+            <div class="goal-label">이 단계의 목표</div>
+            <p>GitHub 계정을 만들고 첫 번째 저장소를 생성합니다</p>
+        </div>
+
+        <div class="step step-1">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <h3>github.com 접속 → Sign up</h3>
             </div>
+            <p><a href="https://github.com" style="color: var(--ant-orange); font-weight: 600;">github.com</a>에 접속해서 <strong>Sign up</strong> 버튼을 클릭합니다. 이메일, 비밀번호, 사용자명을 입력하면 끝입니다.</p>
+            <p style="font-size: 13px; color: #888; margin-top: 8px;">💡 사용자명은 나중에 URL에 포함됩니다. 기억하기 쉬운 영문으로 만드세요. (예: honggildong → hong.github.io)</p>
+        </div>
 
-            <div class="info-box">
-                <p>쉽게 말해, <span class="highlight">Git이 일기장이라면 GitHub은 구글 드라이브</span>입니다. Git으로 내 컴퓨터에서 버전 관리를 하고, GitHub에 올려서 백업하거나 다른 사람과 함께 작업할 수 있습니다.</p>
+        <div class="step step-2">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <h3>새 저장소 만들기</h3>
             </div>
-
-            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">GitHub에서 할 수 있는 것</h3>
-            <ul class="feature-list">
-                <li>코드를 안전하게 백업 (컴퓨터가 고장나도 OK)</li>
-                <li>팀원과 함께 코드 작업</li>
-                <li>변경 사항을 검토하고 승인 (코드 리뷰)</li>
-                <li>누가 뭘 바꿨는지 전체 기록 확인</li>
-                <li>프로젝트를 웹사이트로 바로 공개 (GitHub Pages)</li>
-            </ul>
-
-            <div class="info-box" style="margin-top: 20px;">
-                <p><span class="highlight">GitHub Pages</span>를 사용하면 저장소에 올린 HTML/CSS/JS 파일을 별도 서버 없이 웹사이트로 바로 공개할 수 있습니다. 웹 주소는 다음과 같은 형식입니다:</p>
-                <div class="code-block" style="margin-top: 12px; margin-bottom: 12px;">
-                    <code>https://<span style="color: #e8706a;">내아이디</span>.github.io/<span style="color: #e8706a;">프로젝트이름</span>/</code>
-                </div>
-                <p style="font-size: 14px; margin-top: 8px;">예를 들어 GitHub 아이디가 <code style="border: none; background: none; padding: 0; color: #CC0000;">hong</code>이고 저장소 이름이 <code style="border: none; background: none; padding: 0; color: #CC0000;">my-site</code>라면,<br><strong>https://hong.github.io/my-site/</strong> 로 누구나 접속할 수 있습니다.</p>
-                <p style="font-size: 13px; color: #666; margin-top: 14px; line-height: 1.8;"><strong style="color: #1a1a1a;">GitHub Pages 켜는 법 (3단계):</strong><br>
-                ① 저장소 페이지에서 상단 <strong>Settings</strong> 탭 클릭<br>
-                ② 왼쪽 메뉴에서 <strong>Pages</strong> 클릭<br>
-                ③ Source를 <strong>Deploy from a branch</strong> → <strong>main</strong> 선택 후 Save</p>
-                <p style="font-size: 13px; color: #888; margin-top: 8px;">※ 저장 후 1~2분이면 웹사이트가 공개됩니다.</p>
-            </div>
-        </section>
-
-        <div class="divider"></div>
-
-        <!-- 섹션 3: GitHub 시작하기 -->
-        <section>
-            <h2>GitHub 시작하기</h2>
-
-            <div class="step">
-                <div class="step-header">
-                    <div class="step-number">1</div>
-                    <h3>GitHub 가입하기</h3>
-                </div>
-                <p><a href="https://github.com" style="color: #CC0000; font-weight: 600;">github.com</a>에 접속해서 <strong>Sign up</strong> 버튼을 클릭합니다. 이메일, 비밀번호, 사용자명을 입력하면 끝입니다.</p>
-            </div>
-
-            <div class="step">
-                <div class="step-header">
-                    <div class="step-number">2</div>
-                    <h3>새 저장소 만들기</h3>
-                </div>
-                <p>로그인 후 오른쪽 상단 <strong>+</strong> 버튼 → <strong>New repository</strong>를 클릭합니다.</p>
+            <p>로그인 후 왼쪽 상단 <strong>New</strong> 버튼을 클릭합니다.</p>
+            <div class="code-block-wrap">
                 <div class="code-block">
                     <code><span class="comment"># 저장소 설정</span>
 Repository name: my-project    <span class="comment">← 프로젝트 이름 입력</span>
 Public / Private 선택          <span class="comment">← 공개 or 비공개</span>
 [Create repository] 클릭</code>
                 </div>
-                <p class="code-note">※ Private(비공개)으로 만들면 나만 볼 수 있습니다.</p>
+                <button class="copy-btn" onclick="copyCode(this)">복사</button>
             </div>
+            <p class="code-note">※ Private(비공개)으로 만들면 나만 볼 수 있습니다.</p>
+        </div>
 
-            <div class="step">
-                <div class="step-header">
-                    <div class="step-number">3</div>
-                    <h3>Claude Code에서 연결하기</h3>
+        <div class="step step-3">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <h3>API Key (Personal Access Token) 발급</h3>
+            </div>
+            <p>Claude Code가 GitHub에 접근하려면 인증 키가 필요합니다. GitHub에서 발급받으세요.</p>
+            <div class="pages-cards" style="margin: 16px 0;">
+                <div class="pages-card">
+                    <div class="pages-card-num">1</div>
+                    <div class="pages-card-icon">👤</div>
+                    <h4>프로필 클릭</h4>
+                    <p>우측 상단 프로필 사진 → <strong>Settings</strong></p>
                 </div>
-                <p>이미 내 컴퓨터에 프로젝트가 있다면:</p>
+                <div class="pages-card">
+                    <div class="pages-card-num">2</div>
+                    <div class="pages-card-icon">🔧</div>
+                    <h4>Developer Settings</h4>
+                    <p>왼쪽 맨 하단 <strong>Developer settings</strong> 클릭</p>
+                </div>
+                <div class="pages-card">
+                    <div class="pages-card-num">3</div>
+                    <div class="pages-card-icon">🔑</div>
+                    <h4>토큰 생성</h4>
+                    <p>Personal access tokens → <strong>Tokens (classic)</strong> → Generate new token</p>
+                </div>
+            </div>
+            <div class="code-block-wrap">
+                <div class="code-block">
+                    <code><span class="comment"># 토큰 설정</span>
+Note: claude-code-access        <span class="comment">← 이름 (자유롭게)</span>
+Expiration: 90 days             <span class="comment">← 유효기간</span>
+Scopes: repo 체크 ✓             <span class="comment">← 저장소 접근 권한</span>
+[Generate token] 클릭 → 토큰 복사 (한 번만 표시됩니다!)</code>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)">복사</button>
+            </div>
+            <div class="note-box" style="margin-top: 12px; border-left-color: #e05c5c;">
+                <strong>🔒 보안 주의:</strong> 이 토큰은 비밀번호와 같습니다. Claude에게 전달할 때 <strong>"이 키는 절대 메모리나 파일에 저장하지 마"</strong>라고 함께 말하세요. 세션이 끝나면 토큰을 재발급받는 것이 안전합니다.
+            </div>
+        </div>
+
+        <!-- STEP 1 체크 -->
+        <div class="check-item" onclick="toggleCheck(this)" style="margin-top: 28px;">
+            <div class="check-box"></div>
+            <span class="check-text">STEP 1 완료: 계정 생성 + 저장소 생성 + API Key 발급 완료</span>
+        </div>
+    </section>
+
+    <!-- STEP 2: 올리기 -->
+    <div class="step-divider"><div class="step-badge">STEP 2</div></div>
+    <section class="content-section" id="sec-step2">
+        <h2>Claude로 올리기</h2>
+        <div class="step-goal">
+            <div class="goal-label">이 단계의 목표</div>
+            <p>Claude Code에서 프로젝트를 GitHub에 올립니다</p>
+        </div>
+
+        <div class="note-box">
+            <strong>💬 시작 전 확인:</strong> Claude Code가 열려 있고, 작업할 프로젝트 폴더가 현재 열려 있어야 합니다. STEP 1에서 발급받은 API Key도 준비하세요.
+        </div>
+
+        <div class="step step-2">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <h3>API Key를 Claude에게 전달하기</h3>
+            </div>
+            <p>Claude Code에서 GitHub에 처음 접근할 때 API Key가 필요합니다. 이렇게 말하세요:</p>
+            <div class="code-block-wrap">
+                <div class="code-block">
+                    <code><span class="comment"># Claude에게 이렇게 말하세요</span>
+> GitHub Personal Access Token은 ghp_xxxxxxxxxxxx야
+> 이 키는 절대 메모리나 파일에 저장하지 마</code>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)">복사</button>
+            </div>
+            <div class="note-box" style="margin-top: 12px; border-left-color: #e05c5c;">
+                <strong>🔒 보안:</strong> API Key는 해당 세션에서만 사용하고, 코드나 파일에 절대 저장하지 마세요. 토큰이 노출되면 즉시 GitHub에서 삭제하고 재발급하세요.
+            </div>
+        </div>
+
+        <div class="step step-3">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <h3>처음 올릴 때</h3>
+            </div>
+            <p>이미 내 컴퓨터에 프로젝트가 있다면 Claude에게 말하세요:</p>
+            <div class="code-block-wrap">
                 <div class="code-block">
                     <code><span class="comment"># Claude에게 이렇게 말하세요</span>
 > 이 프로젝트를 GitHub에 올려줘
 > GitHub 주소는 https://github.com/내아이디/my-project 야</code>
                 </div>
-                <p>GitHub에 있는 프로젝트를 내려받고 싶다면:</p>
+                <button class="copy-btn" onclick="copyCode(this)">복사</button>
+            </div>
+            <p style="margin-top: 16px;">GitHub에 있는 프로젝트를 내려받고 싶다면:</p>
+            <div class="code-block-wrap">
                 <div class="code-block">
                     <code><span class="comment"># Claude에게 이렇게 말하세요</span>
 > https://github.com/내아이디/my-project 클론해줘</code>
                 </div>
-                <p class="code-note">※ Claude가 알아서 git 명령어를 실행해줍니다. 명령어를 외울 필요 없습니다.</p>
+                <button class="copy-btn" onclick="copyCode(this)">복사</button>
             </div>
-        </section>
+            <p class="code-note">※ Claude가 알아서 git 명령어를 실행해줍니다. 명령어를 외울 필요 없습니다.</p>
+        </div>
 
-        <div class="divider"></div>
-
-        <!-- 섹션 4: Claude Code와 함께 쓰기 -->
-        <section>
-            <h2>Claude Code와 함께 쓰기</h2>
-
-            <div class="key-point">
-                명령어를 외울 필요 없습니다. 한국어로 말하면 Claude가 알아서 실행합니다.
+        <div class="step step-1">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <h3>이후에 수정했을 때</h3>
             </div>
-
+            <div class="key-point" style="margin-bottom: 16px;">
+                🗣️ 한국어로 말하면 Claude가 알아서 git 명령어를 실행합니다
+            </div>
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -521,54 +946,286 @@ Public / Private 선택          <span class="comment">← 공개 or 비공개</
                         <tr><td>변경사항 저장하기</td><td>"지금까지 바꾼 거 커밋해줘"</td></tr>
                         <tr><td>GitHub에 올리기</td><td>"GitHub에 푸시해줘"</td></tr>
                         <tr><td>최신 코드 받기</td><td>"GitHub에서 최신 코드 받아줘"</td></tr>
-                        <tr><td>변경 내역 보기</td><td>"뭐가 바뀌었는지 보여줘"</td></tr>
                         <tr><td>이전 버전으로 돌리기</td><td>"마지막 커밋 전으로 되돌려줘"</td></tr>
-                        <tr><td>새 브랜치 만들기</td><td>"새 브랜치 만들어줘, 이름은 feature/login"</td></tr>
-                        <tr><td>브랜치 합치기</td><td>"이 브랜치를 main에 머지해줘"</td></tr>
                     </tbody>
                 </table>
             </div>
+        </div>
 
-            <div class="info-box">
-                <p>Claude Code를 쓰면 <span class="highlight">git 명령어를 직접 입력할 일이 거의 없습니다</span>. "커밋해줘", "푸시해줘" 같은 자연스러운 한국어로 지시하면, Claude가 적절한 git 명령어를 자동으로 실행합니다.</p>
+        <!-- 막혔을 때 -->
+        <h3 style="margin: 32px 0 16px; font-size: 17px; font-weight: 800;">막혔을 때: Claude에게 말하는 법</h3>
+        <div class="error-grid">
+            <div class="error-card">
+                <div class="error-situation">
+                    <div class="error-label bad">자주 하는 실수 ①</div>
+                    <h4>push가 안 돼요</h4>
+                    <p>인증 오류나 권한 문제로 GitHub에 업로드가 안 되는 상황</p>
+                </div>
+                <div class="error-solution">
+                    <div class="error-label good">Claude에게 이렇게</div>
+                    <code class="claude-say">> GitHub push가 안 돼. 오류 메시지 확인해줘</code>
+                </div>
             </div>
-        </section>
-
-        <div class="divider"></div>
-
-        <!-- 섹션 5: 용어 정리 -->
-        <section>
-            <h2>꼭 알아야 할 용어</h2>
-
-            <div class="table-wrapper">
-                <table class="vocab-table">
-                    <thead>
-                        <tr><th>용어</th><th>뜻</th><th>쉽게 말하면</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>push (푸시)</td><td>내 컴퓨터 → GitHub으로 올리기</td><td>구글 드라이브에 업로드</td></tr>
-                        <tr><td>pull (풀)</td><td>GitHub → 내 컴퓨터로 받기</td><td>구글 드라이브에서 다운로드</td></tr>
-                        <tr><td>clone (클론)</td><td>GitHub 저장소를 통째로 복사</td><td>공유 폴더를 내 컴퓨터에 복사</td></tr>
-                        <tr><td>PR (풀 리퀘스트)</td><td>코드 변경을 검토 요청</td><td>"이거 확인해주세요" 요청서</td></tr>
-                        <tr><td>fork (포크)</td><td>남의 저장소를 내 계정으로 복사</td><td>남의 레시피를 내 노트에 복사</td></tr>
-                        <tr><td>conflict (충돌)</td><td>같은 부분을 다르게 수정했을 때</td><td>두 사람이 같은 문장을 다르게 고침</td></tr>
-                        <tr><td>.gitignore</td><td>Git이 무시할 파일 목록</td><td>"이 파일들은 추적하지 마" 목록</td></tr>
-                        <tr><td>main / master</td><td>기본 브랜치 (원본)</td><td>원본 문서</td></tr>
-                        <tr><td>origin</td><td>GitHub에 있는 원격 저장소</td><td>구글 드라이브 속 원본 폴더</td></tr>
-                    </tbody>
-                </table>
+            <div class="error-card">
+                <div class="error-situation">
+                    <div class="error-label bad">자주 하는 실수 ②</div>
+                    <h4>실수로 잘못 커밋했어요</h4>
+                    <p>올리지 말아야 할 파일이나 내용을 커밋한 상황</p>
+                </div>
+                <div class="error-solution">
+                    <div class="error-label good">Claude에게 이렇게</div>
+                    <code class="claude-say">> 마지막 커밋 취소하고 싶어. 파일은 유지해줘</code>
+                </div>
             </div>
-        </section>
+        </div>
 
-    </main>
+        <!-- STEP 2 체크 -->
+        <div class="check-item" onclick="toggleCheck(this)" style="margin-top: 28px;">
+            <div class="check-box"></div>
+            <span class="check-text">STEP 2 완료: Claude에게 말해서 GitHub에 올렸다</span>
+        </div>
+    </section>
 
-        <nav class="page-nav" style="max-width: 800px; margin: 0 auto; padding: 0 32px 48px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-            <a href="claude-md-templates.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">← 이전: CLAUDE.md 템플릿</a>
-        </nav>
+    <!-- STEP 3: 공개하기 -->
+    <div class="step-divider"><div class="step-badge">STEP 3</div></div>
+    <section class="content-section" id="sec-step3">
+        <h2>GitHub Pages로 공개하기</h2>
+        <div class="step-goal">
+            <div class="goal-label">이 단계의 목표</div>
+            <p>내 URL로 접속해서 웹사이트가 열리는 것을 확인합니다</p>
+        </div>
 
-    <footer>
-        <p class="footer-brand">AI Roasting</p>
-        <p class="footer-text">Claude 실전 가이드</p>
-    </footer>
+        <p class="section-subhead" style="margin-bottom: 14px;">GitHub Pages 활성화 3단계</p>
+        <div class="pages-cards">
+            <div class="pages-card">
+                <div class="pages-card-num">1</div>
+                <div class="pages-card-icon">⚙️</div>
+                <h4>Settings 클릭</h4>
+                <p>저장소 상단 탭에서 <strong>Settings</strong> 선택</p>
+            </div>
+            <div class="pages-card">
+                <div class="pages-card-num">2</div>
+                <div class="pages-card-icon">📄</div>
+                <h4>Pages 메뉴</h4>
+                <p>왼쪽 사이드바에서 <strong>Pages</strong> 클릭</p>
+            </div>
+            <div class="pages-card">
+                <div class="pages-card-num">3</div>
+                <div class="pages-card-icon">🚀</div>
+                <h4>branch 선택 후 Save</h4>
+                <p><strong>main</strong> 브랜치 선택 → Save<br><small style="color:#888;">1~2분 후 공개됩니다</small></p>
+            </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 24px;">
+            <p>저장소에 올린 HTML/CSS/JS 파일이 바로 웹사이트로 공개됩니다. 내 URL은:</p>
+            <div class="code-block-wrap" style="margin-top: 12px;">
+                <div class="code-block">
+                    <code>https://<span style="color: #e8706a;">내아이디</span>.github.io/<span style="color: #e8706a;">프로젝트이름</span>/</code>
+                </div>
+                <button class="copy-btn" onclick="copyCode(this)">복사</button>
+            </div>
+            <p style="font-size: 14px; color: #5C5650; margin-top: 12px;">예) 아이디 <code>hong</code>, 저장소 <code>my-site</code> → <strong>https://hong.github.io/my-site/</strong></p>
+        </div>
+
+        <!-- STEP 3 체크 -->
+        <div class="check-item" onclick="toggleCheck(this)" style="margin-top: 28px;">
+            <div class="check-box"></div>
+            <span class="check-text">STEP 3 완료: 내 URL로 접속해서 웹사이트 확인했다 🎉</span>
+        </div>
+
+        <!-- 전체 진도 -->
+        <div class="checklist-section" style="margin-top: 28px;">
+            <div class="checklist-title">전체 진도</div>
+            <div class="checklist-progress">
+                <span id="progress-text">0 / 3 완료</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+    <!-- 참고 -->
+    <section class="content-section" id="sec-ref">
+        <h2>[참고] 더 알고 싶다면</h2>
+
+        <p class="section-subhead" style="margin-bottom: 12px;">Git과 GitHub의 차이</p>
+        <div class="compare-box" style="margin-bottom: 32px;">
+            <div class="compare-item">
+                <h3>💻 Git</h3>
+                <div class="sub">내 컴퓨터</div>
+                <p>변경 이력을 기록하는<br><strong>도구</strong> (일기장)</p>
+            </div>
+            <div class="compare-arrow">→</div>
+            <div class="compare-item">
+                <h3>🐙 GitHub</h3>
+                <div class="sub">인터넷 (클라우드)</div>
+                <p>코드를 저장하고 공유하는<br><strong>공간</strong> (구글 드라이브)</p>
+            </div>
+        </div>
+
+        <p class="section-subhead" style="margin-bottom: 12px;">꼭 알아야 할 용어</p>
+        <div class="table-wrapper">
+            <table class="vocab-table">
+                <thead>
+                    <tr><th>용어</th><th>뜻</th><th>쉽게 말하면</th></tr>
+                </thead>
+                <tbody id="vocab-core">
+                    <tr><td>push (푸시)</td><td>내 컴퓨터 → GitHub으로 올리기</td><td>구글 드라이브에 업로드</td></tr>
+                    <tr><td>pull (풀)</td><td>GitHub → 내 컴퓨터로 받기</td><td>구글 드라이브에서 다운로드</td></tr>
+                    <tr><td>clone (클론)</td><td>GitHub 저장소를 통째로 복사</td><td>공유 폴더를 내 컴퓨터에 복사</td></tr>
+                    <tr><td>commit (커밋)</td><td>변경 내용을 로컬에 저장</td><td>게임 세이브 포인트</td></tr>
+                    <tr><td>branch (브랜치)</td><td>독립된 작업 공간</td><td>원본 복사해서 따로 작업</td></tr>
+                </tbody>
+                <tbody id="vocab-more" class="vocab-more">
+                    <tr><td>PR (풀 리퀘스트)</td><td>코드 변경을 검토 요청</td><td>"이거 확인해주세요" 요청서</td></tr>
+                    <tr><td>fork (포크)</td><td>남의 저장소를 내 계정으로 복사</td><td>남의 레시피를 내 노트에 복사</td></tr>
+                    <tr><td>conflict (충돌)</td><td>같은 부분을 다르게 수정했을 때</td><td>두 사람이 같은 문장을 다르게 고침</td></tr>
+                    <tr><td>.gitignore</td><td>Git이 무시할 파일 목록</td><td>"이 파일들은 추적하지 마" 목록</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <button class="vocab-more-toggle" id="vocab-toggle" onclick="toggleVocab()">
+            <span id="vocab-toggle-icon">▼</span> 심화 용어 4개 더 보기
+        </button>
+
+        <p class="section-subhead" style="margin-top: 32px; margin-bottom: 12px;">Git 용어, 왜 이런 이름이 붙었을까?</p>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>용어</th><th>어원 / 유래</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Git</strong></td>
+                        <td>2005년 리누스 토르발스(Linux 창시자)가 만들었습니다. "git"은 영국 속어로 "고집불통"이라는 뜻. 그는 농담으로 "내 이름처럼 고집 센 프로그램"이라며 이름을 붙였습니다.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>commit</strong></td>
+                        <td>"commit to paper(기록하다)"에서 유래. 변경 내용을 영구적으로 기록한다는 의미입니다. 게임의 세이브 포인트처럼 특정 시점을 확정하는 행위입니다.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>push / pull</strong></td>
+                        <td>방향 비유입니다. 내 컴퓨터에서 서버로 밀어내면(push), 서버에서 내 컴퓨터로 당겨오면(pull)이라고 표현합니다.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>branch</strong></td>
+                        <td>나무 가지(branch)에서 유래. 메인 줄기(main)에서 뻗어나온 독립 작업 공간을 나뭇가지에 비유한 것입니다.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>clone</strong></td>
+                        <td>생물학의 클론(유전적으로 동일한 복제체)에서 유래. 저장소를 100% 동일하게 복사한다는 뜻입니다.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>repository</strong></td>
+                        <td>라틴어 "repositorium(보관소, 창고)"에서 유래. 코드와 히스토리를 보관하는 공간을 뜻합니다.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>fork</strong></td>
+                        <td>갈림길(fork in the road)에서 유래. 남의 저장소를 내 계정으로 복사해 독립적인 방향으로 발전시킨다는 의미입니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-section">
+        <h3>이제 직접 해볼 차례입니다</h3>
+        <p>실전 과제 4번에서 Claude와 함께 GitHub 업로드를 직접 따라해보세요.<br>명령어 없이, 한국어로 말하는 것만으로 완성됩니다.</p>
+        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+            <a class="cta-btn secondary" style="min-width:200px; max-width:260px; flex:1; justify-content:center;" href="claude-code-tasks.html">← 실전과제 복습하기</a>
+            <a class="cta-btn primary" style="min-width:200px; max-width:260px; flex:1;" href="checklist.html">✅ CLI 22단계 따라하기 →</a>
+        </div>
+    </div>
+
+</main>
+
+
+<footer>
+    <p class="footer-brand">AI Roasting</p>
+    <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+    <p class="footer-text" style="margin-top:8px; opacity:0.4;">© 2026 AI Roasting. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Mode Tabs ──
+function switchMode(mode) {
+    document.getElementById('tab-nocode').classList.toggle('active', mode === 'nocode');
+    document.getElementById('tab-cli').classList.toggle('active', mode === 'cli');
+    document.getElementById('pages-nocode').style.display = mode === 'nocode' ? 'flex' : 'none';
+    document.getElementById('pages-cli').style.display = mode === 'cli' ? 'flex' : 'none';
+}
+
+    /* ── 서브메뉴 스크롤 스파이 ── */
+    const sections = [
+        document.getElementById('sec-why'),
+        document.getElementById('sec-step1'),
+        document.getElementById('sec-step2'),
+        document.getElementById('sec-step3'),
+        document.getElementById('sec-ref')
+    ];
+    const navLinks = document.querySelectorAll('.sub-menu a[data-sec]');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.id;
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.dataset.sec === id);
+                });
+            }
+        });
+    }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+    sections.forEach(sec => { if (sec) observer.observe(sec); });
+
+    /* ── #3 코드블록 복사 버튼 ── */
+    function copyCode(btn) {
+        const code = btn.previousElementSibling.querySelector('code');
+        navigator.clipboard.writeText(code.textContent.trim()).then(() => {
+            btn.textContent = '✓ 복사됨';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+        });
+    }
+
+    /* ── #9 용어 접기/펼치기 ── */
+    function toggleVocab() {
+        const more = document.getElementById('vocab-more');
+        const toggle = document.getElementById('vocab-toggle');
+        const icon = document.getElementById('vocab-toggle-icon');
+        more.classList.toggle('open');
+        toggle.classList.toggle('open');
+        if (more.classList.contains('open')) {
+            icon.textContent = '▲';
+            toggle.innerHTML = '<span id="vocab-toggle-icon">▲</span> 심화 용어 접기';
+        } else {
+            icon.textContent = '▼';
+            toggle.innerHTML = '<span id="vocab-toggle-icon">▼</span> 심화 용어 4개 더 보기';
+        }
+    }
+
+    /* ── #10 체크리스트 ── */
+    function toggleCheck(item) {
+        item.classList.toggle('checked');
+        item.querySelector('.check-box').textContent = item.classList.contains('checked') ? '✓' : '';
+        updateProgress();
+    }
+
+    function updateProgress() {
+        const total = 3;
+        const done = document.querySelectorAll('.check-item.checked').length;
+        document.getElementById('progress-text').textContent = `${done} / ${total} 완료`;
+        document.getElementById('progress-fill').style.width = `${(done / total) * 100}%`;
+    }
+</script>
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
 </body>
 </html>

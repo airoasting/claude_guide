@@ -5,81 +5,297 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>핵심 명령어 모음 | Claude Code</title>
     <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
-            background: #ffffff;
-            color: #1a1a1a;
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
             line-height: 1.6;
         }
 
+        /* ── Header ── */
         header {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
             text-align: center;
-            padding: 48px 32px 40px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a1a 100%);
-            border-bottom: 3px solid #CC0000;
+            position: relative;
+            overflow: hidden;
         }
-
-        .back-link {
-            display: inline-block;
-            color: #e8706a;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            transition: opacity 0.2s;
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,130,90,0.18) 0%, transparent 60%);
+            pointer-events: none;
         }
-
-        .back-link:hover { opacity: 0.7; }
-
-        h1 {
+        header h1 {
             font-size: 44px;
             font-weight: 800;
             color: #ffffff;
             letter-spacing: -1px;
             margin-bottom: 8px;
+            position: relative; z-index: 1;
         }
 
-        header p { font-size: 17px; color: rgba(255,255,255,0.6); }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
 
+        header p { font-size: 16px; color: rgba(255,255,255,0.72); position: relative; z-index: 1; }
+
+        .header-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Header Page Links ── */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+        }
+        .header-page-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 22px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Mode Tabs ── */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 120px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 10px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* ── Container ── */
         .container {
-            max-width: 800px;
+            max-width: 960px;
             margin: 0 auto;
             padding: 48px 32px;
         }
 
-        h2 {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1a1a1a;
-            padding-left: 16px;
-            border-left: 4px solid #CC0000;
+        /* ── Section Header ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
             margin-bottom: 20px;
+            padding: 16px 24px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 16px;
         }
 
-        .divider {
-            height: 1px;
-            background: #e0e0e0;
-            margin: 48px 0;
+        .section-num {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #D97757, #C4613E);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
-        /* Tables */
+        .section-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #3A3530;
+            flex: 1;
+        }
+
+        /* ── NM Card ── */
+        .nm-card {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow);
+            border-radius: 20px;
+            padding: 28px;
+            overflow: hidden;
+        }
+
+        /* ── Tables ── */
         .table-wrapper {
             overflow-x: auto;
+            border-radius: 12px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            overflow: hidden;
         }
 
         thead {
-            background: #1a1a1a;
+            background: var(--ant-dark);
         }
 
         th {
@@ -94,25 +310,25 @@
         td {
             padding: 14px 16px;
             font-size: 14px;
-            color: #4a4a4a;
-            border-bottom: 1px solid #f0f0f0;
+            color: #5C5650;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
         }
 
         tbody tr:last-child td { border-bottom: none; }
-
-        tbody tr:hover { background: #fafafa; }
+        tbody tr:hover { background: rgba(255,255,255,0.4); }
 
         code {
             font-family: 'SF Mono', 'Fira Code', monospace;
-            background: #f4f4f4;
-            border: 1px solid #e0e0e0;
-            padding: 2px 8px;
-            border-radius: 4px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            padding: 3px 9px;
+            border-radius: 6px;
             font-size: 13px;
-            color: #CC0000;
+            color: var(--ant-orange);
+            display: inline-block;
         }
 
-        /* Mode Cards */
+        /* ── Mode Cards ── */
         .mode-cards {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -120,76 +336,55 @@
         }
 
         .mode-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 24px 20px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 18px;
+            padding: 28px 20px;
             text-align: center;
-            transition: all 0.2s;
+            transition: all 0.25s;
         }
 
         .mode-card:hover {
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            box-shadow: var(--nm-shadow);
+            transform: translateY(-2px);
         }
 
         .mode-card h3 {
             font-size: 16px;
             font-weight: 700;
-            margin-bottom: 6px;
-            color: #1a1a1a;
+            margin-bottom: 8px;
+            color: #3A3530;
         }
 
         .mode-card p {
             font-size: 14px;
-            color: #666;
-            margin-bottom: 12px;
+            color: #7A7570;
+            margin-bottom: 14px;
         }
 
         .mode-card .when {
             font-size: 12px;
-            font-weight: 600;
-            color: #CC0000;
-        }
-
-        /* Alert Box */
-        .alert {
-            background: #fff5f5;
-            border: 1px solid #fecaca;
-            border-left: 4px solid #CC0000;
-            border-radius: 8px;
-            padding: 16px 20px;
-            margin-bottom: 20px;
-        }
-
-        .alert-title {
             font-weight: 700;
-            font-size: 14px;
-            color: #CC0000;
-            margin-bottom: 4px;
+            color: var(--ant-orange);
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            padding: 5px 14px;
+            border-radius: 20px;
+            display: inline-block;
         }
 
-        .alert p {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .deprecated {
-            text-decoration: line-through;
-            color: #999;
-        }
-
-        /* Code Example */
+        /* ── Code Example ── */
         .code-example {
-            background: #1a1a1a;
-            border-radius: 8px;
+            background: #1A1917;
+            border-radius: 12px;
             padding: 20px 24px;
-            margin-top: 16px;
+            margin-top: 20px;
             overflow-x: auto;
         }
 
         .code-example code {
             background: none;
-            border: none;
+            box-shadow: none;
             color: #e0e0e0;
             font-size: 14px;
             padding: 0;
@@ -198,17 +393,16 @@
             line-height: 1.6;
         }
 
-        /* Install Section */
+        /* ── Install Block ── */
         .install-block {
-            background: #1a1a1a;
-            border-radius: 8px;
+            background: #1A1917;
+            border-radius: 12px;
             padding: 24px;
-            margin-top: 12px;
         }
 
         .install-block code {
             background: none;
-            border: none;
+            box-shadow: none;
             color: #e0e0e0;
             font-size: 15px;
             padding: 0;
@@ -217,104 +411,227 @@
             line-height: 1.8;
         }
 
-        footer {
-            text-align: center;
-            padding: 48px 32px;
-            border-top: 1px solid #e0e0e0;
-            background: #f4f4f4;
+        /* ── Divider ── */
+        .divider {
+            height: 2px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 2px;
+            margin: 48px 0;
         }
 
-        footer .footer-brand {
+        /* ── Page Nav ── */
+        .page-nav {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 32px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .page-nav a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: var(--ant-orange);
             font-size: 14px;
-            font-weight: 700;
-            color: #CC0000;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
+            font-weight: 600;
+            padding: 12px 22px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px;
+            transition: all 0.2s;
         }
 
-        footer .footer-text { font-size: 13px; color: #999; }
+        .page-nav a:hover {
+            box-shadow: var(--nm-shadow);
+            transform: translateY(-1px);
+        }
+
+        .page-nav a:active {
+            box-shadow: var(--nm-inset);
+        }
+
+        /* ── Footer ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 32px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.28); }
 
         @media (max-width: 768px) {
             header { padding: 36px 20px 28px; }
-            h1 { font-size: 32px; }
+            header h1 { font-size: 30px; }
             .container { padding: 32px 16px; }
             .mode-cards { grid-template-columns: 1fr; }
             th, td { padding: 10px 12px; font-size: 13px; }
+            .nm-card { padding: 20px 16px; }
+            .page-nav { flex-direction: column; }
         }
     </style>
 </head>
 <body>
     <header>
+        <nav class="step-nav">
+            <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="project-intro.html">1</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="chrome-plugin.html">2</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="cowork-intro.html">3</a>
+            <div class="step-line"></div>
+            <a class="step-node active" href="claude-code-101.html">4</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="agent-design.html">5</a>
+        </nav>
+
         <a class="back-link" href="index.html">← 목록으로</a>
         <h1>복사해서 바로 쓰는 명령어</h1>
         <p>한눈에 보는 필수 명령어</p>
+        <div class="mode-tabs">
+            <span class="mode-tab" id="tab-nocode" onclick="switchMode('nocode')">노코드</span>
+            <span class="mode-tab active" id="tab-cli" onclick="switchMode('cli')">CLI</span>
+        </div>
+        <div class="header-pages" id="pages-nocode" style="display:none;">
+            <a href="claude-code-101.html" class="header-page-link"><span class="hpl-icon">🖥️</span> 클로드 코드 101</a>
+            <a href="claude-code-tasks.html" class="header-page-link"><span class="hpl-icon">🎯</span> 실전 과제 7가지</a>
+            <a href="github-guide.html" class="header-page-link"><span class="hpl-icon">🐙</span> Git & GitHub</a>
+        </div>
+        <div class="header-pages" id="pages-cli">
+            <a href="checklist.html" class="header-page-link"><span class="hpl-icon">✅</span> 22단계 따라하기</a>
+            <a href="cheatsheet.html" class="header-page-link active"><span class="hpl-icon">⚡</span> 복사해서 바로 쓰는 명령어</a>
+            <a href="claude-md-templates.html" class="header-page-link"><span class="hpl-icon">📄</span> Claude.md</a>
+        </div>
     </header>
+
+    <!-- 서브 메뉴 -->
+    <nav class="sub-menu" id="subMenu">
+        <a href="#install" class="active" data-sec="install">
+            <span class="sm-num">↓</span>
+            <span class="sm-title">설치</span>
+            <span class="sm-sub">시작하기</span>
+        </a>
+        <a href="#slash" data-sec="slash">
+            <span class="sm-num">/</span>
+            <span class="sm-title">슬래시</span>
+            <span class="sm-sub">명령어 10개</span>
+        </a>
+        <a href="#keyboard" data-sec="keyboard">
+            <span class="sm-num">⌨</span>
+            <span class="sm-title">단축키</span>
+            <span class="sm-sub">6개</span>
+        </a>
+        <a href="#modes" data-sec="modes">
+            <span class="sm-num">3</span>
+            <span class="sm-title">모드</span>
+            <span class="sm-sub">3가지</span>
+        </a>
+        <a href="#thinking" data-sec="thinking">
+            <span class="sm-num">💡</span>
+            <span class="sm-title">심화 사고</span>
+            <span class="sm-sub">Extended</span>
+        </a>
+        <a href="#fileref" data-sec="fileref">
+            <span class="sm-num">@</span>
+            <span class="sm-title">파일 참조</span>
+            <span class="sm-sub">즉시 실행</span>
+        </a>
+        <a href="#troubleshoot" data-sec="troubleshoot">
+            <span class="sm-num">!</span>
+            <span class="sm-title">문제 해결</span>
+            <span class="sm-sub">6가지 증상</span>
+        </a>
+        <a href="#settings" data-sec="settings">
+            <span class="sm-num">⚙</span>
+            <span class="sm-title">설정 파일</span>
+            <span class="sm-sub">경로</span>
+        </a>
+    </nav>
 
     <main class="container">
 
         <!-- 설치 -->
-        <section>
-            <h2>설치</h2>
-            <div class="install-block">
-                <code>npm install -g @anthropic-ai/claude-code
+        <section class="content-section" id="install">
+            <div class="section-header">
+                <span class="section-num">↓</span>
+                <span class="section-title">설치</span>
+            </div>
+            <div class="nm-card">
+                <div class="install-block">
+                    <code>npm install -g @anthropic-ai/claude-code
 claude</code>
+                </div>
             </div>
         </section>
 
         <div class="divider"></div>
 
         <!-- 슬래시 명령어 -->
-        <section>
-            <h2>슬래시 명령어</h2>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr><th>명령어</th><th>기능</th><th>언제?</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><code>/init</code></td><td>CLAUDE.md 자동 생성</td><td>새 프로젝트 시작할 때</td></tr>
-                        <tr><td><code>/doctor</code></td><td>환경 진단 및 문제 해결</td><td>에러 발생 시</td></tr>
-                        <tr><td><code>/model</code></td><td>AI 모델 변경</td><td>Haiku ↔ Sonnet ↔ Opus 전환</td></tr>
-                        <tr><td><code>/compact</code></td><td>대화 정리 (용량 절약)</td><td>대화가 길어졌을 때</td></tr>
-                        <tr><td><code>/context</code></td><td>현재 기억 상태 확인</td><td>뭘 기억하는지 궁금할 때</td></tr>
-                        <tr><td><code>/clear</code></td><td>대화 초기화</td><td>새로운 작업 시작할 때</td></tr>
-                        <tr><td><code>/help</code></td><td>도움말</td><td>명령어 잊었을 때</td></tr>
-                        <tr><td><code>/review</code></td><td>코드 리뷰 요청</td><td>코드 검토가 필요할 때</td></tr>
-                        <tr><td><code>/cost</code></td><td>세션 비용 확인</td><td>사용량 체크할 때</td></tr>
-                        <tr><td><code>/memory</code></td><td>메모리 관리</td><td>기억할 내용 저장/확인</td></tr>
-                    </tbody>
-                </table>
+        <section class="content-section" id="slash">
+            <div class="section-header">
+                <span class="section-num">/</span>
+                <span class="section-title">슬래시 명령어</span>
+            </div>
+            <div class="nm-card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>명령어</th><th>기능</th><th>언제?</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>/init</code></td><td>CLAUDE.md 자동 생성</td><td>새 프로젝트 시작할 때</td></tr>
+                            <tr><td><code>/doctor</code></td><td>환경 진단 및 문제 해결</td><td>에러 발생 시</td></tr>
+                            <tr><td><code>/model</code></td><td>AI 모델 변경</td><td>Haiku ↔ Sonnet ↔ Opus 전환</td></tr>
+                            <tr><td><code>/compact</code></td><td>대화 정리 (용량 절약)</td><td>대화가 길어졌을 때</td></tr>
+                            <tr><td><code>/context</code></td><td>현재 기억 상태 확인</td><td>뭘 기억하는지 궁금할 때</td></tr>
+                            <tr><td><code>/clear</code></td><td>대화 초기화</td><td>새로운 작업 시작할 때</td></tr>
+                            <tr><td><code>/help</code></td><td>도움말</td><td>명령어 잊었을 때</td></tr>
+                            <tr><td><code>/review</code></td><td>코드 리뷰 요청</td><td>코드 검토가 필요할 때</td></tr>
+                            <tr><td><code>/cost</code></td><td>세션 비용 확인</td><td>사용량 체크할 때</td></tr>
+                            <tr><td><code>/memory</code></td><td>메모리 관리</td><td>기억할 내용 저장/확인</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
         <div class="divider"></div>
 
         <!-- 키보드 단축키 -->
-        <section>
-            <h2>키보드 단축키</h2>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr><th>단축키</th><th>기능</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><code>Shift + Tab</code></td><td>모드 전환 (일반 → 자동승인 → Plan)</td></tr>
-                        <tr><td><code>Esc</code></td><td>작업 중단 / 복구</td></tr>
-                        <tr><td><code>Ctrl + C</code></td><td>강제 종료</td></tr>
-                        <tr><td><code>Tab</code></td><td>자동완성</td></tr>
-                        <tr><td><code>Option+T / Alt+T</code></td><td>Extended Thinking 토글</td></tr>
-                        <tr><td><code>↑</code> (위 화살표)</td><td>이전 메시지 편집</td></tr>
-                    </tbody>
-                </table>
+        <section class="content-section" id="keyboard">
+            <div class="section-header">
+                <span class="section-num">⌨</span>
+                <span class="section-title">키보드 단축키</span>
+            </div>
+            <div class="nm-card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>단축키</th><th>기능</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>Shift + Tab</code></td><td>모드 전환 (일반 → 자동승인 → Plan)</td></tr>
+                            <tr><td><code>Esc</code></td><td>작업 중단 / 복구</td></tr>
+                            <tr><td><code>Ctrl + C</code></td><td>강제 종료</td></tr>
+                            <tr><td><code>Tab</code></td><td>자동완성</td></tr>
+                            <tr><td><code>Option+T / Alt+T</code></td><td>Extended Thinking 토글</td></tr>
+                            <tr><td><code>↑</code> (위 화살표)</td><td>이전 메시지 편집</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
         <div class="divider"></div>
 
         <!-- 3가지 모드 -->
-        <section>
-            <h2>3가지 모드</h2>
+        <section class="content-section" id="modes">
+            <div class="section-header">
+                <span class="section-num">3</span>
+                <span class="section-title">3가지 모드</span>
+            </div>
             <div class="mode-cards">
                 <div class="mode-card">
                     <h3>일반 모드</h3>
@@ -337,92 +654,146 @@ claude</code>
         <div class="divider"></div>
 
         <!-- Extended Thinking -->
-        <section>
-            <h2>깊이 생각하기 (Extended Thinking)</h2>
-            <div class="table-wrapper">
-                <table>
-                    <tbody>
-                        <tr><td>상태</td><td>기본적으로 켜져 있음 (별도 설정 불필요)</td></tr>
-                        <tr><td>켜기/끄기</td><td><code>Option+T</code> (Mac) / <code>Alt+T</code> (Win)</td></tr>
-                    </tbody>
-                </table>
+        <section class="content-section" id="thinking">
+            <div class="section-header">
+                <span class="section-num">💡</span>
+                <span class="section-title">깊이 생각하기 (Extended Thinking)</span>
+            </div>
+            <div class="nm-card">
+                <div class="table-wrapper">
+                    <table>
+                        <tbody>
+                            <tr><td>상태</td><td>기본적으로 켜져 있음 (별도 설정 불필요)</td></tr>
+                            <tr><td>켜기/끄기</td><td><code>Option+T</code> (Mac) / <code>Alt+T</code> (Win)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
         <div class="divider"></div>
 
         <!-- 파일 참조 & 즉시 실행 -->
-        <section>
-            <h2>파일 참조 & 즉시 실행</h2>
-            <div class="table-wrapper">
-                <table>
-                    <tbody>
-                        <tr><td><code>@파일명</code></td><td>특정 파일 참조</td></tr>
-                        <tr><td><code>@폴더명</code></td><td>폴더 전체 참조</td></tr>
-                        <tr><td><code>!명령어</code></td><td>즉시 실행 (승인 없이)</td></tr>
-                    </tbody>
-                </table>
+        <section class="content-section" id="fileref">
+            <div class="section-header">
+                <span class="section-num">@</span>
+                <span class="section-title">파일 참조 & 즉시 실행</span>
             </div>
-            <div class="code-example">
-                <code>&gt; @index.html 이 코드 설명해줘
-&gt; !git status</code>
+            <div class="nm-card">
+                <div class="table-wrapper">
+                    <table>
+                        <tbody>
+                            <tr><td><code>@파일명</code></td><td>특정 파일 참조</td></tr>
+                            <tr><td><code>@폴더명</code></td><td>폴더 전체 참조</td></tr>
+                            <tr><td><code>!명령어</code></td><td>즉시 실행 (승인 없이)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="code-example">
+                    <code>> @index.html 이 코드 설명해줘
+> !git status</code>
+                </div>
             </div>
         </section>
 
         <div class="divider"></div>
 
         <!-- 문제 해결 -->
-        <section>
-            <h2>문제 해결</h2>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr><th>증상</th><th>해결</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>응답이 느림</td><td><code>/model</code> 로 Sonnet 또는 Haiku 전환</td></tr>
-                        <tr><td>에러 발생</td><td><code>/doctor</code> 실행</td></tr>
-                        <tr><td>대화 용량 부족</td><td><code>/compact</code> 또는 <code>/clear</code></td></tr>
-                        <tr><td>이상한 응답</td><td><code>/clear</code> 후 다시 시작</td></tr>
-                        <tr><td>파일 수정 안 됨</td><td>권한 확인, 자동승인 모드 전환</td></tr>
-                        <tr><td>파일을 못 찾음</td><td><code>@파일명</code> 으로 직접 지정</td></tr>
-                    </tbody>
-                </table>
+        <section class="content-section" id="troubleshoot">
+            <div class="section-header">
+                <span class="section-num">!</span>
+                <span class="section-title">문제 해결</span>
+            </div>
+            <div class="nm-card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>증상</th><th>해결</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>응답이 느림</td><td><code>/model</code> 로 Sonnet 또는 Haiku 전환</td></tr>
+                            <tr><td>에러 발생</td><td><code>/doctor</code> 실행</td></tr>
+                            <tr><td>대화 용량 부족</td><td><code>/compact</code> 또는 <code>/clear</code></td></tr>
+                            <tr><td>이상한 응답</td><td><code>/clear</code> 후 다시 시작</td></tr>
+                            <tr><td>파일 수정 안 됨</td><td>권한 확인, 자동승인 모드 전환</td></tr>
+                            <tr><td>파일을 못 찾음</td><td><code>@파일명</code> 으로 직접 지정</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
         <div class="divider"></div>
 
         <!-- 설정 파일 경로 -->
-        <section>
-            <h2>설정 파일 경로</h2>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr><th>파일</th><th>위치</th><th>용도</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><code>CLAUDE.md</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트별 규칙</td></tr>
-                        <tr><td><code>~/.claude/CLAUDE.md</code></td><td>내 컴퓨터 홈 폴더</td><td>전역 규칙 (모든 프로젝트 적용)</td></tr>
-                        <tr><td><code>.claude/commands/</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트 전용 명령어</td></tr>
-                        <tr><td><code>~/.claude/commands/</code></td><td>내 컴퓨터 홈 폴더</td><td>개인 전용 명령어</td></tr>
-                        <tr><td><code>.claude/settings.json</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트별 설정</td></tr>
-                    </tbody>
-                </table>
+        <section class="content-section" id="settings">
+            <div class="section-header">
+                <span class="section-num">⚙</span>
+                <span class="section-title">설정 파일 경로</span>
+            </div>
+            <div class="nm-card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>파일</th><th>위치</th><th>용도</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>CLAUDE.md</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트별 규칙</td></tr>
+                            <tr><td><code>~/.claude/CLAUDE.md</code></td><td>내 컴퓨터 홈 폴더</td><td>전역 규칙 (모든 프로젝트 적용)</td></tr>
+                            <tr><td><code>.claude/commands/</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트 전용 명령어</td></tr>
+                            <tr><td><code>~/.claude/commands/</code></td><td>내 컴퓨터 홈 폴더</td><td>개인 전용 명령어</td></tr>
+                            <tr><td><code>.claude/settings.json</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트별 설정</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
-
     </main>
 
-        <nav class="page-nav" style="max-width: 800px; margin: 0 auto; padding: 0 32px 48px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-            <a href="checklist.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">← 이전: 22단계 체크리스트</a>
-            <a href="glossary.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff; margin-left: auto;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">다음: 용어 사전 →</a>
-        </nav>
+    <nav class="page-nav">
+        <a href="checklist.html">← 이전: 22단계 체크리스트</a>
+        <a href="claude-md-templates.html">다음: Claude.md →</a>
+    </nav>
 
     <footer>
         <p class="footer-brand">AI Roasting</p>
-        <p class="footer-text">Claude 실전 가이드</p>
+        <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+        <p class="footer-text" style="margin-top:8px; opacity:0.4;">© 2026 AI Roasting. All rights reserved.</p>
     </footer>
+
+    <script>
+// ── Mode Tabs ──
+function switchMode(mode) {
+    document.getElementById('tab-nocode').classList.toggle('active', mode === 'nocode');
+    document.getElementById('tab-cli').classList.toggle('active', mode === 'cli');
+    document.getElementById('pages-nocode').style.display = mode === 'nocode' ? 'flex' : 'none';
+    document.getElementById('pages-cli').style.display = mode === 'cli' ? 'flex' : 'none';
+}
+
+        // Sub menu active state tracking on scroll
+        const sections = document.querySelectorAll('.content-section');
+        const navLinks = document.querySelectorAll('.sub-menu a');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    navLinks.forEach(link => {
+                        link.classList.toggle('active', link.dataset.sec === id);
+                    });
+                }
+            });
+        }, { rootMargin: '-20% 0px -70% 0px' });
+
+        sections.forEach(section => observer.observe(section));
+    </script>
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
 </body>
 </html>

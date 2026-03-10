@@ -5,33 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>실전 체크리스트 | Claude Code</title>
     <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
-            background: #ffffff;
-            color: #1a1a1a;
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
             line-height: 1.6;
         }
 
         header {
+            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
             text-align: center;
-            padding: 48px 32px 40px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a1a 100%);
-            border-bottom: 3px solid #CC0000;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,130,90,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
         }
 
         .back-link {
             display: inline-block;
-            color: #e8706a;
+            color: rgba(255,255,255,0.65);
             text-decoration: none;
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 20px;
-            transition: opacity 0.2s;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
         }
-
-        .back-link:hover { opacity: 0.7; }
+        .back-link:hover { color: #fff; }
 
         h1 {
             font-size: 44px;
@@ -41,23 +78,20 @@
             margin-bottom: 8px;
         }
 
-        header p {
-            font-size: 17px;
-            color: rgba(255,255,255,0.6);
-        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.72); position: relative; z-index: 1; }
 
         .container {
-            max-width: 800px;
+            max-width: 960px;
             margin: 0 auto;
             padding: 48px 32px;
         }
 
-        /* Progress */
+        /* ── Progress ── */
         .progress-container {
-            background: #f4f4f4;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 24px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow);
+            border-radius: 20px;
+            padding: 28px 32px;
             margin-bottom: 48px;
         }
 
@@ -65,34 +99,35 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         .progress-text {
             font-weight: 700;
             font-size: 15px;
-            color: #1a1a1a;
+            color: #3A3530;
         }
 
         .progress-percent {
             font-weight: 800;
-            font-size: 20px;
-            color: #CC0000;
+            font-size: 22px;
+            color: var(--ant-orange);
         }
 
         .progress-bar {
             width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
+            height: 10px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 8px;
             overflow: hidden;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .progress-fill {
             height: 100%;
-            background: #CC0000;
-            border-radius: 4px;
+            background: linear-gradient(90deg, #D97757, #C4613E);
+            border-radius: 8px;
             transition: width 0.4s ease;
             width: 0%;
         }
@@ -101,7 +136,7 @@
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            color: #666;
+            color: #7A7570;
         }
 
         .progress-levels .dot {
@@ -117,7 +152,7 @@
         .dot-l2 { background: #3b82f6; }
         .dot-l3 { background: #a855f7; }
 
-        /* Level Sections */
+        /* ── Level Sections ── */
         .level-section {
             margin-bottom: 48px;
         }
@@ -127,68 +162,76 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #e0e0e0;
+            padding: 16px 24px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 16px;
         }
 
         .level-badge {
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 12px;
+            font-weight: 800;
             color: #fff;
-            padding: 4px 14px;
-            border-radius: 4px;
+            padding: 5px 16px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
         }
 
-        .level-1 .level-badge { background: #22c55e; }
-        .level-2 .level-badge { background: #3b82f6; }
-        .level-3 .level-badge { background: #a855f7; }
+        .level-1 .level-badge { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .level-2 .level-badge { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .level-3 .level-badge { background: linear-gradient(135deg, #a855f7, #7c3aed); }
 
         .level-title {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
-            color: #1a1a1a;
+            color: #3A3530;
             flex: 1;
         }
 
         .level-count {
-            font-size: 13px;
-            color: #999;
+            font-size: 12px;
+            color: #9A9590;
             font-weight: 600;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            padding: 4px 14px;
+            border-radius: 20px;
         }
 
-        /* Tip Cards */
+        /* ── Tip Cards ── */
         .tip-card {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            margin-bottom: 8px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 16px;
+            margin-bottom: 12px;
             overflow: hidden;
-            transition: box-shadow 0.2s;
+            transition: box-shadow 0.25s;
         }
 
         .tip-card:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: var(--nm-shadow);
         }
 
         .tip-header {
             display: flex;
             align-items: center;
-            padding: 16px 20px;
+            padding: 16px 22px;
             cursor: pointer;
             user-select: none;
         }
 
         .tip-number {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f4f4f4;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 700;
-            color: #666;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--ant-orange);
             margin-right: 14px;
             flex-shrink: 0;
         }
@@ -196,18 +239,27 @@
         .tip-title {
             flex: 1;
             font-size: 15px;
-            font-weight: 600;
-            color: #1a1a1a;
+            font-weight: 700;
+            color: #3A3530;
         }
 
         .tip-toggle {
             font-size: 12px;
-            color: #999;
-            transition: transform 0.2s;
+            color: #9A9590;
+            transition: transform 0.25s;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 50%;
         }
 
         .tip-card.open .tip-toggle {
             transform: rotate(180deg);
+            box-shadow: var(--nm-inset);
         }
 
         .tip-content {
@@ -217,136 +269,339 @@
         }
 
         .tip-card.open .tip-content {
-            max-height: 500px;
+            max-height: 600px;
         }
 
         .checklist {
             list-style: none;
-            padding: 0 20px 20px 66px;
+            padding: 0 22px 22px 70px;
         }
 
         .checklist li {
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            padding: 6px 0;
+            padding: 7px 0;
             font-size: 14px;
-            color: #4a4a4a;
+            color: #5C5650;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
         }
+        .checklist li:last-child { border-bottom: none; }
 
         .checklist li input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
+            width: 17px;
+            height: 17px;
             margin-top: 2px;
-            accent-color: #CC0000;
+            accent-color: var(--ant-orange);
             flex-shrink: 0;
             cursor: pointer;
         }
 
         .checklist li.checked span {
             text-decoration: line-through;
-            color: #999;
+            color: #B0ABA5;
         }
 
-        /* Master Check */
+        /* ── Master Check ── */
         .master-check {
-            background: #f4f4f4;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow);
+            border-radius: 20px;
             padding: 32px;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .master-check h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #1a1a1a;
+            font-size: 17px;
+            font-weight: 800;
+            margin-bottom: 22px;
+            color: #3A3530;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
         }
 
         .master-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid #e0e0e0;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
         }
 
         .master-item:last-child { border-bottom: none; }
 
         .master-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #CC0000;
+            width: 20px;
+            height: 20px;
+            accent-color: var(--ant-orange);
             cursor: pointer;
         }
 
         .master-label strong {
             display: block;
             font-size: 15px;
-            color: #1a1a1a;
+            color: #3A3530;
         }
 
         .master-label span {
             font-size: 13px;
-            color: #999;
+            color: #9A9590;
             font-style: italic;
         }
 
         .reset-btn {
             display: block;
             margin: 0 auto;
-            padding: 10px 28px;
-            background: none;
-            border: 1px solid #CC0000;
-            color: #CC0000;
+            padding: 12px 32px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border: none;
+            color: var(--ant-orange);
             font-size: 14px;
-            font-weight: 600;
-            border-radius: 6px;
+            font-weight: 700;
+            border-radius: 14px;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .reset-btn:hover {
-            background: #CC0000;
-            color: #fff;
+            box-shadow: var(--nm-shadow);
         }
 
-        footer {
-            text-align: center;
-            padding: 48px 32px;
-            border-top: 1px solid #e0e0e0;
-            background: #f4f4f4;
+        .reset-btn:active {
+            box-shadow: var(--nm-inset);
         }
 
-        footer .footer-brand {
-            font-size: 14px;
-            font-weight: 700;
-            color: #CC0000;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-
-        footer .footer-text {
-            font-size: 13px;
-            color: #999;
-        }
+        footer { background: var(--ant-dark); text-align: center; padding: 32px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.28); }
 
         @media (max-width: 768px) {
             header { padding: 36px 20px 28px; }
             h1 { font-size: 32px; }
             .container { padding: 32px 16px; }
             .checklist { padding-left: 46px; }
+            header h1 { font-size: 30px; }
+
+        }
+
+                /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Header Page Links ── */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+        }
+        .header-page-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 22px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Mode Tabs ── */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 160px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        .header-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
         }
     </style>
 </head>
 <body>
-    <header>
+    <header>        <nav class="step-nav">
+            <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="project-intro.html">1</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="chrome-plugin.html">2</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="cowork-intro.html">3</a>
+            <div class="step-line"></div>
+            <a class="step-node active" href="claude-code-101.html">4</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="agent-design.html">5</a>
+        </nav>
+
         <a class="back-link" href="index.html">← 목록으로</a>
         <h1>클로드 코드 22단계로 따라하기</h1>
         <p>22개 항목을 하나씩 체크하며 마스터하세요.</p>
+        <div class="mode-tabs">
+            <span class="mode-tab" id="tab-nocode" onclick="switchMode('nocode')">노코드</span>
+            <span class="mode-tab active" id="tab-cli" onclick="switchMode('cli')">CLI</span>
+        </div>
+        <div class="header-pages" id="pages-nocode" style="display:none;">
+            <a href="claude-code-101.html" class="header-page-link"><span class="hpl-icon">🖥️</span> 클로드 코드 101</a>
+            <a href="claude-code-tasks.html" class="header-page-link"><span class="hpl-icon">🎯</span> 실전 과제 7가지</a>
+            <a href="github-guide.html" class="header-page-link"><span class="hpl-icon">🐙</span> Git & GitHub</a>
+        </div>
+        <div class="header-pages" id="pages-cli">
+            <a href="checklist.html" class="header-page-link active"><span class="hpl-icon">✅</span> 22단계 따라하기</a>
+            <a href="cheatsheet.html" class="header-page-link"><span class="hpl-icon">⚡</span> 복사해서 바로 쓰는 명령어</a>
+            <a href="claude-md-templates.html" class="header-page-link"><span class="hpl-icon">📄</span> Claude.md</a>
+        </div>
     </header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#level1" class="active" data-sec="level1">
+        <span class="sm-num">1</span>
+        <span class="sm-title">기초</span>
+        <span class="sm-sub">Level 1 · 7개</span>
+    </a>
+    <a href="#level2" data-sec="level2">
+        <span class="sm-num">2</span>
+        <span class="sm-title">중급</span>
+        <span class="sm-sub">Level 2 · 11개</span>
+    </a>
+    <a href="#level3" data-sec="level3">
+        <span class="sm-num">3</span>
+        <span class="sm-title">고급</span>
+        <span class="sm-sub">Level 3 · 4개</span>
+    </a>
+    <a href="#master" data-sec="master">
+        <span class="sm-num">✓</span>
+        <span class="sm-title">마스터 체크</span>
+        <span class="sm-sub">완성</span>
+    </a>
+</nav>
 
     <main class="container">
         <div class="progress-container">
@@ -365,7 +620,7 @@
         </div>
 
         <!-- Level 1 -->
-        <section class="level-section level-1">
+        <section class="level-section level-1 content-section" id="level1">
             <div class="level-header">
                 <span class="level-badge">Level 1</span>
                 <span class="level-title">기초 - 단계별로 천천히</span>
@@ -481,7 +736,7 @@
         </section>
 
         <!-- Level 2 -->
-        <section class="level-section level-2">
+        <section class="level-section level-2 content-section" id="level2">
             <div class="level-header">
                 <span class="level-badge">Level 2</span>
                 <span class="level-title">중급 - 나도 바이브코딩</span>
@@ -657,7 +912,7 @@
         </section>
 
         <!-- Level 3 -->
-        <section class="level-section level-3">
+        <section class="level-section level-3 content-section" id="level3">
             <div class="level-header">
                 <span class="level-badge">Level 3</span>
                 <span class="level-title">고급 - 완전 정복</span>
@@ -729,7 +984,7 @@
         </section>
 
         <!-- Master Check -->
-        <div class="master-check">
+        <div class="master-check content-section" id="master">
             <h3>마스터 체크</h3>
             <div class="master-item">
                 <input type="checkbox" id="master-1">
@@ -757,17 +1012,51 @@
         <button class="reset-btn" onclick="resetProgress()">진행률 초기화</button>
     </main>
 
-        <nav class="page-nav" style="max-width: 800px; margin: 0 auto; padding: 0 32px 48px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-            <a href="skills-advanced.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">← 이전: Skill 고급</a>
-            <a href="cheatsheet.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #CC0000; font-size: 14px; font-weight: 600; padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 8px; transition: all 0.2s ease; background: #fff; margin-left: auto;" onmouseover="this.style.borderColor='#CC0000';this.style.background='#fff5f5'" onmouseout="this.style.borderColor='#e0e0e0';this.style.background='#fff'">다음: 명령어 치트시트 →</a>
+        <nav style="max-width: 960px; margin: 0 auto; padding: 0 32px 48px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+            <a href="github-guide.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #D97757; font-size: 14px; font-weight: 700; padding: 12px 20px; border-radius: 14px; background: #EDEAE4; box-shadow: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF; transition: all 0.2s;">← 이전: Git & GitHub 가이드</a>
+            <a href="cheatsheet.html" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #D97757; font-size: 14px; font-weight: 700; padding: 12px 20px; border-radius: 14px; background: #EDEAE4; box-shadow: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF; transition: all 0.2s; margin-left: auto;">다음: 명령어 치트시트 →</a>
         </nav>
 
     <footer>
         <p class="footer-brand">AI Roasting</p>
-        <p class="footer-text">Claude 실전 가이드</p>
+        <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+        <p class="footer-text" style="margin-top:8px; opacity:0.4;">© 2026 AI Roasting. All rights reserved.</p>
     </footer>
 
     <script>
+// ── Mode Tabs ──
+function switchMode(mode) {
+    document.getElementById('tab-nocode').classList.toggle('active', mode === 'nocode');
+    document.getElementById('tab-cli').classList.toggle('active', mode === 'cli');
+    document.getElementById('pages-nocode').style.display = mode === 'nocode' ? 'flex' : 'none';
+    document.getElementById('pages-cli').style.display = mode === 'cli' ? 'flex' : 'none';
+}
+
+        // Sub-menu scroll spy
+        (function() {
+            var links = document.querySelectorAll('.sub-menu a[data-sec]');
+            var sections = [];
+            links.forEach(function(l) {
+                var s = document.getElementById(l.dataset.sec);
+                if (s) sections.push({ id: l.dataset.sec, el: s, link: l });
+            });
+            window.addEventListener('scroll', function() {
+                var scrollY = window.scrollY + 120;
+                var atBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 40;
+                var current = sections[0];
+                if (atBottom) {
+                    current = sections[sections.length - 1];
+                } else {
+                    for (var i = 0; i < sections.length; i++) {
+                        var top = sections[i].el.getBoundingClientRect().top + window.scrollY;
+                        if (top <= scrollY) current = sections[i];
+                    }
+                }
+                links.forEach(function(l) { l.classList.remove('active'); });
+                if (current) current.link.classList.add('active');
+            }, { passive: true });
+        })();
+
         // Accordion toggle
         document.querySelectorAll('.tip-header').forEach(header => {
             header.addEventListener('click', () => {
@@ -850,5 +1139,12 @@
         // Initialize
         loadState();
     </script>
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
 </body>
 </html>
