@@ -36,39 +36,42 @@
 
         /* ── HERO ── */
         .hero {
-            background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%);
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
             padding: 48px 40px 44px;
             position: relative;
             overflow: hidden;
             border-radius: 0 0 32px 32px;
-            box-shadow: none;
+            box-shadow: 0 12px 32px rgba(122,46,21,0.18);
         }
         .hero::before {
             content: '';
             position: absolute; top: -80px; right: -40px;
             width: 480px; height: 480px;
-            background: radial-gradient(circle, rgba(212,130,90,0.2) 0%, transparent 60%);
+            background: radial-gradient(circle, rgba(196,98,63,0.2) 0%, transparent 60%);
             pointer-events: none;
         }
         .hero::after {
             content: '';
             position: absolute; bottom: -28px; left: 0; right: 0;
             height: 28px;
-            background: linear-gradient(to bottom, rgba(104,24,8,0.08) 0%, transparent 100%);
+            background: linear-gradient(to bottom, rgba(122,46,21,0.08) 0%, transparent 100%);
             pointer-events: none;
         }
         .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
 
         .hero-brand {
             font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
-            text-transform: uppercase; color: rgba(255,255,255,0.75); margin-bottom: 14px;
+            text-transform: uppercase; color: rgba(255,255,255,0.9); margin-bottom: 14px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.12);
         }
         .hero h1 {
             font-size: 48px; font-weight: 800; color: #fff;
             letter-spacing: -1px; line-height: 1.2; margin-bottom: 8px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         .hero-sub {
-            font-size: 15px; color: rgba(255,255,255,0.72); margin-bottom: 32px;
+            font-size: 15px; color: rgba(255,255,255,0.8); margin-bottom: 32px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.1);
         }
 
         /* 히어로 내 Claude 소개 */
@@ -215,6 +218,11 @@
         .track-label-text { font-size: 15px; font-weight: 700; color: #3A3530; }
         .track-label-sub  { font-size: 13px; color: #aaa; }
         .track-section { margin-bottom: 8px; }
+        /* 카드 등장 애니메이션 */
+        .card-section .card { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+        .card-section.in-view .card { opacity: 1; transform: translateY(0); }
+        .card-section .cards .card:nth-child(2) { transition-delay: 0.1s; }
+        .card-section .cards .card:nth-child(3) { transition-delay: 0.2s; }
         .track-upgrade {
             display: flex; align-items: center; gap: 12px;
             margin-top: 16px; padding: 14px 18px;
@@ -242,16 +250,16 @@
         .track-info-desc { font-size: 13px; color: #888; line-height: 1.55; }
 
         /* ── 뉴스레터 ── */
-        .newsletter-section { background: linear-gradient(150deg, #A83820 0%, #7A1E0C 40%, #681808 100%); padding: 48px 44px 52px; }
+        .newsletter-section { background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%); padding: 48px 44px 52px; border-radius: 32px 32px 0 0; }
         .newsletter-header { max-width: 1280px; margin: 0 auto 24px; padding: 0 44px; display: flex; align-items: center; justify-content: space-between; }
         .newsletter-header-text { font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.95); }
-        .newsletter-header-sub { font-size: 13px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+        .newsletter-header-sub { font-size: 13px; color: rgba(255,255,255,0.65); margin-top: 4px; }
         .newsletter-cards { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 0 44px; }
         .newsletter-section .card { background: rgba(255,255,255,0.08); box-shadow: 4px 4px 12px rgba(0,0,0,0.3), -2px -2px 8px rgba(255,255,255,0.05); border: none; }
         .newsletter-section .card:hover { background: rgba(255,255,255,0.13); box-shadow: inset 4px 4px 12px rgba(0,0,0,0.3), inset -2px -2px 8px rgba(255,255,255,0.05); transform: translateY(-2px); }
         .newsletter-section .card:hover::before { background: rgba(255,255,255,0.3); }
         .newsletter-section .card h2 { color: #fff; }
-        .newsletter-section .card p { color: rgba(255,255,255,0.6); }
+        .newsletter-section .card p { color: rgba(255,255,255,0.75); }
 
         /* ── 푸터 ── */
         footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
@@ -649,20 +657,33 @@ document.addEventListener('DOMContentLoaded', function() {
         navWrapper.classList.toggle('scrolled', !entries[0].isIntersecting);
     }, { threshold: 0 }).observe(sentinel);
 
-    // 활성 섹션
-    sections.forEach(function(s) {
+    // 활성 섹션 (scroll 기반)
+    var navH = navWrapper.offsetHeight + 40;
+    window.addEventListener('scroll', function() {
+        var scrollTop = window.scrollY;
+        // 히어로 영역에서는 활성 없음
+        if (scrollTop < sections[0].offsetTop - navH - 60) {
+            navBtns.forEach(function(btn) { btn.classList.remove('active'); });
+            return;
+        }
+        var activeId = null;
+        for (var i = sections.length - 1; i >= 0; i--) {
+            if (scrollTop >= sections[i].offsetTop - navH - 20) {
+                activeId = sections[i].id;
+                markVisited(activeId);
+                break;
+            }
+        }
+        navBtns.forEach(function(btn) {
+            btn.classList.toggle('active', btn.getAttribute('href') === '#' + activeId);
+        });
+    });
+
+    // 카드 등장 애니메이션
+    document.querySelectorAll('.card-section').forEach(function(sec) {
         new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-                if (entry.isIntersecting) {
-                    markVisited(s.id);
-                    if (window.scrollY > 0) {
-                        navBtns.forEach(function(btn) {
-                            btn.classList.toggle('active', btn.getAttribute('href') === '#' + s.id);
-                        });
-                    }
-                }
-            });
-        }, { rootMargin: '-120px 0px -60% 0px' }).observe(s);
+            if (entries[0].isIntersecting) sec.classList.add('in-view');
+        }, { threshold: 0.1 }).observe(sec);
     });
 });
 </script>
