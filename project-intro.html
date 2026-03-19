@@ -137,19 +137,50 @@
         .content-section:last-child { margin-bottom: 0; }
 
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(14px); }
+            from { opacity: 0; transform: translateY(18px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-        .content-section { animation: fadeUp 0.4s ease both; }
-        .content-section:nth-child(1) { animation-delay: 0.05s; }
-        .content-section:nth-child(2) { animation-delay: 0.10s; }
-        .content-section:nth-child(3) { animation-delay: 0.15s; }
-        .content-section:nth-child(4) { animation-delay: 0.20s; }
-        .content-section:nth-child(5) { animation-delay: 0.25s; }
-        .content-section:nth-child(6) { animation-delay: 0.30s; }
-        .content-section:nth-child(7) { animation-delay: 0.35s; }
-        .content-section:nth-child(8) { animation-delay: 0.40s; }
-        .content-section:nth-child(9) { animation-delay: 0.45s; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        /* Hero animations */
+        .hero h1      { animation: fadeUp 0.5s ease both 0.05s; }
+        .hero-sub     { animation: fadeUp 0.5s ease both 0.15s; }
+        .hero-meta    { animation: fadeUp 0.5s ease both 0.25s; }
+        .header-pages { animation: fadeUp 0.5s ease both 0.35s; }
+
+        /* Sub-menu slide down */
+        .sub-menu { animation: slideDown 0.4s ease both 0.1s; }
+
+        /* Content sections — scroll-triggered via IntersectionObserver (JS) */
+        .content-section  { opacity: 0; transform: translateY(18px); transition: opacity 0.45s ease, transform 0.45s ease; }
+        .content-section.visible { opacity: 1; transform: translateY(0); }
+
+        /* Chapter divider fade */
+        .chapter-divider  { opacity: 0; transition: opacity 0.4s ease; }
+        .chapter-divider.visible { opacity: 1; }
+
+        /* Card hover lift */
+        .nm-card, .summary-card, .compare-item, .step-item, .usecase-item, .insight-card, .faq-item {
+            transition: box-shadow 0.25s ease, transform 0.2s ease;
+        }
+        .nm-card:hover, .summary-card:hover, .compare-item:hover, .usecase-item:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Next card button pulse on hover */
+        .next-btn { transition: all 0.2s ease; }
+        .next-card:hover .next-btn { transform: translateX(3px); }
 
         .section-hd {
             display: flex; align-items: center; gap: 14px;
@@ -482,6 +513,22 @@
         .compare-good-bad-item.good .cgb-label { color: var(--green); }
         .compare-good-bad-item p { font-size: 13.5px; color: var(--t2); line-height: 1.6; }
 
+        /* ─── HERO META (stat + CTA) ─── */
+        .hero-meta {
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px; margin: 16px 0 20px; flex-wrap: wrap;
+        }
+        .hero-cta {
+            display: inline-flex; align-items: center;
+            background: #fff; color: #7A1E0C;
+            font-size: 14px; font-weight: 700;
+            padding: 10px 22px; border-radius: 10px;
+            text-decoration: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            transition: all 0.2s; white-space: nowrap;
+        }
+        .hero-cta:hover { background: #f5f0ee; transform: translateY(-1px); }
+
         /* ─── NEXT STEP ─── */
         .next-card {
             background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
@@ -537,7 +584,7 @@
 
         /* ─── FLOW DIAGRAM (Section 5) ─── */
         .flow-diagram {
-            display: flex; align-items: center; gap: 0;
+            display: flex; align-items: stretch; gap: 0;
             margin: 16px 0; background: var(--bg);
             border-radius: 20px; box-shadow: var(--nm);
             padding: 20px 24px; overflow-x: auto;
@@ -547,6 +594,7 @@
             background: var(--bg); border-radius: 14px;
             box-shadow: var(--nm-sm);
             padding: 14px 16px; text-align: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         .flow-box .fb-icon { font-size: 22px; margin-bottom: 6px; display: block; }
         .flow-box strong { display: block; font-size: 13px; font-weight: 700; color: var(--t1); }
@@ -554,6 +602,7 @@
         .flow-arrow {
             flex-shrink: 0; width: 32px; text-align: center;
             font-size: 18px; color: var(--orange); font-weight: 300;
+            display: flex; align-items: center; justify-content: center;
         }
 
         /* ─── FOOTER ─── */
@@ -799,7 +848,7 @@
 
         /* ─── IMPROVEMENT LOOP ─── */
         .loop-diagram {
-            display: flex; align-items: center; justify-content: center; gap: 0;
+            display: flex; align-items: stretch; justify-content: center; gap: 0;
             margin: 16px 0; background: var(--bg);
             border-radius: 20px; box-shadow: var(--nm);
             padding: 20px 24px; overflow-x: auto;
@@ -823,32 +872,121 @@
 
         /* ─── RESPONSIVE ─── */
         @media (max-width: 768px) {
-            .hero { padding: 28px 20px 32px; }
-            .hero h1 { font-size: 28px; letter-spacing: -0.5px; }
-            .hero-sub { font-size: 15px; }
-            .container { padding: 36px 20px 64px; }
+            .hero { padding: 20px 16px 28px; border-radius: 0 0 24px 24px; }
+            .hero h1 { font-size: 26px; letter-spacing: -0.5px; }
+            .hero-sub { font-size: 14px; margin-bottom: 16px; }
+            .container { padding: 20px 16px 64px; }
             .compare-grid, .compare-good-bad, .element-grid, .insight-grid, .ba-grid, .dg-grid { grid-template-columns: 1fr; }
-            .next-card { padding: 24px; }
-            .instr-example pre { font-size: 12px; }
+            .next-card { padding: 24px 18px; }
+            .instr-example pre { font-size: 12px; padding: 16px 18px; }
+            .nm-card { padding: 20px 18px; }
+            .summary-card { padding: 18px 18px; }
+            .tip-box { padding: 18px 16px 14px; gap: 12px; }
+            .code-block { padding: 16px 18px; font-size: 12px; }
+
+            /* Step navigator */
+            .step-nav { max-width: 100%; gap: 0; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+
+            /* Header page links - scroll horizontally */
+            .header-pages {
+                gap: 8px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                justify-content: flex-start;
+                padding: 0 2px 4px;
+                margin: 0 -2px;
+            }
+            .header-pages::-webkit-scrollbar { display: none; }
+            .header-page-link {
+                min-width: auto;
+                white-space: nowrap;
+                flex-shrink: 0;
+                padding: 8px 14px;
+                font-size: 12px;
+                border-radius: 12px;
+            }
+
+            /* Hero meta */
+            .hero-meta { gap: 8px; }
+            .hero-cta { font-size: 13px; padding: 9px 16px; }
+
+            /* Hero stats */
+            .hero-stats { gap: 0; }
+            .hs-item { padding: 0 12px; }
+            .hs-num { font-size: 22px; }
+            .hs-label { font-size: 11px; }
+            .hero-badge { font-size: 13px; padding: 8px 16px; }
+
             /* Mobile: stack mock vertically */
             .claude-mock { flex-direction: column; min-height: auto; }
             .cm-right { width: 100%; border-right: none; border-top: 1px solid rgba(255,255,255,0.07); }
-            .cm-left { border-right: none; }
+            .cm-left { border-right: none; padding: 16px 16px 14px; }
             .cm-panel-body { word-break: keep-all; -webkit-line-clamp: 2; }
             .ui-legend { grid-template-columns: 1fr; }
             .cb1 { display: none; }
-            .sub-nav-inner { padding: 0 16px; }
-            .feature-table { font-size: 12px; }
-            .feature-table thead th, .feature-table tbody td { padding: 10px 12px; }
-            .hero-stats { gap: 0; }
-            .hs-num { font-size: 22px; }
-            /* Sub-menu scroll hint */
-            .sub-menu { position: relative; }
+
+            /* Sub-menu */
+            .sub-menu { padding: 10px 12px; border-radius: 0 0 20px 20px; position: relative; }
+            .sub-menu a { padding: 6px 14px; }
+            .sm-title { font-size: 12px; }
+            .sm-num { width: 24px; height: 24px; font-size: 12px; }
             .sub-menu::after {
                 content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 40px;
                 background: linear-gradient(90deg, transparent, #F0EDE8);
-                pointer-events: none; border-radius: 0 0 32px 0;
+                pointer-events: none; border-radius: 0 0 20px 0;
             }
+
+            /* Feature table - horizontal scroll */
+            .feature-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 18px; }
+            .feature-table { font-size: 12px; min-width: 420px; }
+            .feature-table thead th, .feature-table tbody td { padding: 10px 12px; }
+
+            /* Flow diagram */
+            .flow-diagram, .loop-diagram {
+                padding: 14px 16px;
+                gap: 0;
+            }
+            .flow-box { min-width: 90px; padding: 10px 12px; }
+            .flow-box .fb-icon { font-size: 18px; }
+            .flow-box strong { font-size: 11px; }
+            .flow-box span { font-size: 10px; }
+            .flow-arrow { width: 22px; font-size: 14px; }
+
+            /* Section headers */
+            .section-hd { gap: 10px; margin-bottom: 16px; }
+            .section-hd h2 { font-size: 17px; }
+            .chapter-badge { font-size: 11px; padding: 6px 16px; }
+
+            /* Step items */
+            .step-item { padding: 16px 18px; gap: 14px; }
+            .step-bubble { width: 34px; height: 34px; border-radius: 11px; font-size: 13px; }
+
+            /* Use case items */
+            .usecase-item { padding: 16px 18px; gap: 14px; }
+            .usecase-icon { width: 40px; height: 40px; border-radius: 13px; font-size: 18px; }
+
+            /* Next card */
+            .next-card strong { font-size: 18px; }
+            .next-btn { padding: 11px 22px; font-size: 13px; }
+
+            /* Content section scroll margin */
+            .content-section { scroll-margin-top: 70px; }
+            .chapter-divider { scroll-margin-top: 70px; }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 22px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 5px; max-width: 14px; }
+            .hs-item { padding: 0 8px; }
+            .hs-num { font-size: 20px; }
+            .hs-sep { font-size: 18px; }
+            .container { padding: 16px 12px 64px; }
+            .nm-card { padding: 16px 14px; }
+            .summary-card { padding: 16px 14px; }
         }
         /* ─── ACCESSIBILITY ─── */
         .step-node:focus-visible, .header-page-link:focus-visible,
@@ -864,26 +1002,15 @@
 <!-- HERO -->
 <header class="hero">
     <div class="hero-inner">
-        <nav class="step-nav">
-            <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
-            <div class="step-line"></div>
-            <a class="step-node active" href="project-intro.html">1</a>
-            <div class="step-line"></div>
-            <a class="step-node" href="chrome-plugin.html">2</a>
-            <div class="step-line"></div>
-            <a class="step-node" href="cowork-intro.html">3</a>
-            <div class="step-line"></div>
-            <a class="step-node" href="claude-code-101.html">4</a>
-            <div class="step-line"></div>
-            <a class="step-node" href="agent-design.html">5</a>
-        </nav>
-
         <a class="back-link" href="index.html">← 목록으로</a>
         <h1>Claude 프로젝트 만들기</h1>
         <p class="hero-sub">
             매번 같은 설명을 반복 입력하고 계신가요?<br>
             단 한 번의 설정으로, 그 시간을 되돌려 드립니다
         </p>
+        <div class="hero-meta">
+            <div class="hero-badge"><span class="hb-dot"></span>설정 10분 · 매주 30분 절약</div>
+        </div>
         <div class="header-pages">
             <a href="ai-fluency.html" class="header-page-link"><span class="hpl-icon">📊</span> 프롬프트 잘 쓰는 법</a>
             <a href="multi-persona.html" class="header-page-link"><span class="hpl-icon">👥</span> 멀티 페르소나</a>
@@ -894,24 +1021,16 @@
 
 <!-- STICKY SUB-MENU -->
 <nav class="sub-menu" id="subMenu">
-    <a href="#chap-1" class="active" data-sec="sec-0" data-secs="chap-1,sec-0,sec-1">
+    <a href="#chap-1" class="active" data-secs="chap-1,sec-1,chap-2,sec-2,sec-3,sec-4">
         <span class="sm-num">1</span>
-        <span class="sm-title">프로젝트 소개</span>
+        <span class="sm-title">소개 & 만들기</span>
     </a>
-    <a href="#chap-2" data-sec="sec-2" data-secs="chap-2,sec-2,sec-3,sec-4">
+    <a href="#chap-3" data-secs="chap-3,sec-5,chap-4,sec-6,sec-7">
         <span class="sm-num">2</span>
-        <span class="sm-title">만들기 & 실전</span>
-    </a>
-    <a href="#chap-3" data-sec="sec-5" data-secs="chap-3,sec-5">
-        <span class="sm-num">3</span>
         <span class="sm-title">시스템 프롬프트</span>
     </a>
-    <a href="#chap-4" data-sec="sec-6" data-secs="chap-4,sec-6,sec-7">
-        <span class="sm-num">4</span>
-        <span class="sm-title">작성 가이드</span>
-    </a>
-    <a href="#chap-5" data-sec="sec-8" data-secs="chap-5,sec-8,sec-faq">
-        <span class="sm-num">5</span>
+    <a href="#chap-5" data-secs="chap-5,sec-8,sec-faq">
+        <span class="sm-num">3</span>
         <span class="sm-title">템플릿 & FAQ</span>
     </a>
 </nav>
@@ -923,129 +1042,73 @@
         <span class="chapter-badge">Step 1: 프로젝트 소개</span>
     </div>
 
-    <div class="content-section" id="sec-0">
+    <div class="content-section" id="sec-1">
         <div class="section-hd">
             <div>
-                <h2>Claude 프로젝트 화면 이해하기</h2>
-                <div class="section-desc">프로젝트를 클릭했을 때 나타나는 화면과 각 요소의 역할</div>
+                <h2>프로젝트란 무엇인가?</h2>
+                <div class="section-desc">개념을 한 문장으로 이해하기</div>
             </div>
         </div>
 
-        <div class="claude-diagram-wrap">
-            <!-- Claude UI Mock — 스크린샷 레이아웃 재현 -->
-            <div class="claude-mock">
+        <div class="summary-card">
+            <div class="summary-label">한 줄 정의</div>
+            <p>프로젝트 = <strong>나만의 전용 AI 업무 공간</strong><br>
+            <span>한 번 설정해두면, 이후 모든 대화에서 Claude가 그 맥락을 자동으로 기억합니다.</span></p>
+        </div>
 
-                <!-- Left: 프로젝트 헤더 + 입력창 + 대화 목록 -->
-                <div class="cm-left">
-                    <div class="cm-back">← 모든 프로젝트</div>
-                    <div class="cm-proj-hd">
-                        <span class="cm-proj-name">콘텐츠 기획 프로젝트</span>
-                        <div class="cm-proj-dots">··· ☆</div>
-                        <div class="cbadge cb1">①</div>
-                    </div>
+        <div class="nm-card">
+            <p>팀장이 "이번 주 보고서 정리해줘"라고 요청합니다. Claude를 열고 또다시 입력합니다. "<strong>우리 회사 어조는 격식체고, A4 2장 분량으로, 핵심 수치 먼저 배치하고, 소제목은 굵게…</strong>" 매주 같은 3분을 반복하다 보면, 정작 중요한 데이터를 빠뜨리기도 합니다.</p>
+            <p><strong>프로젝트</strong>는 이 반복을 없애줍니다. 업무별로 파일과 규칙을 한 번만 저장해두면, 그 프로젝트 안에서는 새 대화를 시작해도 Claude가 모든 맥락을 유지합니다. 매주 반복하던 컨텍스트 입력 시간이 사라지고, 응답 품질도 처음부터 일정하게 유지됩니다.</p>
+        </div>
 
-                    <div class="cm-input-box">
-                        <span class="cm-input-placeholder">답글...</span>
-                        <div class="cm-input-footer">
-                            <div class="cm-plus">+</div>
-                            <div class="cm-model-badge">Sonnet 4.6 ∨ &nbsp; 🎤</div>
-                        </div>
-                        <div class="cbadge cb2">②</div>
-                    </div>
-
-                    <div class="cm-conv-list">
-                        <div class="cm-conv-item">
-                            <div class="cm-conv-title">다음 달 콘텐츠 캘린더 구성 방법</div>
-                            <div class="cm-conv-time">마지막 메시지 1시간 전</div>
-                        </div>
-                        <div class="cm-conv-item">
-                            <div class="cm-conv-title">경쟁사 블로그 포스트 분석 요청</div>
-                            <div class="cm-conv-time">마지막 메시지 3시간 전</div>
-                        </div>
-                        <div class="cm-conv-item">
-                            <div class="cm-conv-title">인스타그램 캡션 초안 20개 생성</div>
-                            <div class="cm-conv-time">마지막 메시지 어제</div>
-                        </div>
-                        <div class="cbadge cb3">③</div>
-                    </div>
-                </div>
-
-                <!-- Right: 메모리 / 지침 / 파일 패널 -->
-                <div class="cm-right">
-                    <div class="cm-panel">
-                        <div class="cm-panel-hd">
-                            <span class="cm-panel-title">메모리</span>
-                            <div class="cm-panel-icons">🔒 나만 &nbsp; ✏️</div>
-                        </div>
-                        <div class="cm-panel-body">역할 &amp; 배경: 이수진은 패션 브랜드 디지털 마케팅 팀장으로, 인스타그램·블로그·뉴스레터 채널을 총괄하며...</div>
-                        <div class="cm-panel-time">마지막 업데이트: 2일 전</div>
-                        <div class="cbadge cb4">④</div>
-                    </div>
-
-                    <div class="cm-panel">
-                        <div class="cm-panel-hd">
-                            <span class="cm-panel-title">지침</span>
-                            <div class="cm-panel-icons">✏️</div>
-                        </div>
-                        <div class="cm-panel-body">2030 여성 타깃 패션 브랜드 콘텐츠 전문가: 트렌디하면서도 진정성 있는 어조로, 제품 특장점보다 라이프스타일 감성을 앞세워...</div>
-                        <div class="cbadge cb5">⑤</div>
-                    </div>
-
-                    <div class="cm-panel">
-                        <div class="cm-panel-hd">
-                            <span class="cm-panel-title">파일</span>
-                            <div class="cm-panel-icons">+</div>
-                        </div>
-                        <div class="cm-files-empty">이 프로젝트에서 참조할 PDF, 문서 또는 기타 텍스트를 추가하세요.</div>
-                        <div class="cbadge cb6">⑥</div>
-                    </div>
-                </div>
-
+        <div class="compare-grid">
+            <div class="compare-item">
+                <div class="compare-tag bad">✕ 프로젝트 없을 때</div>
+                <p>매주 보고서 쓸 때마다<br><strong>"격식체로, A4 2장 분량, 핵심 수치 먼저, 팀장 보고용…"</strong><br>처음부터 다시 설명</p>
             </div>
+            <div class="compare-item">
+                <div class="compare-tag good">✓ 프로젝트 사용할 때</div>
+                <p>"이번 주 실적 요약해줘"<br>한 마디면 끝.<br><strong>규칙은 이미 저장되어 있으니까.</strong></p>
+            </div>
+        </div>
 
-            <!-- Legend -->
-            <div class="ui-legend">
-                <div class="ui-legend-item">
-                    <div class="ui-lnum">①</div>
-                    <div>
-                        <strong>프로젝트 이름</strong>
-                        <span>현재 열린 프로젝트명. 클릭하면 언제든 이름을 바꿀 수 있습니다.</span>
-                    </div>
+        <div class="summary-card" style="border-left-color: var(--t1); margin-top:16px;">
+            <div class="summary-label" style="color: var(--t1);">실제 출력 비교: 같은 요청, 다른 결과</div>
+            <p style="font-size:14px; font-weight:400; color:var(--t2);">"이번 주 매출 실적 정리해줘" · 시스템 프롬프트 유무에 따른 실제 차이</p>
+        </div>
+
+        <div class="ba-grid">
+            <div class="ba-item before">
+                <div class="ba-label">시스템 프롬프트 없이</div>
+                <div class="ba-bubble">
+                    <div class="ba-sender">사용자</div>
+                    이번 주 매출 실적 정리해줘. 모바일 32억, 웹 18억, 오프라인 7억이야.
                 </div>
-                <div class="ui-legend-item">
-                    <div class="ui-lnum">②</div>
-                    <div>
-                        <strong>대화 입력창</strong>
-                        <span>이 프로젝트 안에서 새 대화를 시작하거나 기존 내용을 이어서 작성합니다.</span>
-                    </div>
+                <div class="ba-bubble ai">
+                    <div class="ba-sender">Claude</div>
+                    이번 주 매출 실적을 정리해드리겠습니다!<br><br>
+                    1. 모바일: 32억 원<br>
+                    2. 웹: 18억 원<br>
+                    3. 오프라인: 7억 원<br><br>
+                    총 매출: 57억 원<br><br>
+                    모바일이 전체의 약 56%로 가장 높은 비중을 차지하고 있네요. 추가 분석이 필요하시면 말씀해주세요! 😊
                 </div>
-                <div class="ui-legend-item">
-                    <div class="ui-lnum">③</div>
-                    <div>
-                        <strong>대화 목록</strong>
-                        <span>이 프로젝트에서 나눈 이전 대화들. 클릭하면 언제든 다시 열어 이어갈 수 있습니다.</span>
-                    </div>
+            </div>
+            <div class="ba-item after">
+                <div class="ba-label">시스템 프롬프트 적용 후</div>
+                <div class="ba-bubble">
+                    <div class="ba-sender">사용자</div>
+                    이번 주 매출 실적 정리해줘. 모바일 32억, 웹 18억, 오프라인 7억이야.
                 </div>
-                <div class="ui-legend-item">
-                    <div class="ui-lnum">④</div>
-                    <div>
-                        <strong>메모리</strong>
-                        <span>Claude가 사용자에 대해 기억하는 정보. 자동으로 쌓이거나 직접 수정할 수 있습니다.</span>
-                    </div>
-                </div>
-                <div class="ui-legend-item">
-                    <div class="ui-lnum">⑤</div>
-                    <div>
-                        <strong>지침 (Instructions)</strong>
-                        <span>이 프로젝트의 모든 대화에 자동 적용되는 역할·규칙 설정. 한 번 써두면 반복 입력이 사라집니다.</span>
-                    </div>
-                </div>
-                <div class="ui-legend-item">
-                    <div class="ui-lnum">⑥</div>
-                    <div>
-                        <strong>파일 (Knowledge)</strong>
-                        <span>업로드한 문서를 Claude가 참조합니다. PDF·워드·텍스트 등 지원.</span>
-                    </div>
+                <div class="ba-bubble ai">
+                    <div class="ba-sender">Claude</div>
+                    <strong>2026년 3월 1주차 매출 실적 보고</strong><br><br>
+                    <strong>총 매출: 57억 원</strong> (전주 대비 데이터 미제공)<br><br>
+                    <strong>채널별 실적</strong><br>
+                    · 모바일 32억 (56.1%) | 웹 18억 (31.6%) | 오프라인 7억 (12.3%)<br><br>
+                    <strong>다음 액션</strong><br>
+                    1. 전주 대비 수치를 추가하면 증감 분석 가능<br>
+                    2. 오프라인 채널 비중 하락 원인 확인 권장
                 </div>
             </div>
         </div>
@@ -1058,7 +1121,7 @@
             </div>
         </div>
 
-        <table class="feature-table">
+        <div class="feature-table-wrap"><table class="feature-table">
             <thead>
                 <tr>
                     <th>구분</th>
@@ -1093,38 +1156,7 @@
                     <td>파일 추가/삭제</td>
                 </tr>
             </tbody>
-        </table>
-    </div>
-
-    <div class="content-section" id="sec-1">
-        <div class="section-hd">
-            <div>
-                <h2>프로젝트란 무엇인가?</h2>
-                <div class="section-desc">개념을 한 문장으로 이해하기</div>
-            </div>
-        </div>
-
-        <div class="summary-card">
-            <div class="summary-label">한 줄 정의</div>
-            <p>프로젝트 = <strong>나만의 전용 AI 업무 공간</strong><br>
-            <span>한 번 설정해두면, 이후 모든 대화에서 Claude가 그 맥락을 자동으로 기억합니다.</span></p>
-        </div>
-
-        <div class="nm-card">
-            <p>팀장이 "이번 주 보고서 정리해줘"라고 요청합니다. 당신은 Claude를 열고, 또다시 입력합니다 — "<strong>우리 회사 어조는 격식체고, A4 2장 분량으로, 핵심 수치 먼저 배치하고, 소제목은 굵게…</strong>" 매주 같은 3분을 반복하다 보면, 정작 중요한 데이터를 빠뜨리기도 합니다.</p>
-            <p><strong>프로젝트</strong>는 이 반복을 없애줍니다. 업무별로 파일과 규칙을 한 번만 저장해두면, 그 프로젝트 안에서는 새 대화를 시작해도 Claude가 모든 맥락을 유지합니다. 매주 반복하던 컨텍스트 입력 시간이 사라지고, 응답 품질도 처음부터 일정하게 유지됩니다.</p>
-        </div>
-
-        <div class="compare-grid">
-            <div class="compare-item">
-                <div class="compare-tag bad">✕ 프로젝트 없을 때</div>
-                <p>매주 보고서 쓸 때마다<br><strong>"격식체로, A4 2장 분량, 핵심 수치 먼저, 팀장 보고용…"</strong><br>처음부터 다시 설명</p>
-            </div>
-            <div class="compare-item">
-                <div class="compare-tag good">✓ 프로젝트 사용할 때</div>
-                <p>"이번 주 실적 요약해줘"<br>한 마디면 끝.<br><strong>규칙은 이미 저장되어 있으니까.</strong></p>
-            </div>
-        </div>
+        </table></div>
 
     </div>
 
@@ -1137,39 +1169,37 @@
         <div class="section-hd">
             <div>
                 <h2>프로젝트 만드는 법</h2>
-                <div class="section-desc">5단계, 10분이면 충분합니다</div>
+                <div class="section-desc">3단계, 10분이면 충분합니다</div>
+            </div>
+        </div>
+
+        <div class="decision-guide" style="margin-bottom:20px;">
+            <div class="dg-label">내 업무에 맞는 프로젝트 먼저 고르기</div>
+            <div class="dg-grid">
+                <div class="dg-item"><div class="dg-job">기획·전략</div><div class="dg-rec">→ 보고서 / 제안서 프로젝트</div></div>
+                <div class="dg-item"><div class="dg-job">마케팅·홍보</div><div class="dg-rec">→ 콘텐츠 기획 프로젝트</div></div>
+                <div class="dg-item"><div class="dg-job">영업·세일즈</div><div class="dg-rec">→ 영업 제안서 프로젝트</div></div>
+                <div class="dg-item"><div class="dg-job">인사·총무</div><div class="dg-rec">→ 채용·면접 프로젝트</div></div>
+                <div class="dg-item"><div class="dg-job">교육·연수</div><div class="dg-rec">→ 교육 자료 프로젝트</div></div>
+                <div class="dg-item"><div class="dg-job">디자인·크리에이티브</div><div class="dg-rec">→ 브랜드 가이드 프로젝트</div></div>
             </div>
         </div>
 
         <ul class="step-list">
             <li class="step-item">
-                <div class="step-bubble">I</div>
+                <div class="step-bubble">1</div>
                 <div class="step-content">
-                    <strong>claude.ai 접속 후 로그인</strong>
-                    <span>브라우저에서 claude.ai에 로그인합니다. 무료 계정으로도 프로젝트를 사용할 수 있습니다.</span>
-                </div>
-            </li>
-            <li class="step-item">
-                <div class="step-bubble">II</div>
-                <div class="step-content">
-                    <strong>좌측 사이드바 → "New Project" 클릭</strong>
-                    <span>사이드바에서 "Projects" 섹션을 찾아 "+ New Project" 버튼을 클릭합니다.</span>
-                </div>
-            </li>
-            <li class="step-item">
-                <div class="step-bubble">III</div>
-                <div class="step-content">
-                    <strong>프로젝트 이름 입력</strong>
-                    <span>업무 목적이 바로 보이는 이름으로 지어주세요.</span><br>
+                    <strong>claude.ai 열고 New Project 만들기</strong>
+                    <span>좌측 사이드바 → Projects → "+ New Project" 클릭 → 업무 목적이 보이는 이름 입력.</span><br>
                     <span class="step-key-tag">예: "주간 팀 보고서" / "고객사 제안서" / "회의록 정리"</span>
                 </div>
             </li>
             <li class="step-item step-item-col">
                 <div class="step-row">
-                    <div class="step-bubble">IV</div>
+                    <div class="step-bubble">2</div>
                     <div class="step-content">
-                        <strong>지시사항(Instructions) 작성 ← 핵심 단계</strong>
-                        <span>Claude가 이 프로젝트에서 항상 지켜야 할 규칙을 입력합니다. 아래 예시를 참고하세요.</span>
+                        <strong>지시사항(Instructions) 작성 ← 핵심</strong>
+                        <span>Claude가 이 프로젝트에서 항상 지켜야 할 규칙. 역할 · 형식 · 금지사항 3가지만 써도 충분합니다.</span>
                     </div>
                 </div>
                 <div class="instr-example">
@@ -1193,10 +1223,10 @@
                 </div>
             </li>
             <li class="step-item">
-                <div class="step-bubble">V</div>
+                <div class="step-bubble">3</div>
                 <div class="step-content">
                     <strong>파일 업로드 (선택사항)</strong>
-                    <span>보고서 양식, 브랜드 가이드, 참고 자료 등을 PDF·워드로 올려두면 Claude가 해당 내용을 참고하며 답변합니다.</span><br>
+                    <span>보고서 양식, 브랜드 가이드, 참고 자료 등 PDF·워드로 올려두면 Claude가 참고하며 답변합니다.</span><br>
                     <span class="step-key-tag">PDF · Word · TXT · 엑셀 지원</span>
                 </div>
             </li>
@@ -1260,36 +1290,6 @@
                     <strong>교육·연수 자료 프로젝트</strong>
                     <span class="usecase-sub">교육/강의 직군</span>
                     <span class="desc">커리큘럼과 학습 목표를 설정. 퀴즈 생성, 요약 자료 작성, 수준별 설명을 언제나 같은 스타일로 자동 출력.</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="decision-guide" style="margin-top:16px;">
-            <div class="dg-label">내 업무에 맞는 프로젝트 찾기</div>
-            <div class="dg-grid">
-                <div class="dg-item">
-                    <div class="dg-job">기획·전략</div>
-                    <div class="dg-rec">→ 보고서 / 제안서 프로젝트</div>
-                </div>
-                <div class="dg-item">
-                    <div class="dg-job">마케팅·홍보</div>
-                    <div class="dg-rec">→ 콘텐츠 기획 프로젝트</div>
-                </div>
-                <div class="dg-item">
-                    <div class="dg-job">영업·세일즈</div>
-                    <div class="dg-rec">→ 영업 제안서 프로젝트</div>
-                </div>
-                <div class="dg-item">
-                    <div class="dg-job">인사·총무</div>
-                    <div class="dg-rec">→ 채용·면접 프로젝트</div>
-                </div>
-                <div class="dg-item">
-                    <div class="dg-job">교육·연수</div>
-                    <div class="dg-rec">→ 교육 자료 프로젝트</div>
-                </div>
-                <div class="dg-item">
-                    <div class="dg-job">디자인·크리에이티브</div>
-                    <div class="dg-rec">→ 브랜드 가이드 프로젝트</div>
                 </div>
             </div>
         </div>
@@ -1471,49 +1471,6 @@
             </div>
         </div>
 
-        <div style="margin-top:20px;">
-            <div class="summary-card" style="border-left-color: var(--t1);">
-                <div class="summary-label" style="color: var(--t1);">실제 출력 비교: 같은 요청, 다른 결과</div>
-                <p style="font-size:14px; font-weight:400; color:var(--t2);">"이번 주 매출 실적 정리해줘"라고 요청했을 때, 시스템 프롬프트 유무에 따른 차이</p>
-            </div>
-        </div>
-
-        <div class="ba-grid">
-            <div class="ba-item before">
-                <div class="ba-label">시스템 프롬프트 없이</div>
-                <div class="ba-bubble">
-                    <div class="ba-sender">사용자</div>
-                    이번 주 매출 실적 정리해줘. 모바일 32억, 웹 18억, 오프라인 7억이야.
-                </div>
-                <div class="ba-bubble ai">
-                    <div class="ba-sender">Claude</div>
-                    이번 주 매출 실적을 정리해드리겠습니다!<br><br>
-                    1. 모바일: 32억 원<br>
-                    2. 웹: 18억 원<br>
-                    3. 오프라인: 7억 원<br><br>
-                    총 매출: 57억 원<br><br>
-                    모바일이 전체의 약 56%로 가장 높은 비중을 차지하고 있네요. 추가 분석이 필요하시면 말씀해주세요! 😊
-                </div>
-            </div>
-            <div class="ba-item after">
-                <div class="ba-label">시스템 프롬프트 적용 후</div>
-                <div class="ba-bubble">
-                    <div class="ba-sender">사용자</div>
-                    이번 주 매출 실적 정리해줘. 모바일 32억, 웹 18억, 오프라인 7억이야.
-                </div>
-                <div class="ba-bubble ai">
-                    <div class="ba-sender">Claude</div>
-                    <strong>2026년 3월 1주차 매출 실적 보고</strong><br><br>
-                    <strong>총 매출: 57억 원</strong> (전주 대비 데이터 미제공)<br><br>
-                    <strong>채널별 실적</strong><br>
-                    · 모바일 32억 (56.1%) | 웹 18억 (31.6%) | 오프라인 7억 (12.3%)<br><br>
-                    <strong>다음 액션</strong><br>
-                    1. 전주 대비 수치를 추가하면 증감 분석 가능<br>
-                    2. 오프라인 채널 비중 하락 원인 확인 권장
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- Step 5 -->
@@ -1651,16 +1608,7 @@
                     무료 계정으로도 프로젝트를 만들 수 있나요?
                 </div>
                 <div class="faq-a">
-                    <p>네, 무료 계정에서도 프로젝트 생성이 가능합니다. 다만 무료 계정은 일일 메시지 수에 제한이 있고, Opus 등 고성능 모델은 Pro 요금제(월 $20)에서 사용할 수 있습니다.</p>
-                </div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
-                    <span class="faq-arrow">▶</span>
-                    파일은 어떤 형식을, 얼마나 올릴 수 있나요?
-                </div>
-                <div class="faq-a">
-                    <p>PDF, Word(.docx), 텍스트(.txt), 엑셀(.xlsx), CSV 등 다양한 형식을 지원합니다. 프로젝트당 여러 파일을 올릴 수 있으며, 파일 하나당 최대 약 30MB까지 가능합니다. 핵심 내용이 담긴 문서 위주로 올리는 것이 효과적입니다.</p>
+                    <p>네, 무료 계정에서도 프로젝트 생성이 가능합니다. 다만 일일 메시지 수 제한이 있고, Opus 등 고성능 모델은 Pro 요금제(월 $20)에서 사용할 수 있습니다.</p>
                 </div>
             </div>
             <div class="faq-item">
@@ -1669,25 +1617,7 @@
                     Instructions를 너무 길게 쓰면 문제가 되나요?
                 </div>
                 <div class="faq-a">
-                    <p>Instructions도 Claude의 컨텍스트 윈도우(대화 기억 용량)를 사용합니다. 너무 길면 실제 대화에 쓸 수 있는 공간이 줄어듭니다. 핵심 규칙 위주로 300~500자 이내가 가장 효율적입니다.</p>
-                </div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
-                    <span class="faq-arrow">▶</span>
-                    프로젝트를 몇 개까지 만들 수 있나요?
-                </div>
-                <div class="faq-a">
-                    <p>개수 제한은 따로 없습니다. 업무 종류별로 나누어 만드는 것을 추천합니다. 예: "주간 보고서", "고객 이메일", "회의록 정리" 등 목적별로 분리하면 각 프로젝트의 정확도가 올라갑니다.</p>
-                </div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">
-                    <span class="faq-arrow">▶</span>
-                    다른 사람과 프로젝트를 공유할 수 있나요?
-                </div>
-                <div class="faq-a">
-                    <p>현재 프로젝트는 개인 계정 기반으로 동작하며, 직접 공유 기능은 제공되지 않습니다. 다만 Instructions 텍스트를 복사해서 팀원에게 전달하면 동일한 프로젝트를 쉽게 재현할 수 있습니다.</p>
+                    <p>Instructions도 Claude의 컨텍스트 윈도우를 사용합니다. 너무 길면 실제 대화 공간이 줄어듭니다. <strong>핵심 규칙 위주로 300~500자 이내</strong>가 가장 효율적입니다.</p>
                 </div>
             </div>
         </div>
@@ -1697,9 +1627,9 @@
     <!-- Next Step -->
     <div class="content-section">
         <div class="next-card">
-            <strong>프로젝트를 만들었다면, 이제 여러 관점으로 검증하세요</strong>
-            <p>혼자 생각하면 놓치는 것이 있습니다. 여러 AI 페르소나가 동시에 토론하며 더 깊은 인사이트를 끌어냅니다</p>
-            <a href="multi-persona.html" class="next-btn">멀티 페르소나 토론 →</a>
+            <strong>다음 단계: 여러 AI가 내 아이디어를 동시에 검토해준다</strong>
+            <p>혼자 생각하면 놓치는 것이 있습니다. 5개 AI 페르소나가 찬반 토론하며 내 판단의 빈틈을 찾아냅니다</p>
+            <a href="multi-persona.html" class="next-btn">멀티 페르소나 토론 체험하기 →</a>
         </div>
     </div>
 
@@ -1819,6 +1749,22 @@ function copyCode(btn, id) {
             });
         });
         checkCompletion(state);
+    });
+})();
+
+// ── Scroll-triggered animations ──
+(function() {
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.content-section, .chapter-divider').forEach(function(el) {
+        observer.observe(el);
     });
 })();
 
