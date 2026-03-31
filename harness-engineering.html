@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>하네스 엔지니어링 실전: Anthropic 사례 | AI Roasting</title>
+    <meta name="description" content="Anthropic이 직접 공개한 장기 실행 앱 개발용 하네스 설계 사례. Generator-Evaluator 아키텍처부터 레트로 게임 메이커, DAW까지.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+            --skill-blue: #3B82F6;
+            --skill-green: #10B981;
+            --skill-amber: #F59E0B;
+            --skill-purple: #8B5CF6;
+            --skill-pink: #EC4899;
+            --skill-cyan: #06B6D4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { word-break: keep-all; font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Mode Tabs ── */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* ── Header Page Links ── */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .header-page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 860px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; padding-left: 20px; }
+
+        /* ── 스크롤 프로그레스 바 ── */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;
+            background: linear-gradient(90deg, var(--ant-orange), #E8956E);
+            width: 0%; transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(217,119,87,0.4);
+        }
+
+        /* ── 섹션 구분 ── */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 40px 0 28px; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--ant-orange); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px; border-radius: 20px; white-space: nowrap;
+        }
+
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--ant-orange); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { font-size: 11px; font-weight: 700; color: var(--ant-orange); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 강조 박스 ── */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(217,119,87,0.08) 0%, rgba(217,119,87,0.03) 100%);
+            border: 1.5px solid rgba(217,119,87,0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin: 20px 0;
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* ── 비교 그리드 ── */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm { background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm); padding: 20px; position: relative; overflow: hidden; transition: transform 0.25s; }
+        .compare-nm:hover { transform: translateY(-2px); }
+        .compare-nm::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
+        .compare-nm:first-child::before { background: #EF4444; }
+        .compare-nm:last-child::before { background: var(--skill-green); }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+
+        /* ── 뉴모 테이블 ── */
+        .nm-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .nm-table-wrap table { width: 100%; border-collapse: collapse; }
+        .nm-table-wrap thead { background: var(--ant-dark); }
+        .nm-table-wrap th {
+            text-align: left; padding: 12px 16px;
+            font-size: 14px; font-weight: 600; color: #fff;
+        }
+        .nm-table-wrap td {
+            padding: 12px 16px; font-size: 14px; color: #5C5650;
+            border-bottom: 1px solid #E8E4DE;
+        }
+        .nm-table-wrap tbody tr:nth-child(even) { background: rgba(0,0,0,0.015); }
+        .nm-table-wrap tbody tr:last-child td { border-bottom: none; }
+        .nm-table-wrap tbody tr:hover { background: rgba(217,119,87,0.06); }
+
+        /* ── 3열 역할 카드 ── */
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+        .role-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .role-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .role-card:nth-child(1)::before { background: linear-gradient(90deg, var(--skill-blue), #60A5FA); }
+        .role-card:nth-child(2)::before { background: linear-gradient(90deg, var(--ant-orange), #E8956E); }
+        .role-card:nth-child(3)::before { background: linear-gradient(90deg, var(--skill-purple), #A78BFA); }
+        .role-card:hover { transform: translateY(-4px); box-shadow: 6px 6px 16px #CECAC3, -6px -6px 16px #FFFFFF; }
+        .role-icon { font-size: 32px; margin-bottom: 12px; }
+        .role-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 8px; }
+        .role-card p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .role-card .role-example {
+            margin-top: 12px; padding-top: 12px;
+            border-top: 1px solid #E8E4DE;
+            font-size: 12px; color: #888; line-height: 1.6;
+            text-align: left;
+        }
+
+        /* ── 6칸 구성요소 그리드 ── */
+        .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .comp-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .comp-item:hover { transform: translateY(-2px); }
+        .comp-item .comp-icon { font-size: 24px; margin-bottom: 8px; }
+        .comp-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px; }
+        .comp-item .comp-q { font-size: 12px; color: var(--ant-orange); font-weight: 600; margin-bottom: 8px; }
+        .comp-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* ── 참고 자료 ── */
+        .ref-section { margin-top: 36px; }
+        .ref-title { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 14px; }
+        .ref-links { display: flex; flex-direction: column; gap: 10px; }
+        .ref-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ref-link:hover { transform: translateY(-1px); color: var(--ant-orange); }
+        .ref-link .ref-icon { font-size: 18px; flex-shrink: 0; }
+        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
+
+        /* ── 푸터 ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+        /* ── 스크롤 애니메이션 ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal.delay-1 { transition-delay: 0.1s; }
+        .reveal.delay-2 { transition-delay: 0.2s; }
+        .reveal.delay-3 { transition-delay: 0.3s; }
+
+        /* ── 비유 박스 ── */
+        .analogy-box {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 28px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .analogy-icon {
+            width: 64px; height: 64px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--ant-orange), #C56A4A);
+            color: #fff;
+            font-size: 28px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(217,119,87,0.3);
+        }
+        .analogy-body { flex: 1; }
+        .analogy-body strong {
+            font-size: 16px; font-weight: 700; color: #3A3530;
+            display: block; margin-bottom: 6px;
+        }
+        .analogy-body p {
+            font-size: 14px; color: #5C5650; line-height: 1.75; margin: 0;
+        }
+
+        /* ── 핵심 메시지 배너 ── */
+        .key-message {
+            background: linear-gradient(135deg, rgba(217,119,87,0.12) 0%, rgba(217,119,87,0.04) 100%);
+            border: 2px solid rgba(217,119,87,0.3);
+            border-radius: 20px;
+            padding: 28px 32px;
+            text-align: center;
+            margin: 24px 0;
+        }
+        .key-message p {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            line-height: 1.7;
+        }
+        .key-message .km-highlight {
+            color: var(--ant-orange);
+            font-weight: 800;
+            background: linear-gradient(180deg, transparent 60%, rgba(217,119,87,0.15) 60%);
+            padding: 0 2px;
+        }
+
+        /* ── 미디어 박스 ── */
+        .media-box {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 20px 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .media-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 18px #C5C1BA, -6px -6px 18px #FFFFFF;
+        }
+        .media-box video, .media-box img {
+            width: 100%;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+        .media-box:hover img {
+            transform: scale(1.02);
+        }
+        .media-box .media-caption {
+            padding: 14px 20px;
+            font-size: 13px;
+            color: #888;
+            line-height: 1.6;
+            border-top: 1px solid #E8E4DE;
+            background: rgba(0,0,0,0.015);
+        }
+        .media-box .media-caption strong {
+            color: #3A3530;
+        }
+
+        /* ── 인용 박스 ── */
+        .quote-box {
+            background: linear-gradient(135deg, rgba(139,92,246,0.04) 0%, rgba(139,92,246,0.01) 100%);
+            border-radius: 16px;
+            box-shadow: var(--nm-inset);
+            padding: 28px 32px;
+            margin: 20px 0;
+            border-left: 4px solid var(--skill-purple);
+            position: relative;
+        }
+        .quote-box::before {
+            content: '\201C';
+            font-size: 64px;
+            color: rgba(139,92,246,0.15);
+            position: absolute;
+            top: 4px;
+            left: 18px;
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+        .quote-box p {
+            font-size: 15px;
+            color: #4A4540;
+            line-height: 1.85;
+            font-style: italic;
+            padding-left: 28px;
+        }
+        .quote-box .quote-author {
+            font-size: 12px;
+            color: #999;
+            font-style: normal;
+            margin-top: 12px;
+            padding-left: 28px;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── 플로우 다이어그램 ── */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 28px 0;
+            flex-wrap: wrap;
+            padding: 24px 16px;
+            background: rgba(0,0,0,0.015);
+            border-radius: 20px;
+        }
+        .flow-node {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 22px;
+            text-align: center;
+            min-width: 130px;
+            transition: transform 0.25s;
+        }
+        .flow-node:hover { transform: translateY(-3px); }
+        .flow-node .fn-icon { font-size: 26px; margin-bottom: 8px; }
+        .flow-node h4 { font-size: 13px; font-weight: 700; color: #3A3530; }
+        .flow-node p { font-size: 11px; color: #888; margin-top: 4px; }
+        .flow-arrow {
+            font-size: 20px;
+            color: var(--ant-orange);
+            padding: 0 10px;
+            font-weight: 700;
+            animation: arrowPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(3px); }
+        }
+
+        /* ── 4칸 그리드 ── */
+        .grade-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .grade-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .grade-item:hover { transform: translateY(-3px); box-shadow: 6px 6px 16px #CECAC3, -6px -6px 16px #FFFFFF; }
+        .grade-item .grade-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            font-size: 13px; font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .grade-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .grade-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* ── 이미지 그리드 ── */
+        .img-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 20px 0;
+        }
+        .img-compare .media-box { margin: 0; }
+
+        @media (max-width: 768px) {
+            header { padding: 36px 20px 28px; }
+            header h1 { font-size: 30px; }
+            .container { padding: 24px 16px 48px; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .role-grid { grid-template-columns: 1fr; }
+            .comp-grid { grid-template-columns: 1fr; }
+            .grade-grid { grid-template-columns: 1fr; }
+            .img-compare { grid-template-columns: 1fr; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .header-pages { flex-wrap: wrap; gap: 8px; max-width: 100%; }
+            .header-page-link { font-size: 12px; padding: 7px 14px; }
+            .analogy-box { flex-direction: column; text-align: center; }
+            .nm-table-wrap { font-size: 13px; }
+            .nm-table-wrap th, .nm-table-wrap td { padding: 10px 12px; font-size: 13px; }
+            .ref-link .ref-desc { display: none; }
+            .flow-diagram { flex-direction: column; gap: 8px; padding: 20px 12px; }
+            .flow-arrow { transform: rotate(90deg); padding: 4px 0; animation-name: arrowPulseMobile; }
+            @keyframes arrowPulseMobile {
+                0%, 100% { opacity: 0.5; transform: rotate(90deg) translateX(0); }
+                50% { opacity: 1; transform: rotate(90deg) translateX(3px); }
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<header>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="ai-job-impact.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="project-intro.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="cowork-intro.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="agent-design.html">5</a>
+        <div class="step-line"></div>
+        <a class="step-node sn-diag" href="harness-book.html">최종</a>
+    </nav>
+    <a href="index.html" class="back-link">&larr; 목록으로</a>
+    <h1>하네스 엔지니어링 실전</h1>
+    <p>같은 AI 모델이라도, 어떤 하네스 위에서 돌리느냐에 따라 결과가 완전히 달라집니다</p>
+    <div class="mode-tabs">
+        <span class="mode-tab active" id="tab-design" onclick="switchMode('design')">설계</span>
+        <span class="mode-tab" id="tab-skill" onclick="switchMode('skill')">스킬</span>
+    </div>
+    <div class="header-pages" id="pages-design">
+        <a href="harness-engineering.html" class="header-page-link active"><span class="hpl-icon">&#x1F40E;</span> 하네스 엔지니어링</a>
+        <a href="agent-design.html" class="header-page-link"><span class="hpl-icon">&#x1F3AF;</span> 팀 구조 설계</a>
+        <a href="automation.html" class="header-page-link"><span class="hpl-icon">&#x1F916;</span> 4가지 핵심 요소</a>
+    </div>
+    <div class="header-pages" id="pages-skill" style="display:none;">
+        <a href="skills.html" class="header-page-link"><span class="hpl-icon">&#x1F331;</span> 스킬 입문</a>
+        <a href="skills-intermediate.html" class="header-page-link"><span class="hpl-icon">&#x26A1;</span> 스킬 중급</a>
+        <a href="skills-advanced.html" class="header-page-link"><span class="hpl-icon">&#x1F680;</span> 스킬 고급</a>
+    </div>
+    <div class="header-pages" id="pages-final" style="display:none;">
+        <a href="harness-book.html" class="header-page-link"><span class="hpl-icon">&#x1F4DA;</span> 책 쓰기</a>
+        <a href="automation-master.html" class="header-page-link"><span class="hpl-icon">&#x1F3C6;</span> 자동화 실전 적용</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec1" data-sec="sec1">
+        <span class="sm-num">1</span>
+        <span class="sm-title">개념</span>
+        <span class="sm-sub">What</span>
+    </a>
+    <a href="#sec2" data-sec="sec2">
+        <span class="sm-num">2</span>
+        <span class="sm-title">보고서</span>
+        <span class="sm-sub">Anthropic</span>
+    </a>
+    <a href="#sec3" data-sec="sec3">
+        <span class="sm-num">3</span>
+        <span class="sm-title">문제점</span>
+        <span class="sm-sub">Problem</span>
+    </a>
+    <a href="#sec4" data-sec="sec4">
+        <span class="sm-num">4</span>
+        <span class="sm-title">해결책</span>
+        <span class="sm-sub">Solution</span>
+    </a>
+    <a href="#sec5" data-sec="sec5">
+        <span class="sm-num">5</span>
+        <span class="sm-title">실전 비교</span>
+        <span class="sm-sub">Results</span>
+    </a>
+    <a href="#sec6" data-sec="sec6">
+        <span class="sm-num">6</span>
+        <span class="sm-title">진화</span>
+        <span class="sm-sub">Evolution</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- ═══════ STEP 1: 개념 ═══════ -->
+    <div class="step-divider reveal"><span class="step-badge">STEP 1</span></div>
+    <div class="content-section" id="sec1"></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>하네스 엔지니어링이란 무엇인가?</h2>
+            <p class="card-subtitle">AI가 일하는 환경 전체를 설계하는 것</p>
+
+            <div class="highlight-box">
+                <div class="hl-title">한 줄 정의</div>
+                <p><strong>하네스(Harness)</strong>는 AI 모델 바깥에서, 모델이 일하는 환경 전체를 설계하고 운영하는 구조입니다.<br>
+                같은 모델이라도 <strong>어떤 하네스 위에서 돌리느냐</strong>에 따라 결과물의 품질이 완전히 달라집니다.</p>
+            </div>
+        </div>
+
+        <div class="analogy-box reveal delay-1">
+            <div class="analogy-icon">&#x1F40E;</div>
+            <div class="analogy-body">
+                <strong>비유 1: 말과 마구</strong>
+                <p><strong>말 자체</strong>(근육, 속도)는 AI 모델에 해당합니다.<br>
+                <strong>말에게 씌우는 마구, 달리는 길, 신호 체계</strong>는 하네스에 해당합니다.<br><br>
+                아무리 좋은 말이라도 올바른 마구 없이는 원하는 방향으로 달리지 못합니다. AI도 마찬가지입니다.</p>
+            </div>
+        </div>
+
+        <div class="analogy-box reveal delay-2">
+            <div class="analogy-icon" style="background: linear-gradient(135deg, var(--skill-blue), #2563EB);">&#x1F3ED;</div>
+            <div class="analogy-body">
+                <strong>비유 2: 신입사원과 온보딩</strong>
+                <p>아무리 똑똑한 신입사원도 <strong>업무 매뉴얼 없이</strong> 첫날부터 혼자 일하면 실수투성이입니다.<br>
+                업무 범위, 보고 체계, 사용 도구, 금지 사항을 정리해 둔 <strong>온보딩 시스템 전체</strong>가 바로 하네스입니다.<br>
+                <span style="color: var(--ant-orange); font-weight: 600;">AI에게 "이렇게 일해"라고 알려주는 회사 시스템이 곧 하네스입니다.</span></p>
+            </div>
+        </div>
+
+        <div class="analogy-box reveal delay-3">
+            <div class="analogy-icon" style="background: linear-gradient(135deg, var(--skill-green), #059669);">&#x1F468;&#x200D;&#x1F373;</div>
+            <div class="analogy-body">
+                <strong>비유 3: 주방과 셰프</strong>
+                <p><strong>셰프의 요리 실력</strong>은 AI 모델입니다.<br>
+                <strong>주방 설비, 레시피북, 위생 규정, 주문 시스템</strong>은 하네스입니다.<br><br>
+                미슐랭 셰프도 칼이 없고 레시피가 없으면 제대로 된 요리를 내기 어렵습니다.</p>
+            </div>
+        </div>
+
+        <div class="key-message reveal">
+            <p>경쟁력은 <span class="km-highlight">누가 더 좋은 모델을 쓰느냐</span>가 아니라,<br>
+            <span class="km-highlight">누가 더 좋은 하네스를 설계했느냐</span>에서 나옵니다.</p>
+        </div>
+    </section>
+
+    <!-- ═══════ STEP 2: Anthropic 보고서 소개 ═══════ -->
+    <div class="step-divider reveal"><span class="step-badge">STEP 2</span></div>
+    <div class="content-section" id="sec2"></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>Anthropic이 직접 공개한 하네스 설계 보고서</h2>
+            <p class="card-subtitle">2026년 3월 24일, Anthropic Labs의 Prithvi Rajasekaran이 발표</p>
+
+            <p>Claude를 만든 회사인 Anthropic이 자사 엔지니어링 블로그에 <strong>"장기 실행 앱 개발을 위한 하네스 설계"</strong>라는 글을 공개했습니다. 이 글에서 Anthropic은 내부에서 풀어야 했던 두 가지 과제를 밝혔습니다.</p>
+
+            <div class="compare-grid" style="margin-top: 18px;">
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--skill-blue);"></div>
+                        <h4>과제 1</h4>
+                    </div>
+                    <ul>
+                        <li>Claude가 <strong>고품질 프론트엔드 디자인</strong>을 만들게 하기</li>
+                        <li>"AI가 예쁜 웹사이트를 직접 만들 수 있을까?"</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--ant-orange);"></div>
+                        <h4>과제 2</h4>
+                    </div>
+                    <ul>
+                        <li><strong>사람 개입 없이</strong> 완전한 앱을 만들게 하기</li>
+                        <li>"몇 시간씩 혼자 돌아가는 코딩 에이전트가 가능할까?"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="analogy-box reveal delay-1">
+            <div class="analogy-icon">&#x1F9EC;</div>
+            <div class="analogy-body">
+                <strong>핵심 아이디어: GAN에서 영감을 얻다</strong>
+                <p>Anthropic의 해결책은 <strong>GAN(Generative Adversarial Network, 적대적 생성 신경망)</strong>의 구조에서 나왔습니다.<br>
+                GAN은 "만드는 AI"와 "평가하는 AI"를 분리해서 서로 경쟁시키는 구조입니다.<br><br>
+                Anthropic은 이 아이디어를 에이전트에 적용했습니다. <span style="color: var(--ant-orange); font-weight: 600;">Generator(생성자)</span>와 <span style="color: var(--skill-purple); font-weight: 600;">Evaluator(평가자)</span>를 분리한 것입니다.</p>
+            </div>
+        </div>
+
+        <div class="tip-box reveal">
+            <div class="tip-label">이 보고서가 중요한 이유</div>
+            <p>AI 모델을 만든 회사가 직접 "모델 자체보다 <strong>모델이 일하는 환경(하네스) 설계가 더 중요하다</strong>"고 말한 것입니다. 이 보고서를 단계별로 풀어서 살펴보겠습니다.</p>
+        </div>
+    </section>
+
+    <!-- ═══════ STEP 3: 문제점 ═══════ -->
+    <div class="step-divider reveal"><span class="step-badge">STEP 3</span></div>
+    <div class="content-section" id="sec3"></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>단순하게 시키면 왜 실패할까?</h2>
+            <p class="card-subtitle">Anthropic이 밝힌 두 가지 근본적인 문제</p>
+
+            <p>Anthropic은 하네스 없이 AI에게 긴 작업을 맡겼을 때 <strong>두 가지 문제가 반복적으로 나타났다</strong>고 밝혔습니다.</p>
+        </div>
+
+        <div class="nm-card reveal delay-1">
+            <h2>문제 1: 컨텍스트 불안 (Context Anxiety)</h2>
+            <p class="card-subtitle">AI가 긴 작업 도중에 갑자기 대충 마무리하는 현상</p>
+
+            <div class="quote-box">
+                <p>모델은 긴 작업에서 컨텍스트 윈도우가 차오르면 일관성을 잃습니다. 일부 모델은 "컨텍스트 불안"을 보이며, 한계에 가까워졌다고 인지하면 작업을 조기에 마무리해 버립니다.</p>
+                <div class="quote-author">Prithvi Rajasekaran, Anthropic Labs</div>
+            </div>
+
+            <p style="margin-top: 14px;">쉽게 말하면 이런 상황입니다. AI에게 10페이지짜리 보고서를 시켰는데, 7페이지쯤에서 갑자기 "이상 마치겠습니다"라고 끝내버리는 것과 같습니다. AI가 "내 기억 공간이 거의 다 찼다"고 느끼면, 남은 작업을 대충 마무리하거나 아예 생략해 버립니다.</p>
+
+            <div class="highlight-box" style="margin-top: 16px;">
+                <div class="hl-title">Anthropic의 해결책: 컨텍스트 리셋</div>
+                <p>Anthropic은 <strong>컨텍스트 윈도우를 완전히 비우고</strong>, 이전 상태를 구조화된 파일로 전달하는 방식을 사용했습니다. 교대 근무자에게 인수인계 문서를 넘기는 것과 같은 원리입니다.</p>
+            </div>
+        </div>
+
+        <div class="nm-card reveal delay-2">
+            <h2>문제 2: 자기 평가의 함정 (Self-Evaluation Trap)</h2>
+            <p class="card-subtitle">자기가 만든 결과물을 스스로 평가하면 항상 "잘했다"고 합니다</p>
+
+            <div class="quote-box">
+                <p>자신이 생성한 작업물을 평가하라고 하면, 에이전트는 자신감 있게 칭찬하는 경향을 보입니다. 인간 관찰자에게는 품질이 명백히 평범한 수준인데도 말입니다.</p>
+                <div class="quote-author">Prithvi Rajasekaran, Anthropic Labs</div>
+            </div>
+
+            <p style="margin-top: 14px;">학생이 자기 시험지를 직접 채점하면 점수가 후하게 나오는 것과 같습니다. AI도 마찬가지입니다. 자기가 만든 결과물에 대해서는 "잘 했다"고 판단하고, 스스로 개선하려 하지 않습니다.</p>
+
+            <div class="compare-grid" style="margin-top: 18px;">
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: #EF4444;"></div>
+                        <h4>혼자 만들고 혼자 평가</h4>
+                    </div>
+                    <ul>
+                        <li>자기 결과물에 대해 관대하게 평가함</li>
+                        <li>"잘 했다"고 자평하고 개선하지 않음</li>
+                        <li>품질이 일정 수준 이상으로 올라가지 않음</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--skill-green);"></div>
+                        <h4>만드는 AI와 평가하는 AI를 분리</h4>
+                    </div>
+                    <ul>
+                        <li>다른 관점에서 냉정하게 평가함</li>
+                        <li>구체적인 피드백으로 실질적 개선을 유도함</li>
+                        <li>반복할수록 품질이 계속 올라감</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="key-message reveal">
+            <p><span class="km-highlight">"만드는 사람"과 "검토하는 사람"은 반드시 분리해야 합니다.</span><br>
+            <span style="font-size: 15px; font-weight: 500; color: #5C5650;">이 원칙은 인간 조직에서도, AI 에이전트에서도 동일하게 적용됩니다.</span></p>
+        </div>
+    </section>
+
+    <!-- ═══════ STEP 4: 해결책 ═══════ -->
+    <div class="step-divider reveal"><span class="step-badge">STEP 4</span></div>
+    <div class="content-section" id="sec4"></div>
+    <section>
+
+        <!-- 4-1: 디자인 채점 기준 -->
+        <div class="nm-card reveal">
+            <h2>Anthropic의 해결책 (1): "좋은 디자인"을 채점 가능하게 만들다</h2>
+            <p class="card-subtitle">"이 디자인 괜찮아?"라는 주관적 질문을 점수로 바꾸다</p>
+
+            <p>Anthropic은 "디자인이 좋다"는 모호한 판단을 <strong>4가지 구체적 채점 기준</strong>으로 분해했습니다.</p>
+        </div>
+
+        <div class="grade-grid">
+            <div class="grade-item reveal delay-1">
+                <div class="grade-num" style="background: var(--skill-blue);">1</div>
+                <h4>디자인 품질 (Design Quality)</h4>
+                <p>색상, 타이포그래피, 레이아웃, 이미지가 <strong>일관된 정체성</strong>을 만들어내는가?</p>
+            </div>
+            <div class="grade-item reveal delay-1">
+                <div class="grade-num" style="background: var(--skill-purple);">2</div>
+                <h4>독창성 (Originality)</h4>
+                <p>템플릿 기본값이 아닌 <strong>커스텀 결정</strong>이 있는가? "보라색 그라데이션 위의 흰 카드"처럼 <strong>AI 생성물 특유의 징후</strong>가 보이지는 않는가?</p>
+            </div>
+            <div class="grade-item reveal delay-2">
+                <div class="grade-num" style="background: var(--skill-green);">3</div>
+                <h4>완성도 (Craft)</h4>
+                <p>타이포그래피 위계, 간격, 색상 조화, <strong>명암비</strong> 등 기술적 실행이 정교한가?</p>
+            </div>
+            <div class="grade-item reveal delay-2">
+                <div class="grade-num" style="background: var(--ant-orange);">4</div>
+                <h4>기능성 (Functionality)</h4>
+                <p>예쁜지와 상관없이, <strong>사용하기 편한가?</strong></p>
+            </div>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>Generator-Evaluator 피드백 루프</h2>
+            <p class="card-subtitle">만드는 AI가 작업하고, 평가하는 AI가 채점하고, 다시 개선하는 반복</p>
+
+            <div class="flow-diagram">
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F3A8;</div>
+                    <h4>Generator</h4>
+                    <p>디자인 생성</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F50D;</div>
+                    <h4>Evaluator</h4>
+                    <p>4가지 기준으로 채점</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F4DD;</div>
+                    <h4>피드백</h4>
+                    <p>구체적 개선점 전달</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-node" style="border: 2px solid var(--ant-orange);">
+                    <div class="fn-icon">&#x1F504;</div>
+                    <h4>반복</h4>
+                    <p>5~15회 반복</p>
+                </div>
+            </div>
+
+            <p style="margin-top: 16px;">Evaluator(평가자)는 <strong>Playwright MCP</strong>를 사용해서 실제 웹페이지에 접속하고, 스크린샷을 찍고, 구현 상태를 직접 확인한 뒤에 채점했습니다.</p>
+            <p style="font-size: 12px; color: #999; margin-top: 8px;">* Playwright MCP = AI가 웹 브라우저를 직접 조작할 수 있게 해주는 도구입니다. 사람이 마우스로 클릭하고, 화면을 스크롤하고, 스크린샷을 찍는 것처럼 AI도 똑같이 할 수 있게 만들어 줍니다.</p>
+
+            <div class="inset-box" style="margin-top: 16px;">
+                <div class="inset-label">놀라운 발견</div>
+                <p>"첫 번째 반복에서도, 아무런 기준 없이 만든 결과물보다 <strong>눈에 띄게 나은 품질</strong>이 나왔습니다. 이는 채점 기준의 문구 자체가 결과물의 성격을 직접적으로 형성한다는 뜻입니다."</p>
+            </div>
+        </div>
+
+        <!-- 네덜란드 미술관 -->
+        <div class="nm-card reveal">
+            <h2>실제 결과: 네덜란드 미술관 웹사이트의 변신</h2>
+            <p class="card-subtitle">반복 9회차에서 10회차로 넘어가며 극적인 변화가 일어났습니다</p>
+
+            <p><strong>9회차</strong>까지는 전형적인 다크 테마 랜딩 페이지였습니다. 그런데 <strong>10회차</strong>에서 Generator가 완전히 다른 방향을 시도했습니다.</p>
+
+            <div class="highlight-box" style="margin-top: 16px;">
+                <div class="hl-title">반복 10회차에서 일어난 일</div>
+                <p>CSS perspective로 구현한 <strong>3D 방</strong>이 등장했습니다. 바닥에는 체크무늬가 깔리고, 벽에는 작품이 자유롭게 걸려 있고, <strong>문을 통해 페이지를 이동하는 네비게이션</strong>이 만들어졌습니다. 평범한 웹사이트가 공간적 경험으로 완전히 바뀐 순간입니다.</p>
+            </div>
+
+            <div class="media-box" style="margin-top: 16px;">
+                <video controls muted playsinline style="width:100%;">
+                    <source src="https://cdn.sanity.io/files/4zrzovbb/website/9877febd34432f7f582aecd0023b951223605c6a.mp4" type="video/mp4">
+                </video>
+                <div class="media-caption">
+                    <strong>네덜란드 미술관 웹사이트, 반복 10회차 결과물.</strong> CSS perspective를 활용한 3D 공간 네비게이션이 구현되었습니다. 체크무늬 바닥, 벽면에 걸린 작품, 문을 통한 페이지 이동까지 포함됩니다.<br>
+                    <span style="font-size: 11px; color: #aaa;">출처: Anthropic Engineering Blog</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4-2: 3-Agent 아키텍처 -->
+        <div class="nm-card reveal">
+            <h2>Anthropic의 해결책 (2): 3-Agent 시스템으로 확장하다</h2>
+            <p class="card-subtitle">디자인(2-Agent)에서 풀스택 앱 개발(3-Agent)로 넓히다</p>
+
+            <p>프론트엔드 디자인에서 효과가 확인되자, Anthropic은 이 구조를 <strong>완전한 풀스택 앱 개발</strong>로 확장했습니다. 이를 위해 <strong>Planner(기획자)</strong>라는 세 번째 에이전트를 추가했습니다.</p>
+        </div>
+
+        <div class="role-grid">
+            <div class="role-card reveal delay-1">
+                <div class="role-icon">&#x1F4CB;</div>
+                <h4>Planner (기획자)</h4>
+                <p>1~4문장의 간단한 프롬프트를 받아서 <strong>완전한 제품 기획서</strong>로 확장합니다.</p>
+                <div class="role-example">
+                    <strong>하는 일</strong><br>
+                    제품 맥락과 큰 그림의 기술 설계에 집중함<br>
+                    세부 구현이 아닌 전체 방향을 결정함<br>
+                    AI 기능을 기획서에 자연스럽게 포함시킴
+                </div>
+            </div>
+            <div class="role-card reveal delay-2">
+                <div class="role-icon">&#x1F528;</div>
+                <h4>Generator (생성자)</h4>
+                <p>기획서에 적힌 기능을 <strong>스프린트 방식으로 하나씩 구현</strong>합니다.</p>
+                <div class="role-example">
+                    <strong>사용하는 기술 스택</strong><br>
+                    React + Vite (프론트엔드)<br>
+                    FastAPI (백엔드)<br>
+                    SQLite / PostgreSQL (DB)<br>
+                    Git으로 스프린트마다 버전을 관리함
+                </div>
+            </div>
+            <div class="role-card reveal delay-3">
+                <div class="role-icon">&#x1F50E;</div>
+                <h4>Evaluator (평가자)</h4>
+                <p>Playwright MCP를 사용해서 <strong>실제 사용자처럼 앱을 테스트</strong>합니다.</p>
+                <div class="role-example">
+                    <strong>테스트 방법</strong><br>
+                    UI를 클릭하고 화면 이동을 확인함<br>
+                    API 엔드포인트가 제대로 동작하는지 검증함<br>
+                    데이터베이스 상태를 확인함<br>
+                    스프린트 계약서 기준으로 합격/불합격을 판정함
+                </div>
+            </div>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>스프린트 계약 (Sprint Contract) 방식</h2>
+            <p class="card-subtitle">구현을 시작하기 전에 "무엇이 성공인지"를 먼저 합의한다</p>
+
+            <div class="flow-diagram">
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F91D;</div>
+                    <h4>계약 협상</h4>
+                    <p>Generator + Evaluator</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x2705;</div>
+                    <h4>성공 기준 정의</h4>
+                    <p>테스트 가능한 조건</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F528;</div>
+                    <h4>구현</h4>
+                    <p>Generator가 개발</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F9FE;</div>
+                    <h4>검증</h4>
+                    <p>계약 기준으로 판정</p>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">왜 계약이 중요한가</div>
+                <p>사전에 합의된 기준이 있으면 평가자는 <strong>"구체적으로 뭐가 틀렸는지"</strong>를 지적할 수 있습니다. "좀 별로다" 대신 "사각형 채우기 도구가 드래그 영역 전체를 채우지 않고, 시작점과 끝점에만 타일을 배치한다. FAIL."이라고 말할 수 있는 것입니다.</p>
+            </div>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>에이전트 간 소통 방식: 파일 기반 통신</h2>
+            <p class="card-subtitle">에이전트끼리 직접 대화하지 않고, 구조화된 파일을 주고받습니다</p>
+
+            <div class="highlight-box">
+                <div class="hl-title">왜 파일 기반으로 소통하는가?</div>
+                <ul>
+                    <li>각 에이전트는 <strong>독립적으로 컨텍스트를 리셋</strong>할 수 있습니다</li>
+                    <li>이전 작업 상태가 <strong>구조화된 문서</strong>로 남아서 추적이 가능합니다</li>
+                    <li>교대 근무자에게 인수인계 문서를 넘기는 것과 같은 원리입니다</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════ STEP 5: 실전 비교 ═══════ -->
+    <div class="step-divider reveal"><span class="step-badge">STEP 5</span></div>
+    <div class="content-section" id="sec5"></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>같은 프롬프트로 만든 결과가 이렇게 다릅니다</h2>
+            <p class="card-subtitle">"레트로 게임 메이커를 만들어줘"라는 동일한 요청을 두 가지 방식으로 실행한 결과</p>
+
+            <div class="nm-table-wrap" style="margin-top: 16px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>비교 항목</th>
+                            <th>Solo Agent (하네스 없이)</th>
+                            <th>Full Harness (3-Agent)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>소요 시간</strong></td>
+                            <td>20분</td>
+                            <td>6시간</td>
+                        </tr>
+                        <tr>
+                            <td><strong>비용</strong></td>
+                            <td>$9</td>
+                            <td>$200</td>
+                        </tr>
+                        <tr>
+                            <td><strong>기획서</strong></td>
+                            <td>없음 (바로 코딩 시작)</td>
+                            <td>16개 기능, 10개 스프린트</td>
+                        </tr>
+                        <tr>
+                            <td><strong>게임 플레이</strong></td>
+                            <td style="color: #EF4444; font-weight: 600;">작동하지 않음</td>
+                            <td style="color: var(--skill-green); font-weight: 600;">실제로 플레이 가능</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Solo Agent -->
+        <div class="nm-card reveal">
+            <h2>하네스 없이 만든 결과: 20분, $9</h2>
+            <p class="card-subtitle">빠르지만, 겉모습만 있고 실제로는 작동하지 않는 결과물</p>
+
+            <div class="img-compare">
+                <div class="media-box">
+                    <img src="https://www-cdn.anthropic.com/images/4zrzovbb/website/23c98f1d7ae720bfb39190d50e0706c03b177ad8-1999x1320.png" alt="Solo Agent 레트로 게임 메이커 시작 화면" loading="lazy">
+                    <div class="media-caption"><strong>Solo Agent의 시작 화면.</strong> 기본적인 UI는 만들어졌지만, 기능이 서로 연결되지 않았습니다.</div>
+                </div>
+                <div class="media-box">
+                    <img src="https://www-cdn.anthropic.com/images/4zrzovbb/website/24472c85629a6c82a092f25def4a659042be1f7c-1999x1010.png" alt="Solo Agent 스프라이트 에디터" loading="lazy">
+                    <div class="media-caption"><strong>Solo Agent의 스프라이트 에디터.</strong> 에디터 화면은 있지만, 엔티티 연결이 작동하지 않았습니다.</div>
+                </div>
+            </div>
+
+            <div class="media-box" style="max-width: 50%; margin: 16px auto;">
+                <img src="https://www-cdn.anthropic.com/images/4zrzovbb/website/79217dbfce3f31172eb7fd4deee5449023c9b2ac-1999x757.png" alt="Solo Agent 게임 실행 실패" loading="lazy">
+                <div class="media-caption"><strong>Solo Agent의 게임 실행 화면.</strong> 플레이 모드에서 게임이 제대로 작동하지 않았습니다. 엔티티 간 연결이 끊어져 있었습니다.</div>
+            </div>
+        </div>
+
+        <!-- Full Harness -->
+        <div class="nm-card reveal">
+            <h2>하네스로 만든 결과: 6시간, $200</h2>
+            <p class="card-subtitle">16개 기능을 갖추고, 실제로 플레이할 수 있는 게임 메이커</p>
+
+            <div class="img-compare">
+                <div class="media-box">
+                    <img src="https://www-cdn.anthropic.com/images/4zrzovbb/website/a8bef95425966495629095a5cb38bde4a8b13558-1999x997.png" alt="Full Harness 레트로 게임 메이커 시작 화면" loading="lazy">
+                    <div class="media-caption"><strong>Full Harness의 시작 화면.</strong> UI가 정돈되어 있고, 다양한 기능 메뉴가 서로 연결되어 있습니다.</div>
+                </div>
+                <div class="media-box">
+                    <img src="https://www-cdn.anthropic.com/images/4zrzovbb/website/c05aa3ef8daaf0ef3d0dba66d6480ab753e9cbaa-1999x1007.png" alt="Full Harness 스프라이트 에디터" loading="lazy">
+                    <div class="media-caption"><strong>Full Harness의 스프라이트 에디터.</strong> 스프라이트 애니메이션 시스템과 행동 템플릿을 지원합니다.</div>
+                </div>
+            </div>
+
+            <div class="img-compare">
+                <div class="media-box">
+                    <img src="https://www-cdn.anthropic.com/images/4zrzovbb/website/287b35f4683ecb77ac6a8d66bf2b3ed5956d1db9-1999x1008.png" alt="AI 레벨 생성 기능" loading="lazy">
+                    <div class="media-caption"><strong>Full Harness의 AI 레벨 생성 기능.</strong> AI가 게임 레벨을 자동으로 생성합니다.</div>
+                </div>
+                <div class="media-box">
+                    <img src="https://www-cdn.anthropic.com/images/4zrzovbb/website/8596eab2b4a06124df41ad6b2f7ff4ff9d9f105f-1999x1000.png" alt="생성된 게임 레벨" loading="lazy">
+                    <div class="media-caption"><strong>AI가 만든 게임 레벨.</strong> 생성된 레벨을 직접 수정하고 플레이할 수 있습니다.</div>
+                </div>
+            </div>
+
+            <div class="media-box" style="max-width: 60%; margin: 16px auto;">
+                <img src="https://www-cdn.anthropic.com/images/4zrzovbb/website/f2953550e51957a0a49a3792a0df3bcfed0fde48-1994x1654.png" alt="Full Harness 실제 게임 플레이" loading="lazy">
+                <div class="media-caption"><strong>Full Harness로 만든 게임의 실제 플레이 화면.</strong> 캐릭터를 움직이고 게임을 진행할 수 있었습니다. 물리 엔진에 약간 거친 부분이 있었지만, 핵심 기능은 작동했습니다.</div>
+            </div>
+        </div>
+
+        <div class="quote-box reveal">
+            <p>가장 큰 차이는 플레이 모드에서 나타났습니다. 실제로 캐릭터를 움직이고 게임을 할 수 있었습니다. 물리 엔진에 거친 부분이 있었습니다. 캐릭터가 플랫폼 위로 점프하면 겹쳐지는 것이 직관적으로 어색했습니다. 하지만 핵심은 작동했습니다.</p>
+            <div class="quote-author">Prithvi Rajasekaran, Anthropic Labs</div>
+        </div>
+
+        <!-- 평가자가 잡아낸 버그 -->
+        <div class="nm-card reveal">
+            <h2>Evaluator가 실제로 잡아낸 버그</h2>
+            <p class="card-subtitle">스프린트 계약서를 기반으로 구체적인 합격/불합격을 판정합니다</p>
+
+            <div class="inset-box">
+                <div class="inset-label">Evaluator QA 리포트 (발췌)</div>
+                <p style="font-family: monospace; font-size: 13px; background: rgba(0,0,0,0.03); padding: 12px; border-radius: 8px; margin-top: 10px;">
+                    <strong style="color: #EF4444;">FAIL</strong> : 사각형 채우기 도구. 클릭-드래그로 사각형 영역을 선택된 타일로 채워야 함.<br>
+                    <span style="color: #888;">결과: 드래그 시작점과 끝점에만 타일이 배치되고, 전체 영역은 채워지지 않음.</span>
+                </p>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">이것이 하네스의 힘입니다</div>
+                <p>Evaluator는 단순히 "잘 됐다, 안 됐다"가 아니라, <strong>정확히 무엇이 어떻게 잘못되었는지</strong>를 지적합니다. 이런 구체적인 피드백이 있어야 Generator가 실제로 문제를 고칠 수 있습니다.</p>
+            </div>
+        </div>
+
+        <div class="key-message reveal">
+            <p>같은 모델, 같은 프롬프트.<br>
+            <span class="km-highlight">하네스가 달라지면 결과가 완전히 달라집니다.</span><br>
+            <span style="font-size: 15px; font-weight: 500; color: #5C5650;">하네스 없이: 20분/$9로 작동하지 않는 앱 &nbsp;vs&nbsp; 하네스 있음: 6시간/$200로 실제 작동하는 앱</span></p>
+        </div>
+    </section>
+
+    <!-- ═══════ STEP 6: 진화 ═══════ -->
+    <div class="step-divider reveal"><span class="step-badge">STEP 6</span></div>
+    <div class="content-section" id="sec6"></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>모델이 좋아지면 하네스도 함께 진화합니다</h2>
+            <p class="card-subtitle">Claude Opus 4.6가 나오면서, 하네스 구조를 더 단순하게 만들 수 있었습니다</p>
+
+            <p>Claude Opus 4.6는 기획 능력, 장기 에이전트 작업, 긴 컨텍스트 검색 성능이 크게 개선되었습니다. 그래서 Anthropic은 이전에 필요했던 <strong>스프린트 분해 구조를 제거</strong>했습니다. Planner와 Evaluator는 그대로 유지하되, Generator가 스스로 전체 빌드를 한 번에 진행하도록 바꾼 것입니다.</p>
+
+            <div class="compare-grid" style="margin-top: 18px;">
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--skill-blue);"></div>
+                        <h4>이전: 스프린트 방식</h4>
+                    </div>
+                    <ul>
+                        <li>기능을 10개 스프린트로 나누어서 진행</li>
+                        <li>스프린트마다 계약, 구현, 검증을 반복</li>
+                        <li>구조가 안정적이지만 시간과 비용이 많이 듬</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--skill-green);"></div>
+                        <h4>이후: 단순화된 방식</h4>
+                    </div>
+                    <ul>
+                        <li>Planner가 기획하고, Generator가 한 번에 빌드</li>
+                        <li>Evaluator가 QA하고, 부족하면 다시 빌드</li>
+                        <li>더 간단하고 빠르면서도 품질은 유지됨</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- DAW 사례 -->
+        <div class="nm-card reveal">
+            <h2>실전 사례: 브라우저 기반 DAW (디지털 오디오 워크스테이션)</h2>
+            <p class="card-subtitle">단순화된 하네스로 음악 제작 도구를 만든 결과</p>
+
+            <p>단순화된 3-Agent 하네스로 <strong>브라우저에서 돌아가는 DAW</strong>를 만들었습니다. 이 도구에는 어레인지먼트 뷰, 믹서, 트랜스포트가 모두 포함되어 있고, AI 에이전트가 프롬프트를 통해 간단한 곡을 자동으로 작곡하는 기능까지 갖추고 있었습니다.</p>
+
+            <div class="media-box" style="margin-top: 16px;">
+                <video controls muted playsinline style="width:100%;">
+                    <source src="https://cdn.sanity.io/files/4zrzovbb/website/555910f9adb3938734940224e7a6f4c7cbbbd8f2.mp4" type="video/mp4">
+                </video>
+                <div class="media-caption">
+                    <strong>브라우저 기반 DAW 데모 영상.</strong> 단순화된 3-Agent 하네스로 만든 결과물입니다. 어레인지먼트 뷰, 믹서, 트랜스포트가 브라우저에서 작동하며, AI가 프롬프트를 통해 간단한 곡을 자동으로 작곡할 수도 있습니다.<br>
+                    <span style="font-size: 11px; color: #aaa;">출처: Anthropic Engineering Blog</span>
+                </div>
+            </div>
+
+            <div class="nm-table-wrap" style="margin-top: 16px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>단계</th>
+                            <th>소요 시간</th>
+                            <th>비용</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Planner (기획)</strong></td>
+                            <td>4.7분</td>
+                            <td>$0.46</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Build 1차</strong></td>
+                            <td>2시간 7분</td>
+                            <td>$71.08</td>
+                        </tr>
+                        <tr>
+                            <td><strong>QA 1차</strong></td>
+                            <td>8.8분</td>
+                            <td>$3.24</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Build 2차</strong></td>
+                            <td>1시간 2분</td>
+                            <td>$36.89</td>
+                        </tr>
+                        <tr>
+                            <td><strong>QA 2차</strong></td>
+                            <td>6.8분</td>
+                            <td>$3.09</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Build 3차</strong></td>
+                            <td>10.9분</td>
+                            <td>$5.88</td>
+                        </tr>
+                        <tr>
+                            <td><strong>QA 3차</strong></td>
+                            <td>9.6분</td>
+                            <td>$4.06</td>
+                        </tr>
+                        <tr style="background: rgba(217,119,87,0.06);">
+                            <td><strong style="color: var(--ant-orange);">합계</strong></td>
+                            <td><strong style="color: var(--ant-orange);">약 3시간 50분</strong></td>
+                            <td><strong style="color: var(--ant-orange);">$124.70</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">주목할 패턴</div>
+                <p>Build 횟수가 거듭될수록 소요 시간과 비용이 급격히 줄어들었습니다. 3차 Build는 1차와 비교하면 <strong>시간은 1/12, 비용도 1/12 수준</strong>으로 끝났습니다. Evaluator가 남은 문제만 정확히 짚어주었기 때문입니다.</p>
+            </div>
+        </div>
+
+        <!-- What Comes Next -->
+        <div class="nm-card reveal">
+            <h2>Anthropic이 말하는 "다음 단계"</h2>
+            <p class="card-subtitle">모델이 좋아져도 하네스 설계의 중요성은 사라지지 않습니다</p>
+
+            <div class="quote-box">
+                <p>흥미로운 하네스 조합의 가능성은 모델이 개선되어도 줄어들지 않습니다. 대신 이동할 뿐입니다.</p>
+                <div class="quote-author">Prithvi Rajasekaran, Anthropic Labs</div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 20px;">
+                <div style="display: flex; gap: 16px; align-items: flex-start;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, var(--skill-blue), #2563EB); color: #fff; font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">1</div>
+                    <div>
+                        <strong style="font-size: 15px; color: #3A3530;">새 모델이 나올 때마다 실험하세요</strong>
+                        <p style="font-size: 14px; color: #5C5650; line-height: 1.75; margin-top: 4px;">기존 하네스가 새 모델에서 어떻게 동작하는지 테스트하고, 불필요해진 구조는 과감히 제거하세요.</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 16px; align-items: flex-start;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, var(--skill-green), #059669); color: #fff; font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">2</div>
+                    <div>
+                        <strong style="font-size: 15px; color: #3A3530;">복잡한 작업은 전문 에이전트로 분해하세요</strong>
+                        <p style="font-size: 14px; color: #5C5650; line-height: 1.75; margin-top: 4px;">하나의 에이전트에게 모든 것을 맡기지 말고, 역할별로 에이전트를 나누세요. "만드는 AI"와 "평가하는 AI"를 분리하는 것이 핵심입니다.</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 16px; align-items: flex-start;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, var(--ant-orange), #C56A4A); color: #fff; font-size: 16px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">3</div>
+                    <div>
+                        <strong style="font-size: 15px; color: #3A3530;">모델이 좋아지면 하네스를 다시 단순화하세요</strong>
+                        <p style="font-size: 14px; color: #5C5650; line-height: 1.75; margin-top: 4px;">모델이 더 똑똑해지면, 이전에 필요했던 복잡한 구조(스프린트 분할 등)가 불필요해질 수 있습니다. 정기적으로 하네스를 재검토하고 필요 없는 구조는 걷어내세요.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="key-message reveal">
+            <p>하네스의 가치는 <span class="km-highlight">모델이 좋아져도 사라지지 않습니다.</span><br>
+            <span style="font-size: 15px; font-weight: 500; color: #5C5650;">형태가 바뀔 뿐입니다. 좋은 하네스 설계자는 그 변화에 맞춰서 계속 진화합니다.</span></p>
+        </div>
+    </section>
+
+    <!-- 출처 섹션 -->
+    <div class="ref-section reveal">
+        <div class="ref-title">출처</div>
+        <div class="ref-links">
+            <a class="ref-link" href="https://www.anthropic.com/engineering/harness-design-long-running-apps" target="_blank" rel="noopener">
+                <span class="ref-icon">&#x1F4D6;</span>
+                <span>
+                    Anthropic Engineering | "Harness design for long-running application development"<br>
+                    <span style="font-size: 12px; color: #999; font-weight: 400;">저자: Prithvi Rajasekaran (Anthropic Labs) / 2026년 3월 24일 게시</span>
+                </span>
+                <span class="ref-desc">원문</span>
+            </a>
+        </div>
+        <p style="font-size: 12px; color: #999; margin-top: 14px; line-height: 1.7;">
+            이 페이지의 모든 인용문, 이미지, 동영상, 데이터 테이블은 위 Anthropic 엔지니어링 블로그 원문에서 발췌한 것입니다.<br>
+            이미지 출처: <code style="font-size: 11px; background: rgba(0,0,0,0.04); padding: 2px 6px; border-radius: 4px;">www-cdn.anthropic.com</code> /
+            동영상 출처: <code style="font-size: 11px; background: rgba(0,0,0,0.04); padding: 2px 6px; border-radius: 4px;">cdn.sanity.io</code> (Anthropic CDN)<br>
+            본 자료는 교육 및 강의 목적으로 정리되었으며, 원문의 저작권은 Anthropic에 있습니다.
+        </p>
+    </div>
+
+    <!-- CTA 섹션 -->
+    <div class="cta-section reveal">
+        <h3>하네스 설계, 직접 해보세요</h3>
+        <p>Anthropic이 증명한 핵심은 이것입니다. 같은 모델이라도 하네스가 다르면 결과가 완전히 달라집니다.<br>CLAUDE.md, 스킬, 훅, MCP로 여러분만의 하네스를 만들어 보세요.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn primary" href="agent-design.html">에이전트 설계 가이드 &rarr;</a>
+            <a class="cta-btn secondary" href="index.html">&larr; 목록으로</a>
+        </div>
+    </div>
+</main>
+
+
+<footer>
+    <p class="footer-brand">AI Roasting</p>
+    <p class="footer-text">비개발자를 위한 Claude 완전 정복</p>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">&copy; 2026 AI Roasting. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Mode Tabs ──
+function switchMode(mode) {
+    document.querySelectorAll('.mode-tab').forEach(function(t){ t.classList.remove('active'); });
+    document.getElementById('tab-' + mode).classList.add('active');
+    ['design','skill','final'].forEach(function(m){
+        var el = document.getElementById('pages-' + m);
+        if(el) el.style.display = (m === mode) ? 'flex' : 'none';
+    });
+}
+
+// ── 스크롤 애니메이션 ──
+var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+// ── 서브메뉴 활성화 ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a');
+    var sections = [];
+    links.forEach(function(l){
+        var id = l.getAttribute('data-sec');
+        var el = document.getElementById(id);
+        if(el) sections.push({el:el, link:l});
+    });
+    function update(){
+        var scrollY = window.scrollY + 120;
+        var current = null;
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                activeLink.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    update();
+})();
+
+// ── 스크롤 프로그레스 바 ──
+(function(){
+    var bar = document.getElementById('scrollProgress');
+    if(!bar) return;
+    function updateProgress(){
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = progress + '%';
+    }
+    window.addEventListener('scroll', updateProgress, {passive:true});
+    updateProgress();
+})();
+</script>
+</body>
+</html>

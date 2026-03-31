@@ -49,7 +49,7 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [22단계 체크리스트](checklist.html) | Claude Code 실전 따라하기 |
+| [23단계 체크리스트](checklist.html) | Claude Code 실전 따라하기 |
 | [핵심 명령어 모음](cheatsheet.html) | 복사해서 바로 쓰는 명령어 |
 | [CLAUDE.md 템플릿](claude-md-templates.html) | 프로젝트별 규칙 설정 파일 작성법 |
 
