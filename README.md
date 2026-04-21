@@ -1,6 +1,6 @@
 # Claude 완전 정복 | AI Roasting
 
-비개발자를 위한 Claude 완전 정복 — 플러그인부터 클로드 코드까지 5단계 실전 가이드
+비즈니스 리더를 위한 Claude 완전 정복 — 플러그인부터 클로드 코드까지 5단계 실전 가이드
 
 🔗 **Live Site:** [airoasting.github.io/claude_guide](https://airoasting.github.io/claude_guide/)
 

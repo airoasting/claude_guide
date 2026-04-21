@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude 완전 정복, 5분 오리엔테이션 | AI Roasting</title>
+    <meta name="description" content="왜 Claude이고, 무엇을 배우며, 이 사이트가 어떻게 안내하는지. 세 질문으로 정리하는 5분 오리엔테이션.">
+    <meta property="og:title" content="Claude 완전 정복, 5분 오리엔테이션">
+    <meta property="og:description" content="왜 Claude인가, 무엇을 배우는가, 어떻게 따라가는가. 세 질문에 답하면 시작점이 보입니다.">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ko_KR">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-orange-soft: #E8A87C;
+            --ant-dark: #1A1917;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
+            line-height: 1.65;
+            word-break: keep-all;
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        @keyframes shimmerScan { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+
+        .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .stagger-1 { transition-delay: 0.05s; }
+        .stagger-2 { transition-delay: 0.10s; }
+        .stagger-3 { transition-delay: 0.15s; }
+        .stagger-4 { transition-delay: 0.20s; }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .hero-inner {
+            max-width: 700px; margin: 0 auto;
+            position: relative; z-index: 1;
+            text-align: center;
+        }
+        .step-nav {
+            display: flex; align-items: center; justify-content: center;
+            margin: 26px 0 20px; gap: 0;
+            max-width: 80%; margin-left: auto; margin-right: auto;
+        }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65); text-decoration: none;
+            font-size: 14px; font-weight: 600;
+            margin-bottom: 20px; transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+
+        header h1 {
+            font-size: 38px; font-weight: 800;
+            color: #ffffff; letter-spacing: -1px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            position: relative; z-index: 1;
+            line-height: 1.25;
+            white-space: nowrap;
+        }
+        header p {
+            font-size: 16px; color: rgba(255,255,255,0.8);
+            position: relative; z-index: 1;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .header-badge {
+            display: inline-block;
+            font-size: 13px; font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 16px; border-radius: 20px;
+            margin-top: 14px;
+            position: relative; z-index: 1;
+        }
+        .header-pages {
+            display: flex; justify-content: center;
+            gap: 14px; margin-top: 22px;
+            position: relative; z-index: 1;
+            animation: fadeInUp 0.7s ease 0.15s both;
+        }
+        .header-page-link {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            min-width: 200px;
+            padding: 12px 22px; border-radius: 16px;
+            font-size: 14px; font-weight: 700;
+            color: rgba(255,255,255,0.7); text-decoration: none;
+            background: rgba(255,255,255,0.06);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+        }
+        .header-page-link:hover { color: rgba(255,255,255,0.9); }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .hpl-icon { font-size: 16px; }
+
+        /* ── STICKY SUB-MENU ── */
+        .sub-menu {
+            position: sticky; top: 0; z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            margin-top: 16px;
+            padding: 14px 0;
+            display: flex; justify-content: center;
+            gap: 0;
+        }
+        .sub-menu a {
+            display: flex; flex-direction: column;
+            align-items: center; gap: 6px;
+            text-decoration: none;
+            padding: 8px 28px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 200px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active { background: rgba(217,119,87,0.10); border-radius: 14px; }
+        .sub-menu a.active .sm-num { background: var(--ant-orange); box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sub-menu .sm-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #B0544A; color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .sub-menu .sm-title {
+            font-size: 14px; font-weight: 700;
+            color: #3A3530; white-space: nowrap;
+        }
+        .sub-menu .sm-sub {
+            font-size: 11px; color: #999; white-space: nowrap;
+        }
+        #sec-why, #sec-arch, #sec-what { scroll-margin-top: 80px; }
+
+        /* ── CONTAINER ── */
+        .container {
+            max-width: 960px; margin: 0 auto;
+            padding: 48px 32px;
+        }
+
+        /* ── SECTION SPACING ── */
+        main.container > section { margin-bottom: 80px; }
+        main.container > section:last-of-type { margin-bottom: 0; }
+
+        /* ── STEP DIVIDER ── */
+        .step-divider {
+            display: flex; align-items: center; gap: 16px;
+            margin: 80px 0 32px;
+        }
+        .step-divider:first-child { margin-top: 0; }
+        .step-divider::before, .step-divider::after {
+            content: ''; flex: 1; height: 1px; background: #E8E4DE;
+        }
+        .step-badge {
+            font-size: 11px; font-weight: 800; letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ant-orange);
+            background-image: linear-gradient(105deg, var(--nm-bg) 40%, rgba(255,255,255,0.85) 50%, var(--nm-bg) 60%);
+            background-size: 200% auto;
+            animation: shimmerScan 2.8s linear infinite;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 13px 20px; border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* ── UNIFIED TYPE SCALE ──
+           h2 heading: 20px / body+h4: 14px / label+small: 12px */
+
+        /* ── SECTION HEADER ── */
+        .section-header-block { margin-bottom: 28px; }
+        .section-header-block h2 {
+            font-size: 20px; font-weight: 800; color: #3A3530;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .section-subtitle {
+            font-size: 14px; color: #5C5650;
+            padding-left: 20px; line-height: 1.7;
+        }
+        .section-subtitle strong { color: #3A3530; font-weight: 700; }
+
+        .section-closer {
+            margin-top: 24px; padding: 20px 24px;
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            font-size: 14px; color: #3A3530; line-height: 1.7;
+            font-weight: 500;
+        }
+        .section-closer small { font-size: 12px !important; }
+        .section-closer strong { color: var(--ant-orange); font-weight: 800; }
+
+        /* ── Q1. COMPARISON TABLE ── */
+        .compare-wrap {
+            background: var(--nm-bg);
+            border-radius: 22px;
+            box-shadow: var(--nm-shadow);
+            padding: 24px 20px;
+        }
+        .compare-table {
+            display: grid;
+            grid-template-columns: 1.25fr 1fr 1fr 1fr;
+            gap: 2px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .ct-cell {
+            background: #FAF8F4;
+            padding: 16px 14px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #3A3530;
+        }
+        .ct-header .ct-cell {
+            background: #3A3530; color: #fff;
+            font-size: 14px; font-weight: 800;
+            text-align: center; padding: 14px 10px;
+            letter-spacing: 0.5px;
+        }
+        .ct-header .ct-claude-col {
+            background: linear-gradient(135deg, var(--ant-orange) 0%, #B04A20 100%);
+            position: relative;
+        }
+        .ct-header .ct-claude-col::after {
+            content: '⭐'; position: absolute;
+            top: -2px; right: 8px; font-size: 14px;
+        }
+        .ct-criterion {
+            display: flex; align-items: flex-start; gap: 10px;
+            font-weight: 700;
+            background: #F0EDE8;
+        }
+        .ct-crit-num {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--ant-orange); color: #fff;
+            font-size: 11px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-top: 2px;
+        }
+        .ct-crit-text strong {
+            display: block; font-size: 14px;
+            color: #3A3530; margin-bottom: 3px;
+        }
+        .ct-crit-text small {
+            font-size: 12px; color: #7A7570;
+            font-weight: 500; line-height: 1.5;
+        }
+        .ct-score-block { display: flex; flex-direction: column; gap: 8px; }
+        /* Harvey Balls */
+        .ct-hb {
+            display: inline-flex; align-items: center; gap: 3px;
+            font-size: 16px; line-height: 1; color: #3A3530;
+            letter-spacing: 1px;
+        }
+        .ct-hb-label {
+            font-size: 12px; font-weight: 700;
+            color: #7A7570; margin-left: 6px;
+            letter-spacing: 0.3px;
+        }
+        .ct-claude-cell {
+            background: linear-gradient(135deg, #FDF5ED 0%, #F8E7D5 100%);
+            border-left: 3px solid var(--ant-orange);
+        }
+        .ct-claude-cell .ct-hb { color: var(--ant-orange); }
+        .ct-claude-cell .ct-hb-label { color: #B04A20; }
+        .ct-score-desc {
+            font-size: 13px; color: #5C5650;
+            line-height: 1.6;
+        }
+        .ct-claude-cell .ct-score-desc { color: #3A2C20; }
+
+        .ct-footer .ct-cell {
+            background: #2A1F18; color: #fff;
+            font-weight: 700; padding: 16px 14px;
+        }
+        .ct-footer .ct-claude-cell {
+            background: linear-gradient(135deg, var(--ant-orange) 0%, #B04A20 100%);
+            color: #fff; border-left: none;
+        }
+        .ct-footer .ct-hb { color: #fff; font-size: 18px; }
+        .ct-footer .ct-hb-label { color: rgba(255,255,255,0.85); font-size: 12px; }
+        .ct-footer .ct-claude-cell .ct-hb { color: #fff; }
+        .ct-footer .ct-claude-cell .ct-hb-label { color: rgba(255,255,255,0.95); }
+        .ct-footer .ct-rank {
+            display: inline-block; margin-left: 8px;
+            font-size: 12px; padding: 3px 9px;
+            background: rgba(255,255,255,0.25); border-radius: 100px;
+            font-weight: 800;
+        }
+        .ct-footer .ct-total-note {
+            font-size: 11px; font-weight: 500;
+            color: rgba(255,255,255,0.7); margin-top: 3px;
+        }
+
+        /* ── MULTI-AGENT ARCHITECTURE DIAGRAM ── */
+        .arch-intro-block {
+            margin-top: 56px;
+            padding: 22px 24px;
+            background: linear-gradient(135deg, #FDF5ED 0%, #F8E7D5 100%);
+            border-left: 4px solid var(--ant-orange);
+            border-radius: 14px;
+            margin-bottom: 28px;
+        }
+        .arch-intro-block h3 {
+            font-size: 16px; font-weight: 800; color: #3A2C20;
+            margin-bottom: 8px; line-height: 1.4;
+        }
+        .arch-intro-block p {
+            font-size: 14px; color: #5C4638; line-height: 1.7;
+        }
+        .arch-intro-block strong { color: #B04A20; font-weight: 800; }
+
+        .arch-diagram {
+            background: var(--nm-bg);
+            border-radius: 22px;
+            box-shadow: var(--nm-shadow);
+            padding: 38px 28px 32px;
+            position: relative;
+            border: 2px dashed rgba(217,119,87,0.55);
+        }
+        .arch-frame-label {
+            position: absolute;
+            top: -13px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--nm-bg);
+            padding: 4px 16px;
+            font-size: 11.5px; font-weight: 800;
+            color: var(--ant-orange);
+            letter-spacing: 1.6px;
+            border-radius: 100px;
+            box-shadow: var(--nm-shadow-sm);
+            white-space: nowrap;
+        }
+        .arch-frame-label::before {
+            content: '{ '; opacity: 0.6;
+        }
+        .arch-frame-label::after {
+            content: ' }'; opacity: 0.6;
+        }
+        .arch-frame-sub {
+            text-align: center;
+            font-size: 12px; color: #7A7570;
+            margin-bottom: 18px; line-height: 1.5;
+        }
+        .arch-frame-sub strong { color: #5C5650; font-weight: 700; }
+        .arch-orchestrator {
+            display: flex; align-items: center; gap: 16px;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, var(--ant-orange) 0%, #B04A20 100%);
+            border-radius: 18px;
+            box-shadow: 0 8px 20px rgba(217,119,87,0.25);
+            max-width: 520px; margin: 0 auto 8px;
+            position: relative;
+        }
+        .arch-orchestrator::after { display: none; }
+        .arch-orch-badge {
+            width: 52px; height: 52px; border-radius: 14px;
+            background: rgba(255,255,255,0.18);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+        }
+        .arch-orch-body strong {
+            display: block; font-size: 16px; font-weight: 800;
+            color: #fff; margin-bottom: 3px;
+        }
+        .arch-orch-body small {
+            display: block; font-size: 12.5px;
+            color: rgba(255,255,255,0.85); line-height: 1.5;
+        }
+        .arch-orch-tag {
+            position: absolute; top: -10px; left: 20px;
+            background: #2A1F18; color: #fff;
+            font-size: 10.5px; font-weight: 800;
+            letter-spacing: 1px;
+            padding: 4px 10px; border-radius: 100px;
+        }
+
+        .arch-bus { display: none; }
+        .arch-agents {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px; margin-top: 24px;
+            position: relative;
+        }
+        .arch-agent {
+            padding: 18px 18px 16px;
+            background: var(--nm-light);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            position: relative;
+            display: flex; flex-direction: column; gap: 10px;
+            z-index: 1;
+        }
+        .arch-agent::before { z-index: 0; }
+        .arch-orchestrator { z-index: 1; }
+        .arch-orchestrator::after { z-index: 0; }
+        .arch-bus { z-index: 0; }
+        .arch-agent::before { display: none; }
+        .arch-agents.agents-vertical { gap: 14px; margin-top: 8px; }
+
+        /* Human review agent */
+        .arch-agent.arch-human {
+            background: linear-gradient(135deg, #FDF5ED 0%, #F8E7D5 100%);
+            border: 2px solid var(--ant-orange);
+            box-shadow: 0 6px 16px rgba(217,119,87,0.15);
+        }
+        .arch-agent.arch-human .arch-agent-icon {
+            background: var(--ant-orange);
+            color: #fff; box-shadow: none;
+        }
+        .arch-agent.arch-human .arch-agent-name small {
+            color: #B04A20;
+        }
+
+        /* Feedback loop note */
+        .arch-feedback {
+            margin-top: 14px;
+            padding: 12px 18px;
+            background: rgba(217,119,87,0.08);
+            border-radius: 12px;
+            border-left: 3px solid var(--ant-orange);
+            font-size: 12.5px; color: #5C5650;
+            line-height: 1.6;
+        }
+        .arch-feedback strong { color: var(--ant-orange); font-weight: 800; }
+        .arch-agent-head {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .arch-agent-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; flex-shrink: 0;
+        }
+        .arch-agent-name {
+            font-size: 14px; font-weight: 800; color: #3A3530;
+            line-height: 1.3;
+        }
+        .arch-agent-name small {
+            display: block; font-size: 11px; font-weight: 700;
+            color: var(--ant-orange); letter-spacing: 0.8px;
+            text-transform: uppercase; margin-bottom: 2px;
+        }
+        .arch-agent-role {
+            font-size: 13px; color: #5C5650; line-height: 1.6;
+        }
+        .arch-agent-api {
+            display: flex; align-items: center; gap: 8px;
+            margin-top: auto;
+            padding: 8px 12px;
+            background: #F0EDE8; border-radius: 10px;
+            font-size: 12px; line-height: 1.4;
+        }
+        .arch-api-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .arch-api-dot.dot-liner { background: #7A7570; }
+        .arch-api-dot.dot-claude { background: var(--ant-orange); }
+        .arch-api-dot.dot-gemini { background: #7A7570; }
+        .arch-api-label {
+            font-weight: 700; color: #3A3530;
+        }
+        .arch-api-label small {
+            display: block; font-size: 10.5px; font-weight: 500;
+            color: #7A7570; margin-top: 1px;
+        }
+
+        /* Vertical layout (1 per row, horizontal inner) */
+        .arch-agents.agents-vertical { grid-template-columns: 1fr; gap: 14px; }
+        .arch-agents.agents-vertical .arch-agent {
+            display: grid;
+            grid-template-columns: 150px 1fr 360px;
+            gap: 14px; align-items: center;
+            padding: 16px 20px;
+            position: relative;
+        }
+        .arch-agents.agents-vertical .arch-agent::after {
+            content: '\2193';
+            position: absolute;
+            left: 95px;
+            bottom: -18px;
+            transform: translateX(-50%);
+            font-size: 18px;
+            color: #B8AFA5;
+            line-height: 1;
+            font-weight: 700;
+        }
+        .arch-agents.agents-vertical .arch-agent:last-child::after { display: none; }
+        .arch-agents.agents-vertical .arch-api-label {
+            white-space: normal;
+            word-break: keep-all;
+            line-height: 1.35;
+        }
+        .arch-agents.agents-vertical .arch-agent::before {
+            left: 39px;
+        }
+        .arch-agents.agents-vertical .arch-agent-head { margin: 0; }
+        .arch-agents.agents-vertical .arch-agent-role { margin: 0; font-size: 13px; }
+        .arch-agents.agents-vertical .arch-api-stack {
+            display: flex; flex-direction: row; gap: 6px; flex-wrap: wrap;
+        }
+        .arch-agents.agents-vertical .arch-api-stack .arch-agent-api { flex: 1; min-width: 0; }
+        .arch-agents.agents-vertical .arch-agent-api { margin: 0; }
+
+        .arch-legend {
+            margin-top: 24px;
+            padding: 16px 20px;
+            background: #F4F1EC; border-radius: 12px;
+            font-size: 13px; color: #5C5650; line-height: 1.7;
+        }
+        .arch-legend strong { color: #3A3530; font-weight: 800; }
+        .arch-legend ul {
+            list-style: none; padding: 0; margin: 8px 0 0;
+        }
+        .arch-legend li {
+            padding-left: 18px; position: relative;
+            font-size: 13px;
+        }
+        .arch-legend li::before {
+            content: '→'; position: absolute; left: 0;
+            color: var(--ant-orange); font-weight: 800;
+        }
+
+        /* ── PPT PIPELINE ── */
+        .ppt-pipeline {
+            display: flex; flex-direction: column;
+            gap: 10px; margin-top: 24px;
+            position: relative;
+        }
+        .ppt-phase {
+            display: grid;
+            grid-template-columns: 44px 180px 1fr 220px;
+            gap: 16px; align-items: center;
+            padding: 16px 20px;
+            background: var(--nm-light);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            position: relative;
+            border-left: 3px solid var(--ant-orange);
+        }
+        .ppt-phase::after {
+            content: '↓'; position: absolute;
+            left: 32px; bottom: -15px;
+            font-size: 13px; color: var(--ant-orange);
+            opacity: 0.5; font-weight: 800;
+            z-index: 1;
+        }
+        .ppt-phase:last-child::after { display: none; }
+        .ppt-phase-num {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 800; color: var(--ant-orange);
+        }
+        .ppt-phase-agent strong {
+            display: block; font-size: 14.5px; font-weight: 800;
+            color: #3A3530; line-height: 1.3;
+        }
+        .ppt-phase-agent small {
+            display: block; font-size: 11px; font-weight: 700;
+            color: var(--ant-orange); letter-spacing: 0.8px;
+            text-transform: uppercase; margin-bottom: 3px;
+        }
+        .ppt-phase-role {
+            font-size: 13px; color: #5C5650; line-height: 1.55;
+        }
+        .ppt-phase-role strong { color: #3A3530; font-weight: 700; }
+        .ppt-phase-tool {
+            display: flex; flex-direction: column; gap: 4px;
+            padding: 10px 12px;
+            background: #F4F1EC; border-radius: 10px;
+            border-left: 3px solid #D0C9C0;
+        }
+        .ppt-phase-tool.tool-claude { border-left-color: var(--ant-orange); }
+        .ppt-phase-tool.tool-liner { border-left-color: #4A90E2; }
+        .ppt-phase-tool.tool-gemini { border-left-color: #8E75D8; }
+        .ppt-phase-tool.tool-notebook { border-left-color: #F4B942; }
+        .ppt-phase-tool.tool-skill { border-left-color: #2BB673; }
+        .ppt-tool-label {
+            font-size: 12px; font-weight: 800; color: #3A3530;
+            line-height: 1.3;
+        }
+        .ppt-tool-out {
+            font-size: 11px; color: #7A7570;
+            line-height: 1.4;
+        }
+        .ppt-tool-out b { color: #3A3530; font-weight: 700; }
+
+        .ppt-final {
+            margin-top: 18px;
+            padding: 18px 22px;
+            background: linear-gradient(135deg, #2A1F18 0%, #1A1917 100%);
+            border-radius: 14px;
+            display: flex; align-items: center; gap: 14px;
+            color: #fff;
+        }
+        .ppt-final-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: var(--ant-orange);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0;
+        }
+        .ppt-final-body strong {
+            display: block; font-size: 14.5px; font-weight: 800;
+            color: #fff; margin-bottom: 2px;
+        }
+        .ppt-final-body small {
+            display: block; font-size: 12.5px;
+            color: rgba(255,255,255,0.75); line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .arch-diagram { padding: 22px 16px; }
+            .arch-agents { grid-template-columns: 1fr; gap: 18px; }
+            .arch-agent::before { display: none; }
+            .arch-bus { display: none; }
+            .arch-orchestrator { flex-direction: column; text-align: center; }
+            .arch-orchestrator::after { display: none; }
+            .ppt-phase {
+                grid-template-columns: 36px 1fr;
+                grid-template-rows: auto auto auto;
+                gap: 8px 12px;
+                padding: 14px 16px;
+            }
+            .ppt-phase-agent { grid-column: 2; }
+            .ppt-phase-role { grid-column: 1 / -1; font-size: 12.5px; }
+            .ppt-phase-tool { grid-column: 1 / -1; }
+            .ppt-phase::after { left: 22px; }
+        }
+
+        /* ── Q2. LADDER (L0~L5) ── */
+        .ladder {
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .ladder-row {
+            display: grid;
+            grid-template-columns: 56px 200px 1fr auto;
+            gap: 18px; align-items: center;
+            padding: 18px 24px;
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            text-decoration: none; color: inherit;
+        }
+        a.ladder-row:hover {
+            border-left-color: var(--ant-orange);
+            transform: translateX(2px);
+            box-shadow: var(--nm-shadow);
+        }
+        .ladder-go {
+            font-size: 12px; font-weight: 700;
+            color: var(--ant-orange);
+            white-space: nowrap; opacity: 0.75;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        a.ladder-row:hover .ladder-go { opacity: 1; transform: translateX(2px); }
+        .ladder-row[data-level="0"] { opacity: 0.78; }
+        .ladder-level {
+            width: 46px; height: 46px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 800; color: var(--ant-orange);
+        }
+        .ladder-row[data-level="0"] .ladder-level { color: #7A7570; }
+        .ladder-name {
+            font-size: 14px; font-weight: 800; color: #3A3530;
+            line-height: 1.4;
+        }
+        .ladder-name small {
+            display: block; font-size: 12px; font-weight: 700;
+            color: var(--ant-orange); letter-spacing: 0.8px;
+            margin-bottom: 3px; text-transform: uppercase;
+        }
+        .ladder-row[data-level="0"] .ladder-name small { color: #7A7570; }
+        .ladder-desc {
+            font-size: 14px; color: #5C5650; line-height: 1.65;
+        }
+        .ladder-desc strong { color: #3A3530; font-weight: 700; }
+
+        /* ── Q3. FLOW ── */
+        .flow {
+            display: flex; flex-direction: column; gap: 8px;
+            position: relative;
+        }
+        .flow-step {
+            display: grid;
+            grid-template-columns: 56px 1fr auto;
+            gap: 16px; align-items: center;
+            padding: 18px 24px;
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: inherit;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .flow-step.fs-compact {
+            padding: 12px 24px;
+            grid-template-columns: 56px 1fr auto auto;
+        }
+        .flow-step:hover {
+            transform: translateX(3px);
+            box-shadow: var(--nm-shadow);
+        }
+        .flow-step::after {
+            content: '↓'; position: absolute;
+            left: 50%; bottom: -15px;
+            transform: translateX(-50%);
+            font-size: 12px; color: var(--ant-orange);
+            opacity: 0.4; font-weight: 800;
+        }
+        .flow-step:last-child::after { display: none; }
+        .flow-meta {
+            font-size: 11.5px; font-weight: 700;
+            color: var(--ant-orange);
+            background: rgba(217,119,87,0.12);
+            padding: 3px 10px; border-radius: 100px;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+        .flow-num {
+            width: 46px; height: 46px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 800; color: var(--ant-orange);
+        }
+        .flow-body h4 {
+            font-size: 14px; font-weight: 800; color: #3A3530;
+            line-height: 1.4; margin-bottom: 3px;
+        }
+        .flow-body p {
+            font-size: 14px; color: #5C5650; line-height: 1.6;
+        }
+        .flow-arrow {
+            color: var(--ant-orange); font-size: 18px; font-weight: 700;
+            opacity: 0.6; transition: opacity 0.2s;
+        }
+        .flow-step:hover .flow-arrow { opacity: 1; }
+
+        /* ── PATHS ── */
+        .paths {
+            margin-top: 28px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+        }
+        .path-card {
+            padding: 20px 22px;
+            background: linear-gradient(135deg, #FCF2DD 0%, #F1DCB4 100%);
+            border-radius: 16px;
+        }
+        .path-card .path-who {
+            font-size: 12px; font-weight: 800;
+            color: var(--ant-orange);
+            letter-spacing: 1.2px; text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .path-card h4 {
+            font-size: 14px; font-weight: 800; color: #1a1a1a;
+            line-height: 1.4; margin-bottom: 6px;
+        }
+        .path-card p {
+            font-size: 14px; color: #2a2a2a; line-height: 1.6;
+        }
+
+        /* ── FINAL CTA ── */
+        .final-cta {
+            margin-top: 60px;
+            padding: 34px 40px;
+            background: linear-gradient(150deg, #A04828 0%, #7A2E15 100%);
+            border-radius: 28px;
+            text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .final-cta::before {
+            content: '';
+            position: absolute; top: -80px; right: -80px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,217,199,0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .final-cta h3 {
+            font-size: 22px; font-weight: 800; color: #fff;
+            line-height: 1.3; margin-bottom: 6px;
+            position: relative; z-index: 1;
+            white-space: nowrap;
+        }
+        .final-cta p {
+            font-size: 14px; color: rgba(255,255,255,0.78);
+            line-height: 1.6; margin-bottom: 18px;
+            position: relative; z-index: 1;
+        }
+        .final-cta-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 28px; border-radius: 100px;
+            background: #fff; color: #7A2E15;
+            font-size: 14px; font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            position: relative; z-index: 1;
+        }
+        .final-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(0,0,0,0.28); }
+        .final-cta-sub {
+            margin-top: 28px;
+            font-size: 12px; color: rgba(255,255,255,0.7);
+            position: relative; z-index: 1;
+        }
+        .final-cta-sub a {
+            color: #FFD9C7; font-weight: 700;
+            text-decoration: underline; text-underline-offset: 3px;
+        }
+        .final-cta-sub a:hover { color: #fff; }
+
+        /* ── FOOTER ── */
+        footer {
+            background: #1A1917; color: rgba(255,255,255,0.8);
+            text-align: center; padding: 48px 20px;
+        }
+        footer .footer-brand {
+            font-size: 14px; font-weight: 800;
+            color: var(--ant-orange);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        footer .footer-tagline {
+            font-size: 14px; color: rgba(255,255,255,0.75);
+            margin-bottom: 24px;
+        }
+        footer .footer-copy {
+            font-size: 12px; color: rgba(255,255,255,0.4);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .compare-table { grid-template-columns: 0.9fr 1.05fr 1.05fr 1.05fr; }
+            .ct-cell { padding: 12px 10px; font-size: 12.5px; }
+            .ct-hb { font-size: 14px; }
+            .ct-score-desc { font-size: 12.5px; }
+        }
+        @media (max-width: 768px) {
+            header { padding: 24px 20px 32px; }
+            header h1 { font-size: 26px; line-height: 1.35; white-space: normal; }
+            header p { font-size: 14px; }
+            .container { padding: 32px 16px; }
+
+            .step-nav { max-width: 100%; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+
+            .sub-menu { padding: 10px 8px; }
+            .sub-menu a { padding: 6px 12px; }
+            .sub-menu .sm-title { font-size: 12px; }
+            .sub-menu .sm-sub { font-size: 10px; }
+            .sub-menu .sm-num { width: 24px; height: 24px; font-size: 11px; }
+
+            .header-pages { flex-wrap: wrap; gap: 8px; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; min-width: 160px; border-radius: 12px; }
+
+            .step-divider { margin: 40px 0 24px; }
+            .section-header-block h2 { font-size: 19px; }
+            .section-subtitle { font-size: 13.5px; }
+
+            /* Compare table: stack per criterion */
+            .compare-wrap { padding: 16px 12px; }
+            .compare-table {
+                grid-template-columns: 1fr;
+                gap: 14px;
+                background: transparent;
+            }
+            .ct-header { display: none; }
+            .ct-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 2px;
+                background: rgba(0,0,0,0.05);
+                border-radius: 10px;
+                overflow: hidden;
+            }
+            .ct-row .ct-criterion {
+                grid-column: 1 / -1;
+                background: #F0EDE8;
+                border-radius: 10px 10px 0 0;
+            }
+            .ct-row .ct-cell:not(.ct-criterion) { padding: 12px 10px; }
+            .ct-cell::before {
+                content: attr(data-ai);
+                display: block;
+                font-size: 10px; font-weight: 800;
+                color: var(--ant-orange);
+                margin-bottom: 4px; letter-spacing: 0.8px;
+            }
+            .ct-criterion::before { display: none; }
+            .ct-footer {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 2px;
+                background: rgba(0,0,0,0.05);
+                border-radius: 10px;
+                overflow: hidden;
+                margin-top: 4px;
+            }
+            .ct-footer .ct-criterion {
+                grid-column: 1 / -1;
+                background: #2A1F18; color: #fff;
+                border-radius: 10px 10px 0 0;
+            }
+
+            .ladder-row {
+                grid-template-columns: 44px 1fr auto;
+                grid-template-rows: auto auto;
+                gap: 10px 14px;
+                padding: 14px 18px;
+            }
+            .ladder-level { width: 40px; height: 40px; font-size: 13px; }
+            .ladder-name { grid-column: 2 / 3; font-size: 14px; }
+            .ladder-desc { grid-column: 1 / -1; font-size: 13px; }
+            .ladder-go { grid-column: 3 / 4; grid-row: 1 / 2; align-self: center; font-size: 11px; }
+
+            .flow-step { padding: 14px 18px; gap: 12px; grid-template-columns: 42px 1fr auto; }
+            .flow-num { width: 40px; height: 40px; font-size: 12px; }
+            .flow-body h4 { font-size: 14.5px; }
+            .flow-body p { font-size: 12.5px; }
+
+            .paths { grid-template-columns: 1fr; }
+
+            .final-cta { padding: 28px 22px; border-radius: 22px; }
+            .final-cta h3 { font-size: 17px; white-space: normal; line-height: 1.4; }
+            .final-cta-btn { padding: 11px 22px; font-size: 13.5px; }
+        }
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+            .step-nav { max-width: 100%; margin: 16px 0 14px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 6px; max-width: 14px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+            .ct-row { grid-template-columns: 1fr; }
+            .ct-row .ct-cell:not(.ct-criterion) { border-top: 1px solid rgba(0,0,0,0.06); }
+            .ct-footer { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="hero-inner">
+        <nav class="step-nav">
+            <a class="step-node sn-diag active" href="claude-orientation.html">진단</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="ai-fluency.html">1</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="chrome-plugin.html">2</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="cowork-intro.html">3</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="claude-code-101.html">4</a>
+            <div class="step-line"></div>
+            <a class="step-node" href="harness-engineering.html">5</a>
+            <div class="step-line"></div>
+            <a class="step-node sn-diag" href="harness-book.html">최종</a>
+        </nav>
+
+        <a class="back-link" href="index.html">&larr; 목록으로</a>
+        <h1>Claude 완전 정복, 5분 오리엔테이션</h1>
+        <p>세 가지 질문에 답하면, 어디서 시작할지 보입니다.</p>
+
+        <div class="header-pages">
+            <a href="claude-orientation.html" class="header-page-link active"><span class="hpl-icon">&#128161;</span> 5분 오리엔테이션</a>
+            <a href="ai-levels.html" class="header-page-link"><span class="hpl-icon">&#128200;</span> AI 활용 수준 진단</a>
+        </div>
+    </div>
+</header>
+
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec-why" class="active">
+        <span class="sm-num">1</span>
+        <span class="sm-title">왜 Claude인가</span>
+        <span class="sm-sub">AI 도구 3사 비교</span>
+    </a>
+    <a href="#sec-arch">
+        <span class="sm-num">2</span>
+        <span class="sm-title">에이전트 설계</span>
+        <span class="sm-sub">PPT 보고서 예시</span>
+    </a>
+    <a href="#sec-what">
+        <span class="sm-num">3</span>
+        <span class="sm-title">활용 사다리</span>
+        <span class="sm-sub">L0~L5 단계</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- ═══ Q1. 왜 Claude인가 ═══ -->
+    <section id="sec-why">
+        <div class="step-divider">
+            <span class="step-badge">AI 도구 3사 비교</span>
+        </div>
+        <div class="section-header-block reveal">
+            <h2>왜 Claude인가?</h2>
+            <p class="section-subtitle">주요 AI 3사를 5가지 기준으로 비교했습니다. Claude가 <strong>비즈니스 문제 해결·문서 처리·안전성</strong> 세 축에서 가장 높은 평가를 받습니다.</p>
+        </div>
+
+        <div class="compare-wrap reveal stagger-1">
+            <div class="compare-table">
+                <!-- Header -->
+                <div class="ct-header" style="display:contents;">
+                    <div class="ct-cell ct-criterion" style="background:#3A3530;color:#fff;">평가 기준</div>
+                    <div class="ct-cell ct-claude-col">Claude</div>
+                    <div class="ct-cell">ChatGPT</div>
+                    <div class="ct-cell">Gemini</div>
+                </div>
+
+                <!-- Row 1 -->
+                <div class="ct-row" style="display:contents;">
+                    <div class="ct-cell ct-criterion">
+                        <span class="ct-crit-num">1</span>
+                        <div class="ct-crit-text">
+                            <strong>비즈니스 문제 해결력</strong>
+                            <small>복잡한 문제를 단계로 쪼개는 힘</small>
+                        </div>
+                    </div>
+                    <div class="ct-cell ct-claude-cell" data-ai="Claude">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="5 out of 5">●●●●●<span class="ct-hb-label">최상</span></span>
+                            <span class="ct-score-desc">구조화·추론이 가장 강합니다. 컨설팅형 분석에 최적입니다.</span>
+                        </div>
+                    </div>
+                    <div class="ct-cell" data-ai="ChatGPT">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="4.5 out of 5">●●●●◐<span class="ct-hb-label">상</span></span>
+                            <span class="ct-score-desc">전략·아이디어·실행을 한 번에 오가는 범용성이 강점입니다.</span>
+                        </div>
+                    </div>
+                    <div class="ct-cell" data-ai="Gemini">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="4 out of 5">●●●●○<span class="ct-hb-label">중상</span></span>
+                            <span class="ct-score-desc">리서치·검색 결합에 유리합니다. 균형형입니다.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2 -->
+                <div class="ct-row" style="display:contents;">
+                    <div class="ct-cell ct-criterion">
+                        <span class="ct-crit-num">2</span>
+                        <div class="ct-crit-text">
+                            <strong>문서·데이터 처리력</strong>
+                            <small>장문 보고서·코드를 다루는 능력</small>
+                        </div>
+                    </div>
+                    <div class="ct-cell ct-claude-cell" data-ai="Claude">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="5 out of 5">●●●●●<span class="ct-hb-label">최상</span></span>
+                            <span class="ct-score-desc">장문·정책·코드 처리 품질이 가장 높습니다. 보고서 작업에 최적입니다.</span>
+                        </div>
+                    </div>
+                    <div class="ct-cell" data-ai="ChatGPT">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="4 out of 5">●●●●○<span class="ct-hb-label">중상</span></span>
+                            <span class="ct-score-desc">툴 연동으로 업무 자동화에 강합니다.</span>
+                        </div>
+                    </div>
+                    <div class="ct-cell" data-ai="Gemini">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="4.5 out of 5">●●●●◐<span class="ct-hb-label">상</span></span>
+                            <span class="ct-score-desc">2M 토큰과 Google Docs 연동으로 리서치·정리에 최적입니다.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3 -->
+                <div class="ct-row" style="display:contents;">
+                    <div class="ct-cell ct-criterion">
+                        <span class="ct-crit-num">3</span>
+                        <div class="ct-crit-text">
+                            <strong>신뢰·안전성</strong>
+                            <small>프라이버시·기업용 안전 수준</small>
+                        </div>
+                    </div>
+                    <div class="ct-cell ct-claude-cell" data-ai="Claude">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="5 out of 5">●●●●●<span class="ct-hb-label">최상</span></span>
+                            <span class="ct-score-desc">헌법형 AI 설계로 프라이버시·기업 안전성이 가장 높습니다.</span>
+                        </div>
+                    </div>
+                    <div class="ct-cell" data-ai="ChatGPT">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="4 out of 5">●●●●○<span class="ct-hb-label">중상</span></span>
+                            <span class="ct-score-desc">기업용 보안은 우수하나, 정책 변경이 잦습니다.</span>
+                        </div>
+                    </div>
+                    <div class="ct-cell" data-ai="Gemini">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="4.5 out of 5">●●●●◐<span class="ct-hb-label">상</span></span>
+                            <span class="ct-score-desc">Google Workspace 거버넌스 위에 자연스럽게 올라갑니다.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 4 -->
+                <div class="ct-row" style="display:contents;">
+                    <div class="ct-cell ct-criterion">
+                        <span class="ct-crit-num">4</span>
+                        <div class="ct-crit-text">
+                            <strong>생태계·통합성</strong>
+                            <small>연동되는 외부 도구의 범위</small>
+                        </div>
+                    </div>
+                    <div class="ct-cell ct-claude-cell" data-ai="Claude">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="4 out of 5">●●●●○<span class="ct-hb-label">중상</span></span>
+                            <span class="ct-score-desc">MCP·커넥터가 빠르게 확장 중이나, 규모는 아직 작습니다.</span>
+                        </div>
+                    </div>
+                    <div class="ct-cell" data-ai="ChatGPT">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="5 out of 5">●●●●●<span class="ct-hb-label">최상</span></span>
+                            <span class="ct-score-desc">GPTs·MS Copilot과 결합된 가장 넓은 생태계를 가집니다.</span>
+                        </div>
+                    </div>
+                    <div class="ct-cell" data-ai="Gemini">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="4.5 out of 5">●●●●◐<span class="ct-hb-label">상</span></span>
+                            <span class="ct-score-desc">Google Workspace 전체와 네이티브로 연결됩니다.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 5 -->
+                <div class="ct-row" style="display:contents;">
+                    <div class="ct-cell ct-criterion">
+                        <span class="ct-crit-num">5</span>
+                        <div class="ct-crit-text">
+                            <strong>비용·스케일 적합성</strong>
+                            <small>지불 대비 업무 효율</small>
+                        </div>
+                    </div>
+                    <div class="ct-cell ct-claude-cell" data-ai="Claude">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="4.5 out of 5">●●●●◐<span class="ct-hb-label">상</span></span>
+                            <span class="ct-score-desc">품질 대비 ROI가 높습니다. 지식노동자에게 특히 효율적입니다.</span>
+                        </div>
+                    </div>
+                    <div class="ct-cell" data-ai="ChatGPT">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="4.5 out of 5">●●●●◐<span class="ct-hb-label">상</span></span>
+                            <span class="ct-score-desc">MS 365와 묶인 사무환경 총비용이 합리적입니다.</span>
+                        </div>
+                    </div>
+                    <div class="ct-cell" data-ai="Gemini">
+                        <div class="ct-score-block">
+                            <span class="ct-hb" aria-label="4.5 out of 5">●●●●◐<span class="ct-hb-label">상</span></span>
+                            <span class="ct-score-desc">Google One과 묶여 추가 비용이 최소화됩니다.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer: Total -->
+                <div class="ct-footer" style="display:contents;">
+                    <div class="ct-cell ct-criterion" style="background:#2A1F18;color:#fff;">
+                        <div class="ct-crit-text">
+                            <strong style="color:#fff;">종합 평가</strong>
+                            <small style="color:rgba(255,255,255,0.65);">5개 기준 평균</small>
+                        </div>
+                    </div>
+                    <div class="ct-cell ct-claude-cell" data-ai="Claude">
+                        <span class="ct-hb" aria-label="Claude 종합 최상">●●●●●<span class="ct-hb-label">최상</span></span>
+                    </div>
+                    <div class="ct-cell" data-ai="ChatGPT">
+                        <span class="ct-hb" aria-label="ChatGPT 종합 상">●●●●◐<span class="ct-hb-label">상</span></span>
+                    </div>
+                    <div class="ct-cell" data-ai="Gemini">
+                        <span class="ct-hb" aria-label="Gemini 종합 상">●●●●◐<span class="ct-hb-label">상</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-closer reveal stagger-2">
+            그래서 이 사이트는 <strong>Claude 하나에 집중합니다.</strong> 여러 AI를 얕게 쓰는 것보다, 한 도구를 깊게 익히는 편이 업무에 더 빠르게 쓰입니다.
+            <br><br>
+            <small style="color:#7A7570;font-weight:500;">※ 다만 <strong style="color:#5C5650;">이미지 생성은 Gemini의 Nano Banana Pro</strong>가, <strong style="color:#5C5650;">코드 자동 실행·리팩터링은 OpenAI Codex</strong>가 더 적합합니다. 용도에 따라 보조 도구로 함께 씁니다.</small>
+        </div>
+
+        <div class="section-closer reveal stagger-3" style="margin-top:16px;">
+            그런데 <strong>Claude</strong>, 이름은 어디서 왔을까요? <strong>정보 이론의 아버지 클로드 섀넌(Claude Shannon, 1916~2001, 미국)</strong>에서 따왔습니다. 0과 1로 정보를 다루는 토대를 세운 수학자로, 오늘날 모든 디지털 통신과 AI의 밑바탕이 된 인물입니다.
+            <br><br>
+            <small style="color:#7A7570;font-weight:500;">※ 발음은 <strong style="color:#5C5650;">'클로드' [klɔːd]</strong>입니다. 프랑스어에서 온 이름이라 '클라우드(cloud)'가 아니라 <strong style="color:#5C5650;">'클로드'</strong>로 읽습니다. 참고로 Anthropic의 창업자 다리오·다니엘라 아모데이 남매는 이탈리아계 미국인이며, 회사명 <strong style="color:#5C5650;">Anthropic</strong>은 그리스어 <em>anthropos</em>(사람)에서 온 '인간 중심의'라는 뜻입니다.</small>
+        </div>
+    </section>
+
+
+    <!-- ═══ 에이전트 설계 예시 ═══ -->
+    <section id="sec-arch">
+        <div class="step-divider">
+            <span class="step-badge">에이전트 설계 · PPT 보고서</span>
+        </div>
+        <div class="section-header-block reveal">
+            <h2>PPT 보고서 에이전트, Claude라면 이렇게 설계합니다</h2>
+            <p class="section-subtitle">5개의 서브 에이전트가 <strong>리서처 → 스토리텔러 → 디자이너 → 빌더 → 리뷰어</strong> 순서로 일하고, 각자 <strong>가장 잘 맞는 API·도구(MCP)·스킬</strong>를 씁니다.</p>
+        </div>
+
+        <div class="arch-diagram reveal stagger-1">
+            <span class="arch-frame-label">Claude Code · 하네스 & 오케스트레이터</span>
+            <div class="arch-frame-sub"><strong>서브 에이전트가 돌아가는 실행 환경.</strong> 외부 도구(MCP)·파일·Git을 대신 연결해 줍니다.</div>
+
+            <!-- Sub-agents -->
+            <div class="arch-agents agents-vertical">
+                <!-- 1. Researcher -->
+                <div class="arch-agent">
+                    <div class="arch-agent-head">
+                        <div class="arch-agent-icon">&#128269;</div>
+                        <div class="arch-agent-name"><small>Sub-agent 1</small>리서처</div>
+                    </div>
+                    <div class="arch-agent-role">내부 자료·웹·데이터에서 근거를 모읍니다.</div>
+                    <div class="arch-api-stack">
+                        <div class="arch-agent-api">
+                            <span class="arch-api-dot" style="background:#7A7570;"></span>
+                            <span class="arch-api-label">NotebookLM (MCP)</span>
+                        </div>
+                        <div class="arch-agent-api">
+                            <span class="arch-api-dot" style="background:#7A7570;"></span>
+                            <span class="arch-api-label">Google Sheet (Connector)</span>
+                        </div>
+                        <div class="arch-agent-api">
+                            <span class="arch-api-dot dot-liner"></span>
+                            <span class="arch-api-label">Liner API<small>웹 검색 · 출처</small></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Outliner -->
+                <div class="arch-agent">
+                    <div class="arch-agent-head">
+                        <div class="arch-agent-icon">&#128196;</div>
+                        <div class="arch-agent-name"><small>Sub-agent 2</small>스토리텔러</div>
+                    </div>
+                    <div class="arch-agent-role">스토리라인·목차·슬라이드 헤드라인과 본문을 씁니다.</div>
+                    <div class="arch-api-stack">
+                        <div class="arch-agent-api">
+                            <span class="arch-api-dot dot-claude"></span>
+                            <span class="arch-api-label">Claude<small>구조화 · 장문 추론 · 문체</small></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Designer -->
+                <div class="arch-agent">
+                    <div class="arch-agent-head">
+                        <div class="arch-agent-icon">&#127912;</div>
+                        <div class="arch-agent-name"><small>Sub-agent 3</small>디자이너</div>
+                    </div>
+                    <div class="arch-agent-role">표지·섹션 이미지·아이콘을 생성합니다.</div>
+                    <div class="arch-api-stack">
+                        <div class="arch-agent-api">
+                            <span class="arch-api-dot dot-gemini"></span>
+                            <span class="arch-api-label">Gemini API<small>Nano Banana Pro 이미지</small></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Builder -->
+                <div class="arch-agent">
+                    <div class="arch-agent-head">
+                        <div class="arch-agent-icon">&#129520;</div>
+                        <div class="arch-agent-name"><small>Sub-agent 4</small>빌더</div>
+                    </div>
+                    <div class="arch-agent-role">텍스트·차트·이미지를 템플릿에 맞춰 .pptx로 조립합니다.</div>
+                    <div class="arch-api-stack">
+                        <div class="arch-agent-api">
+                            <span class="arch-api-dot" style="background:#7A7570;"></span>
+                            <span class="arch-api-label">PPTX Skill<small>python-pptx · 템플릿 적용</small></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Reviewer -->
+                <div class="arch-agent">
+                    <div class="arch-agent-head">
+                        <div class="arch-agent-icon">&#128270;</div>
+                        <div class="arch-agent-name"><small>Sub-agent 5</small>리뷰어</div>
+                    </div>
+                    <div class="arch-agent-role">논리·수치·톤·오탈자를 점검하고 수정안을 냅니다. 실패 시 이전 단계로 피드백합니다.</div>
+                    <div class="arch-api-stack">
+                        <div class="arch-agent-api">
+                            <span class="arch-api-dot dot-claude"></span>
+                            <span class="arch-api-label">Claude<small>1차 자체 검토</small></span>
+                        </div>
+                        <div class="arch-agent-api">
+                            <span class="arch-api-dot" style="background:#7A7570;"></span>
+                            <span class="arch-api-label">ChatGPT API<small>타 모델 교차 검증</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arch-legend">
+                <strong>이 구조의 핵심.</strong> Claude Code가 <strong>컨테이너이자 지휘자</strong>, 서브 에이전트는 <strong>각자의 전문가</strong>입니다. PM 에이전트를 따로 두지 않고, 역할을 과하게 쪼개지 않습니다.
+                <ul>
+                    <li><strong>리서처</strong>: 내 자료(NotebookLM), 외부(Liner), 수치(Google Sheet)를 한 에이전트에서 모읍니다.</li>
+                    <li><strong>스토리텔러</strong>: 구조 설계와 본문 작성을 한 맥락에서 처리해 일관성을 지킵니다.</li>
+                    <li><strong>디자이너</strong>: 이미지는 Gemini Nano Banana Pro에 넘깁니다.</li>
+                    <li><strong>빌더</strong>: PPTX Skill이 템플릿·레이아웃·차트를 .pptx로 묶어냅니다.</li>
+                    <li><strong>리뷰어</strong>: Claude 1차 + <strong>ChatGPT 교차 검증</strong>. 문제 발견 시 해당 단계로 피드백을 돌려보냅니다.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══ Q2. 무엇을 배워야 하는가 ═══ -->
+    <section id="sec-what">
+        <div class="step-divider">
+            <span class="step-badge">활용 사다리 · L0~L5</span>
+        </div>
+        <div class="section-header-block reveal">
+            <h2>무엇을 배워야 하는가?</h2>
+            <p class="section-subtitle">AI 활용에는 단계가 있습니다. 지금 위치에서 <strong>한 칸만 올라가도 업무가 달라집니다.</strong></p>
+        </div>
+
+        <div class="ladder">
+            <div class="ladder-row reveal" data-level="0">
+                <div class="ladder-level">L0</div>
+                <div class="ladder-name"><small>수동 운전 · 입문자</small>기본 채팅</div>
+                <div class="ladder-desc">Claude.ai 웹·앱에서 질문하고 답을 받습니다. <strong>"이미 AI를 쓰고 있다"</strong>는 단계입니다. 기본 프롬프트와 모델 선택만 활용합니다.</div>
+                <span class="ladder-go" style="opacity:0.4;">출발점</span>
+            </div>
+            <a class="ladder-row reveal stagger-1" data-level="1" href="project-intro.html">
+                <div class="ladder-level">L1</div>
+                <div class="ladder-name"><small>운전자 보조 · 세팅자</small>맞춤 프로젝트 세팅</div>
+                <div class="ladder-desc">Claude Projects로 프로젝트 지침과 파일, 멀티 페르소나를 설정합니다. <strong>매번 같은 상황을 설명하는 피로가 사라집니다.</strong></div>
+                <span class="ladder-go">여기서 시작 →</span>
+            </a>
+            <a class="ladder-row reveal stagger-2" data-level="2" href="chrome-plugin.html">
+                <div class="ladder-level">L2</div>
+                <div class="ladder-name"><small>부분 자동화 · 검수자</small>디자인 · 플러그인</div>
+                <div class="ladder-desc">Claude Design과 Claude in Chrome, Office 플러그인을 연결합니다. <strong>쓰던 도구 안에서 AI가 일합니다.</strong></div>
+                <span class="ladder-go">여기서 시작 →</span>
+            </a>
+            <a class="ladder-row reveal stagger-3" data-level="3" href="cowork-intro.html">
+                <div class="ladder-level">L3</div>
+                <div class="ladder-name"><small>조건부 자동화 · 연결자</small>Cowork (파일·업무 연결)</div>
+                <div class="ladder-desc">Gmail, Calendar, Drive, PC 파일을 Connectors로 잇습니다. <strong>내 PC와 일상 도구가 AI에 연결됩니다.</strong></div>
+                <span class="ladder-go">여기서 시작 →</span>
+            </a>
+            <a class="ladder-row reveal stagger-4" data-level="4" href="claude-code-101.html">
+                <div class="ladder-level">L4</div>
+                <div class="ladder-name"><small>고도 자동화 · 감독자</small>Claude Code (바이브 코딩)</div>
+                <div class="ladder-desc">CLAUDE.md, Git·GitHub 연동, 자동 실행을 설정합니다. <strong>코드도 대화로 만듭니다.</strong></div>
+                <span class="ladder-go">여기서 시작 →</span>
+            </a>
+            <a class="ladder-row reveal stagger-4" data-level="5" href="harness-engineering.html">
+                <div class="ladder-level">L5</div>
+                <div class="ladder-name"><small>완전 자동화 · 설계자</small>멀티 에이전트 오케스트레이션</div>
+                <div class="ladder-desc">Skills, MCP, 하네스 엔지니어링으로 서브 에이전트를 설계합니다. <strong>조직이 AI 팀을 운영합니다.</strong></div>
+                <span class="ladder-go">여기서 시작 →</span>
+            </a>
+        </div>
+
+        <div class="section-closer reveal stagger-4">
+            대부분의 사용자는 <strong>L0과 L1에 머뭅니다.</strong> L2만 넘어서도 업무의 성격이 바뀝니다.
+        </div>
+    </section>
+
+
+    <!-- ═══ FINAL CTA ═══ -->
+    <div class="final-cta reveal">
+        <h3>내 위치를 알면, 시작점이 보입니다.</h3>
+        <p>몇 분이면 끝납니다. L0부터 L5까지, 지금 어디에 서 있는지 확인합니다.</p>
+        <a class="final-cta-btn" href="ai-levels.html">AI 활용 수준 진단하기 &rarr;</a>
+        <p class="final-cta-sub">진단 없이 바로 시작하고 싶다면 <a href="project-intro.html">맞춤 프로젝트 세팅부터</a></p>
+    </div>
+
+</main>
+
+<footer>
+    <p class="footer-brand">AI Roasting</p>
+    <p class="footer-tagline">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <p class="footer-copy">© 2026 AI Roasting. All rights reserved.</p>
+</footer>
+
+<script>
+    // Reveal on scroll
+    (function() {
+        var els = document.querySelectorAll('.reveal');
+        if (!('IntersectionObserver' in window)) {
+            els.forEach(function(e) { e.classList.add('visible'); });
+            return;
+        }
+        var io = new IntersectionObserver(function(entries) {
+            entries.forEach(function(en) {
+                if (en.isIntersecting) {
+                    en.target.classList.add('visible');
+                    io.unobserve(en.target);
+                }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -10% 0px' });
+        els.forEach(function(e) { io.observe(e); });
+    })();
+
+    // Scroll spy for sub-menu
+    (function() {
+        var secIds = ['sec-why', 'sec-arch', 'sec-what'];
+        var links = document.querySelectorAll('.sub-menu a');
+        if (!('IntersectionObserver' in window)) return;
+        var io = new IntersectionObserver(function(entries) {
+            entries.forEach(function(en) {
+                if (en.isIntersecting) {
+                    links.forEach(function(a) { a.classList.remove('active'); });
+                    var idx = secIds.indexOf(en.target.id);
+                    if (idx >= 0 && links[idx]) links[idx].classList.add('active');
+                }
+            });
+        }, { rootMargin: '-30% 0px -60% 0px' });
+        secIds.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) io.observe(el);
+        });
+    })();
+</script>
+
+</body>
+</html>

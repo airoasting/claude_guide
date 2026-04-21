@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude in MS Office | AI Roasting</title>
+    <meta name="description" content="엑셀·파워포인트·워드에 Claude를 붙여 문서 작업을 한 번에 자동화하는 실전 가이드.">
+    <meta property="og:title" content="Claude in MS Office | AI Roasting">
+    <meta property="og:description" content="MS Office 3종(Excel·PowerPoint·Word) Claude 플러그인 실전 가이드.">
+    <meta property="og:type" content="website">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body { word-break: keep-all;
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
+            line-height: 1.6;
+        }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        .header-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+        }
+        .header-page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 22px;
+            min-width: 130px;
+            white-space: nowrap;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 150px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 32px 16px;
+        }
+
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 32px;
+            margin-bottom: 28px;
+        }
+
+        .nm-card h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+        }
+
+        .nm-card h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 8px;
+        }
+
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+
+        .nm-card ul, .nm-card ol {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .nm-card li { margin-bottom: 8px; }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 18px;
+            padding-left: 20px;
+        }
+
+        /* 설치 버튼 */
+        .install-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+            padding: 10px 18px;
+            background: var(--ant-orange);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: var(--nm-shadow-sm);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .install-btn:hover { transform: translateY(-1px); box-shadow: var(--nm-shadow); }
+
+        /* ROI 배너 */
+        .roi-banner {
+            background: linear-gradient(135deg, rgba(168,56,32,0.08) 0%, rgba(217,119,87,0.12) 100%);
+            border: 1px solid rgba(217,119,87,0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin: 20px 0 6px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .roi-item { text-align: center; flex: 1; min-width: 110px; }
+        .roi-num { font-size: 26px; font-weight: 900; color: var(--ant-orange); line-height: 1; }
+        .roi-desc { font-size: 12px; color: #888; margin-top: 4px; }
+        .roi-note { font-size: 12px; color: #999; margin: 4px 0 0; }
+
+        /* 첫 1분 카드 */
+        .first-minute {
+            margin-top: 18px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 16px 20px;
+        }
+        .first-minute .fm-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--ant-orange);
+            margin-bottom: 6px;
+        }
+        .first-minute p { font-size: 14px; color: #3A3530; line-height: 1.7; }
+
+        .step-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0 28px;
+        }
+        .step-divider::before,
+        .step-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #E8E4DE;
+        }
+        .step-badge {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--ant-orange);
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+        @keyframes shimmerScan {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .step-badge {
+            background-image: linear-gradient(
+                105deg,
+                var(--nm-bg) 40%,
+                rgba(255,255,255,0.85) 50%,
+                var(--nm-bg) 60%
+            );
+            background-size: 200% auto;
+            animation: shimmerScan 2.8s linear infinite;
+        }
+
+        .inset-box {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px;
+            margin: 16px 0;
+        }
+
+        .inset-box strong {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            margin-bottom: 6px;
+        }
+
+        .inset-box p, .inset-box li {
+            font-size: 14px;
+            color: #5C5650;
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .step-list li:last-child { border-bottom: none; }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            flex-shrink: 0;
+            width: 28px; height: 28px;
+            background: var(--ant-orange);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .use-case-item {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+        }
+
+        .use-case-item .uc-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .use-case-item h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+        }
+
+        .use-case-item p {
+            font-size: 14px;
+            color: #6C6660;
+            line-height: 1.7;
+        }
+
+        .tip-box {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 22px;
+            margin: 16px 0;
+        }
+
+        .tip-box .tip-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .tip-box p {
+            font-size: 14px;
+            color: #5C5650;
+        }
+
+        .prompt-example {
+            background: var(--ant-dark);
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin: 12px 0;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            color: #E8E4DE;
+            line-height: 1.75;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        .prompt-copy {
+            position: absolute;
+            top: 10px; right: 12px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Pretendard', sans-serif;
+        }
+        .prompt-copy:hover { background: rgba(255,255,255,0.22); color: #fff; }
+        .prompt-copy.copied { background: rgba(217,119,87,0.4); border-color: var(--ant-orange); color: #fff; }
+
+        .compare-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .compare-before {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 18px 20px;
+        }
+        .compare-after {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 20px;
+        }
+        .compare-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+        .compare-after .compare-label { color: var(--ant-orange); }
+        .compare-before p, .compare-after p {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+
+        /* ── 앱 헤더 (섹션 타이틀) ── */
+        .app-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .app-icon {
+            width: 56px; height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #fff;
+            box-shadow: var(--nm-shadow-sm);
+            flex-shrink: 0;
+        }
+        .app-icon.excel { background: linear-gradient(135deg, #1E8449, #0E6B3B); }
+        .app-icon.ppt { background: linear-gradient(135deg, #D35400, #A04828); }
+        .app-icon.word { background: linear-gradient(135deg, #1F4E79, #103B66); }
+        .app-info h2 { padding-left: 0; border-left: none; font-size: 22px; margin-bottom: 2px; }
+        .app-info .app-sub { font-size: 13px; color: #888; }
+
+        /* ── 요약 테이블 ── */
+        .summary-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow);
+            overflow: hidden;
+            margin-top: 16px;
+        }
+        .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .summary-table thead th {
+            background: linear-gradient(135deg, #f0ebe4, #e8e2da);
+            padding: 12px 16px; font-weight: 700; color: var(--ant-orange); text-align: left;
+            border-bottom: 2px solid rgba(188,95,44,0.15);
+        }
+        .summary-table tbody td {
+            padding: 11px 16px; color: #5C5650;
+            border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: top;
+        }
+        .summary-table tbody tr:last-child td { border-bottom: none; }
+        .summary-table tbody tr:nth-child(even) td { background: rgba(0,0,0,0.018); }
+
+        /* ── 페이지 네비 ── */
+        .page-nav {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 32px 48px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .page-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: #3A3530;
+            font-size: 13px; font-weight: 600;
+            padding: 10px 18px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .page-nav-btn:hover { box-shadow: var(--nm-inset); color: var(--ant-orange); }
+
+        /* ── Footer ── */
+        footer {
+            background: var(--ant-dark);
+            text-align: center;
+            padding: 36px 32px 28px;
+        }
+        footer .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        footer .footer-text  { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+        /* ── 애니메이션 ── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.92); }
+            60% { transform: scale(1.02); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes floatY {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        /* Reveal on scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+            will-change: opacity, transform;
+        }
+        .reveal.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 헤더 진입 애니메이션 */
+        header h1 { animation: fadeInUp 0.7s 0.05s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+        header > p { animation: fadeInUp 0.7s 0.18s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+        .header-pages { animation: fadeInUp 0.7s 0.28s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+        .step-nav { animation: fadeIn 0.9s 0.1s ease both; }
+
+        /* use-case hover */
+        .use-case-item {
+            transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.25s;
+        }
+        .use-case-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+        }
+        .use-case-item:hover .uc-icon {
+            animation: floatY 1.6s ease-in-out infinite;
+        }
+
+        /* 그리드 순차 등장 */
+        .use-case-grid.is-visible .use-case-item {
+            animation: popIn 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+        }
+        .use-case-grid.is-visible .use-case-item:nth-child(1) { animation-delay: 0.05s; }
+        .use-case-grid.is-visible .use-case-item:nth-child(2) { animation-delay: 0.15s; }
+        .use-case-grid.is-visible .use-case-item:nth-child(3) { animation-delay: 0.25s; }
+        .use-case-grid.is-visible .use-case-item:nth-child(4) { animation-delay: 0.35s; }
+
+        /* ROI 숫자 살짝 강조 */
+        .roi-banner.is-visible .roi-num {
+            animation: popIn 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+        }
+        .roi-banner.is-visible .roi-item:nth-child(1) .roi-num { animation-delay: 0.05s; }
+        .roi-banner.is-visible .roi-item:nth-child(2) .roi-num { animation-delay: 0.15s; }
+        .roi-banner.is-visible .roi-item:nth-child(3) .roi-num { animation-delay: 0.25s; }
+        .roi-banner.is-visible .roi-item:nth-child(4) .roi-num { animation-delay: 0.35s; }
+
+        /* 네비 버튼 hover */
+        .page-nav-btn { transition: transform 0.2s, box-shadow 0.2s, color 0.2s; }
+        .page-nav-btn:hover { transform: translateY(-2px); }
+
+        /* 설치 버튼 클릭 감 */
+        .install-btn:active { transform: translateY(0); box-shadow: var(--nm-inset); }
+
+        /* 프롬프트 복사 버튼 */
+        .prompt-copy { transition: all 0.2s; }
+
+        /* 접근성: 모션 줄이기 */
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1; transform: none; transition: none; }
+            header h1, header > p, .header-pages, .step-nav,
+            .use-case-grid.is-visible .use-case-item,
+            .roi-banner.is-visible .roi-num { animation: none; }
+            .use-case-item:hover .uc-icon { animation: none; }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 24px 18px 26px; border-radius: 0 0 24px 24px; }
+            header h1 { font-size: 26px; letter-spacing: -0.5px; }
+            header p { font-size: 14px; }
+            .container { padding: 20px 16px 16px; }
+            .nm-card { padding: 20px 16px; border-radius: 20px; }
+            .nm-card h2 { font-size: 20px; }
+            .use-case-grid { grid-template-columns: 1fr !important; gap: 12px; }
+            .compare-row { grid-template-columns: 1fr; }
+            .page-nav { flex-direction: column; gap: 10px; padding: 0 16px 32px; }
+            .page-nav-btn { justify-content: center; }
+            .header-pages { flex-wrap: wrap; gap: 6px; }
+            .header-page-link { padding: 7px 12px; font-size: 11px; border-radius: 10px; min-width: 0; flex: 1 1 auto; }
+            .header-badge { font-size: 12px; padding: 3px 12px; }
+            .sub-menu { padding: 10px 4px; border-radius: 0 0 20px 20px; justify-content: flex-start; }
+            .sub-menu a { padding: 6px 10px; min-width: 72px; max-width: none; flex: 0 0 auto; }
+            .sm-num { width: 24px; height: 24px; font-size: 12px; }
+            .sm-title { font-size: 11px; }
+            .sm-sub { font-size: 10px; }
+            .step-nav { max-width: 100%; gap: 0; margin: 20px 0 16px; }
+            .step-node { width: 30px; height: 30px; font-size: 11px; }
+            .step-node.sn-diag { font-size: 9px; }
+            .step-line { min-width: 6px; max-width: 18px; }
+            .step-divider { margin: 24px 0; }
+            .step-badge { font-size: 12px; padding: 6px 16px; }
+            .install-btn { font-size: 13px; padding: 10px 16px; width: 100%; justify-content: center; text-align: center; }
+            .app-head { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .prompt-example { font-size: 12px; padding: 14px 14px 36px; }
+            .prompt-copy { font-size: 11px; padding: 4px 10px; }
+            .compare-table { font-size: 12px; }
+            .compare-table th, .compare-table td { padding: 8px 6px; }
+            .roi-banner { grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 16px; }
+            .roi-num { font-size: 22px; }
+            .roi-desc { font-size: 11px; }
+            .tip-box { padding: 14px 16px; }
+            .inset-box { padding: 14px 16px; }
+            .step-list li { font-size: 14px; }
+            footer { padding: 28px 16px; border-radius: 24px 24px 0 0; }
+        }
+        @media (max-width: 480px) {
+            header h1 { font-size: 22px; }
+            header p { font-size: 13px; }
+            .header-page-link { font-size: 10px; padding: 6px 10px; }
+            .step-nav { max-width: 100%; margin: 14px 0 12px; }
+            .step-node { width: 26px; height: 26px; font-size: 10px; }
+            .step-node.sn-diag { font-size: 8px; }
+            .step-line { min-width: 4px; max-width: 12px; }
+            .back-link { font-size: 12px; margin-bottom: 12px; }
+            .sub-menu a { min-width: 64px; padding: 6px 8px; }
+            .sm-title { font-size: 10px; }
+            .sm-sub { font-size: 9px; }
+            .nm-card h2 { font-size: 18px; }
+            .card-subtitle { font-size: 12px; }
+            .step-badge { font-size: 11px; padding: 5px 14px; }
+            .roi-banner { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="claude-orientation.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="ai-fluency.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="cowork-intro.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="harness-engineering.html">5</a>
+        <div class="step-line"></div>
+        <a class="step-node sn-diag" href="harness-book.html">최종</a>
+    </nav>
+    <a class="back-link" href="index.html">← 목록으로</a>
+    <h1>Claude in MS Office</h1>
+    <p>엑셀·파워포인트·워드에 Claude를 붙여 문서 작업을 한 번에 자동화합니다</p>
+    <span class="header-badge">⏱ 10분 · 입문</span>
+    <div class="header-pages">
+        <a href="claude-design.html" class="header-page-link">🎨 Claude Design</a>
+        <a href="chrome-plugin.html" class="header-page-link">🌐 Chrome</a>
+        <a href="claude-plugin.html" class="header-page-link active">📑 MS Office</a>
+    </div>
+</header>
+
+<!-- ── SUB MENU ── -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec-why" class="active" data-sec="sec-why">
+        <span class="sm-num">1</span>
+        <span class="sm-title">왜 Office인가</span>
+        <span class="sm-sub">소개</span>
+    </a>
+    <a href="#sec-install" data-sec="sec-install">
+        <span class="sm-num">2</span>
+        <span class="sm-title">설치 & 공통</span>
+        <span class="sm-sub">시작</span>
+    </a>
+    <a href="#sec-excel" data-sec="sec-excel">
+        <span class="sm-num">3</span>
+        <span class="sm-title">엑셀</span>
+        <span class="sm-sub">Excel</span>
+    </a>
+    <a href="#sec-ppt" data-sec="sec-ppt">
+        <span class="sm-num">4</span>
+        <span class="sm-title">파워포인트</span>
+        <span class="sm-sub">PowerPoint</span>
+    </a>
+    <a href="#sec-word" data-sec="sec-word">
+        <span class="sm-num">5</span>
+        <span class="sm-title">워드</span>
+        <span class="sm-sub">Word</span>
+    </a>
+    <a href="#sec-tips" data-sec="sec-tips">
+        <span class="sm-num">6</span>
+        <span class="sm-title">공통 팁 · FAQ</span>
+        <span class="sm-sub">팁·FAQ</span>
+    </a>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="container">
+
+    <!-- 왜 Office인가 -->
+    <div id="sec-why" class="step-divider content-section"><span class="step-badge">왜 Office에 Claude를 붙여야 하는가</span></div>
+    <div class="nm-card reveal">
+        <h2>Claude가 Office 창 안으로 들어옵니다</h2>
+        <p class="card-subtitle">탭 왕복 없이, 파일 안에서 바로 작업합니다</p>
+        <p>Office 오른쪽 사이드 패널에서 Claude가 현재 파일을 읽고, 결과를 셀·슬라이드·문단에 바로 삽입합니다. 탭 이동과 복붙이 사라집니다.</p>
+
+        <div class="use-case-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="use-case-item">
+                <div class="uc-icon">📈</div>
+                <h4>Excel · 데이터 분석</h4>
+                <p>셀 범위를 읽고 수식과 피벗 구조를 제안합니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">📊</div>
+                <h4>PowerPoint · 스토리 설계</h4>
+                <p>슬라이드 텍스트와 스피커 노트를 생성·삽입합니다.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">📝</div>
+                <h4>Word · 문서 편집</h4>
+                <p>장문 요약, 문단 재작성, 구조 재편을 수행합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 설치 & 공통 -->
+    <div id="sec-install" class="step-divider content-section"><span class="step-badge">설치 & 공통 사용법</span></div>
+
+    <div class="nm-card reveal">
+        <h2>설치·동작 방식은 3종이 동일합니다</h2>
+        <p class="card-subtitle">한 번 익히면 Excel·PowerPoint·Word에 모두 적용됩니다</p>
+
+        <ol class="step-list">
+            <li><div><strong>유료 플랜 준비</strong><br>Pro·Max·Team·Enterprise 중 하나. 무료 플랜 불가.</div></li>
+            <li><div><strong>Add-in 설치</strong><br>각 앱의 <strong>삽입 → 추가 기능 → 스토어</strong>에서 "Claude" 검색. 로그인은 3종 공유, 대화 기록은 앱별 분리.</div></li>
+            <li><div><strong>리본의 "Claude 열기" 클릭</strong><br>오른쪽 사이드 패널이 열립니다.</div></li>
+            <li><div><strong>선택 영역 확인</strong><br>패널 하단에 "A1:D20 선택됨"처럼 Claude가 읽는 범위가 표시됩니다.</div></li>
+            <li><div><strong>지시 → 삽입</strong><br>입력창에 지시. 결과는 "삽입" 버튼으로 파일에 반영.</div></li>
+        </ol>
+
+        <div class="tip-box">
+            <div class="tip-label">💡 3종 공통 원리</div>
+            <p>파일 읽기 → 지시 → 삽입. 한 앱에서 익힌 프롬프트가 다른 앱에서도 그대로 통합니다.</p>
+        </div>
+    </div>
+
+    <!-- 엑셀 -->
+    <div id="sec-excel" class="step-divider content-section"><span class="step-badge">Excel · 데이터 분석</span></div>
+
+    <div class="nm-card reveal">
+        <div class="app-head">
+            <div class="app-icon excel">📈</div>
+            <div class="app-info">
+                <h2>Excel · 데이터 이해에 강합니다</h2>
+                <div class="app-sub">셀 범위를 읽고 수식으로 답합니다</div>
+            </div>
+        </div>
+
+        <a href="https://marketplace.microsoft.com/en-us/product/saas/wa200009404?tab=overview" target="_blank" rel="noopener" class="install-btn">🔗 Microsoft Marketplace에서 설치</a>
+
+        <h3 style="margin-top:22px;">Excel에서 할 수 있는 일</h3>
+        <div class="use-case-grid">
+            <div class="use-case-item">
+                <div class="uc-icon">🔍</div>
+                <h4>탐색·요약</h4>
+                <p>핵심 지표, 이상치, 분포를 서술형으로 정리.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🧮</div>
+                <h4>수식 제안</h4>
+                <p>SUMIFS, INDEX/MATCH 등 집계 수식 제안.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">📊</div>
+                <h4>피벗·차트</h4>
+                <p>데이터 성격에 맞는 구조와 차트 유형 추천.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🧹</div>
+                <h4>데이터 정제</h4>
+                <p>중복 제거, 결측치 처리 절차를 단계별로 안내.</p>
+            </div>
+        </div>
+
+        <h3 style="margin-top:24px;">실전 프롬프트</h3>
+        <p>분석할 범위를 선택한 뒤 입력합니다.</p>
+        <div class="prompt-example">선택한 범위는 월별 매출 데이터야.
+
+다음을 수행해줘:
+1. 전월 대비 증감률 컬럼 추가 (수식으로)
+2. 상·하위 5개월 식별
+3. 계절성이 있는지 진단
+4. 결과를 요약하는 피벗 구조 제안
+
+수식은 한 셀에만 먼저 삽입해줘.</div>
+
+        <div class="first-minute">
+            <div class="fm-label">⏱ 첫 1분에 해볼 일</div>
+            <p>숫자 표를 열고 "이 표에서 이상한 수치 3가지 짚어줘"라고만 입력해보세요.</p>
+        </div>
+
+        <div class="tip-box">
+            <div class="tip-label">⚠️ 수식 검증 필수</div>
+            <p>한 셀에서 먼저 검증한 뒤 전체에 복사하세요. 범위 참조 실수가 가끔 발생합니다.</p>
+        </div>
+    </div>
+
+    <!-- 파워포인트 -->
+    <div id="sec-ppt" class="step-divider content-section"><span class="step-badge">PowerPoint · 스토리 설계</span></div>
+
+    <div class="nm-card reveal">
+        <div class="app-head">
+            <div class="app-icon ppt">📊</div>
+            <div class="app-info">
+                <h2>PowerPoint · 스토리 설계에 강합니다</h2>
+                <div class="app-sub">슬라이드 맥락과 덱 흐름을 이해합니다</div>
+            </div>
+        </div>
+
+        <a href="https://marketplace.microsoft.com/en-us/product/office/wa200010001?tab=overview" target="_blank" rel="noopener" class="install-btn">🔗 Microsoft Marketplace에서 설치</a>
+
+        <h3 style="margin-top:22px;">PowerPoint에서 할 수 있는 일</h3>
+        <div class="use-case-grid">
+            <div class="use-case-item">
+                <div class="uc-icon">✍️</div>
+                <h4>슬라이드 텍스트</h4>
+                <p>제목·불릿 생성. "30% 줄여줘" 즉시 반영.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🧠</div>
+                <h4>덱 구조 설계</h4>
+                <p>주제·청중·시간 입력 시 흐름과 슬라이드 수 제안.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🎤</div>
+                <h4>스피커 노트</h4>
+                <p>발표용 구어체 스크립트를 노트 영역에 삽입.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🌐</div>
+                <h4>다국어 버전</h4>
+                <p>레이아웃 유지한 채 영어·타 언어로 번역.</p>
+            </div>
+        </div>
+
+        <h3 style="margin-top:24px;">실전 프롬프트</h3>
+        <p>슬라이드를 선택한 뒤 입력합니다.</p>
+        <div class="prompt-example">현재 슬라이드 텍스트를 개선해줘.
+- 제목은 완성된 문장(Action Title)으로
+- 본문 불릿은 최대 3개, 각각 15자 이내
+- 톤은 이사회 보고용 격식체
+
+개선 버전 2개를 제안해줘.</div>
+
+        <div class="first-minute">
+            <div class="fm-label">⏱ 첫 1분에 해볼 일</div>
+            <p>마음에 안 드는 슬라이드 하나를 선택해 "제목을 액션 타이틀로 바꿔줘"라고만 입력해보세요.</p>
+        </div>
+
+        <div class="tip-box">
+            <div class="tip-label">👉 더 깊이</div>
+            <p>심화 실습 7개는 <a href="ppt-plugin.html" style="color:var(--ant-orange);font-weight:700;">파워포인트 전용 페이지</a>에 있습니다.</p>
+        </div>
+    </div>
+
+    <!-- 워드 -->
+    <div id="sec-word" class="step-divider content-section"><span class="step-badge">Word · 문서 편집</span></div>
+
+    <div class="nm-card reveal">
+        <div class="app-head">
+            <div class="app-icon word">📝</div>
+            <div class="app-info">
+                <h2>Word · 문서 구조 재편에 강합니다</h2>
+                <div class="app-sub">장문 문서의 논리와 중복을 식별합니다</div>
+            </div>
+        </div>
+
+        <a href="https://marketplace.microsoft.com/en-us/product/office/wa200010453?tab=overview" target="_blank" rel="noopener" class="install-btn">🔗 Microsoft Marketplace에서 설치</a>
+
+        <h3 style="margin-top:22px;">Word에서 할 수 있는 일</h3>
+        <div class="use-case-grid">
+            <div class="use-case-item">
+                <div class="uc-icon">📄</div>
+                <h4>초안 생성</h4>
+                <p>주제·목적 한 줄로 보고서·제안서·이메일 초안 작성.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">✂️</div>
+                <h4>문단 재작성</h4>
+                <p>선택 문단의 톤·길이·구조 조정. "절반으로" 즉시 반영.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🔎</div>
+                <h4>요약·검토</h4>
+                <p>핵심 메시지, 논리 허점, 중복 단락 식별.</p>
+            </div>
+            <div class="use-case-item">
+                <div class="uc-icon">🗂️</div>
+                <h4>구조·목차</h4>
+                <p>섹션 재배치, 제목 수준 맞춘 목차 생성.</p>
+            </div>
+        </div>
+
+        <h3 style="margin-top:24px;">실전 프롬프트</h3>
+        <p>문단을 선택한 뒤 입력합니다.</p>
+        <div class="prompt-example">선택한 문단을 이사회 보고용으로 재작성해줘.
+
+조건:
+- 결론부터 먼저 쓰는 Top-down 구조
+- 수치가 있으면 앞에 배치
+- 현재 길이의 60%로 축소
+- 격식체, 불필요한 수식어 제거
+
+재작성 버전 2개를 제안해줘.</div>
+
+        <div class="first-minute">
+            <div class="fm-label">⏱ 첫 1분에 해볼 일</div>
+            <p>보고서 첫 문단을 선택해 "3줄로 요약하고 결론을 맨 앞으로 옮겨줘"라고만 입력해보세요.</p>
+        </div>
+
+    </div>
+
+    <!-- 공통 팁 & FAQ -->
+    <div id="sec-tips" class="step-divider content-section"><span class="step-badge">공통 팁 & FAQ</span></div>
+
+    <div class="nm-card reveal">
+        <h2>3종 공통 사용법</h2>
+        <p class="card-subtitle">Office 어디서든 통하는 패턴</p>
+
+        <h3>공통 팁 3가지</h3>
+
+        <div class="inset-box">
+            <strong>🏆 팁 1 · "선택 → 구체 지시"</strong>
+            <p>범위·슬라이드·문단을 먼저 선택하고, 측정 가능한 조건으로 지시하세요. "예쁘게"는 실패, "3개 이내", "60%로 축소"는 성공.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>🏆 팁 2 · "2가지 버전으로"</strong>
+            <p>요청 끝에 항상 붙이세요. A/B 비교가 선택을 쉽게 만듭니다.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>🏆 팁 3 · 페르소나 선 지정</strong>
+            <p>첫 메시지에 "너는 전략 컨설턴트야"처럼 역할을 부여하면, 이후 응답의 톤과 깊이가 달라집니다.</p>
+        </div>
+
+        <h3 style="margin-top:28px;">3종 비교</h3>
+        <div class="summary-table-wrap">
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>앱</th>
+                        <th>가장 강한 기능</th>
+                        <th>가장 자주 쓰는 프롬프트</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>Excel</strong></td><td>수식 · 데이터 분석 · 정제</td><td>"선택 범위에 ○○ 조건으로 수식 추가해줘"</td></tr>
+                    <tr><td><strong>PowerPoint</strong></td><td>슬라이드 텍스트 · 덱 구조 · 스피커 노트</td><td>"이 슬라이드를 액션 타이틀로 리디자인해줘"</td></tr>
+                    <tr><td><strong>Word</strong></td><td>장문 요약 · 문단 리라이팅 · 구조 재편</td><td>"선택 문단을 경영진 톤으로 60% 축소해줘"</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 style="margin-top:28px;">FAQ</h3>
+
+        <div class="inset-box">
+            <strong>Q. 3개 앱에 각각 설치해야 하나요?</strong>
+            <p>네. 로그인은 공유되지만 대화 기록은 앱별로 분리됩니다.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. Mac과 웹에서도 되나요?</strong>
+            <p>Windows·Mac 데스크톱과 Microsoft 365 웹 모두 지원됩니다. Office 2016 등 구버전은 불가.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. Claude가 파일을 직접 덮어쓰나요?</strong>
+            <p>아닙니다. "삽입" 버튼을 눌러야만 반영됩니다. 저장은 Office 기본 기능이 담당.</p>
+        </div>
+
+        <div class="inset-box">
+            <strong>Q. 회사 기밀을 써도 되나요?</strong>
+            <p>Team·Enterprise 플랜은 기본적으로 학습에 쓰이지 않습니다. Pro·Max는 약관 확인 필요. 어떤 경우든 회사 IT 정책을 우선합니다.</p>
+        </div>
+
+        <div class="tip-box" style="margin-top:16px;">
+            <div class="tip-label">⚠️ AI 생성 데이터 검증</div>
+            <p>수치·수식·통계·인용은 원본 소스에서 반드시 재확인하세요.</p>
+        </div>
+    </div>
+
+</main>
+
+<!-- ── 페이지 네비 ── -->
+<nav class="page-nav">
+    <a href="chrome-plugin.html" class="page-nav-btn">← 크롬 플러그인</a>
+    <a href="cowork-intro.html" class="page-nav-btn">다음: Claude 코워크 →</a>
+</nav>
+
+<!-- ── Footer ── -->
+<footer>
+    <p class="footer-brand">AI Roasting</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI Roasting. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Sub Menu Scroll Spy ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l){
+        var s = document.getElementById(l.dataset.sec);
+        if(s) sections.push({id: l.dataset.sec, el: s, link: l});
+    });
+
+    function update(){
+        var scrollY = window.scrollY + 120;
+        var current = sections[0];
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                activeLink.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    update();
+})();
+
+// ── Scroll Reveal ──
+(function(){
+    var targets = document.querySelectorAll('.reveal, .use-case-grid, .roi-banner');
+    if(!('IntersectionObserver' in window)){
+        targets.forEach(function(t){ t.classList.add('is-visible'); });
+        return;
+    }
+    var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+            if(e.isIntersecting){
+                e.target.classList.add('is-visible');
+                io.unobserve(e.target);
+            }
+        });
+    }, {threshold: 0.12, rootMargin: '0px 0px -60px 0px'});
+    targets.forEach(function(t){ io.observe(t); });
+})();
+
+// ── 프롬프트 복사 버튼 ──
+(function(){
+    document.querySelectorAll('.prompt-example').forEach(function(el){
+        var btn = document.createElement('button');
+        btn.className = 'prompt-copy';
+        btn.textContent = '복사';
+        btn.onclick = function(){
+            var text = el.textContent.replace('복사','').replace('완료','').trim();
+            navigator.clipboard.writeText(text).then(function(){
+                btn.textContent = '완료';
+                btn.classList.add('copied');
+                setTimeout(function(){ btn.textContent = '복사'; btn.classList.remove('copied'); }, 1500);
+            });
+        };
+        el.appendChild(btn);
+    });
+})();
+</script>
+
+</body>
+</html>
