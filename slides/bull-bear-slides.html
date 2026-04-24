@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인생의 흑백, 투자의 흑백 · Bull vs. Bear</title>
+<style>
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../폰트/PretendardVariable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+:root {
+  --bg: #EDEAE4;
+  --sh-dark: #CECAC3;
+  --sh-light: #FFFFFF;
+  --nm: 8px 8px 20px #CECAC3, -8px -8px 20px #FFFFFF;
+  --nm-sm: 5px 5px 12px #CECAC3, -5px -5px 12px #FFFFFF;
+
+  --orange: #D97757;
+  --orange-lt: rgba(217,119,87,0.12);
+  --green: #3a9a3a;
+  --red: #C93030;
+  --blue: #3a6a9a;
+
+  --liner: #2E7A38;        /* Liner highlighter yellow */
+  --liner-lt: rgba(46,122,56,0.18);
+  --bull: #2E7D5B;         /* 황소 = 상승 = 초록 */
+  --bear: #B13636;         /* 곰 = 하락 = 빨강 */
+
+  --t1: #2E2A26;
+  --t2: #7A7570;
+  --t3: #A8A39D;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: 'Pretendard', 'Helvetica Neue', Arial, sans-serif;
+  background: #1a1a1a;
+}
+
+/* ─── PROGRESS BAR ─── */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: var(--liner);
+  z-index: 1000;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+/* ─── SLIDES ─── */
+#slides-container { position: fixed; inset: 0; }
+
+.slide {
+  position: absolute; inset: 0;
+  width: 100vw; height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  padding: 100px 88px calc(64px + 100px);
+  overflow: hidden;
+  opacity: 0; transform: translateX(50px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+.slide.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+.slide-light { background: var(--bg); color: var(--t1); }
+.slide-dark {
+  background: linear-gradient(150deg, #12100E 0%, #1C1814 45%, #2A1F16 100%);
+  color: #fff;
+}
+
+/* ─── ENTRANCE ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.anim { opacity: 0; }
+.anim.visible {
+  animation-fill-mode: both;
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-name: fadeUp;
+}
+
+/* ─── CONTENT SLIDES ─── */
+.slide-content {
+  justify-content: flex-start !important;
+  padding-top: 100px !important;
+  padding-bottom: calc(64px + 100px) !important;
+}
+
+/* ─── NAV BAR ─── */
+#nav-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 64px;
+  background: rgba(18,16,14,0.92);
+  backdrop-filter: blur(14px);
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  z-index: 999;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.nav-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.22);
+  background: transparent; color: #fff; font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, opacity 0.2s;
+  outline: none; font-family: inherit;
+}
+.nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
+.nav-btn:disabled { opacity: 0.25; cursor: default; }
+#dots-container { display: flex; gap: 6px; align-items: center; }
+.dot {
+  height: 8px; border-radius: 4px;
+  background: rgba(255,255,255,0.28);
+  transition: width 0.3s ease, background 0.3s ease; width: 8px; cursor: pointer;
+}
+.dot.active { width: 24px; background: var(--liner); }
+#slide-counter {
+  color: rgba(255,255,255,0.5); font-size: 13px;
+  font-family: 'Pretendard', sans-serif; min-width: 44px; text-align: center;
+}
+
+/* ─── NEUMORPHIC ─── */
+.nm-card { background: var(--bg); border-radius: 16px; box-shadow: var(--nm-sm); }
+
+/* ─── HEADER (공통) ─── */
+.slide-header {
+  text-align: center;
+  margin-bottom: 32px;
+  width: 100%;
+  flex-shrink: 0;
+}
+.slide-kicker {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 8px; display: block;
+}
+.slide-title {
+  font-size: clamp(24px, 2.8vw, 34px);
+  font-weight: 800; color: var(--t1);
+  word-break: keep-all; line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+.slide-desc {
+  font-size: 15px;
+  color: var(--t2); word-break: keep-all;
+  line-height: 1.55; margin-top: 8px;
+  max-width: 720px;
+  margin-left: auto; margin-right: auto;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 1 · COVER (Bull vs. Bear)
+   ═══════════════════════════════════════ */
+.bg-origami { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.bg-origami img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  display: block;
+}
+.bg-origami::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(6,5,4,0.55) 0%, rgba(6,5,4,0.72) 55%, rgba(6,5,4,0.85) 100%),
+    radial-gradient(ellipse at 50% 45%, rgba(6,5,4,0.25) 0%, rgba(6,5,4,0.65) 70%);
+  pointer-events: none;
+}
+
+.s1-inner {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%;
+}
+.s1-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(46,122,56,0.4);
+  border-radius: 100px; padding: 6px 18px;
+  font-size: 12px; letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.92); margin-bottom: 28px;
+  text-transform: uppercase; font-weight: 700;
+}
+.s1-eyebrow .liner-mark {
+  display: inline-block; width: 8px; height: 8px; border-radius: 2px;
+  background: var(--liner);
+}
+.s1-title {
+  font-size: clamp(36px, 5.2vw, 72px);
+  font-weight: 900; text-align: center;
+  line-height: 1.12; margin-bottom: 18px;
+  word-break: keep-all; letter-spacing: -0.035em;
+  color: #fff;
+}
+.s1-title .hl {
+  position: relative; display: inline-block;
+  padding: 0 6px;
+}
+.s1-title .hl::before {
+  content: ''; position: absolute;
+  left: 0; right: 0; bottom: 6px;
+  height: 38%;
+  background: #2E7A38;
+  z-index: -1;
+  border-radius: 2px;
+}
+.s1-subtitle {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-style: italic;
+  font-size: clamp(18px, 2.2vw, 28px);
+  color: rgba(255,255,255,0.72);
+  margin-bottom: 42px; text-align: center;
+  letter-spacing: 0.02em;
+}
+.s1-byline {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 18px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+}
+.s1-byline .dot-sep {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+}
+.s1-team-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--liner);
+  color: #1A1712; font-weight: 800;
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+.s1-event-badge {
+  display: inline-flex; align-items: center;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.26);
+  color: rgba(255,255,255,0.92);
+  font-weight: 600;
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 2 · TEAM
+   ═══════════════════════════════════════ */
+.team-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 28px; width: 100%; flex: 1; min-height: 0;
+  justify-content: center;
+}
+.team-cards {
+  display: flex; gap: 20px;
+  width: 100%; max-width: 1160px;
+  overflow: visible;
+}
+.team-card {
+  flex: 1; padding: 22px 18px 20px;
+  border-radius: 18px;
+  background: var(--bg);
+  box-shadow: var(--nm-sm);
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+  position: relative;
+  border-top: 4px solid #2E7A38;
+  transition: transform 0.4s cubic-bezier(0.34, 1.35, 0.64, 1), box-shadow 0.35s ease, z-index 0s;
+  will-change: transform;
+}
+.team-card:hover {
+  transform: scale(1.2);
+  box-shadow: 12px 16px 36px #C0BDB7, -8px -8px 24px #FFFFFF;
+  z-index: 10;
+}
+.team-photo {
+  width: 112px; height: 112px; border-radius: 50%;
+  background: linear-gradient(135deg, #EFEAE2 0%, #D8D3CA 100%);
+  margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+  overflow: hidden;
+  position: relative;
+}
+.team-photo svg { width: 100%; height: 100%; display: block; }
+.team-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center 20%;
+  display: block;
+  filter: grayscale(100%);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+}
+
+/* ─── 팀 카드 호버 인터랙션 : 실루엣 위로 별명 스탬프 ─── */
+.nick-overlay {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(46,122,56,0.94) 0%, rgba(21,72,28,0.95) 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 4px;
+  color: #fff;
+  opacity: 0;
+  transform: scale(0.55) rotate(-8deg);
+  transition: opacity 0.24s ease, transform 0.38s cubic-bezier(0.34, 1.6, 0.64, 1);
+  pointer-events: none;
+  overflow: hidden;
+}
+.nick-overlay::before {
+  content: '';
+  position: absolute; inset: 8px;
+  border: 1.5px dashed rgba(255,255,255,0.38);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.nick-overlay .nick-label {
+  font-size: 10px; font-weight: 800;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  opacity: 0.8;
+}
+.nick-overlay .nick-big {
+  font-size: clamp(20px, 2vw, 26px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  transform: translateY(4px);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1) 0.05s, opacity 0.3s ease 0.05s;
+}
+.nick-overlay .nick-bang {
+  position: absolute;
+  right: 14px; top: 18px;
+  font-size: 13px; font-weight: 900;
+  color: #FFE14C;
+  transform: rotate(18deg) scale(0);
+  transition: transform 0.38s cubic-bezier(0.34, 1.8, 0.64, 1) 0.15s;
+}
+.team-card:hover .team-photo img {
+  transform: scale(1.06);
+  filter: grayscale(0%);
+}
+.team-card:hover .nick-overlay {
+  opacity: 1;
+  transform: scale(1) rotate(0);
+}
+.team-card:hover .nick-overlay .nick-big {
+  opacity: 1; transform: translateY(0);
+}
+.team-card:hover .nick-overlay .nick-bang {
+  transform: rotate(14deg) scale(1);
+}
+.team-card .team-nick {
+  transition: color 0.2s ease, transform 0.25s ease;
+}
+.team-card:hover .team-nick {
+  color: #2E7A38;
+  transform: translateY(-1px);
+}
+.team-name {
+  font-size: 17px; font-weight: 800; color: var(--t1);
+  margin-bottom: 2px;
+}
+.team-nick {
+  font-size: 12px; color: var(--orange); font-weight: 700;
+  margin-bottom: 10px; letter-spacing: 0.02em;
+}
+.team-role {
+  font-size: 13px; color: var(--t2); line-height: 1.5;
+  word-break: keep-all;
+}
+
+.team-name-reveal {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px;
+  padding: 14px 32px;
+  background: var(--bg);
+  border-radius: 14px;
+  box-shadow: var(--nm-sm);
+  border: 2px solid var(--liner);
+  width: 100%; max-width: 1160px;
+}
+.team-name-reveal .tnr-etymology { white-space: nowrap; }
+.team-name-reveal .tnr-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+  color: var(--t2); text-transform: uppercase;
+}
+.team-name-reveal .tnr-name {
+  font-size: clamp(22px, 2.4vw, 30px); font-weight: 900;
+  color: var(--t1); letter-spacing: -0.01em;
+}
+.team-name-reveal .tnr-etymology {
+  font-size: 13px; color: var(--t2);
+  margin-top: 4px; word-break: keep-all;
+}
+.team-name-reveal .tnr-etymology b { color: var(--orange); font-weight: 800; }
+
+/* ═══════════════════════════════════════
+   SLIDE 3 · OPPORTUNITY · 단일 와이드 테이블 + 별점
+   ═══════════════════════════════════════ */
+.opp-layout {
+  display: flex; flex-direction: column;
+  gap: 14px;
+  width: 100%; max-width: 1480px;
+  flex: 1; min-height: 0;
+}
+.opp-caption {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--t2); font-weight: 700;
+}
+.opp-caption .cap-icon { color: var(--orange); font-size: 15px; }
+.opp-caption .cap-link {
+  color: var(--t1);
+  border-bottom: 1px solid var(--t3);
+  padding-bottom: 1px;
+}
+.opp-caption .cap-sub { color: var(--t3); font-weight: 500; }
+
+.rank-table {
+  background: var(--bg);
+  border-radius: 14px;
+  box-shadow: var(--nm-sm);
+  padding: 6px 0;
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.rank-row {
+  display: grid;
+  grid-template-columns: 32px 142px 78px 70px 72px 1fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 9px 22px;
+  gap: 10px;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.rank-row:nth-child(even):not(.header):not(.highlight) { background: rgba(0,0,0,0.018); }
+.rank-row:last-child { border-bottom: none; }
+.rank-row.header {
+  font-size: 12px; font-weight: 700;
+  color: var(--t2); letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding-top: 11px; padding-bottom: 11px;
+  background: rgba(0,0,0,0.04);
+}
+.rank-row.header > span { text-align: center; }
+.rank-row.highlight {
+  background: var(--liner-lt);
+  border-bottom-color: rgba(46,122,56,0.4);
+  border-left: 4px solid var(--liner);
+  position: relative;
+}
+.rank-row.highlight::before {
+  content: '◆';
+  position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
+  color: var(--orange); font-size: 10px;
+}
+.rank-num {
+  font-weight: 800; color: var(--t1);
+  text-align: center;
+}
+.rank-row.highlight .rank-num { color: var(--orange); }
+.rank-cat { word-break: keep-all; }
+.cat-pill {
+  background: #FBDFD5; color: #B54528;
+  padding: 3px 10px; border-radius: 6px;
+  font-weight: 700; font-size: 12.5px;
+  display: inline-block;
+}
+.rank-row.highlight .cat-pill {
+  background: var(--orange); color: #fff;
+}
+.rank-cat.plain {
+  font-weight: 600; color: var(--t1);
+  font-size: 13px; padding: 3px 10px; display: inline-block;
+}
+.rank-score {
+  font-family: 'SF Mono', 'Monaco', monospace;
+  font-size: 12px; text-align: right; color: var(--t2);
+}
+.rank-avg, .rank-top {
+  font-family: 'SF Mono', 'Monaco', monospace;
+  font-size: 12px; text-align: center; color: var(--t2);
+}
+.stars {
+  font-size: 15px; color: var(--orange);
+  letter-spacing: 2px; text-align: center;
+  white-space: nowrap; font-weight: 700;
+}
+.stars .dim { color: rgba(0,0,0,0.2); }
+.rank-row.highlight .stars { color: #B54528; }
+
+.opp-conclusion {
+  background: linear-gradient(135deg, rgba(46,122,56,0.22) 0%, rgba(217,119,87,0.14) 100%);
+  border: 1.5px solid var(--liner);
+  border-radius: 14px;
+  padding: 13px 22px;
+  font-size: 14px; color: var(--t1);
+  word-break: keep-all; line-height: 1.55;
+  display: flex; align-items: center; gap: 14px;
+}
+.opp-conclusion .conclusion-badge {
+  flex-shrink: 0;
+  background: var(--orange); color: #fff;
+  font-weight: 800; font-size: 11px;
+  letter-spacing: 0.12em;
+  padding: 5px 12px; border-radius: 100px;
+}
+.opp-conclusion b { color: var(--orange); font-weight: 800; }
+
+/* ═══════════════════════════════════════
+   SLIDE 4 · PRODUCT FLOW
+   ═══════════════════════════════════════ */
+.flow-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 22px; width: 100%; flex: 1; min-height: 0;
+}
+.flow-cards {
+  display: flex; align-items: stretch; gap: 12px;
+  width: 100%; max-width: 1200px;
+}
+.flow-card {
+  flex: 1; padding: 24px 22px;
+  border-radius: 16px;
+  background: var(--bg);
+  box-shadow: var(--nm-sm);
+  display: flex; flex-direction: column;
+  gap: 10px;
+  position: relative;
+  border-left: 4px solid var(--orange);
+}
+.flow-step {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px; font-weight: 700;
+  color: var(--t2); letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.flow-step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--orange); color: #fff;
+  font-size: 13px; font-weight: 800;
+  box-shadow: 2px 2px 6px rgba(217,119,87,0.35);
+}
+.flow-head {
+  font-size: 20px; font-weight: 800; color: var(--t1);
+  word-break: keep-all; line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+.flow-body {
+  font-size: 14px; color: var(--t2);
+  line-height: 1.6; word-break: keep-all;
+}
+.flow-body b { color: var(--t1); font-weight: 700; }
+.flow-arrow {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; color: var(--orange);
+  font-size: 22px; font-weight: 300;
+  flex-shrink: 0;
+}
+.flow-tagline {
+  text-align: center;
+  font-size: 15px; color: var(--t2);
+  line-height: 1.55; word-break: keep-all;
+  max-width: 780px;
+}
+.flow-tagline b {
+  color: var(--orange); font-weight: 800;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 5 · DEMO PLACEHOLDER
+   ═══════════════════════════════════════ */
+.demo-wrap {
+  width: 100%; max-width: 1100px;
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  gap: 20px;
+}
+.demo-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #1a1714;
+  border-radius: 18px;
+  box-shadow: 10px 14px 32px #C0BDB7, -6px -6px 18px #FFFFFF;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.demo-frame::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(217,119,87,0.12), transparent 60%),
+    radial-gradient(ellipse at 80% 70%, rgba(46,122,56,0.12), transparent 60%);
+}
+.demo-play {
+  width: 88px; height: 88px; border-radius: 50%;
+  background: var(--liner);
+  color: #1A1712;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px;
+  box-shadow: 0 18px 44px rgba(0,0,0,0.35);
+  margin-bottom: 14px;
+  position: relative; z-index: 2;
+}
+.demo-label {
+  color: rgba(255,255,255,0.92); font-size: 16px;
+  font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  position: relative; z-index: 2;
+}
+.demo-caption {
+  color: rgba(255,255,255,0.42); font-size: 13px;
+  margin-top: 4px;
+  position: relative; z-index: 2;
+}
+.demo-note {
+  font-size: 12px; color: var(--t3);
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 6 · CLOSING QUOTE
+   ═══════════════════════════════════════ */
+.close-bg { position: absolute; inset: 0; z-index: 0; opacity: 0.22; overflow: hidden; }
+.close-bg svg { width: 100%; height: 100%; }
+
+.close-inner {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 22px;
+  max-width: 920px;
+  text-align: center;
+}
+.close-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255,255,255,0.55);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.close-eyebrow::before, .close-eyebrow::after {
+  content: ''; display: block;
+  width: 26px; height: 1px;
+  background: rgba(255,255,255,0.3);
+}
+.close-quote {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(28px, 3.4vw, 44px);
+  font-weight: 700;
+  line-height: 1.35;
+  color: #fff;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+.close-quote .hl {
+  position: relative; display: inline-block;
+  font-style: normal;
+  padding: 0 4px;
+}
+.close-quote .hl::before {
+  content: ''; position: absolute;
+  left: 0; right: 0; bottom: 4px;
+  height: 34%;
+  background: var(--liner);
+  z-index: -1;
+  border-radius: 2px;
+}
+.close-attribution {
+  font-size: 14px; color: rgba(255,255,255,0.6);
+  letter-spacing: 0.03em;
+}
+.close-foot {
+  margin-top: 10px;
+  font-size: 12px; color: rgba(255,255,255,0.38);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 700;
+}
+.close-foot b { color: var(--liner); font-weight: 800; }
+
+/* ─── SLIDE 5 DARK CARDS ─── */
+#slide-5 .slide-title { color: #fff; }
+#slide-5 .slide-desc  { color: rgba(255,255,255,0.62); }
+#slide-5 { justify-content: center !important; }
+.s5-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px; flex: 1; min-height: 0;
+  width: 100%; max-width: 1200px;
+}
+.s5-cols {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  grid-template-rows: 1fr auto;
+  column-gap: 14px;
+  row-gap: 12px;
+  width: 100%;
+}
+.s5-col {
+  grid-row: 1 / 3;
+  display: grid;
+  grid-template-rows: subgrid;
+  row-gap: 12px;
+}
+.s5-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 18px;
+  padding: 28px 24px;
+  border-top: 3px solid var(--liner);
+  position: relative; overflow: hidden;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 10px;
+}
+.s5-card::before {
+  content: attr(data-n);
+  position: absolute; right: 14px; top: 4px;
+  font-size: 80px; font-weight: 900;
+  color: rgba(255,255,255,0.035);
+  line-height: 1; pointer-events: none;
+  font-family: 'Pretendard', sans-serif;
+  letter-spacing: -0.04em;
+}
+.s5-step {
+  font-size: 10.5px; font-weight: 800;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--liner);
+}
+.s5-head {
+  font-size: 22px; font-weight: 900;
+  color: #fff; letter-spacing: -0.02em; line-height: 1.2;
+}
+.s5-body {
+  font-size: 13.5px; color: rgba(255,255,255,0.6);
+  line-height: 1.7; word-break: keep-all;
+}
+.s5-body b { color: rgba(255,255,255,0.92); font-weight: 700; }
+.s5-arrow {
+  grid-row: 1;
+  align-self: center;
+  color: rgba(255,255,255,0.2); font-size: 22px;
+  display: flex; align-items: center; flex-shrink: 0;
+}
+.diff-section-dark {
+  width: 100%; max-width: 1200px;
+}
+.diff-divider-dark {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(255,255,255,0.28); margin-bottom: 14px;
+}
+.diff-divider-dark::before, .diff-divider-dark::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(255,255,255,0.1);
+}
+.diff-grid-dark {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 12px;
+}
+.diff-card-dark {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.diff-label-dark {
+  font-size: 10px; font-weight: 800;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--liner); margin-bottom: 4px;
+}
+.diff-challenge {
+  font-size: 20px; font-weight: 900; color: #fff;
+  letter-spacing: -0.025em; line-height: 1.2;
+  margin-bottom: 6px;
+}
+.diff-challenge span {
+  color: var(--orange);
+}
+.diff-answer {
+  font-size: 12.5px; color: rgba(255,255,255,0.52);
+  line-height: 1.55; word-break: keep-all;
+}
+
+/* ─── SLIDE 5 DIFF SECTION ─── */
+.diff-section {
+  width: 100%; max-width: 1200px;
+  margin-top: 16px;
+}
+.diff-divider {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--t3); margin-bottom: 14px;
+}
+.diff-divider::before, .diff-divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(0,0,0,0.1);
+}
+.diff-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.diff-card {
+  background: var(--bg);
+  border-radius: 12px;
+  box-shadow: var(--nm-sm);
+  padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.diff-label {
+  font-size: 10.5px; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 2px;
+}
+.diff-before {
+  font-size: 12.5px; color: var(--t3);
+  text-decoration: line-through;
+  text-decoration-color: rgba(193,48,48,0.45);
+}
+.diff-after {
+  font-size: 14px; font-weight: 800; color: var(--t1);
+  line-height: 1.3;
+}
+
+/* ─── SLIDE 3 INITIAL HIDDEN STATE ─── */
+#slide-3 .rank-row:not(.header) {
+  opacity: 0;
+  transform: translateX(-22px);
+}
+
+/* ─── SLIDE 3 EQUAL ROW HEIGHTS ─── */
+.rank-row:not(.header) {
+  height: 52px;
+}
+.rank-row:not(.header):not(.highlight):hover {
+  background: rgba(46,122,56,0.05) !important;
+  cursor: default;
+}
+.rank-row.highlight:hover {
+  background: rgba(46,122,56,0.22);
+}
+
+/* ─── SLIDE 3 TOOLTIP ─── */
+.row-float-tip {
+  position: absolute;
+  bottom: 72px;
+  left: 88px;
+  right: 88px;
+  background: rgba(20,16,12,0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: rgba(255,255,255,0.92);
+  border-radius: 12px;
+  padding: 13px 22px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  pointer-events: none;
+  z-index: 500;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.22,1,0.36,1);
+  word-break: keep-all;
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: 0 10px 32px rgba(0,0,0,0.32);
+}
+.row-float-tip.tip-vis {
+  opacity: 1;
+  transform: translateY(0);
+}
+.row-float-tip .tip-cat {
+  font-weight: 800; font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--liner); margin-bottom: 4px; display: block;
+}
+
+/* ─── SLIDE 3 ROW ANIMATIONS ─── */
+@keyframes rowSlideIn {
+  from { opacity: 0; transform: translateX(-22px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes conclusionReveal {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes highlightBurst {
+  0%   { background: var(--liner-lt); }
+  35%  { background: rgba(46,122,56,0.28); box-shadow: 0 0 0 3px rgba(46,122,56,0.25); }
+  100% { background: var(--liner-lt); box-shadow: none; }
+}
+
+/* ─── SLIDE 6 · POSITIONING MAP (McKinsey) ─── */
+.posmap-wrap {
+  display: flex; justify-content: center; align-items: center;
+  flex: 1; width: 100%;
+}
+.posmap {
+  position: relative;
+  width: 680px; height: 400px;
+}
+.posmap-q {
+  position: absolute; pointer-events: none;
+}
+.posmap-axis-h {
+  position: absolute;
+  left: 5%; right: 0; top: 50%;
+  height: 1.5px; background: var(--t1);
+}
+.posmap-axis-v {
+  position: absolute;
+  top: 0; bottom: 5%; left: 50%;
+  width: 1.5px; background: var(--t1);
+}
+.posmap-axis-h::after {
+  content: ''; position: absolute;
+  right: -8px; top: -5px;
+  border-left: 10px solid var(--t1);
+  border-top: 6.5px solid transparent;
+  border-bottom: 6.5px solid transparent;
+}
+.posmap-axis-v::before {
+  content: ''; position: absolute;
+  top: -8px; left: -5px;
+  border-bottom: 10px solid var(--t1);
+  border-left: 6.5px solid transparent;
+  border-right: 6.5px solid transparent;
+}
+.posmap-label {
+  position: absolute;
+  font-size: 12px; font-weight: 800;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--t2);
+}
+.posmap-label.top    { top: 4px; left: calc(50% + 12px); }
+.posmap-label.bottom { bottom: 4px; left: calc(50% + 12px); }
+.posmap-label.left   { left: 0; top: calc(50% - 22px); }
+.posmap-label.right  { right: 0; top: calc(50% - 22px); }
+.posmap-qlabel {
+  position: absolute;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(46,42,38,0.2); padding: 10px;
+}
+.posmap-dot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: flex-start;
+}
+.posmap-dot-row {
+  display: flex; align-items: center; gap: 6px;
+}
+.posmap-circle {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--t3); flex-shrink: 0;
+}
+.posmap-name {
+  font-size: 11px; font-weight: 600; color: var(--t2);
+  white-space: nowrap;
+}
+.posmap-dot.us .posmap-circle {
+  width: 14px; height: 14px;
+  background: var(--liner);
+  box-shadow: 0 0 0 4px rgba(46,122,56,0.18);
+}
+.posmap-dot.us .posmap-name {
+  font-size: 12.5px; font-weight: 900; color: var(--liner);
+}
+.posmap-bubble {
+  position: relative;
+  background: var(--liner);
+  color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  margin-bottom: 7px;
+}
+.posmap-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -7px; left: 14px;
+  border-top: 7px solid var(--liner);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+}
+
+/* ─── SLIDE 7 · COMPARISON TABLE ─── */
+.comp-wrap {
+  flex: 1; min-height: 0;
+  width: 100%; max-width: 960px;
+  overflow: hidden; align-self: center;
+}
+.comp-table {
+  width: 100%; border-collapse: collapse;
+  table-layout: fixed;
+}
+.comp-table th {
+  padding: 9px 10px;
+  font-size: 11.5px; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--t2);
+  border-bottom: 2px solid rgba(46,42,38,0.15);
+  text-align: center;
+}
+.comp-table th.comp-us-h {
+  color: var(--liner);
+  border-bottom-color: var(--liner);
+  background: rgba(46,122,56,0.05);
+}
+.comp-table td {
+  padding: 11px 10px;
+  font-size: 12.5px; color: var(--t2);
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(46,42,38,0.06);
+  line-height: 1.45; word-break: keep-all;
+}
+.comp-table tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+.comp-table td.comp-row-label {
+  font-size: 11px; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--t3); vertical-align: middle;
+  white-space: nowrap;
+}
+.comp-table td.comp-us-td {
+  background: rgba(46,122,56,0.06) !important;
+  border-left: 2.5px solid var(--liner);
+  color: var(--t1); font-weight: 600;
+}
+.comp-table tr.comp-row-red td {
+  border-bottom: 1.5px solid var(--red);
+  border-top: 1.5px solid var(--red);
+}
+
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div id="slides-container">
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 1 · COVER
+       ═══════════════════════════════════════ -->
+  <div class="slide slide-dark active" id="slide-1">
+    <!-- Cover background: assets/bb.png -->
+    <div class="bg-origami">
+      <img src="assets/bb.png" alt="">
+    </div>
+
+    <div class="s1-inner">
+      <div class="s1-eyebrow">
+        <span class="liner-mark"></span>
+        Liner · Bull vs. Bear
+      </div>
+      <h1 class="s1-title">인생의 <span class="hl">흑백</span>, 투자의 <span class="hl">흑백</span></h1>
+      <div class="s1-subtitle">Bull vs. Bear</div>
+      <div class="s1-byline">
+        <span class="s1-team-badge">Bull &amp; Bear Brothers</span>
+        <span class="s1-event-badge">흑백라이너 · 2026.04</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 2 · TEAM
+       ═══════════════════════════════════════ -->
+  <div class="slide slide-light slide-content" id="slide-2">
+    <div class="slide-header">
+      <span class="slide-kicker">The Team</span>
+      <h2 class="slide-title">네 명이 한 방향을 보면, 황소도 곰도 이길 수 있습니다.</h2>
+      <p class="slide-desc">느좋·진격·무새·에젠. 역할은 제각각이지만, 달리는 방향은 딱 하나입니다.</p>
+    </div>
+
+    <div class="team-wrap">
+      <div class="team-cards">
+        <!-- 1. Dave · 느좋남 -->
+        <div class="team-card">
+          <div class="team-photo">
+            <img src="assets/dave.png" alt="Dave">
+          </div>
+          <div class="team-name">데이브 · Dave</div>
+          <div class="team-nick">느좋남 · 느좋 커피남</div>
+          <div class="team-role">하루 한 잔이 느좋을 만듭니다.<br>팀의 텐션을 낮추고 질을 올리는 담당.</div>
+        </div>
+
+        <!-- 2. Jerome · 진격남 -->
+        <div class="team-card">
+          <div class="team-photo">
+            <img src="assets/jerome.png" alt="Jerome">
+          </div>
+          <div class="team-name">제롬 · Jerome</div>
+          <div class="team-nick">진격남 · 진격의 프론트</div>
+          <div class="team-role">UI가 막히면 벽을 부수고 앞으로.<br>팀의 속도를 결정하는 엔진.</div>
+        </div>
+
+        <!-- 3. Evan · 무새남 -->
+        <div class="team-card">
+          <div class="team-photo">
+            <img src="assets/evan.png" alt="Evan">
+          </div>
+          <div class="team-name">에반 · Evan</div>
+          <div class="team-nick">무새남 · 화이팅무새</div>
+          <div class="team-role">"할 수 있어요, 됩니다"를 하루 40회.<br>팀의 사기를 책임지는 체력왕.</div>
+        </div>
+
+        <!-- 4. Jade · 에전남 -->
+        <div class="team-card">
+          <div class="team-photo">
+            <img src="assets/jade.png" alt="Jade">
+          </div>
+          <div class="team-name">제이드 · Jade</div>
+          <div class="team-nick">에전남 · 에이전트남</div>
+          <div class="team-role">LLM과 대화하고 에이전트를 조각합니다.<br>팀의 두뇌를 자동화합니다.</div>
+        </div>
+      </div>
+
+      <div class="team-name-reveal">
+        <span class="tnr-label">Team Name</span>
+        <span class="tnr-name">Bull &amp; Bear Brothers</span>
+        <span class="tnr-etymology">
+          황소(<b>Bull</b>) 한 마리, 곰(<b>Bear</b>) 한 마리, 그리고 네 명의 형제(<b>Brothers</b>).
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 3 · OPPORTUNITY · 단일 와이드 테이블 + 4축 별점
+       ═══════════════════════════════════════ -->
+  <div class="slide slide-light slide-content" id="slide-3">
+    <div class="slide-header">
+      <span class="slide-kicker">The Opportunity</span>
+      <h2 class="slide-title">금융 · 투자, 우리가 새롭게 주목해야 할 영역입니다.</h2>
+      <p class="slide-desc">금융·투자는 9위에 머뭅니다. 그러나 혁신성·수익성·완결성·라이너 관련성 네 축으로 다시 저울에 올리면, 이야기가 뒤집힙니다.</p>
+    </div>
+
+    <div class="opp-layout">
+      <div class="opp-caption">
+        <span class="cap-icon">◱</span>
+        <span class="cap-link">ML 모델 기반 도메인 탐색</span>
+        <span class="cap-sub">· 종합 점수 순위 (1-10위) + 4축 별점 평가</span>
+      </div>
+
+      <div class="rank-table">
+        <div class="rank-row header">
+          <span>#</span>
+          <span>카테고리</span>
+          <span>종합점수</span>
+          <span>평균순위</span>
+          <span>Top10출현</span>
+          <span>혁신성</span>
+          <span>수익성</span>
+          <span>완결성</span>
+          <span>라이너 관련성</span>
+        </div>
+
+        <div class="rank-row">
+          <span class="rank-num">1</span>
+          <span class="rank-cat"><span class="cat-pill">의료_건강</span></span>
+          <span class="rank-score">99.95</span>
+          <span class="rank-avg">1.7위</span>
+          <span class="rank-top">7/7회</span>
+          <span class="stars">★★★★<span class="dim">★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+        </div>
+
+        <div class="rank-row">
+          <span class="rank-num">2</span>
+          <span class="rank-cat plain">요약_정리</span>
+          <span class="rank-score">83.72</span>
+          <span class="rank-avg">6.6위</span>
+          <span class="rank-top">6/7회</span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★★★<span class="dim">★</span></span>
+          <span class="stars">★★★★★</span>
+        </div>
+
+        <div class="rank-row">
+          <span class="rank-num">3</span>
+          <span class="rank-cat"><span class="cat-pill">비즈니스_전략</span></span>
+          <span class="rank-score">80.21</span>
+          <span class="rank-avg">11.6위</span>
+          <span class="rank-top">4/7회</span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★★★<span class="dim">★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+        </div>
+
+        <div class="rank-row">
+          <span class="rank-num">4</span>
+          <span class="rank-cat plain">논문_연구</span>
+          <span class="rank-score">77.99</span>
+          <span class="rank-avg">8.9위</span>
+          <span class="rank-top">4/7회</span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+          <span class="stars">★★★★<span class="dim">★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+        </div>
+
+        <div class="rank-row">
+          <span class="rank-num">5</span>
+          <span class="rank-cat plain">과학_실험</span>
+          <span class="rank-score">75.35</span>
+          <span class="rank-avg">11.9위</span>
+          <span class="rank-top">4/7회</span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+        </div>
+
+        <div class="rank-row">
+          <span class="rank-num">6</span>
+          <span class="rank-cat plain">과제_학습</span>
+          <span class="rank-score">74.20</span>
+          <span class="rank-avg">11.0위</span>
+          <span class="rank-top">3/7회</span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+        </div>
+
+        <div class="rank-row">
+          <span class="rank-num">7</span>
+          <span class="rank-cat"><span class="cat-pill">법률_법령해석</span></span>
+          <span class="rank-score">71.26</span>
+          <span class="rank-avg">19.6위</span>
+          <span class="rank-top">3/7회</span>
+          <span class="stars">★★★★<span class="dim">★</span></span>
+          <span class="stars">★★★★<span class="dim">★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+        </div>
+
+        <div class="rank-row">
+          <span class="rank-num">8</span>
+          <span class="rank-cat"><span class="cat-pill">인사_노무</span></span>
+          <span class="rank-score">70.92</span>
+          <span class="rank-avg">15.1위</span>
+          <span class="rank-top">3/7회</span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★★<span class="dim">★★</span></span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+        </div>
+
+        <div class="rank-row highlight">
+          <span class="rank-num">9</span>
+          <span class="rank-cat"><span class="cat-pill">금융_투자</span></span>
+          <span class="rank-score">69.63</span>
+          <span class="rank-avg">14.3위</span>
+          <span class="rank-top">3/7회</span>
+          <span class="stars">★★★★★</span>
+          <span class="stars">★★★★★</span>
+          <span class="stars">★★★★<span class="dim">★</span></span>
+          <span class="stars">★★★★★</span>
+        </div>
+
+        <div class="rank-row">
+          <span class="rank-num">10</span>
+          <span class="rank-cat plain">수학_계산</span>
+          <span class="rank-score">65.69</span>
+          <span class="rank-avg">23.3위</span>
+          <span class="rank-top">2/7회</span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+          <span class="stars">★★★★★</span>
+          <span class="stars">★★<span class="dim">★★★</span></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 4 · PRODUCT FLOW
+       ═══════════════════════════════════════ -->
+  <div class="slide slide-light slide-content" id="slide-4">
+    <div class="slide-header">
+      <span class="slide-kicker">Product Flow · Stock Battle Arena</span>
+      <h2 class="slide-title">한 종목을 다각적으로 분석하면, 애널리스트 이상의 결론을 도출할 수 있습니다.</h2>
+      <p class="slide-desc">종목 하나를 고르는 대신, 둘을 맞붙입니다. 이긴 쪽의 근거를 에이전트가 변호하고, 마지막에 내 계좌까지 함께 진단합니다.</p>
+    </div>
+
+    <div class="flow-wrap">
+      <div class="flow-cards">
+        <div class="flow-card">
+          <div class="flow-step"><span class="flow-step-num">1</span>Search</div>
+          <div class="flow-head">종목 분석</div>
+          <div class="flow-body">
+            "삼성전자" 한 단어면 충분합니다. 라이너가 <b>공시·뉴스·재무·커뮤니티 센티먼트</b>를 한 줄로 요약해 옆에 띄웁니다.
+          </div>
+        </div>
+        <div class="flow-arrow">›</div>
+        <div class="flow-card">
+          <div class="flow-step"><span class="flow-step-num">2</span>Battle</div>
+          <div class="flow-head">토론 배틀</div>
+          <div class="flow-body">
+            삼성전자 vs. SK하이닉스. <b>Bull 시나리오·Bear 시나리오</b>를 에이전트가 각각 변호하고, 최근 3개월 모멘텀·밸류에이션·리스크 3축으로 승패를 가립니다.
+          </div>
+        </div>
+        <div class="flow-arrow">›</div>
+        <div class="flow-card">
+          <div class="flow-step"><span class="flow-step-num">3</span>Scan</div>
+          <div class="flow-head">포트폴리오 스캔</div>
+          <div class="flow-body">
+            계좌를 연결하면 <b>포트폴리오 건강 진단표</b>가 뜹니다. "지금 이 비중이면 금리 1%p 상승 시 몇 % 빠짐" 같은 구체적인 수치까지.
+          </div>
+        </div>
+      </div>
+      <p class="flow-tagline">
+        <b>검색→배틀→스캔.</b> 투자는 결국 "내 돈을 어디에 두느냐"의 문제입니다. 라이너는 그 질문에 가장 먼저 답합니다.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 5 · CORE FEATURE · 기업 분석 리포트
+       ═══════════════════════════════════════ -->
+  <div class="slide slide-dark slide-content" id="slide-5">
+    <div class="slide-header">
+      <span class="slide-kicker">Core Feature · 기업 분석 리포트</span>
+      <h2 class="slide-title">애널리스트가 3일 걸릴 리포트, AI는 1분에 완성합니다.</h2>
+      <p class="slide-desc">공시·주가·뉴스를 병렬로 수집하고, 전 섹션에 citation을 강제합니다.</p>
+    </div>
+    <div class="s5-wrap">
+      <div class="s5-cols">
+        <div class="s5-col">
+          <div class="s5-card" data-n="01">
+            <div class="s5-step">Search</div>
+            <div class="s5-head">종목 분석</div>
+            <div class="s5-body">
+              기업명 하나면 충분합니다. 티커를 자동 매핑하고 <b>DART·SEC·Yahoo Finance·뉴스 30일치</b>를 병렬로 수집해 밸류에이션 스냅샷과 7개 섹션 리포트를 즉시 완성합니다.
+            </div>
+          </div>
+          <div class="diff-card-dark">
+            <div class="diff-label-dark">Challenge 01</div>
+            <div class="diff-challenge">출처의 <span>다양성</span></div>
+            <div class="diff-answer">공시·주가·뉴스 30일치를 단일 창구로 통합. 흩어진 소스를 한 번에 끌어옵니다.</div>
+          </div>
+        </div>
+        <div class="s5-arrow">›</div>
+        <div class="s5-col">
+          <div class="s5-card" data-n="02">
+            <div class="s5-step">Battle</div>
+            <div class="s5-head">토론 배틀</div>
+            <div class="s5-body">
+              두 에이전트가 실시간으로 토론합니다. <b>Bull·Bear 시나리오를 병렬 생성</b>하고 모멘텀·밸류에이션·리스크 3축으로 승패를 가립니다. 모든 수치는 citation 강제. 환각을 구조적으로 차단합니다.
+            </div>
+          </div>
+          <div class="diff-card-dark">
+            <div class="diff-label-dark">Challenge 02</div>
+            <div class="diff-challenge">정보 <span>신뢰 가능성</span></div>
+            <div class="diff-answer">Citation 강제. 수치 뒤에 반드시 출처. 출처 없는 문장은 재생성합니다.</div>
+          </div>
+        </div>
+        <div class="s5-arrow">›</div>
+        <div class="s5-col">
+          <div class="s5-card" data-n="03">
+            <div class="s5-step">Scan</div>
+            <div class="s5-head">포트폴리오 스캔</div>
+            <div class="s5-body">
+              계좌를 연결하면 <b>포트폴리오 건강 진단표</b>가 뜹니다. "금리 1%p 상승 시 몇 % 빠짐" 같은 구체적 수치까지. 매수/매도 단정 없이 긍정·우려 프레이밍으로 규제를 준수합니다.
+            </div>
+          </div>
+          <div class="diff-card-dark">
+            <div class="diff-label-dark">Challenge 03</div>
+            <div class="diff-challenge">따라해도 <span>되는가</span></div>
+            <div class="diff-answer">투자 권유 없이 근거만 제시. 긍정·우려 프레이밍으로 규제를 구조적으로 준수합니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 6 · POSITIONING MAP
+       ═══════════════════════════════════════ -->
+  <div class="slide slide-light slide-content" id="slide-6">
+    <div class="slide-header">
+      <span class="slide-kicker">시장 포지셔닝</span>
+      <h2 class="slide-title">포지셔닝맵</h2>
+      <p class="slide-desc">기관급 깊이와 리테일 접근성의 교차점. 전문 투자자를 위한 실전 분석 도구입니다.</p>
+    </div>
+    <div class="posmap-wrap">
+      <div class="posmap">
+        <!-- Quadrant shading -->
+        <div class="posmap-q" style="top:0;left:0;right:50%;bottom:50%;background:rgba(46,42,38,0.025)"></div>
+        <div class="posmap-q" style="top:0;left:50%;right:0;bottom:50%;background:rgba(46,42,38,0.015)"></div>
+        <div class="posmap-q" style="top:50%;left:0;right:50%;bottom:0;background:rgba(46,122,56,0.06)"></div>
+        <div class="posmap-q" style="top:50%;left:50%;right:0;bottom:0;background:rgba(46,42,38,0.015)"></div>
+        <!-- Axes -->
+        <div class="posmap-axis-h"></div>
+        <div class="posmap-axis-v"></div>
+        <!-- Axis labels -->
+        <div class="posmap-label top">깊이·기관급</div>
+        <div class="posmap-label bottom">접근성·리테일</div>
+        <div class="posmap-label left">전문가</div>
+        <div class="posmap-label right">리테일</div>
+        <!-- Quadrant corner labels -->
+        <div class="posmap-qlabel" style="top:0;left:0">심층·전문</div>
+        <div class="posmap-qlabel" style="top:0;right:0;text-align:right">기관 리서치</div>
+        <div class="posmap-qlabel" style="bottom:0;left:0">전문가 리테일 ▸</div>
+        <div class="posmap-qlabel" style="bottom:0;right:0;text-align:right">리테일 서비스</div>
+        <!-- Competitors -->
+        <div class="posmap-dot" style="left:41%;top:13%">
+          <div class="posmap-dot-row">
+            <div class="posmap-circle"></div>
+            <div class="posmap-name">AlphaSense</div>
+          </div>
+        </div>
+        <div class="posmap-dot" style="left:60%;top:8%">
+          <div class="posmap-dot-row">
+            <div class="posmap-circle"></div>
+            <div class="posmap-name">Bloomberg</div>
+          </div>
+        </div>
+        <div class="posmap-dot" style="left:68%;top:66%">
+          <div class="posmap-dot-row">
+            <div class="posmap-circle"></div>
+            <div class="posmap-name">FinChat</div>
+          </div>
+        </div>
+        <div class="posmap-dot" style="left:62%;top:78%">
+          <div class="posmap-dot-row">
+            <div class="posmap-circle"></div>
+            <div class="posmap-name">초이스스탁US</div>
+          </div>
+        </div>
+        <!-- Us -->
+        <div class="posmap-dot us" style="left:27%;top:62%">
+          <div class="posmap-bubble">전문가급 분석 · 리테일 접근성의 교차점</div>
+          <div class="posmap-dot-row">
+            <div class="posmap-circle"></div>
+            <div class="posmap-name">Bull &amp; Bear</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 7 · COMPARISON TABLE
+       ═══════════════════════════════════════ -->
+  <div class="slide slide-light slide-content" id="slide-7">
+    <div class="slide-header">
+      <span class="slide-kicker">경쟁 분석</span>
+      <h2 class="slide-title">왜 Bull &amp; Bear인가</h2>
+      <p class="slide-desc">기관급 분석 깊이와 리테일 접근성의 교차점, 그 공백을 채웁니다.</p>
+    </div>
+    <div class="comp-wrap">
+      <table class="comp-table">
+        <colgroup>
+          <col style="width:88px">
+          <col style="width:22%">
+          <col><col><col>
+        </colgroup>
+        <thead>
+          <tr>
+            <th></th>
+            <th class="comp-us-h">Bull &amp; Bear</th>
+            <th>AlphaSense</th>
+            <th>FinChat</th>
+            <th>초이스스탁US</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="comp-row-label">타겟 사용자</td>
+            <td class="comp-us-td">개인 투자자 + 전문가</td>
+            <td>기관 (자산운용·헤지펀드·IB)</td>
+            <td>리테일 + 소규모 팀</td>
+            <td>국내 개인 투자자</td>
+          </tr>
+          <tr>
+            <td class="comp-row-label">핵심 컨셉</td>
+            <td class="comp-us-td">한 번의 검색으로 다각도 분석 + 의사결정</td>
+            <td>엔터프라이즈 시장 인텔리전스</td>
+            <td>대화형 기업 Q&amp;A 코파일럿</td>
+            <td>AI 매매 신호 (타이밍 중심)</td>
+          </tr>
+          <tr>
+            <td class="comp-row-label">분석 범위</td>
+            <td class="comp-us-td">재무 · 거시 · 미시 · 밸류에이션</td>
+            <td>공시·트랜스크립트·브로커 리서치·전문가 인터뷰</td>
+            <td>KPI·재무제표·트랜스크립트</td>
+            <td>스마트스코어·밸류에이션·수급</td>
+          </tr>
+          <tr>
+            <td class="comp-row-label">차별 기능</td>
+            <td class="comp-us-td">Bull vs Bear 5라운드 토론 + 포트폴리오 스캔</td>
+            <td>Tegus 전문가 네트워크 + Generative Search</td>
+            <td>티커별 자연어 Q&amp;A</td>
+            <td>3조건 충족 시 매수 신호</td>
+          </tr>
+          <tr class="comp-row-red">
+            <td class="comp-row-label">의사결정</td>
+            <td class="comp-us-td">토론 배틀로 양면 검증 → 판단 지원</td>
+            <td>심층 리서치 리포트</td>
+            <td>질문 기반 인사이트</td>
+            <td>매수/보유/매도 직접 신호</td>
+          </tr>
+          <tr>
+            <td class="comp-row-label">출처·신뢰성</td>
+            <td class="comp-us-td">문장 단위 출처, 할루시네이션 제로</td>
+            <td>문장 단위 출처</td>
+            <td>공시·트랜스크립트 인용</td>
+            <td>자체 알고리즘 (블랙박스)</td>
+          </tr>
+          <tr>
+            <td class="comp-row-label">검색 방식</td>
+            <td class="comp-us-td">자연어 + 티커/회사명 단일 쿼리</td>
+            <td>부울 검색 + Smart Synonyms</td>
+            <td>티커 단위만 가능</td>
+            <td>종목 선택형</td>
+          </tr>
+          <tr class="comp-row-red">
+            <td class="comp-row-label">가격대</td>
+            <td class="comp-us-td">미정 (리테일 접근성 지향)</td>
+            <td>연 $20,000+ (기관급)</td>
+            <td>월 $60~$79</td>
+            <td>월 구독 (리테일 가격)</td>
+          </tr>
+          <tr class="comp-row-red">
+            <td class="comp-row-label">한국 시장</td>
+            <td class="comp-us-td">✅ 네이티브 (KR/US 동시)</td>
+            <td>❌ 영어 중심</td>
+            <td>❌ 영어·미국 중심</td>
+            <td>⚠️ 미국 주식 특화</td>
+          </tr>
+          <tr>
+            <td class="comp-row-label">UX 철학</td>
+            <td class="comp-us-td">"한 번의 검색으로 끝" (원스톱)</td>
+            <td>깊이·포괄성 중심 (학습 곡선)</td>
+            <td>대화 기반 심플</td>
+            <td>신호 기반 의사결정</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 8 · DEMO PLACEHOLDER
+       ═══════════════════════════════════════ -->
+  <div class="slide slide-light slide-content" id="slide-8">
+    <div class="slide-header">
+      <span class="slide-kicker">Live Demo</span>
+      <h2 class="slide-title">느좋하게 진격해보겠습니다. 화이팅!</h2>
+      <p class="slide-desc">실제 동작하는 프로토타입을 지금 공유드립니다.</p>
+    </div>
+    <div class="demo-wrap">
+      <div class="demo-frame">
+        <!-- 영상 삽입 자리. 추후 <video> 또는 <iframe> 으로 교체 -->
+        <div class="demo-play">▶</div>
+        <div class="demo-label">Product Demo</div>
+        <div class="demo-caption">영상이 여기에 삽입될 예정입니다 · 16:9</div>
+      </div>
+      <div class="demo-note">발표 시 자동 재생 혹은 수동 재생. 필요 시 유튜브 비공개 링크를 iframe으로 연결.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 9 · CLOSING QUOTE
+       ═══════════════════════════════════════ -->
+  <div class="slide slide-dark" id="slide-9">
+    <div class="close-bg">
+      <svg viewBox="0 0 1200 675" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="0,675 200,500 350,620 150,675" fill="#2E7D5B" opacity="0.4"/>
+        <polygon points="850,675 1050,540 1200,620 1200,675" fill="#B13636" opacity="0.4"/>
+        <polygon points="500,0 700,0 600,120" fill="#2E7A38" opacity="0.2"/>
+      </svg>
+    </div>
+    <div class="close-inner">
+      <div class="close-eyebrow">One More Thing</div>
+      <blockquote class="close-quote">
+        "황소와 곰이 싸우는 동안,<br>
+        현명한 투자자는 관중석에서 <span class="hl">판세를 기록한다</span>.<br>
+        그 기록이 바로 우리의 제품입니다."
+      </blockquote>
+      <div class="close-attribution">· Bull &amp; Bear Brothers ·</div>
+      <div class="close-foot"><b>흑백라이너 · 2026.04</b> · Powered by Liner</div>
+    </div>
+  </div>
+
+</div>
+
+<div id="nav-bar">
+  <button class="nav-btn" id="btn-prev" aria-label="이전">‹</button>
+  <div id="dots-container">
+    <span class="dot active" data-n="1"></span>
+    <span class="dot" data-n="2"></span>
+    <span class="dot" data-n="3"></span>
+    <span class="dot" data-n="4"></span>
+    <span class="dot" data-n="5"></span>
+    <span class="dot" data-n="6"></span>
+    <span class="dot" data-n="7"></span>
+  </div>
+  <span id="slide-counter">1 / 6</span>
+  <button class="nav-btn" id="btn-next" aria-label="다음">›</button>
+</div>
+
+<script>
+const TOTAL = 9;
+let current = 1;
+let animating = false;
+
+function setupAnimClasses() {
+  document.querySelectorAll('.slide').forEach(slide => {
+    const targets = slide.querySelectorAll(
+      '.slide-header, .team-cards, .team-name-reveal, .team-card, .opp-col, .opp-caption, .criteria-row, .criteria-note, .flow-card, .flow-arrow, .flow-tagline, .demo-frame, .demo-note, .close-eyebrow, .close-quote, .close-attribution, .close-foot, .s1-eyebrow, .s1-title, .s1-subtitle, .s1-byline, .s5-card, .s5-arrow, .diff-card-dark, .posmap-wrap, .comp-wrap'
+    );
+    targets.forEach(el => el.classList.add('anim'));
+  });
+}
+
+function animateSlideChildren(n) {
+  const slide = document.getElementById('slide-' + n);
+  if (!slide) return;
+  const els = slide.querySelectorAll('.anim');
+  els.forEach((el, i) => {
+    el.classList.remove('visible');
+    void el.offsetWidth;
+    el.style.animationDelay = (i * 0.09) + 's';
+    el.classList.add('visible');
+  });
+}
+
+function animateSlide3() {
+  const rows = Array.from(document.querySelectorAll('#slide-3 .rank-row:not(.header)'));
+  const conclusion = document.querySelector('#slide-3 .opp-conclusion');
+
+  rows.forEach(el => {
+    el.style.transition = 'none';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-22px)';
+  });
+  if (conclusion) {
+    conclusion.style.transition = 'none';
+    conclusion.style.opacity = '0';
+    conclusion.style.transform = 'translateY(16px) scale(0.98)';
+  }
+
+  rows.forEach((el, i) => {
+    const isHL = el.classList.contains('highlight');
+    const delay = 160 + i * 60 + (isHL ? 30 : 0);
+    setTimeout(() => {
+      el.style.transition = 'opacity 0.42s cubic-bezier(0.22,1,0.36,1), transform 0.42s cubic-bezier(0.22,1,0.36,1)';
+      el.style.opacity = '1';
+      el.style.transform = 'translateX(0)';
+      if (isHL) {
+        setTimeout(() => {
+          el.style.animation = 'highlightBurst 1.2s ease forwards';
+        }, 420);
+      }
+    }, delay);
+  });
+
+  if (conclusion) {
+    setTimeout(() => {
+      conclusion.style.transition = 'opacity 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1)';
+      conclusion.style.opacity = '1';
+      conclusion.style.transform = 'translateY(0) scale(1)';
+    }, 160 + rows.length * 60 + 160);
+  }
+}
+
+function initSlide3Tips() {
+  const tipData = [
+    { cat: '의료_건강',    tip: '시장은 크지만 라이너 핵심 기능인 탐색·요약과 결이 달라 제품 접점을 처음부터 다시 설계해야 합니다. 라이너 관련성이 전 도메인 중 가장 낮아 선정에서 제외했습니다.' },
+    { cat: '요약_정리',    tip: '라이너가 이미 잘하는 영역이라 혁신성이 낮고, 경쟁이 완전히 포화 상태입니다. 새로운 차별화 포인트를 만들기 어려워 신규 투자 대상으로는 매력이 부족합니다.' },
+    { cat: '비즈니스_전략', tip: '수익성은 높지만 전략 판단 영역 특성상 AI가 완결성 있는 답을 내기 어렵습니다. 완결성 점수가 낮아 라이너 제품으로 온전히 소화하기 힘든 도메인입니다.' },
+    { cat: '논문_연구',    tip: '사용자 층이 학술 커뮤니티로 제한되어 수익화 경로가 좁습니다. 완결성은 높지만 대규모 성장을 기대하기 어려워 메인 도메인으로 선정하지 않았습니다.' },
+    { cat: '과학_실험',    tip: '혁신성·수익성·완결성·라이너 관련성 모두 낮은 네 축 중 최하위 조합입니다. 전문 도메인 진입 장벽까지 높아 우선순위에서 가장 먼저 제외했습니다.' },
+    { cat: '과제_학습',    tip: '이미 수많은 교육 AI 서비스가 경쟁 중이고 혁신 여지가 가장 낮은 영역 중 하나입니다. 차별화 포인트가 뚜렷하지 않아 신규 진입의 명분이 약합니다.' },
+    { cat: '법률_법령해석', tip: '수익성과 혁신 여지는 매력적이지만 라이너 강점과 거리가 멉니다. 진입 시 전문 법률 데이터와 별도 검증 체계를 구축해야 해 리소스 부담이 큽니다.' },
+    { cat: '인사_노무',    tip: '기업 내부 수요는 안정적이나 라이너와의 접점이 약하고, 기존 HR 솔루션과의 경쟁에서 뚜렷한 차별점을 만들기 어렵습니다. 라이너 관련성 점수가 낮아 제외했습니다.' },
+    { cat: '금융_투자',    tip: '4축 합산 19/20점으로 전 도메인 1위입니다. 종합 9위라는 숫자가 오히려 아무도 선점하지 않은 블루오션임을 증명합니다.' },
+    { cat: '수학_계산',    tip: '수익성과 혁신 여지가 전 도메인 중 가장 낮습니다. 완결성은 높지만 그만큼 이미 범용 도구가 대체하고 있어 라이너만의 가치를 만들기 어렵습니다.' },
+  ];
+
+  const slide = document.getElementById('slide-3');
+  const tipEl = document.createElement('div');
+  tipEl.className = 'row-float-tip';
+  slide.appendChild(tipEl);
+
+  const rows = document.querySelectorAll('#slide-3 .rank-row:not(.header)');
+  rows.forEach((row, i) => {
+    const d = tipData[i];
+    if (!d) return;
+    row.addEventListener('mouseenter', () => {
+      tipEl.innerHTML = '<span class="tip-cat">' + d.cat + '</span>' + d.tip;
+      tipEl.classList.add('tip-vis');
+    });
+    row.addEventListener('mouseleave', () => tipEl.classList.remove('tip-vis'));
+  });
+}
+
+function animateCriteriaBars() {
+  const fills = document.querySelectorAll('#slide-3 .criteria-fill');
+  fills.forEach(el => { el.style.width = '0%'; });
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    fills.forEach(el => { el.style.width = el.dataset.w + '%'; });
+  }));
+}
+
+function onSlideActivated(n) {
+  animateSlideChildren(n);
+  if (n === 3) { animateCriteriaBars(); animateSlide3(); }
+}
+
+function updateUI() {
+  document.getElementById('slide-counter').textContent = current + ' / ' + TOTAL;
+  document.getElementById('btn-prev').disabled = current === 1;
+  document.getElementById('btn-next').disabled = current === TOTAL;
+  document.querySelectorAll('.dot').forEach((d, idx) => {
+    d.classList.toggle('active', idx + 1 === current);
+  });
+  const pct = ((current - 1) / (TOTAL - 1)) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function resetSlideAnims(slide) {
+  slide.querySelectorAll('.anim').forEach(el => {
+    el.classList.remove('visible');
+    el.style.animationDelay = '';
+  });
+}
+
+function goTo(n) {
+  if (n === current || animating || n < 1 || n > TOTAL) return;
+  animating = true;
+  const oldSlide = document.getElementById('slide-' + current);
+  const newSlide = document.getElementById('slide-' + n);
+
+  oldSlide.style.transition = 'none';
+  oldSlide.style.opacity = '0';
+  oldSlide.style.pointerEvents = 'none';
+
+  resetSlideAnims(newSlide);
+  if (n === 3) {
+    newSlide.querySelectorAll('.rank-row:not(.header)').forEach(el => {
+      el.style.transition = 'none';
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(-22px)';
+      el.style.animation = '';
+    });
+  }
+  newSlide.style.transition = 'none';
+  newSlide.style.opacity = '0';
+  newSlide.style.transform = 'translateX(0)';
+  newSlide.style.pointerEvents = 'none';
+
+  newSlide.getBoundingClientRect();
+
+  newSlide.style.transition = 'opacity 0.3s ease';
+  newSlide.style.opacity = '1';
+
+  current = n;
+  updateUI();
+
+  setTimeout(() => {
+    oldSlide.style.transition = '';
+    oldSlide.style.transform = 'translateX(50px)';
+    oldSlide.style.opacity = '0';
+    newSlide.style.transition = '';
+    newSlide.style.pointerEvents = 'all';
+    newSlide.classList.add('active');
+    oldSlide.classList.remove('active');
+    animating = false;
+    onSlideActivated(current);
+  }, 320);
+}
+
+function navigate(dir) { goTo(current + dir); }
+
+document.getElementById('btn-prev').addEventListener('click', () => navigate(-1));
+document.getElementById('btn-next').addEventListener('click', () => navigate(1));
+document.querySelectorAll('.dot').forEach(d => {
+  d.addEventListener('click', () => goTo(parseInt(d.dataset.n, 10)));
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); navigate(-1); }
+});
+
+function init() {
+  const s1 = document.getElementById('slide-1');
+  s1.style.transition = 'none';
+  s1.style.opacity = '1';
+  s1.style.transform = 'translateX(0)';
+  s1.style.pointerEvents = 'all';
+  s1.classList.add('active');
+
+  for (let i = 2; i <= TOTAL; i++) {
+    const s = document.getElementById('slide-' + i);
+    s.style.opacity = '0';
+    s.style.transform = 'translateX(50px)';
+    s.style.pointerEvents = 'none';
+  }
+
+  updateUI();
+  setupAnimClasses();
+  animateSlideChildren(1);
+  initSlide3Tips();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
