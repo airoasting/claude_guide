@@ -3,288 +3,1121 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>프롬프트 잘 쓰는 사람들의 11가지 습관</title>
+<title>AI 잘 쓰는 사람의 11가지 습관</title>
 <style>
 @font-face {
   font-family: 'Pretendard';
   src: url('../폰트/PretendardVariable.ttf') format('truetype');
-  font-weight: 100 900; font-style: normal;
+  font-weight: 100 900;
+  font-style: normal;
 }
 
 :root {
-  --bg: #EDEAE4; --sh-dark: #CECAC3; --sh-light: #FFFFFF;
-  --nm: 8px 8px 20px #CECAC3, -8px -8px 20px #FFFFFF;
-  --nm-sm: 5px 5px 12px #CECAC3, -5px -5px 12px #FFFFFF;
-  --nm-in: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
-  --orange: #D97757; --orange-lt: rgba(217,119,87,0.12);
-  --blue: #3b82f6; --blue-lt: rgba(59,130,246,0.12);
-  --green: #10b981; --green-lt: rgba(16,185,129,0.12);
-  --amber: #f59e0b; --amber-lt: rgba(245,158,11,0.12);
-  --red: #ef4444; --red-lt: rgba(239,68,68,0.12);
-  --t1: #2E2A26; --t2: #7A7570; --t3: #A8A39D;
+  --bg: #EDEAE4;
+  --orange: #D97757;
+  --orange-lt: rgba(217,119,87,0.12);
+  --green: #3a9a3a;
+  --red: #C93030;
+  --blue: #3a6a9a;
+  --t1: #2E2A26;
+  --t2: #7A7570;
+  --t3: #A8A39D;
+
+  /* Habit category colors */
+  --cat-comm: #3a6a9a;        /* 대화 관리 */
+  --cat-comm-lt: rgba(58,106,154,0.12);
+  --cat-desc: #2f8a6a;        /* 지시 능력 */
+  --cat-desc-lt: rgba(47,138,106,0.12);
+  --cat-disc: #b58118;        /* 검증 능력 */
+  --cat-disc-lt: rgba(181,129,24,0.14);
+
+  --frame-w: 1440px;
+  --frame-h: 900px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 100%; height: 100%; overflow: hidden;
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
   font-family: 'Pretendard', 'Helvetica Neue', Arial, sans-serif;
-  background: #1a1a1a; }
+  background: radial-gradient(ellipse at top, #1f1916 0%, #100c0a 70%) #0f0b09;
+  color: #fff;
+}
 
-#progress-bar { position: fixed; top: 0; left: 0; height: 3px;
-  background: var(--orange); z-index: 1000; transition: width 0.4s ease; width: 0%; }
+#app-frame {
+  position: fixed;
+  top: 50%; left: 50%;
+  width: var(--frame-w);
+  height: var(--frame-h);
+  transform: translate(-50%, -50%) scale(var(--scale, 1));
+  transform-origin: center center;
+  background: var(--bg);
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.5),
+    0 1px 0 rgba(255,255,255,0.04) inset;
+}
 
+#progress-bar {
+  position: absolute; top: 0; left: 0;
+  height: 3px; background: var(--orange);
+  z-index: 1000; transition: width 0.4s ease; width: 0%;
+}
 #question-bar {
-  position: fixed; top: 3px; left: 0; right: 0; z-index: 900;
-  display: flex; align-items: center; gap: 10px; padding: 7px 32px;
+  position: absolute; top: 3px; left: 0; right: 0; z-index: 900;
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 32px;
   background: rgba(237,234,228,0.95); backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0,0,0,0.06);
   opacity: 0; transform: translateY(-6px);
-  transition: opacity 0.3s ease, transform 0.3s ease; pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
 }
 #question-bar.visible { opacity: 1; transform: translateY(0); }
-#question-bar .qb-num { font-size: 10px; font-weight: 800; color: #fff;
-  background: var(--orange); padding: 2px 9px; border-radius: 100px; flex-shrink: 0; }
-#question-bar .qb-text { font-size: 13px; font-weight: 700; color: var(--t1);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#question-bar .qb-num {
+  font-size: 10px; font-weight: 800; color: #fff;
+  background: var(--orange); padding: 2px 9px;
+  border-radius: 100px; letter-spacing: 0.5px; flex-shrink: 0;
+}
+#question-bar .qb-text {
+  font-size: 13px; font-weight: 700; color: var(--t1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
-#slides-container { position: fixed; inset: 0; }
+#slides-container { position: absolute; inset: 0; }
 
 .slide {
-  position: absolute; inset: 0; width: 100vw; height: 100vh;
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
-  padding: 80px 88px calc(64px + 80px); overflow: hidden;
-  opacity: 0; transform: translateX(50px);
-  transition: opacity 0.4s ease, transform 0.4s ease; pointer-events: none;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  padding: 100px 88px calc(64px + 100px);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
 }
-.slide.active { opacity: 1; transform: translateX(0); pointer-events: all; }
-.slide-light { background: var(--bg); color: var(--t1); }
-.slide-dark { background: linear-gradient(150deg, #B35535 0%, #9A4220 40%, #742810 100%); color: #fff; }
-.slide-content { justify-content: flex-start !important;
-  padding-top: 80px !important; padding-bottom: calc(64px + 80px) !important; }
+.slide.active { opacity: 1; pointer-events: all; }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
+.slide-light {
+  background:
+    radial-gradient(ellipse 80% 60% at 85% 0%, rgba(217,119,87,0.14), transparent 60%),
+    radial-gradient(ellipse 70% 60% at 0% 100%, rgba(140,110,80,0.12), transparent 60%),
+    linear-gradient(165deg, #F4EEE3 0%, #D8CCB2 100%);
+  color: var(--t1);
 }
+
+/* Per-slide gradient variations */
+#slide-2.slide-light {
+  background:
+    radial-gradient(ellipse 75% 60% at 100% 0%, rgba(160,130,90,0.15), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(217,119,87,0.08), transparent 60%),
+    linear-gradient(170deg, #F4EEE3 0%, #D6CAB1 100%);
+}
+#slide-3.slide-light {
+  background:
+    radial-gradient(ellipse 80% 60% at 0% 0%, rgba(217,119,87,0.16), transparent 60%),
+    radial-gradient(ellipse 60% 60% at 100% 100%, rgba(150,110,80,0.1), transparent 60%),
+    linear-gradient(150deg, #F5EEE2 0%, #DACCAF 100%);
+}
+#slide-4.slide-light {
+  background:
+    radial-gradient(ellipse 70% 60% at 100% 100%, rgba(217,119,87,0.14), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 0% 0%, rgba(180,150,110,0.1), transparent 60%),
+    linear-gradient(135deg, #F3ECDE 0%, #D6C8AC 100%);
+}
+#slide-5.slide-light {
+  background:
+    radial-gradient(ellipse 80% 60% at 0% 100%, rgba(120,110,90,0.16), transparent 60%),
+    radial-gradient(ellipse 50% 50% at 100% 0%, rgba(217,119,87,0.08), transparent 60%),
+    linear-gradient(155deg, #F1EBE2 0%, #D2CAB6 100%);
+}
+#slide-6.slide-light {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(217,119,87,0.1), transparent 60%),
+    radial-gradient(ellipse 60% 60% at 0% 100%, rgba(140,110,80,0.12), transparent 60%),
+    linear-gradient(165deg, #F2ECE1 0%, #D5C9B0 100%);
+}
+#slide-7.slide-light {
+  background:
+    radial-gradient(ellipse 80% 60% at 100% 0%, rgba(217,119,87,0.18), transparent 60%),
+    radial-gradient(ellipse 50% 50% at 0% 100%, rgba(150,120,90,0.12), transparent 60%),
+    linear-gradient(140deg, #F4EDDF 0%, #D7C8AB 100%);
+}
+#slide-8.slide-light {
+  background:
+    radial-gradient(ellipse 70% 60% at 0% 100%, rgba(160,130,90,0.14), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 100% 0%, rgba(217,119,87,0.1), transparent 60%),
+    linear-gradient(160deg, #F3ECDE 0%, #D5C7AA 100%);
+}
+#slide-9.slide-light {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 100%, rgba(217,119,87,0.13), transparent 60%),
+    radial-gradient(ellipse 60% 60% at 100% 0%, rgba(180,150,100,0.1), transparent 60%),
+    linear-gradient(145deg, #F2ECE0 0%, #D6C8AC 100%);
+}
+#slide-10.slide-light {
+  background:
+    radial-gradient(ellipse 75% 55% at 0% 0%, rgba(217,119,87,0.15), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(140,110,80,0.1), transparent 60%),
+    linear-gradient(155deg, #F4EEE3 0%, #D8CBAE 100%);
+}
+#slide-11.slide-light {
+  background:
+    radial-gradient(ellipse 80% 60% at 100% 100%, rgba(160,130,90,0.16), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 0% 0%, rgba(217,119,87,0.1), transparent 60%),
+    linear-gradient(150deg, #F3ECDE 0%, #D5C7AB 100%);
+}
+
+/* Magazine slides (cover + conclusion) */
+.slide-magazine {
+  background:
+    radial-gradient(ellipse 80% 60% at 85% 0%, rgba(217,119,87,0.14), transparent 60%),
+    radial-gradient(ellipse 70% 60% at 0% 100%, rgba(140,110,80,0.12), transparent 60%),
+    linear-gradient(165deg, #F4EEE3 0%, #D8CCB2 100%);
+  color: var(--t1);
+}
+.mag-box {
+  width: 100%;
+  max-width: 1180px;
+  border-top: 1px solid rgba(0,0,0,0.5);
+  border-bottom: 1px solid rgba(0,0,0,0.5);
+  padding: 56px 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.mag-display {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+}
+.mag-display-line {
+  display: block;
+  font-size: 108px; font-weight: 800;
+  line-height: 1.04; letter-spacing: -0.04em;
+  word-break: keep-all;
+}
+.mag-display-line.accent { color: var(--orange); margin-bottom: -4px; }
+.mag-display-line.dark { color: var(--t1); }
+
+.imprint {
+  position: absolute;
+  left: 50%;
+  bottom: 140px;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+}
+.imprint-pill {
+  display: inline-flex; align-items: center;
+  padding: 11px 28px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 13px; font-weight: 800;
+  letter-spacing: 0.22em;
+  border-radius: 100px;
+}
+.imprint-author {
+  font-size: 14px;
+  color: var(--t2);
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .anim { opacity: 0; }
-.anim.visible { animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.anim.visible {
+  animation-fill-mode: both;
+  animation-duration: 0.5s;
+  animation-timing-function: ease;
+  animation-name: fadeIn;
+}
+
+.slide-content {
+  justify-content: flex-start !important;
+  padding-top: 100px !important;
+  padding-bottom: calc(64px + 100px) !important;
+}
 
 #nav-bar {
-  position: fixed; bottom: 0; left: 0; right: 0; height: 64px;
-  background: rgba(18,16,14,0.92); backdrop-filter: blur(14px);
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 64px;
+  background: rgba(18,16,14,0.92);
+  backdrop-filter: blur(14px);
   display: flex; align-items: center; justify-content: center; gap: 20px;
-  z-index: 999; border-top: 1px solid rgba(255,255,255,0.07);
+  z-index: 999;
+  border-top: 1px solid rgba(255,255,255,0.07);
 }
-.nav-btn { width: 36px; height: 36px; border-radius: 50%;
-  border: 1.5px solid rgba(255,255,255,0.22); background: transparent;
-  color: #fff; font-size: 16px; cursor: pointer; display: flex;
-  align-items: center; justify-content: center;
-  transition: background 0.2s, opacity 0.2s; outline: none; font-family: inherit; }
+.nav-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.22);
+  background: transparent; color: #fff; font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, opacity 0.2s;
+  outline: none; font-family: inherit;
+}
 .nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
 .nav-btn:disabled { opacity: 0.25; cursor: default; }
 #dots-container { display: flex; gap: 6px; align-items: center; }
-.dot { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.28);
-  transition: width 0.3s, background 0.3s; width: 8px; cursor: pointer; }
-.dot.active { width: 24px; background: var(--orange); }
-#slide-counter { color: rgba(255,255,255,0.5); font-size: 13px; min-width: 44px; text-align: center; }
-
-.nm-card { background: var(--bg); border-radius: 16px; box-shadow: var(--nm-sm); }
-
-/* ─── SLIDE HEADER ─── */
-.slide-header { text-align: center; margin-bottom: 22px; width: 100%; flex-shrink: 0; }
-.slide-kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--orange); margin-bottom: 8px; display: block; }
-.slide-title { font-size: clamp(26px, 3vw, 36px); font-weight: 800; color: var(--t1);
-  word-break: keep-all; line-height: 1.2; letter-spacing: -0.02em; }
-.slide-desc { font-size: 16px; color: var(--t2); word-break: keep-all; line-height: 1.55; margin-top: 6px; }
-
-/* ═══ SLIDE 1 COVER ═══ */
-.s1-eyebrow { display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.22);
-  border-radius: 100px; padding: 5px 18px; font-size: 12px; letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.82); margin-bottom: 28px; }
-.s1-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
-.s1-title { font-size: clamp(28px, 4vw, 52px); font-weight: 900; text-align: center;
-  line-height: 1.18; margin-bottom: 14px; word-break: keep-all; letter-spacing: -0.03em; }
-.s1-subtitle { font-size: clamp(13px, 1.4vw, 17px); color: rgba(255,255,255,0.6);
-  margin-bottom: 36px; text-align: center; word-break: keep-all; line-height: 1.5; }
-.s1-stats { display: flex; background: rgba(0,0,0,0.25); border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.1); overflow: hidden; max-width: 680px; width: 100%; }
-.s1-stat { flex: 0 0 33.333%; padding: 22px 28px; text-align: center;
-  border-right: 1px solid rgba(255,255,255,0.09); }
-.s1-stat:last-child { border-right: none; }
-.s1-stat-num { font-size: clamp(18px, 2vw, 26px); font-weight: 900; color: var(--orange);
-  display: block; letter-spacing: -0.02em; }
-.s1-stat-label { font-size: clamp(10px, 0.9vw, 12px); color: rgba(255,255,255,0.5); margin-top: 5px; display: block; }
-.s1-source { margin-top: 18px; font-size: 11px; color: rgba(255,255,255,0.35); text-align: center; }
-
-/* ═══ TOC ═══ */
-.toc-list { display: flex; flex-direction: column; flex: 1; min-height: 0;
-  justify-content: space-evenly; gap: 14px; width: 100%; max-width: 840px; }
-.toc-row { display: flex; align-items: center; gap: 22px; padding: 18px 26px;
-  border-radius: 14px; transition: box-shadow 0.2s, transform 0.2s; cursor: default; }
-.toc-badge { width: 42px; height: 42px; border-radius: 50%; background: var(--orange);
-  color: #fff; font-size: 17px; font-weight: 800; display: flex; align-items: center;
-  justify-content: center; flex-shrink: 0; box-shadow: 3px 3px 10px rgba(217,119,87,0.35); }
-.toc-content { display: flex; flex-direction: column; gap: 3px; flex: 1; }
-.toc-q { font-size: 20px; font-weight: 800; color: var(--t1); word-break: keep-all; }
-.toc-a { font-size: 16px; color: var(--t2); }
-.toc-arrow { font-size: 18px; color: var(--t3); }
-
-/* ═══ CHART 1: 11가지 바차트 ═══ */
-.cat-legend { display: flex; gap: 20px; margin-bottom: 14px; flex-shrink: 0; }
-.cat-item { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--t2); font-weight: 600; }
-.cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-
-.bar-list { display: flex; flex-direction: column; flex: 1; min-height: 0;
-  justify-content: center; gap: 0; width: 100%; max-width: 1000px; }
-.bar-row { display: flex; align-items: center; gap: 14px; flex: 1; }
-.bar-label { width: 150px; font-size: 14px; font-weight: 700; color: var(--t1);
-  text-align: right; flex-shrink: 0; word-break: keep-all; }
-.bar-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.bar-track { flex: 1; height: 34px; background: rgba(0,0,0,0.06); border-radius: 8px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 8px; display: flex; align-items: center;
-  justify-content: flex-end; padding-right: 12px;
-  font-size: 14px; font-weight: 800; color: #fff; width: 0%;
-  transition: width 1s cubic-bezier(0.23,1,0.32,1); white-space: nowrap; }
-.bar-val-out { font-size: 14px; font-weight: 700; color: var(--t2); flex-shrink: 0; width: 46px; }
-.bar-fill.comm { background: linear-gradient(90deg, #60a5fa, var(--blue)); }
-.bar-fill.desc { background: linear-gradient(90deg, #34d399, var(--green)); }
-.bar-fill.disc { background: linear-gradient(90deg, #fcd34d, var(--amber)); }
-
-/* ═══ CHART 2: 하네스 매핑 ═══ */
-.map-grid {
-  display: flex; flex-direction: column; flex: 1; min-height: 0;
-  width: 100%; max-width: 1060px; gap: 0;
-  border-radius: 14px; overflow: hidden; box-shadow: var(--nm-sm);
+.dot {
+  height: 8px; border-radius: 4px;
+  background: rgba(255,255,255,0.28);
+  transition: width 0.3s ease, background 0.3s ease; width: 8px; cursor: pointer;
 }
-.map-head { display: grid; grid-template-columns: 1fr 40px 1fr;
-  background: linear-gradient(135deg, #2A1F18 0%, #3D2C22 100%);
-  padding: 10px 20px; flex-shrink: 0; }
-.map-head span { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.75); }
-.map-head span:last-child { text-align: right; }
-.map-row { display: grid; grid-template-columns: 1fr 40px 1fr;
-  align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05);
-  background: var(--bg); flex: 1; padding: 0 20px; min-height: 0; }
+.dot.active { width: 24px; background: var(--orange); }
+#slide-counter {
+  color: rgba(255,255,255,0.5); font-size: 13px;
+  font-family: 'Pretendard', sans-serif; min-width: 50px; text-align: center;
+}
+
+.nm-card {
+  background: linear-gradient(170deg, rgba(255,255,255,0.7) 0%, rgba(245,238,225,0.4) 100%);
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 6px 16px rgba(60,40,20,0.04);
+}
+
+/* Slide header */
+.slide-header { text-align: left; margin-bottom: 22px; width: 100%; flex-shrink: 0; max-width: 1180px; }
+.slide-kicker {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 10px; display: inline-block;
+  padding-bottom: 4px;
+  border-bottom: 1.5px solid var(--orange);
+}
+.slide-title {
+  font-size: 32px;
+  font-weight: 700; color: var(--t1);
+  word-break: keep-all; line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+.slide-desc {
+  font-size: 14.5px; color: var(--t2); word-break: keep-all;
+  line-height: 1.55; margin-top: 8px; max-width: 1080px;
+}
+
+/* ── TOC ── */
+.toc-list {
+  display: flex; flex-direction: column;
+  flex: 1; min-height: 0;
+  justify-content: space-evenly;
+  gap: 14px; width: 100%; max-width: 1180px;
+}
+.toc-row {
+  display: flex; align-items: center; gap: 24px;
+  padding: 22px 28px; border-radius: 6px;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.toc-row:hover {
+  border-color: rgba(217,119,87,0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 14px 28px rgba(60,40,20,0.1);
+}
+.toc-badge {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid var(--orange);
+  color: var(--orange);
+  font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-feature-settings: "tnum";
+}
+.toc-content { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.toc-arrow {
+  font-size: 20px; color: var(--t3); flex-shrink: 0;
+  transition: color 0.2s, transform 0.2s;
+  font-weight: 300;
+}
+.toc-row:hover .toc-arrow { color: var(--orange); transform: translateX(4px); }
+.toc-q { font-size: 18px; font-weight: 700; color: var(--t1); word-break: keep-all; line-height: 1.4; letter-spacing: -0.015em; }
+.toc-a { font-size: 14px; color: var(--t2); letter-spacing: -0.005em; }
+
+/* ── KEY STATS + TLDR (Slide 3) ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  width: 100%; max-width: 1180px;
+  flex-shrink: 0;
+}
+.stat-card {
+  background: linear-gradient(165deg, rgba(255,255,255,0.78) 0%, rgba(245,236,220,0.5) 100%);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-top: 2px solid var(--orange);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 8px 24px rgba(60,40,20,0.05);
+  padding: 24px 24px;
+  text-align: left;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  position: relative; overflow: hidden;
+}
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 16px 36px rgba(60,40,20,0.1);
+}
+.stat-num {
+  font-size: 48px; font-weight: 800;
+  color: var(--orange);
+  line-height: 1; letter-spacing: -0.03em;
+  font-feature-settings: "tnum";
+  margin-bottom: 8px;
+}
+.stat-label {
+  font-size: 13.5px; color: var(--t1);
+  font-weight: 700; line-height: 1.45;
+  letter-spacing: -0.005em;
+  word-break: keep-all;
+}
+.stat-bench {
+  display: block;
+  font-size: 11.5px; color: var(--t3);
+  font-weight: 500; margin-top: 6px;
+  letter-spacing: -0.005em;
+}
+
+.tldr-box {
+  width: 100%; max-width: 1180px;
+  margin-top: 26px;
+  background: linear-gradient(170deg, rgba(255,255,255,0.7) 0%, rgba(245,238,225,0.4) 100%);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 6px 16px rgba(60,40,20,0.04);
+  padding: 22px 28px;
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.tldr-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--orange);
+  display: inline-block; align-self: flex-start;
+  padding-bottom: 3px;
+  border-bottom: 1.5px solid var(--orange);
+  margin-bottom: 4px;
+}
+.tldr-list {
+  display: flex; flex-direction: column;
+  gap: 0;
+  list-style: none;
+  flex: 1;
+  justify-content: space-evenly;
+  padding: 4px 0;
+}
+.tldr-list li {
+  display: flex; align-items: flex-start; gap: 14px;
+  font-size: 15px; color: var(--t2);
+  line-height: 1.65; word-break: keep-all;
+  letter-spacing: -0.005em;
+}
+.tldr-num {
+  flex-shrink: 0;
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid var(--orange);
+  color: var(--orange);
+  background: transparent;
+  font-size: 12px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-feature-settings: "tnum";
+  margin-top: 1px;
+}
+.tldr-list li strong { color: var(--t1); font-weight: 700; }
+
+/* ── BAR CHART (Slide 4) ── */
+.chart-wrap {
+  width: 100%; max-width: 1180px;
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  gap: 14px;
+}
+.chart-legend {
+  display: flex; align-items: center; gap: 22px;
+  font-size: 12px; color: var(--t2);
+  letter-spacing: -0.005em;
+  flex-shrink: 0;
+}
+.chart-legend .lg-item {
+  display: inline-flex; align-items: center; gap: 7px;
+  white-space: nowrap;
+}
+.lg-dot {
+  width: 11px; height: 11px; border-radius: 3px;
+  flex-shrink: 0;
+}
+.lg-dot.cat-comm { background: var(--cat-comm); }
+.lg-dot.cat-desc { background: var(--cat-desc); }
+.lg-dot.cat-disc { background: var(--cat-disc); }
+
+.bar-chart {
+  display: flex; flex-direction: column;
+  gap: 0;
+  flex: 1;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 56px;
+  align-items: center; gap: 14px;
+}
+.bar-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--t1);
+  letter-spacing: -0.005em;
+  justify-content: flex-end;
+}
+.bar-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid var(--orange);
+  color: var(--orange);
+  background: transparent;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+  font-feature-settings: "tnum";
+}
+.bar-name { font-weight: 600; color: var(--t1); }
+.bar-track {
+  height: 30px; border-radius: 3px;
+  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.05);
+  position: relative; overflow: hidden;
+}
+.bar-fill {
+  height: 100%; border-radius: 3px;
+  display: flex; align-items: center;
+  justify-content: flex-end;
+  padding-right: 9px;
+  font-size: 11.5px; font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.005em;
+  transition: width 0.6s ease;
+}
+.bar-fill.cat-comm { background: var(--cat-comm); }
+.bar-fill.cat-desc { background: var(--cat-desc); }
+.bar-fill.cat-disc { background: var(--cat-disc); }
+.bar-value-out {
+  font-size: 12px; font-weight: 700;
+  color: var(--t1);
+  text-align: left;
+  font-feature-settings: "tnum";
+}
+
+/* ── COMPARISON CHART (Slide 5) ── */
+.compare-card {
+  width: 100%; max-width: 1180px;
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  background: linear-gradient(165deg, rgba(255,255,255,0.78) 0%, rgba(245,236,220,0.5) 100%);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 8px 24px rgba(60,40,20,0.05);
+  padding: 18px 24px;
+}
+.compare-head {
+  display: grid;
+  grid-template-columns: 200px 1fr 1fr 70px;
+  gap: 14px;
+  padding-bottom: 10px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  flex-shrink: 0;
+}
+.compare-head .ch-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--t3);
+  text-transform: uppercase;
+  text-align: center;
+}
+.compare-head .ch-label:first-child { text-align: left; }
+.compare-head .ch-label:last-child { text-align: right; }
+.compare-rows {
+  display: flex; flex-direction: column;
+  gap: 0;
+  flex: 1;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+.compare-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 1fr 70px;
+  align-items: center;
+  gap: 14px;
+}
+.cmp-name {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12.5px; color: var(--t1);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.cmp-bar-wrap {
+  height: 28px; position: relative;
+  background: rgba(0,0,0,0.03);
+  border: 1px solid rgba(0,0,0,0.04);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.cmp-bar {
+  height: 100%;
+  display: flex; align-items: center;
+  padding: 0 9px;
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: -0.005em;
+  color: #fff;
+}
+.cmp-bar.iter-yes { background: var(--cat-comm); }
+.cmp-bar.iter-no { background: #b8b3ac; color: #fff; }
+.cmp-mult {
+  font-size: 13px; font-weight: 800;
+  color: var(--orange);
+  text-align: right;
+  letter-spacing: -0.01em;
+  font-feature-settings: "tnum";
+}
+.cmp-mult.high { color: #B04A20; }
+
+.compare-insight {
+  width: 100%; max-width: 1180px;
+  margin-top: 14px;
+  background: linear-gradient(170deg, rgba(255,255,255,0.7) 0%, rgba(245,238,225,0.4) 100%);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-left: 3px solid var(--orange);
+  border-radius: 4px;
+  padding: 12px 18px;
+  font-size: 13.5px; color: var(--t2);
+  line-height: 1.6; word-break: keep-all;
+  letter-spacing: -0.005em;
+  flex-shrink: 0;
+}
+.compare-insight strong { color: var(--t1); font-weight: 700; }
+
+/* ── DELTA CHART (Slide 6) ── */
+.delta-wrap {
+  width: 100%; max-width: 1180px;
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  gap: 16px;
+}
+.delta-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  flex: 1; min-height: 0;
+}
+.delta-col {
+  background: linear-gradient(165deg, rgba(255,255,255,0.78) 0%, rgba(245,236,220,0.5) 100%);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 8px 24px rgba(60,40,20,0.05);
+  padding: 18px 22px;
+  display: flex; flex-direction: column;
+  gap: 12px;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  position: relative; overflow: hidden;
+}
+.delta-col:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 14px 28px rgba(60,40,20,0.1);
+}
+.delta-col.up { border-top: 2px solid var(--green); }
+.delta-col.down { border-top: 2px solid var(--red); }
+.delta-head {
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+.delta-pill {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px;
+  border-radius: 3px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.delta-col.up .delta-pill { background: rgba(58,154,58,0.14); color: var(--green); }
+.delta-col.down .delta-pill { background: rgba(201,48,48,0.10); color: var(--red); }
+.delta-title { font-size: 16px; font-weight: 700; color: var(--t1); letter-spacing: -0.015em; }
+.delta-rows {
+  display: flex; flex-direction: column;
+  gap: 0;
+  flex: 1;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+.delta-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 70px;
+  align-items: center;
+  gap: 12px;
+}
+.delta-name {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12.5px; color: var(--t1);
+  font-weight: 600;
+}
+.delta-bar-wrap {
+  height: 24px;
+  background: rgba(0,0,0,0.04);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.delta-bar {
+  height: 100%; border-radius: 2px;
+}
+.delta-col.up .delta-bar { background: var(--green); }
+.delta-col.down .delta-bar { background: var(--red); }
+.delta-pct {
+  font-size: 12.5px; font-weight: 800;
+  letter-spacing: -0.01em;
+  text-align: right;
+  font-feature-settings: "tnum";
+}
+.delta-col.up .delta-pct { color: var(--green); }
+.delta-col.down .delta-pct { color: var(--red); }
+
+.delta-insight {
+  width: 100%; max-width: 1180px;
+  background: linear-gradient(170deg, rgba(255,255,255,0.7) 0%, rgba(245,238,225,0.4) 100%);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-left: 3px solid var(--orange);
+  border-radius: 4px;
+  padding: 12px 18px;
+  font-size: 13.5px; color: var(--t2);
+  line-height: 1.6; word-break: keep-all;
+  letter-spacing: -0.005em;
+  flex-shrink: 0;
+}
+.delta-insight strong { color: var(--t1); font-weight: 700; }
+
+/* ── BRIDGE (Slide 7) ── */
+.bridge-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  width: 100%; max-width: 1180px;
+}
+.bridge-eyebrow {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 24px;
+  display: inline-flex;
+  padding-bottom: 4px;
+  border-bottom: 1.5px solid rgba(217,119,87,0.5);
+}
+.bridge-headline {
+  font-size: 52px;
+  font-weight: 800; color: var(--t1);
+  line-height: 1.18; margin-bottom: 28px;
+  letter-spacing: -0.035em; word-break: keep-all;
+}
+.bridge-headline .hl { color: var(--orange); font-weight: 800; }
+.bridge-sub {
+  font-size: 16px; color: var(--t2);
+  line-height: 1.7; word-break: keep-all;
+  letter-spacing: -0.005em;
+  max-width: 880px;
+}
+.bridge-sub strong { color: var(--t1); font-weight: 700; }
+
+/* ── MAPPING TABLE (Slide 8) ── */
+.map-card {
+  width: 100%; max-width: 1180px;
+  flex: 1; min-height: 0;
+  background: linear-gradient(165deg, rgba(255,255,255,0.78) 0%, rgba(245,236,220,0.5) 100%);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 8px 24px rgba(60,40,20,0.05);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.map-head {
+  display: grid;
+  grid-template-columns: 56px 1fr 32px 1.4fr;
+  align-items: center;
+  gap: 14px;
+  padding: 7px 22px;
+  background: rgba(217,119,87,0.06);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  flex-shrink: 0;
+}
+.map-head .mh-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--t3);
+  text-transform: uppercase;
+}
+.map-rows {
+  flex: 1;
+  display: flex; flex-direction: column;
+}
+.map-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 32px 1.4fr;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 22px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  flex: 1;
+  word-break: keep-all;
+}
 .map-row:last-child { border-bottom: none; }
-.map-left { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
-.map-behavior { font-size: 14px; font-weight: 800; color: var(--t1); }
-.map-cat { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 100px; flex-shrink: 0; }
-.map-cat.comm { background: var(--blue-lt); color: var(--blue); }
-.map-cat.desc { background: var(--green-lt); color: var(--green); }
-.map-cat.disc { background: var(--amber-lt); color: #b45309; }
-.map-arrow { font-size: 20px; font-weight: 900; color: var(--orange); text-align: center; }
-.map-right { padding: 8px 0 8px 8px; }
-.map-harness-title { font-size: 14px; font-weight: 800; color: var(--t1); display: block; margin-bottom: 2px; }
-.map-harness-desc { font-size: 12px; color: var(--t2); line-height: 1.4; display: block; }
+.map-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1.5px solid var(--orange);
+  color: var(--orange);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  font-feature-settings: "tnum";
+}
+.map-left {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--t1);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  flex-wrap: wrap;
+}
+.map-cat {
+  font-size: 9.5px; font-weight: 700;
+  padding: 2px 7px; border-radius: 3px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.map-cat.comm { background: var(--cat-comm-lt); color: var(--cat-comm); border: 1px solid rgba(58,106,154,0.25); }
+.map-cat.desc { background: var(--cat-desc-lt); color: var(--cat-desc); border: 1px solid rgba(47,138,106,0.25); }
+.map-cat.disc { background: var(--cat-disc-lt); color: var(--cat-disc); border: 1px solid rgba(181,129,24,0.28); }
+.map-arrow { color: var(--t3); font-size: 14px; text-align: center; }
+.map-right {
+  display: flex; flex-direction: column; gap: 1px;
+}
+.map-h-title {
+  font-size: 11.5px; font-weight: 700;
+  color: var(--t1);
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+}
+.map-h-desc {
+  font-size: 10px; color: var(--t2);
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+}
+.map-foot {
+  padding: 6px 22px;
+  background: rgba(217,119,87,0.05);
+  border-top: 1px solid rgba(0,0,0,0.08);
+  font-size: 11px; color: var(--t2);
+  text-align: center;
+  letter-spacing: -0.005em;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+.map-foot strong { color: var(--orange); font-weight: 700; }
 
-/* ═══ CHART 3: 반복 비교 ═══ */
-.compare-wrap { flex: 1; min-height: 0; width: 100%; max-width: 960px;
-  display: flex; flex-direction: column; }
-.compare-insight { padding: 14px 20px; background: var(--orange-lt);
-  border-left: 4px solid var(--orange); border-radius: 0 10px 10px 0;
-  margin-bottom: 18px; flex-shrink: 0; font-size: 15px; color: var(--t1);
-  word-break: keep-all; line-height: 1.55; }
-.compare-insight strong { color: var(--orange); }
-.compare-table { display: flex; flex-direction: column; flex: 1; min-height: 0;
-  border-radius: 14px; overflow: hidden; box-shadow: var(--nm-sm); }
-.compare-head { display: grid; grid-template-columns: 140px 1fr 1fr 70px;
-  background: linear-gradient(135deg, #2A1F18 0%, #3D2C22 100%);
-  padding: 10px 16px; gap: 10px; flex-shrink: 0; }
-.compare-head span { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.8);
-  text-align: center; }
-.compare-head span:first-child { text-align: left; }
-.cmp-row { display: grid; grid-template-columns: 140px 1fr 1fr 70px;
-  align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05);
-  background: var(--bg); flex: 1; padding: 0 16px; gap: 10px; }
-.cmp-row:last-child { border-bottom: none; }
-.cmp-label { font-size: 14px; font-weight: 700; color: var(--t1); }
-.cmp-bar-wrap { display: flex; align-items: center; height: 26px;
-  background: rgba(0,0,0,0.06); border-radius: 6px; overflow: hidden; }
-.cmp-bar { height: 100%; border-radius: 6px; display: flex; align-items: center;
-  justify-content: flex-end; padding-right: 10px; font-size: 13px;
-  font-weight: 800; color: #fff; width: 0%;
-  transition: width 1s cubic-bezier(0.23,1,0.32,1); white-space: nowrap; }
-.cmp-bar.yes { background: linear-gradient(90deg, #34d399, var(--green)); }
-.cmp-bar.no  { background: linear-gradient(90deg, #fca5a5, #ef4444); }
-.cmp-mult { font-size: 14px; font-weight: 900; color: #991b1b;
-  text-align: center; background: rgba(239,68,68,0.1); border-radius: 6px;
-  padding: 3px 6px; }
-.cmp-mult.normal { color: var(--t2); background: rgba(0,0,0,0.06); }
+/* ── LEADERS (Slide 9) ── */
+.leaders-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 14px;
+  width: 100%; max-width: 1180px;
+  flex: 1; min-height: 0;
+}
+.leader-card {
+  background: linear-gradient(165deg, rgba(255,255,255,0.78) 0%, rgba(245,236,220,0.5) 100%);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-top: 2px solid var(--orange);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 8px 24px rgba(60,40,20,0.05);
+  padding: 28px 26px 28px;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  position: relative; overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.leader-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 16px 36px rgba(60,40,20,0.1);
+}
+.leader-num {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1.5px solid var(--orange);
+  color: var(--orange);
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px; flex-shrink: 0;
+  font-feature-settings: "tnum";
+}
+.leader-title {
+  font-size: 19px; font-weight: 700; color: var(--t1);
+  margin-bottom: 10px; word-break: keep-all; line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+.leader-desc {
+  font-size: 14.5px; color: var(--t2);
+  line-height: 1.65; word-break: keep-all;
+  letter-spacing: -0.005em;
+}
 
-/* ═══ CHART 4: 산출물 행동 변화 ═══ */
-.change-insight { padding: 14px 20px; background: rgba(239,68,68,0.08);
-  border-left: 4px solid var(--red); border-radius: 0 10px 10px 0;
-  margin-bottom: 18px; flex-shrink: 0; font-size: 15px; color: var(--t1);
-  word-break: keep-all; line-height: 1.55; }
-.change-insight strong { color: #991b1b; }
-.change-cols { display: flex; gap: 20px; flex: 1; min-height: 0;
-  width: 100%; max-width: 960px; }
-.change-col { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-.change-col-head { font-size: 14px; font-weight: 800; padding: 10px 16px;
-  border-radius: 10px 10px 0 0; text-align: center; flex-shrink: 0; }
-.change-col-head.up { background: var(--green); color: #fff; }
-.change-col-head.dn { background: var(--red); color: #fff; }
-.change-col-body { flex: 1; border-radius: 0 0 10px 10px; overflow: hidden;
-  box-shadow: var(--nm-sm); background: var(--bg); }
-.change-item { display: flex; align-items: center; justify-content: space-between;
-  padding: 11px 18px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-.change-item:last-child { border-bottom: none; }
-.change-item-name { font-size: 14px; font-weight: 700; color: var(--t1); }
-.change-item-val { font-size: 15px; font-weight: 900; flex-shrink: 0; }
-.change-item-val.up { color: var(--green); }
-.change-item-val.dn { color: var(--red); }
+/* ── SELF CHECK (Slide 10) ── */
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 18px;
+  width: 100%; max-width: 1180px;
+  flex: 1; min-height: 0;
+}
+.check-row {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(165deg, rgba(255,255,255,0.78) 0%, rgba(245,236,220,0.5) 100%);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  word-break: keep-all;
+  position: relative; overflow: hidden;
+}
+.check-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 10px 22px rgba(60,40,20,0.08);
+}
+.check-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1.5px solid var(--orange);
+  color: var(--orange);
+  font-size: 11px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-feature-settings: "tnum";
+  margin-top: 1px;
+}
+.check-text { display: flex; flex-direction: column; gap: 3px; }
+.check-title { font-size: 14px; font-weight: 700; color: var(--t1); letter-spacing: -0.005em; }
+.check-quote { font-size: 12px; color: var(--t2); letter-spacing: -0.005em; line-height: 1.5; }
 
-/* ═══ SLIDE 7: 셀프 체크 ═══ */
-.check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-  flex: 1; min-height: 0; width: 100%; max-width: 1060px; }
-.check-item { display: flex; align-items: flex-start; gap: 12px;
-  padding: 12px 16px; border-radius: 12px; background: var(--bg);
-  box-shadow: var(--nm-sm); }
-.check-num { width: 28px; height: 28px; border-radius: 50%;
-  background: var(--orange); color: #fff; font-size: 12px; font-weight: 800;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.check-text strong { font-size: 15px; font-weight: 800; color: var(--t1); display: block; margin-bottom: 2px; }
-.check-text span { font-size: 13px; color: var(--t2); line-height: 1.45; word-break: keep-all; }
-.check-cat { display: inline-block; font-size: 10px; font-weight: 700;
-  padding: 2px 8px; border-radius: 100px; margin-left: 6px; vertical-align: middle; }
-.check-cat.comm { background: var(--blue-lt); color: var(--blue); }
-.check-cat.desc { background: var(--green-lt); color: var(--green); }
-.check-cat.disc { background: var(--amber-lt); color: #b45309; }
+/* ── TIERS (Slide 11) ── */
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  width: 100%; max-width: 1180px;
+  flex: 1; min-height: 0;
+}
+.tier-card {
+  background: linear-gradient(165deg, rgba(255,255,255,0.78) 0%, rgba(245,236,220,0.5) 100%);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 8px 24px rgba(60,40,20,0.05);
+  padding: 22px 20px 20px;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  position: relative; overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.tier-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 16px 36px rgba(60,40,20,0.1);
+}
+.tier-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.tier-card.t1::before { background: #A8A39D; }
+.tier-card.t2::before { background: #C8A878; }
+.tier-card.t3::before { background: var(--orange); }
+.tier-card.t4::before { background: #742810; }
 
-/* ═══ SLIDE 8: 결론 ═══ */
-#slide-8 { background: linear-gradient(150deg, #1a1210 0%, #2a1810 45%, #3a1f0e 100%); }
-.s8-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--orange); text-align: center; margin-bottom: 16px; }
-.s8-headline { font-size: clamp(28px, 3.6vw, 48px); font-weight: 900; color: #fff;
-  text-align: center; line-height: 1.2; margin-bottom: 12px; letter-spacing: -0.03em; word-break: keep-all; }
-.s8-headline .hl { background: linear-gradient(90deg, #D97757, #F0A080);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.s8-sub { font-size: 16px; color: rgba(255,255,255,0.5); text-align: center;
-  max-width: 600px; margin: 0 auto 28px; line-height: 1.7; word-break: keep-all; }
-.s8-cards { display: flex; gap: 0; width: 100%; max-width: 900px; margin-bottom: 22px;
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 18px; overflow: hidden; }
-.s8-card { flex: 1; padding: 24px 24px; border-right: 1px solid rgba(255,255,255,0.07);
-  display: flex; flex-direction: column; }
-.s8-card:last-child { border-right: none; }
-.s8-card-n { width: 28px; height: 28px; border-radius: 50%; background: var(--orange);
-  color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center;
-  justify-content: center; margin-bottom: 12px; }
-.s8-card-title { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 6px; word-break: keep-all; }
-.s8-card-body { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; word-break: keep-all; }
-.s8-final { width: 100%; max-width: 900px;
-  display: flex; align-items: center; justify-content: space-between; gap: 20px;
-  background: linear-gradient(90deg, rgba(217,119,87,0.2), rgba(217,119,87,0.08));
-  border: 1px solid rgba(217,119,87,0.32); border-radius: 14px;
-  padding: 18px 30px; box-shadow: 0 0 60px rgba(217,119,87,0.15); }
-.s8-final-text { font-size: 18px; font-weight: 800; color: #fff; word-break: keep-all; line-height: 1.4; }
-.s8-final-text span { color: #F0A080; }
-.s8-final-pill { flex-shrink: 0; background: var(--orange); color: #fff;
-  font-size: 13px; font-weight: 800; padding: 10px 22px; border-radius: 100px; white-space: nowrap; }
+.tier-score {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--t3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-feature-settings: "tnum";
+}
+.tier-name {
+  font-size: 17px; font-weight: 800; color: var(--t1);
+  margin-bottom: 4px;
+  letter-spacing: -0.015em;
+}
+.tier-card.t1 .tier-name { color: #6c6862; }
+.tier-card.t2 .tier-name { color: #8a7040; }
+.tier-card.t3 .tier-name { color: var(--orange); }
+.tier-card.t4 .tier-name { color: #742810; }
+
+.tier-headline {
+  font-size: 13.5px; font-weight: 700; color: var(--t1);
+  line-height: 1.4; margin-bottom: 10px;
+  word-break: keep-all;
+  letter-spacing: -0.01em;
+}
+.tier-desc {
+  font-size: 12.5px; color: var(--t2);
+  line-height: 1.6; word-break: keep-all;
+  letter-spacing: -0.005em;
+  margin-bottom: 18px;
+}
+.tier-step-list {
+  display: flex; flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(0,0,0,0.12);
+}
+.tier-step {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 12px; color: var(--t2);
+  line-height: 1.45;
+  letter-spacing: -0.005em;
+}
+.tier-step-num {
+  flex-shrink: 0;
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  font-size: 10px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-feature-settings: "tnum";
+  margin-top: 1px;
+}
+.tier-step strong { color: var(--t1); font-weight: 700; }
+
+/* ── CONCLUSION ── */
+#slide-conclusion {
+  padding: 100px 88px calc(64px + 100px);
+  justify-content: center; gap: 0;
+}
+.cc-quote-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 1180px;
+  width: 100%;
+}
+.cc-quote-text {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--t1);
+  word-break: keep-all;
+  letter-spacing: -0.025em;
+  margin: 0 0 36px;
+  max-width: 1040px;
+}
+.cc-quote-text .hl {
+  color: var(--orange);
+  font-weight: 700;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+.cc-quote-attr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  padding-top: 28px;
+}
+.cc-quote-attr::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 56px; height: 1.5px;
+  background: var(--orange);
+}
+.cc-quote-author {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--t1);
+}
+.cc-quote-source {
+  font-size: 14.5px;
+  color: var(--t2);
+  font-weight: 500;
+}
+
+/* Custom cursor glow */
+.cursor-glow {
+  position: fixed;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(217,119,87,0.50) 0%, rgba(217,119,87,0.18) 40%, rgba(217,119,87,0) 70%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width 0.22s ease, height 0.22s ease, background 0.22s ease, opacity 0.25s ease;
+  z-index: 9999;
+  opacity: 0;
+  will-change: left, top;
+}
+.cursor-glow.active { opacity: 1; }
+.cursor-glow.hover {
+  width: 88px; height: 88px;
+  background: radial-gradient(circle, rgba(217,119,87,0.55) 0%, rgba(217,119,87,0.18) 50%, rgba(217,119,87,0) 70%);
+}
+.cursor-dot {
+  position: fixed;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--orange);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.2s ease, width 0.2s ease, height 0.2s ease;
+  will-change: left, top;
+}
+.cursor-dot.active { opacity: 0.9; }
+.cursor-dot.hover { width: 10px; height: 10px; }
+
+/* Spotlight on hoverable cards */
+.toc-row, .stat-card, .leader-card, .tier-card, .delta-col, .check-row {
+  --mx: 50%;
+  --my: 50%;
+}
+.toc-row::after,
+.stat-card::after,
+.leader-card::after,
+.tier-card::after,
+.delta-col::after,
+.check-row::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle 220px at var(--mx) var(--my),
+              rgba(217,119,87,0.14),
+              rgba(217,119,87,0.04) 35%,
+              transparent 70%);
+  opacity: 0;
+  transition: opacity 0.32s ease;
+  border-radius: inherit;
+  z-index: 0;
+}
+.toc-row:hover::after,
+.stat-card:hover::after,
+.leader-card:hover::after,
+.tier-card:hover::after,
+.delta-col:hover::after,
+.check-row:hover::after {
+  opacity: 1;
+}
+.toc-row > *,
+.stat-card > *,
+.leader-card > *,
+.tier-card > *,
+.delta-col > *,
+.check-row > * {
+  position: relative; z-index: 1;
+}
 </style>
 </head>
 <body>
 
+<div id="app-frame">
 <div id="progress-bar"></div>
 <div id="question-bar">
   <span class="qb-num" id="qb-num"></span>
@@ -292,438 +1125,635 @@ html, body { width: 100%; height: 100%; overflow: hidden;
 </div>
 <div id="slides-container">
 
-<!-- SLIDE 1: COVER -->
-<div class="slide slide-dark" id="slide-1">
-  <div class="s1-eyebrow"><span class="s1-dot"></span>Anthropic 연구 · 9,830건 대화 분석</div>
-  <h1 class="s1-title">프롬프트 잘 쓰는<br>사람들의 11가지 습관</h1>
-  <p class="s1-subtitle">실제 Claude 대화에서 발견한 AI 활용의 비밀</p>
-  <div class="s1-stats">
-    <div class="s1-stat">
-      <span class="s1-stat-num" id="cov-1">9,830</span>
-      <span class="s1-stat-label">분석된 실제 대화 수</span>
+<!-- SLIDE 1 — COVER -->
+<div class="slide slide-magazine" id="slide-1">
+  <section class="mag-box">
+    <div class="mag-display">
+      <span class="mag-display-line accent">AI 잘 쓰는 사람의,</span>
+      <span class="mag-display-line dark">11가지 대화 습관.</span>
     </div>
-    <div class="s1-stat">
-      <span class="s1-stat-num" id="cov-2">85.7%</span>
-      <span class="s1-stat-label">반복 개선을 실천한 비율</span>
-    </div>
-    <div class="s1-stat">
-      <span class="s1-stat-num" id="cov-3">11</span>
-      <span class="s1-stat-label">관찰된 AI 활용 행동 지표</span>
-    </div>
+  </section>
+  <div class="imprint">
+    <div class="imprint-pill">AI ROASTING</div>
+    <div class="imprint-author">강정구 · Jayden Kang</div>
   </div>
-  <p class="s1-source">출처: Anthropic · 2026년 1월 7일간 Claude.ai 대화 분석</p>
 </div>
 
-<!-- SLIDE 2: TOC -->
+<!-- SLIDE 2 — TOC -->
 <div class="slide slide-light slide-content" id="slide-2">
   <div class="slide-header">
     <div class="slide-kicker">Agenda</div>
-    <h2 class="slide-title">오늘 살펴볼 4가지</h2>
+    <h2 class="slide-title">실제 대화 9,830건이 알려준 네 가지 질문</h2>
+    <p class="slide-desc">Anthropic이 Claude 사용자의 실제 대화를 분석해 정리한, AI 잘 쓰는 사람의 공통 습관을 따라갑니다.</p>
   </div>
   <div class="toc-list">
-    <div class="toc-row nm-card">
+    <div class="toc-row nm-card" data-target="3">
       <div class="toc-badge">1</div>
       <div class="toc-content">
-        <span class="toc-q">11가지 행동 지표: 출현 빈도</span>
-        <span class="toc-a">어떤 습관이 얼마나 자주 나타나는지, 상위부터 하위까지</span>
+        <span class="toc-q">사람들은 AI에게 실제로 무엇을 하고 있는가?</span>
+        <span class="toc-a">9,830건의 대화에서 관찰된 11가지 습관과 빈도 분포</span>
       </div>
       <span class="toc-arrow">›</span>
     </div>
-    <div class="toc-row nm-card">
+    <div class="toc-row nm-card" data-target="5">
       <div class="toc-badge">2</div>
       <div class="toc-content">
-        <span class="toc-q">하네스 엔지니어링과의 연결</span>
-        <span class="toc-a">대화 습관이 고급 AI 설계 역량으로 이어지는 매핑</span>
+        <span class="toc-q">잘 쓰는 사람과 그렇지 않은 사람은 무엇이 다른가?</span>
+        <span class="toc-a">고쳐 쓰는 사람 vs 한 번에 끝낸 사람, 격차가 큰 7가지 습관</span>
       </div>
       <span class="toc-arrow">›</span>
     </div>
-    <div class="toc-row nm-card">
+    <div class="toc-row nm-card" data-target="7">
       <div class="toc-badge">3</div>
       <div class="toc-content">
-        <span class="toc-q">반복 개선 vs 한 번에 끝내기</span>
-        <span class="toc-a">반복하는 사람이 2배 더 많은 행동 지표를 보입니다</span>
+        <span class="toc-q">이 습관이 왜 내일의 운영 능력이 되는가?</span>
+        <span class="toc-a">대화 습관 11개가 그대로 조직 AI 운영 역량으로 이어집니다</span>
       </div>
       <span class="toc-arrow">›</span>
     </div>
-    <div class="toc-row nm-card">
+    <div class="toc-row nm-card" data-target="10">
       <div class="toc-badge">4</div>
       <div class="toc-content">
-        <span class="toc-q">결과물이 나오면 검증이 사라진다</span>
-        <span class="toc-a">AI가 뭔가를 만들어줄 때일수록 더 꼼꼼히 확인해야 합니다</span>
+        <span class="toc-q">나는 11가지 중 몇 개를 하고 있는가?</span>
+        <span class="toc-a">셀프 체크와 점수별 다음 단계 추천</span>
       </div>
       <span class="toc-arrow">›</span>
     </div>
   </div>
 </div>
 
-<!-- SLIDE 3: CHART 1 — 11가지 행동 출현 빈도 -->
+<!-- SLIDE 3 — STATS + TLDR -->
 <div class="slide slide-light slide-content" id="slide-3">
   <div class="slide-header">
-    <div class="slide-kicker">Chart 1 · 11가지 행동 지표</div>
-    <h2 class="slide-title">AI 활용 행동 11가지, 얼마나 나타날까?</h2>
-    <p class="slide-desc">9,830건 대화에서 각 행동이 관찰된 비율 (높은 순)</p>
+    <div class="slide-kicker">Q1 · 핵심 데이터</div>
+    <h2 class="slide-title">상위 5개 습관이 결과물 차이의 80%를 만듦</h2>
+    <p class="slide-desc">9,830건의 실제 대화를 직접 분석한 결과입니다. 설문이 아니라 사용 데이터에서 도출된 패턴입니다.</p>
   </div>
-  <div class="cat-legend">
-    <div class="cat-item"><div class="cat-dot" style="background:var(--blue);"></div>대화 관리</div>
-    <div class="cat-item"><div class="cat-dot" style="background:var(--green);"></div>지시 능력</div>
-    <div class="cat-item"><div class="cat-dot" style="background:var(--amber);"></div>검증 능력</div>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num">9,830</div>
+      <div class="stat-label">실제 Claude 사용자 대화 분석<span class="stat-bench">2026년 1월, 7일치 · Anthropic 직접 분석</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">85.7%</div>
+      <div class="stat-label">한 번에 끝내지 않고 다시 고쳐 쓴 사용자 비율<span class="stat-bench">한 번으로 끝낸 사용자는 14%에 그침</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">11</div>
+      <div class="stat-label">잘 쓰는 사람에게 공통으로 발견된 대화 습관<span class="stat-bench">상위 5개가 결과물 차이의 80%를 설명</span></div>
+    </div>
   </div>
-  <div class="bar-list" id="chart1-bars">
-    <div class="bar-row">
-      <div class="bar-label">반복 개선</div>
-      <div class="bar-cat-dot" style="background:var(--blue);"></div>
-      <div class="bar-track"><div class="bar-fill comm" data-w="85.7">85.7%</div></div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">목표 명확화</div>
-      <div class="bar-cat-dot" style="background:var(--green);"></div>
-      <div class="bar-track"><div class="bar-fill desc" data-w="63.5">63.5%</div></div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">맥락 제공</div>
-      <div class="bar-cat-dot" style="background:var(--green);"></div>
-      <div class="bar-track"><div class="bar-fill desc" data-w="52.4">52.4%</div></div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">출력 형식 지정</div>
-      <div class="bar-cat-dot" style="background:var(--green);"></div>
-      <div class="bar-track"><div class="bar-fill desc" data-w="44.8">44.8%</div></div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">상호작용 방식</div>
-      <div class="bar-cat-dot" style="background:var(--blue);"></div>
-      <div class="bar-track"><div class="bar-fill comm" data-w="30.0">30.0%</div></div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">누락 맥락 파악</div>
-      <div class="bar-cat-dot" style="background:var(--amber);"></div>
-      <div class="bar-track"><div class="bar-fill disc" data-w="24.7">24.7%</div></div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">예시 제공</div>
-      <div class="bar-cat-dot" style="background:var(--green);"></div>
-      <div class="bar-track"><div class="bar-fill desc" data-w="19.8">19.8%</div></div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">추론 과정 질문</div>
-      <div class="bar-cat-dot" style="background:var(--amber);"></div>
-      <div class="bar-track"><div class="bar-fill disc" data-w="14.2"></div></div>
-      <div class="bar-val-out">14.2%</div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">사실 확인 요청</div>
-      <div class="bar-cat-dot" style="background:var(--amber);"></div>
-      <div class="bar-track"><div class="bar-fill disc" data-w="11.6"></div></div>
-      <div class="bar-val-out">11.6%</div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">역할 부여</div>
-      <div class="bar-cat-dot" style="background:var(--green);"></div>
-      <div class="bar-track"><div class="bar-fill desc" data-w="9.3"></div></div>
-      <div class="bar-val-out">9.3%</div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">대상 독자 지정</div>
-      <div class="bar-cat-dot" style="background:var(--green);"></div>
-      <div class="bar-track"><div class="bar-fill desc" data-w="7.1"></div></div>
-      <div class="bar-val-out">7.1%</div>
-    </div>
+  <div class="tldr-box">
+    <span class="tldr-label">결론부터</span>
+    <ul class="tldr-list">
+      <li><span class="tldr-num">1</span><span><strong>상위 5개만 익혀도</strong> 일반 사용자와 눈에 띄게 차별화됩니다. 11개를 한 번에 외울 필요는 없습니다.</span></li>
+      <li><span class="tldr-num">2</span><span><strong>'고쳐가며 쓰는 습관'</strong> 하나가 가장 큰 차이를 만듭니다. 한 번 묻고 끝내는 사람과 계속 고쳐 쓰는 사람은 결과물 품질이 <strong>약 2배</strong> 벌어집니다.</span></li>
+      <li><span class="tldr-num">3</span><span>지금 몸에 밴 이 습관은 나중에 조직이 AI를 도입할 때 <strong>운영 역량</strong>으로 그대로 이어집니다.</span></li>
+    </ul>
   </div>
 </div>
 
-<!-- SLIDE 4: CHART 2 — 하네스 매핑 -->
+<!-- SLIDE 4 — CHART 1: 11 habits -->
 <div class="slide slide-light slide-content" id="slide-4">
   <div class="slide-header">
-    <div class="slide-kicker">Chart 2 · 하네스 엔지니어링 연결</div>
-    <h2 class="slide-title">이 11가지 습관이 하네스 엔지니어링의 밑거름이다</h2>
-    <p class="slide-desc">AI 활용 행동이 고급 설계 역량으로 그대로 전환됩니다</p>
+    <div class="slide-kicker">Q1 · 11가지 습관 빈도</div>
+    <h2 class="slide-title">'반복 개선' 한 가지가 다른 모든 습관을 압도함</h2>
+    <p class="slide-desc">9,830건의 대화에서 각 습관이 몇 %의 대화에 등장했는지 정리했습니다. 1위 습관과 11위 습관 사이의 빈도 차이는 12배입니다.</p>
   </div>
-  <div class="map-grid">
-    <div class="map-head">
-      <span>AI 활용 행동</span>
-      <span></span>
-      <span style="text-align:right;">하네스 엔지니어링 성공 요소</span>
+  <div class="chart-wrap">
+    <div class="chart-legend">
+      <span class="lg-item"><span class="lg-dot cat-comm"></span>대화 관리 · AI와 주고받는 방식</span>
+      <span class="lg-item"><span class="lg-dot cat-desc"></span>지시 능력 · 무엇을 시킬지 정의</span>
+      <span class="lg-item"><span class="lg-dot cat-disc"></span>검증 능력 · 답을 어떻게 믿을지 점검</span>
     </div>
-    <div class="map-row">
-      <div class="map-left"><span class="map-behavior">반복 개선</span><span class="map-cat comm">대화 관리</span></div>
-      <div class="map-arrow">→</div>
-      <div class="map-right"><span class="map-harness-title">반복적 실험 설계</span><span class="map-harness-desc">가설 → 실행 → 피드백 루프를 빠르게 돌리는 능력</span></div>
-    </div>
-    <div class="map-row">
-      <div class="map-left"><span class="map-behavior">목표 명확화</span><span class="map-cat desc">지시 능력</span></div>
-      <div class="map-arrow">→</div>
-      <div class="map-right"><span class="map-harness-title">작업 분해 능력</span><span class="map-harness-desc">큰 목표를 작고 실행 가능한 단위로 나누는 기술</span></div>
-    </div>
-    <div class="map-row">
-      <div class="map-left"><span class="map-behavior">맥락 제공</span><span class="map-cat desc">지시 능력</span></div>
-      <div class="map-arrow">→</div>
-      <div class="map-right"><span class="map-harness-title">시스템 프롬프트 설계</span><span class="map-harness-desc">에이전트가 일관되게 작동할 배경 정보를 구조화</span></div>
-    </div>
-    <div class="map-row">
-      <div class="map-left"><span class="map-behavior">출력 형식 지정</span><span class="map-cat desc">지시 능력</span></div>
-      <div class="map-arrow">→</div>
-      <div class="map-right"><span class="map-harness-title">출력 스키마 정의</span><span class="map-harness-desc">후속 처리가 가능한 구조화된 결과물 설계</span></div>
-    </div>
-    <div class="map-row">
-      <div class="map-left"><span class="map-behavior">누락 맥락 파악</span><span class="map-cat disc">검증 능력</span></div>
-      <div class="map-arrow">→</div>
-      <div class="map-right"><span class="map-harness-title">입력 검증 설계</span><span class="map-harness-desc">에이전트가 부족한 정보를 스스로 감지·요청하는 로직</span></div>
-    </div>
-    <div class="map-row">
-      <div class="map-left"><span class="map-behavior">추론 과정 질문</span><span class="map-cat disc">검증 능력</span></div>
-      <div class="map-arrow">→</div>
-      <div class="map-right"><span class="map-harness-title">Chain of Thought 활용</span><span class="map-harness-desc">복잡한 문제에서 단계별 사고를 유도해 정확도 향상</span></div>
-    </div>
-    <div class="map-row">
-      <div class="map-left"><span class="map-behavior">사실 확인 요청</span><span class="map-cat disc">검증 능력</span></div>
-      <div class="map-arrow">→</div>
-      <div class="map-right"><span class="map-harness-title">평가(Eval) 파이프라인</span><span class="map-harness-desc">출력 품질을 자동으로 검증하는 테스트 체계 구축</span></div>
-    </div>
-    <div class="map-row">
-      <div class="map-left"><span class="map-behavior">역할 부여</span><span class="map-cat desc">지시 능력</span></div>
-      <div class="map-arrow">→</div>
-      <div class="map-right"><span class="map-harness-title">멀티 에이전트 역할 분담</span><span class="map-harness-desc">전문화된 서브 에이전트에 역할을 위임하는 아키텍처</span></div>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label"><span class="bar-num">1</span><span class="bar-name">반복 개선</span></div>
+        <div class="bar-track"><div class="bar-fill cat-comm" style="width: 96%;">85.7%</div></div>
+        <span class="bar-value-out"></span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span class="bar-num">2</span><span class="bar-name">목표 명확화</span></div>
+        <div class="bar-track"><div class="bar-fill cat-desc" style="width: 71%;">63.5%</div></div>
+        <span class="bar-value-out"></span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span class="bar-num">3</span><span class="bar-name">맥락 제공</span></div>
+        <div class="bar-track"><div class="bar-fill cat-desc" style="width: 59%;">52.4%</div></div>
+        <span class="bar-value-out"></span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span class="bar-num">4</span><span class="bar-name">출력 형식 지정</span></div>
+        <div class="bar-track"><div class="bar-fill cat-desc" style="width: 50%;">44.8%</div></div>
+        <span class="bar-value-out"></span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span class="bar-num">5</span><span class="bar-name">상호작용 방식 설정</span></div>
+        <div class="bar-track"><div class="bar-fill cat-comm" style="width: 34%;">30.0%</div></div>
+        <span class="bar-value-out"></span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span class="bar-num">6</span><span class="bar-name">누락 맥락 파악</span></div>
+        <div class="bar-track"><div class="bar-fill cat-disc" style="width: 28%;">24.7%</div></div>
+        <span class="bar-value-out"></span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span class="bar-num">7</span><span class="bar-name">예시 제공</span></div>
+        <div class="bar-track"><div class="bar-fill cat-desc" style="width: 22%;">19.8%</div></div>
+        <span class="bar-value-out"></span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span class="bar-num">8</span><span class="bar-name">추론 과정 질문</span></div>
+        <div class="bar-track"><div class="bar-fill cat-disc" style="width: 16%;"></div></div>
+        <span class="bar-value-out">14.2%</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span class="bar-num">9</span><span class="bar-name">사실 확인 요청</span></div>
+        <div class="bar-track"><div class="bar-fill cat-disc" style="width: 13%;"></div></div>
+        <span class="bar-value-out">11.6%</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span class="bar-num">10</span><span class="bar-name">역할 부여</span></div>
+        <div class="bar-track"><div class="bar-fill cat-desc" style="width: 10%;"></div></div>
+        <span class="bar-value-out">9.3%</span>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label"><span class="bar-num">11</span><span class="bar-name">대상 독자 지정</span></div>
+        <div class="bar-track"><div class="bar-fill cat-desc" style="width: 8%;"></div></div>
+        <span class="bar-value-out">7.1%</span>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- SLIDE 5: CHART 3 — 반복 개선 비교 -->
+<!-- SLIDE 5 — CHART 2: comparison -->
 <div class="slide slide-light slide-content" id="slide-5">
   <div class="slide-header">
-    <div class="slide-kicker">Chart 3 · 반복 개선의 힘</div>
-    <h2 class="slide-title">"한 번에 끝내기" vs "반복 개선"의 차이</h2>
-    <p class="slide-desc">반복 개선을 하는 대화(n=8,424) vs 하지 않는 대화(n=1,406)</p>
+    <div class="slide-kicker">Q2 · 잘 쓰는 사람의 차이</div>
+    <h2 class="slide-title">검증 습관에서 격차가 최대 5.6배까지 벌어짐</h2>
+    <p class="slide-desc">고쳐 쓴 사용자(8,424건) vs 한 번에 끝낸 사용자(1,406건) 비교. 평균 좋은 습관 사용 수는 2.67개 vs 1.33개로 약 2배 차이입니다.</p>
   </div>
-  <div class="compare-wrap">
-    <div class="compare-insight">
-      반복하는 사람은 평균 <strong>2.67가지</strong> 활용 행동, 그렇지 않은 사람은 <strong>1.33가지.</strong><br>
-      "왜?"라고 되묻고 부족한 점을 지적하는 사람이 <strong>2배 더 잘 씁니다.</strong>
+  <div class="compare-card">
+    <div class="compare-head">
+      <span class="ch-label">습관</span>
+      <span class="ch-label">고쳐 쓴 사용자</span>
+      <span class="ch-label">한 번에 끝</span>
+      <span class="ch-label">배수</span>
     </div>
-    <div class="compare-table">
-      <div class="compare-head">
-        <span>행동 지표</span>
-        <span>반복 O</span>
-        <span>반복 X</span>
-        <span>차이</span>
+    <div class="compare-rows">
+      <div class="compare-row">
+        <div class="cmp-name"><span class="bar-num">2</span>목표 명확화</div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-yes" style="width: 78%;">68%</div></div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-no" style="width: 42%;">37%</div></div>
+        <span class="cmp-mult">1.8x</span>
       </div>
-      <div class="cmp-row">
-        <div class="cmp-label">목표 명확화</div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar yes" data-w="68">68%</div></div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar no" data-w="37">37%</div></div>
-        <div class="cmp-mult normal">1.8x</div>
+      <div class="compare-row">
+        <div class="cmp-name"><span class="bar-num">3</span>맥락 제공</div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-yes" style="width: 64%;">56%</div></div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-no" style="width: 34%;">30%</div></div>
+        <span class="cmp-mult">1.9x</span>
       </div>
-      <div class="cmp-row">
-        <div class="cmp-label">맥락 제공</div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar yes" data-w="56">56%</div></div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar no" data-w="30">30%</div></div>
-        <div class="cmp-mult normal">1.9x</div>
+      <div class="compare-row">
+        <div class="cmp-name"><span class="bar-num">4</span>출력 형식 지정</div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-yes" style="width: 55%;">48%</div></div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-no" style="width: 28%;">25%</div></div>
+        <span class="cmp-mult">1.9x</span>
       </div>
-      <div class="cmp-row">
-        <div class="cmp-label">출력 형식 지정</div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar yes" data-w="48">48%</div></div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar no" data-w="25">25%</div></div>
-        <div class="cmp-mult normal">1.9x</div>
+      <div class="compare-row">
+        <div class="cmp-name"><span class="bar-num">5</span>상호작용 방식</div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-yes" style="width: 36%;">32%</div></div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-no" style="width: 20%;">18%</div></div>
+        <span class="cmp-mult">1.8x</span>
       </div>
-      <div class="cmp-row">
-        <div class="cmp-label">상호작용 방식</div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar yes" data-w="32">32%</div></div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar no" data-w="18">18%</div></div>
-        <div class="cmp-mult normal">1.8x</div>
+      <div class="compare-row">
+        <div class="cmp-name"><span class="bar-num">6</span>누락 맥락 파악</div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-yes" style="width: 31%;">27%</div></div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-no" style="width: 8%;">7%</div></div>
+        <span class="cmp-mult high">4.0x</span>
       </div>
-      <div class="cmp-row">
-        <div class="cmp-label">누락 맥락 파악</div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar yes" data-w="27">27%</div></div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar no" data-w="7">7%</div></div>
-        <div class="cmp-mult">4.0x</div>
+      <div class="compare-row">
+        <div class="cmp-name"><span class="bar-num">8</span>추론 과정 질문</div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-yes" style="width: 18%;">16%</div></div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-no" style="width: 4%;">3%</div></div>
+        <span class="cmp-mult high">5.6x</span>
       </div>
-      <div class="cmp-row">
-        <div class="cmp-label">추론 과정 질문</div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar yes" data-w="16">16%</div></div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar no" data-w="3">3%</div></div>
-        <div class="cmp-mult">5.6x</div>
-      </div>
-      <div class="cmp-row">
-        <div class="cmp-label">사실 확인 요청</div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar yes" data-w="13">13%</div></div>
-        <div class="cmp-bar-wrap"><div class="cmp-bar no" data-w="4">4%</div></div>
-        <div class="cmp-mult">3.3x</div>
+      <div class="compare-row">
+        <div class="cmp-name"><span class="bar-num">9</span>사실 확인 요청</div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-yes" style="width: 15%;">13%</div></div>
+        <div class="cmp-bar-wrap"><div class="cmp-bar iter-no" style="width: 5%;">4%</div></div>
+        <span class="cmp-mult high">3.3x</span>
       </div>
     </div>
+  </div>
+  <div class="compare-insight">
+    <strong>한 번에 끝내는 사용자는 검증 행동을 거의 하지 않음.</strong> 누락 확인·추론 과정 질문·사실 확인은 격차가 3~5배로 벌어집니다. 결국 결과물의 정확도 차이로 이어집니다.
   </div>
 </div>
 
-<!-- SLIDE 6: CHART 4 — 산출물 행동 변화 -->
+<!-- SLIDE 6 — CHART 3: AI generation pitfall -->
 <div class="slide slide-light slide-content" id="slide-6">
   <div class="slide-header">
-    <div class="slide-kicker">Chart 4 · 주의할 함정</div>
-    <h2 class="slide-title">결과물을 만들 때, 검증은 오히려 줄어든다</h2>
-    <p class="slide-desc">산출물(코드·문서 등) 포함 대화 vs 일반 대화 — 행동 변화 비교</p>
+    <div class="slide-kicker">Q2 · 함정 발견</div>
+    <h2 class="slide-title">AI가 결과물을 만들어 줄수록 사람은 덜 의심함</h2>
+    <p class="slide-desc">보고서·코드·문서가 그럴듯하게 나올수록 '이렇게 만들어줘'는 더 잘하지만, '이 숫자 맞아?' 같은 검증은 오히려 줄어듭니다. 일반 대화 대비 증감폭(%p)으로 본 결과입니다.</p>
   </div>
-  <div class="change-insight">
-    AI가 보고서·코드를 만들어줄 때 지시는 늘었지만 <strong>"이거 맞아?", "근거가 뭐야?"는 줄었습니다.</strong><br>
-    결과물이 나왔을 때야말로 더 꼼꼼히 확인해야 합니다.
-  </div>
-  <div class="change-cols">
-    <div class="change-col">
-      <div class="change-col-head up">지시 행동 ↑ 증가</div>
-      <div class="change-col-body">
-        <div class="change-item">
-          <span class="change-item-name">목표 명확화</span>
-          <span class="change-item-val up">+14.7%p</span>
+  <div class="delta-wrap">
+    <div class="delta-cols">
+      <div class="delta-col up">
+        <div class="delta-head">
+          <span class="delta-pill">↑ 늘어난 행동</span>
+          <span class="delta-title">지시는 더 꼼꼼해짐</span>
         </div>
-        <div class="change-item">
-          <span class="change-item-name">출력 형식 지정</span>
-          <span class="change-item-val up">+14.5%p</span>
+        <div class="delta-rows">
+          <div class="delta-row">
+            <div class="delta-name"><span class="bar-num">2</span>목표 명확화</div>
+            <div class="delta-bar-wrap"><div class="delta-bar" style="width: 100%;"></div></div>
+            <span class="delta-pct">+14.7%p</span>
+          </div>
+          <div class="delta-row">
+            <div class="delta-name"><span class="bar-num">4</span>출력 형식 지정</div>
+            <div class="delta-bar-wrap"><div class="delta-bar" style="width: 99%;"></div></div>
+            <span class="delta-pct">+14.5%p</span>
+          </div>
+          <div class="delta-row">
+            <div class="delta-name"><span class="bar-num">7</span>예시 제공</div>
+            <div class="delta-bar-wrap"><div class="delta-bar" style="width: 91%;"></div></div>
+            <span class="delta-pct">+13.4%p</span>
+          </div>
+          <div class="delta-row">
+            <div class="delta-name"><span class="bar-num">1</span>반복 개선</div>
+            <div class="delta-bar-wrap"><div class="delta-bar" style="width: 66%;"></div></div>
+            <span class="delta-pct">+9.7%p</span>
+          </div>
         </div>
-        <div class="change-item">
-          <span class="change-item-name">예시 제공</span>
-          <span class="change-item-val up">+13.4%p</span>
+      </div>
+      <div class="delta-col down">
+        <div class="delta-head">
+          <span class="delta-pill">↓ 줄어든 행동</span>
+          <span class="delta-title">검증은 오히려 약해짐</span>
         </div>
-        <div class="change-item">
-          <span class="change-item-name">반복 개선</span>
-          <span class="change-item-val up">+9.7%p</span>
+        <div class="delta-rows">
+          <div class="delta-row">
+            <div class="delta-name"><span class="bar-num">8</span>추론 과정 질문</div>
+            <div class="delta-bar-wrap"><div class="delta-bar" style="width: 35%;"></div></div>
+            <span class="delta-pct">-3.1%p</span>
+          </div>
+          <div class="delta-row">
+            <div class="delta-name"><span class="bar-num">9</span>사실 확인 요청</div>
+            <div class="delta-bar-wrap"><div class="delta-bar" style="width: 42%;"></div></div>
+            <span class="delta-pct">-3.7%p</span>
+          </div>
+          <div class="delta-row">
+            <div class="delta-name"><span class="bar-num">6</span>누락 맥락 파악</div>
+            <div class="delta-bar-wrap"><div class="delta-bar" style="width: 59%;"></div></div>
+            <span class="delta-pct">-5.2%p</span>
+          </div>
         </div>
       </div>
     </div>
-    <div class="change-col">
-      <div class="change-col-head dn">검증 행동 ↓ 감소</div>
-      <div class="change-col-body">
-        <div class="change-item">
-          <span class="change-item-name">추론 과정 질문</span>
-          <span class="change-item-val dn">-3.1%p</span>
-        </div>
-        <div class="change-item">
-          <span class="change-item-name">사실 확인 요청</span>
-          <span class="change-item-val dn">-3.7%p</span>
-        </div>
-        <div class="change-item">
-          <span class="change-item-name">누락 맥락 파악</span>
-          <span class="change-item-val dn">-5.2%p</span>
-        </div>
-        <div class="change-item" style="background:rgba(239,68,68,0.06); border-radius:8px; padding:12px 18px; margin-top:8px;">
-          <span style="font-size:13px; color:#991b1b; font-weight:600; line-height:1.5;">AI 결과물을 의심 없이 믿는 경향.<br>가장 조심해야 할 순간입니다.</span>
-        </div>
-      </div>
+    <div class="delta-insight">
+      <strong>결과물이 예뻐 보일수록 사람은 덜 의심함.</strong> 보고서가 나왔을 때가 가장 꼼꼼히 따져봐야 할 타이밍입니다. 잘 쓰는 사람은 이때 오히려 검증 질문을 더 합니다.
     </div>
   </div>
 </div>
 
-<!-- SLIDE 7: 셀프 체크 -->
-<div class="slide slide-light slide-content" id="slide-7">
+<!-- SLIDE 7 — BRIDGE -->
+<div class="slide slide-light" id="slide-7">
+  <div class="bridge-wrap">
+    <span class="bridge-eyebrow">Section 2 · Why this matters</span>
+    <h2 class="bridge-headline">오늘의 대화 습관이,<br>내일 <span class="hl">조직을 움직일 운영 능력</span>이 됨.</h2>
+    <p class="bridge-sub">개인이 AI에 말을 거는 방식은, 팀과 회사가 AI로 일을 자동화할 때 그대로 <strong>설계 능력</strong>으로 이어집니다. 11가지 습관은 곧 11가지 조직 운영 패턴입니다.</p>
+  </div>
+</div>
+
+<!-- SLIDE 8 — Mapping table -->
+<div class="slide slide-light slide-content" id="slide-8">
   <div class="slide-header">
-    <div class="slide-kicker">셀프 진단 · 나는 몇 개나 하고 있을까?</div>
-    <h2 class="slide-title">11가지 습관 체크리스트</h2>
-    <p class="slide-desc">평소에 실천하고 있는 행동은 몇 가지인지 확인해보세요</p>
+    <div class="slide-kicker">Q3 · 운영 능력 매핑</div>
+    <h2 class="slide-title">11가지 대화 습관이 그대로 11가지 조직 능력으로 연결됨</h2>
+    <p class="slide-desc">대화 관리·지시 능력·검증 능력 세 카테고리가 조직 차원에서는 운영 정책·업무 분해·검증 체계로 확장됩니다.</p>
+  </div>
+  <div class="map-card">
+    <div class="map-head">
+      <span class="mh-label" style="text-align:center;">번호</span>
+      <span class="mh-label">대화 습관</span>
+      <span class="mh-label" style="text-align:center;">→</span>
+      <span class="mh-label">조직 운영 능력</span>
+    </div>
+    <div class="map-rows">
+      <div class="map-row">
+        <span class="map-num">1</span>
+        <div class="map-left"><span class="map-cat comm">대화 관리</span><span>반복 개선</span></div>
+        <span class="map-arrow">→</span>
+        <div class="map-right">
+          <span class="map-h-title">한 번에 완벽 대신, 빠르게 고쳐 가기</span>
+          <span class="map-h-desc">시안처럼 받아본 뒤 다듬어 쓰는 습관. AI 프로젝트 속도를 결정합니다.</span>
+        </div>
+      </div>
+      <div class="map-row">
+        <span class="map-num">2</span>
+        <div class="map-left"><span class="map-cat desc">지시 능력</span><span>목표 명확화</span></div>
+        <span class="map-arrow">→</span>
+        <div class="map-right">
+          <span class="map-h-title">큰 과제를 작게 쪼개 맡기기</span>
+          <span class="map-h-desc">"보고서 써줘" 대신 단계로 나눠 시키는 능력. 업무 분해가 곧 자동화 설계입니다.</span>
+        </div>
+      </div>
+      <div class="map-row">
+        <span class="map-num">3</span>
+        <div class="map-left"><span class="map-cat desc">지시 능력</span><span>맥락 제공</span></div>
+        <span class="map-arrow">→</span>
+        <div class="map-right">
+          <span class="map-h-title">회사·팀 상황을 미리 알려 주기</span>
+          <span class="map-h-desc">배경을 정리해 두면 AI가 매번 일정한 수준의 결과를 냅니다. 조직 지식을 심는 첫 단계.</span>
+        </div>
+      </div>
+      <div class="map-row">
+        <span class="map-num">4</span>
+        <div class="map-left"><span class="map-cat desc">지시 능력</span><span>출력 형식 지정</span></div>
+        <span class="map-arrow">→</span>
+        <div class="map-right">
+          <span class="map-h-title">결과물 양식을 미리 정해서 시키기</span>
+          <span class="map-h-desc">"표로", "3줄 요약", "이메일 형식" 등 틀을 정해두면 곧장 다음 업무에 이어 쓸 수 있습니다.</span>
+        </div>
+      </div>
+      <div class="map-row">
+        <span class="map-num">5</span>
+        <div class="map-left"><span class="map-cat comm">대화 관리</span><span>상호작용 방식 설정</span></div>
+        <span class="map-arrow">→</span>
+        <div class="map-right">
+          <span class="map-h-title">AI가 지켜야 할 규칙 정하기</span>
+          <span class="map-h-desc">말투·금지 사항·업무 범위를 정해 엉뚱한 방향을 막는 습관. 조직에서는 운영 정책이 됩니다.</span>
+        </div>
+      </div>
+      <div class="map-row">
+        <span class="map-num">6</span>
+        <div class="map-left"><span class="map-cat disc">검증 능력</span><span>누락 맥락 파악</span></div>
+        <span class="map-arrow">→</span>
+        <div class="map-right">
+          <span class="map-h-title">모르면 지어내지 말고 되묻게 만들기</span>
+          <span class="map-h-desc">정보가 부족할 때 AI가 추측 대신 질문하도록 하는 장치. 거짓말을 막는 안전장치입니다.</span>
+        </div>
+      </div>
+      <div class="map-row">
+        <span class="map-num">7</span>
+        <div class="map-left"><span class="map-cat desc">지시 능력</span><span>예시 제공</span></div>
+        <span class="map-arrow">→</span>
+        <div class="map-right">
+          <span class="map-h-title">원하는 결과를 샘플로 보여 주기</span>
+          <span class="map-h-desc">긴 설명 대신 샘플 한두 개를 주면 AI가 톤·구조를 그대로 따라합니다. 가장 빠른 기준 세우기.</span>
+        </div>
+      </div>
+      <div class="map-row">
+        <span class="map-num">8</span>
+        <div class="map-left"><span class="map-cat disc">검증 능력</span><span>추론 과정 질문</span></div>
+        <span class="map-arrow">→</span>
+        <div class="map-right">
+          <span class="map-h-title">단계별로 생각해 보게 시키기</span>
+          <span class="map-h-desc">근거→비교→결론으로 풀게 하면 복잡한 의사결정 정확도가 올라갑니다. 판단 과정을 눈으로 봄.</span>
+        </div>
+      </div>
+      <div class="map-row">
+        <span class="map-num">9</span>
+        <div class="map-left"><span class="map-cat disc">검증 능력</span><span>사실 확인 요청</span></div>
+        <span class="map-arrow">→</span>
+        <div class="map-right">
+          <span class="map-h-title">결과의 근거를 함께 달라고 하기</span>
+          <span class="map-h-desc">숫자·인용·출처를 요구하는 습관은, 조직 차원에서 자동 검증 체계의 씨앗이 됩니다.</span>
+        </div>
+      </div>
+      <div class="map-row">
+        <span class="map-num">10</span>
+        <div class="map-left"><span class="map-cat desc">지시 능력</span><span>역할 부여</span></div>
+        <span class="map-arrow">→</span>
+        <div class="map-right">
+          <span class="map-h-title">여러 AI에 역할을 나눠 맡기기</span>
+          <span class="map-h-desc">기획 담당·리뷰 담당처럼 분업을 시키면 한 팀처럼 움직입니다. 조직도 그리듯 AI도 그릴 수 있음.</span>
+        </div>
+      </div>
+      <div class="map-row">
+        <span class="map-num">11</span>
+        <div class="map-left"><span class="map-cat desc">지시 능력</span><span>대상 독자 지정</span></div>
+        <span class="map-arrow">→</span>
+        <div class="map-right">
+          <span class="map-h-title">읽을 사람을 먼저 정해 주기</span>
+          <span class="map-h-desc">경영진·고객·신입처럼 독자를 지정하면 톤과 깊이가 자동으로 맞춰집니다.</span>
+        </div>
+      </div>
+    </div>
+    <div class="map-foot">
+      한 줄 요약: <strong>AI를 잘 쓰는 사람이 결국 조직에서 AI를 잘 운영하는 사람이 됩니다.</strong>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9 — For Leaders -->
+<div class="slide slide-light slide-content" id="slide-9">
+  <div class="slide-header">
+    <div class="slide-kicker">Q3 · For Leaders</div>
+    <h2 class="slide-title">팀장·임원이 가장 빨리 적용할 수 있는 여섯 가지</h2>
+    <p class="slide-desc">개인 습관을 팀 표준으로 옮기는 가장 짧은 경로입니다. 11주면 팀 전체가 같은 언어로 AI를 다룰 수 있습니다.</p>
+  </div>
+  <div class="leaders-grid">
+    <div class="leader-card">
+      <div class="leader-num">1</div>
+      <div class="leader-title">주간 회의 5분 공유</div>
+      <p class="leader-desc">한 주에 한 가지 습관을 팀원과 나눕니다. 11주면 팀 전체가 공통 언어를 갖게 됩니다.</p>
+    </div>
+    <div class="leader-card">
+      <div class="leader-num">2</div>
+      <div class="leader-title">팀 AI 가이드에 상위 5개 명문화</div>
+      <p class="leader-desc">반복 개선·목표 명확화·맥락 제공·출력 형식·예시 제공. 다섯 가지를 팀 표준으로 정착시킵니다.</p>
+    </div>
+    <div class="leader-card">
+      <div class="leader-num">3</div>
+      <div class="leader-title">'고쳐 쓴 흔적'을 칭찬하기</div>
+      <p class="leader-desc">한 번에 끝낸 결과보다 두 번 고쳐 쓴 결과의 품질이 더 높습니다. 팀 문화로 정착시키세요.</p>
+    </div>
+    <div class="leader-card">
+      <div class="leader-num">4</div>
+      <div class="leader-title">셀프 진단을 팀 워크숍으로</div>
+      <p class="leader-desc">각자 점수를 공유하고 부족한 습관 한 개씩 선언합니다. 30분이면 팀 베이스라인이 잡힙니다.</p>
+    </div>
+    <div class="leader-card">
+      <div class="leader-num">5</div>
+      <div class="leader-title">신규 입사자 온보딩에 편입</div>
+      <p class="leader-desc">AI 사용이 기본인 조직에서는 11개가 Excel 단축키처럼 당연한 역량이 되어야 합니다.</p>
+    </div>
+    <div class="leader-card">
+      <div class="leader-num">6</div>
+      <div class="leader-title">경영진 보고에 '근거' 요구</div>
+      <p class="leader-desc">AI로 뽑은 분석을 받을 때 어떤 프롬프트·어떤 근거를 함께 공유하게 합니다. 검증 문화의 시작.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 10 — Self check 11 habits -->
+<div class="slide slide-light slide-content" id="slide-10">
+  <div class="slide-header">
+    <div class="slide-kicker">Q4 · 셀프 체크</div>
+    <h2 class="slide-title">평소 AI에 말을 걸 때 자주 하는 것만 골라보기</h2>
+    <p class="slide-desc">정답이 아니라 빈도를 확인하는 진단입니다. 솔직하게 체크할수록 다음 단계가 정확해집니다.</p>
   </div>
   <div class="check-grid">
-    <div class="check-item">
-      <div class="check-num">1</div>
+    <div class="check-row">
+      <span class="check-num">1</span>
       <div class="check-text">
-        <strong>반복 개선 <span class="check-cat comm">대화 관리</span></strong>
-        <span>"좀 더 짧게", "톤을 바꿔줘"라고 다시 요청한다</span>
+        <span class="check-title">반복 개선</span>
+        <span class="check-quote">"좀 더 짧게", "톤을 바꿔줘"라고 다시 요청합니다.</span>
       </div>
     </div>
-    <div class="check-item">
-      <div class="check-num">2</div>
+    <div class="check-row">
+      <span class="check-num">2</span>
       <div class="check-text">
-        <strong>목표 명확화 <span class="check-cat desc">지시 능력</span></strong>
-        <span>"이메일 써줘" 대신 목적·대상·톤을 구체적으로 요청한다</span>
+        <span class="check-title">목표 명확화</span>
+        <span class="check-quote">"이메일 써줘" 대신 "거절을 부드럽게 전하는 이메일"처럼 구체적으로 요청합니다.</span>
       </div>
     </div>
-    <div class="check-item">
-      <div class="check-num">3</div>
+    <div class="check-row">
+      <span class="check-num">3</span>
       <div class="check-text">
-        <strong>맥락 제공 <span class="check-cat desc">지시 능력</span></strong>
-        <span>내 역할·상황·배경을 함께 알려준다</span>
+        <span class="check-title">맥락 제공</span>
+        <span class="check-quote">"마케팅팀 3년차이고 대표 보고용입니다"처럼 배경을 함께 알려줍니다.</span>
       </div>
     </div>
-    <div class="check-item">
-      <div class="check-num">4</div>
+    <div class="check-row">
+      <span class="check-num">4</span>
       <div class="check-text">
-        <strong>출력 형식 지정 <span class="check-cat desc">지시 능력</span></strong>
-        <span>"표로", "3줄 요약", "글머리 기호" 등 형태를 지정한다</span>
+        <span class="check-title">출력 형식 지정</span>
+        <span class="check-quote">"표로", "3줄 요약", "글머리 기호" 등 원하는 형태를 지정합니다.</span>
       </div>
     </div>
-    <div class="check-item">
-      <div class="check-num">5</div>
+    <div class="check-row">
+      <span class="check-num">5</span>
       <div class="check-text">
-        <strong>상호작용 방식 설정 <span class="check-cat comm">대화 관리</span></strong>
-        <span>"한국어로", "전문 용어 없이", "존댓말로" 등 규칙을 정한다</span>
+        <span class="check-title">상호작용 방식</span>
+        <span class="check-quote">"한국어로 답해줘", "전문 용어 없이 쉽게" 등 대화 규칙을 정합니다.</span>
       </div>
     </div>
-    <div class="check-item">
-      <div class="check-num">6</div>
+    <div class="check-row">
+      <span class="check-num">6</span>
       <div class="check-text">
-        <strong>누락 맥락 파악 <span class="check-cat disc">검증 능력</span></strong>
-        <span>"비용 부분이 빠졌어", "경쟁사 상황도 고려해줘"라고 지적한다</span>
+        <span class="check-title">누락 맥락 파악</span>
+        <span class="check-quote">"비용 부분이 빠졌어", "경쟁사 상황도"처럼 빠진 부분을 지적합니다.</span>
       </div>
     </div>
-    <div class="check-item">
-      <div class="check-num">7</div>
+    <div class="check-row">
+      <span class="check-num">7</span>
       <div class="check-text">
-        <strong>예시 제공 <span class="check-cat desc">지시 능력</span></strong>
-        <span>참고할 예시나 이전 작업물을 함께 보여준다</span>
+        <span class="check-title">예시 제공</span>
+        <span class="check-quote">"지난번에 보낸 이메일이 이런 느낌이었어"라며 참고 예시를 보여줍니다.</span>
       </div>
     </div>
-    <div class="check-item">
-      <div class="check-num">8</div>
+    <div class="check-row">
+      <span class="check-num">8</span>
       <div class="check-text">
-        <strong>추론 과정 질문 <span class="check-cat disc">검증 능력</span></strong>
-        <span>"왜 그렇게 생각해?", "다른 방법은 없어?"라고 되묻는다</span>
+        <span class="check-title">추론 과정 질문</span>
+        <span class="check-quote">"왜 그렇게 생각해?", "다른 방법은 없어?"라고 되묻습니다.</span>
       </div>
     </div>
-    <div class="check-item">
-      <div class="check-num">9</div>
+    <div class="check-row">
+      <span class="check-num">9</span>
       <div class="check-text">
-        <strong>사실 확인 요청 <span class="check-cat disc">검증 능력</span></strong>
-        <span>"이 수치가 맞아?", "출처를 알려줘"라고 검증한다</span>
+        <span class="check-title">사실 확인 요청</span>
+        <span class="check-quote">"이 수치가 맞아?", "출처를 알려줘"라고 검증을 요구합니다.</span>
       </div>
     </div>
-    <div class="check-item">
-      <div class="check-num">10</div>
+    <div class="check-row">
+      <span class="check-num">10</span>
       <div class="check-text">
-        <strong>역할 부여 <span class="check-cat desc">지시 능력</span></strong>
-        <span>"10년차 마케터야", "재무 분석가 관점으로"처럼 역할을 지정한다</span>
+        <span class="check-title">역할 부여</span>
+        <span class="check-quote">"10년차 마케팅 전문가야", "재무 분석가 관점에서"처럼 역할을 지정합니다.</span>
       </div>
     </div>
-    <div class="check-item">
-      <div class="check-num">11</div>
+    <div class="check-row">
+      <span class="check-num">11</span>
       <div class="check-text">
-        <strong>대상 독자 지정 <span class="check-cat desc">지시 능력</span></strong>
-        <span>"초등학생도 이해하게", "경영진 보고용으로" 등 대상을 명시한다</span>
+        <span class="check-title">대상 독자 지정</span>
+        <span class="check-quote">"초등학생도 이해할 수 있게", "경영진 보고용으로" 등 대상을 명시합니다.</span>
+      </div>
+    </div>
+    <div class="check-row" style="background: linear-gradient(170deg, rgba(217,119,87,0.1) 0%, rgba(217,119,87,0.04) 100%); border-color: rgba(217,119,87,0.3);">
+      <span class="check-num" style="background: var(--orange); color: #fff;">∑</span>
+      <div class="check-text">
+        <span class="check-title">내 점수를 세어 보세요</span>
+        <span class="check-quote">자주 하는 것만 골라 합산합니다. 다음 슬라이드에서 점수별 다음 단계를 안내합니다.</span>
       </div>
     </div>
   </div>
 </div>
 
-<!-- SLIDE 8: 결론 -->
-<div class="slide" id="slide-8">
-  <div class="s8-eyebrow">Key Takeaway</div>
-  <h2 class="s8-headline">AI를 잘 쓰는 사람이<br><span class="hl">AI를 잘 만드는 사람이 됩니다</span></h2>
-  <p class="s8-sub">대화에서 자연스럽게 익힌 이 습관들이<br>하네스 엔지니어링의 핵심 역량으로 그대로 전환됩니다.</p>
-  <div class="s8-cards">
-    <div class="s8-card">
-      <div class="s8-card-n">1</div>
-      <div class="s8-card-title">반복하세요</div>
-      <div class="s8-card-body">첫 답변을 그대로 쓰지 마세요. "다시 해줘", "이 부분만 바꿔줘"가 실력을 만듭니다.</div>
+<!-- SLIDE 11 — Tier-based next steps -->
+<div class="slide slide-light slide-content" id="slide-11">
+  <div class="slide-header">
+    <div class="slide-kicker">Q4 · 점수별 다음 단계</div>
+    <h2 class="slide-title">11점 만점 진단으로 본, 네 단계의 다음 한 걸음</h2>
+    <p class="slide-desc">중요한 건 지금 위치가 아니라 다음 한 칸입니다. 점수대별로 가장 효율적인 학습 경로를 정리했습니다.</p>
+  </div>
+  <div class="tier-grid">
+    <div class="tier-card t1">
+      <div class="tier-score">0 ~ 3점 · 입문</div>
+      <div class="tier-name">기초 다지기</div>
+      <div class="tier-headline">기본부터 차근차근 쌓으면 됩니다</div>
+      <p class="tier-desc">아직 AI 대화 습관이 몸에 배기 전입니다. 누구나 여기서 시작합니다. 아래 순서대로만 따라가도 금방 달라집니다.</p>
+      <ul class="tier-step-list">
+        <li class="tier-step"><span class="tier-step-num">1</span><span><strong>내 AI 활용 레벨 확인하기</strong> · 자율주행 단계로 현재 위치 파악</span></li>
+        <li class="tier-step"><span class="tier-step-num">2</span><span><strong>AI끼리 토론시키기</strong> · 답 퀄리티를 끌어올리는 가장 쉬운 방법</span></li>
+        <li class="tier-step"><span class="tier-step-num">3</span><span><strong>쓰던 앱에서 바로 AI 쓰기</strong> · 크롬·PPT·엑셀에서 Claude 호출</span></li>
+      </ul>
     </div>
-    <div class="s8-card">
-      <div class="s8-card-n">2</div>
-      <div class="s8-card-title">검증하세요</div>
-      <div class="s8-card-body">결과물이 나올수록 더 의심하세요. "맞아?", "왜?"라고 묻는 습관이 AI 종속을 막습니다.</div>
+    <div class="tier-card t2">
+      <div class="tier-score">4 ~ 6점 · 성장</div>
+      <div class="tier-name">실무 적용</div>
+      <div class="tier-headline">기본기는 이미 갖춤. 이제 실무에 적용</div>
+      <p class="tier-desc">중요한 습관은 이미 쓰고 있습니다. AI에게 실제 업무를 맡기며 결과물 질을 한 단계 올릴 시점입니다.</p>
+      <ul class="tier-step-list">
+        <li class="tier-step"><span class="tier-step-num">1</span><span><strong>나만의 Skill 등록하기</strong> · 한 문장으로도 일관된 결과를 받음</span></li>
+        <li class="tier-step"><span class="tier-step-num">2</span><span><strong>실제 업무로 써보기</strong> · 지메일 정리·보고서 초안·슬랙 요약</span></li>
+        <li class="tier-step"><span class="tier-step-num">3</span><span><strong>다음 단계 준비</strong> · Git·GitHub 기초로 코드 자동화 환경 마련</span></li>
+      </ul>
     </div>
-    <div class="s8-card">
-      <div class="s8-card-n">3</div>
-      <div class="s8-card-title">구체화하세요</div>
-      <div class="s8-card-body">목표·맥락·형식·대상을 명확히 할수록 AI는 더 정확하게 움직입니다.</div>
+    <div class="tier-card t3">
+      <div class="tier-score">7 ~ 9점 · 고급</div>
+      <div class="tier-name">자동화 전환</div>
+      <div class="tier-headline">상위권 도달. 이제 자동화로 넘어갈 시점</div>
+      <p class="tier-desc">대부분의 좋은 습관을 실천 중입니다. 매번 대화 대신 반복 업무를 AI가 알아서 처리하게 만들 차례입니다.</p>
+      <ul class="tier-step-list">
+        <li class="tier-step"><span class="tier-step-num">1</span><span><strong>Claude Code 20단계 체크리스트</strong> · 설치부터 고급까지 따라가기</span></li>
+        <li class="tier-step"><span class="tier-step-num">2</span><span><strong>CLAUDE.md로 규칙 저장</strong> · 프로젝트별 동작 규칙 한 파일에</span></li>
+        <li class="tier-step"><span class="tier-step-num">3</span><span><strong>매일 하던 일 맡기기</strong> · Skill·Hook·Agent로 반복 업무 자동화</span></li>
+      </ul>
+    </div>
+    <div class="tier-card t4">
+      <div class="tier-score">10 ~ 11점 · 전문가</div>
+      <div class="tier-name">AI 조직 설계</div>
+      <div class="tier-headline">만점급. AI 여러 명을 팀으로 굴리기</div>
+      <p class="tier-desc">11가지 습관을 거의 다 실천하고 있습니다. 다음은 한 대를 잘 쓰는 단계를 넘어 작은 AI 조직을 설계하는 단계입니다.</p>
+      <ul class="tier-step-list">
+        <li class="tier-step"><span class="tier-step-num">1</span><span><strong>AI들로 '팀' 만들기</strong> · 기획·작성·검수 역할 분담 구조</span></li>
+        <li class="tier-step"><span class="tier-step-num">2</span><span><strong>회사 업무 흐름 엮기</strong> · 팀별 흐름을 조직 단위로 연결</span></li>
+        <li class="tier-step"><span class="tier-step-num">3</span><span><strong>명령어·단축키 완전 정복</strong> · 작업 속도를 끌어올리는 마지막 한 끗</span></li>
+      </ul>
     </div>
   </div>
-  <div class="s8-final">
-    <div class="s8-final-text">
-      11가지 중 <span>몇 개나</span> 실천하고 있나요?<br>
-      오늘부터 <span>한 가지씩</span> 추가해보세요.
+</div>
+
+<!-- SLIDE 12 — CONCLUSION (magazine quote) -->
+<div class="slide slide-magazine" id="slide-conclusion">
+  <section class="mag-box">
+    <div class="cc-quote-block">
+      <blockquote class="cc-quote-text">
+        AI를 잘 쓰는 사람이, <span class="hl">결국 조직에서 AI를 잘 운영하는 사람</span>이 된다.
+      </blockquote>
+      <footer class="cc-quote-attr">
+        <div class="cc-quote-author">Anthropic</div>
+        <div class="cc-quote-source">"The AI Fluency Index" · Education Report · 2026년 2월</div>
+      </footer>
     </div>
-    <div class="s8-final-pill">다음 단계로 →</div>
+  </section>
+  <div class="imprint">
+    <div class="imprint-pill">AI ROASTING</div>
+    <div class="imprint-author">강정구 · Jayden Kang</div>
   </div>
 </div>
 
@@ -732,172 +1762,260 @@ html, body { width: 100%; height: 100%; overflow: hidden;
 <div id="nav-bar">
   <button class="nav-btn" id="btn-prev">&#8592;</button>
   <div id="dots-container"></div>
-  <span id="slide-counter">1 / 8</span>
+  <span id="slide-counter">1 / 12</span>
   <button class="nav-btn" id="btn-next">&#8594;</button>
 </div>
+</div><!-- /#app-frame -->
 
 <script>
-const TOTAL = 8;
+const TOTAL = 12;
+const FRAME_W = 1440;
+const FRAME_H = 900;
 let current = 1;
 let animating = false;
-let barsAnimated = { 3: false, 5: false };
 
-const QUESTION_MAP = {
-  3: { num: 'Chart 1', text: '11가지 행동 지표: 출현 빈도' },
-  4: { num: 'Chart 2', text: '하네스 엔지니어링 연결 매핑' },
-  5: { num: 'Chart 3', text: '반복 개선 O vs X 비교' },
-  6: { num: 'Chart 4', text: '결과물이 나오면 검증이 사라진다' },
-  7: { num: '진단', text: '11가지 습관 셀프 체크리스트' },
-};
+function rescale() {
+  const sx = window.innerWidth / FRAME_W;
+  const sy = window.innerHeight / FRAME_H;
+  const s = Math.min(sx, sy);
+  document.documentElement.style.setProperty('--scale', s);
+}
+window.addEventListener('resize', rescale);
+rescale();
 
-function buildDots() {
-  const c = document.getElementById('dots-container');
-  c.innerHTML = '';
-  for (let i = 1; i <= TOTAL; i++) {
-    const d = document.createElement('div');
-    d.className = 'dot' + (i === 1 ? ' active' : '');
-    d.addEventListener('click', () => goTo(i));
-    c.appendChild(d);
-  }
+const dotsContainer = document.getElementById('dots-container');
+for (let i = 1; i <= TOTAL; i++) {
+  const dot = document.createElement('div');
+  dot.className = 'dot';
+  dot.dataset.n = i;
+  dot.addEventListener('click', () => { if (!animating) goTo(i); });
+  dotsContainer.appendChild(dot);
 }
 
-function animateBars1() {
-  if (barsAnimated[3]) return;
-  barsAnimated[3] = true;
-  document.querySelectorAll('#chart1-bars .bar-fill').forEach((el, i) => {
-    const w = el.dataset.w;
-    if (!w) return;
-    setTimeout(() => { el.style.width = w + '%'; }, i * 80);
-  });
-}
-
-function animateBars5() {
-  if (barsAnimated[5]) return;
-  barsAnimated[5] = true;
-  document.querySelectorAll('#slide-5 .cmp-bar').forEach((el, i) => {
-    const w = el.dataset.w;
-    if (!w) return;
-    setTimeout(() => { el.style.width = w + '%'; }, i * 60);
-  });
+function getSlideEl(n) {
+  return document.getElementById(n === TOTAL ? 'slide-conclusion' : 'slide-' + n);
 }
 
 function setupAnimClasses() {
   document.querySelectorAll('.slide').forEach(slide => {
-    const targets = slide.querySelectorAll(
-      '.slide-header, .toc-row, .check-item, .change-col, ' +
-      '.cat-legend, .bar-list, .map-grid, .compare-wrap, ' +
-      '.change-insight, .compare-insight, ' +
-      '.s1-eyebrow, .s1-title, .s1-subtitle, .s1-stats, .s1-source, ' +
-      '.s8-eyebrow, .s8-headline, .s8-sub, .s8-cards, .s8-final'
+    const children = slide.querySelectorAll(
+      '.slide-header, .toc-row, .stat-card, .tldr-box, .bar-row, .compare-card, .compare-insight, .delta-col, .delta-insight, .bridge-wrap, .map-card, .leader-card, .check-row, .tier-card, .cc-quote-block, .mag-box, .imprint'
     );
-    targets.forEach(el => {
+    children.forEach(el => el.classList.add('anim'));
+    Array.from(slide.children).forEach(el => {
       if (!el.classList.contains('anim')) el.classList.add('anim');
     });
   });
 }
 
 function animateSlideChildren(n) {
-  const slide = document.getElementById('slide-' + n);
+  const slide = getSlideEl(n);
   if (!slide) return;
   const els = slide.querySelectorAll('.anim');
   els.forEach((el, i) => {
     el.classList.remove('visible');
     void el.offsetWidth;
-    el.style.animationDelay = (i * 0.1) + 's';
+    el.style.animationDelay = (i * 0.06) + 's';
     el.classList.add('visible');
   });
 }
 
-function countUp(el, target, suffix, duration) {
-  let start = 0;
-  const step = ts => {
-    if (!start) start = ts;
-    const p = Math.min((ts - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.round(target * ease).toLocaleString() + suffix;
-    if (p < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
+const QUESTION_MAP = {
+  3: { num: 'Q1', text: '사람들은 AI에게 실제로 무엇을 하고 있는가?' },
+  4: { num: 'Q1', text: '사람들은 AI에게 실제로 무엇을 하고 있는가?' },
+  5: { num: 'Q2', text: '잘 쓰는 사람과 그렇지 않은 사람은 무엇이 다른가?' },
+  6: { num: 'Q2', text: '잘 쓰는 사람과 그렇지 않은 사람은 무엇이 다른가?' },
+  7: { num: 'Q3', text: '이 습관이 왜 내일의 운영 능력이 되는가?' },
+  8: { num: 'Q3', text: '이 습관이 왜 내일의 운영 능력이 되는가?' },
+  9: { num: 'Q3', text: '이 습관이 왜 내일의 운영 능력이 되는가?' },
+  10: { num: 'Q4', text: '나는 11가지 중 몇 개를 하고 있는가?' },
+  11: { num: 'Q4', text: '나는 11가지 중 몇 개를 하고 있는가?' },
+};
 
-function animateCoverStats() {
-  const d1 = document.getElementById('cov-1');
-  const d2 = document.getElementById('cov-2');
-  const d3 = document.getElementById('cov-3');
-  if (d1) countUp(d1, 9830, '', 1200);
-  if (d2) { d2.textContent = '0%'; setTimeout(() => countUp(d2, 85.7, '%', 1000), 150); }
-  if (d3) setTimeout(() => countUp(d3, 11, '', 800), 300);
-}
-
-function onSlideActivated(n) {
-  if (n === 1) animateCoverStats();
-  if (n === 3) animateBars1();
-  if (n === 5) animateBars5();
-  animateSlideChildren(n);
-}
+function onSlideActivated(n) { animateSlideChildren(n); }
 
 function updateUI() {
   document.getElementById('slide-counter').textContent = current + ' / ' + TOTAL;
   document.getElementById('btn-prev').disabled = current === 1;
   document.getElementById('btn-next').disabled = current === TOTAL;
-  document.querySelectorAll('.dot').forEach((d, idx) => d.classList.toggle('active', idx + 1 === current));
-  document.getElementById('progress-bar').style.width = ((current - 1) / (TOTAL - 1)) * 100 + '%';
+  document.querySelectorAll('.dot').forEach((d, idx) => {
+    d.classList.toggle('active', idx+1 === current);
+  });
+  const pct = ((current-1)/(TOTAL-1))*100;
+  document.getElementById('progress-bar').style.width = pct + '%';
   const qBar = document.getElementById('question-bar');
   const q = QUESTION_MAP[current];
   if (q) {
     document.getElementById('qb-num').textContent = q.num;
     document.getElementById('qb-text').textContent = q.text;
     qBar.classList.add('visible');
-  } else { qBar.classList.remove('visible'); }
+  } else {
+    qBar.classList.remove('visible');
+  }
 }
 
 function resetSlideAnims(slide) {
-  slide.querySelectorAll('.anim').forEach(el => { el.classList.remove('visible'); el.style.animationDelay = ''; });
+  slide.querySelectorAll('.anim').forEach(el => {
+    el.classList.remove('visible');
+    el.style.animationDelay = '';
+  });
 }
 
 function goTo(n) {
   if (n === current || animating || n < 1 || n > TOTAL) return;
   animating = true;
-  const oldSlide = document.getElementById('slide-' + current);
-  const newSlide = document.getElementById('slide-' + n);
-  oldSlide.style.transition = 'none'; oldSlide.style.opacity = '0'; oldSlide.style.pointerEvents = 'none';
+  const oldSlide = getSlideEl(current);
+  const newSlide = getSlideEl(n);
+
+  oldSlide.style.transition = 'none';
+  oldSlide.style.opacity = '0';
+  oldSlide.style.pointerEvents = 'none';
+
   resetSlideAnims(newSlide);
-  newSlide.style.transition = 'none'; newSlide.style.opacity = '0';
-  newSlide.style.transform = 'translateX(0)'; newSlide.style.pointerEvents = 'none';
+  newSlide.style.transition = 'none';
+  newSlide.style.opacity = '0';
+  newSlide.style.pointerEvents = 'none';
+
   newSlide.getBoundingClientRect();
-  newSlide.style.transition = 'opacity 0.3s ease'; newSlide.style.opacity = '1';
-  current = n; updateUI();
+
+  newSlide.style.transition = 'opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1)';
+  newSlide.style.opacity = '1';
+
+  current = n;
+  updateUI();
+  onSlideActivated(current);
+
   setTimeout(() => {
-    oldSlide.style.transition = ''; oldSlide.style.transform = 'translateX(50px)'; oldSlide.style.opacity = '0';
-    newSlide.style.transition = ''; newSlide.style.pointerEvents = 'all';
-    animating = false; onSlideActivated(current);
-  }, 320);
+    oldSlide.style.transition = '';
+    oldSlide.style.opacity = '0';
+    newSlide.style.transition = '';
+    newSlide.style.pointerEvents = 'all';
+    animating = false;
+  }, 670);
 }
 
-document.getElementById('btn-prev').addEventListener('click', () => goTo(current - 1));
-document.getElementById('btn-next').addEventListener('click', () => goTo(current + 1));
+function navigate(dir) { goTo(current + dir); }
+document.getElementById('btn-prev').addEventListener('click', () => navigate(-1));
+document.getElementById('btn-next').addEventListener('click', () => navigate(1));
 document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); goTo(current + 1); }
-  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); goTo(current - 1); }
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); navigate(-1); }
 });
-let touchX = 0;
-document.addEventListener('touchstart', e => { touchX = e.changedTouches[0].clientX; });
-document.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - touchX;
-  if (Math.abs(dx) > 50) goTo(current + (dx < 0 ? 1 : -1));
+
+document.querySelectorAll('.toc-row[data-target]').forEach(row => {
+  row.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const t = parseInt(row.dataset.target, 10);
+    if (!isNaN(t)) goTo(t);
+  });
 });
+
+let wheelLocked = false;
+window.addEventListener('wheel', (e) => {
+  if (wheelLocked || animating) return;
+  if (Math.abs(e.deltaY) < 30) return;
+  wheelLocked = true;
+  if (e.deltaY > 0) navigate(1); else navigate(-1);
+  setTimeout(() => { wheelLocked = false; }, 750);
+}, { passive: true });
+
+document.addEventListener('click', (e) => {
+  if (animating) return;
+  if (e.target.closest('button, a, .nav-btn, .dot, .toc-row, #nav-bar')) return;
+  navigate(1);
+});
+
+function setupCustomCursor() {
+  const glow = document.createElement('div');
+  glow.className = 'cursor-glow';
+  document.body.appendChild(glow);
+  const dot = document.createElement('div');
+  dot.className = 'cursor-dot';
+  document.body.appendChild(dot);
+
+  let tx = 0, ty = 0;
+  let gx = 0, gy = 0;
+  let dx = 0, dy = 0;
+  let active = false;
+
+  window.addEventListener('mousemove', e => {
+    tx = e.clientX; ty = e.clientY;
+    if (!active) {
+      glow.classList.add('active');
+      dot.classList.add('active');
+      active = true;
+      gx = tx; gy = ty;
+      dx = tx; dy = ty;
+    }
+  });
+  document.addEventListener('mouseleave', () => {
+    glow.classList.remove('active');
+    dot.classList.remove('active');
+    active = false;
+  });
+
+  function tick() {
+    gx += (tx - gx) * 0.18;
+    gy += (ty - gy) * 0.18;
+    dx += (tx - dx) * 0.42;
+    dy += (ty - dy) * 0.42;
+    glow.style.left = gx + 'px';
+    glow.style.top  = gy + 'px';
+    dot.style.left  = dx + 'px';
+    dot.style.top   = dy + 'px';
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  const interactiveSel = 'button, a, .nav-btn, .dot, .toc-row, .stat-card, .leader-card, .tier-card, .delta-col, .check-row';
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest && e.target.closest(interactiveSel)) {
+      glow.classList.add('hover');
+      dot.classList.add('hover');
+    }
+  });
+  document.addEventListener('mouseout', e => {
+    const to = e.relatedTarget;
+    if (!to || !to.closest || !to.closest(interactiveSel)) {
+      glow.classList.remove('hover');
+      dot.classList.remove('hover');
+    }
+  });
+}
+
+function attachSpotlight() {
+  const sel = '.toc-row, .stat-card, .leader-card, .tier-card, .delta-col, .check-row';
+  document.querySelectorAll(sel).forEach(el => {
+    el.addEventListener('mousemove', e => {
+      const rect = el.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      el.style.setProperty('--mx', x + '%');
+      el.style.setProperty('--my', y + '%');
+    });
+  });
+}
 
 function init() {
-  buildDots();
   const s1 = document.getElementById('slide-1');
-  s1.style.transition = 'none'; s1.style.opacity = '1';
-  s1.style.transform = 'translateX(0)'; s1.style.pointerEvents = 'all';
+  s1.style.transition = 'none';
+  s1.style.opacity = '1';
+  s1.style.pointerEvents = 'all';
+  s1.classList.add('active');
+
   for (let i = 2; i <= TOTAL; i++) {
-    const s = document.getElementById('slide-' + i);
-    s.style.opacity = '0'; s.style.transform = 'translateX(50px)'; s.style.pointerEvents = 'none';
+    const s = getSlideEl(i);
+    s.style.opacity = '0';
+    s.style.pointerEvents = 'none';
   }
-  updateUI(); setupAnimClasses(); animateSlideChildren(1); animateCoverStats();
+
+  updateUI();
+  setupAnimClasses();
+  animateSlideChildren(1);
+  attachSpotlight();
+  setupCustomCursor();
 }
+
 document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
