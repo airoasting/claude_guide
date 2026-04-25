@@ -129,7 +129,7 @@
             height: 100%;
             background: linear-gradient(90deg, #D97757, #C4613E);
             border-radius: 8px;
-            transition: width 0.4s ease;
+            transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
             width: 0%;
         }
 
@@ -583,6 +583,83 @@
             margin-top: 12px;
             position: relative; z-index: 1;
         }
+
+        /* ── Entrance Animations ── */
+        @keyframes headerFadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes stepFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        header .back-link,
+        header h1,
+        header p,
+        .mode-tabs,
+        .header-pages {
+            opacity: 0;
+            animation: headerFadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .step-nav > * {
+            opacity: 0;
+            animation: stepFadeIn 0.4s ease forwards;
+        }
+
+        header .back-link { animation-delay: 0.05s; }
+        header h1 { animation-delay: 0.12s; }
+        header p { animation-delay: 0.20s; }
+        .mode-tabs { animation-delay: 0.6s; }
+        .header-pages { animation-delay: 0.7s; }
+
+        .step-nav > *:nth-child(1)  { animation-delay: 0.10s; }
+        .step-nav > *:nth-child(2)  { animation-delay: 0.14s; }
+        .step-nav > *:nth-child(3)  { animation-delay: 0.18s; }
+        .step-nav > *:nth-child(4)  { animation-delay: 0.22s; }
+        .step-nav > *:nth-child(5)  { animation-delay: 0.26s; }
+        .step-nav > *:nth-child(6)  { animation-delay: 0.30s; }
+        .step-nav > *:nth-child(7)  { animation-delay: 0.34s; }
+        .step-nav > *:nth-child(8)  { animation-delay: 0.38s; }
+        .step-nav > *:nth-child(9)  { animation-delay: 0.42s; }
+        .step-nav > *:nth-child(10) { animation-delay: 0.46s; }
+        .step-nav > *:nth-child(11) { animation-delay: 0.50s; }
+        .step-nav > *:nth-child(12) { animation-delay: 0.54s; }
+        .step-nav > *:nth-child(13) { animation-delay: 0.58s; }
+
+        /* Scroll-triggered fade-in */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.55s ease, transform 0.4s ease, box-shadow 0.25s ease;
+        }
+        .fade-in.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hover micro-interactions (declared after .fade-in for source-order priority) */
+        .step-node:hover { transform: scale(1.06); }
+        .level-header:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--nm-shadow);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            header .back-link,
+            header h1,
+            header p,
+            .mode-tabs,
+            .header-pages,
+            .step-nav > *,
+            .fade-in {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -612,7 +689,7 @@
         <div class="header-pages" id="pages-nocode" style="display:none;">
             <a href="claude-code-101.html" class="header-page-link"><span class="hpl-icon">🖥️</span> 클로드 코드 101</a>
             <a href="claude-code-tasks.html" class="header-page-link"><span class="hpl-icon">🎯</span> 실전 과제 7가지</a>
-            <a href="github-guide.html" class="header-page-link"><span class="hpl-icon">🐙</span> Git & GitHub</a>
+            <a href="github-guide.html" class="header-page-link"><span class="hpl-icon">🚀</span> GitHub & Vercel</a>
         </div>
         <div class="header-pages" id="pages-cli">
             <a href="checklist.html" class="header-page-link active"><span class="hpl-icon">✅</span> 20단계 따라하기</a>
@@ -1129,6 +1206,22 @@ function switchMode(mode) {
             updateProgress();
         }
 
+        let firstProgressUpdate = true;
+        let lastPct = 0;
+
+        function animateNumber(el, from, to, duration) {
+            if (from === to) { el.textContent = to + '%'; return; }
+            const start = performance.now();
+            function frame(now) {
+                const t = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - t, 3);
+                const value = Math.round(from + (to - from) * eased);
+                el.textContent = value + '%';
+                if (t < 1) requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        }
+
         function updateProgress() {
             const all = document.querySelectorAll('input[type="checkbox"][data-id]');
             const checked = document.querySelectorAll('input[type="checkbox"][data-id]:checked');
@@ -1136,8 +1229,8 @@ function switchMode(mode) {
             const done = checked.length;
             const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
-            document.getElementById('progressPercent').textContent = pct + '%';
-            document.getElementById('progressFill').style.width = pct + '%';
+            const fill = document.getElementById('progressFill');
+            const pctText = document.getElementById('progressPercent');
 
             // Level counts
             [1, 2, 3].forEach(level => {
@@ -1145,6 +1238,19 @@ function switchMode(mode) {
                 const levelDone = document.querySelectorAll(`.level-${level} input[type="checkbox"][data-id]:checked`);
                 document.getElementById(`l${level}Count`).textContent = `${levelDone.length}/${levelAll.length}`;
             });
+
+            if (firstProgressUpdate) {
+                firstProgressUpdate = false;
+                setTimeout(() => {
+                    fill.style.width = pct + '%';
+                    animateNumber(pctText, 0, pct, 700);
+                    lastPct = pct;
+                }, 250);
+            } else {
+                fill.style.width = pct + '%';
+                animateNumber(pctText, lastPct, pct, 300);
+                lastPct = pct;
+            }
         }
 
         // Event listeners
@@ -1166,6 +1272,37 @@ function switchMode(mode) {
             });
             updateProgress();
         }
+
+        // Scroll-triggered fade-in
+        (function() {
+            const targets = document.querySelectorAll(
+                '.progress-container, .level-header, .tip-card, .master-check, .reset-btn, main + nav'
+            );
+            // Stagger tip-cards within each level section
+            document.querySelectorAll('.level-section').forEach(section => {
+                section.querySelectorAll('.tip-card').forEach((card, i) => {
+                    card.dataset.enterDelay = i * 50;
+                });
+            });
+            targets.forEach(el => el.classList.add('fade-in'));
+
+            if (!('IntersectionObserver' in window)) {
+                targets.forEach(el => el.classList.add('in-view'));
+                return;
+            }
+
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const delay = parseInt(entry.target.dataset.enterDelay || 0, 10);
+                        setTimeout(() => entry.target.classList.add('in-view'), delay);
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+            targets.forEach(el => observer.observe(el));
+        })();
 
         // Initialize
         loadState();
