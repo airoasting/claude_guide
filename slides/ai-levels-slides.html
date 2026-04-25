@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>나는 지금 몇 단계일까?:AI 활용 5단계</title>
+<title>나는 지금 몇 단계일까? AI 활용 6단계 진단</title>
 <style>
 @font-face {
   font-family: 'Pretendard';
@@ -18,17 +18,21 @@
   --sh-light: #FFFFFF;
   --nm: 8px 8px 20px #CECAC3, -8px -8px 20px #FFFFFF;
   --nm-sm: 5px 5px 12px #CECAC3, -5px -5px 12px #FFFFFF;
-  --nm-in: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
   --orange: #D97757;
   --orange-lt: rgba(217,119,87,0.12);
+  --green: #3a9a3a;
+  --red: #C93030;
+  --blue: #3a6a9a;
   --t1: #2E2A26;
   --t2: #7A7570;
   --t3: #A8A39D;
-  --l1: #C8BBA8; --l1-txt: #9A8E7A; --l1-bg: #FDFCFA;
-  --l2: #CC8820; --l2-txt: #AA7010; --l2-bg: #FBF6EE;
-  --l3: #CC5830; --l3-txt: #AA4020; --l3-bg: #F8EEE2;
-  --l4: #CC2828; --l4-txt: #AA1818; --l4-bg: #F3E4D4;
-  --l5: #8C1408; --l5-txt: #701008; --l5-bg: #EDD8C8;
+
+  --l0: #A8A39D;
+  --l1: #C8A878;
+  --l2: #E89A68;
+  --l3: #D97757;
+  --l4: #B35535;
+  --l5: #742810;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,44 +44,39 @@ html, body {
   background: #1a1a1a;
 }
 
-/* ─── PROGRESS BAR ─── */
 #progress-bar {
-  position: fixed; top: 0; left: 0;
-  height: 3px; background: var(--orange);
-  z-index: 1000; transition: width 0.4s ease; width: 0%;
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: var(--orange); z-index: 1000;
+  transition: width 0.4s ease; width: 0%;
 }
 
-/* ─── QUESTION BAR ─── */
 #question-bar {
-  position: fixed; top: 3px; left: 0; right: 0; z-index: 900;
-  display: flex; align-items: center; gap: 10px;
+  position: fixed; top: 3px; left: 0; right: 0;
+  z-index: 900; display: flex; align-items: center; gap: 10px;
   padding: 7px 32px;
   background: rgba(237,234,228,0.95); backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0,0,0,0.06);
   opacity: 0; transform: translateY(-6px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease; pointer-events: none;
 }
 #question-bar.visible { opacity: 1; transform: translateY(0); }
 #question-bar .qb-num {
-  font-size: 10px; font-weight: 800; color: #fff;
+  font-size: 11px; font-weight: 800; color: #fff;
   background: var(--orange); padding: 2px 9px;
   border-radius: 100px; letter-spacing: 0.5px; flex-shrink: 0;
 }
 #question-bar .qb-text {
-  font-size: 13px; font-weight: 700; color: var(--t1);
+  font-size: 14px; font-weight: 700; color: var(--t1);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-/* ─── SLIDES CONTAINER ─── */
 #slides-container { position: fixed; inset: 0; }
-
 .slide {
   position: absolute; inset: 0;
   width: 100vw; height: 100vh;
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
-  padding: 80px 88px calc(64px + 80px);
+  padding: 100px 88px calc(64px + 100px);
   overflow: hidden;
   opacity: 0; transform: translateX(50px);
   transition: opacity 0.4s ease, transform 0.4s ease;
@@ -90,37 +89,19 @@ html, body {
   color: #fff;
 }
 
-/* ─── ENTRANCE ANIMATIONS ─── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to   { opacity: 1; transform: scale(1); }
-}
 .anim { opacity: 0; }
-.anim.visible {
-  animation-fill-mode: both;
-  animation-duration: 0.5s;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-}
-.anim.visible.a-fade-up { animation-name: fadeUp; }
-.anim.visible.a-fade-in { animation-name: fadeIn; }
-.anim.visible.a-scale-in { animation-name: scaleIn; }
+.anim.visible { animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* ─── CONTENT SLIDES ─── */
 .slide-content {
   justify-content: flex-start !important;
-  padding-top: 80px !important;
-  padding-bottom: calc(64px + 80px) !important;
+  padding-top: 100px !important;
+  padding-bottom: calc(64px + 100px) !important;
 }
 
-/* ─── NAV BAR ─── */
 #nav-bar {
   position: fixed; bottom: 0; left: 0; right: 0;
   height: 64px;
@@ -133,8 +114,7 @@ html, body {
   border: 1.5px solid rgba(255,255,255,0.22);
   background: transparent; color: #fff; font-size: 16px;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  transition: background 0.2s, opacity 0.2s;
-  outline: none; font-family: inherit;
+  transition: background 0.2s, opacity 0.2s; outline: none; font-family: inherit;
 }
 .nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
 .nav-btn:disabled { opacity: 0.25; cursor: default; }
@@ -142,95 +122,101 @@ html, body {
 .dot {
   height: 8px; border-radius: 4px;
   background: rgba(255,255,255,0.28);
-  transition: width 0.3s ease, background 0.3s ease; width: 8px; cursor: pointer;
+  transition: width 0.3s ease, background 0.3s ease;
+  width: 8px; cursor: pointer;
 }
 .dot.active { width: 24px; background: var(--orange); }
 #slide-counter {
   color: rgba(255,255,255,0.5); font-size: 13px;
-  font-family: 'Pretendard', sans-serif; min-width: 44px; text-align: center;
+  min-width: 50px; text-align: center;
 }
 
-/* ─── NEUMORPHIC ─── */
 .nm-card { background: var(--bg); border-radius: 16px; box-shadow: var(--nm-sm); }
 
-/* ─── SLIDE HEADERS ─── */
 .slide-header {
-  text-align: center; margin-bottom: 24px;
+  text-align: center; margin-bottom: 32px;
   width: 100%; flex-shrink: 0;
+  min-height: 130px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-start;
 }
 .slide-kicker {
-  font-size: 11px; font-weight: 700;
+  font-size: 12px; font-weight: 700;
   letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--orange); margin-bottom: 8px; display: block;
 }
 .slide-title {
-  font-size: clamp(26px, 3vw, 36px);
+  font-size: clamp(27px, 3.05vw, 37px);
   font-weight: 800; color: var(--t1);
-  word-break: keep-all; line-height: 1.2; letter-spacing: -0.02em;
+  word-break: keep-all; line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 .slide-desc {
   font-size: 16px; color: var(--t2);
   word-break: keep-all; line-height: 1.55; margin-top: 6px;
 }
 
-/* ═══ SLIDE 1:COVER ═══ */
+/* ─── SLIDE 1 COVER ─── */
 .s1-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
   background: rgba(255,255,255,0.13);
   border: 1px solid rgba(255,255,255,0.22);
   border-radius: 100px; padding: 5px 18px;
-  font-size: 12px; letter-spacing: 0.1em;
+  font-size: 13px; letter-spacing: 0.1em;
   color: rgba(255,255,255,0.82); margin-bottom: 28px;
 }
 .s1-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
 .s1-title {
-  font-size: clamp(30px, 4.5vw, 56px);
+  font-size: clamp(32px, 4.5vw, 58px);
   font-weight: 900; text-align: center;
   line-height: 1.18; margin-bottom: 16px;
   word-break: keep-all; letter-spacing: -0.03em;
 }
 .s1-subtitle {
-  font-size: clamp(13px, 1.4vw, 17px);
+  font-size: clamp(15px, 1.5vw, 19px);
   color: rgba(255,255,255,0.6);
-  margin-bottom: 40px; text-align: center;
+  margin-bottom: 44px; text-align: center;
   word-break: keep-all; line-height: 1.5;
 }
 .s1-stats {
   display: flex;
   background: rgba(0,0,0,0.25);
-  border-radius: 18px; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.1);
   overflow: hidden; max-width: 680px; width: 100%;
 }
 .s1-stat {
-  flex: 0 0 33.333%; padding: 22px 28px; text-align: center;
+  flex: 1; padding: 22px 28px; text-align: center;
   border-right: 1px solid rgba(255,255,255,0.09);
 }
 .s1-stat:last-child { border-right: none; }
 .s1-stat-num {
-  font-size: clamp(18px, 2vw, 26px); font-weight: 900;
-  color: var(--orange); display: block;
+  font-size: clamp(19px, 2vw, 27px); font-weight: 900;
+  color: var(--orange); display: block; white-space: nowrap;
   letter-spacing: -0.02em;
 }
 .s1-stat-label {
-  font-size: clamp(10px, 0.9vw, 12px);
+  font-size: clamp(11px, 0.9vw, 13px);
   color: rgba(255,255,255,0.5);
-  margin-top: 5px; display: block;
+  margin-top: 5px; white-space: nowrap; display: block;
 }
 .s1-source {
-  margin-top: 20px; font-size: 11px;
+  margin-top: 22px; font-size: 12px;
   color: rgba(255,255,255,0.35); text-align: center;
 }
 
-/* ═══ SLIDE 2:TOC ═══ */
+/* ─── SLIDE 2 TOC ─── */
 .toc-list {
   display: flex; flex-direction: column;
-  flex: 1; min-height: 0; justify-content: space-evenly;
-  gap: 14px; width: 100%; max-width: 840px;
+  flex: 1; min-height: 0;
+  justify-content: space-evenly;
+  gap: 14px; width: 100%; max-width: 880px;
 }
 .toc-row {
   display: flex; align-items: center; gap: 22px;
-  padding: 18px 26px; border-radius: 14px;
-  transition: box-shadow 0.2s, transform 0.2s; cursor: pointer;
+  padding: 20px 28px; border-radius: 14px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
 }
 .toc-row:hover {
   box-shadow: 8px 8px 24px #C0BDB7, -8px -8px 24px #FFFFFF;
@@ -241,319 +227,500 @@ html, body {
   background: var(--orange); color: #fff;
   font-size: 17px; font-weight: 800;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; box-shadow: 3px 3px 10px rgba(217,119,87,0.35);
+  flex-shrink: 0;
+  box-shadow: 3px 3px 10px rgba(217,119,87,0.35);
 }
-.toc-content { display: flex; flex-direction: column; gap: 3px; flex: 1; }
-.toc-arrow { font-size: 18px; color: var(--t3); flex-shrink: 0; transition: color 0.2s, transform 0.2s; }
+.toc-content { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.toc-arrow {
+  font-size: 18px; color: var(--t3); flex-shrink: 0;
+  transition: color 0.2s, transform 0.2s;
+}
 .toc-row:hover .toc-arrow { color: var(--orange); transform: translateX(3px); }
-.toc-q { font-size: 20px; font-weight: 800; color: var(--t1); word-break: keep-all; line-height: 1.3; }
-.toc-a { font-size: 16px; color: var(--t2); }
+.toc-q { font-size: 19px; font-weight: 800; color: var(--t1); word-break: keep-all; line-height: 1.3; }
+.toc-a { font-size: 15px; color: var(--t2); }
 
-/* ═══ SLIDE 3:자율주행 비유 ═══ */
-.grad-bar {
-  display: flex; justify-content: space-between; align-items: center;
-  background: linear-gradient(to right, #FFF0E8, #5E1610);
-  border-radius: 10px; padding: 10px 22px; margin-bottom: 18px;
-  flex-shrink: 0; width: 100%; max-width: 1100px;
-}
-.grad-bar span { font-size: 12px; font-weight: 700; }
-.grad-bar span:first-child { color: #7A2218; }
-.grad-bar span:last-child  { color: #fff; }
-
-.level-cards {
-  display: flex; gap: 12px;
-  width: 100%; max-width: 1100px;
+/* ─── SLIDE 3 ORIGINAL TABLE (ai-levels.html) ─── */
+.orig-table-wrap {
+  width: 100%; max-width: 1240px;
   flex: 1; min-height: 0;
-}
-.level-card {
-  flex: 1; border-radius: 14px; padding: 22px 14px 18px;
-  text-align: center; background: var(--bg); box-shadow: var(--nm-sm);
-  border-top: 3px solid transparent;
-  display: flex; flex-direction: column; align-items: center;
-  min-height: 0; overflow: hidden;
-}
-.lc-num { font-size: 13px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
-.lc-auto { font-size: 13px; color: var(--t3); margin-bottom: 10px; }
-.lc-name { font-size: 22px; font-weight: 800; color: var(--t1); margin-bottom: 12px; }
-.lc-desc { font-size: 15px; line-height: 1.65; color: var(--t2); margin-bottom: 12px; flex: 1; }
-.lc-example {
-  font-size: 13px; font-weight: 600; padding: 5px 14px;
-  border-radius: 20px; display: inline-block; margin-bottom: 12px;
-}
-.lc-keywords {
-  margin-top: auto; padding-top: 12px;
-  border-top: 1px solid rgba(0,0,0,0.06);
-  display: flex; flex-wrap: wrap; gap: 5px; justify-content: center;
-}
-.lc-keywords span {
-  font-size: 12px; font-weight: 700; padding: 4px 10px;
-  border-radius: 10px; background: rgba(0,0,0,0.05); color: #666;
-}
-.level-card.l1 { border-top-color: var(--l1); background: var(--l1-bg); }
-.level-card.l1 .lc-num { color: var(--l1-txt); }
-.level-card.l1 .lc-example { background: rgba(200,187,168,0.18); color: var(--l1-txt); }
-.level-card.l2 { border-top-color: var(--l2); background: var(--l2-bg); }
-.level-card.l2 .lc-num { color: var(--l2-txt); }
-.level-card.l2 .lc-example { background: rgba(204,136,32,0.15); color: var(--l2-txt); }
-.level-card.l3 { border-top-color: var(--l3); background: var(--l3-bg); }
-.level-card.l3 .lc-num { color: var(--l3-txt); }
-.level-card.l3 .lc-example { background: rgba(204,88,48,0.14); color: var(--l3-txt); }
-.level-card.l4 { border-top-color: var(--l4); background: var(--l4-bg); }
-.level-card.l4 .lc-num { color: var(--l4-txt); }
-.level-card.l4 .lc-example { background: rgba(204,40,40,0.12); color: var(--l4-txt); }
-.level-card.l5 { border-top-color: var(--l5); background: var(--l5-bg); }
-.level-card.l5 .lc-num { color: var(--l5-txt); }
-.level-card.l5 .lc-example { background: rgba(140,20,8,0.14); color: var(--l5-txt); }
-
-/* ═══ SLIDE 4:5단계 테이블 ═══ */
-.level-table-wrap {
-  flex: 1; min-height: 0; width: 100%; max-width: 1100px;
-  overflow: hidden; border-radius: 14px; box-shadow: var(--nm-sm);
+  overflow: hidden;
+  background: var(--bg); border-radius: 16px;
+  box-shadow: var(--nm-sm);
   display: flex; flex-direction: column;
 }
-.level-table {
-  width: 100%; border-collapse: collapse;
-  background: var(--bg); flex: 1;
+.orig-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  table-layout: fixed;
+  flex: 1;
+}
+.orig-table thead th {
+  background: rgba(0,0,0,0.05);
+  color: var(--t2);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 12px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  word-break: keep-all;
+}
+.orig-table thead th:first-child { width: 56px; text-align: center; }
+.orig-table thead th.col-drive   { width: 13%; }
+.orig-table thead th.col-ai      { width: 19%; }
+.orig-table thead th.col-role    { width: 11%; text-align: center; }
+.orig-table thead th.col-change  { width: 20%; }
+.orig-table thead th.col-feat    { width: 17%; }
+.orig-table thead th.col-desc    { width: 20%; }
+
+.orig-table tbody td {
+  padding: 10px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  word-break: keep-all;
+  line-height: 1.45;
+}
+.orig-table tbody tr:last-child td { border-bottom: none; }
+.orig-table td.td-level {
+  text-align: center; font-weight: 900; color: #fff;
+  font-size: 13px;
+}
+.orig-table tr.tr-l0 td.td-level { background: var(--l0); }
+.orig-table tr.tr-l1 td.td-level { background: var(--l1); color: #3A2E1A; }
+.orig-table tr.tr-l2 td.td-level { background: var(--l2); }
+.orig-table tr.tr-l3 td.td-level { background: var(--l3); }
+.orig-table tr.tr-l4 td.td-level { background: var(--l4); }
+.orig-table tr.tr-l5 td.td-level { background: var(--l5); }
+.orig-table td.td-ai { font-weight: 800; color: var(--t1); }
+.orig-table td.td-ai small { color: var(--t3); font-weight: 500; font-size: 11.5px; display: block; margin-top: 2px; }
+.orig-table td.td-role { text-align: center; font-weight: 800; color: var(--orange); }
+.orig-table td.td-change { color: var(--t1); font-style: italic; font-size: 13px; }
+.orig-table td.td-feat { color: var(--t2); font-weight: 600; }
+.orig-table td.td-desc { color: var(--t3); font-size: 12.5px; }
+
+/* ─── SLIDE 4 FEATURE MAP + AUX STRIP (merged) ─── */
+.feature-map {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  width: 100%; max-width: 1220px;
+  flex: 1.7; min-height: 0;
+}
+.fm-col {
+  background: var(--bg);
+  border-radius: 14px;
+  box-shadow: var(--nm-sm);
   display: flex; flex-direction: column;
+  overflow: hidden;
 }
-.level-table thead {
-  background: linear-gradient(135deg, #2A1F18 0%, #3D2C22 100%);
-  flex-shrink: 0; display: table; width: 100%;
-  table-layout: fixed;
+.fm-col-head {
+  padding: 12px 10px; text-align: center;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  color: #fff;
 }
-.level-table tbody {
-  flex: 1; display: table; width: 100%;
-  table-layout: fixed;
+.fm-col-num { display: block; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; opacity: 0.85; }
+.fm-col-name { display: block; font-size: 14px; font-weight: 800; margin-top: 2px; line-height: 1.2; word-break: keep-all; }
+.fm-col.l0 .fm-col-head { background: var(--l0); }
+.fm-col.l1 .fm-col-head { background: var(--l1); color: #3A2E1A; }
+.fm-col.l2 .fm-col-head { background: var(--l2); }
+.fm-col.l3 .fm-col-head { background: var(--l3); }
+.fm-col.l4 .fm-col-head { background: var(--l4); }
+.fm-col.l5 .fm-col-head { background: var(--l5); }
+.fm-col-body { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.fm-item {
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.03);
+  border-radius: 8px;
 }
-.level-table tbody tr { height: 20%; }
-.level-table th {
-  padding: 14px 16px; font-size: 14px; font-weight: 700;
-  color: rgba(255,255,255,0.85); text-align: center; white-space: nowrap;
+.fm-item-title {
+  font-size: 13px; font-weight: 800; color: var(--t1);
+  line-height: 1.3; margin-bottom: 2px; word-break: keep-all;
 }
-.level-table td {
-  padding: 12px 16px; font-size: 15px; color: #555;
-  border-bottom: 1px solid rgba(0,0,0,0.06); vertical-align: middle;
-  line-height: 1.4;
-}
-.level-table td strong { color: var(--t1); }
-.level-table tbody tr:last-child td { border-bottom: none; }
-.level-table tbody tr:hover { background: rgba(0,0,0,0.03); }
-.tr-l1 { border-left: 4px solid var(--l1); background: var(--l1-bg); }
-.tr-l2 { border-left: 4px solid var(--l2); background: var(--l2-bg); }
-.tr-l3 { border-left: 4px solid var(--l3); background: var(--l3-bg); }
-.tr-l4 { border-left: 4px solid var(--l4); background: var(--l4-bg); }
-.tr-l5 { border-left: 4px solid var(--l5); background: var(--l5-bg); }
-.role-chip {
-  display: inline-block; font-size: 13px; font-weight: 800;
-  padding: 4px 12px; border-radius: 20px;
-  background: rgba(0,0,0,0.07); color: var(--t1);
+.fm-item-desc {
+  font-size: 11.5px; color: var(--t2);
+  line-height: 1.45; word-break: keep-all;
 }
 
-/* ═══ SLIDE 5:수준 진단 ═══ */
-.assess-intro {
-  font-size: 15px; color: var(--t2);
-  background: var(--bg); box-shadow: var(--nm-in);
-  border-radius: 10px; padding: 12px 18px;
-  margin-bottom: 16px; flex-shrink: 0;
-  width: 100%; max-width: 940px; line-height: 1.6;
+.aux-strip {
+  width: 100%; max-width: 1220px;
+  margin-top: 12px;
+  background: var(--bg); border-radius: 14px;
+  box-shadow: var(--nm-sm);
+  padding: 12px 20px;
+  display: flex; flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
 }
-.assess-intro strong { color: var(--orange); }
+.aux-mini {
+  display: flex; align-items: center; gap: 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding-bottom: 8px;
+}
+.aux-mini:last-child { border-bottom: none; padding-bottom: 0; }
+.aux-mini-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 800; color: var(--t1);
+  white-space: nowrap;
+  min-width: 70px;
+}
+.aux-mini-label .aux-icon { font-size: 18px; }
+.aux-mini-items {
+  display: flex; flex-wrap: wrap; gap: 6px 12px;
+  font-size: 12px; color: var(--t2);
+}
+.aux-mini-items span { white-space: nowrap; }
+.aux-mini-items b { color: var(--t1); font-weight: 800; margin-right: 3px; }
+
+/* ─── SLIDE 5 ASSESSMENT ─── */
 .assess-list {
   display: flex; flex-direction: column;
-  gap: 8px; flex: 1; min-height: 0;
-  justify-content: center; width: 100%; max-width: 940px;
+  gap: 10px; width: 100%; max-width: 960px;
+  flex: 1; min-height: 0; justify-content: center;
 }
 .assess-row {
-  display: flex; align-items: center; gap: 0;
-  border-radius: 12px; overflow: hidden;
+  display: grid;
+  grid-template-columns: 130px 1fr 90px;
+  align-items: center; gap: 18px;
+  padding: 14px 22px;
+  border-radius: 14px;
+  background: var(--bg);
+  box-shadow: var(--nm-sm);
+  transition: transform 0.2s;
+}
+.assess-row:hover { transform: translateX(4px); }
+.assess-level { display: flex; flex-direction: column; gap: 2px; }
+.a-label {
+  display: inline-block;
+  font-size: 12px; font-weight: 900; color: #fff;
+  padding: 2px 10px; border-radius: 6px;
+  letter-spacing: 0.05em; align-self: flex-start;
+}
+.assess-row.l0 .a-label { background: var(--l0); }
+.assess-row.l1 .a-label { background: var(--l1); color: #3A2E1A; }
+.assess-row.l2 .a-label { background: var(--l2); }
+.assess-row.l3 .a-label { background: var(--l3); }
+.assess-row.l4 .a-label { background: var(--l4); }
+.assess-row.l5 .a-label { background: var(--l5); }
+.a-name { font-size: 15px; font-weight: 800; color: var(--t1); margin-top: 3px; }
+.assess-content { font-size: 14px; color: var(--t2); line-height: 1.5; word-break: keep-all; }
+.assess-content strong { color: var(--t1); font-weight: 700; }
+.assess-percent {
+  font-size: clamp(23px, 2.3vw, 31px);
+  font-weight: 900; color: var(--orange);
+  text-align: right; letter-spacing: -0.02em;
+}
+.assess-note {
+  font-size: 12px; color: var(--t3);
+  text-align: center; margin-top: 12px; flex-shrink: 0;
+}
+
+/* ─── SLIDE 6 BRIDGE ─── */
+.bridge-wrap { text-align: center; max-width: 820px; }
+.bridge-eyebrow {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 20px;
+}
+.bridge-headline {
+  font-size: clamp(30px, 4vw, 52px);
+  font-weight: 900; color: #fff;
+  line-height: 1.22; margin-bottom: 18px;
+  letter-spacing: -0.03em; word-break: keep-all;
+}
+.bridge-headline .hl {
+  background: linear-gradient(90deg, #D97757, #F0A080);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.bridge-sub {
+  font-size: 17px; color: rgba(255,255,255,0.6);
+  line-height: 1.7; word-break: keep-all;
+}
+
+/* ─── SLIDE 7-11 ROADMAP ─── */
+.roadmap-direction {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--bg); border-radius: 100px;
+  box-shadow: var(--nm-sm);
+  padding: 8px 18px; margin-bottom: 14px;
+}
+.rd-from, .rd-to {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 800;
+}
+.rd-lvl {
+  font-size: 11px; font-weight: 900; color: #fff;
+  padding: 2px 8px; border-radius: 5px; letter-spacing: 0.05em;
+}
+.rd-from .rd-lvl { background: var(--t3); }
+.rd-to.to-l1 .rd-lvl { background: var(--l1); color: #3A2E1A; }
+.rd-to.to-l2 .rd-lvl { background: var(--l2); }
+.rd-to.to-l3 .rd-lvl { background: var(--l3); }
+.rd-to.to-l4 .rd-lvl { background: var(--l4); }
+.rd-to.to-l5 .rd-lvl { background: var(--l5); }
+.rd-name { color: var(--t1); }
+.rd-arrow { color: var(--orange); font-weight: 900; font-size: 14px; }
+
+.roadmap-intro { text-align: center; max-width: 780px; margin-bottom: 22px; flex-shrink: 0; }
+.roadmap-intro h3 {
+  font-size: clamp(23px, 2.5vw, 31px);
+  font-weight: 900; color: var(--t1);
+  line-height: 1.2; letter-spacing: -0.02em;
+  margin-bottom: 8px; word-break: keep-all;
+}
+.roadmap-intro p {
+  font-size: 15px; color: var(--t2);
+  line-height: 1.6; word-break: keep-all;
+}
+
+.roadmap-steps {
+  display: grid; gap: 12px;
+  width: 100%; max-width: 980px;
+  flex: 1; min-height: 0;
+  align-content: center;
+}
+.rs-3 { grid-template-columns: repeat(3, 1fr); }
+.rs-2 { grid-template-columns: repeat(2, 1fr); max-width: 760px; }
+.rs-6 { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); }
+
+.rs-card {
+  background: var(--bg);
+  border-radius: 14px;
+  box-shadow: var(--nm-sm);
+  padding: 18px 20px;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+  transition: transform 0.2s;
+}
+.rs-card:hover { transform: translateY(-3px); }
+.rs-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; bottom: 0; width: 3px;
+  background: var(--orange);
+}
+.rs-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--orange); color: #fff;
+  font-size: 13px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px; flex-shrink: 0;
+}
+.rs-title {
+  font-size: 16px; font-weight: 800; color: var(--t1);
+  margin-bottom: 6px; word-break: keep-all; line-height: 1.35;
+}
+.rs-desc {
+  font-size: 13.5px; color: var(--t2);
+  line-height: 1.55; word-break: keep-all;
+}
+
+/* ─── SLIDE 3: 자율주행 6단계 ─── */
+.drive-gradient-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(90deg, #A8A39D 0%, #C8A878 22%, #E89A68 42%, #D97757 60%, #B35535 80%, #742810 100%);
+  color: #fff; font-size: 12px; font-weight: 700;
+  padding: 7px 22px; border-radius: 100px;
+  width: 100%; max-width: 1080px; margin: 0 auto 28px;
+  letter-spacing: 0.04em; flex-shrink: 0;
   box-shadow: var(--nm-sm);
 }
-.assess-lv {
-  min-width: 120px; padding: 16px 18px;
-  display: flex; flex-direction: column; gap: 2px;
-  flex-shrink: 0;
-}
-.assess-lv .al-label { font-size: 12px; font-weight: 800; letter-spacing: 0.5px; }
-.assess-lv .al-name  { font-size: 16px; font-weight: 800; color: var(--t1); }
-.assess-body {
-  flex: 1; padding: 16px 20px;
-  border-left: 1px solid rgba(0,0,0,0.05);
-  font-size: 15px; color: var(--t2); line-height: 1.55;
-}
-.assess-body em { color: var(--t3); font-style: normal; font-size: 13px; }
-.assess-pct {
-  min-width: 80px; flex-shrink: 0;
-  padding: 16px; display: flex; align-items: center; justify-content: center;
-  font-size: 24px; font-weight: 900;
-  border-left: 1px solid rgba(0,0,0,0.05);
-}
-.assess-row.al1 { background: var(--l1-bg); }
-.assess-row.al1 .al-label { color: var(--l1-txt); }
-.assess-row.al1 .assess-pct { color: var(--l1-txt); }
-.assess-row.al2 { background: var(--l2-bg); }
-.assess-row.al2 .al-label { color: var(--l2-txt); }
-.assess-row.al2 .assess-pct { color: var(--l2-txt); }
-.assess-row.al3 { background: var(--l3-bg); }
-.assess-row.al3 .al-label { color: var(--l3-txt); }
-.assess-row.al3 .assess-pct { color: var(--l3-txt); }
-.assess-row.al4 { background: var(--l4-bg); }
-.assess-row.al4 .al-label { color: var(--l4-txt); }
-.assess-row.al4 .assess-pct { color: var(--l4-txt); }
-.assess-row.al5 { background: var(--l5-bg); }
-.assess-row.al5 .al-label { color: var(--l5-txt); }
-.assess-row.al5 .assess-pct { color: var(--l5-txt); }
-
-/* ═══ SLIDE 6:인재 역설 ═══ */
-.paradox-stat-bar {
-  display: flex; gap: 0; margin-bottom: 20px;
-  background: var(--bg); border-radius: 12px;
-  box-shadow: var(--nm-sm); overflow: hidden;
-  flex-shrink: 0; width: 100%; max-width: 900px;
-}
-.psb-item {
-  flex: 1; text-align: center; padding: 14px 16px;
-  border-right: 1px solid rgba(0,0,0,0.05);
-}
-.psb-item:last-child { border-right: none; }
-.psb-num { font-size: 26px; font-weight: 900; color: var(--orange); display: block; line-height: 1; }
-.psb-label { font-size: 11px; color: var(--t2); margin-top: 4px; line-height: 1.3; }
-.paradox-cards {
-  display: flex; gap: 18px;
-  width: 100%; max-width: 1100px; flex: 1; min-height: 0;
-}
-.paradox-card {
-  flex: 1; padding: 24px 20px;
-  background: var(--bg); box-shadow: var(--nm-sm);
-  border-radius: 14px; border-top: 3px solid var(--orange);
-  display: flex; flex-direction: column;
-}
-.pc-icon {
-  width: 38px; height: 38px; border-radius: 10px;
-  background: var(--orange-lt);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; margin-bottom: 12px; flex-shrink: 0;
-}
-.pc-head { font-size: 18px; font-weight: 700; color: var(--t1); margin-bottom: 8px; word-break: keep-all; }
-.pc-body { font-size: 15px; color: var(--t2); line-height: 1.7; word-break: keep-all; flex: 1; }
-.pc-stat {
-  display: inline-block; font-size: 12px; font-weight: 700;
-  color: var(--orange); background: var(--orange-lt);
-  padding: 7px 10px; border-radius: 6px; margin-top: 12px;
-  line-height: 1.4;
-}
-.paradox-bottom {
-  margin-top: 16px; flex-shrink: 0; text-align: center;
-  font-size: 14px; font-weight: 600; color: var(--t2); line-height: 1.6;
-  word-break: keep-all; width: 100%; max-width: 1100px;
-  background: var(--bg); box-shadow: var(--nm-in);
-  border-radius: 10px; padding: 14px 24px;
-}
-.paradox-bottom strong { color: var(--orange); }
-
-/* ═══ SLIDE 7:커리큘럼 ═══ */
-.curriculum-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 14px; width: 100%; max-width: 1000px;
+.drive-cards {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  width: 100%; max-width: 1080px; margin: 0 auto;
   flex: 1; min-height: 0;
+  align-content: stretch;
 }
-.curr-card {
-  padding: 20px 22px; border-radius: 14px;
-  background: var(--bg); box-shadow: var(--nm-sm);
-  border-left: 4px solid transparent;
-  display: flex; flex-direction: column; gap: 10px;
-  overflow: hidden; min-height: 0;
+.drive-card {
+  background: var(--bg);
+  border-radius: 14px;
+  box-shadow: var(--nm-sm);
+  padding: 28px 14px 24px;
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  position: relative; overflow: hidden;
+  word-break: keep-all;
+  min-height: 100%;
 }
-.curr-card.c1 { border-left-color: var(--l1); }
-.curr-card.c2 { border-left-color: var(--l2); }
-.curr-card.c3 { border-left-color: var(--l3); }
-.curr-card.c4 { border-left-color: var(--l4); }
-.curr-direction {
-  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+.drive-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 4px;
 }
-.curr-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 4px 10px; border-radius: 8px;
-  font-size: 12px; font-weight: 800;
+.drive-card.l0::before { background: var(--l0); }
+.drive-card.l1::before { background: var(--l1); }
+.drive-card.l2::before { background: var(--l2); }
+.drive-card.l3::before { background: var(--l3); }
+.drive-card.l4::before { background: var(--l4); }
+.drive-card.l5::before { background: var(--l5); }
+.dc-level {
+  font-size: 11px; font-weight: 800;
+  letter-spacing: 0.14em; color: var(--t3);
+  text-transform: uppercase;
+  margin-top: 6px; margin-bottom: 8px;
 }
-.curr-from { background: rgba(0,0,0,0.06); color: #666; }
-.curr-to { background: var(--orange); color: #fff; }
-.curr-arrow { font-size: 16px; font-weight: 800; color: var(--orange); }
-.curr-title { font-size: 17px; font-weight: 800; color: var(--t1); word-break: keep-all; flex-shrink: 0; }
-.curr-steps {
-  display: flex; flex-direction: column; gap: 5px; flex: 1; min-height: 0;
+.dc-name {
+  font-size: 17px; font-weight: 900; color: var(--t1);
+  margin-bottom: 10px; line-height: 1.25;
+  letter-spacing: -0.01em;
 }
-.curr-step {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 12px; border-radius: 8px;
-  background: rgba(0,0,0,0.04);
+.drive-card.l0 .dc-name { color: var(--l0); }
+.drive-card.l1 .dc-name { color: #8a7040; }
+.drive-card.l2 .dc-name { color: var(--l2); }
+.drive-card.l3 .dc-name { color: var(--l3); }
+.drive-card.l4 .dc-name { color: var(--l4); }
+.drive-card.l5 .dc-name { color: var(--l5); }
+.dc-desc {
+  font-size: 13px; color: var(--t2);
+  line-height: 1.55;
+  min-height: calc(13px * 1.55 * 3);
+  margin-bottom: 22px;
 }
-.curr-step-num {
-  width: 20px; height: 20px; border-radius: 50%;
-  background: var(--orange); color: #fff;
-  font-size: 10px; font-weight: 800;
+.dc-example {
+  font-size: 11px; font-weight: 700; color: var(--t2);
+  background: rgba(0,0,0,0.05);
+  padding: 4px 10px; border-radius: 100px;
+  margin-bottom: 10px;
+  white-space: nowrap;
+}
+.dc-example.placeholder { visibility: hidden; }
+.dc-ai {
+  font-size: 12px; font-weight: 800; color: #fff;
+  padding: 6px 14px; border-radius: 100px;
+  letter-spacing: 0.02em; white-space: nowrap;
+  margin-top: auto;
+}
+.dc-ai.l0 { background: var(--l0); }
+.dc-ai.l1 { background: var(--l1); color: #3A2E1A; }
+.dc-ai.l2 { background: var(--l2); }
+.dc-ai.l3 { background: var(--l3); }
+.dc-ai.l4 { background: var(--l4); }
+.dc-ai.l5 { background: var(--l5); }
+
+/* ─── CONSOLIDATED ROADMAP (stage advance) ─── */
+.roadmap-kicker-center {
+  text-align: center; margin-bottom: 12px; flex-shrink: 0;
+}
+.stage-wrap {
+  position: relative;
+  flex: 1; min-height: 0;
+  width: 100%;
+  cursor: pointer;
+}
+.stage {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center;
+  opacity: 0; pointer-events: none;
+  transform: translateX(30px);
+  transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.stage.active { opacity: 1; pointer-events: all; transform: translateX(0); }
+.stage.exit-left { opacity: 0; transform: translateX(-30px); }
+.stage .roadmap-steps { flex: 1; min-height: 0; }
+
+.stage-footer {
+  width: 100%;
   display: flex; align-items: center; justify-content: center;
+  gap: 16px;
+  margin-top: 14px;
   flex-shrink: 0;
 }
-.curr-step-text { flex: 1; }
-.curr-step-text strong { font-size: 14px; font-weight: 700; color: var(--t1); display: block; }
-.curr-step-text span  { font-size: 12px; color: var(--t3); }
+.stage-dots { display: flex; gap: 6px; }
+.stage-dot {
+  width: 30px; height: 4px; border-radius: 2px;
+  background: var(--sh-dark);
+  transition: background 0.25s, width 0.25s;
+  cursor: pointer;
+}
+.stage-dot.active { background: var(--orange); width: 44px; }
+.stage-dot.done { background: var(--orange-lt); }
+.stage-hint {
+  font-size: 12px; color: var(--t3); font-weight: 600;
+  letter-spacing: 0.04em;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.stage-hint::after {
+  content: '→'; color: var(--orange); font-weight: 900;
+  transition: transform 0.4s ease;
+}
+.stage-wrap:hover + .stage-footer .stage-hint::after { transform: translateX(4px); }
 
-/* ═══ SLIDE 8:결론 ═══ */
-#slide-8 {
+/* ─── SLIDE 12 CONCLUSION ─── */
+#slide-12 {
   background: linear-gradient(150deg, #1a1210 0%, #2a1810 45%, #3a1f0e 100%);
-  gap: 0; justify-content: center;
+  padding: 100px 88px calc(64px + 100px);
+  justify-content: center;
 }
-.s8-eyebrow {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--orange); text-align: center; margin-bottom: 16px; opacity: 0.85;
+.c-eyebrow {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--orange); text-align: center;
+  margin-bottom: 18px; opacity: 0.85;
 }
-.s8-headline {
-  font-size: clamp(28px, 3.8vw, 50px);
+.c-headline {
+  font-size: clamp(30px, 4vw, 50px);
   font-weight: 900; color: #fff; text-align: center;
-  line-height: 1.2; word-break: keep-all; margin-bottom: 12px;
-  letter-spacing: -0.03em;
+  line-height: 1.18; word-break: keep-all;
+  margin-bottom: 14px; letter-spacing: -0.03em;
 }
-.s8-headline .hl {
+.c-headline .hl {
   background: linear-gradient(90deg, #D97757, #F0A080);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-.s8-sub {
-  font-size: 15px; color: rgba(255,255,255,0.48); text-align: center;
-  max-width: 560px; margin: 0 auto 28px; line-height: 1.7; word-break: keep-all;
+.c-sub {
+  font-size: 16px; color: rgba(255,255,255,0.48);
+  text-align: center; max-width: 620px; margin: 0 auto 32px;
+  line-height: 1.7; word-break: keep-all;
 }
-.s8-steps {
-  display: flex; gap: 0; width: 100%; max-width: 900px;
-  margin-bottom: 20px;
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 16px; overflow: hidden;
+.c-steps {
+  display: flex; gap: 0; width: 100%; max-width: 920px;
+  margin-bottom: 22px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 18px; overflow: hidden;
 }
-.s8-step {
-  flex: 1; padding: 22px 22px; text-align: left;
+.c-step {
+  flex: 1; padding: 24px 22px; text-align: left;
   border-right: 1px solid rgba(255,255,255,0.07);
   display: flex; flex-direction: column; justify-content: center;
 }
-.s8-step:last-child { border-right: none; }
-.s8-step-n {
+.c-step:last-child { border-right: none; }
+.c-step-n {
   width: 28px; height: 28px; border-radius: 50%;
   background: var(--orange); color: #fff;
-  font-size: 12px; font-weight: 800;
+  font-size: 13px; font-weight: 900;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 12px; flex-shrink: 0;
+  margin-bottom: 12px;
 }
-.s8-step-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; word-break: keep-all; }
-.s8-step-body  { font-size: 15px; color: rgba(255,255,255,0.5); line-height: 1.6; word-break: keep-all; }
-.s8-final {
-  width: 100%; max-width: 900px;
+.c-step-title {
+  font-size: 17px; font-weight: 800;
+  color: #fff; line-height: 1.4; margin-bottom: 6px; word-break: keep-all;
+}
+.c-step-body {
+  font-size: 14px; color: rgba(255,255,255,0.5);
+  line-height: 1.6; word-break: keep-all;
+}
+.c-final {
+  width: 100%; max-width: 920px;
   display: flex; align-items: center; justify-content: space-between; gap: 20px;
   background: linear-gradient(90deg, rgba(217,119,87,0.2), rgba(217,119,87,0.08));
-  border: 1px solid rgba(217,119,87,0.32); border-radius: 12px;
-  padding: 16px 28px; box-shadow: 0 0 60px rgba(217,119,87,0.15);
+  border: 1px solid rgba(217,119,87,0.32);
+  border-radius: 14px; padding: 16px 30px;
+  box-shadow: 0 0 60px rgba(217,119,87,0.15);
 }
-.s8-final-text { font-size: 17px; font-weight: 800; color: #fff; word-break: keep-all; line-height: 1.4; }
-.s8-final-text span { color: #F0A080; }
-.s8-final-pill {
+.c-final-text {
+  font-size: 18px; font-weight: 800;
+  color: #fff; word-break: keep-all; line-height: 1.4;
+}
+.c-final-text span { color: #F0A080; }
+.c-final-pill {
   flex-shrink: 0; background: var(--orange); color: #fff;
-  font-size: 13px; font-weight: 800; padding: 10px 22px;
+  font-size: 14px; font-weight: 800; padding: 11px 22px;
   border-radius: 100px; white-space: nowrap;
 }
 </style>
@@ -567,528 +734,659 @@ html, body {
 </div>
 <div id="slides-container">
 
-<!-- SLIDE 1:COVER -->
+<!-- SLIDE 1: COVER -->
 <div class="slide slide-dark" id="slide-1">
-  <div class="s1-eyebrow"><span class="s1-dot"></span>AI 활용 5단계 진단</div>
-  <h1 class="s1-title">나는 지금<br>몇 단계일까?</h1>
-  <p class="s1-subtitle">자율주행 비유로 내 AI 활용 수준을 한눈에 파악하세요</p>
+  <div class="s1-eyebrow"><span class="s1-dot"></span>AI 활용 수준 진단</div>
+  <h1 class="s1-title">AI 활용 수준은<br>6단계로 결정됨</h1>
+  <p class="s1-subtitle">자율주행 비유로 내 위치를 진단하고, 다음 한 칸만 정확히 오르면 됩니다</p>
   <div class="s1-stats">
     <div class="s1-stat">
-      <span class="s1-stat-num" id="cov-stat-1">88%</span>
-      <span class="s1-stat-label">AI 사용 직원 비율</span>
+      <span class="s1-stat-num">6단계</span>
+      <span class="s1-stat-label">L0부터 L5까지 진단</span>
     </div>
     <div class="s1-stat">
-      <span class="s1-stat-num" id="cov-stat-2">5%</span>
-      <span class="s1-stat-label">제대로 쓰는 수준 도달</span>
+      <span class="s1-stat-num">88% vs 5%</span>
+      <span class="s1-stat-label">사용자 vs 제대로 활용</span>
     </div>
     <div class="s1-stat">
-      <span class="s1-stat-num" id="cov-stat-3">37%</span>
-      <span class="s1-stat-label">AI 종속 우려</span>
+      <span class="s1-stat-num">10분</span>
+      <span class="s1-stat-label">진단 + 로드맵 확인</span>
     </div>
   </div>
-  <p class="s1-source">출처: EY 2025 Work Reimagined Survey</p>
+  <p class="s1-source">자율주행 SAE(Society of Automotive Engineers, 국제자동차기술자협회) 단계 비유 · Anthropic / Claude 기능 매핑</p>
 </div>
 
-<!-- SLIDE 2:TOC -->
+<!-- SLIDE 2: TOC -->
 <div class="slide slide-light slide-content" id="slide-2">
   <div class="slide-header">
     <div class="slide-kicker">Agenda</div>
-    <h2 class="slide-title">오늘 살펴볼 4가지</h2>
+    <h2 class="slide-title">진단에서 커리큘럼까지</h2>
   </div>
   <div class="toc-list">
     <div class="toc-row nm-card">
       <div class="toc-badge">1</div>
       <div class="toc-content">
-        <span class="toc-q">단계 비교:자율주행 비유로 이해하기</span>
-        <span class="toc-a">L1 보조부터 L5 오케스트레이션까지, 자율주행처럼 5단계로 나뉩니다</span>
+        <span class="toc-q">AI 활용 6단계 전체 표로 보기</span>
+        <span class="toc-a">자율주행 비유 · 사용자 역할 · Claude 기능까지 한눈에</span>
       </div>
       <span class="toc-arrow">›</span>
     </div>
     <div class="toc-row nm-card">
       <div class="toc-badge">2</div>
       <div class="toc-content">
-        <span class="toc-q">AI 활용 5단계:역할과 위임 범위</span>
-        <span class="toc-a">질문자 → 세팅자 → 검수자 → 감독자 → 설계자</span>
+        <span class="toc-q">레벨별 Claude 기능 지도 + 공통 선택지</span>
+        <span class="toc-a">L0~L5 기능 매핑 + 모델 · 사고 · 플랜</span>
       </div>
       <span class="toc-arrow">›</span>
     </div>
     <div class="toc-row nm-card">
       <div class="toc-badge">3</div>
       <div class="toc-content">
-        <span class="toc-q">수준 진단 & 인재 역설</span>
-        <span class="toc-a">내 단계를 파악하고, 단계별로 어떤 함정이 있는지 확인합니다</span>
+        <span class="toc-q">수준 진단: 나는 어느 단계인가?</span>
+        <span class="toc-a">조직의 일반적 AI 활용 분포 · 65/20/10/5/3/&lt;1%</span>
       </div>
       <span class="toc-arrow">›</span>
     </div>
     <div class="toc-row nm-card">
       <div class="toc-badge">4</div>
       <div class="toc-content">
-        <span class="toc-q">커리큘럼:다음 단계로 올라가기</span>
-        <span class="toc-a">현재 레벨에서 다음 레벨로 업그레이드하는 단계별 학습 로드맵</span>
+        <span class="toc-q">다음 단계로 올라가는 커리큘럼</span>
+        <span class="toc-a">L0→L1부터 L4→L5까지 5개 업그레이드 경로</span>
       </div>
       <span class="toc-arrow">›</span>
     </div>
   </div>
 </div>
 
-<!-- SLIDE 3:자율주행 비유 -->
+<!-- SLIDE 3: 자율주행 6단계 -->
 <div class="slide slide-light slide-content" id="slide-3">
   <div class="slide-header">
-    <div class="slide-kicker">단계 비교 · 자율주행 비유</div>
-    <h2 class="slide-title">자율주행처럼 생각하면 쉽습니다</h2>
-    <p class="slide-desc">자율주행 기술의 발전 단계와 AI 활용 수준은 놀랍도록 비슷합니다</p>
+    <div class="slide-kicker">자율주행으로 이해하기</div>
+    <h2 class="slide-title">자율주행 6단계가 AI 활용 6단계에 그대로 매핑됨</h2>
+    <p class="slide-desc">SAE(Society of Automotive Engineers, 국제자동차기술자협회) Level 0부터 Level 5까지, AI 활용 단계와 놀랍도록 비슷합니다</p>
   </div>
-  <div class="grad-bar">
-    <span>◀ 사람이 제어</span>
-    <span>시스템이 제어 ▶</span>
+  <div class="drive-gradient-bar">
+    <span class="dg-left">◀ 사람이 제어</span>
+    <span class="dg-right">AI가 제어 ▶</span>
   </div>
-  <div class="level-cards">
-    <div class="level-card l1">
-      <div class="lc-num">Level 1</div>
-      <div class="lc-auto">운전자 보조</div>
-      <div class="lc-name">보조</div>
-      <div class="lc-desc">운전자가 주도적으로 제어,<br>시스템은 보조 역할</div>
-      <span class="lc-example">어댑티브 크루즈</span>
-      <div class="lc-keywords"><span>대화 (챗)</span></div>
+  <div class="drive-cards">
+    <div class="drive-card l0">
+      <div class="dc-level">Level 0</div>
+      <div class="dc-name">수동 운전</div>
+      <p class="dc-desc">운전자가 모든 것을 제어. 자동화 기능 없음.</p>
+      <span class="dc-example">일반 자동차</span>
+      <span class="dc-ai l0">기본 채팅</span>
     </div>
-    <div class="level-card l2">
-      <div class="lc-num">Level 2</div>
-      <div class="lc-auto">부분 자동화</div>
-      <div class="lc-name">맞춤 설정</div>
-      <div class="lc-desc">핸들+속도 동시 제어,<br>운전자가 항상 주시</div>
-      <span class="lc-example">테슬라 FSD</span>
-      <div class="lc-keywords"><span>프로젝트</span><span>멀티 페르소나</span></div>
+    <div class="drive-card l1">
+      <div class="dc-level">Level 1</div>
+      <div class="dc-name">보조</div>
+      <p class="dc-desc">운전자가 주도하고 시스템은 보조 역할.</p>
+      <span class="dc-example">어댑티브 크루즈</span>
+      <span class="dc-ai l1">맞춤 세팅</span>
     </div>
-    <div class="level-card l3">
-      <div class="lc-num">Level 3</div>
-      <div class="lc-auto">조건부 자동화</div>
-      <div class="lc-name">결과물 제작</div>
-      <div class="lc-desc">특정 조건에서 시스템 완전 제어,<br>위급 시 개입</div>
-      <div class="lc-keywords"><span>플러그인</span><span>결과물 자동 생성</span></div>
+    <div class="drive-card l2">
+      <div class="dc-level">Level 2</div>
+      <div class="dc-name">부분 자동화</div>
+      <p class="dc-desc">핸들·속도 동시 제어. 운전자 주시 필수.</p>
+      <span class="dc-example">Tesla Autopilot</span>
+      <span class="dc-ai l2">디자인·플러그인</span>
     </div>
-    <div class="level-card l4">
-      <div class="lc-num">Level 4</div>
-      <div class="lc-auto">고도 자동화</div>
-      <div class="lc-name">워크플로우</div>
-      <div class="lc-desc">특정 지역 내 완전 자율주행,<br>사람 개입 불필요</div>
-      <span class="lc-example">Waymo Robotaxi</span>
-      <div class="lc-keywords"><span>워크플로우 자동화</span></div>
+    <div class="drive-card l3">
+      <div class="dc-level">Level 3</div>
+      <div class="dc-name">조건부 자동화</div>
+      <p class="dc-desc">특정 조건에서 시스템이 완전 제어, 요청 시 인수.</p>
+      <span class="dc-example placeholder">&nbsp;</span>
+      <span class="dc-ai l3">Cowork</span>
     </div>
-    <div class="level-card l5">
-      <div class="lc-num">Level 5</div>
-      <div class="lc-auto">완전 자동화</div>
-      <div class="lc-name">오케스트레이션</div>
-      <div class="lc-desc">모든 환경에서 완전 자율주행,<br>핸들·페달 불필요</div>
-      <div class="lc-keywords"><span>멀티 에이전트</span><span>오케스트레이션</span></div>
+    <div class="drive-card l4">
+      <div class="dc-level">Level 4</div>
+      <div class="dc-name">고도 자동화</div>
+      <p class="dc-desc">특정 지역 내 완전 자율주행. 사람 개입 불필요.</p>
+      <span class="dc-example">Waymo Robotaxi</span>
+      <span class="dc-ai l4">Claude Code</span>
+    </div>
+    <div class="drive-card l5">
+      <div class="dc-level">Level 5</div>
+      <div class="dc-name">완전 자동화</div>
+      <p class="dc-desc">모든 환경에서 완전 자율주행. (이론 단계, 미실현)</p>
+      <span class="dc-example placeholder">&nbsp;</span>
+      <span class="dc-ai l5">오케스트레이션</span>
     </div>
   </div>
 </div>
 
-<!-- SLIDE 4:AI 활용 5단계 테이블 -->
+<!-- SLIDE 4: FULL ORIGINAL TABLE -->
 <div class="slide slide-light slide-content" id="slide-4">
   <div class="slide-header">
-    <div class="slide-kicker">단계 비교 · AI 활용 5단계</div>
-    <h2 class="slide-title">88%가 AI를 쓰지만, 5%만 제대로 활용합니다</h2>
-    <p class="slide-desc">그 차이는 위임 범위와 사용자 역할에서 옵니다</p>
+    <div class="slide-kicker">AI 활용 6단계: 오케스트레이션 레벨</div>
+    <h2 class="slide-title">레벨마다 사용자 역할과 Claude 기능이 단계적으로 달라짐</h2>
+    <p class="slide-desc">자율주행 비유 · 사용자 역할 · 이 단계의 변화 · Claude 기능까지 한 장 요약</p>
   </div>
-  <div class="level-table-wrap">
-    <table class="level-table">
+  <div class="orig-table-wrap">
+    <table class="orig-table">
       <thead>
         <tr>
-          <th style="width:50px;"></th>
-          <th>자율주행 비유</th>
-          <th>AI 활용 단계</th>
-          <th>위임 범위</th>
-          <th>사용자 역할</th>
-          <th>활용 기능</th>
-          <th>Claude 기능</th>
+          <th></th>
+          <th class="col-drive">자율주행 비유</th>
+          <th class="col-ai">AI 활용 단계</th>
+          <th class="col-role">사용자 역할</th>
+          <th class="col-change">이 단계의 변화</th>
+          <th class="col-feat">Claude 기능</th>
+          <th class="col-desc">설명</th>
         </tr>
       </thead>
       <tbody>
+        <tr class="tr-l0">
+          <td class="td-level">L0</td>
+          <td>수동 운전</td>
+          <td class="td-ai">기본 채팅</td>
+          <td class="td-role">입문자</td>
+          <td class="td-change">"이미 AI를 쓰고 있다"</td>
+          <td class="td-feat">Claude.ai</td>
+          <td class="td-desc">기본 프롬프트 · 모델 선택</td>
+        </tr>
         <tr class="tr-l1">
-          <td><strong style="color:var(--l1-txt);">L1</strong></td>
+          <td class="td-level">L1</td>
           <td>운전자 보조</td>
-          <td><strong>대화</strong> (챗)</td>
-          <td>위임 없음</td>
-          <td><span class="role-chip">질문자</span></td>
-          <td>질문하고 답변 참고, 요약, 브레인스토밍</td>
-          <td>기본 대화</td>
+          <td class="td-ai">맞춤 프로젝트 세팅</td>
+          <td class="td-role">세팅자</td>
+          <td class="td-change">"매번 설명하는 피로가 사라진다"</td>
+          <td class="td-feat">Claude Projects</td>
+          <td class="td-desc">멀티 페르소나 · 프로젝트 지침 · 파일</td>
         </tr>
         <tr class="tr-l2">
-          <td><strong style="color:var(--l2-txt);">L2</strong></td>
+          <td class="td-level">L2</td>
           <td>부분 자동화</td>
-          <td><strong>프로젝트</strong> (멀티 페르소나)</td>
-          <td>기준 위임</td>
-          <td><span class="role-chip">세팅자</span></td>
-          <td>말투·판단 기준·형식 사전 세팅, 일관된 응답</td>
-          <td>Claude Projects</td>
+          <td class="td-ai">디자인 · 플러그인</td>
+          <td class="td-role">검수자</td>
+          <td class="td-change">"쓰던 도구 안에서 AI가 일한다"</td>
+          <td class="td-feat">Claude Design · Chrome · Office</td>
+          <td class="td-desc">웹 · 슬라이드 디자인, 플러그인으로 연계</td>
         </tr>
         <tr class="tr-l3">
-          <td><strong style="color:var(--l3-txt);">L3</strong></td>
+          <td class="td-level">L3</td>
           <td>조건부 자동화</td>
-          <td><strong>결과물 자동 생성</strong></td>
-          <td>실행 위임</td>
-          <td><span class="role-chip">검수자</span></td>
-          <td>보고서·엑셀 등 완성 결과물 AI가 직접 제작</td>
-          <td>크롬, PPT, 엑셀, 워드</td>
+          <td class="td-ai">Cowork<small>(파일·업무 연결)</small></td>
+          <td class="td-role">연결자</td>
+          <td class="td-change">"내 PC와 일상 도구가 AI에 연결된다"</td>
+          <td class="td-feat">Claude Cowork</td>
+          <td class="td-desc">Gmail · Calendar · Drive · PC 파일 · Connectors</td>
         </tr>
         <tr class="tr-l4">
-          <td><strong style="color:var(--l4-txt);">L4</strong></td>
+          <td class="td-level">L4</td>
           <td>고도 자동화</td>
-          <td><strong>워크플로우 자동화</strong></td>
-          <td>판단+실행 위임</td>
-          <td><span class="role-chip">감독자</span></td>
-          <td>조사→분석→보고서 다단계 AI 연결 처리</td>
-          <td>Claude Code + MCP</td>
+          <td class="td-ai">Claude Code<small>(바이브 코딩)</small></td>
+          <td class="td-role">감독자</td>
+          <td class="td-change">"코드도 대화로 만든다"</td>
+          <td class="td-feat">Claude Code (노코드/CLI)</td>
+          <td class="td-desc">CLAUDE.md · Git/GitHub 연동 · 자동 실행</td>
         </tr>
         <tr class="tr-l5">
-          <td><strong style="color:var(--l5-txt);">L5</strong></td>
+          <td class="td-level">L5</td>
           <td>완전 자동화</td>
-          <td><strong>오케스트레이션</strong></td>
-          <td>전권 위임</td>
-          <td><span class="role-chip">설계자</span></td>
-          <td>목표만 설정, 복수 에이전트가 자율 연결</td>
-          <td>멀티 에이전트 + 하네스 엔지니어링</td>
+          <td class="td-ai">멀티 에이전트 오케스트레이션</td>
+          <td class="td-role">설계자</td>
+          <td class="td-change">"조직이 AI 팀을 운영한다"</td>
+          <td class="td-feat">Skills · MCP · 하네스 엔지니어링</td>
+          <td class="td-desc">서브 에이전트 · Hooks · Plugins</td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- SLIDE 5:수준 진단 -->
+<!-- SLIDE 5: FEATURE MAP + AUX STRIP (merged) -->
 <div class="slide slide-light slide-content" id="slide-5">
   <div class="slide-header">
-    <div class="slide-kicker">수준 진단 · 셀프 체크</div>
-    <h2 class="slide-title">나의 수준 진단하기</h2>
+    <div class="slide-kicker">Claude 기능 지도</div>
+    <h2 class="slide-title">기능은 레벨별로 선택되고, 모델·사고·플랜은 전 레벨 공통으로 결정됨</h2>
   </div>
-  <div class="assess-intro">
-    아래는 일반적인 조직의 AI 활용 분포입니다. <strong>나와 가장 가까운 단계는 어디인가요?</strong>
+  <div class="feature-map">
+    <div class="fm-col l0">
+      <div class="fm-col-head">
+        <span class="fm-col-num">Lv.0</span>
+        <span class="fm-col-name">기본 채팅</span>
+      </div>
+      <div class="fm-col-body">
+        <div class="fm-item">
+          <div class="fm-item-title">Claude.ai</div>
+          <div class="fm-item-desc">브라우저에서 바로 시작하는 기본 채팅 인터페이스</div>
+        </div>
+        <div class="fm-item">
+          <div class="fm-item-title">기본 프롬프트</div>
+          <div class="fm-item-desc">질문하고 답변받는 가장 단순한 대화</div>
+        </div>
+      </div>
+    </div>
+    <div class="fm-col l1">
+      <div class="fm-col-head">
+        <span class="fm-col-num">Lv.1</span>
+        <span class="fm-col-name">맞춤 프로젝트 세팅</span>
+      </div>
+      <div class="fm-col-body">
+        <div class="fm-item">
+          <div class="fm-item-title">Claude Projects</div>
+          <div class="fm-item-desc">폴더처럼 컨텍스트와 파일을 저장</div>
+        </div>
+        <div class="fm-item">
+          <div class="fm-item-title">프로젝트 지침 · 파일</div>
+          <div class="fm-item-desc">Claude가 항상 따르는 규칙·파일을 한 번 설정</div>
+        </div>
+      </div>
+    </div>
+    <div class="fm-col l2">
+      <div class="fm-col-head">
+        <span class="fm-col-num">Lv.2</span>
+        <span class="fm-col-name">디자인·플러그인</span>
+      </div>
+      <div class="fm-col-body">
+        <div class="fm-item">
+          <div class="fm-item-title">Claude Design</div>
+          <div class="fm-item-desc">웹·슬라이드를 AI가 직접 생성</div>
+        </div>
+        <div class="fm-item">
+          <div class="fm-item-title">Claude in Chrome</div>
+          <div class="fm-item-desc">웹 작업을 대신 완료하는 브라우저 에이전트</div>
+        </div>
+        <div class="fm-item">
+          <div class="fm-item-title">Claude in Office</div>
+          <div class="fm-item-desc">Excel·PPT·Word 내부에서 AI가 편집</div>
+        </div>
+      </div>
+    </div>
+    <div class="fm-col l3">
+      <div class="fm-col-head">
+        <span class="fm-col-num">Lv.3</span>
+        <span class="fm-col-name">Claude Cowork</span>
+      </div>
+      <div class="fm-col-body">
+        <div class="fm-item">
+          <div class="fm-item-title">Claude Cowork</div>
+          <div class="fm-item-desc">PC 파일·Gmail·Drive를 AI에 직접 연결</div>
+        </div>
+        <div class="fm-item">
+          <div class="fm-item-title">Connectors</div>
+          <div class="fm-item-desc">Slack·Drive·Notion 등 50+ 도구 연결</div>
+        </div>
+      </div>
+    </div>
+    <div class="fm-col l4">
+      <div class="fm-col-head">
+        <span class="fm-col-num">Lv.4</span>
+        <span class="fm-col-name">Claude Code</span>
+      </div>
+      <div class="fm-col-body">
+        <div class="fm-item">
+          <div class="fm-item-title">Claude Code</div>
+          <div class="fm-item-desc">터미널에서 AI가 코드를 직접 작성·실행</div>
+        </div>
+        <div class="fm-item">
+          <div class="fm-item-title">CLAUDE.md</div>
+          <div class="fm-item-desc">프로젝트 규칙·컨벤션을 AI에 전달</div>
+        </div>
+        <div class="fm-item">
+          <div class="fm-item-title">Git/GitHub 연동</div>
+          <div class="fm-item-desc">커밋·PR·이슈를 대화로 처리</div>
+        </div>
+      </div>
+    </div>
+    <div class="fm-col l5">
+      <div class="fm-col-head">
+        <span class="fm-col-num">Lv.5</span>
+        <span class="fm-col-name">오케스트레이션</span>
+      </div>
+      <div class="fm-col-body">
+        <div class="fm-item">
+          <div class="fm-item-title">Skills</div>
+          <div class="fm-item-desc">반복 워크플로우를 Claude에 주입</div>
+        </div>
+        <div class="fm-item">
+          <div class="fm-item-title">서브 에이전트 · Hooks</div>
+          <div class="fm-item-desc">역할 분리된 AI들의 자율 협업</div>
+        </div>
+        <div class="fm-item">
+          <div class="fm-item-title">MCP · Plugins</div>
+          <div class="fm-item-desc">외부 시스템 연결 + 스킬 팩 설치</div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="assess-list">
-    <div class="assess-row al1">
-      <div class="assess-lv">
-        <div class="al-label">L1</div>
-        <div class="al-name">대화</div>
+  <div class="aux-strip">
+    <div class="aux-mini">
+      <div class="aux-mini-label"><span class="aux-icon">🧠</span>모델</div>
+      <div class="aux-mini-items">
+        <span><b>Opus 4.7</b>깊은 사고</span>
+        <span><b>Opus 4.7 1M</b>1M 컨텍스트</span>
+        <span><b>Sonnet 4.6</b>기본값</span>
+        <span><b>Haiku 4.5</b>초고속·저비용</span>
       </div>
-      <div class="assess-body">
-        궁금한 걸 AI에게 물어보고 답을 받는 단계<br>
-        <em>"이메일 초안 써줘", "회의 안건 정리해줘" 같은 단순 요청</em>
-      </div>
-      <div class="assess-pct">65%</div>
     </div>
-    <div class="assess-row al2">
-      <div class="assess-lv">
-        <div class="al-label">L2</div>
-        <div class="al-name">프로젝트</div>
+    <div class="aux-mini">
+      <div class="aux-mini-label"><span class="aux-icon">💭</span>사고</div>
+      <div class="aux-mini-items">
+        <span><b>채팅</b>적응형 ON/OFF</span>
+        <span><b>코드</b>Effort 낮음~Max</span>
       </div>
-      <div class="assess-body">
-        "내 말투로 답해줘", "항상 표로 정리해줘" 등 AI를 미리 세팅<br>
-        <em>말투·판단 기준·형식을 저장하고 일관된 결과를 받음</em>
-      </div>
-      <div class="assess-pct">20%</div>
     </div>
-    <div class="assess-row al3">
-      <div class="assess-lv">
-        <div class="al-label">L3</div>
-        <div class="al-name">결과물 생성</div>
+    <div class="aux-mini">
+      <div class="aux-mini-label"><span class="aux-icon">🏢</span>플랜</div>
+      <div class="aux-mini-items">
+        <span><b>Pro</b>$20/월</span>
+        <span><b>Max</b>$100~200/월, Code 포함</span>
+        <span><b>Team</b>$25/석</span>
+        <span><b>Enterprise</b>맞춤·SSO</span>
       </div>
-      <div class="assess-body">
-        "이 방향으로 보고서 만들어줘"라고 하면 AI가 직접 생성<br>
-        <em>PPT 구조, 보고서, 분석표를 AI가 만들고 사람은 검수만</em>
-      </div>
-      <div class="assess-pct">10%</div>
-    </div>
-    <div class="assess-row al4">
-      <div class="assess-lv">
-        <div class="al-label">L4</div>
-        <div class="al-name">워크플로우</div>
-      </div>
-      <div class="assess-body">
-        "매주 월요일 뉴스 정리해서 Slack에 올려줘"처럼 자동 실행<br>
-        <em>데이터 수집→분석→보고서 작성까지 AI가 알아서 연결</em>
-      </div>
-      <div class="assess-pct">5%</div>
-    </div>
-    <div class="assess-row al5">
-      <div class="assess-lv">
-        <div class="al-label">L5</div>
-        <div class="al-name">오케스트레이션</div>
-      </div>
-      <div class="assess-body">
-        여러 AI 에이전트가 역할을 나눠 자율 협업하도록 설계<br>
-        <em>Claude Code·Agent SDK로 AI 팀을 직접 구성하고 지휘</em>
-      </div>
-      <div class="assess-pct">&lt;1%</div>
     </div>
   </div>
 </div>
 
-<!-- SLIDE 6:인재 역설 -->
+<!-- SLIDE 6: ASSESSMENT -->
 <div class="slide slide-light slide-content" id="slide-6">
   <div class="slide-header">
-    <div class="slide-kicker">인재 역설 · 단계를 알면 보이는 것들</div>
-    <h2 class="slide-title">AI가 만드는 3가지 역설</h2>
-    <p class="slide-desc">EY 2025 Work Reimagined Survey:15,000명 직원·1,500명 고용주·29개국</p>
+    <div class="slide-kicker">수준 진단</div>
+    <h2 class="slide-title">조직 AI 활용의 85%가 L0~L1 초기 단계에 정체됨</h2>
+    <p class="slide-desc">조직의 일반적 AI 활용 분포: 나와 가장 가까운 단계는?</p>
   </div>
-  <div class="paradox-stat-bar">
-    <div class="psb-item">
-      <span class="psb-num">88%</span>
-      <span class="psb-label">AI 사용 중</span>
+  <div class="assess-list">
+    <div class="assess-row l0 nm-card">
+      <div class="assess-level">
+        <span class="a-label">L0</span>
+        <span class="a-name">기본 채팅</span>
+      </div>
+      <div class="assess-content"><strong>"이미 AI를 쓰고 있다"</strong> · 챗봇처럼 사용하는 입문자 단계</div>
+      <div class="assess-percent">65%</div>
     </div>
-    <div class="psb-item">
-      <span class="psb-num">50%</span>
-      <span class="psb-label">2026년까지 AI 없이 평가 환경 도입 예정</span>
+    <div class="assess-row l1 nm-card">
+      <div class="assess-level">
+        <span class="a-label">L1</span>
+        <span class="a-name">맞춤 프로젝트 세팅</span>
+      </div>
+      <div class="assess-content"><strong>"매번 설명하는 피로가 사라진다"</strong> · AI를 미리 세팅해두는 세팅자 단계</div>
+      <div class="assess-percent">20%</div>
     </div>
-    <div class="psb-item">
-      <span class="psb-num">+56%</span>
-      <span class="psb-label">AI 숙련 인력의 시장 보수 프리미엄</span>
+    <div class="assess-row l2 nm-card">
+      <div class="assess-level">
+        <span class="a-label">L2</span>
+        <span class="a-name">디자인 · 플러그인</span>
+      </div>
+      <div class="assess-content"><strong>"쓰던 도구 안에서 AI가 일한다"</strong> · 사람은 검수만 하는 검수자 단계</div>
+      <div class="assess-percent">10%</div>
     </div>
-    <div class="psb-item">
-      <span class="psb-num">+14h</span>
-      <span class="psb-label">연간 81시간 훈련 시 주당 생산성 향상</span>
+    <div class="assess-row l3 nm-card">
+      <div class="assess-level">
+        <span class="a-label">L3</span>
+        <span class="a-name">Claude Cowork</span>
+      </div>
+      <div class="assess-content"><strong>"내 PC와 일상 도구가 AI에 연결된다"</strong> · 업무 흐름을 잇는 연결자 단계</div>
+      <div class="assess-percent">5%</div>
+    </div>
+    <div class="assess-row l4 nm-card">
+      <div class="assess-level">
+        <span class="a-label">L4</span>
+        <span class="a-name">Claude Code</span>
+      </div>
+      <div class="assess-content"><strong>"코드도 대화로 만든다"</strong> · AI가 개발을 대신 처리하는 감독자 단계</div>
+      <div class="assess-percent">3%</div>
+    </div>
+    <div class="assess-row l5 nm-card">
+      <div class="assess-level">
+        <span class="a-label">L5</span>
+        <span class="a-name">오케스트레이션</span>
+      </div>
+      <div class="assess-content"><strong>"조직이 AI 팀을 운영한다"</strong> · 에이전트 협업을 설계하는 설계자 단계</div>
+      <div class="assess-percent">&lt;1%</div>
     </div>
   </div>
-  <div class="paradox-cards">
-    <div class="paradox-card">
-      <div class="pc-icon">🎓</div>
-      <div class="pc-head">주니어의 역설</div>
-      <p class="pc-body">AI가 리서치하고 초안을 써주면서, 스스로 사고하는 훈련 기회가 사라지고 있습니다. 이 과정 없이는 5년 후 시니어로 성장할 수 없습니다.</p>
-      <span class="pc-stat">2026년까지 50% 조직이 AI 없이 평가하는 환경 도입 예정 (Gartner)</span>
-    </div>
-    <div class="paradox-card">
-      <div class="pc-icon">💼</div>
-      <div class="pc-head">시니어의 역설</div>
-      <p class="pc-body">20년의 경험과 직관은 가치 있지만, AI 도구를 거부하면 주당 8~14시간의 생산성 격차가 벌어집니다. 경험을 AI로 증폭시킬 기회를 놓치게 됩니다.</p>
-      <span class="pc-stat">연간 81시간 훈련 시 주당 14시간 생산성 향상 가능 (EY)</span>
-    </div>
-    <div class="paradox-card">
-      <div class="pc-icon">🚀</div>
-      <div class="pc-head">업스킬링의 역설</div>
-      <p class="pc-body">AI를 가장 잘 훈련받은 직원이 조직을 떠날 확률이 55% 더 높습니다. AI 인재가 시장에서 56% 높은 보수를 받을 수 있기 때문입니다.</p>
-      <span class="pc-stat">AI 숙련 인력 유출 방지 → 내부 경력 발전 경로 설계 필수 (EY, PwC)</span>
-    </div>
-  </div>
-  <div class="paradox-bottom">
-    AI에 의존하되 종속되지 않는 조직. <strong>그 차이를 만드는 것은 기술이 아니라, 인재에 대한 철학입니다.</strong>
+  <p class="assess-note">※ 위 비율은 실제 데이터가 아닌 업계 인식을 바탕으로 한 추정치. 참고용으로만 활용하세요.</p>
+</div>
+
+<!-- SLIDE 7: BRIDGE -->
+<div class="slide slide-dark" id="slide-7">
+  <div class="bridge-wrap">
+    <p class="bridge-eyebrow">Next · 커리큘럼</p>
+    <h2 class="bridge-headline">진단은 출발점,<br><span class="hl">성장은 다음 한 칸</span>에서 시작됨.</h2>
+    <p class="bridge-sub">지금부터 L0 → L5까지 다섯 개의 업그레이드 경로를 보여드립니다.<br>내 위치에서 바로 다음 한 칸만 정확히 오르면 됩니다.</p>
   </div>
 </div>
 
-<!-- SLIDE 7:커리큘럼 -->
-<div class="slide slide-light slide-content" id="slide-7">
+<!-- SLIDE 8: L0 → L1 -->
+<div class="slide slide-light slide-content" id="slide-8">
   <div class="slide-header">
-    <div class="slide-kicker">커리큘럼 · 다음 단계로 올라가기</div>
-    <h2 class="slide-title">내 레벨에서 다음 레벨로</h2>
-    <p class="slide-desc">각 단계에서 다음 단계로 업그레이드하는 핵심 학습 경로입니다</p>
+    <div class="slide-kicker">Roadmap · L0 → L1</div>
+    <h2 class="slide-title">입문자에서 세팅자로 전환이 필요함</h2>
+    <p class="slide-desc">AI와 제대로 대화하는 법을 익히고, 내 업무에 맞게 Claude를 세팅하세요</p>
   </div>
-  <div class="curriculum-grid">
-    <!-- L1 → L2 -->
-    <div class="curr-card c1">
-      <div class="curr-direction">
-        <span class="curr-badge curr-from">L1 대화</span>
-        <span class="curr-arrow">→</span>
-        <span class="curr-badge curr-to">L2 맞춤 설정</span>
-      </div>
-      <div class="curr-title">질문자에서 세팅자로</div>
-      <div class="curr-steps">
-        <div class="curr-step">
-          <div class="curr-step-num">1</div>
-          <div class="curr-step-text">
-            <strong>프롬프트 11가지 습관 점검</strong>
-            <span>AI에게 잘 물어보는 법, 대화 퀄리티가 달라집니다</span>
-          </div>
-        </div>
-        <div class="curr-step">
-          <div class="curr-step-num">2</div>
-          <div class="curr-step-text">
-            <strong>Claude 프로젝트 만들기</strong>
-            <span>내 업무 맥락을 AI에게 미리 알려주는 첫 세팅</span>
-          </div>
-        </div>
-        <div class="curr-step">
-          <div class="curr-step-num">3</div>
-          <div class="curr-step-text">
-            <strong>멀티 페르소나 토론법</strong>
-            <span>팀장+팀원 구성 토론으로 대화 퀄리티 2배</span>
-          </div>
-        </div>
-      </div>
+  <div class="roadmap-direction">
+    <span class="rd-from"><span class="rd-lvl">L0</span><span class="rd-name">기본 채팅</span></span>
+    <span class="rd-arrow">→</span>
+    <span class="rd-to to-l1"><span class="rd-lvl">L1</span><span class="rd-name">맞춤 세팅</span></span>
+  </div>
+  <div class="roadmap-steps rs-3">
+    <div class="rs-card">
+      <div class="rs-num">1</div>
+      <div class="rs-title">프롬프트 11가지 습관 점검</div>
+      <p class="rs-desc">AI에게 잘 물어보는 법부터 시작. 대화 퀄리티가 즉시 달라짐.</p>
     </div>
-    <!-- L2 → L3 -->
-    <div class="curr-card c2">
-      <div class="curr-direction">
-        <span class="curr-badge curr-from">L2 맞춤 설정</span>
-        <span class="curr-arrow">→</span>
-        <span class="curr-badge curr-to">L3 제작</span>
-      </div>
-      <div class="curr-title">세팅자에서 검수자로</div>
-      <div class="curr-steps">
-        <div class="curr-step">
-          <div class="curr-step-num">1</div>
-          <div class="curr-step-text">
-            <strong>크롬에서 Claude 사용</strong>
-            <span>웹 페이지 요약, 이메일 작성, 검색 보조</span>
-          </div>
-        </div>
-        <div class="curr-step">
-          <div class="curr-step-num">2</div>
-          <div class="curr-step-text">
-            <strong>파워포인트·엑셀에서 Claude</strong>
-            <span>슬라이드 구성, 수식, 차트 생성을 AI가 직접</span>
-          </div>
-        </div>
-        <div class="curr-step">
-          <div class="curr-step-num">3</div>
-          <div class="curr-step-text">
-            <strong>Claude Cowork 실전 과제 8가지</strong>
-            <span>Gmail 정리, 보고서, 데이터 분석 실습</span>
-          </div>
-        </div>
-      </div>
+    <div class="rs-card">
+      <div class="rs-num">2</div>
+      <div class="rs-title">Claude 프로젝트 만들기</div>
+      <p class="rs-desc">내 업무 맥락을 AI에게 미리 알려주는 첫 번째 세팅.</p>
     </div>
-    <!-- L3 → L4 -->
-    <div class="curr-card c3">
-      <div class="curr-direction">
-        <span class="curr-badge curr-from">L3 제작</span>
-        <span class="curr-arrow">→</span>
-        <span class="curr-badge curr-to">L4 워크플로우</span>
-      </div>
-      <div class="curr-title">검수자에서 감독자로</div>
-      <div class="curr-steps">
-        <div class="curr-step">
-          <div class="curr-step-num">1</div>
-          <div class="curr-step-text">
-            <strong>Claude Code 입문</strong>
-            <span>코드 없이도 AI가 파일·앱을 직접 만드는 환경</span>
-          </div>
-        </div>
-        <div class="curr-step">
-          <div class="curr-step-num">2</div>
-          <div class="curr-step-text">
-            <strong>MCP 서버 연결</strong>
-            <span>Gmail, Calendar, 파일 시스템을 AI에 직접 연결</span>
-          </div>
-        </div>
-        <div class="curr-step">
-          <div class="curr-step-num">3</div>
-          <div class="curr-step-text">
-            <strong>자동화 워크플로우 설계</strong>
-            <span>반복 업무를 AI 파이프라인으로 자동 처리</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- L4 → L5 -->
-    <div class="curr-card c4">
-      <div class="curr-direction">
-        <span class="curr-badge curr-from">L4 워크플로우</span>
-        <span class="curr-arrow">→</span>
-        <span class="curr-badge curr-to">L5 설계자</span>
-      </div>
-      <div class="curr-title">감독자에서 설계자로</div>
-      <div class="curr-steps">
-        <div class="curr-step">
-          <div class="curr-step-num">1</div>
-          <div class="curr-step-text">
-            <strong>하네스 엔지니어링</strong>
-            <span>AI가 일하는 환경(하네스)를 직접 설계</span>
-          </div>
-        </div>
-        <div class="curr-step">
-          <div class="curr-step-num">2</div>
-          <div class="curr-step-text">
-            <strong>멀티 에이전트 설계</strong>
-            <span>역할 분담된 AI 팀을 구성하고 지휘</span>
-          </div>
-        </div>
-        <div class="curr-step">
-          <div class="curr-step-num">3</div>
-          <div class="curr-step-text">
-            <strong>Claude Agent SDK 활용</strong>
-            <span>목표만 주면 복수 에이전트가 자율 협업</span>
-          </div>
-        </div>
-      </div>
+    <div class="rs-card">
+      <div class="rs-num">3</div>
+      <div class="rs-title">멀티 페르소나 토론법</div>
+      <p class="rs-desc">팀장+팀원 구성으로 토론시키면 대화 퀄리티가 2배.</p>
     </div>
   </div>
 </div>
 
-<!-- SLIDE 8:결론 -->
-<div class="slide" id="slide-8">
-  <div class="s8-eyebrow">Next Step</div>
-  <h2 class="s8-headline">단계를 알았다면,<br><span class="hl">첫 번째 프로젝트를 시작하세요</span></h2>
-  <p class="s8-sub">L1에서 L2로 올라가는 것만으로도 업무 생산성이 달라집니다.<br>오늘 Claude 프로젝트 하나를 만들어보세요.</p>
-  <div class="s8-steps">
-    <div class="s8-step">
-      <div class="s8-step-n">1</div>
-      <div class="s8-step-title">내 단계 확인</div>
-      <div class="s8-step-body">5단계 진단에서 지금 나의 레벨을 파악하세요. 대부분은 L1~L2 사이에 있습니다.</div>
+<!-- SLIDE 9: L1 → L2 -->
+<div class="slide slide-light slide-content" id="slide-9">
+  <div class="slide-header">
+    <div class="slide-kicker">Roadmap · L1 → L2</div>
+    <h2 class="slide-title">세팅자에서 검수자로 전환이 필요함</h2>
+    <p class="slide-desc">지금 쓰는 도구 안에서 AI가 직접 결과물을 만들게 하세요</p>
+  </div>
+  <div class="roadmap-direction">
+    <span class="rd-from"><span class="rd-lvl">L1</span><span class="rd-name">맞춤 세팅</span></span>
+    <span class="rd-arrow">→</span>
+    <span class="rd-to to-l2"><span class="rd-lvl">L2</span><span class="rd-name">디자인·플러그인</span></span>
+  </div>
+  <div class="roadmap-steps rs-3">
+    <div class="rs-card">
+      <div class="rs-num">1</div>
+      <div class="rs-title">크롬에서 Claude 사용</div>
+      <p class="rs-desc">브라우저 안에서 웹 페이지 요약·이메일 작성·검색 보조까지 해결.</p>
     </div>
-    <div class="s8-step">
-      <div class="s8-step-n">2</div>
-      <div class="s8-step-title">커리큘럼 선택</div>
-      <div class="s8-step-body">내 레벨에 맞는 학습 경로를 선택하고 첫 번째 실습 과제를 시작합니다.</div>
+    <div class="rs-card">
+      <div class="rs-num">2</div>
+      <div class="rs-title">파워포인트에서 Claude 사용</div>
+      <p class="rs-desc">슬라이드 구성·텍스트 생성·디자인 제안을 PowerPoint 안에서 완성.</p>
     </div>
-    <div class="s8-step">
-      <div class="s8-step-n">3</div>
-      <div class="s8-step-title">한 단계 업그레이드</div>
-      <div class="s8-step-body">작은 성공 경험이 쌓이면 다음 단계로 자연스럽게 넘어갈 수 있습니다.</div>
+    <div class="rs-card">
+      <div class="rs-num">3</div>
+      <div class="rs-title">엑셀에서 Claude 사용</div>
+      <p class="rs-desc">복잡한 수식·데이터 정리·차트 생성을 Excel 안에서 바로 처리.</p>
     </div>
   </div>
-  <div class="s8-final">
-    <div class="s8-final-text">
-      AI를 쓰는 <span>88%</span>가 아니라,<br>AI를 <span>제대로 쓰는 5%</span>로 올라서세요
+</div>
+
+<!-- SLIDE 10: L2 → L3 -->
+<div class="slide slide-light slide-content" id="slide-10">
+  <div class="slide-header">
+    <div class="slide-kicker">Roadmap · L2 → L3</div>
+    <h2 class="slide-title">검수자에서 연결자로 전환이 필요함</h2>
+    <p class="slide-desc">내 PC와 일상 도구를 AI에 직접 연결하는 환경을 구축하세요</p>
+  </div>
+  <div class="roadmap-direction">
+    <span class="rd-from"><span class="rd-lvl">L2</span><span class="rd-name">디자인·플러그인</span></span>
+    <span class="rd-arrow">→</span>
+    <span class="rd-to to-l3"><span class="rd-lvl">L3</span><span class="rd-name">Cowork</span></span>
+  </div>
+  <div class="roadmap-steps rs-2">
+    <div class="rs-card">
+      <div class="rs-num">1</div>
+      <div class="rs-title">Claude Cowork란?</div>
+      <p class="rs-desc">내 PC 파일·Gmail·Calendar를 AI에 직접 연결하는 환경 구축. 업무 컨텍스트가 AI 쪽으로 흐름.</p>
     </div>
-    <div class="s8-final-pill">지금 시작하기 →</div>
+    <div class="rs-card">
+      <div class="rs-num">2</div>
+      <div class="rs-title">클로드 코워크 실전 과제 8가지</div>
+      <p class="rs-desc">Gmail 정리·보고서 초안·데이터 분석 등, Claude가 실제 업무를 처리하는 실습.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 11: L3 → L4 -->
+<div class="slide slide-light slide-content" id="slide-11">
+  <div class="slide-header">
+    <div class="slide-kicker">Roadmap · L3 → L4</div>
+    <h2 class="slide-title">연결자에서 감독자로 전환이 필요함</h2>
+    <p class="slide-desc">Claude Code로 더 강력한 자동화 세계에 진입하세요</p>
+  </div>
+  <div class="roadmap-direction">
+    <span class="rd-from"><span class="rd-lvl">L3</span><span class="rd-name">Cowork</span></span>
+    <span class="rd-arrow">→</span>
+    <span class="rd-to to-l4"><span class="rd-lvl">L4</span><span class="rd-name">Claude Code</span></span>
+  </div>
+  <div class="roadmap-steps rs-6">
+    <div class="rs-card">
+      <div class="rs-num">1</div>
+      <div class="rs-title">클로드 코드 101</div>
+      <p class="rs-desc">Claude Desktop에서 시작하는 가장 쉬운 방법. 전체 그림부터.</p>
+    </div>
+    <div class="rs-card">
+      <div class="rs-num">2</div>
+      <div class="rs-title">Git & GitHub 쉽게</div>
+      <p class="rs-desc">고급 기능 진입 전 필수 환경, 비개발자 눈높이 안내.</p>
+    </div>
+    <div class="rs-card">
+      <div class="rs-num">3</div>
+      <div class="rs-title">23단계 따라하기</div>
+      <p class="rs-desc">기초부터 고급까지 23개 항목, 체크할수록 내가 뭘 모르는지 보임.</p>
+    </div>
+    <div class="rs-card">
+      <div class="rs-num">4</div>
+      <div class="rs-title">복사해서 바로 쓰는 명령어</div>
+      <p class="rs-desc">자주 쓰는 슬래시 명령어·단축키, 옆에 두고 복사.</p>
+    </div>
+    <div class="rs-card">
+      <div class="rs-num">5</div>
+      <div class="rs-title">CLAUDE.md로 규칙 알려주기</div>
+      <p class="rs-desc">"한국어로 답해줘" 같은 규칙을 파일로 저장해 일관성 보장.</p>
+    </div>
+    <div class="rs-card">
+      <div class="rs-num">6</div>
+      <div class="rs-title">실전 과제 7가지</div>
+      <p class="rs-desc">스탑워치부터 CEO 대시보드까지, 바이브 코딩으로 직접 제작.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12: L4 → L5 -->
+<div class="slide slide-light slide-content" id="slide-12">
+  <div class="slide-header">
+    <div class="slide-kicker">Roadmap · L4 → L5</div>
+    <h2 class="slide-title">감독자에서 설계자로 전환이 필요함</h2>
+    <p class="slide-desc">에이전트 설계를 이해하고 자동화 파이프라인을 직접 구축하세요</p>
+  </div>
+  <div class="roadmap-direction">
+    <span class="rd-from"><span class="rd-lvl">L4</span><span class="rd-name">Claude Code</span></span>
+    <span class="rd-arrow">→</span>
+    <span class="rd-to to-l5"><span class="rd-lvl">L5</span><span class="rd-name">멀티 에이전트</span></span>
+  </div>
+  <div class="roadmap-steps rs-6">
+    <div class="rs-card">
+      <div class="rs-num">1</div>
+      <div class="rs-title">하네스 엔지니어링이란?</div>
+      <p class="rs-desc">같은 AI도 하네스에 따라 결과가 달라짐. 환경 설계 6요소.</p>
+    </div>
+    <div class="rs-card">
+      <div class="rs-num">2</div>
+      <div class="rs-title">AI 위임 4가지 방법</div>
+      <p class="rs-desc">솔로·파이프라인·팀·오케스트라, 역할 분리 설계.</p>
+    </div>
+    <div class="rs-card">
+      <div class="rs-num">3</div>
+      <div class="rs-title">자동화 핵심 4요소</div>
+      <p class="rs-desc">에이전트·서브에이전트·스킬·훅. 멀티 에이전트 구성 원리.</p>
+    </div>
+    <div class="rs-card">
+      <div class="rs-num">4</div>
+      <div class="rs-title">Skill 기본: 나만의 스킬</div>
+      <p class="rs-desc">내 스타일을 Claude에 등록하면 한 마디로 완성.</p>
+    </div>
+    <div class="rs-card">
+      <div class="rs-num">5</div>
+      <div class="rs-title">Skill 중급: 실전 스킬</div>
+      <p class="rs-desc">Reference/Task 스킬·폴더 구조·Hooks 연동.</p>
+    </div>
+    <div class="rs-card">
+      <div class="rs-num">6</div>
+      <div class="rs-title">Skill 고급: 자동화 패턴</div>
+      <p class="rs-desc">동적 컨텍스트·변수 치환·CI/CD 연동까지.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 13: CONCLUSION -->
+<div class="slide" id="slide-13">
+  <p class="c-eyebrow">Next Step</p>
+  <h2 class="c-headline">진단이 끝났다면,<br><span class="hl">다음 단계는 첫 프로젝트 실행임.</span></h2>
+  <p class="c-sub">진단만으로는 변화가 시작되지 않습니다. AI와 함께 일하는 환경을 직접 세팅할 때,<br>비로소 성장이 시작됩니다.</p>
+  <div class="c-steps">
+    <div class="c-step">
+      <div class="c-step-n">1</div>
+      <div class="c-step-title">현재 레벨 확정</div>
+      <p class="c-step-body">진단 결과 중 나와 가장 가까운 단계를 선택.</p>
+    </div>
+    <div class="c-step">
+      <div class="c-step-n">2</div>
+      <div class="c-step-title">다음 한 칸 로드맵</div>
+      <p class="c-step-body">바로 다음 레벨의 커리큘럼 3~6단계만 따라감.</p>
+    </div>
+    <div class="c-step">
+      <div class="c-step-n">3</div>
+      <div class="c-step-title">실전 적용</div>
+      <p class="c-step-body">내 업무에 붙여 Claude를 오늘부터 같이 일하는 도구로.</p>
+    </div>
+  </div>
+  <div class="c-final">
+    <p class="c-final-text">다음 한 칸이 가장 빠른 성장임. <span>지금 세팅을 시작하세요.</span></p>
+    <div class="c-final-pill">Claude 프로젝트 시작 →</div>
   </div>
 </div>
 
 </div><!-- /slides-container -->
 
-<!-- NAV BAR -->
 <div id="nav-bar">
   <button class="nav-btn" id="btn-prev">&#8592;</button>
   <div id="dots-container"></div>
-  <span id="slide-counter">1 / 8</span>
+  <span id="slide-counter">1 / 13</span>
   <button class="nav-btn" id="btn-next">&#8594;</button>
 </div>
 
 <script>
-const TOTAL = 8;
+const TOTAL = 13;
 let current = 1;
 let animating = false;
 
-// ─── QUESTION MAP ───
-const QUESTION_MAP = {
-  3: { num: '1단계', text: '단계 비교:자율주행 비유로 이해하기' },
-  4: { num: '2단계', text: 'AI 활용 5단계:역할과 위임 범위' },
-  5: { num: '3단계', text: '수준 진단:나는 지금 몇 단계?' },
-  6: { num: '4단계', text: '인재 역설:단계를 알면 보이는 것들' },
-  7: { num: '5단계', text: '커리큘럼:다음 단계로 올라가기' },
-};
-
-// ─── DOTS ───
-function buildDots() {
-  const c = document.getElementById('dots-container');
-  c.innerHTML = '';
-  for (let i = 1; i <= TOTAL; i++) {
-    const d = document.createElement('div');
-    d.className = 'dot' + (i === 1 ? ' active' : '');
-    d.addEventListener('click', () => goTo(i));
-    c.appendChild(d);
-  }
+const dotsContainer = document.getElementById('dots-container');
+for (let i = 1; i <= TOTAL; i++) {
+  const dot = document.createElement('div');
+  dot.className = 'dot';
+  dot.dataset.n = i;
+  dot.addEventListener('click', () => { if (!animating) goTo(i); });
+  dotsContainer.appendChild(dot);
 }
 
-// ─── ANIMATIONS ───
 function setupAnimClasses() {
   document.querySelectorAll('.slide').forEach(slide => {
-    const targets = slide.querySelectorAll(
-      '.slide-header, .toc-row, .level-card, .assess-row, .paradox-card, .curr-card, ' +
-      '.grad-bar, .level-table-wrap, .assess-intro, .assess-list, .paradox-stat-bar, .paradox-bottom, ' +
-      '.s8-eyebrow, .s8-headline, .s8-sub, .s8-steps, .s8-final, ' +
-      '.s1-eyebrow, .s1-title, .s1-subtitle, .s1-stats, .s1-source'
-    );
-    targets.forEach(el => {
-      if (!el.classList.contains('anim')) el.classList.add('anim', 'a-fade-up');
+    Array.from(slide.children).forEach(el => {
+      if (!el.classList.contains('anim')) el.classList.add('anim');
+    });
+    slide.querySelectorAll('.fm-col, .aux-mini, .toc-row, .rs-card, .c-step, .assess-row, .s1-stat, .drive-card').forEach(el => {
+      if (!el.classList.contains('anim')) el.classList.add('anim');
     });
   });
 }
@@ -1100,53 +1398,35 @@ function animateSlideChildren(n) {
   els.forEach((el, i) => {
     el.classList.remove('visible');
     void el.offsetWidth;
-    el.style.animationDelay = (i * 0.1) + 's';
+    el.style.animationDelay = (i * 0.06) + 's';
     el.classList.add('visible');
   });
 }
 
-function countUp(el, target, suffix, duration) {
-  let start = 0;
-  const step = ts => {
-    if (!start) start = ts;
-    const p = Math.min((ts - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.round(target * ease) + suffix;
-    if (p < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
+const QUESTION_MAP = {
+  3: { num: 'Q1', text: '자율주행 6단계로 이해하는 AI 활용' },
+  4: { num: 'Q1', text: 'AI 활용 6단계 전체 표' },
+  5: { num: 'Q2', text: '레벨별 Claude 기능 + 공통 선택지' },
+  6: { num: 'Q3', text: '수준 진단: 나는 어느 단계인가?' },
+  8:  { num: 'Q4', text: '다음 단계로 올라가는 커리큘럼' },
+  9:  { num: 'Q4', text: '다음 단계로 올라가는 커리큘럼' },
+  10: { num: 'Q4', text: '다음 단계로 올라가는 커리큘럼' },
+  11: { num: 'Q4', text: '다음 단계로 올라가는 커리큘럼' },
+  12: { num: 'Q4', text: '다음 단계로 올라가는 커리큘럼' },
+};
 
-function animateCoverStats() {
-  const data = [
-    { id: 'cov-stat-1', v: 88, s: '%' },
-    { id: 'cov-stat-2', v: 5,  s: '%' },
-    { id: 'cov-stat-3', v: 37, s: '%' },
-  ];
-  data.forEach((d, i) => {
-    const el = document.getElementById(d.id);
-    if (!el) return;
-    el.textContent = '0' + d.s;
-    setTimeout(() => countUp(el, d.v, d.s, 1000), i * 120);
-  });
-}
+function onSlideActivated(n) { animateSlideChildren(n); }
 
-function onSlideActivated(n) {
-  if (n === 1) animateCoverStats();
-  animateSlideChildren(n);
-}
-
-// ─── UI UPDATE ───
 function updateUI() {
   document.getElementById('slide-counter').textContent = current + ' / ' + TOTAL;
   document.getElementById('btn-prev').disabled = current === 1;
   document.getElementById('btn-next').disabled = current === TOTAL;
 
   document.querySelectorAll('.dot').forEach((d, idx) => {
-    d.classList.toggle('active', idx + 1 === current);
+    d.classList.toggle('active', idx+1 === current);
   });
 
-  const pct = ((current - 1) / (TOTAL - 1)) * 100;
+  const pct = ((current-1)/(TOTAL-1))*100;
   document.getElementById('progress-bar').style.width = pct + '%';
 
   const qBar = document.getElementById('question-bar');
@@ -1160,7 +1440,6 @@ function updateUI() {
   }
 }
 
-// ─── NAVIGATION ───
 function resetSlideAnims(slide) {
   slide.querySelectorAll('.anim').forEach(el => {
     el.classList.remove('visible');
@@ -1171,8 +1450,8 @@ function resetSlideAnims(slide) {
 function goTo(n) {
   if (n === current || animating || n < 1 || n > TOTAL) return;
   animating = true;
-  const oldSlide = document.getElementById('slide-' + current);
-  const newSlide = document.getElementById('slide-' + n);
+  const oldSlide = document.getElementById('slide-'+current);
+  const newSlide = document.getElementById('slide-'+n);
 
   oldSlide.style.transition = 'none';
   oldSlide.style.opacity = '0';
@@ -1213,26 +1492,16 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); navigate(-1); }
 });
 
-// ─── TOUCH SWIPE ───
-let touchStartX = 0;
-document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].clientX; });
-document.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  if (Math.abs(dx) > 50) navigate(dx < 0 ? 1 : -1);
-});
-
-// ─── INIT ───
 function init() {
-  buildDots();
-
   const s1 = document.getElementById('slide-1');
   s1.style.transition = 'none';
   s1.style.opacity = '1';
   s1.style.transform = 'translateX(0)';
   s1.style.pointerEvents = 'all';
+  s1.classList.add('active');
 
   for (let i = 2; i <= TOTAL; i++) {
-    const s = document.getElementById('slide-' + i);
+    const s = document.getElementById('slide-'+i);
     s.style.opacity = '0';
     s.style.transform = 'translateX(50px)';
     s.style.pointerEvents = 'none';
@@ -1241,7 +1510,6 @@ function init() {
   updateUI();
   setupAnimClasses();
   animateSlideChildren(1);
-  animateCoverStats();
 }
 
 document.addEventListener('DOMContentLoaded', init);
