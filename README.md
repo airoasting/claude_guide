@@ -60,7 +60,7 @@
 | 페이지 | 설명 |
 |--------|------|
 | [에이전트 설계 4가지](agent-design.html) | Solo · Pipeline · Team · Orchestra 패턴 |
-| [자동화 핵심 요소](automation.html) | 에이전트 · 서브에이전트 · 스킬 · 후크 |
+| [자동화 핵심 요소](four-elements.html) | 에이전트 · 서브에이전트 · 스킬 · 후크 |
 
 **스킬**
 
