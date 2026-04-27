@@ -363,6 +363,10 @@
             .code-track-info { grid-template-columns: 1fr !important; gap: 12px; margin-top: 16px !important; margin-bottom: 20px !important; }
             .track-info-card { padding: 16px; border-radius: 12px; }
             .track-info-desc { font-size: 12px; }
+            /* 바이브코딩 구분선 → 모바일에서는 위쪽 안내만 표시 */
+            .divider-after-text { display: none; }
+            /* CLI란? 카드는 JS로 CLI 트랙 위로 이동되며, 이동 후 여백 조정 */
+            #cliInfoCard.cli-info--moved { margin-top: 8px; margin-bottom: 16px; }
 
             /* 트랙 라벨 */
             .track-label { margin: 16px 0 10px; gap: 8px; }
@@ -581,7 +585,7 @@
                 </div>
                 <p class="track-info-desc">터미널(검은 화면) 없이 Claude Desktop 앱에서 바로 클로드 코드를 사용하는 방식입니다. 설치가 간단하고 직관적이어서 코딩 경험이 없어도 바로 시작할 수 있습니다.</p>
             </div>
-            <div class="track-info-card">
+            <div class="track-info-card" id="cliInfoCard">
                 <div class="track-info-header">
                     <span class="track-label-badge cli" style="font-size:11px; padding:4px 12px;">CLI</span>
                     <span class="track-info-title">CLI란?</span>
@@ -616,11 +620,11 @@
         <!-- 바이브코딩 구분선 -->
         <div style="margin: 40px 0 0; text-align: center; position: relative;">
             <div style="border-top: 2px dashed #CECAC3; margin: 0 0 0 0;"></div>
-            <span style="display: inline-block; background: var(--bg, #EDEAE4); padding: 0 20px; position: relative; top: -13px; font-size: 13px; font-weight: 700; color: #7A7570; letter-spacing: 0.3px;">↑ 여기까지면 바이브코딩 준비 완료 &nbsp;&nbsp;│&nbsp;&nbsp; ↓ 아래부터 고급 실전</span>
+            <span style="display: inline-block; background: var(--bg, #EDEAE4); padding: 0 20px; position: relative; top: -13px; font-size: 13px; font-weight: 700; color: #7A7570; letter-spacing: 0.3px;">↑ 여기까지면 바이브코딩 준비 완료<span class="divider-after-text">&nbsp;&nbsp;│&nbsp;&nbsp; ↓ 아래부터 고급 실전</span></span>
         </div>
 
         <!-- CLI 트랙 -->
-        <div class="track-label" style="margin-top: 0;">
+        <div class="track-label" id="cliTrackLabel" style="margin-top: 0;">
             <span class="track-label-badge cli">⌨️ CLI</span>
             <span class="track-label-text">Command Line Interface</span>
         </div>
@@ -809,6 +813,24 @@ document.addEventListener('DOMContentLoaded', function() {
     if (menuToggle) menuToggle.addEventListener('click', function() {
         setMenuOpen(!document.body.classList.contains('menu-open'));
     });
+
+    // 모바일: CLI란? 카드를 CLI 트랙 바로 위로 이동
+    var cliInfo = document.getElementById('cliInfoCard');
+    var cliInfoHome = cliInfo ? cliInfo.parentNode : null;
+    var cliTrackLabel = document.getElementById('cliTrackLabel');
+    function syncCliInfoPosition() {
+        if (!cliInfo || !cliInfoHome || !cliTrackLabel) return;
+        var mobile = window.matchMedia('(max-width: 768px)').matches;
+        if (mobile && cliInfo.parentNode !== cliTrackLabel.parentNode) {
+            cliTrackLabel.parentNode.insertBefore(cliInfo, cliTrackLabel);
+            cliInfo.classList.add('cli-info--moved');
+        } else if (!mobile && cliInfo.parentNode !== cliInfoHome) {
+            cliInfoHome.appendChild(cliInfo);
+            cliInfo.classList.remove('cli-info--moved');
+        }
+    }
+    syncCliInfoPosition();
+    window.addEventListener('resize', syncCliInfoPosition);
     if (menuBackdrop) menuBackdrop.addEventListener('click', function() { setMenuOpen(false); });
     // 메뉴 항목 탭하면 자동으로 닫기
     navBtns.forEach(function(btn) {
