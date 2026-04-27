@@ -266,8 +266,36 @@
         .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
         .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
 
+        /* ── 모바일 햄버거 메뉴 (768px 이하에서만 활성) ── */
+        .menu-toggle {
+            display: none;
+            position: fixed; top: 14px; right: 14px;
+            z-index: 200;
+            width: 44px; height: 44px; border-radius: 12px;
+            border: none; cursor: pointer;
+            background: rgba(255,255,255,0.92);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+        .menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+        .menu-backdrop {
+            display: none;
+            position: fixed; inset: 0; z-index: 150;
+            background: rgba(0,0,0,0.45);
+            opacity: 0; transition: opacity 0.25s;
+        }
+        body.menu-open .menu-backdrop { display: block; opacity: 1; }
+        body.menu-open { overflow: hidden; }
+
         /* ── 반응형 ── */
         @media (max-width: 768px) {
+            .menu-toggle { display: inline-flex; }
+            .menu-toggle .icon-close { display: none; }
+            body.menu-open .menu-toggle .icon-open { display: none; }
+            body.menu-open .menu-toggle .icon-close { display: block; }
             .mobile-notice { display: block; }
             .hero { padding: 32px 20px 28px; border-radius: 0 0 20px 20px; }
             .hero h1 { font-size: 24px; letter-spacing: -0.5px; }
@@ -286,18 +314,31 @@
             /* 메인 컨테이너 */
             .container { padding: 16px 16px 40px; }
 
-            /* 스티키 네비 → 모바일에서 가로 스크롤 */
+            /* 스티키 네비 → 모바일에서는 햄버거 슬라이드 패널로 전환 */
             .nav-wrapper {
-                position: sticky; top: 0; z-index: 100;
-                backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-                padding: 10px 12px; margin-left: 0; margin-right: 0;
-                margin-top: 8px; margin-bottom: 16px;
-                overflow-x: auto; -webkit-overflow-scrolling: touch;
+                position: fixed; top: 0; right: 0; z-index: 160;
+                width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+                background: var(--nm-bg);
+                box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+                padding: 72px 18px 24px;
+                margin: 0;
+                overflow-y: auto; -webkit-overflow-scrolling: touch;
+                transform: translateX(105%);
+                transition: transform 0.28s ease;
+                border-radius: 0;
             }
-            .guide-btn-row { display: flex; flex-wrap: nowrap; gap: 5px; }
+            body.menu-open .nav-wrapper { transform: translateX(0); }
+            .guide-btn-row {
+                display: flex; flex-direction: column; flex-wrap: nowrap;
+                gap: 8px; grid-template-columns: none;
+            }
             .guide-btn-row::before { display: none; }
-            .guide-btn { font-size: 10px; padding: 6px 8px; border-radius: 10px; gap: 3px; white-space: nowrap; flex-shrink: 0; max-width: 110px; }
-            .guide-btn-num { font-size: 9px; padding: 2px 6px; border-radius: 5px; }
+            .guide-btn {
+                font-size: 14px; padding: 14px 16px; border-radius: 12px;
+                gap: 12px; white-space: normal; max-width: none;
+                justify-content: flex-start;
+            }
+            .guide-btn-num { font-size: 11px; padding: 4px 10px; border-radius: 6px; flex-shrink: 0; }
 
             /* 섹션 */
             .card-section { margin-bottom: 36px; }
@@ -352,8 +393,8 @@
         @media (max-width: 360px) {
             .hero h1 { font-size: 21px; }
             .hero-btns { grid-template-columns: 1fr; }
-            .guide-btn-row { display: flex; flex-wrap: nowrap; }
-            .guide-btn { font-size: 10px; padding: 7px 8px; }
+            .nav-wrapper { width: 84%; }
+            .guide-btn { font-size: 13px; padding: 12px 14px; }
         }
     </style>
 </head>
@@ -399,6 +440,13 @@
 </header>
 
 <div class="mobile-notice">이 가이드는 데스크탑에 최적화되어 있습니다</div>
+
+<!-- 모바일 햄버거 버튼 + 백드롭 -->
+<button class="menu-toggle" id="menuToggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="navWrapper">
+    <svg class="icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="menu-backdrop" id="menuBackdrop"></div>
 
 <!-- ── MAIN ── -->
 <main class="container">
@@ -747,6 +795,30 @@
 document.addEventListener('DOMContentLoaded', function() {
     var navWrapper = document.getElementById('navWrapper');
     var navBtns = document.querySelectorAll('.guide-btn');
+
+    // 모바일 햄버거 메뉴 토글
+    var menuToggle = document.getElementById('menuToggle');
+    var menuBackdrop = document.getElementById('menuBackdrop');
+    function setMenuOpen(open) {
+        document.body.classList.toggle('menu-open', open);
+        if (menuToggle) {
+            menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            menuToggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (menuToggle) menuToggle.addEventListener('click', function() {
+        setMenuOpen(!document.body.classList.contains('menu-open'));
+    });
+    if (menuBackdrop) menuBackdrop.addEventListener('click', function() { setMenuOpen(false); });
+    // 메뉴 항목 탭하면 자동으로 닫기
+    navBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            if (window.matchMedia('(max-width: 768px)').matches) setMenuOpen(false);
+        });
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('menu-open')) setMenuOpen(false);
+    });
     var sectionIds = ['section-1','section-project','section-plugin','section-cowork','section-code','section-skills','section-final'];
     var sections = sectionIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
 
@@ -774,7 +846,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { threshold: 0 }).observe(sentinel);
 
     // 활성 섹션 (scroll 기반)
-    var navH = navWrapper.offsetHeight + 40;
+    var isMobile = function() { return window.matchMedia('(max-width: 768px)').matches; };
+    var navH = isMobile() ? 60 : (navWrapper.offsetHeight + 40);
     window.addEventListener('scroll', function() {
         var scrollTop = window.scrollY;
         // 히어로 영역에서는 활성 없음
