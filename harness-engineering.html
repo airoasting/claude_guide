@@ -1925,5 +1925,228 @@ function copyPrompt(btn, sourceId) {
     });
 }
 </script>
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #B0544A; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    /* 헤더 상단 여백 통일 */
+    header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
 </body>
 </html>
