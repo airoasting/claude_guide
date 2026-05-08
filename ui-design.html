@@ -1306,6 +1306,151 @@
             header h1 { font-size: 24px; }
             .header-page-link { font-size: 11px; padding: 7px 12px; }
         }
+
+        /* ════════════════════════════════════════════════════════
+           Animations — page entrance, scroll reveal, ambient idle
+           ════════════════════════════════════════════════════════ */
+
+        /* Header entrance */
+        @keyframes hdH1In   { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes hdPIn    { from { opacity: 0; transform: translateY(8px);  } to { opacity: 1; transform: translateY(0); } }
+        @keyframes hdPillIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes hdBackIn { from { opacity: 0; } to { opacity: 1; } }
+        header h1     { animation: hdH1In   0.7s cubic-bezier(0.22,0.61,0.36,1) both; }
+        header p      { animation: hdPIn    0.7s 0.12s cubic-bezier(0.22,0.61,0.36,1) both; }
+        .header-pages { animation: hdPillIn 0.7s 0.22s cubic-bezier(0.22,0.61,0.36,1) both; }
+        .back-link    { animation: hdBackIn 0.5s both; }
+
+        /* Card scroll-reveal — uses animation so hover transform still works after .reveal-done */
+        .design-card { opacity: 0; }
+        .design-card.revealed { animation: cardReveal 0.7s cubic-bezier(0.22,0.61,0.36,1) forwards; }
+        .design-card.reveal-done { opacity: 1; animation: none; }
+        @keyframes cardReveal {
+            0%   { opacity: 0; transform: translateY(22px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0)    scale(1);    }
+        }
+
+        /* Intro / Prompt fade-up */
+        .intro-card, .prompt-card {
+            opacity: 0; transform: translateY(16px);
+            transition: opacity 0.6s cubic-bezier(0.22,0.61,0.36,1), transform 0.6s cubic-bezier(0.22,0.61,0.36,1);
+        }
+        .intro-card.revealed, .prompt-card.revealed { opacity: 1; transform: translateY(0); }
+        .prompt-ex {
+            opacity: 0; transform: translateY(8px);
+        }
+        .prompt-card.revealed .prompt-ex {
+            animation: promptExIn 0.5s cubic-bezier(0.22,0.61,0.36,1) forwards;
+        }
+        .prompt-card.revealed .prompt-ex:nth-child(1) { animation-delay: 0.05s; }
+        .prompt-card.revealed .prompt-ex:nth-child(2) { animation-delay: 0.15s; }
+        .prompt-card.revealed .prompt-ex:nth-child(3) { animation-delay: 0.25s; }
+        .prompt-card.revealed .prompt-ex:nth-child(4) { animation-delay: 0.35s; }
+        @keyframes promptExIn { to { opacity: 1; transform: translateY(0); } }
+
+        /* Ambient style-specific motion — only when motion is allowed */
+        @media (prefers-reduced-motion: no-preference) {
+
+            /* Header background orb drift */
+            @keyframes hdOrb { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(-30px, 22px); } }
+            header::before { animation: hdOrb 14s ease-in-out infinite; }
+
+            /* Aurora — slow drift on the colored blobs + display gentle float */
+            @keyframes auroraDrift {
+                0%, 100% { transform: translate(0, 0) scale(1); }
+                50%      { transform: translate(-2%, 1.5%) scale(1.04); }
+            }
+            .sw-aurora::before { animation: auroraDrift 12s ease-in-out infinite; }
+            @keyframes auroraDispFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+            .sw-aurora-display { animation: auroraDispFloat 4.2s ease-in-out infinite; }
+
+            /* Cyberpunk — scanline scroll + corner blink + display flicker */
+            @keyframes cyberScan { from { background-position: 0 0, 0 0; } to { background-position: 0 24px, 0 0; } }
+            .sw-cyber::before { animation: cyberScan 4s linear infinite; }
+            @keyframes cyberBlink { 0%, 92%, 100% { opacity: 1; } 94%, 96% { opacity: 0.3; } }
+            .sw-cyber::after { animation: cyberBlink 5s linear infinite; }
+            @keyframes cyberFlicker {
+                0%, 96%, 100% { filter: brightness(1); }
+                97%           { filter: brightness(1.4); }
+                98%           { filter: brightness(0.85); }
+                99%           { filter: brightness(1.2); }
+            }
+            .sw-cyber-display { animation: cyberFlicker 6s linear infinite; }
+
+            /* Vaporwave sun pulse + text crt shimmer */
+            @keyframes vaporSun {
+                0%, 100% { opacity: 0.35; transform: translateX(-50%) scale(1);    }
+                50%      { opacity: 0.6;  transform: translateX(-50%) scale(1.08); }
+            }
+            .sw-vapor::after { animation: vaporSun 3.5s ease-in-out infinite; }
+
+            /* Y2K star twinkle */
+            @keyframes y2kT1 { 0%, 100% { opacity: 0.55; } 50% { opacity: 1;    } }
+            @keyframes y2kT2 { 0%, 100% { opacity: 1;    } 50% { opacity: 0.55; } }
+            .sw-y2k::before { animation: y2kT1 2.2s ease-in-out infinite; }
+            .sw-y2k::after  { animation: y2kT2 2.6s ease-in-out infinite; }
+
+            /* Dark mode brightness pulse on the display */
+            @keyframes darkPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.18); } }
+            .sw-dark-display { animation: darkPulse 2.6s ease-in-out infinite; }
+
+            /* Glassmorphism — orbs slowly drift */
+            @keyframes glassA { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(8%, 6%); } }
+            @keyframes glassB { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-6%, -4%); } }
+            .sw-glass::before { animation: glassA 8s ease-in-out infinite; }
+            .sw-glass::after  { animation: glassB 9s ease-in-out infinite; }
+
+            /* Spatial UI — display floats while preserving translateZ + rotateX */
+            @keyframes spatialFloat {
+                0%, 100% { transform: translateZ(40px) rotateX(2deg) translateY(0);    }
+                50%      { transform: translateZ(40px) rotateX(2deg) translateY(-3px); }
+            }
+            .sw-spatial-display { animation: spatialFloat 4.2s ease-in-out infinite; }
+
+            /* Liquid Glass — subtle shimmer on the display */
+            @keyframes liquidShim {
+                0%, 100% {
+                    box-shadow: inset 0 2px 6px rgba(255,255,255,0.85),
+                                inset 0 -2px 4px rgba(160,180,210,0.4),
+                                0 8px 24px rgba(80,100,140,0.18);
+                }
+                50% {
+                    box-shadow: inset 0 3px 9px rgba(255,255,255,0.95),
+                                inset 0 -3px 6px rgba(160,180,210,0.45),
+                                0 10px 28px rgba(80,100,140,0.22);
+                }
+            }
+            .sw-liquid-display { animation: liquidShim 3.8s ease-in-out infinite; }
+
+            /* Memphis — playful shape wiggle */
+            @keyframes memCircle { 0%, 100% { transform: translate(0,0); }   50% { transform: translate(0,-2px); } }
+            @keyframes memTri    { 0%, 100% { transform: rotate(20deg); }    50% { transform: rotate(28deg) translateY(-1px); } }
+            .sw-memphis::before { animation: memCircle 3.4s ease-in-out infinite; }
+            .sw-memphis::after  { animation: memTri    3s   ease-in-out infinite; }
+
+            /* Skeuomorphism — second hand sweeps continuously when idle */
+            @keyframes skeuSweep { from { transform: translate(-50%, -100%) rotate(0deg); } to { transform: translate(-50%, -100%) rotate(360deg); } }
+            .sw-skeu-hand { animation: skeuSweep 60s linear infinite; }
+
+            /* Material — FAB gentle ring pulse via scale on hover icon */
+            @keyframes matFabRing {
+                0%, 100% { box-shadow: 0 4px 8px rgba(98,0,238,0.35), 0 6px 16px rgba(98,0,238,0.25); }
+                50%      { box-shadow: 0 4px 12px rgba(98,0,238,0.5), 0 8px 22px rgba(98,0,238,0.35); }
+            }
+            .sw-mat-fab { animation: matFabRing 2.4s ease-in-out infinite; }
+
+            /* Stopwatch numbers — gentle "tick" cue on display when running.
+               Triggered via the .sw-flash class already used in JS. (No extra hookup needed.) */
+        }
+
+        /* Reduced motion — show everything immediately, drop ambient loops */
+        @media (prefers-reduced-motion: reduce) {
+            header h1, header p, .header-pages, .back-link { animation: none; opacity: 1; transform: none; }
+            .design-card { opacity: 1; }
+            .design-card.revealed { animation: none; }
+            .intro-card, .prompt-card,
+            .prompt-card.revealed .prompt-ex { opacity: 1; transform: none; animation: none; }
+        }
     </style>
 </head>
 <body>
@@ -1995,6 +2140,46 @@
 
         render();
     });
+})();
+
+// Scroll-reveal — cards fade up as they enter the viewport, with a small column-stagger
+(function() {
+    var cards  = document.querySelectorAll('.design-card');
+    var others = document.querySelectorAll('.intro-card, .prompt-card');
+
+    // Hook each card's animationend so hover transform works after entrance finishes
+    cards.forEach(function(card, i) {
+        card.dataset.revealDelay = String((i % 3) * 70);
+        card.addEventListener('animationend', function onEnd(e) {
+            if (e.animationName === 'cardReveal') {
+                card.classList.add('reveal-done');
+                card.removeEventListener('animationend', onEnd);
+            }
+        });
+    });
+
+    if (!('IntersectionObserver' in window)) {
+        cards.forEach(function(c) { c.classList.add('revealed'); c.classList.add('reveal-done'); });
+        others.forEach(function(o) { o.classList.add('revealed'); });
+        return;
+    }
+
+    var io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (!entry.isIntersecting) return;
+            var el = entry.target;
+            var d = parseInt(el.dataset.revealDelay || '0', 10);
+            if (d > 0) {
+                setTimeout(function() { el.classList.add('revealed'); }, d);
+            } else {
+                el.classList.add('revealed');
+            }
+            io.unobserve(el);
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    cards.forEach(function(c)  { io.observe(c); });
+    others.forEach(function(o) { io.observe(o); });
 })();
 </script>
 
