@@ -1,4 +1,4 @@
-# Claude 완전 정복 | AI Roasting
+# AI ROASTING · Claude 완전 정복
 
 비즈니스 리더를 위한 Claude 완전 정복. 진단부터 자동화까지, 5단계 실전 가이드.
 
@@ -102,20 +102,6 @@
 
 ---
 
-## 발표 슬라이드
-
-`slides/` 폴더에 강의용 슬라이드 자료가 있습니다.
-
-| 파일 | 설명 |
-|------|------|
-| `claude-orientation-slides.html` | 5분 오리엔테이션 슬라이드 |
-| `ai-fluency-slides.html` | 프롬프트 11가지 습관 슬라이드 |
-| `ai-levels-slides.html` | AI 활용 5단계 진단 슬라이드 |
-| `ai-job-impact-slides.html` | AI 직업 영향 슬라이드 |
-| `bull-bear-slides.html` | AI 시장 전망 슬라이드 |
-
----
-
 ## 기술 스택
 
 - **디자인:** 뉴모피즘 (Neumorphism) 스타일
@@ -128,6 +114,6 @@
 
 ## 라이선스
 
-이 가이드의 저작권은 AI Roasting에 있습니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참고하세요.
+이 가이드의 저작권은 AI ROASTING에 있습니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참고하세요.
 
-© 2026 AI Roasting. All rights reserved.
+© 2026 AI ROASTING. All rights reserved.
