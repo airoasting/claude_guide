@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/stock-kakaotalk.html">
+    <meta property="og:title" content="AI ROASTING · Claude 완전 정복">
+    <meta property="og:description" content="비즈니스 리더를 위한 Claude 완전 정복 플러그인부터 클로드 코드까지 5단계 실전 가이드">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/stock-kakaotalk.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI ROASTING · Claude 완전 정복">
+    <meta name="twitter:description" content="비즈니스 리더를 위한 Claude 완전 정복 플러그인부터 클로드 코드까지 5단계 실전 가이드">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/thumbnail.png">
+    <title>종목 분석 후 카톡으로 보고 받기 | AI ROASTING</title>
+    <meta name="description" content="DART 스킬로 종목을 분석하고 카카오톡으로 자동 보고받는 Claude Code 실전 워크플로우. API 발급부터 스케줄링까지.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('폰트/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --gold: #B8860B;
+            --gold-dark: #8B6914;
+            --gold-light: #DAA520;
+            --ant-dark: #1A1917;
+            --book-teal: #B8860B;
+            --book-teal-dark: #8B6914;
+            --book-teal-light: #DAA520;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { word-break: keep-all; font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
+
+        /* -- HEADER -- */
+        header {
+            background: linear-gradient(150deg, #8B6914 0%, #6B4F0A 40%, #4A3507 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255,215,0,0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* -- Header Page Links -- */
+        .header-pages {
+            max-width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .header-page-link {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 12px 22px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1;
+            max-width: 320px;
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* -- Sub Menu -- */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(184,134,11,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--gold);
+            box-shadow: 0 2px 8px rgba(184,134,11,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--gold); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #9B7D3A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* -- CONTAINER -- */
+        .container { max-width: 960px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* -- 뉴모피즘 카드 -- */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--book-teal);
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; padding-left: 20px; }
+
+        /* -- 섹션 구분 -- */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 28px 0; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--book-teal); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px; border-radius: 20px; white-space: nowrap;
+        }
+        @keyframes shimmerScan {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .step-badge {
+            background-image: linear-gradient(
+                105deg,
+                var(--nm-bg) 40%,
+                rgba(255,255,255,0.85) 50%,
+                var(--nm-bg) 60%
+            );
+            background-size: 200% auto;
+            animation: shimmerScan 2.8s linear infinite;
+        }
+
+        /* -- 인셋 박스 -- */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--book-teal); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* -- 팁 박스 -- */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--book-teal);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { font-size: 11px; font-weight: 700; color: var(--book-teal); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* -- 강조 박스 -- */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(184,134,11,0.08) 0%, rgba(184,134,11,0.03) 100%);
+            border: 1.5px solid rgba(184,134,11,0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin: 20px 0;
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* -- 프롬프트 박스 -- */
+        .prompt-box {
+            background: var(--ant-dark); color: #e0e0e0;
+            padding: 20px 24px; border-radius: 14px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px; line-height: 1.8;
+            white-space: pre-wrap; margin: 12px 0;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 14px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+        /* -- 워크플로우 스텝 -- */
+        .wf-steps { display: flex; flex-direction: column; gap: 0; margin: 18px 0; }
+        .wf-step { display: flex; gap: 20px; align-items: flex-start; padding: 16px 0; }
+        .wf-step-num {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: 800; color: var(--book-teal);
+            flex-shrink: 0; position: relative; z-index: 1;
+        }
+        .wf-step-content { flex: 1; padding-top: 8px; }
+        .wf-step-label { font-size: 12px; font-weight: 700; color: var(--book-teal); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .wf-step-desc { font-size: 14px; color: #5C5650; line-height: 1.6; }
+        .wf-connector {
+            width: 2px; height: 20px;
+            background: linear-gradient(to bottom, var(--book-teal), rgba(184,134,11,0.3));
+            margin-left: 21px;
+        }
+
+        /* -- 스킬 미리보기 카드 -- */
+        .skill-preview {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 22px;
+            background: linear-gradient(135deg, #1A1917 0%, #2A2520 100%);
+            border-radius: 16px;
+            text-decoration: none;
+            color: #fff;
+            box-shadow: var(--nm-shadow-sm);
+            border: 1px solid rgba(218,165,32,0.25);
+            transition: all 0.25s;
+            margin-bottom: 22px;
+        }
+        .skill-preview:hover {
+            transform: translateY(-2px);
+            border-color: rgba(218,165,32,0.6);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+        }
+        .skill-preview .sp-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: rgba(218,165,32,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .skill-preview .sp-body { flex: 1; min-width: 0; }
+        .skill-preview .sp-label {
+            font-size: 11px; font-weight: 700;
+            color: #DAA520;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 2px;
+        }
+        .skill-preview .sp-title {
+            font-size: 16px; font-weight: 700;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .skill-preview .sp-url {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            color: rgba(255,255,255,0.55);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .skill-preview .sp-arrow {
+            font-size: 20px;
+            color: #DAA520;
+            flex-shrink: 0;
+            transition: transform 0.25s;
+        }
+        .skill-preview:hover .sp-arrow { transform: translateX(3px); }
+        @media (max-width: 768px) {
+            .skill-preview { padding: 14px 16px; gap: 12px; }
+            .skill-preview .sp-icon { width: 36px; height: 36px; font-size: 18px; }
+            .skill-preview .sp-title { font-size: 14px; }
+            .skill-preview .sp-url { font-size: 11px; }
+        }
+
+        /* -- 3열 역할 카드 -- */
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+        .role-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .role-card:hover { transform: translateY(-3px); }
+        .role-icon { font-size: 32px; margin-bottom: 12px; }
+        .role-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 8px; }
+        .role-card p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* -- 비교 그리드 -- */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm { background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm); padding: 20px; }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+
+        /* -- 플로우 다이어그램 -- */
+        .flow-row {
+            display: flex; align-items: center; justify-content: center;
+            gap: 0; margin: 24px 0; flex-wrap: wrap;
+        }
+        .flow-node {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 16px 20px; text-align: center;
+            min-width: 130px; transition: all 0.3s;
+        }
+        .flow-node:hover { transform: translateY(-2px); }
+        .flow-node .fn-icon { font-size: 28px; margin-bottom: 6px; }
+        .flow-node .fn-label { font-size: 13px; font-weight: 700; color: #3A3530; }
+        .flow-node .fn-sub { font-size: 11px; color: #888; margin-top: 2px; }
+        .flow-arrow { font-size: 20px; color: var(--book-teal); padding: 0 10px; font-weight: 700; }
+
+        /* -- CTA 섹션 -- */
+        .cta-section {
+            background: linear-gradient(150deg, #8B6914 0%, #6B4F0A 40%, #4A3507 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #6B4F0A; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* -- 참고 자료 -- */
+        .ref-section { margin-top: 36px; }
+        .ref-title { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 14px; }
+        .ref-links { display: flex; flex-direction: column; gap: 10px; }
+        .ref-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ref-link:hover { transform: translateY(-1px); color: var(--book-teal); }
+        .ref-link .ref-icon { font-size: 18px; flex-shrink: 0; }
+        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
+
+        /* -- 푸터 -- */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: #D97757; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* -- Keyframes -- */
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeInLeft { from { opacity:0; transform:translateX(-30px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes scaleIn { from { opacity:0; transform:scale(0.7); } to { opacity:1; transform:scale(1); } }
+        @keyframes pulse { 0%,100% { box-shadow:0 4px 16px rgba(184,134,11,0.3); } 50% { box-shadow:0 6px 28px rgba(184,134,11,0.55); } }
+        @keyframes shimmer { 0% { background-position:-200% center; } 100% { background-position:200% center; } }
+        @keyframes borderGlow { 0%,100% { border-color:rgba(184,134,11,0.25); } 50% { border-color:rgba(184,134,11,0.6); } }
+
+        /* -- Header entrance -- */
+        .back-link { animation: fadeInLeft 0.6s 0.1s ease-out both; }
+        header h1 { animation: slideDown 0.8s ease-out both; }
+        header > p { animation: slideDown 0.8s 0.15s ease-out both; }
+        .header-pages { animation: fadeInUp 0.6s 0.4s ease-out both; }
+        .sub-menu { animation: slideDown 0.4s 0.1s ease-out both; }
+
+        /* -- 스크롤 애니메이션 -- */
+        .anim-fade-up { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease-out, transform 0.7s ease-out; }
+        .anim-fade-up.visible { opacity:1; transform:translateY(0); }
+        .anim-fade-left { opacity:0; transform:translateX(-30px); transition:opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .anim-fade-left.visible { opacity:1; transform:translateX(0); }
+        .anim-scale-in { opacity:0; transform:scale(0.8); transition:opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+        .anim-scale-in.visible { opacity:1; transform:scale(1); }
+        .anim-stagger > * { opacity:0; transform:translateY(25px); transition:opacity 0.5s ease-out, transform 0.5s ease-out; }
+        .anim-stagger.visible > *:nth-child(1) { transition-delay:0s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(2) { transition-delay:0.1s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(3) { transition-delay:0.15s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(4) { transition-delay:0.2s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(5) { transition-delay:0.25s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(6) { transition-delay:0.3s; opacity:1; transform:translateY(0); }
+        .step-divider { opacity:0; transition:opacity 0.4s ease; }
+        .step-divider.visible { opacity:1; }
+        .step-divider.visible .step-badge { animation: scaleIn 0.5s 0.1s ease-out both; }
+        .highlight-box.anim-fade-up.visible { animation: borderGlow 3s ease-in-out infinite; }
+        .cta-btn.primary { animation: pulse 2.5s ease-in-out infinite; }
+        .cta-section.anim-fade-up .cta-btn.primary { position:relative; overflow:hidden; }
+        .cta-section.anim-fade-up .cta-btn.primary::after { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); animation:shimmer 3s ease-in-out infinite; }
+        .role-card:hover .role-icon { animation: float 1.5s ease-in-out infinite; }
+        @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+
+        .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+
+        /* -- FAQ 아코디언 -- */
+        .faq-list { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+        .faq-item {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 0;
+            overflow: hidden;
+            transition: all 0.25s;
+        }
+        .faq-item[open] { box-shadow: var(--nm-shadow); }
+        .faq-item summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            position: relative;
+            user-select: none;
+        }
+        .faq-item summary::-webkit-details-marker { display: none; }
+        .faq-item summary::after {
+            content: '+';
+            font-size: 22px;
+            font-weight: 300;
+            color: var(--book-teal);
+            transition: transform 0.25s;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .faq-item[open] summary::after { content: '−'; }
+        .faq-item summary:hover .faq-q { color: var(--book-teal); }
+        .faq-q {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #3A3530;
+            line-height: 1.5;
+            transition: color 0.2s;
+        }
+        .faq-q code {
+            background: rgba(184,134,11,0.10);
+            color: var(--book-teal);
+            padding: 1px 7px;
+            border-radius: 5px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12.5px;
+        }
+        .faq-a {
+            padding: 4px 22px 20px;
+            border-top: 1px dashed rgba(0,0,0,0.06);
+            margin-top: 4px;
+            padding-top: 16px;
+        }
+        .faq-a p { font-size: 14px; color: #5C5650; line-height: 1.7; margin-bottom: 8px; }
+        .faq-a ul, .faq-a ol { padding-left: 22px; margin-top: 6px; }
+        .faq-a li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .faq-a code {
+            background: rgba(0,0,0,0.05);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12.5px;
+            color: #3A3530;
+        }
+
+        /* -- 반응형 -- */
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 24px 16px 60px; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .role-grid { grid-template-columns: 1fr; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .header-pages { flex-wrap: wrap; gap: 8px; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            .nm-card { padding: 22px 18px; }
+            .ref-link .ref-desc { display: none; }
+            .flow-row { flex-direction: column; gap: 8px; }
+            .flow-arrow { transform: rotate(90deg); padding: 4px 0; }
+        }
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="back-link">&larr; 목록으로</a>
+    <h1>종목 분석 후 카톡으로 보고 받기</h1>
+    <p>Claude Cowork에서 DART 스킬과 카카오톡을 연결해 매일 아침 종목 분석을 받아보는 실전 워크플로우</p>
+    <div class="header-pages" id="pages-final">
+        <a href="harness-book.html" class="header-page-link"><span class="hpl-icon">&#x1F4DA;</span> 책 쓰기</a>
+        <a href="stock-kakaotalk.html" class="header-page-link active"><span class="hpl-icon">&#x1F4CA;</span> 종목 분석 &rarr; 카톡</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#intro" class="active" data-sec="intro">
+        <span class="sm-num">0</span>
+        <span class="sm-title">소개</span>
+        <span class="sm-sub">전체 흐름</span>
+    </a>
+    <a href="#step1" data-sec="step1">
+        <span class="sm-num">1</span>
+        <span class="sm-title">DART API</span>
+        <span class="sm-sub">키 발급</span>
+    </a>
+    <a href="#step2" data-sec="step2">
+        <span class="sm-num">2</span>
+        <span class="sm-title">PlayMCP</span>
+        <span class="sm-sub">가입+도구함</span>
+    </a>
+    <a href="#step3" data-sec="step3">
+        <span class="sm-num">3</span>
+        <span class="sm-title">카톡 연결</span>
+        <span class="sm-sub">Cowork 커넥터</span>
+    </a>
+    <a href="#step4" data-sec="step4">
+        <span class="sm-num">4</span>
+        <span class="sm-title">DART 스킬</span>
+        <span class="sm-sub">Cowork 등록</span>
+    </a>
+    <a href="#step5" data-sec="step5">
+        <span class="sm-num">5</span>
+        <span class="sm-title">플러그인</span>
+        <span class="sm-sub">daily-stock-report</span>
+    </a>
+    <a href="#step6" data-sec="step6">
+        <span class="sm-num">6</span>
+        <span class="sm-title">자동화</span>
+        <span class="sm-sub">월~금 9시</span>
+    </a>
+    <a href="#faq" data-sec="faq">
+        <span class="sm-num">?</span>
+        <span class="sm-title">트러블슈팅</span>
+        <span class="sm-sub">막힐 때</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- ====== INTRO ====== -->
+    <div class="step-divider"><span class="step-badge">INTRO</span></div>
+    <div class="content-section" id="intro"></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>이 실습에서 만들 것</h2>
+            <p class="card-subtitle">Claude Cowork에서 DART 분석과 카카오톡 전송을 하나의 플러그인으로 묶고, 월~금 아침 9시에 자동 실행</p>
+
+            <!-- 실행 환경 강조 -->
+            <div style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: linear-gradient(135deg, rgba(184,134,11,0.12), rgba(184,134,11,0.04)); border: 1.5px solid rgba(184,134,11,0.3); border-radius: 14px; margin-bottom: 20px;">
+                <span style="font-size: 24px;">&#x1F3E2;</span>
+                <p style="font-size: 14px; color: #3A3530; margin: 0;"><strong>실행 환경: Claude Cowork</strong> &mdash; 이 워크플로우는 처음부터 끝까지 <strong>Claude Cowork</strong> 안에서 진행됩니다. 커넥터 연결, 스킬 등록, 플러그인 패키징, 스케줄 자동화 모두 Cowork의 기능을 사용합니다.</p>
+            </div>
+
+            <a class="skill-preview" href="https://github.com/airoasting/dart" target="_blank" rel="noopener">
+                <span class="sp-icon">&#x1F4CA;</span>
+                <span class="sp-body">
+                    <span class="sp-label">SKILL &middot; 바로가기</span>
+                    <span class="sp-title">dart &middot; DART 공시 분석 스킬</span>
+                    <span class="sp-url">github.com/airoasting/dart</span>
+                </span>
+                <span class="sp-arrow">&rarr;</span>
+            </a>
+
+            <p>매일 아침 관심 종목의 실적을 확인하고 싶지만, DART 공시를 직접 찾아보는 건 번거롭습니다. 이 실습에서는 <strong>Claude Cowork</strong>에 <strong>DART 스킬</strong>과 <strong>PlayMCP 카카오톡</strong>을 연결한 뒤, 두 기능을 묶어 <code>daily-stock-report</code>라는 <strong>플러그인</strong>으로 패키징합니다. 마지막에 이 플러그인을 <strong>월~금 아침 9시</strong>에 자동 실행되게 등록합니다.</p>
+
+            <p style="margin-top: 12px;">완성되면 이런 흐름이 됩니다:</p>
+
+            <div class="flow-row" style="margin: 28px 0;">
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F4CA;</div>
+                    <div class="fn-label">/dart 분석</div>
+                    <div class="fn-sub">13인 평가</div>
+                </div>
+                <span class="flow-arrow">&#x2192;</span>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F4C4;</div>
+                    <div class="fn-label">HTML 리포트</div>
+                    <div class="fn-sub">대시보드 생성</div>
+                </div>
+                <span class="flow-arrow">&#x2192;</span>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F4AC;</div>
+                    <div class="fn-label">카톡 전송</div>
+                    <div class="fn-sub">나에게 보내기</div>
+                </div>
+                <span class="flow-arrow">&#x2192;</span>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x23F0;</div>
+                    <div class="fn-label">자동 실행</div>
+                    <div class="fn-sub">월~금 09:00</div>
+                </div>
+            </div>
+
+            <a class="ref-link" href="https://airoasting.github.io/dart/kakao_20260510.html" target="_blank" rel="noopener" style="margin-top: 14px;">
+                <span class="ref-icon">&#x1F441;&#xFE0F;</span>
+                실제 결과 미리보기 &mdash; 카카오 1Q2026 분석 리포트
+                <span class="ref-desc">샘플 출력</span>
+            </a>
+
+            <!-- 사전 준비 체크리스트 -->
+            <div class="highlight-box" style="margin-top: 22px;">
+                <div class="hl-title">&#x2705; 시작 전 체크리스트</div>
+                <ul>
+                    <li><strong>Claude Cowork</strong> &mdash; Pro / MAX / Team / Enterprise 플랜 (커넥터 사용 가능 환경)</li>
+                    <li><strong>Python 3.x &amp; Git</strong> &mdash; DART 스킬의 의존성</li>
+                    <li><strong>카카오 계정</strong> &mdash; PlayMCP 가입 &amp; 카톡 나에게 보내기 사용</li>
+                    <li><strong>OpenDART 계정</strong> &mdash; DART Open API 키 발급용 (무료)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ====== STEP 1: DART API 발급 ====== -->
+    <div class="step-divider"><span class="step-badge">STEP 1 &middot; DART API 키 발급</span></div>
+    <div class="content-section" id="step1"></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>OpenDART에서 API 키 발급받기</h2>
+            <p class="card-subtitle">DART 스킬이 공시 데이터를 조회하려면 인증 키가 먼저 필요합니다</p>
+
+            <p>DART 스킬은 금융감독원 전자공시시스템(DART)의 <strong>Open API</strong>를 사용합니다. 무료 발급이며 일 10,000건까지 호출 가능 &mdash; 개인 분석 용도로 충분합니다.</p>
+
+            <a class="ref-link" href="https://opendart.fss.or.kr" target="_blank" rel="noopener" style="margin: 16px 0;">
+                <span class="ref-icon">&#x1F517;</span>
+                opendart.fss.or.kr &mdash; OpenDART 바로가기
+                <span class="ref-desc">금융감독원</span>
+            </a>
+
+            <div class="wf-steps">
+                <div class="wf-step">
+                    <div class="wf-step-num">1</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">사이트 접속 &amp; 회원가입</div>
+                        <div class="wf-step-desc"><a href="https://opendart.fss.or.kr" target="_blank" rel="noopener" style="color: var(--book-teal); font-weight: 600;">opendart.fss.or.kr</a>에 접속해 <strong>회원가입</strong>을 진행합니다. 이메일 인증까지 완료해야 합니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">2</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">인증키 신청 페이지로 이동</div>
+                        <div class="wf-step-desc">로그인 후 상단 메뉴에서 <strong>인증키 신청/관리 &gt; 인증키 신청</strong>으로 이동합니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">3</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">신청서 작성 &amp; 제출</div>
+                        <div class="wf-step-desc">이용 목적(예: "개인 투자 분석")을 입력하고 신청합니다. <strong>보통 즉시 발급</strong>되며, 늦어도 1영업일 내 이메일로 도착합니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">4</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">API 키 복사</div>
+                        <div class="wf-step-desc"><strong>인증키 관리</strong> 페이지에서 발급된 40자 키를 복사합니다. 이 키는 STEP 4에서 DART 스킬 <code>.env</code>에 등록합니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">보안</div>
+                <p>API 키는 비밀번호와 같습니다. <strong>GitHub 공개 저장소에 절대 커밋하지 마세요.</strong> STEP 4에서 <code>.env</code> 파일에 저장하고 <code>.gitignore</code>에 추가합니다.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ====== STEP 2: PlayMCP 가입 & 도구함 ====== -->
+    <div class="step-divider"><span class="step-badge">STEP 2 &middot; PlayMCP 가입 &amp; 도구함 추가</span></div>
+    <div class="content-section" id="step2"></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>PlayMCP에서 카카오톡 도구함 만들기</h2>
+            <p class="card-subtitle">Claude Cowork에 연결하기 전에, PlayMCP에서 먼저 회원가입하고 사용할 도구를 도구함에 담아둬야 합니다</p>
+
+            <p><strong>PlayMCP</strong>는 카카오톡·네이버 등 한국 서비스를 묶어 Claude에 공급하는 MCP 커넥터입니다. Claude에 연결하기 전에 PlayMCP 쪽에서 <strong>계정을 만들고 사용할 도구를 도구함에 추가</strong>하는 사전 작업이 필요합니다.</p>
+
+            <div class="wf-steps">
+                <div class="wf-step">
+                    <div class="wf-step-num">1</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">PlayMCP 공식 사이트 접속</div>
+                        <div class="wf-step-desc">PlayMCP 사이트에 접속합니다. (PlayMCP 공식 안내 페이지에서 가입 링크를 확인할 수 있습니다.)</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">2</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">카카오 계정으로 회원가입</div>
+                        <div class="wf-step-desc"><strong>본인이 메시지를 받을 카카오 계정</strong>으로 가입합니다. 이 계정은 STEP 3 OAuth 인증에서도 동일하게 사용됩니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">3</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">도구함 열기</div>
+                        <div class="wf-step-desc">PlayMCP 대시보드의 <strong>도구함(My Tools)</strong> 메뉴로 이동합니다. 도구함은 Claude에 노출할 도구의 집합입니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">4</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">"카카오톡 나에게 보내기" 도구 추가</div>
+                        <div class="wf-step-desc">도구 카탈로그에서 <strong>카카오톡 &middot; 나에게 보내기</strong> 도구를 찾아 도구함에 담습니다. 추가 후 저장합니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">5</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">도구함 구성 확인</div>
+                        <div class="wf-step-desc">도구함 목록에 카카오톡 도구가 들어갔는지 확인합니다. 여기까지 끝나면 PlayMCP 쪽 준비는 완료 &mdash; 다음은 Claude Cowork에 연결하는 단계입니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">핵심</div>
+                <p>도구함에 추가하지 않은 도구는 Claude에 노출되지 않습니다. 카톡 외에 네이버 검색·캘린더 등 다른 도구도 사용하고 싶다면 함께 담아두세요.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ====== STEP 3: Claude Cowork 연결 ====== -->
+    <div class="step-divider"><span class="step-badge">STEP 3 &middot; Claude Cowork에 카톡 연결</span></div>
+    <div class="content-section" id="step3"></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>Claude Cowork 커넥터에 PlayMCP 연결하기</h2>
+            <p class="card-subtitle">PlayMCP 도구함을 Claude Cowork와 연동해 채팅에서 바로 카톡을 보낼 수 있게 합니다</p>
+
+            <p>Claude Cowork의 <strong>커넥터</strong> 메뉴에서 PlayMCP를 추가합니다. OAuth로 STEP 2의 카카오 계정과 묶어주면, 이후 Cowork 대화에서 카톡 전송을 자연어로 요청할 수 있습니다.</p>
+
+            <a class="ref-link" href="https://pineapple-cub-4dd.notion.site/Claude-2ae9b97b4888801cb219d4ee3b9b28f2" target="_blank" rel="noopener" style="margin: 16px 0;">
+                <span class="ref-icon">&#x1F4D6;</span>
+                PlayMCP 공식 가이드 &mdash; Claude에 도구함 연결하기
+                <span class="ref-desc">Notion</span>
+            </a>
+
+            <div class="highlight-box">
+                <div class="hl-title">&#x2728; Claude Cowork Pro / MAX 사용자</div>
+                <ol style="padding-left: 20px; margin-top: 8px;">
+                    <li>Claude Cowork의 <strong>설정 &gt; 커넥터</strong>로 이동합니다.</li>
+                    <li>상단의 <strong>[커넥터 둘러보기]</strong>를 선택합니다.</li>
+                    <li>디렉토리에서 <strong>PlayMCP</strong>를 검색하거나 목록에서 선택합니다.</li>
+                    <li><strong>[연결]</strong>을 누르면 Cowork와 PlayMCP 연동 과정이 시작됩니다.</li>
+                    <li>STEP 2에서 PlayMCP 가입할 때 사용한 <strong>카카오 계정</strong>으로 로그인 후 OAuth 인증 및 동의를 진행합니다.</li>
+                    <li>연결이 완료되면 Cowork 대화에서 PlayMCP 도구함에 담은 도구를 바로 사용할 수 있습니다.</li>
+                </ol>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 14px;">
+                <div class="hl-title">&#x1F465; Claude Cowork Team / Enterprise 사용자</div>
+                <ol style="padding-left: 20px; margin-top: 8px;">
+                    <li>Cowork <strong>관리자 설정 &gt; 커넥터</strong>로 이동합니다. (Owner만 가능)</li>
+                    <li>하단의 <strong>[커넥터 둘러보기]</strong>를 선택합니다.</li>
+                    <li>디렉토리에서 <strong>PlayMCP</strong>를 검색하거나 목록에서 선택합니다.</li>
+                    <li><strong>[팀에 추가]</strong>를 눌러 팀 구성원이 커넥터를 연결할 수 있게 합니다.</li>
+                    <li>이후 각 구성원이 <strong>개인 설정 &gt; 커넥터</strong>에서 PlayMCP를 찾아 <strong>[연결]</strong>합니다.</li>
+                </ol>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">유의 사항</div>
+                <p>Claude 커넥터는 <strong>유료 플랜</strong>(Pro, MAX, Team, Enterprise)에서만 제공됩니다. PlayMCP 설정 &gt; 연결된 서비스에서 언제든 Cowork의 액세스 권한을 해제할 수 있습니다.</p>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">연결 확인</div>
+                <p>Cowork에서 <code>"카톡으로 '테스트' 라고 보내줘"</code>라고 입력했을 때 본인 카톡에 메시지가 오면 연결 성공입니다.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ====== STEP 4: DART 스킬 등록 ====== -->
+    <div class="step-divider"><span class="step-badge">STEP 4 &middot; DART 스킬 등록</span></div>
+    <div class="content-section" id="step4"></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>DART 스킬을 Claude Cowork에 등록하기</h2>
+            <p class="card-subtitle">GitHub에서 클론 → 환경변수 설정 → 의존 패키지 설치, 3분이면 끝납니다</p>
+
+            <p>DART 스킬은 Claude의 <strong>전역 스킬 디렉터리</strong>(<code>~/.claude/skills/</code>)에 설치합니다. Cowork에서 이 경로의 스킬을 자동으로 인식해 <code>/dart</code> 명령으로 호출할 수 있게 됩니다.</p>
+
+            <div class="wf-steps">
+                <div class="wf-step">
+                    <div class="wf-step-num">1</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">스킬 클론</div>
+                        <div class="wf-step-desc">터미널에서 다음 명령을 실행합니다. <code>~/.claude/skills/dart</code> 폴더가 자동 생성됩니다.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="prompt-box" id="prompt-clone">git clone https://github.com/airoasting/dart ~/.claude/skills/dart<button class="copy-btn" onclick="copyPrompt('prompt-clone')">복사</button></div>
+
+            <div class="wf-steps">
+                <div class="wf-step">
+                    <div class="wf-step-num">2</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">Python 패키지 설치</div>
+                        <div class="wf-step-desc">DART API 호출과 데이터 처리에 필요한 패키지를 설치합니다.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="prompt-box" id="prompt-pip">pip install requests pandas<button class="copy-btn" onclick="copyPrompt('prompt-pip')">복사</button></div>
+
+            <div class="wf-steps">
+                <div class="wf-step">
+                    <div class="wf-step-num">3</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">API 키를 .env에 저장</div>
+                        <div class="wf-step-desc">스킬을 사용할 <strong>프로젝트 루트</strong>에 <code>.env</code> 파일을 만들고 STEP 1에서 발급받은 키를 넣습니다.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="prompt-box" id="prompt-env"># 프로젝트 루트/.env 파일에 추가
+DART_API_KEY=여기에_40자_API_키_붙여넣기<button class="copy-btn" onclick="copyPrompt('prompt-env')">복사</button></div>
+
+            <div class="wf-steps">
+                <div class="wf-step">
+                    <div class="wf-step-num">4</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">Cowork에서 인식 확인</div>
+                        <div class="wf-step-desc">Cowork 대화창에서 <code>/dart</code>를 입력했을 때 자동완성에 스킬이 나타나면 등록 성공입니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <p style="margin-top: 16px;">이제 Cowork에서 종목명만 붙이면 분석이 시작됩니다:</p>
+
+            <div class="prompt-box" id="prompt-dart-test">/dart 카카오<button class="copy-btn" onclick="copyPrompt('prompt-dart-test')">복사</button></div>
+
+            <p style="margin-top: 12px; color: #888; font-size: 13px;">분기를 명시할 수도 있습니다: <code>/dart 삼성전자 1Q2026</code></p>
+
+            <div class="compare-grid" style="grid-template-columns: 1fr 1fr; margin-top: 20px;">
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <span class="cmp-dot" style="background: var(--book-teal);"></span>
+                        <h4>리포트 6개 섹션</h4>
+                    </div>
+                    <ul>
+                        <li>KPI 카드 (매출 · 영업이익 · 순이익 · YoY)</li>
+                        <li>성장 기여도 Waterfall</li>
+                        <li>사업별 매출 세그먼트 차트</li>
+                        <li>주가 반응 &amp; 목표주가</li>
+                        <li>애널리스트 컨센서스 (Bull/Bear)</li>
+                        <li>최근 공시 뉴스</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <span class="cmp-dot" style="background: #6B21A8;"></span>
+                        <h4>13인 투자자 페르소나</h4>
+                    </div>
+                    <ul>
+                        <li>워런 버핏 · 찰리 멍거 · 벤저민 그레이엄</li>
+                        <li>피터 린치 · 필립 피셔 · 빌 애크먼</li>
+                        <li>캐시 우드 · 마이클 버리</li>
+                        <li>스탠리 드러켄밀러 · 라케시 중주왈라</li>
+                        <li>모니시 파브라이 · 애스워스 다모다란</li>
+                        <li>나심 탈렙</li>
+                    </ul>
+                </div>
+            </div>
+
+            <a class="ref-link" href="https://airoasting.github.io/dart/kakao_20260510.html" target="_blank" rel="noopener" style="margin-top: 16px;">
+                <span class="ref-icon">&#x1F441;&#xFE0F;</span>
+                실제 출력 결과 &mdash; 카카오 1Q2026
+                <span class="ref-desc">샘플 리포트</span>
+            </a>
+        </div>
+    </section>
+
+
+    <!-- ====== STEP 5: daily-stock-report 플러그인 패키징 ====== -->
+    <div class="step-divider"><span class="step-badge">STEP 5 &middot; daily-stock-report 플러그인 패키징</span></div>
+    <div class="content-section" id="step5"></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>분석 + 카톡 전송을 <code>daily-stock-report</code> 플러그인으로 묶기</h2>
+            <p class="card-subtitle">매번 두 번씩 명령하는 대신, 한 줄로 분석과 전송이 같이 일어나도록 패키징합니다</p>
+
+            <p>STEP 4에서 분석 명령을, STEP 3에서 카톡 전송 능력을 확보했습니다. 이제 둘을 하나의 <strong>플러그인</strong>으로 묶어 <code>/daily-stock-report</code> 한 줄로 호출할 수 있게 만듭니다. Claude Cowork에 다음과 같이 요청하세요:</p>
+
+            <div class="prompt-box" id="prompt-skill">~/.claude/skills/daily-stock-report 폴더에
+SKILL.md 파일을 만들어줘.
+
+플러그인 이름: daily-stock-report
+목적: 관심 종목을 DART로 분석하고 카카오톡으로 요약 전송
+
+내용:
+- frontmatter에 name, description, trigger 정의
+- 대상 종목 리스트: 카카오, 삼성전자, NAVER
+- 각 종목마다 /dart {기업명} 실행 → HTML 리포트 생성
+- 모든 분석이 끝나면 PlayMCP 카카오톡으로 요약 전송
+- 요약 포맷: 매출/영업이익 YoY, 최고·최저 페르소나, 1줄 코멘트<button class="copy-btn" onclick="copyPrompt('prompt-skill')">복사</button></div>
+
+            <p style="margin-top: 16px;">Claude Cowork가 생성하는 <code>SKILL.md</code> 예시 구조:</p>
+
+            <div class="prompt-box" id="prompt-skillmd">---
+name: daily-stock-report
+description: 관심 종목을 DART로 분석하고 카카오톡으로 요약 전송. 사용자가 "아침 종목 리포트", "/daily-stock-report"라고 입력하면 트리거.
+---
+
+# Daily Stock Report
+
+## 대상 종목
+- 카카오
+- 삼성전자
+- NAVER
+
+## 실행 단계
+1. 각 종목에 대해 `/dart {기업명}` 실행 → HTML 리포트 생성
+2. 모든 리포트가 완성되면 종목별 요약을 추출
+3. PlayMCP 카카오톡 도구로 나에게 보내기로 전송
+4. 전송 완료 후 output/ 경로를 한 줄로 안내
+
+## 카톡 메시지 포맷
+[종목명] 매출 X (YoY +X%) / 영업이익 X (YoY +X%)
+최고: {페르소나} (점수) — 1줄 근거
+최저: {페르소나} (점수) — 1줄 근거
+한 줄 코멘트<button class="copy-btn" onclick="copyPrompt('prompt-skillmd')">복사</button></div>
+
+            <p style="margin-top: 16px;">이제 Cowork 어디서든 <code>/daily-stock-report</code> 한 줄이면 3개 종목 분석 + 카톡 요약이 자동 실행됩니다.</p>
+
+            <!-- 카톡 수신 예시 -->
+            <div class="inset-box" style="margin-top: 18px;">
+                <div class="inset-label">카톡으로 받는 메시지 예시</div>
+                <p style="font-size: 13px; line-height: 1.85;">
+                    <strong>&#x1F4CA; 카카오 1Q2026 실적 요약</strong><br><br>
+                    &#x25AA; 매출 2.0조 (YoY +5.3%)<br>
+                    &#x25AA; 영업이익 1,203억 (YoY +89.6%)<br>
+                    &#x25AA; 영업이익률 6.0% (전년 3.4% 대비 개선)<br><br>
+                    &#x1F3AF; 최고: <strong>피터 린치 (8.2)</strong><br>
+                    &nbsp;&nbsp;→ "본업 회복 + PEG 1.0 이하 = 텐배거 후보"<br>
+                    &#x1F3AF; 최저: <strong>마이클 버리 (4.1)</strong><br>
+                    &nbsp;&nbsp;→ "광고 의존도 여전, 경기 민감도 우려"<br><br>
+                    &#x1F4CC; 톡비즈 + AI 광고 회복이 분기 어닝서프 견인.<br>
+                    상세 리포트: output/카카오_20260510_01.html
+                </p>
+            </div>
+
+            <div class="compare-grid" style="margin-top: 20px;">
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <span class="cmp-dot" style="background: var(--book-teal);"></span>
+                        <h4>패키징 전</h4>
+                    </div>
+                    <ul>
+                        <li>매번 종목별로 <code>/dart</code> 입력</li>
+                        <li>매번 카톡 전송 프롬프트 입력</li>
+                        <li>요약 포맷 일관성 없음</li>
+                        <li>자동화 불가</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <span class="cmp-dot" style="background: #22C55E;"></span>
+                        <h4>패키징 후 (daily-stock-report)</h4>
+                    </div>
+                    <ul>
+                        <li><code>/daily-stock-report</code> 한 줄</li>
+                        <li>종목 리스트 수정만으로 대상 변경</li>
+                        <li>일관된 요약 포맷</li>
+                        <li>스케줄러 등록 가능 (STEP 6)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">종목 리스트 변경</div>
+                <p><code>SKILL.md</code>의 <strong>## 대상 종목</strong> 섹션만 수정하면 분석 대상을 자유롭게 바꿀 수 있습니다. Cowork 재시작 없이 즉시 반영됩니다.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ====== STEP 6: 자동화 ====== -->
+    <div class="step-divider"><span class="step-badge">STEP 6 &middot; 스케줄 자동화</span></div>
+    <div class="content-section" id="step6"></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>월~금 아침 9시에 <code>daily-stock-report</code> 자동 실행</h2>
+            <p class="card-subtitle">Claude Cowork의 schedule 기능에 등록하면 매일 아침 자동으로 카톡이 도착합니다</p>
+
+            <p>Claude Cowork에는 정기 작업을 등록하는 <strong>schedule 스킬</strong>이 있습니다. cron 표현식으로 원하는 시간을 지정할 수 있습니다.</p>
+
+            <div class="prompt-box" id="prompt-schedule">/schedule
+
+이름: 아침 종목 리포트
+설명: 매주 평일 오전 9시에 daily-stock-report 자동 실행
+cron: 0 9 * * 1-5
+실행 내용: /daily-stock-report<button class="copy-btn" onclick="copyPrompt('prompt-schedule')">복사</button></div>
+
+            <p style="margin-top: 12px; color: #888; font-size: 13px;">
+                cron 표현식 <code>0 9 * * 1-5</code> = 분(0) 시(9) 일(*) 월(*) <strong>요일(1~5 = 월~금)</strong>
+            </p>
+
+            <p style="margin-top: 20px;">등록이 완료되면 매주 월~금 오전 9시에 Cowork가 자동으로:</p>
+
+            <div class="wf-steps">
+                <div class="wf-step">
+                    <div class="wf-step-num">&#x23F0;</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">09:00 자동 시작</div>
+                        <div class="wf-step-desc">schedule이 등록된 cron에 맞춰 <code>/daily-stock-report</code>를 트리거합니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">&#x1F4CA;</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">종목 분석</div>
+                        <div class="wf-step-desc">SKILL.md에 등록된 종목을 순서대로 <code>/dart</code> 분석 → HTML 리포트 생성.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">&#x1F4AC;</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">카톡 전송</div>
+                        <div class="wf-step-desc">요약 메시지가 PlayMCP 카카오톡 도구를 통해 나에게 보내기로 도착. 9시 10분쯤 출근길에서 확인.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">스케줄 관리</div>
+                <p>등록된 작업 목록 확인: <code>/schedule list</code> &nbsp;|&nbsp; 임시 중지·삭제: <code>/schedule</code> 메뉴에서 선택.</p>
+            </div>
+
+            <div class="highlight-box">
+                <div class="hl-title">&#x1F680; 확장 아이디어</div>
+                <ul>
+                    <li><strong>이상 징후 알림</strong> &mdash; 영업이익이 YoY -30% 이하면 즉시 카톡으로 경고</li>
+                    <li><strong>실적 발표 시즌</strong> &mdash; 분기 실적 발표 주에는 하루 2회(9시·18시) 실행</li>
+                    <li><strong>동종 비교</strong> &mdash; 카카오/네이버 같은 동종 3사 비교 리포트 추가</li>
+                    <li><strong>팀 공유</strong> &mdash; PlayMCP 슬랙을 도구함에 추가해 팀 채널에도 전송</li>
+                    <li><strong>주간 회고</strong> &mdash; 매주 금요일 저녁, 한 주간 리포트를 모아 평가 정확도 점검</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ====== FAQ / 트러블슈팅 ====== -->
+    <div class="step-divider"><span class="step-badge">트러블슈팅</span></div>
+    <div class="content-section" id="faq"></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>막힐 때 — 자주 만나는 5가지 문제</h2>
+            <p class="card-subtitle">실제 따라하다가 멈추는 지점을 미리 모았습니다</p>
+
+            <div class="faq-list">
+                <details class="faq-item" open>
+                    <summary>
+                        <span class="faq-q">Q1. <code>/dart</code> 또는 <code>/daily-stock-report</code>를 입력해도 자동완성에 안 나옵니다</span>
+                    </summary>
+                    <div class="faq-a">
+                        <p><strong>원인:</strong> Claude Cowork가 스킬 디렉터리를 인식하지 못한 상태입니다.</p>
+                        <p><strong>해결:</strong></p>
+                        <ol>
+                            <li><code>ls ~/.claude/skills/dart/SKILL.md</code> &amp; <code>ls ~/.claude/skills/daily-stock-report/SKILL.md</code> 실행 &mdash; 두 파일 모두 있어야 함</li>
+                            <li>Cowork 세션을 새로고침(또는 새 대화 시작)</li>
+                            <li>그래도 안 보이면 <code>/help</code>로 스킬 목록을 확인</li>
+                        </ol>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>
+                        <span class="faq-q">Q2. <code>DART_API_KEY 환경변수가 없습니다</code> 에러가 납니다</span>
+                    </summary>
+                    <div class="faq-a">
+                        <p><strong>원인:</strong> <code>.env</code> 파일이 잘못된 위치에 있거나, 키 형식이 틀렸습니다.</p>
+                        <p><strong>해결:</strong></p>
+                        <ol>
+                            <li><code>.env</code>는 <strong>스킬을 실행하는 프로젝트 루트</strong>(현재 작업 디렉터리)에 있어야 함</li>
+                            <li>키 형식 확인: <code>DART_API_KEY=...</code> 사이에 공백·따옴표 없이 붙여 쓰기</li>
+                            <li><code>echo $DART_API_KEY</code>로 셸 환경에 로드됐는지 확인</li>
+                        </ol>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>
+                        <span class="faq-q">Q3. 카카오톡으로 메시지가 안 옵니다</span>
+                    </summary>
+                    <div class="faq-a">
+                        <p><strong>원인 후보 4가지:</strong></p>
+                        <ul>
+                            <li><strong>PlayMCP 도구함에 카톡 도구 누락</strong> &mdash; STEP 2에서 "카카오톡 나에게 보내기"를 도구함에 담았는지 확인</li>
+                            <li><strong>Cowork 커넥터 미연결</strong> &mdash; Cowork 설정 &gt; 커넥터에서 PlayMCP가 "연결됨" 상태인지 확인</li>
+                            <li><strong>OAuth 권한 만료</strong> &mdash; PlayMCP에서 카카오 재로그인 필요할 수 있음</li>
+                            <li><strong>"나에게 보내기" 비활성화</strong> &mdash; 카카오톡 앱에서 본인 채널이 활성화되어 있어야 함</li>
+                        </ul>
+                        <p style="margin-top:10px;"><strong>1차 진단:</strong> Cowork에서 <code>"카톡으로 테스트 보내줘"</code>라고 입력 → 안 오면 PlayMCP 연결/도구함 문제, 오면 플러그인 쪽 문제.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>
+                        <span class="faq-q">Q4. <code>일일 호출 한도 초과</code> 메시지가 뜹니다</span>
+                    </summary>
+                    <div class="faq-a">
+                        <p><strong>원인:</strong> DART API 일일 한도 10,000건을 초과했습니다. (한 종목 분석에 보통 30~50건 호출)</p>
+                        <p><strong>해결:</strong></p>
+                        <ul>
+                            <li>한도는 매일 <strong>자정(KST)에 리셋</strong> &mdash; 다음 날 자동 정상화</li>
+                            <li>단기 회피: 종목 수를 줄이거나 분석 빈도를 낮춤</li>
+                            <li>장기 해결: OpenDART에 추가 한도 신청 (기업 계정의 경우)</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary>
+                        <span class="faq-q">Q5. 스케줄에 등록했는데 9시에 실행이 안 됩니다</span>
+                    </summary>
+                    <div class="faq-a">
+                        <p><strong>원인 후보:</strong></p>
+                        <ul>
+                            <li><strong>Cowork 세션 비활성</strong> &mdash; 로컬 schedule은 Cowork가 켜져 있어야 동작. 노트북 절전모드 시 트리거 안 됨</li>
+                            <li><strong>cron 표현식 오류</strong> &mdash; <code>/schedule list</code>로 등록 상태와 다음 실행 시간을 확인</li>
+                            <li><strong>시간대 불일치</strong> &mdash; 시스템 타임존이 KST가 아니라면 cron 시간이 어긋남</li>
+                        </ul>
+                        <p style="margin-top:10px;"><strong>대안:</strong> 24/7 실행이 필요하면 <strong>원격 스케줄링</strong>(서버 또는 호스팅 routine)을 고려하세요.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 참고 자료 -->
+    <div class="nm-card anim-fade-up">
+        <div class="ref-section" style="margin-top: 0;">
+            <h4 class="ref-title">참고 자료</h4>
+            <div class="ref-links">
+                <a class="ref-link" href="https://opendart.fss.or.kr" target="_blank" rel="noopener">
+                    <span class="ref-icon">&#x1F4C8;</span>
+                    opendart.fss.or.kr &mdash; DART Open API 키 발급
+                    <span class="ref-desc">OpenDART</span>
+                </a>
+                <a class="ref-link" href="https://github.com/airoasting/dart" target="_blank" rel="noopener">
+                    <span class="ref-icon">&#x1F4BB;</span>
+                    GitHub: DART 공시 분석 스킬 레포지토리
+                    <span class="ref-desc">GitHub</span>
+                </a>
+                <a class="ref-link" href="https://airoasting.github.io/dart/kakao_20260510.html" target="_blank" rel="noopener">
+                    <span class="ref-icon">&#x1F441;&#xFE0F;</span>
+                    예시 결과 &mdash; 카카오 1Q2026 분석 리포트
+                    <span class="ref-desc">샘플</span>
+                </a>
+                <a class="ref-link" href="https://pineapple-cub-4dd.notion.site/Claude-2ae9b97b4888801cb219d4ee3b9b28f2" target="_blank" rel="noopener">
+                    <span class="ref-icon">&#x1F4AC;</span>
+                    PlayMCP 카카오톡 연결 공식 가이드
+                    <span class="ref-desc">PlayMCP</span>
+                </a>
+                <a class="ref-link" href="https://github.com/monarchjuno/vibe-investing" target="_blank" rel="noopener">
+                    <span class="ref-icon">&#x1F3AD;</span>
+                    13인 투자자 페르소나 원본
+                    <span class="ref-desc">GitHub</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 면책 -->
+    <div class="tip-box" style="margin-top: 20px;">
+        <div class="tip-label">면책 고지</div>
+        <p>이 가이드와 DART 스킬이 생성하는 리포트는 공개 공시 데이터 기반 참고 자료이며, 투자 권유가 아닙니다. 13인 투자자 페르소나는 공개된 철학을 AI가 시뮬레이션한 가상 평가입니다. 최종 투자 판단과 손익 책임은 투자자 본인에게 있습니다.</p>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section anim-fade-up">
+        <h3>지금 바로 시작해 보세요</h3>
+        <p>OpenDART에서 키 받고, PlayMCP 가입하고, Claude Cowork에서 종목 하나로 시작하세요.<br>오늘 저녁에 첫 리포트를, 내일 아침 9시에 카톡 알림을 받아볼 수 있습니다.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn primary" href="https://opendart.fss.or.kr" target="_blank" rel="noopener">OpenDART에서 키 받기 &rarr;</a>
+            <a class="cta-btn secondary" href="https://github.com/airoasting/dart" target="_blank" rel="noopener">DART 스킬 GitHub</a>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <span class="footer-link-row">
+        <a href="index.html?about=1" class="footer-about-link">가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">&middot;</span>
+        <a href="index.html?license=1" class="footer-about-link">라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">&copy; 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+// -- 스크롤 애니메이션 --
+(function(){
+    var animEls = document.querySelectorAll('.anim-fade-up, .anim-fade-left, .anim-scale-in, .anim-stagger, .step-divider');
+    var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+            if(e.isIntersecting){
+                e.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    animEls.forEach(function(el){ observer.observe(el); });
+})();
+
+// -- Sub Menu Scroll Spy --
+(function(){
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l){ var s = document.getElementById(l.dataset.sec); if(s) sections.push({id:l.dataset.sec, el:s, link:l}); });
+
+    function update(){
+        var smEl = document.getElementById('subMenu');
+        var scrollY = window.scrollY + (smEl ? smEl.offsetHeight : 0) + 16;
+        var current = sections[0];
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                activeLink.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    update();
+})();
+
+// -- 프롬프트 복사 --
+function copyPrompt(id) {
+    var box = document.getElementById(id);
+    var text = box.textContent.replace('복사', '').trim();
+    navigator.clipboard.writeText(text).then(function(){
+        var btn = box.querySelector('.copy-btn');
+        btn.textContent = '완료!';
+        setTimeout(function(){ btn.textContent = '복사'; }, 2000);
+    });
+}
+</script>
+
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #B0544A; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    header { padding-top: 24px !important; }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">&larr;</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+</body>
+</html>
