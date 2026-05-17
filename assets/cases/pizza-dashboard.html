@@ -858,7 +858,11 @@ function initYearly(){
 function initCat(){
   const ctx = document.getElementById('catC').getContext('2d');
   const cols = ['#5b8dee','#fc5c7d','#48cfad','#f7b731','#a55eea','#4ecdc4'];
-  const labels = D.category_revenue.labels;
+  const pairs = D.category_revenue.labels
+    .map((lab,i)=>({lab, val:D.category_revenue.values[i]}))
+    .sort((a,b)=>b.val-a.val);
+  const labels = pairs.map(p=>p.lab);
+  const values = pairs.map(p=>p.val);
   const legendEl = document.getElementById('catLegend');
   if(legendEl){
     legendEl.innerHTML = labels.map((lab,i)=>
@@ -868,7 +872,7 @@ function initCat(){
   charts.cat = new Chart(ctx,{
     type:'doughnut',
     data:{ labels, datasets:[{
-      data: D.category_revenue.values,
+      data: values,
       backgroundColor: cols.map(c=>c+'cc'), borderColor:cols, borderWidth:2, hoverOffset:8
     }]},
     options:{
