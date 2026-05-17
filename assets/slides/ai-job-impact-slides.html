@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI가 내 직업에 미치는 영향</title>
+<style>
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../폰트/PretendardVariable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+:root {
+  --bg: #EDEAE4;
+  --sh-dark: #CECAC3;
+  --sh-light: #FFFFFF;
+  --nm: 8px 8px 20px #CECAC3, -8px -8px 20px #FFFFFF;
+  --nm-sm: 5px 5px 12px #CECAC3, -5px -5px 12px #FFFFFF;
+  --orange: #D97757;
+  --orange-lt: rgba(217,119,87,0.12);
+  --green: #3a9a3a;
+  --red: #C93030;
+  --blue: #3a6a9a;
+  --t1: #2E2A26;
+  --t2: #7A7570;
+  --t3: #A8A39D;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: 'Pretendard', 'Helvetica Neue', Arial, sans-serif;
+  background: #1a1a1a;
+}
+
+/* ─── PROGRESS BAR ─── */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: var(--orange);
+  z-index: 1000;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+/* ─── QUESTION BAR ─── */
+#question-bar {
+  position: fixed;
+  top: 3px; left: 0; right: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 32px;
+  background: rgba(237,234,228,0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+#question-bar.visible { opacity: 1; transform: translateY(0); }
+#question-bar .qb-num {
+  font-size: 10px; font-weight: 800; color: #fff;
+  background: var(--orange); padding: 2px 9px;
+  border-radius: 100px; letter-spacing: 0.5px; flex-shrink: 0;
+}
+#question-bar .qb-text {
+  font-size: 13px; font-weight: 700; color: var(--t1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ─── SLIDES CONTAINER ─── */
+#slides-container { position: fixed; inset: 0; }
+
+.slide {
+  position: absolute; inset: 0;
+  width: 100vw; height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  padding: 100px 88px calc(64px + 100px);
+  overflow: hidden;
+  opacity: 0; transform: translateX(50px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+.slide.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+.slide-light { background: var(--bg); color: var(--t1); }
+.slide-dark {
+  background: linear-gradient(150deg, #B35535 0%, #9A4220 40%, #742810 100%);
+  color: #fff;
+}
+
+/* ─── ENTRANCE ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.anim { opacity: 0; }
+.anim.visible {
+  animation-fill-mode: both;
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.anim.visible.a-fade-up { animation-name: fadeUp; }
+.anim.visible.a-fade-in { animation-name: fadeIn; }
+.anim.visible.a-scale-in { animation-name: scaleIn; }
+
+/* ─── CONTENT SLIDES ─── */
+.slide-content {
+  justify-content: flex-start !important;
+  padding-top: 100px !important;
+  padding-bottom: calc(64px + 100px) !important;
+}
+
+/* ─── NAV BAR ─── */
+#nav-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: 64px;
+  background: rgba(18,16,14,0.92);
+  backdrop-filter: blur(14px);
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  z-index: 999;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.nav-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.22);
+  background: transparent; color: #fff; font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, opacity 0.2s;
+  outline: none; font-family: inherit;
+}
+.nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
+.nav-btn:disabled { opacity: 0.25; cursor: default; }
+#dots-container { display: flex; gap: 6px; align-items: center; }
+.dot {
+  height: 8px; border-radius: 4px;
+  background: rgba(255,255,255,0.28);
+  transition: width 0.3s ease, background 0.3s ease; width: 8px; cursor: pointer;
+}
+.dot.active { width: 24px; background: var(--orange); }
+#slide-counter {
+  color: rgba(255,255,255,0.5); font-size: 13px;
+  font-family: 'Pretendard', sans-serif; min-width: 44px; text-align: center;
+}
+
+/* ─── NEUMORPHIC ─── */
+.nm-card { background: var(--bg); border-radius: 16px; box-shadow: var(--nm-sm); }
+
+/* ═══════════════════════════════════════
+   SLIDE HEADERS — 모든 슬라이드 동일
+   ═══════════════════════════════════════ */
+.slide-header {
+  text-align: center;
+  margin-bottom: 28px;
+  width: 100%;
+  flex-shrink: 0;
+}
+.slide-kicker {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 8px; display: block;
+}
+.slide-title {
+  font-size: clamp(24px, 2.8vw, 34px);
+  font-weight: 800; color: var(--t1);
+  word-break: keep-all; line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.slide-desc {
+  font-size: 15px;
+  color: var(--t2); word-break: keep-all;
+  line-height: 1.55; margin-top: 6px;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 1 — COVER
+   ═══════════════════════════════════════ */
+.s1-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 100px; padding: 5px 18px;
+  font-size: 12px; letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.82); margin-bottom: 28px;
+}
+.s1-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
+.s1-title {
+  font-size: clamp(32px, 4.5vw, 58px);
+  font-weight: 900; text-align: center;
+  line-height: 1.18; margin-bottom: 16px;
+  word-break: keep-all; letter-spacing: -0.03em;
+}
+.s1-subtitle {
+  font-size: clamp(14px, 1.5vw, 18px);
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 44px; text-align: center;
+  word-break: keep-all; line-height: 1.5;
+}
+.s1-stats {
+  display: flex;
+  background: rgba(0,0,0,0.25);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.1);
+  overflow: hidden; max-width: 680px; width: 100%;
+}
+.s1-stat {
+  flex: 0 0 33.333%; padding: 22px 28px; text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.09); overflow: hidden;
+}
+.s1-stat:last-child { border-right: none; }
+.s1-stat-num {
+  font-size: clamp(18px, 2vw, 26px); font-weight: 900;
+  color: var(--orange); display: block; white-space: nowrap;
+  letter-spacing: -0.02em;
+}
+.s1-stat-label {
+  font-size: clamp(10px, 0.9vw, 12px);
+  color: rgba(255,255,255,0.5);
+  margin-top: 5px; white-space: nowrap; display: block;
+}
+.s1-source {
+  margin-top: 22px; font-size: 11px;
+  color: rgba(255,255,255,0.35); text-align: center;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 2 — TOC
+   ═══════════════════════════════════════ */
+.toc-list {
+  display: flex; flex-direction: column;
+  flex: 1; min-height: 0;
+  justify-content: space-evenly;
+  gap: 16px; width: 100%; max-width: 880px;
+}
+.toc-row {
+  display: flex; align-items: center; gap: 22px;
+  padding: 22px 28px; border-radius: 14px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+.toc-row:hover {
+  box-shadow: 8px 8px 24px #C0BDB7, -8px -8px 24px #FFFFFF;
+  transform: translateX(4px);
+}
+.toc-badge {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--orange); color: #fff;
+  font-size: 17px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 3px 3px 10px rgba(217,119,87,0.35);
+}
+.toc-content { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.toc-arrow {
+  font-size: 18px; color: var(--t3); flex-shrink: 0;
+  transition: color 0.2s, transform 0.2s;
+}
+.toc-row:hover .toc-arrow { color: var(--orange); transform: translateX(3px); }
+.toc-q {
+  font-size: 18px;
+  font-weight: 800; color: var(--t1);
+  word-break: keep-all; line-height: 1.3;
+}
+.toc-a {
+  font-size: 15px; color: var(--t2);
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 3 — Q1 INSIGHT CARDS
+   ═══════════════════════════════════════ */
+.insight-cards {
+  display: flex; gap: 20px;
+  width: 100%; max-width: 1160px;
+  flex: 1; min-height: 0;
+}
+.insight-card {
+  flex: 1; padding: 28px 26px;
+  border-radius: 16px;
+  background: var(--bg);
+  box-shadow: var(--nm-sm);
+  display: flex; flex-direction: column;
+  border-top: 4px solid var(--orange);
+  position: relative; overflow: hidden;
+}
+.insight-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--orange-lt);
+  font-size: 12px; font-weight: 800; color: var(--orange);
+  margin-bottom: 14px; flex-shrink: 0;
+}
+.insight-head {
+  font-size: 18px;
+  font-weight: 700; color: var(--t1);
+  margin-bottom: 10px; word-break: keep-all;
+  line-height: 1.45; flex-shrink: 0;
+}
+.insight-body {
+  font-size: 15px;
+  color: var(--t2); line-height: 1.7;
+  word-break: keep-all; flex: 1;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 4 — Q2 RADAR
+   ═══════════════════════════════════════ */
+.radar-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; width: 100%; flex: 1; min-height: 0;
+  overflow: hidden;
+}
+#radarSlide {
+  max-width: 100%; max-height: 100%;
+  object-fit: contain;
+}
+.radar-legend {
+  display: flex; gap: 28px; align-items: center;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 15px; color: var(--t2);
+  font-weight: 600;
+}
+.legend-line { width: 32px; height: 3px; border-radius: 2px; }
+.radar-note { font-size: 11px; color: var(--t3); }
+
+/* ═══════════════════════════════════════
+   SLIDE 5 — Q2 EXPOSURE COLS
+   ═══════════════════════════════════════ */
+.s5-stat-bar {
+  display: flex; gap: 0; margin-bottom: 28px;
+  background: var(--bg); border-radius: 14px;
+  box-shadow: var(--nm-sm); overflow: hidden;
+  max-width: 680px; width: 100%;
+}
+.s5-seg {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 14px 20px; gap: 4px;
+}
+.s5-seg:first-child { flex: 1; border-right: 1px solid rgba(0,0,0,0.06); }
+.s5-seg:last-child  { flex: 1; }
+.s5-seg-num {
+  font-size: clamp(22px, 2.4vw, 30px); font-weight: 900;
+  letter-spacing: -0.03em;
+}
+.s5-seg-num.affected { color: var(--red); }
+.s5-seg-num.safe     { color: var(--green); }
+.s5-seg-label { font-size: 12px; color: var(--t2); font-weight: 600; }
+.exposure-cols {
+  display: flex; gap: 20px;
+  width: 100%; max-width: 1000px;
+  flex: 1; min-height: 0;
+}
+.exposure-col {
+  flex: 1; border-radius: 16px; overflow: hidden;
+  display: flex; flex-direction: column;
+  box-shadow: var(--nm-sm);
+}
+.col-header {
+  padding: 16px 22px;
+  font-size: 18px; font-weight: 700; color: #fff;
+}
+.col-header.high { background: var(--red); }
+.col-header.safe { background: var(--green); }
+.col-body {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center; background: var(--bg);
+}
+.col-item {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 13px 22px;
+  border-bottom: 1px solid rgba(0,0,0,0.05); gap: 12px;
+}
+.col-item:last-child { border-bottom: none; }
+.col-item-name {
+  font-size: 15px; font-weight: 600; color: var(--t1);
+  word-break: keep-all;
+}
+.col-item-note {
+  font-size: 12px; color: var(--t2); font-weight: 600;
+  white-space: nowrap; background: rgba(0,0,0,0.06);
+  border-radius: 100px; padding: 4px 12px;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 6 — Q3 SCATTER
+   ═══════════════════════════════════════ */
+.chart-wrap {
+  width: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  flex: 1; min-height: 0;
+}
+.chart-note {
+  font-size: 11px; color: var(--t3); margin-top: 6px;
+}
+#scatterCanvas {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 7 — Q3 KOREA AGE
+   ═══════════════════════════════════════ */
+.s7-top {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; margin-bottom: 22px; flex-shrink: 0; width: 100%;
+}
+.time-range {
+  display: flex; align-items: center; gap: 0;
+  background: var(--orange-lt); border: 1px solid rgba(217,119,87,0.2);
+  border-radius: 14px; overflow: hidden; flex-shrink: 0;
+}
+.time-point {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 10px 24px;
+}
+.time-point .tp-label {
+  font-size: 10px; font-weight: 700; color: var(--orange);
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px;
+}
+.time-point .tp-date {
+  font-size: clamp(16px, 1.8vw, 22px); font-weight: 800; color: var(--t1);
+}
+.time-arrow {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 14px; background: var(--orange);
+  align-self: stretch; justify-content: center; gap: 1px;
+}
+.time-arrow .ta-icon { font-size: 16px; color: #fff; }
+.time-arrow .ta-label {
+  font-size: 10px; font-weight: 800;
+  color: rgba(255,255,255,0.85); white-space: nowrap;
+}
+.s7-insight {
+  font-size: 18px; color: var(--t1);
+  line-height: 1.6; word-break: keep-all;
+  text-align: center;
+}
+.s7-insight strong { color: var(--orange); font-weight: 800; }
+
+.age-cards {
+  display: flex; gap: 16px;
+  width: 100%; max-width: 1100px;
+  flex: 1; min-height: 0;
+}
+.age-card {
+  flex: 1; padding: 24px 18px; text-align: center;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  border-radius: 16px; background: var(--bg); box-shadow: var(--nm-sm);
+  position: relative; overflow: hidden;
+}
+.age-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 4px;
+}
+.age-card.neg-card::after { background: var(--red); }
+.age-card.pos-card::after { background: var(--green); }
+.age-label {
+  font-size: 15px; font-weight: 700; color: var(--t2);
+  margin-bottom: 10px; background: rgba(0,0,0,0.06);
+  border-radius: 8px; padding: 4px 10px; display: inline-block;
+}
+.age-num {
+  font-size: clamp(32px, 4vw, 50px);
+  font-weight: 900; display: block; margin-bottom: 8px;
+  letter-spacing: -0.03em; line-height: 1;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.age-num.neg { color: var(--red); }
+.age-num.pos { color: var(--green); }
+.age-sub {
+  font-size: 15px; color: var(--t2);
+  line-height: 1.5; word-break: keep-all;
+}
+.s7-source { margin-top: 12px; font-size: 11px; color: var(--t3); text-align: center; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════
+   SLIDE 8 — Q3 BAR CHART
+   ═══════════════════════════════════════ */
+.s8-context {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 24px; flex-shrink: 0;
+}
+.s8-ctx-tag {
+  background: rgba(201,48,48,0.1); border: 1px solid rgba(201,48,48,0.25);
+  border-radius: 8px; padding: 6px 14px;
+  font-size: 13px; font-weight: 700; color: var(--red);
+}
+.s8-ctx-line { font-size: 13px; color: var(--t2); }
+.bar-chart {
+  width: 100%; max-width: 900px;
+  display: flex; flex-direction: column;
+  flex: 1; min-height: 0; justify-content: center; gap: 0;
+}
+.bar-row {
+  flex: 1; display: flex; align-items: center; gap: 16px;
+}
+.bar-name {
+  width: 150px; font-size: 15px;
+  font-weight: 700; color: var(--t1);
+  text-align: right; flex-shrink: 0; word-break: keep-all;
+}
+.bar-track {
+  flex: 1; height: 40px;
+  background: rgba(0,0,0,0.06); border-radius: 10px; overflow: hidden;
+}
+.bar-fill {
+  height: 100%; border-radius: 10px; width: 0%;
+  transition: width 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 16px;
+  background: linear-gradient(90deg, #E08060, #C93030);
+}
+.bar-pct {
+  font-size: clamp(14px, 1.4vw, 17px); font-weight: 800; color: #fff;
+  white-space: nowrap;
+}
+.s8-source { margin-top: 14px; font-size: 11px; color: var(--t3); text-align: center; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════
+   SLIDE 9 — Q4 STRATEGY
+   ═══════════════════════════════════════ */
+.s9-lead {
+  font-size: 18px; font-weight: 600;
+  color: var(--orange); text-align: center;
+  max-width: 760px; margin-bottom: 24px; flex-shrink: 0;
+  line-height: 1.6; word-break: keep-all;
+}
+.s9-lead strong { color: var(--t1); font-weight: 800; }
+.strategy-cards {
+  display: flex; gap: 20px;
+  width: 100%; max-width: 1100px;
+  flex: 1; min-height: 0;
+}
+.strategy-card {
+  flex: 1; padding: 28px 24px;
+  display: flex; flex-direction: column;
+  border-radius: 16px; background: var(--bg);
+  box-shadow: var(--nm-sm); position: relative; overflow: hidden;
+}
+.strategy-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; bottom: 0; width: 4px;
+  background: var(--orange);
+}
+.strategy-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--orange); color: #fff;
+  font-size: 15px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px; flex-shrink: 0;
+}
+.strategy-title {
+  font-size: 18px;
+  font-weight: 800; color: var(--t1); margin-bottom: 10px;
+  word-break: keep-all; line-height: 1.35;
+}
+.strategy-body {
+  font-size: 15px;
+  color: var(--t2); line-height: 1.7; word-break: keep-all; flex: 1;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 10 — Q4 ROLE GUIDE
+   ═══════════════════════════════════════ */
+.role-cards {
+  display: flex; gap: 28px;
+  width: 100%; max-width: 1100px;
+  flex: 1; min-height: 0;
+}
+.role-card {
+  flex: 1; padding: 32px 30px;
+  display: flex; flex-direction: column;
+  border-radius: 18px; background: var(--bg);
+  box-shadow: var(--nm-sm);
+  border-top: 4px solid transparent;
+  transition: transform 0.2s;
+}
+.role-card:first-child { border-top-color: var(--blue); }
+.role-card:last-child { border-top-color: var(--orange); }
+.role-card:hover { transform: translateY(-3px); }
+.role-badge {
+  display: inline-block; padding: 5px 15px;
+  border-radius: 100px; font-size: 12px; font-weight: 700;
+  margin-bottom: 18px; color: #fff;
+}
+.role-badge.junior { background: var(--blue); }
+.role-badge.senior { background: var(--orange); }
+.role-head {
+  font-size: 18px;
+  font-weight: 800; color: var(--t1); margin-bottom: 12px;
+  word-break: keep-all; line-height: 1.3;
+}
+.role-divider {
+  width: 32px; height: 3px; background: var(--orange);
+  border-radius: 2px; margin-bottom: 14px;
+}
+.role-intro {
+  font-size: 15px;
+  color: var(--t2); margin-bottom: 18px;
+  line-height: 1.65; word-break: keep-all; flex: 1;
+}
+.role-bullets { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.role-bullets li {
+  font-size: 15px; color: var(--t1);
+  padding-left: 18px; position: relative;
+  line-height: 1.5; word-break: keep-all;
+}
+.role-bullets li::before {
+  content: '›'; position: absolute; left: 0;
+  color: var(--orange); font-weight: 900; font-size: 16px; line-height: 1.2;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 9 — RESTRUCTURING HEADLINES
+   ═══════════════════════════════════════ */
+.s9-summary {
+  display: flex; gap: 16px; width: 100%; max-width: 960px;
+  margin-bottom: 20px; flex-shrink: 0;
+}
+.s9-stat-box {
+  flex: 1; text-align: center;
+  padding: 14px 12px;
+  background: var(--bg); border-radius: 12px;
+  box-shadow: var(--nm-sm);
+}
+.s9-stat-num {
+  font-size: clamp(22px, 2.2vw, 28px); font-weight: 900;
+  color: var(--red); display: block; letter-spacing: -0.02em;
+}
+.s9-stat-label {
+  font-size: 12px; color: var(--t2); font-weight: 600; margin-top: 2px;
+}
+.headline-list {
+  display: flex; flex-direction: column;
+  gap: 0; width: 100%; max-width: 960px;
+  flex: 1; min-height: 0;
+  justify-content: center;
+}
+.headline-row {
+  display: flex; align-items: center; gap: 16px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.headline-row:last-child { border-bottom: none; }
+.hl-date {
+  font-size: 12px; font-weight: 700; color: var(--t3);
+  width: 56px; flex-shrink: 0; text-align: right;
+}
+.hl-tag {
+  font-size: 11px; font-weight: 700; color: #fff;
+  background: var(--orange); border-radius: 100px;
+  padding: 3px 0; width: 48px; text-align: center;
+  flex-shrink: 0; white-space: nowrap;
+}
+.hl-tag.tag-tech { background: var(--blue); }
+.hl-tag.tag-finance { background: #7a6a3a; }
+.hl-tag.tag-mfg { background: #5a5a5a; }
+.hl-tag.tag-game { background: #8b5cf6; }
+.hl-tag.tag-global { background: var(--red); }
+.hl-text {
+  font-size: 15px; font-weight: 600; color: var(--t1);
+  flex: 1; word-break: keep-all; line-height: 1.4;
+}
+.hl-source {
+  font-size: 11px; color: var(--t3); flex-shrink: 0;
+  white-space: nowrap;
+}
+.s9-bottom {
+  margin-top: 16px; flex-shrink: 0;
+  font-size: 15px; font-weight: 700; color: var(--orange);
+  text-align: center; word-break: keep-all; line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE 12 — CONCLUSION
+   ═══════════════════════════════════════ */
+#slide-12 {
+  background: linear-gradient(150deg, #1a1210 0%, #2a1810 45%, #3a1f0e 100%);
+  padding: 100px 88px calc(64px + 100px);
+  justify-content: center; gap: 0;
+}
+.s11-eyebrow {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--orange); text-align: center;
+  margin-bottom: 18px; opacity: 0.85;
+}
+.s11-headline {
+  font-size: clamp(32px, 4.2vw, 56px);
+  font-weight: 900; color: #fff; text-align: center;
+  line-height: 1.18; word-break: keep-all;
+  margin-bottom: 14px; letter-spacing: -0.03em;
+}
+.s11-headline .hl {
+  background: linear-gradient(90deg, #D97757, #F0A080);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.s11-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.48); text-align: center;
+  max-width: 580px; margin: 0 auto 32px;
+  line-height: 1.7; word-break: keep-all;
+}
+.s11-steps {
+  display: flex; gap: 0; width: 100%; max-width: 900px;
+  flex: 1; min-height: 0; margin-bottom: 22px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 18px; overflow: hidden;
+}
+.s11-step {
+  flex: 1; padding: 26px 26px; text-align: left;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  display: flex; flex-direction: column; justify-content: center;
+  transition: background 0.2s;
+}
+.s11-step:last-child { border-right: none; }
+.s11-step:hover { background: rgba(255,255,255,0.04); }
+.s11-step-n {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--orange); color: #fff;
+  font-size: 13px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px; flex-shrink: 0;
+}
+.s11-step-title {
+  font-size: 18px; font-weight: 700;
+  color: #fff; line-height: 1.45; word-break: keep-all; margin-bottom: 8px;
+}
+.s11-step-body {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5); line-height: 1.65; word-break: keep-all;
+}
+.s11-final {
+  width: 100%; max-width: 900px;
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  background: linear-gradient(90deg, rgba(217,119,87,0.2), rgba(217,119,87,0.08));
+  border: 1px solid rgba(217,119,87,0.32);
+  border-radius: 14px; padding: 18px 32px;
+  box-shadow: 0 0 60px rgba(217,119,87,0.15);
+}
+.s11-final-text {
+  font-size: 18px; font-weight: 800;
+  color: #fff; word-break: keep-all; line-height: 1.4;
+}
+.s11-final-text span { color: #F0A080; }
+.s11-final-pill {
+  flex-shrink: 0; background: var(--orange); color: #fff;
+  font-size: 13px; font-weight: 800; padding: 11px 24px;
+  border-radius: 100px; white-space: nowrap; letter-spacing: 0.02em;
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+<div id="question-bar">
+  <span class="qb-num" id="qb-num"></span>
+  <span class="qb-text" id="qb-text"></span>
+</div>
+<div id="slides-container">
+
+<!-- SLIDE 1 — COVER -->
+<div class="slide slide-dark" id="slide-1">
+  <div class="s1-eyebrow"><span class="s1-dot"></span>AI 직업 영향도 분석</div>
+  <h1 class="s1-title">AI가 내 직업에<br>미치는 영향</h1>
+  <p class="s1-subtitle">일자리 구조가 바뀌고 있습니다. 내 직업은 안전할까요?</p>
+  <div class="s1-stats">
+    <div class="s1-stat">
+      <span class="s1-stat-num">76개</span>
+      <span class="s1-stat-label">업종 데이터 분석</span>
+    </div>
+    <div class="s1-stat">
+      <span class="s1-stat-num">1,600만명</span>
+      <span class="s1-stat-label">국민연금 데이터 기반</span>
+    </div>
+    <div class="s1-stat">
+      <span class="s1-stat-num">30%</span>
+      <span class="s1-stat-label">AI 영향 없는 근로자</span>
+    </div>
+  </div>
+  <p class="s1-source">출처: 한국은행 BOK 이슈노트 2025-30호 · Anthropic 노동시장 연구</p>
+</div>
+
+<!-- SLIDE 2 — TOC -->
+<div class="slide slide-light slide-content" id="slide-2">
+  <div class="slide-header">
+    <div class="slide-kicker">Agenda</div>
+    <h2 class="slide-title">우리가 고민해야 할 4가지 질문</h2>
+  </div>
+  <div class="toc-list">
+    <div class="toc-row nm-card">
+      <div class="toc-badge">1</div>
+      <div class="toc-content">
+        <span class="toc-q">AI는 실제로 일자리를 어떻게 바꾸는가?</span>
+        <span class="toc-a">직업 전체 대체가 아닌 '특정 업무' 자동화</span>
+      </div>
+      <span class="toc-arrow">›</span>
+    </div>
+    <div class="toc-row nm-card">
+      <div class="toc-badge">2</div>
+      <div class="toc-content">
+        <span class="toc-q">전 세계적으로 어떤 직업이, 얼마나 영향받는가?</span>
+        <span class="toc-a">Anthropic 800개 직업 데이터 · 이론 vs 실제 격차</span>
+      </div>
+      <span class="toc-arrow">›</span>
+    </div>
+    <div class="toc-row nm-card">
+      <div class="toc-badge">3</div>
+      <div class="toc-content">
+        <span class="toc-q">내 직업은 위험한가, 안전한가?</span>
+        <span class="toc-a">76개 업종 포지셔닝 · 한국 1,600만명 데이터</span>
+      </div>
+      <span class="toc-arrow">›</span>
+    </div>
+    <div class="toc-row nm-card">
+      <div class="toc-badge">4</div>
+      <div class="toc-content">
+        <span class="toc-q">나는 지금 무엇을 해야 하는가?</span>
+        <span class="toc-a">3가지 전략 · 주니어/시니어별 실행 계획</span>
+      </div>
+      <span class="toc-arrow">›</span>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3 — Q1 -->
+<div class="slide slide-light slide-content" id="slide-3">
+  <div class="slide-header">
+    <div class="slide-kicker">Q1 · AI는 실제로 일자리를 어떻게 바꾸는가?</div>
+    <h2 class="slide-title">직업이 아니라, '업무'가 대체된다</h2>
+    <p class="slide-desc">한국은행 · Anthropic 연구가 공통으로 가리키는 3가지 방향</p>
+  </div>
+  <div class="insight-cards">
+    <div class="insight-card">
+      <div class="insight-badge">1</div>
+      <p class="insight-head">직업 전체가 아닌, 그 안의 '특정 업무'를 자동화합니다.</p>
+      <p class="insight-body">문서 작성, 데이터 입력, 코딩 등 정형화된 업무를 대체합니다. 직업 자체보다 업무 단위에서 영향이 먼저 나타납니다.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-badge">2</div>
+      <p class="insight-head">주니어일수록 영향이 크고, 시니어일수록 오히려 보완됩니다.</p>
+      <p class="insight-body">한국 청년층 일자리 21.1만개 감소, 50대는 20.9만개 증가. 22~25세 채용 둔화가 한국과 미국 양쪽에서 동시에 관측됩니다.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-badge">3</div>
+      <p class="insight-head">아직 초기 단계입니다. 실제 활용률은 가능성의 1/3 수준입니다.</p>
+      <p class="insight-body">컴퓨터/수학 직군의 이론적 AI 노출도는 94%이지만 실제 활용률은 33%입니다. 지금이 준비할 타이밍입니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4 — Q2 RADAR -->
+<div class="slide slide-light slide-content" id="slide-4">
+  <div class="slide-header">
+    <div class="slide-kicker">Q2 · 전 세계적으로 어떤 직업이, 얼마나 영향받는가?</div>
+    <h2 class="slide-title">이론적 가능성과 실제 활용 사이, 격차는 3배</h2>
+    <p class="slide-desc">800개 직업 O*NET 데이터와 Claude 실사용 데이터 비교</p>
+  </div>
+  <div class="radar-wrap">
+    <canvas id="radarSlide" width="700" height="400"></canvas>
+    <div class="radar-legend">
+      <div class="legend-item">
+        <div class="legend-line" style="background:#5B9BD5;"></div>
+        <span>이론적 AI 활용 가능성</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-line" style="background:#E06060;"></div>
+        <span>실제 AI 사용 범위</span>
+      </div>
+    </div>
+    <p class="radar-note">출처: Anthropic, "AI의 노동시장 영향" (2026.3)</p>
+  </div>
+</div>
+
+<!-- SLIDE 5 — Q2 EXPOSURE -->
+<div class="slide slide-light slide-content" id="slide-5">
+  <div class="slide-header">
+    <div class="slide-kicker">Q2 · Anthropic 노동시장 영향 연구</div>
+    <h2 class="slide-title">전체 직업의 70%가 AI 영향권, 하지만 수준은 천차만별</h2>
+  </div>
+  <div class="s5-stat-bar">
+    <div class="s5-seg">
+      <span class="s5-seg-num affected">70%</span>
+      <span class="s5-seg-label">다양한 수준의 AI 영향</span>
+    </div>
+    <div class="s5-seg">
+      <span class="s5-seg-num safe">30%</span>
+      <span class="s5-seg-label">AI 노출도 거의 없음</span>
+    </div>
+  </div>
+  <div class="exposure-cols">
+    <div class="exposure-col">
+      <div class="col-header high">높은 AI 노출 직업군</div>
+      <div class="col-body">
+        <div class="col-item">
+          <span class="col-item-name">컴퓨터 프로그래머</span>
+          <span class="col-item-note">업무의 75% 커버</span>
+        </div>
+        <div class="col-item">
+          <span class="col-item-name">데이터 입력 담당자</span>
+          <span class="col-item-note">업무의 67% 커버</span>
+        </div>
+        <div class="col-item">
+          <span class="col-item-name">고객서비스 담당자</span>
+          <span class="col-item-note">API 활용 급증</span>
+        </div>
+        <div class="col-item">
+          <span class="col-item-name">사무행정 전문가</span>
+          <span class="col-item-note">문서/보고 자동화</span>
+        </div>
+      </div>
+    </div>
+    <div class="exposure-col">
+      <div class="col-header safe">영향 거의 없는 직업군</div>
+      <div class="col-body">
+        <div class="col-item">
+          <span class="col-item-name">요리사, 바텐더</span>
+          <span class="col-item-note">물리적 기술 중심</span>
+        </div>
+        <div class="col-item">
+          <span class="col-item-name">기계/정비공</span>
+          <span class="col-item-note">현장 판단 필수</span>
+        </div>
+        <div class="col-item">
+          <span class="col-item-name">안전요원, 구조대원</span>
+          <span class="col-item-note">인간 대응 필수</span>
+        </div>
+        <div class="col-item">
+          <span class="col-item-name">건설/농림어업 종사자</span>
+          <span class="col-item-note">현장 육체 노동</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6 — Q3 SCATTER -->
+<div class="slide slide-light slide-content" id="slide-6">
+  <div class="slide-header">
+    <div class="slide-kicker">Q3 · 내 직업은 위험한가, 안전한가?</div>
+    <h2 class="slide-title">AI 노출도와 보완도, 두 축으로 업종이 갈린다</h2>
+  </div>
+  <div class="chart-wrap">
+    <canvas id="scatterCanvas" width="860" height="420"></canvas>
+    <p class="chart-note">출처: Felten et al.(2021), Pizzinelli et al.(2023), 한국은행 재구성</p>
+  </div>
+</div>
+
+<!-- SLIDE 7 — Q3 BAR CHART (충격: 산업별 급감) -->
+<div class="slide slide-light slide-content" id="slide-7">
+  <div class="slide-header">
+    <div class="slide-kicker">Q3 · KOREA · ChatGPT 출시 이후</div>
+    <h2 class="slide-title">정보서비스업 청년 고용 -23.8%, 변화는 이미 시작됐다</h2>
+    <p class="slide-desc">2022.11 ChatGPT 출시 이후, AI 고노출 업종 청년 고용이 빠르게 감소</p>
+  </div>
+  <div class="s8-context">
+    <span class="s8-ctx-tag">2022.11 ChatGPT 출시 이후</span>
+    <span class="s8-ctx-line">2025.7월 기준, AI 고노출 업종 청년 고용 변화율</span>
+  </div>
+  <div class="bar-chart">
+    <div class="bar-row">
+      <span class="bar-name">정보 서비스업</span>
+      <div class="bar-track">
+        <div class="bar-fill" data-width="95.2"><span class="bar-pct">-23.8%</span></div>
+      </div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-name">출판업</span>
+      <div class="bar-track">
+        <div class="bar-fill" data-width="81.6"><span class="bar-pct">-20.4%</span></div>
+      </div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-name">컴퓨터/시스템</span>
+      <div class="bar-track">
+        <div class="bar-fill" data-width="44.8"><span class="bar-pct">-11.2%</span></div>
+      </div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-name">전문 서비스업</span>
+      <div class="bar-track">
+        <div class="bar-fill" data-width="35.2"><span class="bar-pct">-8.8%</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="s8-source">출처: 한국은행, 국민연금공단</p>
+</div>
+
+<!-- SLIDE 8 — Q3 KOREA AGE (구조적 설명: 왜 주니어가 타격받나) -->
+<div class="slide slide-light slide-content" id="slide-8">
+  <div class="slide-header">
+    <div class="slide-kicker">Q3 · KOREA · 국민연금 1,600만명 데이터 (2022.7→2025.7)</div>
+    <h2 class="slide-title">AI가 만드는 세대 격차</h2>
+  </div>
+  <div class="s7-top">
+    <div class="s7-insight">
+      국민연금 1,600만명 데이터에서 <strong>연공편향 기술변화</strong>가 뚜렷하게 나타납니다.<br>AI는 주니어를 줄이고, 시니어를 늘립니다.
+    </div>
+    <div class="time-range">
+      <div class="time-point">
+        <span class="tp-label">시작</span>
+        <span class="tp-date">2022년 7월</span>
+      </div>
+      <div class="time-arrow">
+        <span class="ta-icon">→</span>
+        <span class="ta-label">3년간 변화</span>
+      </div>
+      <div class="time-point">
+        <span class="tp-label">현재</span>
+        <span class="tp-date">2025년 7월</span>
+      </div>
+    </div>
+  </div>
+  <div class="age-cards">
+    <div class="age-card nm-card neg-card">
+      <div class="age-label">15~29세</div>
+      <span class="age-num neg">-21.1만</span>
+      <p class="age-sub">감소분의 98.6%<br>AI 고노출 업종</p>
+    </div>
+    <div class="age-card nm-card neg-card">
+      <div class="age-label">30대</div>
+      <span class="age-num neg">-5.8만</span>
+      <p class="age-sub">AI 노출도와<br>관련 약함</p>
+    </div>
+    <div class="age-card nm-card neg-card">
+      <div class="age-label">40대</div>
+      <span class="age-num neg">-11.9만</span>
+      <p class="age-sub">다양한 요인<br>복합 작용</p>
+    </div>
+    <div class="age-card nm-card pos-card">
+      <div class="age-label">50대</div>
+      <span class="age-num pos">+20.9만</span>
+      <p class="age-sub">증가분의 69.9%<br>AI 고노출 업종</p>
+    </div>
+  </div>
+  <p class="s7-source">출처: 한국은행 BOK 이슈노트 2025-30호 | 국민연금 가입자수 기준</p>
+</div>
+
+<!-- SLIDE 9 — RESTRUCTURING HEADLINES -->
+<div class="slide slide-light slide-content" id="slide-9">
+  <div class="slide-header">
+    <div class="slide-kicker">Q3 · 2026년 1월~4월, 지금 일어나고 있는 일</div>
+    <h2 class="slide-title">전방위 구조조정, 이미 시작됐다</h2>
+  </div>
+  <div class="s9-summary">
+    <div class="s9-stat-box">
+      <span class="s9-stat-num">5개 산업</span>
+      <span class="s9-stat-label">제조·반도체·게임·IT·금융 동시 구조조정</span>
+    </div>
+    <div class="s9-stat-box">
+      <span class="s9-stat-num">8개 기업</span>
+      <span class="s9-stat-label">삼성·LG·SK·엔씨·크래프톤·카카오·네이버·5대 은행</span>
+    </div>
+    <div class="s9-stat-box">
+      <span class="s9-stat-num">만 36세</span>
+      <span class="s9-stat-label">희망퇴직 대상 연령 하한 전망</span>
+    </div>
+  </div>
+  <div class="headline-list">
+    <div class="headline-row">
+      <span class="hl-date">2026.01</span>
+      <span class="hl-tag tag-mfg">제조</span>
+      <span class="hl-text">삼성전자, 해외법인 인력 최대 30% 감축. 영업·행정직 중심</span>
+      <span class="hl-source">MBC</span>
+    </div>
+    <div class="headline-row">
+      <span class="hl-date">2026.01</span>
+      <span class="hl-tag tag-mfg">제조</span>
+      <span class="hl-text">LG전자, 전 사업부 희망퇴직 확대. 4년 내 40% 감축 목표</span>
+      <span class="hl-source">한국경제</span>
+    </div>
+    <div class="headline-row">
+      <span class="hl-date">2026.01</span>
+      <span class="hl-tag tag-finance">금융</span>
+      <span class="hl-text">5대 은행 희망퇴직 2,326명. 대상 연령 만 40세로 확대</span>
+      <span class="hl-source">한국일보</span>
+    </div>
+    <div class="headline-row">
+      <span class="hl-date">2026.01</span>
+      <span class="hl-tag tag-game">게임</span>
+      <span class="hl-text">크래프톤, 희망퇴직 250명 신청. 7,200명 조직 비대화 해소 난항</span>
+      <span class="hl-source">인벤</span>
+    </div>
+    <div class="headline-row">
+      <span class="hl-date">2026.01</span>
+      <span class="hl-tag tag-tech">IT</span>
+      <span class="hl-text">카카오, 계열사 137개→93개 감축. '다음'과도 이별</span>
+      <span class="hl-source">MTN</span>
+    </div>
+    <div class="headline-row">
+      <span class="hl-date">2026.01</span>
+      <span class="hl-tag tag-mfg">반도체</span>
+      <span class="hl-text">SK하이닉스 파운드리 자회사, 중국 법인 희망퇴직 돌입</span>
+      <span class="hl-source">서울경제</span>
+    </div>
+    <div class="headline-row">
+      <span class="hl-date">2026.02</span>
+      <span class="hl-tag tag-game">게임</span>
+      <span class="hl-text">엔씨, 29년 만에 사명 변경. 500명 권고사직 + 3개 스튜디오 분사</span>
+      <span class="hl-source">머니투데이</span>
+    </div>
+    <div class="headline-row">
+      <span class="hl-date">2026.02</span>
+      <span class="hl-tag tag-finance">금융</span>
+      <span class="hl-text">우리은행, 만 40세 이상 희망퇴직. 최대 31개월치 기본급 지급</span>
+      <span class="hl-source">서울경제</span>
+    </div>
+    <div class="headline-row">
+      <span class="hl-date">2026.03</span>
+      <span class="hl-tag tag-tech">IT</span>
+      <span class="hl-text">네이버, 해외 사업 재편. 19개 계열사 청산·매각</span>
+      <span class="hl-source">디지털투데이</span>
+    </div>
+    <div class="headline-row">
+      <span class="hl-date">2026.04</span>
+      <span class="hl-tag tag-mfg">제조</span>
+      <span class="hl-text">삼성전자, 중국 사업 전반 구조조정 검토. 가전·디스플레이 철수 가능성</span>
+      <span class="hl-source">한국경제</span>
+    </div>
+  </div>
+  <p class="s9-bottom">제조·금융·IT·게임. 안전한 산업은 없습니다. 준비하는 사람만이 살아남습니다.</p>
+</div>
+
+<!-- SLIDE 10 — Q4 STRATEGY -->
+<div class="slide slide-light slide-content" id="slide-10">
+  <div class="slide-header">
+    <div class="slide-kicker">Q4 · 나는 지금 무엇을 해야 하는가?</div>
+    <h2 class="slide-title">위기 속 생존 공식: 3가지 전략</h2>
+  </div>
+  <p class="s9-lead">위기는 분명합니다. 하지만 AI는 '사람'을 대체하지 않습니다.<br><strong>AI를 활용하지 않는 사람의 업무 방식</strong>을 대체합니다.</p>
+  <div class="strategy-cards">
+    <div class="strategy-card">
+      <div class="strategy-num">1</div>
+      <div class="strategy-title">암묵적 지식을 키워라</div>
+      <p class="strategy-body">업무 맥락, 대인관계, 조직 관리, 현장 판단력. 경험에서 나오는 지식은 AI가 대체하지 못합니다.</p>
+    </div>
+    <div class="strategy-card">
+      <div class="strategy-num">2</div>
+      <div class="strategy-title">AI 보완 업무를 찾아라</div>
+      <p class="strategy-body">고노출 업종이라도 보완도가 높으면 안전합니다. 사람의 판단과 관계가 결합된 업무에 집중하세요.</p>
+    </div>
+    <div class="strategy-card">
+      <div class="strategy-num">3</div>
+      <div class="strategy-title">AI 활용 역량을 갖춰라</div>
+      <p class="strategy-body">정형 업무는 AI에 위임하고, 창의적이고 전략적인 업무에 시간을 집중하세요.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 11 — Q4 ROLES -->
+<div class="slide slide-light slide-content" id="slide-11">
+  <div class="slide-header">
+    <div class="slide-kicker">Q4 · 역할별 실행 가이드</div>
+    <h2 class="slide-title">주니어와 시니어, 실행 전략은 다르다</h2>
+  </div>
+  <div class="role-cards">
+    <div class="role-card nm-card">
+      <span class="role-badge junior">주니어 · 경력 5년 이하</span>
+      <div class="role-head">AI를 무기로, 차별화를 만들어라</div>
+      <div class="role-divider"></div>
+      <p class="role-intro">단순 문서 작성과 데이터 정리만으로는 차별화가 어렵습니다. AI를 능숙하게 다루면서 커뮤니케이션, 프로젝트 관리, 고객 대응 역량을 함께 쌓으세요.</p>
+      <ul class="role-bullets">
+        <li>AI 도구 능숙도를 명시적 역량으로 표현하기</li>
+        <li>정형 업무는 AI에 위임, 고부가가치 업무에 집중</li>
+        <li>커뮤니케이션과 관계 역량 병행 개발</li>
+      </ul>
+    </div>
+    <div class="role-card nm-card">
+      <span class="role-badge senior">시니어 · 경력 10년 이상</span>
+      <div class="role-head">암묵적 지식 + AI = 압도적 생산성</div>
+      <div class="role-divider"></div>
+      <p class="role-intro">암묵적 지식과 사회적 기술은 AI가 보완해 줄 영역입니다. AI로 생산성을 높이고, 팀이 AI와 협업하도록 이끄는 리더가 되세요.</p>
+      <ul class="role-bullets">
+        <li>경험에서 나온 판단력은 AI가 대체할 수 없음</li>
+        <li>AI로 산출물 품질과 속도 동시 향상</li>
+        <li>팀의 AI 협업을 이끄는 리더십 발휘</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12 — CONCLUSION -->
+<div class="slide" id="slide-12">
+  <p class="s11-eyebrow">Next Step</p>
+  <h2 class="s11-headline">내 AI 활용 수준,<br><span class="hl">지금 진단해보세요.</span></h2>
+  <p class="s11-sub">AI를 잘 쓰는 사람이, 그렇지 않은 사람의 자리를 대체합니다.<br>첫 번째 단계는 내 현재 위치를 아는 것입니다.</p>
+  <div class="s11-steps">
+    <div class="s11-step">
+      <div class="s11-step-n">1</div>
+      <div class="s11-step-title">AI 활용 수준 진단</div>
+      <p class="s11-step-body">내 업무에서 AI를 얼마나 쓰고 있는지, 어디에 기회가 있는지 체크합니다.</p>
+    </div>
+    <div class="s11-step">
+      <div class="s11-step-n">2</div>
+      <div class="s11-step-title">맞춤 실행 플랜 제공</div>
+      <p class="s11-step-body">주니어/시니어, 직군별로 지금 바로 실행 가능한 AI 활용 로드맵을 받습니다.</p>
+    </div>
+    <div class="s11-step">
+      <div class="s11-step-n">3</div>
+      <div class="s11-step-title">AI 역량 격차 해소</div>
+      <p class="s11-step-body">진단 결과 기반으로 부족한 역량을 채우고, 경쟁력을 확보합니다.</p>
+    </div>
+  </div>
+  <div class="s11-final">
+    <p class="s11-final-text">3분이면 충분합니다. <span>지금 바로 진단하세요.</span></p>
+    <div class="s11-final-pill">AI 활용 수준 진단하기 →</div>
+  </div>
+</div>
+
+</div><!-- /slides-container -->
+
+<!-- NAV BAR -->
+<div id="nav-bar">
+  <button class="nav-btn" id="btn-prev">&#8592;</button>
+  <div id="dots-container"></div>
+  <span id="slide-counter">1 / 12</span>
+  <button class="nav-btn" id="btn-next">&#8594;</button>
+</div>
+
+<script>
+const TOTAL = 12;
+let current = 1;
+let animating = false;
+
+// ─── BUILD DOTS ───
+const dotsContainer = document.getElementById('dots-container');
+for (let i = 1; i <= TOTAL; i++) {
+  const dot = document.createElement('div');
+  dot.className = 'dot';
+  dot.dataset.n = i;
+  dot.addEventListener('click', () => { if (!animating) goTo(i); });
+  dotsContainer.appendChild(dot);
+}
+
+// ─── SCATTER CHART ───
+function drawScatter() {
+    var canvas = document.getElementById('scatterCanvas');
+    if (!canvas) return;
+    var dpr = window.devicePixelRatio || 1;
+    var cssW = 960, cssH = 500;
+    canvas.width = cssW * dpr; canvas.height = cssH * dpr;
+    canvas.style.width = '100%'; canvas.style.height = 'auto';
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    var W = cssW, H = cssH;
+    var pad = {t:44, r:44, b:56, l:68};
+    var xMin=5.1, xMax=6.9, yMin=0.44, yMax=0.66;
+    function tx(v){return pad.l+(v-xMin)/(xMax-xMin)*(W-pad.l-pad.r);}
+    function ty(v){return pad.t+(yMax-v)/(yMax-yMin)*(H-pad.t-pad.b);}
+    ctx.clearRect(0,0,W,H);
+
+    // 4분면 배경
+    var qx=tx(6.0), qy=ty(0.535);
+    ctx.globalAlpha=0.10;
+    ctx.fillStyle='#3a9a3a'; ctx.fillRect(pad.l,pad.t,qx-pad.l,qy-pad.t);
+    ctx.fillStyle='#3a6a9a'; ctx.fillRect(qx,pad.t,W-pad.r-qx,qy-pad.t);
+    ctx.fillStyle='#aaaaaa'; ctx.fillRect(pad.l,qy,qx-pad.l,H-pad.b-qy);
+    ctx.fillStyle='#C93030'; ctx.fillRect(qx,qy,W-pad.r-qx,H-pad.b-qy);
+    ctx.globalAlpha=1.0;
+
+    // 그리드
+    ctx.strokeStyle='#dedad5'; ctx.lineWidth=0.7;
+    [5.2,5.7,6.2,6.7].forEach(function(v){ctx.beginPath();ctx.moveTo(tx(v),pad.t);ctx.lineTo(tx(v),H-pad.b);ctx.stroke();});
+    [0.45,0.50,0.55,0.60,0.65].forEach(function(v){ctx.beginPath();ctx.moveTo(pad.l,ty(v));ctx.lineTo(W-pad.r,ty(v));ctx.stroke();});
+
+    // 4분면 구분선
+    ctx.setLineDash([8,5]); ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(tx(6.0),pad.t);ctx.lineTo(tx(6.0),H-pad.b);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(pad.l,ty(0.535));ctx.lineTo(W-pad.r,ty(0.535));ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 4분면 레이블
+    ctx.font='700 15px Pretendard,sans-serif'; ctx.globalAlpha=0.65;
+    ctx.fillStyle='#3a9a3a'; ctx.textAlign='left'; ctx.textBaseline='top';
+    ctx.fillText('안정',pad.l+10,pad.t+8);
+    ctx.fillStyle='#3a6a9a'; ctx.textAlign='right';
+    ctx.fillText('상대적 안전',W-pad.r-10,pad.t+8);
+    ctx.fillStyle='#777'; ctx.textAlign='left'; ctx.textBaseline='bottom';
+    ctx.fillText('현상 유지',pad.l+10,H-pad.b-8);
+    ctx.fillStyle='#C93030'; ctx.textAlign='right';
+    ctx.fillText('고위험',W-pad.r-10,H-pad.b-8);
+    ctx.globalAlpha=1.0;
+
+    // 축 눈금
+    ctx.fillStyle='#999'; ctx.font='13px Pretendard,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='top';
+    [5.2,5.7,6.2,6.7].forEach(function(v){ctx.fillText(v.toFixed(1),tx(v),H-pad.b+8);});
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    [0.45,0.50,0.55,0.60,0.65].forEach(function(v){ctx.fillText(v.toFixed(2),pad.l-8,ty(v));});
+
+    // 축 제목
+    ctx.fillStyle='#555'; ctx.font='600 14px Pretendard,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText('AI 노출도 →',W/2,H-18);
+    ctx.save(); ctx.translate(16, pad.t+(H-pad.t-pad.b)/2);
+    ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('AI 보완도 ↑',0,0); ctx.restore();
+
+    // 이름 없는 점
+    var unlabeled=[
+        [5.58,0.525],[5.62,0.481],[5.72,0.519],[5.74,0.584],[5.75,0.594],
+        [5.78,0.539],[5.78,0.499],[5.79,0.538],[5.80,0.603],[5.82,0.521],
+        [5.83,0.525],[5.88,0.530],[5.88,0.480],[5.88,0.472],[5.92,0.558],
+        [5.93,0.562],[5.95,0.520],[5.98,0.538],[6.01,0.510],[6.05,0.528],
+        [6.10,0.545],[6.10,0.538],[6.11,0.548],[6.12,0.601],[6.13,0.550],
+        [6.15,0.578],[6.18,0.540],[6.25,0.525],[6.35,0.595],[6.40,0.555],
+        [6.55,0.520]];
+    unlabeled.forEach(function(d){
+        ctx.beginPath();ctx.arc(tx(d[0]),ty(d[1]),5.5,0,Math.PI*2);
+        ctx.fillStyle='#C4B9A8';ctx.fill();
+        ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=1;ctx.stroke();
+    });
+
+    // 이름 있는 점
+    var labeled=[
+        ['항공 운송업',5.94,0.621,12,-10],['보건업',5.99,0.619,12,8],
+        ['교육 서비스업',6.18,0.595,12,-6],['건축기술, 엔지니어링 및 기타\n과학기술 서비스업',6.25,0.590,12,-6],
+        ['금속 광업',5.51,0.582,-12,-6],['종합 건설업',5.74,0.589,12,-6],
+        ['연구개발업',6.32,0.575,12,-6],['사회복지 서비스업',5.73,0.555,-12,-6],
+        ['창고 및 운송관련 서비스업',5.82,0.551,12,-6],['방송업',6.21,0.554,12,-6],
+        ['임업',5.59,0.550,-12,-6],['도매 및 상품 중개업',6.11,0.540,12,8],
+        ['자동차 및 트레일러 제조업',5.80,0.532,12,8],
+        ['음식점 및 주점업',5.62,0.508,-12,-6],['기타 제품 제조업',5.77,0.505,12,8],
+        ['숙박업',5.86,0.492,12,8],['전문 서비스업',6.53,0.530,25,-15,1],
+        ['출판업',6.55,0.520,20,25,1],['금융업',6.42,0.525,-50,20,1],
+        ['정보서비스업',6.41,0.531,-70,-50,1],['컴퓨터 프로그래밍,\n시스템 통합 및 관리업',6.48,0.533,15,-70,1],
+        ['농업',5.45,0.470,-12,8]
+    ];
+    labeled.forEach(function(d){
+        var x=tx(d[1]),y=ty(d[2]);
+        ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);
+        ctx.fillStyle='#D97757';ctx.fill();
+        ctx.strokeStyle='rgba(255,255,255,0.9)';ctx.lineWidth=1.5;ctx.stroke();
+    });
+    labeled.forEach(function(d){
+        if(!d[5]) return;
+        var x=tx(d[1]),y=ty(d[2]),lx=x+d[3],ly=y+d[4];
+        ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(lx,ly);
+        ctx.strokeStyle='rgba(150,145,140,0.7)';ctx.lineWidth=1;ctx.stroke();
+    });
+    ctx.font='600 12px Pretendard,sans-serif';
+    labeled.forEach(function(d){
+        var x=tx(d[1]),y=ty(d[2]);
+        var lines=d[0].split('\n');
+        ctx.textAlign=d[3]<0?'right':'left'; ctx.textBaseline='middle';
+        var lx=x+d[3], ly=y+d[4];
+        lines.forEach(function(line,idx){
+            var ty2=ly+idx*16;
+            ctx.strokeStyle='rgba(237,234,228,0.85)';ctx.lineWidth=3;ctx.lineJoin='round';
+            ctx.strokeText(line,lx,ty2);
+            ctx.fillStyle='#2A2520';ctx.fillText(line,lx,ty2);
+        });
+    });
+}
+
+// ─── RADAR CHART ───
+function drawRadar() {
+  const canvas = document.getElementById('radarSlide');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const wrap = canvas.parentElement;
+  const cssW = Math.min(700, wrap.clientWidth);
+  const cssH = Math.min(400, wrap.clientHeight - 60);
+  canvas.width = cssW * dpr; canvas.height = cssH * dpr;
+  canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = cssW, H = cssH;
+  ctx.clearRect(0, 0, W, H);
+
+  const cx = W/2, cy = H/2 - 10, R = Math.min(W, H) / 2 - 60;
+  const labels = ['경영','비즈니스/재무','컴퓨터/수학','건축/엔지니어링','생명/사회과학','사회/서비스','법률','교육/도서관','예술/미디어','의료 전문직','의료 지원','보안/치안','음식/서비스','시설/환경','개인 서비스','세일즈','사무/행정','농업','건설','설치/수리','생산','운송'];
+  const theory = [0.85,0.80,0.94,0.72,0.75,0.55,0.90,0.70,0.58,0.45,0.35,0.18,0.20,0.15,0.28,0.48,0.90,0.22,0.18,0.15,0.25,0.20];
+  const actual  = [0.30,0.28,0.33,0.18,0.20,0.15,0.25,0.18,0.15,0.10,0.08,0.05,0.05,0.04,0.08,0.12,0.25,0.06,0.05,0.04,0.06,0.05];
+  const N = labels.length;
+
+  function ang(i) { return (i/N)*Math.PI*2 - Math.PI/2; }
+  function pt(i, r) { return { x: cx + Math.cos(ang(i))*r, y: cy + Math.sin(ang(i))*r }; }
+
+  [0.2,0.4,0.6,0.8,1.0].forEach(frac => {
+    ctx.beginPath();
+    for (let i=0; i<N; i++) {
+      const p = pt(i, frac*R);
+      i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = frac === 1.0 ? '#bbb' : '#ddd';
+    ctx.lineWidth = 0.8; ctx.stroke();
+  });
+
+  for (let i=0; i<N; i++) {
+    const p = pt(i, R);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(p.x,p.y);
+    ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 0.8; ctx.stroke();
+  }
+
+  function drawPoly(vals, color, fill) {
+    ctx.beginPath();
+    vals.forEach((v,i) => {
+      const p = pt(i, v*R);
+      i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = fill; ctx.fill();
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+  }
+
+  drawPoly(theory, '#5B9BD5', 'rgba(91,155,213,0.18)');
+  drawPoly(actual,  '#E06060', 'rgba(224,96,96,0.18)');
+
+  theory.forEach((v,i) => {
+    const p = pt(i, v*R);
+    ctx.beginPath(); ctx.arc(p.x,p.y,3.5,0,Math.PI*2);
+    ctx.fillStyle='#5B9BD5'; ctx.fill();
+  });
+  actual.forEach((v,i) => {
+    const p = pt(i, v*R);
+    ctx.beginPath(); ctx.arc(p.x,p.y,3.5,0,Math.PI*2);
+    ctx.fillStyle='#E06060'; ctx.fill();
+  });
+
+  ctx.font = '11px Pretendard,sans-serif';
+  ctx.fillStyle = '#666';
+  labels.forEach((label, i) => {
+    const p = pt(i, R+22);
+    if (p.x < cx-5) ctx.textAlign='right';
+    else if (p.x > cx+5) ctx.textAlign='left';
+    else ctx.textAlign='center';
+    ctx.fillText(label, p.x, p.y+4);
+  });
+}
+
+// ─── BAR ANIMATION ───
+function animateBars() {
+  const fills = document.querySelectorAll('#slide-7 .bar-fill');
+  fills.forEach(el => { el.style.width = '0%'; el.style.transition = 'none'; });
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    fills.forEach(el => {
+      el.style.transition = 'width 1.2s cubic-bezier(0.23, 1, 0.32, 1)';
+      el.style.width = el.dataset.width + '%';
+    });
+  }));
+}
+
+// ─── SLIDE ACTIONS ───
+function setupAnimClasses() {
+  document.querySelectorAll('.slide').forEach(slide => {
+    const children = slide.querySelectorAll('.slide-header, .slide-header + *, .nm-card, .age-card, .toc-row, .strategy-card, .s11-step, .s11-final, .s7-top, .s7-insight, .time-range, .role-col, .scatter-wrap, .radar-wrap, .s9-lead, .s3-grid, .s3-card, .insight-row, .bar-group');
+    children.forEach(el => {
+      el.classList.add('anim', 'a-fade-up');
+    });
+    // Also animate direct children that aren't already tagged
+    Array.from(slide.children).forEach(el => {
+      if (!el.classList.contains('anim') && !el.classList.contains('nav-bar')) {
+        el.classList.add('anim', 'a-fade-up');
+      }
+    });
+  });
+}
+
+function animateSlideChildren(n) {
+  const slide = document.getElementById('slide-' + n);
+  if (!slide) return;
+  const els = slide.querySelectorAll('.anim');
+  els.forEach((el, i) => {
+    el.classList.remove('visible');
+    void el.offsetWidth;
+    el.style.animationDelay = (i * 0.12) + 's';
+    el.classList.add('visible');
+  });
+}
+
+function countUp(el, target, suffix, duration) {
+  let start = 0;
+  const step = ts => {
+    if (!start) start = ts;
+    const p = Math.min((ts - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(target * ease).toLocaleString() + suffix;
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function animateCoverStats() {
+  const nums = document.querySelectorAll('#slide-1 .s1-stat-num');
+  if (!nums.length) return;
+  const data = [{v:76, s:'개'}, {v:1600, s:'만명'}, {v:30, s:'%'}];
+  nums.forEach((el, i) => {
+    el.textContent = '0' + data[i].s;
+    setTimeout(() => countUp(el, data[i].v, data[i].s, 1200), i * 150);
+  });
+}
+
+function onSlideActivated(n) {
+  if (n === 1) animateCoverStats();
+  if (n === 7) animateBars();
+  if (n === 6) drawScatter();
+  if (n === 4) drawRadar();
+  animateSlideChildren(n);
+}
+
+// ─── NAVIGATION ───
+const QUESTION_MAP = {
+  3: { num: 'Q1', text: 'AI는 실제로 일자리를 어떻게 바꾸는가?' },
+  4: { num: 'Q2', text: '전 세계적으로 어떤 직업이, 얼마나 영향받는가?' },
+  5: { num: 'Q2', text: '전 세계적으로 어떤 직업이, 얼마나 영향받는가?' },
+  6: { num: 'Q3', text: '내 직업은 위험한가, 안전한가?' },
+  7: { num: 'Q3', text: '내 직업은 위험한가, 안전한가?' },
+  8: { num: 'Q3', text: '내 직업은 위험한가, 안전한가?' },
+  9: { num: 'Q3', text: '내 직업은 위험한가, 안전한가?' },
+  10: { num: 'Q4', text: '나는 지금 무엇을 해야 하는가?' },
+  11: { num: 'Q4', text: '나는 지금 무엇을 해야 하는가?' },
+};
+
+function updateUI() {
+  document.getElementById('slide-counter').textContent = current + ' / ' + TOTAL;
+  document.getElementById('btn-prev').disabled = current === 1;
+  document.getElementById('btn-next').disabled = current === TOTAL;
+
+  document.querySelectorAll('.dot').forEach((d, idx) => {
+    d.classList.toggle('active', idx+1 === current);
+  });
+
+  const pct = ((current-1)/(TOTAL-1))*100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+
+  const qBar = document.getElementById('question-bar');
+  const q = QUESTION_MAP[current];
+  if (q) {
+    document.getElementById('qb-num').textContent = q.num;
+    document.getElementById('qb-text').textContent = q.text;
+    qBar.classList.add('visible');
+  } else {
+    qBar.classList.remove('visible');
+  }
+}
+
+function resetSlideAnims(slide) {
+  slide.querySelectorAll('.anim').forEach(el => {
+    el.classList.remove('visible');
+    el.style.animationDelay = '';
+  });
+}
+
+function goTo(n) {
+  if (n === current || animating || n < 1 || n > TOTAL) return;
+  animating = true;
+  const oldSlide = document.getElementById('slide-'+current);
+  const newSlide = document.getElementById('slide-'+n);
+
+  // 이전 슬라이드 즉시 숨기기
+  oldSlide.style.transition = 'none';
+  oldSlide.style.opacity = '0';
+  oldSlide.style.pointerEvents = 'none';
+
+  // 새 슬라이드: 애니메이션 요소 숨기고, 슬라이드 자체도 숨긴 채로 준비
+  resetSlideAnims(newSlide);
+  newSlide.style.transition = 'none';
+  newSlide.style.opacity = '0';
+  newSlide.style.transform = 'translateX(0)';
+  newSlide.style.pointerEvents = 'none';
+
+  newSlide.getBoundingClientRect();
+
+  // 새 슬라이드 페이드인
+  newSlide.style.transition = 'opacity 0.3s ease';
+  newSlide.style.opacity = '1';
+
+  current = n;
+  updateUI();
+
+  setTimeout(() => {
+    oldSlide.style.transition = '';
+    oldSlide.style.transform = 'translateX(50px)';
+    oldSlide.style.opacity = '0';
+    newSlide.style.transition = '';
+    newSlide.style.pointerEvents = 'all';
+    animating = false;
+    onSlideActivated(current);
+  }, 320);
+}
+
+function navigate(dir) { goTo(current + dir); }
+
+document.getElementById('btn-prev').addEventListener('click', () => navigate(-1));
+document.getElementById('btn-next').addEventListener('click', () => navigate(1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); navigate(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); navigate(-1); }
+});
+
+// ─── INIT ───
+function init() {
+  const s1 = document.getElementById('slide-1');
+  s1.style.transition = 'none';
+  s1.style.opacity = '1';
+  s1.style.transform = 'translateX(0)';
+  s1.style.pointerEvents = 'all';
+  s1.classList.add('active');
+
+  for (let i = 2; i <= TOTAL; i++) {
+    const s = document.getElementById('slide-'+i);
+    s.style.opacity = '0';
+    s.style.transform = 'translateX(50px)';
+    s.style.pointerEvents = 'none';
+  }
+
+  updateUI();
+  setupAnimClasses();
+  drawScatter();
+  drawRadar();
+  animateSlideChildren(1);
+  animateCoverStats();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

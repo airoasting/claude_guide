@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/google-sheets-dashboard.html">
+    <meta property="og:title" content="구글 시트 기반 대시보드 만들기 | AI ROASTING">
+    <meta property="og:description" content="Claude Cowork에 구글 워크스페이스를 연결하고, 시트 데이터를 탐색해 글래스모피즘 인터랙티브 대시보드를 만드는 5단계 실전 가이드.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/google-sheets-dashboard.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>구글 시트 기반 대시보드 만들기 | AI ROASTING</title>
+    <meta name="description" content="Claude Cowork + Google Workspace + 글래스모피즘. 시트를 탐색하고 인터랙티브 대시보드를 자동으로 만드는 실전 가이드.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --gold: #B35535;
+            --gold-dark: #A04828;
+            --gold-light: #C4623F;
+            --ant-dark: #1A1917;
+            --book-teal: #B35535;
+            --book-teal-dark: #A04828;
+            --book-teal-light: #C4623F;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            word-break: keep-all;
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: ''; position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none; font-size: 14px; font-weight: 600;
+            margin-bottom: 20px; transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 40px; font-weight: 800; color: #fff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px; margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header > p { font-size: 15px; color: rgba(255,255,255,0.82); position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+
+        .header-pages {
+            display: flex; justify-content: center; gap: 14px;
+            margin: 22px auto 0; position: relative; z-index: 1;
+            max-width: 960px; flex-wrap: wrap;
+        }
+        .header-page-link {
+            flex: 1 1 0; min-width: 0; max-width: 320px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px; font-weight: 700;
+            padding: 12px 22px; border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+        .header-page-link:hover { background: rgba(255,255,255,0.13); color: #fff; transform: translateY(-1px); }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        .sub-menu {
+            position: sticky; top: 0; z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0; display: flex; justify-content: center;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            text-decoration: none; padding: 8px 14px;
+            transition: all 0.2s; flex: 1; max-width: 130px;
+        }
+        .sub-menu a.active { background: rgba(179,85,53,0.10); border-radius: 14px; }
+        .sub-menu a.active .sm-num { background: var(--gold); box-shadow: 0 2px 8px rgba(179,85,53,0.4); }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--gold); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sm-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #A06548; color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title { font-size: 13px; font-weight: 700; color: #3A3530; white-space: nowrap; }
+        .sm-sub { font-size: 11px; color: #999; white-space: nowrap; }
+        .content-section { scroll-margin-top: 130px; }
+
+        .container { max-width: 960px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 19px; font-weight: 700; color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--book-teal);
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px; color: #5C5650; line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; padding-left: 20px; }
+
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 28px 0; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--book-teal); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px; border-radius: 20px; white-space: nowrap;
+        }
+
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--book-teal);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { font-size: 11px; font-weight: 700; color: var(--book-teal); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(179,85,53,0.08) 0%, rgba(179,85,53,0.03) 100%);
+            border: 1.5px solid rgba(179,85,53,0.25);
+            border-radius: 16px;
+            padding: 22px 26px; margin: 20px 0;
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--book-teal); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        .prompt-box {
+            background: var(--ant-dark); color: #e0e0e0;
+            padding: 20px 24px; border-radius: 14px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px; line-height: 1.8;
+            white-space: pre-wrap; margin: 12px 0;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 14px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+        .wf-steps { display: flex; flex-direction: column; gap: 0; margin: 18px 0; position: relative; }
+        .wf-step { display: flex; gap: 20px; align-items: flex-start; padding: 6px 0; position: relative; }
+        /* iPhone-style liquid glass circle */
+        .wf-step-num {
+            width: 50px; height: 50px; border-radius: 50%;
+            background:
+                radial-gradient(circle at 32% 28%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.70) 50%, rgba(240,230,220,0.55) 100%);
+            backdrop-filter: blur(18px) saturate(180%);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.9);
+            box-shadow:
+                inset 0 1.5px 2px rgba(255,255,255,0.95),
+                inset 0 -1.5px 2px rgba(179,85,53,0.10),
+                0 10px 22px rgba(179,85,53,0.22),
+                0 3px 8px rgba(0,0,0,0.06);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px; font-weight: 800; color: var(--book-teal);
+            text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+            flex-shrink: 0; position: relative; z-index: 2;
+            transition: transform 0.25s ease;
+        }
+        .wf-step:hover .wf-step-num { transform: scale(1.05); }
+        .wf-step-content { flex: 1; padding-top: 12px; }
+        .wf-step-label { font-size: 12px; font-weight: 700; color: var(--book-teal); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .wf-step-desc { font-size: 14px; color: #5C5650; line-height: 1.6; }
+        /* Connector that visibly bridges both circles */
+        .wf-connector {
+            width: 3px; height: 32px;
+            background: linear-gradient(180deg, rgba(179,85,53,0.55) 0%, rgba(179,85,53,0.20) 100%);
+            margin: -8px 0 -8px 23.5px;
+            border-radius: 2px;
+            position: relative; z-index: 1;
+        }
+
+        /* EDA explainer pill */
+        .eda-pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            margin: 12px 0 4px;
+            padding: 9px 16px 9px 14px;
+            background:
+                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.72) 45%, rgba(240,230,220,0.55) 100%);
+            backdrop-filter: blur(18px) saturate(180%);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.9);
+            border-radius: 999px;
+            box-shadow:
+                inset 0 1px 1.5px rgba(255,255,255,0.95),
+                inset 0 -1px 2px rgba(179,85,53,0.08),
+                0 8px 20px rgba(179,85,53,0.18),
+                0 2px 6px rgba(0,0,0,0.05);
+            color: var(--book-teal);
+            text-decoration: none;
+            font-size: 13px; font-weight: 700;
+            letter-spacing: -0.2px;
+            transition: all 0.25s ease;
+        }
+        .eda-pill:hover { transform: translateY(-1px); box-shadow: inset 0 1px 1.5px rgba(255,255,255,0.95), inset 0 -1px 2px rgba(179,85,53,0.10), 0 12px 26px rgba(179,85,53,0.25), 0 3px 8px rgba(0,0,0,0.07); }
+        .eda-pill .eda-icon {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--book-teal), var(--book-teal-light));
+            color: #fff; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 800;
+            box-shadow: 0 2px 6px rgba(179,85,53,0.35);
+        }
+        .eda-pill .eda-arrow { color: rgba(179,85,53,0.65); font-size: 12px; transition: transform 0.25s ease; }
+        .eda-pill:hover .eda-arrow { transform: translateX(2px); color: var(--book-teal); }
+
+        .ref-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ref-link:hover { transform: translateY(-1px); color: var(--book-teal); }
+        .ref-link .ref-icon { font-size: 18px; flex-shrink: 0; }
+        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
+
+        .flow-row { display: flex; align-items: center; justify-content: center; gap: 0; margin: 24px 0; flex-wrap: wrap; }
+        .flow-node {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 16px 20px; text-align: center;
+            min-width: 130px; transition: all 0.3s;
+        }
+        .flow-node:hover { transform: translateY(-2px); }
+        .flow-node .fn-icon { font-size: 28px; margin-bottom: 6px; }
+        .flow-node .fn-label { font-size: 13px; font-weight: 700; color: #3A3530; }
+        .flow-node .fn-sub { font-size: 11px; color: #888; margin-top: 2px; }
+        .flow-arrow { font-size: 20px; color: var(--book-teal); padding: 0 10px; font-weight: 700; }
+
+        .roadmap-grid { display: flex; flex-direction: column; gap: 10px; margin: 18px 0 6px; }
+        .roadmap-card {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 16px;
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            transition: all 0.25s; position: relative;
+        }
+        .roadmap-card:hover { transform: translateY(-2px); box-shadow: 6px 6px 16px #CECAC3, -6px -6px 16px #FFFFFF; }
+        .roadmap-card:hover .roadmap-num { background: var(--book-teal-dark); transform: scale(1.06); }
+        .roadmap-num {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--book-teal); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 800;
+            flex-shrink: 0; transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(179,85,53,0.3);
+        }
+        .roadmap-body { flex: 1; min-width: 0; }
+        .roadmap-label {
+            display: block; font-size: 10px; font-weight: 800;
+            color: var(--book-teal); letter-spacing: 0.6px;
+            text-transform: uppercase; margin-bottom: 2px;
+        }
+        .roadmap-title { display: block; font-size: 13.5px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+        .roadmap-arrow { color: #B8B0A6; font-size: 14px; flex-shrink: 0; transition: all 0.2s; }
+        .roadmap-card:hover .roadmap-arrow { color: var(--book-teal); transform: translateX(2px); }
+
+        /* Glassy CTA preview */
+        .preview-card {
+            position: relative;
+            background: linear-gradient(135deg, #1a0b3d 0%, #4a1d7a 30%, #7a2d8a 60%, #c84a82 100%);
+            border-radius: 22px;
+            padding: 36px 32px;
+            margin: 24px 0;
+            text-decoration: none;
+            display: block;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(74, 29, 122, 0.35);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .preview-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(74, 29, 122, 0.45); }
+        .preview-card::before {
+            content: ''; position: absolute;
+            top: -40px; right: -30px;
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(255, 107, 157, 0.45) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .preview-card::after {
+            content: ''; position: absolute;
+            bottom: -60px; left: -40px;
+            width: 280px; height: 280px;
+            background: radial-gradient(circle, rgba(110, 224, 255, 0.35) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .preview-card .pv-body { position: relative; z-index: 1; }
+        .preview-card .pv-label {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 999px;
+            font-size: 11px; font-weight: 700;
+            color: #fff; letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .preview-card .pv-title {
+            font-size: 22px; font-weight: 800;
+            color: #fff; margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+        .preview-card .pv-desc {
+            font-size: 14px; color: rgba(255,255,255,0.85);
+            line-height: 1.6; margin-bottom: 14px;
+        }
+        .preview-card .pv-meta {
+            display: flex; gap: 14px; flex-wrap: wrap;
+            font-size: 12px; color: rgba(255,255,255,0.75);
+        }
+        .preview-card .pv-meta span {
+            padding: 5px 12px;
+            background: rgba(255,255,255,0.10);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 999px;
+            font-weight: 600;
+        }
+        .preview-card .pv-cta {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin-top: 16px;
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            font-size: 13px; font-weight: 700;
+            color: #fff;
+        }
+
+        .data-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 10px; margin: 18px 0;
+        }
+        .data-cell {
+            padding: 14px 16px;
+            background: var(--nm-bg);
+            border-radius: 12px;
+            box-shadow: var(--nm-shadow-sm);
+        }
+        .data-cell .dc-label { font-size: 10px; font-weight: 800; color: var(--book-teal); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+        .data-cell .dc-value { font-size: 13px; font-weight: 600; color: #3A3530; }
+
+        .table-wrap { overflow-x: auto; margin: 14px 0; border-radius: 12px; box-shadow: var(--nm-shadow-sm); }
+        .data-table { width: 100%; border-collapse: collapse; background: var(--nm-bg); font-size: 12.5px; }
+        .data-table th { background: rgba(179,85,53,0.08); color: var(--book-teal); padding: 10px 12px; text-align: left; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .data-table td { padding: 9px 12px; border-top: 1px solid rgba(0,0,0,0.05); color: #5C5650; }
+        .data-table tr:hover td { background: rgba(179,85,53,0.04); }
+
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: #D97757; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 28px; }
+            .container { padding: 24px 20px 60px; }
+            .nm-card { padding: 22px 22px; }
+            .data-grid { grid-template-columns: 1fr 1fr; }
+            .header-pages { flex-wrap: wrap; gap: 8px; }
+        }
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .data-grid { grid-template-columns: 1fr; }
+        }
+
+        @keyframes shimmerScan {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .step-badge {
+            background-image: linear-gradient(105deg, var(--nm-bg) 40%, rgba(255,255,255,0.85) 50%, var(--nm-bg) 60%);
+            background-size: 200% auto;
+            animation: shimmerScan 2.8s linear infinite;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="back-link">&larr; 목록으로</a>
+    <h1>구글 시트 기반 대시보드 만들기</h1>
+    <p>Claude Cowork에 구글 워크스페이스를 연결하고, 시트를 탐색해 글래스모피즘 대시보드를 자동 생성하는 실전 워크플로우</p>
+    <div class="header-pages">
+        <a href="google-sheets-dashboard.html" class="header-page-link active"><span class="hpl-icon">&#x1F4CB;</span> 구글 시트 대시보드</a>
+        <a href="stock-kakaotalk.html" class="header-page-link"><span class="hpl-icon">&#x1F4CA;</span> 종목 분석 &rarr; 카톡</a>
+        <a href="harness-book.html" class="header-page-link"><span class="hpl-icon">&#x1F4DA;</span> 책 쓰기</a>
+    </div>
+</header>
+
+<nav class="sub-menu">
+    <a href="#intro" class="active"><span class="sm-num">0</span><span class="sm-title">소개</span><span class="sm-sub">전체 흐름</span></a>
+    <a href="#step1"><span class="sm-num">1</span><span class="sm-title">Workspace 연결</span><span class="sm-sub">Cowork 커넥터</span></a>
+    <a href="#step2"><span class="sm-num">2</span><span class="sm-title">시트 복사</span><span class="sm-sub">내 드라이브</span></a>
+    <a href="#step3"><span class="sm-num">3</span><span class="sm-title">탐색 분석</span><span class="sm-sub">EDA 프롬프트</span></a>
+    <a href="#step4"><span class="sm-num">4</span><span class="sm-title">대시보드</span><span class="sm-sub">글래스모피즘</span></a>
+    <a href="#step5"><span class="sm-num">5</span><span class="sm-title">배포</span><span class="sm-sub">자동 갱신</span></a>
+    <a href="#result"><span class="sm-num">✓</span><span class="sm-title">결과 미리보기</span><span class="sm-sub">샘플 대시보드</span></a>
+</nav>
+
+<main class="container">
+
+    <!-- INTRO -->
+    <div class="content-section" id="intro"></div>
+    <div class="step-divider"><span class="step-badge">INTRO</span></div>
+    <section>
+        <div class="nm-card">
+            <h2>이 실습에서 만들 것</h2>
+            <p class="card-subtitle">구글 시트의 운영 데이터를 자동으로 탐색하고, 의사결정자가 한눈에 보는 인터랙티브 대시보드로 변환합니다</p>
+
+            <div style="padding: 16px 20px 18px; background: linear-gradient(135deg, rgba(179,85,53,0.12), rgba(179,85,53,0.04)); border: 1.5px solid rgba(179,85,53,0.3); border-radius: 14px; margin-bottom: 20px;">
+                <p style="font-size: 14px; color: #3A3530; margin: 0;"><strong>실행 환경은 Claude Cowork입니다.</strong> 구글 워크스페이스 커넥터로 시트를 끌어오고, EDA(Exploratory Data Analysis, 탐색적 데이터 분석)를 수행하고, HTML 대시보드까지 한 세션에서 완성합니다.</p>
+                <a class="eda-pill" href="eda-gallery.html" target="_blank" rel="noopener" style="margin-top: 12px;">
+                    <span class="eda-icon">?</span>
+                    EDA가 무엇인가요?
+                    <span class="eda-arrow">&rarr;</span>
+                </a>
+            </div>
+
+            <p>매월 매출 데이터를 정리하면서 "이번 달 어느 매장이 빠졌지?", "배달 비중이 얼마나 늘었지?" 같은 질문을 사람이 매번 손으로 그려서 답하기는 비효율적입니다. 이 실습에서는 <strong>Claude Cowork</strong>에 <strong>Google Workspace</strong>를 연결하고, 한 번의 대화로 시트를 탐색해 <strong>글래스모피즘 인터랙티브 대시보드</strong>까지 만들어 봅니다.</p>
+
+            <p style="margin-top: 12px;">완성 후 흐름은 이렇습니다.</p>
+
+            <div class="flow-row">
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F4D1;</div>
+                    <div class="fn-label">Google Sheet</div>
+                    <div class="fn-sub">원본 데이터</div>
+                </div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F50C;</div>
+                    <div class="fn-label">Cowork 커넥터</div>
+                    <div class="fn-sub">Workspace 연결</div>
+                </div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F50D;</div>
+                    <div class="fn-label">EDA 탐색</div>
+                    <div class="fn-sub">스키마·이상치</div>
+                </div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F48E;</div>
+                    <div class="fn-label">HTML 대시보드</div>
+                    <div class="fn-sub">글래스모피즘</div>
+                </div>
+            </div>
+
+            <p style="margin-top: 24px; font-size: 14px; font-weight: 700; color: #3A3530;">실습 5단계를 한 눈에 보기 · 각 단계를 누르면 해당 섹션으로 이동합니다</p>
+            <div class="roadmap-grid">
+                <a class="roadmap-card" href="#step1">
+                    <span class="roadmap-num">1</span>
+                    <span class="roadmap-body">
+                        <span class="roadmap-label">STEP 1</span>
+                        <span class="roadmap-title">Claude Cowork에 Google Workspace 연결</span>
+                    </span>
+                    <span class="roadmap-arrow">&rarr;</span>
+                </a>
+                <a class="roadmap-card" href="#step2">
+                    <span class="roadmap-num">2</span>
+                    <span class="roadmap-body">
+                        <span class="roadmap-label">STEP 2</span>
+                        <span class="roadmap-title">예제 시트를 내 드라이브로 복사</span>
+                    </span>
+                    <span class="roadmap-arrow">&rarr;</span>
+                </a>
+                <a class="roadmap-card" href="#step3">
+                    <span class="roadmap-num">3</span>
+                    <span class="roadmap-body">
+                        <span class="roadmap-label">STEP 3</span>
+                        <span class="roadmap-title">탐색적 분석 (EDA) 실행</span>
+                    </span>
+                    <span class="roadmap-arrow">&rarr;</span>
+                </a>
+                <a class="roadmap-card" href="#step4">
+                    <span class="roadmap-num">4</span>
+                    <span class="roadmap-body">
+                        <span class="roadmap-label">STEP 4</span>
+                        <span class="roadmap-title">글래스모피즘 대시보드 생성</span>
+                    </span>
+                    <span class="roadmap-arrow">&rarr;</span>
+                </a>
+                <a class="roadmap-card" href="#step5">
+                    <span class="roadmap-num">5</span>
+                    <span class="roadmap-body">
+                        <span class="roadmap-label">STEP 5</span>
+                        <span class="roadmap-title">배포와 월간 자동 갱신</span>
+                    </span>
+                    <span class="roadmap-arrow">&rarr;</span>
+                </a>
+            </div>
+
+            <a class="ref-link" href="assets/cases/pizza-dashboard.html" target="_blank" rel="noopener" style="margin-top: 18px;">
+                <span class="ref-icon">&#x1F441;&#xFE0F;</span>
+                완성 결과 미리보기: 피자 프랜차이즈 EDA 대시보드
+                <span class="ref-desc">샘플 출력</span>
+            </a>
+        </div>
+
+        <div class="nm-card">
+            <h2>예제로 쓰는 데이터</h2>
+            <p class="card-subtitle">전국 9개 직영점 · 73개월 · 39개 지표로 구성된 가상 피자 프랜차이즈 운영 데이터</p>
+
+            <p>이 가이드의 실습 데이터는 <strong>가상의 피자 프랜차이즈</strong>입니다. 9개 매장, 2020년 1월부터 2026년 1월까지의 월간 운영 데이터에 매출·비용·고객·품질 지표 39개가 들어 있습니다.</p>
+
+            <a class="ref-link" href="https://docs.google.com/spreadsheets/d/1ZUOzgPdXKMp7mkyjTOhZ9wfaRRe9IuuGkekKNKG41ZQ/edit?gid=38840795" target="_blank" rel="noopener" style="margin: 16px 0;">
+                <span class="ref-icon">&#x1F517;</span>
+                예제 Google Sheet 열기
+                <span class="ref-desc">읽기 전용</span>
+            </a>
+
+            <div class="data-grid">
+                <div class="data-cell"><div class="dc-label">매장</div><div class="dc-value">9개 직영점</div></div>
+                <div class="data-cell"><div class="dc-label">기간</div><div class="dc-value">2020.01 ~ 2026.01</div></div>
+                <div class="data-cell"><div class="dc-label">행 수</div><div class="dc-value">3,942행</div></div>
+                <div class="data-cell"><div class="dc-label">카테고리</div><div class="dc-value">피자·사이드·음료 등 6종</div></div>
+                <div class="data-cell"><div class="dc-label">지표</div><div class="dc-value">39개 컬럼</div></div>
+                <div class="data-cell"><div class="dc-label">단위</div><div class="dc-value">월간 집계</div></div>
+            </div>
+
+            <div class="highlight-box">
+                <div class="hl-title">데이터에 들어 있는 39개 지표 (카테고리별)</div>
+                <ul>
+                    <li><strong>매출 · 주문</strong>에는 매출액, 영업일수, 총주문건수, 객단가, 매출 카테고리가 들어 있습니다.</li>
+                    <li><strong>채널</strong>에는 홀·배달·포장 비중, 배민·쿠팡이츠·요기요 주문수, 자사앱 비중이 들어 있습니다.</li>
+                    <li><strong>시간대</strong>에는 점심 피크·저녁 피크·야간 매출 비중이 들어 있습니다.</li>
+                    <li><strong>비용</strong>에는 식자재비, 인건비, 임차료, 플랫폼 수수료, 로열티, 광고분담금이 들어 있습니다.</li>
+                    <li><strong>수익성</strong>에는 영업이익, 영업이익률이 들어 있습니다.</li>
+                    <li><strong>고객</strong>에는 신규고객, 재방문율, 쿠폰 할인, 리뷰 평점이 들어 있습니다.</li>
+                    <li><strong>운영 품질</strong>에는 QSC 점수, 위생검사 결과, 클레임 건수, 식자재 폐기율, 신메뉴 매출 비중이 들어 있습니다.</li>
+                    <li><strong>조직</strong>에는 정규 직원수와 파트타임 직원수가 들어 있습니다.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- STEP 1 -->
+    <div class="content-section" id="step1"></div>
+    <div class="step-divider"><span class="step-badge">STEP 1 &middot; Claude Cowork에 Google Workspace 연결</span></div>
+    <section>
+        <div class="nm-card">
+            <h2>Cowork의 Google Workspace 커넥터 활성화</h2>
+            <p class="card-subtitle">Claude Cowork는 Google Drive · Sheets · Calendar · Gmail을 별도 API 없이 한 번에 연결합니다</p>
+
+            <p>Claude Cowork에는 Google Workspace 커넥터가 기본으로 준비되어 있습니다. 사용자의 구글 계정을 한 번만 인증하면 Cowork 세션 안에서 시트의 셀 데이터를 바로 읽을 수 있습니다. 별도의 API 키나 서비스 계정은 필요하지 않습니다.</p>
+
+            <div class="wf-steps">
+                <div class="wf-step">
+                    <div class="wf-step-num">1</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">Claude Desktop 실행 후 Cowork 진입</div>
+                        <div class="wf-step-desc"><strong>Claude Desktop</strong>(macOS/Windows 데스크톱 앱)을 실행하고, 새 대화의 모델/도구 선택 영역에서 <strong>Cowork</strong>를 켭니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">2</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">커넥터 설정 열기</div>
+                        <div class="wf-step-desc">Claude Desktop의 <strong>Customize &gt; Connectors</strong>로 들어가면 사용 가능한 커넥터 목록이 보입니다. 거기에서 <strong>Google Workspace</strong> 항목을 찾습니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">3</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">Google 계정 인증</div>
+                        <div class="wf-step-desc"><strong>Connect</strong> 버튼을 누르면 구글 OAuth 화면이 열립니다. 분석할 시트가 있는 계정으로 로그인하고, <strong>Drive · Sheets 읽기 권한</strong>을 승인합니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">4</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">연결 확인</div>
+                        <div class="wf-step-desc">커넥터 옆에 <strong>Connected</strong> 표시가 뜨면 완료입니다. 이제 Cowork 대화창에서 내 드라이브의 시트 URL을 그대로 붙여넣고 분석을 요청할 수 있습니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">TIP · 회사 계정과 개인 계정 분리</div>
+                <p>회사 워크스페이스 계정과 개인 구글 계정을 함께 쓰는 경우, Cowork 커넥터는 <strong>한 번에 한 계정만</strong> 인증할 수 있습니다. 분석 대상 시트가 있는 쪽 계정으로 연결하세요. 계정을 바꿀 때는 <strong>Disconnect를 누른 다음 다시 Connect</strong>하는 방식이 가장 안전합니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <div class="content-section" id="step2"></div>
+    <div class="step-divider"><span class="step-badge">STEP 2 &middot; 예제 시트를 내 드라이브로 복사</span></div>
+    <section>
+        <div class="nm-card">
+            <h2>예제 시트를 내 드라이브에 복사하기</h2>
+            <p class="card-subtitle">Cowork 커넥터는 내 드라이브 안의 파일을 읽습니다. 따라서 공용 예제 시트를 먼저 내 드라이브로 복사합니다</p>
+
+            <p>Cowork 커넥터가 읽을 수 있는 시트는 <strong>커넥터에 연결한 구글 계정의 드라이브에 들어 있는 파일</strong>입니다. 공용 예제 시트를 그대로 쓰면 권한 문제가 생기기 쉽기 때문에, 먼저 내 드라이브로 사본을 만들어 둡니다. 사본을 한 번 만들어 두면 다음부터는 그 시트만 갱신하면 됩니다.</p>
+
+            <div class="wf-steps">
+                <div class="wf-step">
+                    <div class="wf-step-num">1</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">예제 시트 열기</div>
+                        <div class="wf-step-desc">아래 링크로 예제 시트를 브라우저에서 엽니다. 이 시트는 누구나 뷰어로 접근할 수 있도록 열어 두었습니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">2</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">사본 만들어 내 드라이브에 저장</div>
+                        <div class="wf-step-desc">상단 메뉴에서 <strong>파일 &gt; 사본 만들기</strong>를 선택합니다. 저장 위치는 <strong>내 드라이브</strong>(혹은 원하는 폴더)로 지정하고, 파일 이름은 기본값을 그대로 둬도 좋습니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">3</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">사본의 URL 복사</div>
+                        <div class="wf-step-desc">사본이 열리면 주소창의 URL을 복사합니다. <code>gid=...</code> 부분이 붙어 있으면 그대로 두세요. 특정 탭을 가리키는 값입니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">4</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">계정 일치 확인</div>
+                        <div class="wf-step-desc">사본을 만든 계정과 STEP 1에서 Cowork에 연결한 구글 계정이 같아야 합니다. 다르면 Cowork가 시트를 찾지 못합니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <div class="hl-title">실습용 예제 시트</div>
+                <p>아래 시트를 열고 <strong>파일 &gt; 사본 만들기</strong>로 내 드라이브에 옮기세요. STEP 3부터는 사본의 URL을 씁니다.</p>
+                <a class="ref-link" href="https://docs.google.com/spreadsheets/d/1ZUOzgPdXKMp7mkyjTOhZ9wfaRRe9IuuGkekKNKG41ZQ/edit?gid=38840795" target="_blank" rel="noopener" style="margin-top: 12px;">
+                    <span class="ref-icon">&#x1F4D1;</span>
+                    피자 프랜차이즈 운영 데이터 (예제)
+                    <span class="ref-desc">Google Sheets</span>
+                </a>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">왜 내 드라이브로 복사부터 하나</div>
+                <p>Cowork가 "시트에 접근할 수 없습니다"라고 답하는 가장 흔한 이유가 권한 누락입니다. 내 드라이브의 사본은 처음부터 내 권한으로 만들어지기 때문에 권한 문제가 생기지 않습니다. 그 다음부터는 자연어 한 줄로 작업이 끝납니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <div class="content-section" id="step3"></div>
+    <div class="step-divider"><span class="step-badge">STEP 3 &middot; 탐색적 분석 (EDA) 실행</span></div>
+    <section>
+        <div class="nm-card">
+            <h2>한 줄 프롬프트로 EDA 시작하기</h2>
+            <p class="card-subtitle">복잡한 지시는 필요하지 않습니다. 시트 주소와 한 문장만으로 충분합니다</p>
+
+            <p>EDA는 거창한 절차가 아닙니다. Cowork 대화창에 <strong>내 드라이브의 시트 주소</strong>를 붙여 넣고, "이 데이터를 살펴봐 줘" 정도로만 부탁해도 Claude가 알아서 컬럼을 정리하고 결측치와 이상치, 핵심 지표를 찾아 줍니다.</p>
+
+            <div class="inset-box">
+                <div class="inset-label">EDA 프롬프트</div>
+                <p>아래처럼 한 줄로 던지면 됩니다. 시트 URL은 STEP 2에서 복사한 내 드라이브 사본의 주소를 씁니다.</p>
+            </div>
+
+            <div class="prompt-box">
+<button class="copy-btn" onclick="copy(this)">복사</button>
+아래 구글 시트를 EDA로 분석해줘.
+
+https://docs.google.com/spreadsheets/d/내-시트-ID/edit
+
+어떤 데이터가 들어 있는지, 흥미로운 패턴이 뭔지
+편하게 알려줘.</div>
+
+            <div class="tip-box">
+                <div class="tip-label">결과로 받게 되는 것</div>
+                <p>한 줄 요청만으로도 다음이 한 번에 정리됩니다.<br>
+                <strong>· 데이터 개요.</strong> 행 수와 컬럼 수, 각 컬럼의 의미와 단위.<br>
+                <strong>· 데이터 품질.</strong> 결측치와 이상치 위치.<br>
+                <strong>· 핵심 KPI.</strong> 총 매출, 영업이익률, 매장별 순위 같은 요약 지표.<br>
+                <strong>· 인사이트.</strong> 사람이 놓치기 쉬운 패턴 3~5가지.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <div class="content-section" id="step4"></div>
+    <div class="step-divider"><span class="step-badge">STEP 4 &middot; 글래스모피즘 인터랙티브 대시보드 생성</span></div>
+    <section>
+        <div class="nm-card">
+            <h2>대시보드 한 장으로 압축하기</h2>
+            <p class="card-subtitle">EDA에서 잡아낸 인사이트를 글래스모피즘 디자인의 단일 HTML 파일로 패키징합니다</p>
+
+            <p>차트를 따로따로 만들어 두면 보는 사람이 흐름을 잃습니다. 모든 인사이트를 한 페이지 안에 모으고 <strong>필터로 좁혀 가며 보는 인터랙티브 대시보드</strong>로 만들 때 의사결정 속도가 크게 빨라집니다. 디자인은 <strong>글래스모피즘</strong>(반투명 유리 카드와 컬러풀 그라데이션 배경)을 씁니다. 정보 밀도가 높아도 시각적 피로가 덜합니다.</p>
+
+            <div class="inset-box">
+                <div class="inset-label">설계 원칙 · 한 화면에 들어가야 할 것</div>
+                <p>좋은 대시보드는 다음 4단으로 구성됩니다.<br>
+                <strong>1단 (필터)</strong>에서 매장과 기간, 카테고리를 칩(chip)으로 토글합니다.<br>
+                <strong>2단 (KPI 카드 5개)</strong>은 매출·영업이익·이익률·주문수·객단가를 보여 줍니다.<br>
+                <strong>3단 (메인 차트)</strong>은 큰 화면에 월별 추세를, 작은 화면에 카테고리 믹스를 배치합니다.<br>
+                <strong>4단 (보조 차트)</strong>은 매장 랭킹과 비용 구조, 채널·시간대, 품질·고객·리스크를 묶어 보여 줍니다.</p>
+            </div>
+
+            <div class="inset-box" style="margin-top: 18px;">
+                <div class="inset-label">대시보드 생성 프롬프트</div>
+                <p>EDA를 마친 직후 같은 세션에서 이 한 줄을 던집니다. 디자인 톤과 인터랙션 방식 정도만 정해 주면 나머지는 Claude가 알아서 채워 줍니다.</p>
+            </div>
+
+            <div class="prompt-box">
+<button class="copy-btn" onclick="copy(this)">복사</button>
+방금 분석한 데이터로 EDA로 탐색 가능한 인터랙티브
+대시보드를 만들어줘.
+
+- 글래스모피즘 디자인으로
+- 매장 · 기간 · 카테고리 필터로 좁혀 볼 수 있게
+- 한 화면 안에 핵심 KPI와 차트가 모두 보이게</div>
+
+            <div class="highlight-box">
+                <div class="hl-title">왜 데이터를 별도 JSON으로 분리하나</div>
+                <ul>
+                    <li>HTML 파일이 가벼워집니다. 그래서 편집과 배포가 빨라집니다.</li>
+                    <li>월간 자동 갱신을 할 때 <strong>JSON만 바꿔치기</strong>하면 됩니다.</li>
+                    <li>다른 사람과 공유할 때 데이터 노출 범위를 따로 통제할 수 있습니다.</li>
+                    <li>차트 코드와 데이터가 분리되어 있어 나중에 수정하기가 쉽습니다.</li>
+                </ul>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">글래스모피즘이 데이터 시각화에 맞는 이유</div>
+                <p>차트가 많은 대시보드는 시각적 피로가 쉽게 쌓입니다. 글래스모피즘은 <strong>배경 그라데이션이 전체 분위기를 잡아 주고, 카드가 반투명으로 떠 있어 정보 위계가 자연스럽게 잡힙니다.</strong> 색상이 강한 차트도 카드의 흐릿한 경계 덕분에 서로 충돌하지 않습니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- STEP 5 -->
+    <div class="content-section" id="step5"></div>
+    <div class="step-divider"><span class="step-badge">STEP 5 &middot; 배포와 월간 자동 갱신</span></div>
+    <section>
+        <div class="nm-card">
+            <h2>완성한 대시보드를 매달 꾸준히 쓰기</h2>
+            <p class="card-subtitle">한 번 만든 대시보드가 한 달 안에 잊히지 않도록, 갱신과 공유 흐름까지 함께 설계해 둡니다</p>
+
+            <p>대시보드는 <strong>만든 순간보다 운영하는 동안 쌓이는 가치</strong>가 더 큽니다. 한 번 만들고 끝낼 일이 아니라, 매월 데이터가 갱신될 때 새 버전이 자동으로 올라오도록 같이 설계해 둡니다.</p>
+
+            <div class="wf-steps">
+                <div class="wf-step">
+                    <div class="wf-step-num">1</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">로컬에서 동작 확인</div>
+                        <div class="wf-step-desc">생성된 HTML을 브라우저로 열어 보면서 필터·KPI·차트가 모두 정상으로 움직이는지 확인합니다. <strong>JSON 경로</strong>(상대 경로)와 차트 라이브러리 CDN이 제대로 잡혀 있는지도 같이 점검합니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">2</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">GitHub Pages로 무료 배포</div>
+                        <div class="wf-step-desc">생성된 폴더를 GitHub 저장소에 푸시하고 <strong>Pages</strong>를 켜면 24시간 접근 가능한 URL이 생깁니다. 이 URL을 노션이나 슬랙에 그대로 공유하면 됩니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">3</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">월간 갱신 스킬 등록</div>
+                        <div class="wf-step-desc">Cowork에 <strong>refresh-dashboard</strong> 같은 스킬을 등록해 둡니다. 매월 1일 시트를 다시 읽어 JSON만 새로 써 주면 대시보드가 자동으로 갱신됩니다. 차트 코드는 손대지 않아도 됩니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">4</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">의사결정자에게 링크 한 줄</div>
+                        <div class="wf-step-desc">대시보드는 만들었다고 끝이 아닙니다. <strong>"매월 첫째 주 월요일, 이 링크 한 번씩만 봐 주세요"</strong>까지 같이 약속해 두세요. 그래야 대시보드가 계속 살아 있는 도구로 남습니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">의사결정자가 실제로 보게 만드는 한 줄</div>
+                <p>대시보드를 만들어 두고도 아무도 보지 않으면 만든 의미가 없습니다. 만든 다음 날, 의사결정자에게 짧은 한 문장으로 알리세요. <strong>"이번 달 가장 큰 변화는 X였습니다. 자세한 내용은 이 링크에서 보실 수 있습니다."</strong> 한 번 클릭해 본 페이지는 다음 달에도 다시 들여다보게 됩니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- RESULT -->
+    <div class="content-section" id="result"></div>
+    <div class="step-divider"><span class="step-badge">RESULT &middot; 결과 미리보기</span></div>
+    <section>
+        <div class="nm-card">
+            <h2>예제 시트로 만든 완성품</h2>
+            <p class="card-subtitle">위 5단계를 그대로 따라가 만들어진 실제 글래스모피즘 대시보드입니다</p>
+
+            <p>아래 카드를 누르면 새 탭에서 인터랙티브 대시보드가 열립니다. <strong>매장과 연도, 카테고리를 자유롭게 토글해 보세요.</strong> 모든 차트와 KPI가 즉시 다시 계산됩니다.</p>
+
+            <a class="preview-card" href="assets/cases/pizza-dashboard.html" target="_blank" rel="noopener">
+                <div class="pv-body">
+                    <span class="pv-label">LIVE DEMO</span>
+                    <div class="pv-title">🍕 피자 프랜차이즈 EDA 대시보드</div>
+                    <div class="pv-desc">전국 9개 직영점 · 73개월 · 39개 지표 · 10개 인터랙티브 차트</div>
+                    <div class="pv-meta">
+                        <span>총매출 571억</span>
+                        <span>영업이익 97억</span>
+                        <span>총주문 1.7억건</span>
+                        <span>3,942행</span>
+                    </div>
+                    <div class="pv-cta">대시보드 열기 →</div>
+                </div>
+            </a>
+
+            <div class="highlight-box">
+                <div class="hl-title">완성품에서 확인할 수 있는 인사이트 예시</div>
+                <ul>
+                    <li><strong>매장 격차.</strong> 1위 서울 강남점은 9위 제주 연동점보다 누적 매출이 약 1.6배 많습니다.</li>
+                    <li><strong>채널 구조.</strong> 배달 비중이 55% 내외를 차지하고, 나머지는 홀과 포장이 나눠 가집니다.</li>
+                    <li><strong>비용 구조.</strong> 식자재비와 인건비를 합치면 전체 비용의 약 70%에 이릅니다.</li>
+                    <li><strong>품질 추세.</strong> QSC 점수가 95점대를 유지하고, 리뷰 평점도 4점대에서 안정적으로 움직입니다.</li>
+                    <li><strong>리스크 신호.</strong> 특정 분기에 클레임이 튀는 매장이 어디인지 식별할 수 있습니다.</li>
+                </ul>
+            </div>
+
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px;">
+                <a class="ref-link" href="assets/cases/pizza-dashboard.html" target="_blank" rel="noopener" style="flex: 1; min-width: 240px;">
+                    <span class="ref-icon">&#x1F48E;</span>
+                    완성 대시보드 열기
+                    <span class="ref-desc">새 탭</span>
+                </a>
+                <a class="ref-link" href="https://docs.google.com/spreadsheets/d/1ZUOzgPdXKMp7mkyjTOhZ9wfaRRe9IuuGkekKNKG41ZQ/edit?gid=38840795" target="_blank" rel="noopener" style="flex: 1; min-width: 240px;">
+                    <span class="ref-icon">&#x1F4D1;</span>
+                    원본 시트 열기
+                    <span class="ref-desc">Google Sheets</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="nm-card">
+            <h2>이 실습을 마치고 손에 남는 것</h2>
+            <p class="card-subtitle">한 번 쓰고 끝나는 결과물이 아니라, 다음에도 또 꺼내 쓸 수 있는 형태로 남겨 둡니다</p>
+
+            <p>이 실습이 끝나면 다음 네 가지가 손에 남습니다.</p>
+            <ul>
+                <li><strong>재사용 가능한 대시보드 틀.</strong> 글래스모피즘 HTML과 JSON을 분리한 구조라서 다른 종류의 데이터에도 그대로 갖다 쓸 수 있습니다.</li>
+                <li><strong>한 줄짜리 EDA 프롬프트.</strong> "이 시트를 EDA로 분석해줘" 한 줄이 앞으로 모든 시트 분석의 출발점이 됩니다.</li>
+                <li><strong>대시보드 4단 구성 감각.</strong> 필터 · KPI · 메인 차트 · 보조 차트로 정리하는 흐름이 앞으로 차트를 고를 때 기준이 됩니다.</li>
+                <li><strong>매달 가볍게 갱신하는 습관.</strong> JSON만 바꿔치기하면 되니까, 대시보드가 매달 살아 있는 도구로 이어집니다.</li>
+            </ul>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <div class="footer-brand">AI ROASTING</div>
+    <div class="footer-text">Claude Cowork × Google Workspace × Glassmorphism · 2026</div>
+</footer>
+
+<script>
+function copy(btn) {
+    const box = btn.parentElement;
+    const text = box.innerText.replace(/^복사\s*/, '').trim();
+    navigator.clipboard.writeText(text).then(() => {
+        const old = btn.innerText;
+        btn.innerText = '복사됨';
+        setTimeout(() => btn.innerText = old, 1400);
+    });
+}
+
+// Sub-menu active state on scroll
+(function() {
+    const sections = ['intro', 'step1', 'step2', 'step3', 'step4', 'step5', 'result'];
+    const links = {};
+    sections.forEach(id => {
+        const a = document.querySelector(`.sub-menu a[href="#${id}"]`);
+        if (a) links[id] = a;
+    });
+    function onScroll() {
+        let current = sections[0];
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.getBoundingClientRect().top < 160) current = id;
+        });
+        Object.keys(links).forEach(id => links[id].classList.toggle('active', id === current));
+    }
+    window.addEventListener('scroll', onScroll, {passive: true});
+    onScroll();
+})();
+</script>
+</body>
+</html>

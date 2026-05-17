@@ -724,7 +724,7 @@ output/
 
 ## Reference Template
 
-Use `slides/claude-orientation-slides.html` as the canonical reference implementation for:
+Use `assets/slides/claude-orientation-slides.html` as the canonical reference implementation for:
 - Fixed 1440×900 canvas + JS rescale
 - Magazine-style cover and conclusion (`.slide-magazine` + `.mag-box` + `.imprint`)
 - Per-slide gradient variations on content slides

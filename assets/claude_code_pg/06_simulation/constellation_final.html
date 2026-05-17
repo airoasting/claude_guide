@@ -1,0 +1,3869 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>별자리 시뮬레이터</title>
+  <style>
+    @font-face {
+      font-family: 'Pretendard';
+      src: url('폰트/PretendardVariable.ttf') format('truetype');
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --glass-bg: rgba(6, 10, 26, 0.60);
+      --glass-surface: rgba(255, 255, 255, 0.045);
+      --glass-border: rgba(255, 255, 255, 0.09);
+      --glass-border-top: rgba(255, 255, 255, 0.18);
+      --glass-blur: blur(28px) saturate(160%);
+      --accent: #72b8ff;
+      --accent-dim: rgba(90, 155, 255, 0.22);
+      --accent-glow: rgba(70, 130, 255, 0.38);
+      --text-primary: rgba(218, 230, 255, 0.95);
+      --text-secondary: rgba(175, 198, 255, 0.50);
+      --text-muted: rgba(148, 172, 255, 0.30);
+      --shadow-panel: 0 16px 56px rgba(0, 0, 12, 0.60), 0 2px 10px rgba(0, 0, 0, 0.35);
+      --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      --shadow-btn: 0 2px 8px rgba(0, 0, 0, 0.25);
+      --radius-xl: 20px;
+      --radius-lg: 16px;
+      --radius-md: 11px;
+      --radius-sm: 8px;
+      --radius-xs: 6px;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #04070f;
+      overflow: hidden;
+      font-family: 'Pretendard', system-ui, -apple-system, sans-serif;
+      color: var(--text-primary);
+      user-select: none;
+    }
+
+    #mainCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      cursor: grab;
+    }
+    #mainCanvas:active { cursor: grabbing; }
+
+    #trailCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    /* ─── GLASS BASE ─── */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-top-color: var(--glass-border-top);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-panel), var(--shadow-inset);
+    }
+
+    /* ─── GLASS BUTTONS ─── */
+    .glass-btn {
+      background: var(--glass-surface);
+      border: 1px solid var(--glass-border);
+      border-top-color: rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius-md);
+      color: rgba(195, 215, 255, 0.62);
+      padding: 7px 13px;
+      font-size: 12px;
+      font-weight: 400;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      white-space: nowrap;
+      letter-spacing: 0.15px;
+      box-shadow: var(--shadow-btn);
+    }
+    .glass-btn:hover {
+      background: rgba(255, 255, 255, 0.085);
+      border-color: rgba(100, 165, 255, 0.26);
+      border-top-color: rgba(140, 195, 255, 0.36);
+      color: var(--text-primary);
+      box-shadow: 0 0 18px rgba(70, 130, 255, 0.14), var(--shadow-btn);
+      transform: translateY(-1px);
+    }
+    .glass-btn:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow-btn);
+    }
+    .glass-btn.active {
+      background: rgba(70, 135, 255, 0.17);
+      border-color: rgba(90, 155, 255, 0.38);
+      border-top-color: rgba(135, 190, 255, 0.48);
+      color: rgba(205, 228, 255, 1.0);
+      box-shadow: 0 0 22px rgba(70, 130, 255, 0.22),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.09),
+                  var(--shadow-btn);
+    }
+    .glass-btn.active:hover {
+      background: rgba(80, 145, 255, 0.24);
+      border-color: rgba(100, 165, 255, 0.48);
+      box-shadow: 0 0 28px rgba(70, 130, 255, 0.32),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.10),
+                  var(--shadow-btn);
+      transform: translateY(-1px);
+    }
+    .glass-btn.small {
+      padding: 4px 9px;
+      font-size: 11px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ─── HEADER ─── */
+    #header {
+      position: fixed;
+      top: 20px; left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      border-radius: var(--radius-lg);
+      font-size: 16px;
+      font-weight: 300;
+      letter-spacing: 2.8px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+      color: rgba(210, 228, 255, 0.88);
+    }
+    #header.visible { opacity: 1; }
+
+    /* ─── BRANDING ─── */
+    #branding {
+      position: fixed;
+      bottom: 100px; right: 20px;
+      font-size: 10.5px;
+      font-weight: 300;
+      color: var(--text-muted);
+      z-index: 100;
+      pointer-events: none;
+      letter-spacing: 0.4px;
+    }
+
+    /* ─── CONTROL BAR ─── */
+    #controlBar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      width: calc(100% - 48px);
+      max-width: 1020px;
+      padding: 14px 20px;
+      border-radius: var(--radius-xl);
+      opacity: 0;
+      transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+      z-index: 100;
+    }
+    #controlBar.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    #controlBar.idle {
+      opacity: 0.22;
+    }
+    #controlBar:hover {
+      opacity: 1 !important;
+    }
+
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .ctrl-row + .ctrl-row { margin-top: 10px; }
+
+    .ctrl-sep {
+      width: 1px;
+      height: 22px;
+      background: linear-gradient(to bottom,
+        transparent,
+        rgba(255, 255, 255, 0.11) 30%,
+        rgba(255, 255, 255, 0.11) 70%,
+        transparent
+      );
+      margin: 0 3px;
+      flex-shrink: 0;
+    }
+
+    /* ─── TIME DISPLAY ─── */
+    #timeDisplay {
+      font-size: 15px;
+      font-weight: 300;
+      font-variant-numeric: tabular-nums;
+      color: rgba(200, 220, 255, 0.88);
+      min-width: 160px;
+      text-align: right;
+      letter-spacing: 0.4px;
+    }
+
+    /* ─── SPEED BUTTON ─── */
+    #speedBtn {
+      min-width: 44px;
+      text-align: center;
+    }
+
+    /* ─── TIME SLIDER ─── */
+    .slider-wrap {
+      flex: 1;
+      min-width: 180px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      height: 20px;
+    }
+    #timeSlider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 3px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      outline: none;
+      cursor: pointer;
+      position: relative;
+    }
+    #timeSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 0 0 3px rgba(90, 155, 255, 0.28),
+                  0 0 18px rgba(70, 130, 255, 0.60);
+      cursor: pointer;
+      transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    #timeSlider::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 4px rgba(90, 155, 255, 0.38),
+                  0 0 26px rgba(70, 130, 255, 0.80);
+      transform: scale(1.15);
+    }
+    #timeSlider::-moz-range-thumb {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 0 0 3px rgba(90, 155, 255, 0.28),
+                  0 0 18px rgba(70, 130, 255, 0.60);
+      border: none;
+      cursor: pointer;
+    }
+
+    /* ─── LIGHT POLLUTION SLIDER ─── */
+    #lpSlider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 88px;
+      height: 3px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      outline: none;
+      cursor: pointer;
+    }
+    #lpSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 0 0 2px rgba(90, 155, 255, 0.22),
+                  0 0 12px rgba(70, 130, 255, 0.50);
+      cursor: pointer;
+    }
+    #lpSlider::-moz-range-thumb {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 0 0 2px rgba(90, 155, 255, 0.22),
+                  0 0 12px rgba(70, 130, 255, 0.50);
+      border: none;
+      cursor: pointer;
+    }
+
+    /* ─── INFO PANEL ─── */
+    #infoPanel {
+      position: fixed;
+      top: 80px; bottom: 80px;
+      left: 0;
+      width: 300px;
+      border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+      border-left: none;
+      padding: 24px 20px;
+      transform: translateX(-100%);
+      opacity: 0;
+      transition: transform 0.32s ease-out, opacity 0.32s ease-out;
+      z-index: 200;
+      overflow-y: auto;
+    }
+    #infoPanel.open {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    #infoPanelTitle {
+      font-size: 19px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: rgba(220, 234, 255, 0.98);
+      letter-spacing: 0.5px;
+    }
+    #infoPanelSubtitle {
+      font-size: 11.5px;
+      font-weight: 300;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+    .panel-divider {
+      height: 1px;
+      background: linear-gradient(to right,
+        rgba(255, 255, 255, 0.10),
+        rgba(255, 255, 255, 0.03) 80%,
+        transparent
+      );
+      margin: 14px 0;
+    }
+    #infoPanelMyth {
+      font-size: 13px;
+      font-weight: 300;
+      line-height: 1.78;
+      color: rgba(192, 214, 255, 0.68);
+      margin-bottom: 12px;
+    }
+
+    .star-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .star-table th {
+      text-align: left;
+      padding: 6px 8px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      font-size: 10.5px;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .star-table td {
+      padding: 8px 8px;
+      color: rgba(198, 218, 255, 0.80);
+    }
+    .star-table tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.022);
+    }
+    .star-table tr:hover td {
+      background: rgba(90, 155, 255, 0.07);
+      transition: background 0.12s ease;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 14px; right: 14px;
+      background: var(--glass-surface);
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.16s ease;
+    }
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: var(--text-primary);
+      border-color: rgba(90, 155, 255, 0.30);
+      box-shadow: 0 0 14px rgba(70, 130, 255, 0.18);
+    }
+
+    /* ─── MINI MAP ─── */
+    #miniMap {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.95);
+      width: 240px;
+      height: 360px;
+      padding: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #miniMap.open {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+      pointer-events: all;
+    }
+    #mapCanvas {
+      flex: 1;
+      border-radius: var(--radius-sm);
+      cursor: crosshair;
+      border: 1px solid rgba(255, 255, 255, 0.055);
+    }
+    .map-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .map-divider {
+      height: 1px;
+      background: linear-gradient(to right,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.02) 80%,
+        transparent
+      );
+      margin: 2px 0;
+    }
+    #mapCoords {
+      font-size: 10px;
+      font-weight: 300;
+      color: var(--text-secondary);
+      text-align: center;
+      min-height: 14px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ─── DATE PICKER ─── */
+    #datePicker {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+      border-top-color: rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius-md);
+      color: rgba(200, 218, 255, 0.82);
+      font-size: 12px;
+      padding: 7px 10px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+      box-shadow: var(--shadow-btn);
+    }
+    #datePicker:focus {
+      border-color: rgba(90, 155, 255, 0.45);
+      box-shadow: 0 0 18px rgba(70, 130, 255, 0.18), var(--shadow-btn);
+    }
+
+    /* ─── FOCUS OVERLAY ─── */
+    #focusOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0);
+      pointer-events: none;
+      transition: background 0.6s ease-out;
+      z-index: 50;
+    }
+    #focusOverlay.active {
+      background: rgba(0, 0, 0, 0.68);
+      pointer-events: all;
+    }
+
+    #focusLabel {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 22px;
+      font-weight: 300;
+      letter-spacing: 4px;
+      padding: 12px 28px;
+      border-radius: var(--radius-lg);
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 201;
+      pointer-events: none;
+      color: rgba(218, 232, 255, 0.95);
+    }
+    #focusLabel.visible { opacity: 1; }
+
+    /* ─── FADE OVERLAY ─── */
+    #fadeOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0);
+      pointer-events: none;
+      z-index: 300;
+    }
+
+    /* ─── OPENING EMOJI ─── */
+    #openingEmoji {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 60px;
+      opacity: 0;
+      z-index: 400;
+      pointer-events: none;
+      animation: emojiPulse 1s ease-in-out infinite;
+    }
+    @keyframes emojiPulse {
+      0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.05); }
+    }
+    #openingEmoji.hidden {
+      animation: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(90, 155, 255, 0.22);
+      border-radius: 2px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(90, 155, 255, 0.42);
+    }
+
+    /* ─── LP LABEL ─── */
+    #lpLabel {
+      font-size: 11.5px;
+      font-weight: 300;
+      color: var(--text-secondary);
+      min-width: 50px;
+    }
+
+
+    /* ─── LP ICON ─── */
+    .lp-icon {
+      font-size: 12px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+</style>
+</head>
+<body>
+
+<!-- Canvas layers -->
+<canvas id="trailCanvas"></canvas>
+<canvas id="mainCanvas"></canvas>
+
+<!-- Opening emoji -->
+<div id="openingEmoji">🌌</div>
+
+<!-- Fade overlay for location transitions -->
+<div id="fadeOverlay"></div>
+
+<!-- Focus mode overlay -->
+<div id="focusOverlay"></div>
+<div id="focusLabel" class="glass"></div>
+
+<!-- Header -->
+<div id="header" class="glass">
+  <span id="headerText">🌌 서울의 밤하늘</span>
+</div>
+
+<!-- Branding -->
+<div id="branding">AI 에이전트를 고용하라 · AI ROASTING</div>
+
+<!-- Info Panel (left side) -->
+<div id="infoPanel" class="glass">
+  <button class="close-btn" id="infoPanelClose">✕</button>
+  <div id="infoPanelTitle">오리온자리</div>
+  <div id="infoPanelSubtitle">Orion · Ori</div>
+  <div class="panel-divider"></div>
+  <div id="infoPanelMyth">신화/유래 텍스트</div>
+  <div class="panel-divider"></div>
+  <table class="star-table">
+    <thead>
+      <tr><th>별 이름</th><th>등급</th><th>색상</th></tr>
+    </thead>
+    <tbody id="infoPanelStars"></tbody>
+  </table>
+</div>
+
+<!-- Mini Map -->
+<div id="miniMap" class="glass">
+  <canvas id="mapCanvas" width="208" height="220"></canvas>
+  <div id="mapCoords"></div>
+  <div class="map-presets" id="mapPresets">
+    <button class="glass-btn small" data-city="서울">서울</button>
+    <button class="glass-btn small" data-city="부산">부산</button>
+    <button class="glass-btn small" data-city="강릉">강릉</button>
+    <button class="glass-btn small" data-city="제주">제주</button>
+    <button class="glass-btn small" data-city="울릉도">울릉도</button>
+  </div>
+  <div class="map-divider"></div>
+  <div class="map-presets">
+    <button class="glass-btn small" data-city="시드니">🌏 시드니</button>
+    <button class="glass-btn small" data-city="레이캬비크">🌍 레이캬비크</button>
+  </div>
+</div>
+
+<!-- Control Bar -->
+<div id="controlBar" class="glass">
+  <!-- Top row: playback + slider + time -->
+  <div class="ctrl-row">
+    <button class="glass-btn" id="playBtn" title="Space: 재생/정지">▶</button>
+    <button class="glass-btn" id="speedBtn" title="재생 속도">×1</button>
+    <div class="slider-wrap">
+      <input type="range" id="timeSlider" min="0" max="720" value="240" step="1">
+    </div>
+    <div id="timeDisplay">22:00 KST</div>
+  </div>
+  <!-- Bottom row: location + toggles -->
+  <div class="ctrl-row">
+    <button class="glass-btn" id="locationBtn" title="위치 변경">📍 서울</button>
+    <input type="date" id="datePicker" title="날짜 변경">
+    <button class="glass-btn small" id="todayBtn">오늘 밤</button>
+    <div class="ctrl-sep"></div>
+    <span class="lp-icon">💡</span>
+    <input type="range" id="lpSlider" min="1" max="5" value="3" step="1" title="광해">
+    <span id="lpLabel">시골</span>
+    <div class="ctrl-sep"></div>
+    <button class="glass-btn active" id="btnLines" title="C: 별자리 선">☆ 선</button>
+    <button class="glass-btn active" id="btnNames" title="N: 별자리 이름">Aa 이름</button>
+    <button class="glass-btn" id="btnGrid" title="G: 격자"># 격자</button>
+    <button class="glass-btn" id="btnMilky" title="M: 은하수">🌌 은하수</button>
+    <button class="glass-btn" id="btnMeteor" title="S: 유성">✨ 유성</button>
+    <button class="glass-btn" id="btnTrail" title="T: Star Trail">◎ Trail</button>
+    <button class="glass-btn active" id="btnAudio" title="A: 사운드">🔊</button>
+  </div>
+</div>
+
+<!-- Scripts (Phase 1 data files) -->
+
+<!-- Scripts (Phase 2 engine) -->
+
+<!-- Scripts (Phase 3-5 UI + features) -->
+
+<script>
+// ═══ data_stars.js ═══
+// [2] DATA_STARS — 별 카탈로그 (~300개 실제 별 데이터)
+// [7] DATA_STARDUST — 별가루 좌표 2500개 (사전 생성)
+// Format: [id, name_ko, name_en, constellation, ra, dec, mag, spectral_type]
+'use strict';
+
+const DATA_STARS = [
+  [1,  "시리우스",    "Sirius",              "CMa", 101.287, -16.716, -1.46, "A"],
+  [2,  null,          null,                  "Car",  95.988, -52.696, -0.74, "F"],
+  [3,  "아크투루스",  "Arcturus",            "Boo", 213.915,  19.182, -0.05, "K"],
+  [4,  "베가",        "Vega",                "Lyr", 279.235,  38.784,  0.03, "A"],
+  [5,  "카펠라",      "Capella",             "Aur",  79.172,  45.998,  0.08, "G"],
+  [6,  "리겔",        "Rigel",               "Ori",  78.634,  -8.202,  0.18, "B"],
+  [7,  "프로키온",    "Procyon",             "CMi", 114.827,   5.225,  0.38, "F"],
+  [8,  "베텔게우스",  "Betelgeuse",          "Ori",  88.793,   7.407,  0.45, "M"],
+  [9,  "아케르나르",  "Achernar",            "Eri",  24.429, -57.237,  0.46, "B"],
+  [10, null,          "Hadar",               "Cen", 210.956, -60.373,  0.61, "B"],
+  [11, "알타이르",    "Altair",              "Aql", 297.696,   8.868,  0.76, "A"],
+  [12, "알데바란",    "Aldebaran",           "Tau",  68.980,  16.509,  0.87, "K"],
+  [13, "스피카",      "Spica",               "Vir", 201.298, -11.161,  1.04, "B"],
+  [14, "안타레스",    "Antares",             "Sco", 247.352, -26.432,  1.06, "M"],
+  [15, "폴룩스",      "Pollux",              "Gem", 116.329,  28.026,  1.16, "K"],
+  [16, "포말하우트",  "Fomalhaut",           "PsA", 344.413, -29.622,  1.17, "A"],
+  [17, "데네브",      "Deneb",               "Cyg", 310.358,  45.280,  1.25, "A"],
+  [18, "레굴루스",    "Regulus",             "Leo", 152.093,  11.967,  1.36, "B"],
+  [19, "아드하라",    "Adhara",              "CMa", 104.656, -28.972,  1.50, "B"],
+  [20, "카스토르",    "Castor",              "Gem", 113.649,  31.888,  1.58, "A"],
+  [21, "샤울라",      "Shaula",              "Sco", 263.402, -37.104,  1.62, "B"],
+  [22, "벨라트릭스",  "Bellatrix",           "Ori",  81.283,   6.350,  1.64, "B"],
+  [23, "엘나스",      "Elnath",              "Tau",  81.573,  28.608,  1.65, "B"],
+  [24, "알닐람",      "Alnilam",             "Ori",  84.053,  -1.202,  1.69, "B"],
+  [25, "알리오스",    "Alioth",              "UMa", 193.508,  55.960,  1.77, "A"],
+  [26, "알니탁",      "Alnitak",             "Ori",  85.190,  -1.943,  1.77, "B"],
+  [27, "두베",        "Dubhe",               "UMa", 165.932,  61.751,  1.79, "K"],
+  [28, "미르파크",    "Mirfak",              "Per",  51.081,  49.861,  1.80, "F"],
+  [29, "알카이드",    "Alkaid",              "UMa", 206.886,  49.313,  1.85, "B"],
+  [30, "사르가스",    "Sargas",              "Sco", 264.330, -42.998,  1.87, "F"],
+  [31, "사이프",      "Saiph",               "Ori",  86.939,  -9.670,  2.07, "B"],
+  [32, "알파르드",    "Alphard",             "Hya", 141.897,  -8.658,  1.98, "K"],
+  [33, "하말",        "Hamal",               "Ari",  31.793,  23.463,  2.01, "K"],
+  [34, "알기에바",    "Algieba",             "Leo", 154.993,  19.842,  2.01, "K"],
+  [35, "코카브",      "Kochab",              "UMi", 222.676,  74.156,  2.07, "K"],
+  [36, "눈키",        "Nunki",               "Sgr", 283.817, -26.297,  2.05, "B"],
+  [37, "북극성",      "Polaris",             "UMi",  37.954,  89.264,  2.00, "F"],
+  [38, "알페라츠",    "Alpheratz",           "And",   2.097,  29.091,  2.06, "B"],
+  [39, "미라크",      "Mirach",              "And",  17.433,  35.621,  2.07, "M"],
+  [40, "미자르",      "Mizar",               "UMa", 200.981,  54.926,  2.23, "A"],
+  [41, "민타카",      "Mintaka",             "Ori",  83.001,  -0.299,  2.23, "B"],
+  [42, "셰다르",      "Schedar",             "Cas",  10.127,  56.537,  2.23, "K"],
+  [43, "엘타닌",      "Eltanin",             "Dra", 269.152,  51.489,  2.23, "K"],
+  [44, "알마크",      "Almach",              "And",  30.975,  42.330,  2.26, "K"],
+  [45, "알골",        "Algol",               "Per",  47.042,  40.956,  2.12, "B"],
+  [46, "멘칼리난",    "Menkalinan",          "Aur",  89.882,  44.947,  1.90, "A"],
+  [47, "메라크",      "Merak",               "UMa", 165.460,  56.383,  2.35, "A"],
+  [48, "페크다",      "Phecda",              "UMa", 178.458,  53.695,  2.43, "A"],
+  [49, "메그레즈",    "Megrez",              "UMa", 183.856,  57.033,  3.32, "A"],
+  [50, "카프",        "Caph",                "Cas",   2.295,  59.150,  2.27, "F"],
+  [51, "감마 카시오페이아", null,             "Cas",  14.177,  60.717,  2.47, "B"],
+  [52, "레사스",      "Lesath",              "Sco", 264.330, -37.296,  2.70, "B"],
+  [53, "추바",        "Dschubba",            "Sco", 240.083, -22.622,  2.30, "B"],
+  [54, "그라피아스",  "Graffias",            "Sco", 241.359, -19.806,  2.62, "B"],
+  [55, "루크바",      "Ruchbah",             "Cas",  21.454,  60.235,  2.68, "A"],
+  [56, "세긴",        "Segin",               "Cas",  28.599,  63.670,  3.35, "B"],
+  [57, "주베넬게누비","Zubenelgenubi",       "Lib", 222.720, -15.999,  2.75, "A"],
+  [58, "주베네샤말리","Zubeneschamali",      "Lib", 229.252,  -9.383,  2.61, "B"],
+  [59, "데네볼라",    "Denebola",            "Leo", 177.265,  14.572,  2.14, "A"],
+  [60, "알데라민",    "Alderamin",           "Cep", 319.645,  62.586,  2.45, "A"],
+  [61, "알페카",      "Alphecca",            "CrB", 233.672,  26.714,  2.22, "A"],
+  [62, "지에나",      "Gienah",              "Crv", 183.956, -17.542,  2.59, "B"],
+  [63, "알고라브",    "Algorab",             "Crv", 187.466, -16.515,  2.95, "B"],
+  [64, "크라즈",      "Kraz",                "Crv", 188.597, -23.397,  2.65, "K"],
+  [65, "민카르",      "Minkar",              "Crv", 185.340, -22.620,  3.01, "K"],
+  [66, "사드르",      "Sadr",                "Cyg", 305.557,  40.257,  2.23, "F"],
+  [67, "알비레오",    "Albireo",             "Cyg", 292.680,  27.960,  3.08, "K"],
+  [68, "파와리스",    "Fawaris",             "Cyg", 296.244,  45.131,  2.86, "A"],
+  [69, null,          "Gienah Cygni",        "Cyg", 311.553,  33.970,  2.46, "K"],
+  [70, "카우스 아우스트랄리스", "Kaus Australis", "Sgr", 276.043, -34.384, 1.79, "B"],
+  [71, "카우스 메디아","Kaus Media",         "Sgr", 275.249, -29.828,  2.72, "K"],
+  [72, "카우스 보레알리스","Kaus Borealis",  "Sgr", 276.993, -25.422,  2.82, "K"],
+  [73, "아셀라",      "Ascella",             "Sgr", 285.653, -29.880,  2.60, "A"],
+  [76, null,          null,                  "Sco", 252.541, -34.293,  2.29, "K"],
+  [77, null,          null,                  "Sco", 239.713, -26.115,  2.89, "B"],
+  [78, null,          null,                  "Sco", 265.622, -39.030,  2.39, "B"],
+  [79, null,          null,                  "Sco", 263.617, -40.127,  3.03, "F"],
+  [80, null,          null,                  "Sco", 253.084, -38.047,  3.04, "B"],
+  [81, null,          null,                  "Sco", 248.971, -28.216,  2.82, "B"],
+  [82, null,          null,                  "Sco", 245.297, -25.593,  2.89, "B"],
+  [83, "페르카드",    "Pherkad",             "UMi", 230.182,  71.834,  3.05, "A"],
+  [84, "일둔",        "Yildun",              "UMi", 256.424,  86.587,  4.35, "A"],
+  [85, null,          null,                  "UMi", 270.027,  77.795,  4.22, "G"],
+  [86, null,          null,                  "UMi", 238.176,  77.795,  4.32, "A"],
+  [87, "코르네포로스","Kornephoros",         "Her", 247.555,  21.490,  2.77, "G"],
+  [88, "라살게티",    "Rasalgethi",          "Her", 258.662,  14.390,  3.48, "M"],
+  [89, null,          "Sarin",               "Her", 251.714,  24.840,  3.14, "A"],
+  [90, null,          null,                  "Her", 250.323,  31.602,  2.81, "G"],
+  [91, "무프리드",    "Muphrid",             "Boo", 218.877,  18.397,  2.68, "G"],
+  [92, "세기누스",    "Seginus",             "Boo", 219.917,  38.308,  3.03, "A"],
+  [93, "이자르",      "Izar",                "Boo", 221.247,  27.074,  2.70, "K"],
+  [94, "네카르",      "Nekkar",              "Boo", 225.486,  40.391,  3.49, "G"],
+  [95, "사달수우드",  "Sadalsuud",           "Aqr", 322.890,  -5.571,  2.91, "G"],
+  [96, "사달멜리크",  "Sadalmelik",          "Aqr", 331.446,  -0.320,  2.95, "G"],
+  [97, "스카트",      "Skat",                "Aqr", 340.870, -15.821,  3.27, "A"],
+  [98, null,          "Albali",              "Aqr", 335.514,  -9.495,  3.77, "A"],
+  [99, null,          null,                  "Aqr", 337.177,  -0.020,  3.65, "F"],
+  [100,"알게니브",    "Algenib",             "Peg",   3.309,  15.184,  2.83, "B"],
+  [101,"메이사",      "Meissa",              "Ori",  83.784,   9.934,  3.47, "O"],
+  [102, null,         null,                  "Ori",  83.858,  -2.600,  3.38, "B"],
+  [103, null,         null,                  "Ori",  84.412,  -5.910,  2.77, "O"],
+  [104,"에라이",      "Errai",               "Cep", 322.165,  77.632,  3.22, "K"],
+  [105, null,         null,                  "Cep", 311.223,  61.840,  3.43, "K"],
+  [106,"알피르크",    "Alfirk",              "Cep", 321.773,  70.561,  3.23, "B"],
+  [108,"알헤나",      "Alhena",              "Gem",  99.428,  16.399,  1.93, "A"],
+  [109, null,         "Wasat",               "Gem", 110.031,  21.982,  3.52, "F"],
+  [110, null,         "Mebsuda",             "Gem", 100.982,  25.131,  2.98, "G"],
+  [111,"테자트",      "Tejat",               "Gem",  95.741,  22.513,  2.86, "M"],
+  [112, null,         "Propus",              "Gem",  93.044,  22.507,  3.28, "M"],
+  [113, null,         null,                  "Gem", 100.983,  12.896,  3.35, "F"],
+  [114,"알키오네",    "Alcyone",             "Tau",  56.871,  24.105,  2.87, "B"],
+  [116, null,         "Ain",                 "Tau",  67.154,  19.181,  3.53, "K"],
+  [117, null,         null,                  "Tau",  67.165,  15.867,  3.41, "A"],
+  [119, null,         null,                  "Tau",  56.221,  12.490,  3.47, "B"],
+  [120,"조스마",      "Zosma",               "Leo", 168.527,  20.524,  2.56, "A"],
+  [121, null,         null,                  "Leo", 177.286,  15.430,  3.34, "A"],
+  [122, null,         null,                  "Leo", 155.582,  16.762,  3.48, "A"],
+  [123,"아드하페라",  "Adhafera",            "Leo", 154.172,  23.417,  3.44, "F"],
+  [124, null,         "Ras Elased Australis","Leo", 146.463,  23.774,  2.97, "G"],
+  [125,"포리마",      "Porrima",             "Vir", 190.415,  -1.449,  2.74, "F"],
+  [126,"빈데미아트릭스","Vindemiatrix",      "Vir", 195.545,  10.959,  2.83, "G"],
+  [127, null,         "Heze",                "Vir", 203.673,  -0.596,  3.38, "A"],
+  [128, null,         null,                  "Vir", 193.901,   3.397,  3.39, "M"],
+  [129,"자비자바",    "Zavijava",            "Vir", 177.674,   1.764,  3.61, "F"],
+  [130, null,         null,                  "Psc",  22.871,  15.346,  3.62, "G"],
+  [131, null,         null,                  "Psc", 355.524,   3.282,  3.70, "G"],
+  [132,"알레스카",    "Alrescha",            "Psc",  30.512,   2.764,  3.83, "A"],
+  [136,"셰라탄",      "Sheratan",            "Ari",  28.660,  20.808,  2.64, "A"],
+  [137, null,         "Mesarthim",           "Ari",  28.382,  19.294,  3.88, "A"],
+  [138,"알 타르프",   "Al Tarf",             "Cnc", 124.128,   9.186,  3.52, "K"],
+  [139, null,         "Asellus Australis",   "Cnc", 131.171,  18.186,  3.94, "K"],
+  [140, null,         null,                  "Cnc", 131.171,  28.760,  4.02, "K"],
+  [141,"데네브 알게디","Deneb Algedi",       "Cap", 326.760, -16.127,  2.85, "A"],
+  [142,"다비",        "Dabih",               "Cap", 305.253, -14.782,  3.05, "G"],
+  [143,"알게디",      "Algedi",              "Cap", 304.513, -12.545,  3.57, "G"],
+  [144, null,         null,                  "Lib", 231.232, -28.135,  3.60, "B"],
+  [146,"알나슬",      "Alnasl",              "Sgr", 271.452, -30.424,  2.99, "K"],
+  [147, null,         null,                  "Sgr", 277.949, -26.990,  3.17, "B"],
+  [149, null,         null,                  "Sgr", 278.418, -36.762,  3.11, "M"],
+  [150,"시아트",      "Scheat",              "Peg", 345.943,  28.083,  2.42, "M"],
+  [151,"마르카브",    "Markab",              "Peg", 346.190,  15.205,  2.49, "B"],
+  [152,"에니프",      "Enif",                "Peg", 326.048,   9.875,  2.38, "K"],
+  [153,"마타르",      "Matar",               "Peg", 335.281,  30.221,  2.95, "G"],
+  [154, null,         "Biham",               "Peg", 340.751,   6.197,  3.53, "A"],
+  [155, null,         null,                  "And",   9.833,  30.861,  3.27, "K"],
+  [161, null,         null,                  "Cyg", 317.035,  30.228,  3.21, "G"],
+  [163,"셸리아크",    "Sheliak",             "Lyr", 282.520,  33.363,  3.52, "B"],
+  [164,"술라파트",    "Sulafat",             "Lyr", 284.736,  32.690,  3.24, "A"],
+  [166,"타라제드",    "Tarazed",             "Aql", 299.689,  10.613,  2.72, "K"],
+  [167, null,         "Okab",                "Aql", 302.826,  13.864,  2.99, "A"],
+  [168, null,         null,                  "Aql", 296.557,   3.115,  3.36, "F"],
+  [169, null,         null,                  "Aql", 300.665,  -0.821,  3.23, "B"],
+  [170, null,         null,                  "Boo", 220.483,  30.371,  3.58, "K"],
+  [174,"라스타반",    "Rastaban",            "Dra", 262.608,  52.301,  2.79, "G"],
+  [175,"투반",        "Thuban",              "Dra", 211.097,  64.376,  3.65, "A"],
+  [176,"알타이스",    "Altais",              "Dra", 288.139,  67.662,  3.07, "G"],
+  [177, null,         null,                  "Dra", 245.998,  61.514,  2.74, "G"],
+  [178, null,         null,                  "Dra", 262.608,  65.714,  3.17, "B"],
+  [181, null,         null,                  "Dra", 231.232,  58.965,  3.29, "K"],
+  [182,"무르짐",      "Murzim",              "CMa",  95.675, -17.956,  1.98, "B"],
+  [183,"웨젠",        "Wezen",               "CMa", 107.098, -26.393,  1.84, "F"],
+  [184,"알루드라",    "Aludra",              "CMa", 111.024, -29.303,  2.45, "B"],
+  [186, null,         "Furud",               "CMa",  97.364, -30.063,  3.02, "B"],
+  [187,"고메이사",    "Gomeisa",             "CMi", 111.788,   8.289,  2.84, "B"],
+  [188,"하살레",      "Hassaleh",            "Aur",  74.248,  33.166,  2.69, "K"],
+  [189,"마하심",      "Mahasim",             "Aur",  89.930,  37.213,  2.62, "A"],
+  [191, null,         null,                  "Aur",  75.490,  43.823,  2.99, "F"],
+  [193,"아티크",      "Atik",                "Per",  58.534,  31.883,  2.86, "B"],
+  [194, null,         "Gorgonea Tertia",     "Per",  46.199,  38.840,  3.39, "M"],
+  [196, null,         null,                  "Per",  53.578,  47.789,  3.01, "B"],
+  [197, null,         null,                  "Per",  55.938,  40.010,  2.89, "B"],
+  [198, null,         null,                  "Per",  43.564,  55.896,  3.77, "M"],
+  [203,"누사칸",      "Nusakan",             "CrB", 232.663,  29.106,  3.68, "A"],
+  [204, null,         null,                  "CrB", 231.157,  26.296,  3.84, "A"],
+  [207, null,         null,                  "Tau",  61.309,   9.029,  3.60, "G"],
+  [208, null,         null,                  "Tau",  67.165,  17.929,  3.41, "A"],
+  [210,"딥다",        "Diphda",              "Cet",  11.888, -17.987,  2.04, "K"],
+  [211,"멘카르",      "Menkar",              "Cet",  45.570,   4.090,  2.54, "M"],
+  [212, null,         null,                  "Cet",  38.997,   3.236,  3.47, "A"],
+  [213,"미라",        "Mira",                "Cet",  34.837,  -2.978,  3.04, "M"],
+  [214, null,         null,                  "Cet",  18.049, -10.182,  3.45, "K"],
+  [217, null,         "Cursa",               "Eri",  76.962,  -5.086,  2.78, "A"],
+  [218, null,         "Zaurak",              "Eri",  59.507, -13.509,  2.97, "M"],
+  [221,"라스알하게",  "Rasalhague",          "Oph", 263.734,  12.560,  2.08, "A"],
+  [222,"사비크",      "Sabik",               "Oph", 257.595, -15.724,  2.43, "A"],
+  [223,"예드 프라이어","Yed Prior",          "Oph", 243.586,  -3.699,  2.73, "M"],
+  [225, null,         null,                  "Oph", 249.290, -10.567,  2.56, "O"],
+  [228, null,         null,                  "Oph", 247.729,   9.375,  3.20, "K"],
+  [229,"우누칼하이",  "Unukalhai",           "Ser", 236.067,   6.426,  2.63, "K"],
+  [230, null,         null,                  "Ser", 237.555,  -3.692,  3.26, "K"],
+  [234, null,         null,                  "Hya", 134.623, -16.194,  3.11, "K"],
+  [235, null,         null,                  "Hya", 195.295, -23.171,  3.00, "G"],
+  [236, null,         null,                  "Hya", 131.674,   5.945,  3.11, "K"],
+  [237, null,         null,                  "Hya", 131.700,   6.419,  3.38, "G"],
+  [238, null,         null,                  "Hya", 228.416, -26.682,  3.27, "K"],
+  [241, null,         null,                  "Her", 247.555,  36.809,  3.16, "K"],
+  [244, null,         null,                  "Her", 244.935,  38.923,  3.53, "G"],
+  [250,"체발라이",    "Cebalrai",            "Oph", 265.868,   4.567,  2.77, "K"],
+  [257, null,         "Brachium",            "Lib", 233.882, -25.282,  3.29, "M"],
+  [263, null,         null,                  "Per",  43.564,  53.506,  2.93, "G"],
+  [267, null,         "Homam",               "Peg", 325.023,  10.832,  3.40, "B"],
+  [271, null,         null,                  "Boo", 220.481,  17.457,  4.50, "F"],
+  [272, null,         "Rasalas",             "Leo", 148.190,  26.007,  3.88, "K"],
+  [273, null,         "Nashira",             "Cap", 325.023, -16.662,  3.68, "G"],
+  [274, null,         null,                  "Peg", 340.751,  25.345,  3.76, "F"],
+  [275, null,         null,                  "Peg", 344.413,  24.602,  3.48, "G"],
+  [276, null,         "Achird",              "Cas",  12.276,  57.816,  3.44, "G"],
+  [280, null,         null,                  "Sgr", 289.272, -27.670,  3.32, "K"],
+  [284, null,         null,                  "Sgr", 286.175, -29.880,  2.84, "A"],
+  [285, null,         null,                  "Sgr", 279.372, -39.618,  4.37, "F"],
+  [290, null,         "Alula Australis",     "UMa", 169.545,  31.529,  3.79, "G"],
+  [291, null,         "Tania Australis",     "UMa", 155.582,  41.499,  3.06, "M"],
+  [292, null,         "Muscida",             "UMa", 127.566,  60.718,  3.35, "G"],
+  [293, null,         "Talitha",             "UMa", 135.906,  48.042,  3.14, "F"],
+  [294, null,         null,                  "UMa", 143.218,  51.677,  3.17, "F"],
+  [295, null,         null,                  "UMa", 163.324,  33.107,  3.48, "K"],
+  [296, null,         "Cor Caroli",          "CVn", 194.007,  38.318,  2.89, "A"],
+  [297, null,         "Chara",               "CVn", 187.000,  41.357,  4.26, "G"],
+  [298, null,         null,                  "CVn", 201.026,  45.441,  4.80, "C"],
+  [299, null,         null,                  "Vul", 295.024,  24.665,  4.44, "M"],
+  [300, null,         null,                  "Vul", 293.730,  25.671,  4.61, "G"],
+  [301, null,         null,                  "Sge", 298.967,  19.492,  4.39, "G"],
+  [302, null,         null,                  "Sge", 298.219,  17.477,  4.37, "G"],
+  [303, null,         null,                  "Sge", 294.688,  18.535,  3.82, "M"],
+  [304, null,         null,                  "Sge", 298.017,  19.985,  3.47, "M"],
+  [305, null,         null,                  "Cas", 352.170,  57.174,  4.54, "F"],
+  [306, null,         null,                  "Cas",  28.401,  67.965,  4.52, "A"],
+  [307, null,         null,                  "Cep", 336.127,  66.340,  4.23, "K"],
+  [308, null,         null,                  "Cyg", 302.826,  51.190,  3.89, "B"],
+  [309, null,         null,                  "Cyg", 314.400,  46.072,  3.98, "K"],
+  [310, null,         null,                  "Cyg", 315.024,  43.950,  3.72, "M"],
+  [311, null,         null,                  "Cyg", 315.000,  45.572,  4.02, "G"],
+  [312, null,         null,                  "Aql", 298.097,   1.006,  3.87, "F"],
+  [313, null,         null,                  "Aql", 288.976,  -4.882,  3.44, "B"],
+  [314, null,         "Subra",               "Leo", 148.790,   9.892,  3.53, "F"],
+  [315, null,         null,                  "Leo", 154.993,   6.029,  4.06, "B"],
+  [316, null,         null,                  "Leo", 148.190,  23.417,  4.37, "K"],
+  [317, null,         null,                  "Leo", 151.934,   9.316,  3.85, "B"],
+  [318, null,         null,                  "Leo", 174.217,   0.818,  4.30, "F"],
+  [319, null,         null,                  "Leo", 185.785,  20.220,  4.53, "K"],
+  [320, null,         null,                  "Vir", 211.592,   1.764,  3.72, "A"],
+  [321, null,         null,                  "Vir", 210.812,   1.555,  4.26, "A"],
+  [322, null,         null,                  "Vir", 209.879,  -5.658,  3.88, "F"],
+  [323, null,         null,                  "Vir", 186.742,   6.529,  4.03, "M"],
+  [325, null,         "Tegmine",             "Cnc", 124.128,  17.648,  4.67, "F"],
+  [326, null,         null,                  "Ori",  84.412,   9.934,  4.41, "B"],
+  [327, null,         null,                  "Ori",  91.790,  20.276,  4.63, "B"],
+  [328, null,         null,                  "Ori",  84.686,  -2.600,  3.77, "O"],
+  [329, null,         null,                  "Ori",  83.858,  -2.600,  3.38, "B"],
+  [330, null,         null,                  "Ori",  72.460,   6.961,  3.19, "F"],
+  [331, null,         null,                  "Ori",  74.241,   5.606,  3.69, "B"],
+  [332, null,         null,                  "Ori",  79.687,   2.997,  4.46, "K"],
+  [333, null,         null,                  "Eri",  55.813,  -9.764,  3.54, "K"],
+  [334, null,         null,                  "Eri",  53.233,  -9.458,  3.73, "K"],
+  [335, null,         "Azha",                "Eri",  44.107,  -8.898,  3.89, "K"],
+  [336, null,         null,                  "Eri",  43.554, -12.101,  4.42, "M"],
+  [337, null,         "Acamar",              "Eri",  44.565, -40.305,  2.88, "A"],
+  [338, null,         null,                  "Eri",  63.023, -30.562,  3.82, "G"],
+  [339, null,         null,                  "Eri",  69.228, -11.872,  4.39, "K"],
+  [340, null,         null,                  "Eri",  44.565, -21.758,  4.09, "F"],
+  [341, null,         null,                  "Eri",  42.460, -51.512,  3.55, "B"],
+  [342, null,         null,                  "Phe",   6.571, -42.306,  2.40, "K"],
+  [343, null,         null,                  "Phe",  16.521, -46.718,  3.31, "G"],
+  [344, null,         null,                  "Phe",  22.871, -43.317,  3.41, "M"],
+  [345, null,         null,                  "Phe",  25.616, -49.072,  3.95, "G"],
+  [346, null,         null,                  "Phe",  24.017, -45.747,  3.88, "K"],
+  [347, null,         null,                  "Peg", 338.633,  23.568,  3.96, "A"],
+  [348, null,         null,                  "Peg", 353.046,  25.644,  4.13, "F"],
+  [349, null,         null,                  "Peg", 348.177,  23.405,  4.40, "F"],
+  [350, null,         null,                  "Peg", 346.190,  33.174,  4.29, "F"],
+  [352, null,         null,                  "PsA", 347.628, -32.346,  4.29, "A"],
+  [353, null,         null,                  "Psc",  11.888,   7.890,  4.43, "K"],
+  [354, null,         null,                  "Psc",   7.881,   6.864,  4.02, "F"],
+  [356, null,         null,                  "Psc",  17.096,  30.090,  4.51, "G"],
+  [357, null,         null,                  "Psc", 351.008,   3.819,  4.53, "B"],
+  [358, null,         null,                  "Psc",   7.881,   5.626,  4.13, "F"],
+  [359, null,         null,                  "Psc", 354.376,   1.780,  4.50, "A"],
+  [360, null,         null,                  "Psc", 350.185,   6.864,  4.28, "K"],
+  [361, null,         null,                  "Aqr", 334.208,  -1.387,  4.02, "B"],
+  [362, null,         "Hydor",               "Aqr", 340.016,  -7.579,  3.73, "M"],
+  [363, null,         "Sadachbia",           "Aqr", 330.199,  -1.387,  3.85, "A"],
+  [366, null,         null,                  "Aqr", 335.043, -13.869,  4.29, "A"],
+  [368, null,         null,                  "Cap", 321.773, -22.411,  3.74, "G"],
+  [369, null,         null,                  "Cap", 315.688, -17.232,  4.07, "G"],
+  [371, null,         null,                  "Lib", 233.652, -14.789,  3.91, "A"],
+  [372, null,         null,                  "Sco", 258.838, -43.239,  3.33, "F"],
+  [373, null,         null,                  "Sco", 253.497, -42.362,  3.62, "K"],
+  [374, null,         null,                  "Sco", 253.084, -37.987,  3.57, "B"],
+  [375, null,         null,                  "Sco", 240.031, -19.460,  4.00, "B"],
+  [376, null,         null,                  "Sco", 239.090, -11.371,  4.16, "F"],
+  [377, null,         null,                  "Sgr", 290.972, -40.616,  3.97, "B"],
+  [378, null,         null,                  "Sgr", 287.441, -44.460,  3.93, "B"],
+  [379, null,         null,                  "Sgr", 285.981, -21.106,  3.51, "G"],
+  [380, null,         null,                  "Sgr", 280.622, -21.058,  3.77, "G"],
+];
+
+function generateStardust() {
+  const data = [];
+  let seed = 42;
+  function rand() {
+    seed = (seed * 1664525 + 1013904223) & 0xffffffff;
+    return (seed >>> 0) / 0xffffffff;
+  }
+  // Milky Way band regions for denser coverage
+  const regions = [
+    {ra: 270, dec: -25, spread: 40},  // Sagittarius
+    {ra: 300, dec: 40, spread: 30},   // Cygnus
+    {ra: 15,  dec: 60, spread: 25},   // Cassiopeia
+    {ra: 50,  dec: 50, spread: 20},   // Perseus
+    {ra: 85,  dec: 0,  spread: 25},   // Orion
+    {ra: 190, dec: 10, spread: 35},   // Virgo area
+    {ra: 240, dec: 50, spread: 20},   // general coverage
+    {ra: 130, dec: 40, spread: 30},   // general coverage
+  ];
+  for (let i = 0; i < 2500; i++) {
+    if (i % 3 === 0) {
+      // Milky Way band star
+      const r = regions[Math.floor(rand() * regions.length)];
+      const ra = (r.ra + (rand() - 0.5) * r.spread * 2 + 360) % 360;
+      const dec = Math.max(-30, Math.min(89, r.dec + (rand() - 0.5) * r.spread));
+      data.push([+ra.toFixed(2), +dec.toFixed(2)]);
+    } else {
+      // Random sky coverage
+      const ra = rand() * 360;
+      const dec = -30 + rand() * 120; // -30 to 90
+      data.push([+ra.toFixed(2), +dec.toFixed(2)]);
+    }
+  }
+  return data;
+}
+const DATA_STARDUST = generateStardust();
+
+
+// ═══ data_constellations.js ═══
+// [3] DATA_CONST — 별자리 30개 정의
+'use strict';
+
+const DATA_CONST = [
+  {
+    abbr: "Ori",
+    name: "오리온자리",
+    nameEn: "Orion",
+    lines: [
+      [101, 8], [101, 22], [8, 22],
+      [8, 41], [22, 26],
+      [41, 24], [24, 26],
+      [41, 31], [26, 6],
+      [24, 103], [103, 31]
+    ],
+    myth: "신화에서 오리온은 바다의 신 포세이돈의 아들로, 세상에서 가장 위대한 사냥꾼이었다. 전갈에게 물려 하늘에 올랐으며, 전갈자리의 반대편에 위치한다."
+  },
+  {
+    abbr: "UMa",
+    name: "큰곰자리",
+    nameEn: "Ursa Major",
+    lines: [
+      [27, 47], [47, 48], [48, 49], [49, 27],
+      [49, 25], [25, 40], [40, 29],
+      [27, 291], [291, 293], [293, 294], [290, 291]
+    ],
+    myth: "신화에서 제우스의 사랑을 받은 칼리스토가 헤라의 질투로 곰으로 변해 하늘에 올랐다. 북두칠성을 포함하며 항해와 방향의 기준이 되어왔다."
+  },
+  {
+    abbr: "UMi",
+    name: "작은곰자리",
+    nameEn: "Ursa Minor",
+    lines: [
+      [37, 84], [84, 85], [85, 86],
+      [86, 35], [35, 83], [83, 86]
+    ],
+    myth: "북극성을 포함하는 별자리로, 신화에서 제우스와 칼리스토의 아들 아르카스를 가리킨다. 선원들에게 길잡이 별인 북극성이 있는 별자리다."
+  },
+  {
+    abbr: "Cas",
+    name: "카시오페이아자리",
+    nameEn: "Cassiopeia",
+    lines: [
+      [50, 42], [42, 51], [51, 55], [55, 56]
+    ],
+    myth: "에티오피아의 허영스러운 왕비 카시오페이아가 하늘에 올라 W자 모양을 이루고 있다. 은하수 속에 빛나며 북반구에서 일 년 내내 볼 수 있다."
+  },
+  {
+    abbr: "Leo",
+    name: "사자자리",
+    nameEn: "Leo",
+    lines: [
+      [124, 122], [122, 123], [123, 34], [34, 18],
+      [18, 121], [121, 120], [120, 59],
+      [34, 120]
+    ],
+    myth: "헤라클레스가 첫 번째 과업으로 물리친 네메아의 사자를 기념한다. 봄 하늘의 대표 별자리로, 황도 12궁 중 하나이다."
+  },
+  {
+    abbr: "Sco",
+    name: "전갈자리",
+    nameEn: "Scorpius",
+    lines: [
+      [54, 53], [53, 77], [54, 82], [82, 14],
+      [14, 81], [81, 76], [76, 80], [80, 79],
+      [79, 78], [78, 21], [21, 52], [52, 30]
+    ],
+    myth: "오리온을 물어 죽인 전갈로, 오리온과 반대편 하늘에 배치되었다. 안타레스는 '화성의 적'이라는 이름처럼 화성에 대적하는 붉은 별이다."
+  },
+  {
+    abbr: "Cyg",
+    name: "백조자리",
+    nameEn: "Cygnus",
+    lines: [
+      [17, 66], [66, 67], [68, 66],
+      [66, 69], [69, 161]
+    ],
+    myth: "제우스가 레다에게 접근하기 위해 백조로 변신한 모습이라고 전한다. 십자 모양의 '북십자성'으로도 불리며, 은하수 위에서 빛난다."
+  },
+  {
+    abbr: "Lyr",
+    name: "거문고자리",
+    nameEn: "Lyra",
+    lines: [
+      [4, 163], [163, 164], [164, 4]
+    ],
+    myth: "음악의 신 아폴로가 오르페우스에게 선물한 황금 리라(거문고)가 별자리가 되었다. 베가는 여름밤 가장 빛나는 별 중 하나이다."
+  },
+  {
+    abbr: "Aql",
+    name: "독수리자리",
+    nameEn: "Aquila",
+    lines: [
+      [166, 11], [11, 167], [11, 168], [169, 11]
+    ],
+    myth: "독수리는 제우스의 신성한 새로 번개를 나르는 역할을 했다. 알타이르는 '날아가는 독수리'라는 뜻의 아랍어에서 유래했다."
+  },
+  {
+    abbr: "Peg",
+    name: "페가수스자리",
+    nameEn: "Pegasus",
+    lines: [
+      [38, 150], [150, 151], [151, 100], [100, 38],
+      [152, 151], [153, 150], [267, 152]
+    ],
+    myth: "페르세우스가 메두사를 죽일 때 흘린 피에서 태어난 날개 달린 천마다. 페가수스 대사각형은 가을 하늘의 길잡이다."
+  },
+  {
+    abbr: "And",
+    name: "안드로메다자리",
+    nameEn: "Andromeda",
+    lines: [
+      [38, 155], [155, 39], [39, 44]
+    ],
+    myth: "에티오피아 왕녀 안드로메다는 어머니의 허영 때문에 바다 괴물의 제물로 바쳐졌으나 페르세우스에게 구출되었다. 안드로메다 은하가 이 별자리에 있다."
+  },
+  {
+    abbr: "Gem",
+    name: "쌍둥이자리",
+    nameEn: "Gemini",
+    lines: [
+      [20, 112], [112, 110], [110, 15], [15, 108],
+      [108, 113], [113, 20],
+      [111, 112], [109, 110]
+    ],
+    myth: "트로이 전쟁의 영웅 카스토르와 폴룩스 쌍둥이 형제를 나타낸다. 폴룩스는 불멸의 신이었지만 형을 위해 하늘에 함께 올라갔다."
+  },
+  {
+    abbr: "Tau",
+    name: "황소자리",
+    nameEn: "Taurus",
+    lines: [
+      [12, 116], [116, 117], [117, 208], [116, 114],
+      [12, 23], [119, 12], [207, 116]
+    ],
+    myth: "제우스가 페니키아 왕녀 에우로파에게 접근하기 위해 변신한 흰 황소다. 플레이아데스 성단과 히아데스 성단을 품고 있다."
+  },
+  {
+    abbr: "Vir",
+    name: "처녀자리",
+    nameEn: "Virgo",
+    lines: [
+      [13, 125], [125, 126], [125, 127],
+      [127, 128], [126, 129], [128, 129]
+    ],
+    myth: "농업의 여신 데메테르 또는 정의의 여신 아스트라이아를 나타낸다. 스피카는 코페르니쿠스의 지동설 발견에 기여한 별이다."
+  },
+  {
+    abbr: "Aqr",
+    name: "물병자리",
+    nameEn: "Aquarius",
+    lines: [
+      [96, 95], [95, 99], [99, 97], [96, 363]
+    ],
+    myth: "트로이의 미소년 가니메데가 독수리에게 납치되어 신들에게 물을 따르는 술잔지기가 되었다. 가을 남쪽 하늘에서 볼 수 있다."
+  },
+  {
+    abbr: "Psc",
+    name: "물고기자리",
+    nameEn: "Pisces",
+    lines: [
+      [130, 131], [131, 132], [132, 354]
+    ],
+    myth: "아프로디테와 에로스가 티폰을 피해 물고기로 변신하여 묶인 모습이라고 전해진다. 춘분점이 이 별자리에 있다."
+  },
+  {
+    abbr: "Ari",
+    name: "양자리",
+    nameEn: "Aries",
+    lines: [
+      [33, 136], [136, 137]
+    ],
+    myth: "황금 양털을 가진 신성한 양으로, 이아손과 아르고 원정대가 황금 양털을 찾으러 갔다. 황도 12궁의 시작 별자리다."
+  },
+  {
+    abbr: "Cnc",
+    name: "게자리",
+    nameEn: "Cancer",
+    lines: [
+      [138, 139], [139, 140]
+    ],
+    myth: "헤라클레스가 히드라와 싸울 때 헤라가 보낸 게로, 영웅의 발을 물었다가 밟혀 죽었다. 하늘에서 가장 희미한 황도 12궁 별자리 중 하나다."
+  },
+  {
+    abbr: "Sgr",
+    name: "궁수자리",
+    nameEn: "Sagittarius",
+    lines: [
+      [146, 71], [71, 70], [70, 73], [73, 36],
+      [36, 72], [72, 71],
+      [147, 70], [284, 73], [280, 36]
+    ],
+    myth: "켄타우로스족의 현자 케이론을 나타낸다는 설이 있다. 은하수 중심 방향에 있어 가장 별이 많은 별자리 중 하나이며 '주전자' 모양이 유명하다."
+  },
+  {
+    abbr: "Cap",
+    name: "염소자리",
+    nameEn: "Capricornus",
+    lines: [
+      [143, 142], [142, 141], [141, 273], [273, 143]
+    ],
+    myth: "목신 판이 티폰을 피해 반은 물고기, 반은 염소인 모습으로 변신한 것이라 전해진다. 황도 12궁 중 가장 어두운 별자리다."
+  },
+  {
+    abbr: "Lib",
+    name: "천칭자리",
+    nameEn: "Libra",
+    lines: [
+      [57, 58], [58, 144], [257, 57], [144, 57]
+    ],
+    myth: "처녀자리의 정의의 여신이 들고 있는 저울을 나타낸다. 황도 12궁 중 유일하게 동물이나 사람이 아닌 사물을 나타내는 별자리다."
+  },
+  {
+    abbr: "Boo",
+    name: "목동자리",
+    nameEn: "Boötes",
+    lines: [
+      [3, 91], [3, 93], [93, 92], [92, 94],
+      [3, 170], [170, 94], [91, 93]
+    ],
+    myth: "큰곰을 몰고 다니는 목동으로, 아르카스 또는 트리프톨레모스라고 전해진다. 아크투루스는 하늘에서 네 번째로 밝은 별이다."
+  },
+  {
+    abbr: "CrB",
+    name: "왕관자리",
+    nameEn: "Corona Borealis",
+    lines: [
+      [203, 61], [61, 204]
+    ],
+    myth: "박카스가 아리아드네에게 준 황금 왕관이 별자리가 되었다. 반원형의 아름다운 별자리로 '북쪽 왕관'이라고도 불린다."
+  },
+  {
+    abbr: "Dra",
+    name: "용자리",
+    nameEn: "Draco",
+    lines: [
+      [43, 174], [174, 177], [177, 178], [178, 181],
+      [181, 43], [176, 177], [175, 176]
+    ],
+    myth: "헤라클레스의 12과업 중 하나인 헤스페리데스의 황금 사과를 지키던 용 라돈이다. 북쪽 하늘을 크게 감싸며 투반은 고대 이집트의 북극성이었다."
+  },
+  {
+    abbr: "CMa",
+    name: "큰개자리",
+    nameEn: "Canis Major",
+    lines: [
+      [182, 1], [1, 19], [19, 184], [184, 183],
+      [183, 1], [186, 19]
+    ],
+    myth: "오리온의 충직한 사냥개로, 하늘에서 가장 밝은 시리우스가 코에 해당한다. 고대 이집트에서는 나일강의 범람을 예고하는 별로 숭배되었다."
+  },
+  {
+    abbr: "CMi",
+    name: "작은개자리",
+    nameEn: "Canis Minor",
+    lines: [
+      [7, 187]
+    ],
+    myth: "오리온의 작은 사냥개로, 프로키온은 '개보다 먼저'라는 뜻으로 시리우스보다 먼저 뜨기 때문에 붙은 이름이다."
+  },
+  {
+    abbr: "Aur",
+    name: "마차부자리",
+    nameEn: "Auriga",
+    lines: [
+      [5, 46], [46, 189], [189, 191], [191, 188],
+      [188, 5], [23, 188]
+    ],
+    myth: "절름발이 아테네의 왕 에릭토니오스가 말 네 마리가 끄는 마차를 발명한 것을 기념한다. 카펠라는 '작은 암염소'라는 뜻이다."
+  },
+  {
+    abbr: "Per",
+    name: "페르세우스자리",
+    nameEn: "Perseus",
+    lines: [
+      [45, 28], [28, 196], [28, 197], [28, 193],
+      [45, 197], [196, 263], [194, 45]
+    ],
+    myth: "메두사의 머리를 잘라 안드로메다를 구한 영웅 페르세우스다. 알골은 메두사의 눈을 나타내는 식쌍성으로 밝기가 주기적으로 변한다."
+  },
+  {
+    abbr: "Cep",
+    name: "세페우스자리",
+    nameEn: "Cepheus",
+    lines: [
+      [60, 106], [106, 104], [104, 105],
+      [105, 60], [105, 106]
+    ],
+    myth: "에티오피아의 왕 세페우스로, 왕비 카시오페이아와 딸 안드로메다와 함께 하늘에 올랐다. 오각형 모양의 별들이 천구 북극 근처에 있다."
+  },
+  {
+    abbr: "Crv",
+    name: "까마귀자리",
+    nameEn: "Corvus",
+    lines: [
+      [62, 63], [63, 64], [64, 65], [65, 62]
+    ],
+    myth: "아폴로의 신성한 새인 까마귀가 임무를 게을리 하다 벌을 받은 이야기를 담고 있다. 사다리꼴 모양의 작은 별자리다."
+  },
+];
+
+
+// ═══ data_planets.js ═══
+// [4] DATA_PLANETS — 행성 궤도 요소 (J2000.0)
+// 형식: { name, color, a: [base, rate], e: [base, rate], I: [base, rate], L: [base, rate], w: [base, rate], O: [base, rate] }
+'use strict';
+
+const PLANET_ELEMENTS = {
+  mercury: {
+    name: "수성", color: "#b0b0b0",
+    a: [0.38709927, 0.00000037],
+    e: [0.20563593, 0.00001906],
+    I: [7.00497902, -0.00594749],
+    L: [252.25032350, 149472.67411175],
+    w: [77.45779628, 0.16047689],
+    O: [48.33076593, -0.12534081],
+  },
+  venus: {
+    name: "금성", color: "#ffffdd",
+    a: [0.72333566, 0.00000390],
+    e: [0.00677672, -0.00004107],
+    I: [3.39467605, -0.00078890],
+    L: [181.97909950, 58517.81538729],
+    w: [131.60246718, 0.00268329],
+    O: [76.67984255, -0.27769418],
+  },
+  mars: {
+    name: "화성", color: "#dd6644",
+    a: [1.52371034, 0.00001847],
+    e: [0.09339410, 0.00007882],
+    I: [1.84969142, -0.00813131],
+    L: [355.44656895, 19140.30268499],
+    w: [336.05637041, 0.44441088],
+    O: [49.55953891, -0.29257343],
+  },
+  jupiter: {
+    name: "목성", color: "#ddcc88",
+    a: [5.20288700, -0.00011607],
+    e: [0.04838624, -0.00013253],
+    I: [1.30439695, -0.00183714],
+    L: [34.39644051, 3034.74612775],
+    w: [14.72847983, 0.21252668],
+    O: [100.47390909, 0.20469106],
+  },
+  saturn: {
+    name: "토성", color: "#ddddaa",
+    a: [9.53667594, -0.00125060],
+    e: [0.05386179, -0.00050991],
+    I: [2.48599187, 0.00193609],
+    L: [49.95424423, 1222.49362201],
+    w: [92.59887831, -0.41897216],
+    O: [113.66242448, -0.28867794],
+  }
+};
+
+
+// ═══ data_map.js ═══
+// [5] DATA_MAP — 한반도 지도 데이터 및 도시 목록
+// 좌표계: x = (lng - 124.0) * 26, y = (38.5 - lat) * 40  (208x220 canvas)
+'use strict';
+
+// ---------------------------------------------------------------------------
+// 도시 목록 (한국 20개 + 해외 2개)
+// ---------------------------------------------------------------------------
+const DATA_CITIES = [
+  { name: "서울",      lat: 37.5665, lng: 126.9780 },
+  { name: "부산",      lat: 35.1796, lng: 129.0756 },
+  { name: "대구",      lat: 35.8714, lng: 128.6014 },
+  { name: "인천",      lat: 37.4563, lng: 126.7052 },
+  { name: "광주",      lat: 35.1595, lng: 126.8526 },
+  { name: "대전",      lat: 36.3504, lng: 127.3845 },
+  { name: "울산",      lat: 35.5384, lng: 129.3114 },
+  { name: "세종",      lat: 36.4800, lng: 127.2890 },
+  { name: "수원",      lat: 37.2636, lng: 127.0286 },
+  { name: "청주",      lat: 36.6424, lng: 127.4890 },
+  { name: "전주",      lat: 35.8242, lng: 127.1480 },
+  { name: "춘천",      lat: 37.8813, lng: 127.7298 },
+  { name: "강릉",      lat: 37.7519, lng: 128.8761 },
+  { name: "제주",      lat: 33.4996, lng: 126.5312 },
+  { name: "포항",      lat: 36.0190, lng: 129.3435 },
+  { name: "여수",      lat: 34.7604, lng: 127.6622 },
+  { name: "안동",      lat: 36.5684, lng: 128.7294 },
+  { name: "속초",      lat: 38.2070, lng: 128.5918 },
+  { name: "목포",      lat: 34.8118, lng: 126.3922 },
+  { name: "울릉도",    lat: 37.4842, lng: 130.9057 },
+  { name: "시드니",    lat: -33.8688, lng: 151.2093 },
+  { name: "레이캬비크", lat:  64.1466, lng: -21.9426 },
+];
+
+// ---------------------------------------------------------------------------
+// 반도 폴리곤 — 위경도 [lat, lng] 쌍, 시계 방향, 점-내-폴리곤 판정용
+// ---------------------------------------------------------------------------
+const PENINSULA_POLYGON = [
+  // NW DMZ 끝 (서쪽)
+  [38.3, 126.5],
+  // DMZ 동쪽으로
+  [38.3, 127.0],
+  [38.3, 127.5],
+  [38.3, 128.0],
+  [38.3, 128.5],
+  // 동해안 북부
+  [38.0, 128.6],
+  [37.7, 129.0],
+  [37.2, 129.4],
+  // 동해안 중부
+  [36.8, 129.5],
+  [36.5, 129.5],
+  [36.2, 129.4],
+  [36.0, 129.4],
+  // 동해안 남부 → 부산
+  [35.5, 129.4],
+  [35.2, 129.1],
+  // 남해안 동쪽
+  [34.9, 128.7],
+  [34.7, 128.4],
+  [34.6, 128.1],
+  [34.6, 127.9],
+  // 남해안 중부
+  [34.7, 127.7],
+  [34.8, 127.5],
+  [34.8, 127.2],
+  [34.9, 127.0],
+  [34.9, 126.8],
+  [34.9, 126.7],
+  // 남해안 서쪽 → 목포
+  [35.0, 126.5],
+  [34.8, 126.4],
+  [34.8, 126.3],
+  // 서해안 (남 → 북)
+  [35.0, 126.2],
+  [35.2, 126.3],
+  [35.3, 126.4],
+  [35.5, 126.5],
+  [35.8, 126.5],
+  [36.0, 126.5],
+  [36.3, 126.5],
+  [36.5, 126.5],
+  [36.8, 126.5],
+  // 인천 부근 서해안
+  [37.0, 126.5],
+  [37.2, 126.5],
+  [37.4, 126.5],
+  [37.5, 126.5],
+  // 경기만 북쪽
+  [37.7, 126.6],
+  [37.9, 126.6],
+  [38.0, 126.6],
+  // DMZ 서쪽 끝으로 복귀
+  [38.2, 126.5],
+  [38.3, 126.5],
+];
+
+// ---------------------------------------------------------------------------
+// 지도 경로 데이터  (캔버스 208x220 픽셀)
+// x = (lng - 124.0) * 26,   y = (38.5 - lat) * 40
+// ---------------------------------------------------------------------------
+const DATA_MAP = {
+
+  // 한반도 윤곽 — 시계 방향, 약 100점
+  // x,y 값은 위의 좌표 공식으로 계산
+  peninsulaPath: [
+    // ----- DMZ 서쪽 끝 (NW) -----
+    [39,  8],   // 38.3°N 126.5°E
+    [52,  8],   // 38.3°N 127.0°E
+    [65,  8],   // 38.3°N 127.5°E
+    [78,  8],   // 38.3°N 128.0°E
+    [91,  8],   // 38.3°N 128.5°E  ← DMZ 동쪽 끝
+
+    // ----- 동해안 북부 (남하) -----
+    [94,  20],  // 38.0°N 128.6°E
+    [100, 32],  // 37.7°N 129.0°E
+    [112, 52],  // 37.2°N 129.4°E
+    [118, 68],  // 36.8°N 129.5°E
+    [118, 80],  // 36.5°N 129.5°E
+    [115, 92],  // 36.2°N 129.4°E
+    [114, 100], // 36.0°N 129.4°E
+
+    // ----- 동해안 남부 -----
+    [114, 112], // 35.8°N 129.4°E  (울산 위)
+    [114, 120], // 35.5°N 129.4°E  (울산)
+    [112, 132], // 35.2°N 129.1°E  (부산)
+
+    // ----- 남해안 동부 -----
+    [122, 144], // 34.9°N 128.7°E  (거제)
+    [107, 152], // 34.6°N 128.1°E
+    [104, 156], // 34.6°N 127.9°E
+
+    // ----- 남해안 중부 (여수 만 포함) -----
+    [96,  152], // 34.7°N 127.7°E  (여수)
+    [88,  148], // 34.8°N 127.5°E
+    [84,  148], // 34.8°N 127.2°E
+    [80,  156], // 34.7°N 127.0°E
+    [74,  156], // 34.8°N 126.8°E
+    [70,  156], // 34.9°N 126.7°E
+
+    // ----- 남해안 서부 → 목포 -----
+    [66,  160], // 35.0°N 126.5°E
+    [62,  148], // 34.8°N 126.4°E  (목포)
+    [60,  148], // 34.8°N 126.3°E
+
+    // ----- 서해안 (북상) -----
+    [56,  156], // 35.0°N 126.2°E
+    [60,  164], // 34.9°N 126.3°E  — 약간 안쪽 굴곡
+    [66,  168], // 34.8°N 126.5°E
+    [68,  172], // 34.7°N 126.5°E  — 서해 섬들 부근
+    [60,  172], // 35.0°N 126.2°E
+
+    // ↑ 위 두 점은 서해 돌출부를 표현; 이후 북상
+    [60,  160], // 35.2°N 126.3°E
+    [62,  152], // 35.3°N 126.4°E
+    [66,  144], // 35.5°N 126.5°E
+    [66,  136], // 35.7°N 126.5°E
+    [66,  120], // 36.2°N 126.5°E
+    [64,  108], // 36.5°N 126.4°E
+    [66,   96], // 36.8°N 126.5°E
+    [66,   88], // 37.0°N 126.6°E
+    [66,   80], // 37.2°N 126.6°E
+
+    // ----- 인천 / 경기만 -----
+    [64,   72], // 37.4°N 126.5°E
+    [66,   64], // 37.5°N 126.6°E  (인천 근방)
+    [68,   56], // 37.7°N 126.6°E
+    [68,   44], // 37.9°N 126.6°E
+
+    // ----- 서해안 북부 → DMZ 서쪽 -----
+    [66,   36], // 38.0°N 126.6°E
+    [60,   20], // 38.2°N 126.5°E
+    [52,   12], // 38.3°N 126.5°E  (= 시작점 근방, 닫기)
+    [39,    8], // 38.3°N 126.5°E  ← 시작점으로 닫음
+  ],
+
+  // 제주도 (별도 폴리곤)
+  // 제주시 33.5°N 126.5°E 부근, 섬 폭 약 1.5° 경도
+  jejuPath: [
+    [65,  200], // 33.5°N 126.5°E  서쪽 끝
+    [72,  197], // 33.6°N 126.8°E
+    [78,  196], // 33.6°N 127.0°E
+    [86,  196], // 33.6°N 127.3°E
+    [93,  198], // 33.5°N 127.6°E  동쪽 끝
+    [90,  204], // 33.4°N 127.5°E
+    [80,  207], // 33.3°N 127.1°E
+    [70,  206], // 33.3°N 126.7°E
+    [65,  200], // 닫기
+  ],
+
+  // 울릉도 (단일 점 마커)
+  // 37.5°N 130.9°E → x=(130.9-124)*26=179, y=(38.5-37.5)*40=40
+  ulleungdo: [179, 40],
+};
+
+
+// ═══ astro.js ═══
+// [8] ASTRO — 천문 좌표 변환 (순수 함수)
+'use strict';
+
+/**
+ * 율리우스 일 계산
+ * @param {number} year  UTC year
+ * @param {number} month UTC month (1-12)
+ * @param {number} day   UTC day
+ * @param {number} utHours UTC decimal hours
+ * @returns {number} Julian Day Number
+ */
+function dateToJD(year, month, day, utHours) {
+  if (month <= 2) { year -= 1; month += 12; }
+  const A = Math.floor(year / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25 * (year + 4716))
+       + Math.floor(30.6001 * (month + 1))
+       + day + utHours / 24 + B - 1524.5;
+}
+
+/**
+ * 그리니치 항성시 (GMST) in degrees
+ * @param {number} jd Julian Day
+ * @returns {number} GMST in degrees [0, 360)
+ */
+function jdToGMST(jd) {
+  const T = (jd - 2451545.0) / 36525.0;
+  let gmst = 280.46061837
+           + 360.98564736629 * (jd - 2451545.0)
+           + T * T * 0.000387933
+           - T * T * T / 38710000.0;
+  gmst = gmst % 360;
+  if (gmst < 0) gmst += 360;
+  return gmst;
+}
+
+/**
+ * 지방 항성시 (LST) in degrees
+ * @param {number} gmst GMST in degrees
+ * @param {number} longitude observer longitude in degrees (east positive)
+ * @returns {number} LST in degrees [0, 360)
+ */
+function gmstToLST(gmst, longitude) {
+  let lst = (gmst + longitude) % 360;
+  if (lst < 0) lst += 360;
+  return lst;
+}
+
+/**
+ * 적도좌표 → 지평좌표 변환
+ * @param {number} ra  Right Ascension in degrees
+ * @param {number} dec Declination in degrees
+ * @param {number} lst Local Sidereal Time in degrees
+ * @param {number} latitude Observer latitude in degrees (north positive)
+ * @returns {{ alt: number, az: number }} altitude and azimuth in degrees
+ */
+function equatorialToHorizontal(ra, dec, lst, latitude) {
+  const ha = ((lst - ra) % 360 + 360) % 360; // Hour angle [0,360)
+  const hRad  = ha  * Math.PI / 180;
+  const dRad  = dec * Math.PI / 180;
+  const latRad = latitude * Math.PI / 180;
+
+  const sinAlt = Math.sin(dRad) * Math.sin(latRad)
+               + Math.cos(dRad) * Math.cos(latRad) * Math.cos(hRad);
+  const alt = Math.asin(Math.max(-1, Math.min(1, sinAlt))) * 180 / Math.PI;
+
+  const cosAltRad = Math.cos(alt * Math.PI / 180);
+  let az;
+  if (Math.abs(cosAltRad) < 1e-10) {
+    az = 0;
+  } else {
+    const cosAz = (Math.sin(dRad) - Math.sin(latRad) * sinAlt)
+                / (Math.cos(latRad) * cosAltRad);
+    az = Math.acos(Math.max(-1, Math.min(1, cosAz))) * 180 / Math.PI;
+    if (Math.sin(hRad) > 0) az = 360 - az;
+  }
+  return { alt, az };
+}
+
+/**
+ * 지평좌표 → 화면좌표 변환 (등거리 방위 투영, azimuthal equidistant)
+ * @param {number} alt  Star altitude in degrees
+ * @param {number} az   Star azimuth in degrees
+ * @param {number} viewAlt View center altitude in degrees
+ * @param {number} viewAz  View center azimuth in degrees
+ * @param {number} fov  Field of view in degrees
+ * @param {number} cx   Canvas center X
+ * @param {number} cy   Canvas center Y
+ * @param {number} scale Canvas half-height (used as scale reference)
+ * @returns {{ x: number, y: number, visible: boolean }}
+ */
+function horizontalToScreen(alt, az, viewAlt, viewAz, fov, cx, cy, scale) {
+  const altR  = alt    * Math.PI / 180;
+  const azR   = az     * Math.PI / 180;
+  const vAltR = viewAlt * Math.PI / 180;
+  const vAzR  = viewAz  * Math.PI / 180;
+
+  // Great-circle angular distance from view center
+  const cosC = Math.sin(vAltR) * Math.sin(altR)
+             + Math.cos(vAltR) * Math.cos(altR) * Math.cos(azR - vAzR);
+  const c = Math.acos(Math.max(-1, Math.min(1, cosC)));
+
+  // Cull objects beyond FOV + margin
+  const halfFovR = (fov / 2) * Math.PI / 180;
+  if (c > halfFovR * 1.15) {
+    return { x: 0, y: 0, visible: false };
+  }
+
+  // Azimuthal equidistant projection: radial distance proportional to angular distance c
+  const pixScale = scale / halfFovR; // pixels per radian at view center
+  const r = c * pixScale;
+
+  // Direction: use standard azimuthal projection formulae
+  const sinC = Math.sin(c);
+  let dx, dy;
+  if (sinC < 1e-10) {
+    dx = 0; dy = 0;
+  } else {
+    const k = r / sinC;
+    dx =  k * Math.cos(altR) * Math.sin(azR - vAzR);
+    dy = -k * (Math.cos(vAltR) * Math.sin(altR)
+             - Math.sin(vAltR) * Math.cos(altR) * Math.cos(azR - vAzR));
+  }
+
+  return {
+    x: cx + dx,
+    y: cy + dy,
+    visible: true
+  };
+}
+
+
+// ═══ planets.js ═══
+// [9] PLANETS — 행성 위치 계산 (케플러 방정식)
+'use strict';
+
+/**
+ * 각도를 [0, 360) 범위로 정규화
+ */
+function normDeg(x) {
+  x = x % 360;
+  return x < 0 ? x + 360 : x;
+}
+
+/**
+ * 케플러 방정식 풀기: E - e*sin(E) = M
+ * Newton-Raphson iteration
+ * @param {number} M Mean anomaly in radians
+ * @param {number} e Eccentricity
+ * @returns {number} Eccentric anomaly in radians
+ */
+function solveKepler(M, e) {
+  let E = M + e * Math.sin(M) * (1 + e * Math.cos(M));
+  for (let i = 0; i < 15; i++) {
+    const dE = (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+    E -= dE;
+    if (Math.abs(dE) < 1e-6) break;
+  }
+  return E;
+}
+
+/**
+ * 행성의 적도좌표(RA, Dec) 계산
+ * @param {string} planetKey  Key in PLANET_ELEMENTS (e.g. 'mars')
+ * @param {number} jd         Julian Day
+ * @returns {{ ra: number, dec: number, mag: number }} RA/Dec in degrees, estimated magnitude
+ */
+function computePlanetPosition(planetKey, jd) {
+  const el = PLANET_ELEMENTS[planetKey];
+  if (!el) return null;
+
+  const T = (jd - 2451545.0) / 36525.0;
+
+  // Compute orbital elements at epoch T
+  const a = el.a[0] + el.a[1] * T;
+  const e = el.e[0] + el.e[1] * T;
+  const I = (el.I[0] + el.I[1] * T) * Math.PI / 180; // inclination rad
+  const L = normDeg(el.L[0] + el.L[1] * T);           // mean longitude deg
+  const w = normDeg(el.w[0] + el.w[1] * T);           // longitude of perihelion deg
+  const O = normDeg(el.O[0] + el.O[1] * T);           // longitude of ascending node deg
+
+  // Argument of perihelion and mean anomaly
+  const omega = normDeg(w - O); // argument of perihelion
+  const M = normDeg(L - w);     // mean anomaly
+
+  // Solve Kepler's equation
+  const Mrad = M * Math.PI / 180;
+  const E = solveKepler(Mrad, e);
+
+  // True anomaly
+  const v = 2 * Math.atan2(
+    Math.sqrt(1 + e) * Math.sin(E / 2),
+    Math.sqrt(1 - e) * Math.cos(E / 2)
+  ) * 180 / Math.PI;
+
+  // Heliocentric distance
+  const r = a * (1 - e * Math.cos(E));
+
+  // Heliocentric ecliptic coordinates (planet)
+  const omRad    = omega * Math.PI / 180;
+  const ORad     = O     * Math.PI / 180;
+  const IRad     = I;
+  const vRad     = v     * Math.PI / 180;
+
+  const xHelio = r * (Math.cos(ORad) * Math.cos(vRad + omRad)
+                    - Math.sin(ORad) * Math.sin(vRad + omRad) * Math.cos(IRad));
+  const yHelio = r * (Math.sin(ORad) * Math.cos(vRad + omRad)
+                    + Math.cos(ORad) * Math.sin(vRad + omRad) * Math.cos(IRad));
+  const zHelio = r * Math.sin(vRad + omRad) * Math.sin(IRad);
+
+  // Earth's heliocentric position (simplified circular orbit)
+  // Use Earth's mean longitude
+  const earthL = normDeg(100.46457166 + 36000.77 * T);
+  const earthLRad = earthL * Math.PI / 180;
+  const rEarth = 1.00; // AU approximately
+  const xEarth = rEarth * Math.cos(earthLRad);
+  const yEarth = rEarth * Math.sin(earthLRad);
+  const zEarth = 0;
+
+  // Geocentric ecliptic coordinates
+  const dx = xHelio - xEarth;
+  const dy = yHelio - yEarth;
+  const dz = zHelio - zEarth;
+  const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+
+  // Convert ecliptic to equatorial (obliquity of ecliptic)
+  const eps = (23.4393 - 0.0130 * T) * Math.PI / 180;
+  const xEq = dx;
+  const yEq = dy * Math.cos(eps) - dz * Math.sin(eps);
+  const zEq = dy * Math.sin(eps) + dz * Math.cos(eps);
+
+  // RA and Dec
+  let ra = Math.atan2(yEq, xEq) * 180 / Math.PI;
+  if (ra < 0) ra += 360;
+  const dec = Math.asin(Math.max(-1, Math.min(1, zEq / dist))) * 180 / Math.PI;
+
+  // Approximate visual magnitude (very rough)
+  const magTable = {
+    mercury: -0.42, venus: -4.40, mars: -2.01, jupiter: -2.94, saturn: 0.67
+  };
+  const baseMag = magTable[planetKey] ?? 1.0;
+  // Magnitude increases with distance from Earth
+  const mag = baseMag + 5 * Math.log10(dist * r);
+
+  return { ra, dec, mag: Math.min(mag, 6), dist, r };
+}
+
+/**
+ * 모든 행성의 현재 위치 계산
+ * @param {number} jd Julian Day
+ * @returns {Array} array of {key, name, color, ra, dec, mag}
+ */
+function computeAllPlanets(jd) {
+  const keys = ['mercury', 'venus', 'mars', 'jupiter', 'saturn'];
+  return keys.map(k => {
+    const pos = computePlanetPosition(k, jd);
+    if (!pos) return null;
+    return {
+      key: k,
+      name: PLANET_ELEMENTS[k].name,
+      color: PLANET_ELEMENTS[k].color,
+      ra: pos.ra,
+      dec: pos.dec,
+      mag: pos.mag,
+    };
+  }).filter(Boolean);
+}
+
+
+// ═══ renderer.js ═══
+// [10] RENDERER — Canvas 렌더링 엔진
+'use strict';
+
+const RENDERER = (() => {
+  // ─── Internal state ───────────────────────────────────────────────
+  let mainCanvas, mainCtx, trailCanvas, trailCtx;
+  let starScreenPos = [];      // Cached screen positions for DATA_STARS
+  let dustScreenPos = [];      // Cached screen positions for DATA_STARDUST
+  let planetScreenPos = [];    // Computed planet positions
+
+  // Constellation line drawing animation state
+  let constAnim = {
+    active: false,
+    startTime: 0,
+    segments: [],  // [{x1,y1,x2,y2,delay,done}]
+  };
+
+  // Meteor state
+  let meteors = [];
+  let lastMeteorTime = 0;
+  let nextMeteorInterval = 15000;
+
+  // Star hover state
+  let hoveredStarId = null;
+  let hoveredStarAlpha = 0;
+
+  // Focused constellation
+  let focusedConst = null;
+  let focusDimAlpha = 0;  // 0=none, 0.6=full
+
+  // ─── Spectral color lookup ─────────────────────────────────────────
+  const SPECTRAL_COLOR = {
+    O: '#aaccff', B: '#aaccff', A: '#ffffff',
+    F: '#ffffcc', G: '#ffee88', K: '#ffcc66', M: '#ff8844',
+    default: '#ffffff'
+  };
+
+  function getStarColor(sp) {
+    return SPECTRAL_COLOR[sp] || SPECTRAL_COLOR.default;
+  }
+
+  // ─── Star visual properties by magnitude ──────────────────────────
+  function getStarSize(mag) {
+    if (mag <= 0)   return { core: 5.5, glowR: 20, glowA: 0.18 };
+    if (mag <= 1)   return { core: 4.5, glowR: 14, glowA: 0.12 };
+    if (mag <= 2)   return { core: 3.5, glowR: 8,  glowA: 0.08 };
+    if (mag <= 3)   return { core: 2.5, glowR: 5,  glowA: 0.04 };
+    return              { core: 1.2, glowR: 0,  glowA: 0    };
+  }
+
+  // ─── Public init ──────────────────────────────────────────────────
+  function init(mc, tc) {
+    mainCanvas = mc;
+    mainCtx    = mc.getContext('2d');
+    trailCanvas = tc;
+    trailCtx    = tc.getContext('2d');
+  }
+
+  // ─── Reproject all stars/dust to screen coords ────────────────────
+  function reproject(state) {
+    const { lat, lng, jd, viewAlt, viewAz, fov } = state;
+    const W = mainCanvas.width, H = mainCanvas.height;
+    const cx = W / 2, cy = H / 2;
+    const scale = Math.min(W, H) / 2;
+
+    const gmst = jdToGMST(jd);
+    const lst  = gmstToLST(gmst, lng);
+
+    // Stars
+    starScreenPos = DATA_STARS.map(s => {
+      const [id,,,, ra, dec] = s;
+      const horiz = equatorialToHorizontal(ra, dec, lst, lat);
+      const screen = horizontalToScreen(horiz.alt, horiz.az, viewAlt, viewAz, fov, cx, cy, scale);
+      // Fade near horizon
+      let horizFade = 1;
+      if (horiz.alt < 5 && horiz.alt >= 0) horizFade = horiz.alt / 5;
+      return { id, screen, alt: horiz.alt, az: horiz.az, horizFade };
+    });
+
+    // Stardust
+    dustScreenPos = DATA_STARDUST.map(([ra, dec]) => {
+      const horiz = equatorialToHorizontal(ra, dec, lst, lat);
+      if (horiz.alt <= 0) return null;
+      const screen = horizontalToScreen(horiz.alt, horiz.az, viewAlt, viewAz, fov, cx, cy, scale);
+      let horizFade = 1;
+      if (horiz.alt < 5) horizFade = horiz.alt / 5;
+      return screen.visible ? { x: screen.x, y: screen.y, alpha: horizFade } : null;
+    });
+
+    // Planets
+    const planets = computeAllPlanets(jd);
+    planetScreenPos = planets.map(p => {
+      const horiz = equatorialToHorizontal(p.ra, p.dec, lst, lat);
+      if (horiz.alt <= 0) return null;
+      const screen = horizontalToScreen(horiz.alt, horiz.az, viewAlt, viewAz, fov, cx, cy, scale);
+      let horizFade = 1;
+      if (horiz.alt < 5) horizFade = horiz.alt / 5;
+      return screen.visible ? { ...p, x: screen.x, y: screen.y, horizFade } : null;
+    }).filter(Boolean);
+  }
+
+  // ─── Draw background gradient ─────────────────────────────────────
+  function drawBackground(state) {
+    const { viewAlt, lpLevel } = state;
+    const W = mainCanvas.width, H = mainCanvas.height;
+    const ctx = mainCtx;
+
+    // Brightness adjustments for light pollution
+    const lpBright = [0.15, 0.08, 0, -0.05, -0.10][lpLevel - 1];
+    const c1 = `hsl(225, 50%, ${8 + lpBright * 100}%)`;
+    const c2 = `hsl(225, 45%, ${12 + lpBright * 100}%)`;
+
+    const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.hypot(W, H)/2);
+    grad.addColorStop(0, c1);
+    grad.addColorStop(1, c2);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // ─── Draw stardust ────────────────────────────────────────────────
+  function drawStardust(state) {
+    const { lpLevel } = state;
+    const ctx = mainCtx;
+    // Stardust visibility by light pollution: 0%,25%,50%,80%,100%
+    const dustRatio = [0, 0.25, 0.5, 0.8, 1.0][lpLevel - 1];
+    if (dustRatio === 0) return;
+
+    const count = Math.floor(dustScreenPos.length * dustRatio);
+    ctx.save();
+    for (let i = 0; i < count; i++) {
+      const d = dustScreenPos[i];
+      if (!d) continue;
+      const alpha = (0.08 + Math.random() * 0.07) * d.alpha;
+      ctx.fillStyle = `rgba(180, 200, 240, ${alpha.toFixed(3)})`;
+      ctx.fillRect(d.x - 0.5, d.y - 0.5, 1, 1);
+    }
+    ctx.restore();
+  }
+
+  // ─── Draw Milky Way band ──────────────────────────────────────────
+  function drawMilkyWay(state) {
+    if (!state.showMilky) return;
+    const { lat, lng, jd, viewAlt, viewAz, fov } = state;
+    const W = mainCanvas.width, H = mainCanvas.height;
+    const cx = W/2, cy = H/2;
+    const scale = Math.min(W, H) / 2;
+    const gmst = jdToGMST(jd);
+    const lst  = gmstToLST(gmst, lng);
+    const ctx  = mainCtx;
+
+    // Sample the galactic equator: l=0..360°, b=0 (galactic plane)
+    // Galactic north pole: RA=192.86°, Dec=+27.13°, roll=122.93°
+    // We'll trace two curves at b=±6° (band half-width)
+    const cosNP = Math.cos(27.13 * Math.PI/180);
+    const sinNP = Math.sin(27.13 * Math.PI/180);
+    const npRA  = 192.86;
+
+    function galToEq(l, b) {
+      const lRad = (l + 33) * Math.PI / 180; // +33 for correct galactic pole direction
+      const bRad = b * Math.PI / 180;
+      // Convert galactic to equatorial
+      const sinDec = Math.sin(bRad) * sinNP + Math.cos(bRad) * cosNP * Math.sin(lRad - Math.PI/2);
+      const dec = Math.asin(Math.max(-1, Math.min(1, sinDec))) * 180 / Math.PI;
+      const cosLHS = Math.cos(bRad) * Math.cos(lRad - Math.PI/2);
+      const sinLHS = Math.cos(bRad) * sinNP * Math.sin(lRad - Math.PI/2) - Math.sin(bRad) * cosNP;
+      let ra = (npRA - 90 + Math.atan2(sinLHS, cosLHS) * 180 / Math.PI + 360) % 360;
+      return { ra, dec };
+    }
+
+    const steps = 60;
+    const bandsB = [-9, -6, -3, 0, 3, 6, 9];
+    const centerAlphas = [0.02, 0.04, 0.06, 0.07, 0.06, 0.04, 0.02];
+
+    ctx.save();
+    for (let bi = 0; bi < bandsB.length; bi++) {
+      const points = [];
+      for (let i = 0; i <= steps; i++) {
+        const l = i * 360 / steps;
+        const eq = galToEq(l, bandsB[bi]);
+        const hz = equatorialToHorizontal(eq.ra, eq.dec, lst, lat);
+        if (hz.alt <= 0) { points.push(null); continue; }
+        const sc = horizontalToScreen(hz.alt, hz.az, viewAlt, viewAz, fov, cx, cy, scale);
+        points.push(sc.visible ? { x: sc.x, y: sc.y } : null);
+      }
+      // Draw as poly-line with low alpha
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(200, 210, 240, ${centerAlphas[bi]})`;
+      ctx.lineWidth = 18;
+      ctx.lineCap = 'round';
+      let drawing = false;
+      for (const pt of points) {
+        if (!pt) { drawing = false; continue; }
+        if (!drawing) { ctx.moveTo(pt.x, pt.y); drawing = true; }
+        else ctx.lineTo(pt.x, pt.y);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // ─── Draw coordinate grid ─────────────────────────────────────────
+  function drawGrid(state) {
+    if (!state.showGrid) return;
+    const { lat, lng, jd, viewAlt, viewAz, fov } = state;
+    const W = mainCanvas.width, H = mainCanvas.height;
+    const cx = W/2, cy = H/2;
+    const scale = Math.min(W, H) / 2;
+    const gmst = jdToGMST(jd);
+    const lst  = gmstToLST(gmst, lng);
+    const ctx  = mainCtx;
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(80, 100, 160, 0.25)';
+    ctx.lineWidth = 0.5;
+
+    // RA lines every 15° (1h)
+    for (let ra = 0; ra < 360; ra += 15) {
+      ctx.beginPath();
+      let started = false;
+      for (let dec = -80; dec <= 80; dec += 5) {
+        const hz = equatorialToHorizontal(ra, dec, lst, lat);
+        if (hz.alt <= 0) { started = false; continue; }
+        const sc = horizontalToScreen(hz.alt, hz.az, viewAlt, viewAz, fov, cx, cy, scale);
+        if (!sc.visible) { started = false; continue; }
+        if (!started) { ctx.moveTo(sc.x, sc.y); started = true; }
+        else ctx.lineTo(sc.x, sc.y);
+      }
+      ctx.stroke();
+    }
+
+    // Dec lines every 15°
+    for (let dec = -75; dec <= 75; dec += 15) {
+      ctx.beginPath();
+      let started = false;
+      for (let ra = 0; ra <= 360; ra += 10) {
+        const hz = equatorialToHorizontal(ra, dec, lst, lat);
+        if (hz.alt <= 0) { started = false; continue; }
+        const sc = horizontalToScreen(hz.alt, hz.az, viewAlt, viewAz, fov, cx, cy, scale);
+        if (!sc.visible) { started = false; continue; }
+        if (!started) { ctx.moveTo(sc.x, sc.y); started = true; }
+        else ctx.lineTo(sc.x, sc.y);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // ─── Draw horizon mask (below horizon fade) ────────────────────────
+  function drawHorizonMask(state) {
+    const { viewAlt, viewAz, fov } = state;
+    const W = mainCanvas.width, H = mainCanvas.height;
+    const ctx = mainCtx;
+    const cx = W/2, cy = H/2;
+    const scale = Math.min(W, H) / 2;
+
+    // Find approximate horizon screen position
+    // Az=viewAz, alt=0 → screen y position of horizon
+    const hz0 = horizontalToScreen(0, viewAz, viewAlt, viewAz, fov, cx, cy, scale);
+    const hzY = hz0.visible ? hz0.y : H * 0.75;
+
+    if (hzY >= H) return; // horizon below screen, nothing to mask
+
+    // Draw gradient fade from hzY to bottom
+    const grad = ctx.createLinearGradient(0, Math.max(0, hzY - 40), 0, Math.min(H, hzY + 80));
+    grad.addColorStop(0, 'rgba(10, 14, 26, 0)');
+    grad.addColorStop(0.5, 'rgba(10, 14, 26, 0.8)');
+    grad.addColorStop(1, 'rgba(10, 14, 26, 1)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, Math.max(0, hzY - 40), W, H);
+  }
+
+  // ─── Draw constellation lines ─────────────────────────────────────
+  function drawConstellationLines(state, now) {
+    if (!state.showLines) return;
+    const ctx = mainCtx;
+    const starById = {};
+    starScreenPos.forEach((sp, i) => { starById[sp.id] = sp; });
+
+    // Update animation
+    if (constAnim.active) {
+      const elapsed = now - constAnim.startTime;
+      constAnim.segments.forEach(seg => {
+        if (seg.done) return;
+        const segElapsed = elapsed - seg.delay;
+        if (segElapsed < 0) { seg.t = 0; return; }
+        seg.t = Math.min(1, segElapsed / 300); // 300ms per segment
+        if (seg.t >= 1) seg.done = true;
+      });
+      if (constAnim.segments.every(s => s.done)) constAnim.active = false;
+    }
+
+    ctx.save();
+    DATA_CONST.forEach(con => {
+      const isFocused = focusedConst && focusedConst.abbr === con.abbr;
+      const isHovered = state.hoveredConst === con.abbr;
+      const lineAlpha = isFocused ? 0.9 : isHovered ? 0.7 : 0.35;
+      const lineWidth = isFocused ? 2.5 : isHovered ? 1.5 : 1;
+
+      con.lines.forEach(([id1, id2]) => {
+        const sp1 = starById[id1], sp2 = starById[id2];
+        if (!sp1 || !sp2) return;
+        if (!sp1.screen.visible || !sp2.screen.visible) return;
+        if (sp1.alt <= 0 || sp2.alt <= 0) return;
+
+        // Animation t value
+        let t = 1;
+        if (constAnim.active) {
+          const segKey = `${id1}-${id2}`;
+          const seg = constAnim.segments.find(s => s.key === segKey);
+          if (seg) t = seg.t ?? 0;
+        }
+        if (t <= 0) return;
+
+        const x1 = sp1.screen.x, y1 = sp1.screen.y;
+        const x2 = sp2.screen.x, y2 = sp2.screen.y;
+        const ex = x1 + (x2 - x1) * t;
+        const ey = y1 + (y2 - y1) * t;
+
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(100, 149, 237, ${lineAlpha})`;
+        ctx.lineWidth = lineWidth;
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(ex, ey);
+        ctx.stroke();
+      });
+    });
+    ctx.restore();
+  }
+
+  // ─── Draw constellation name labels ──────────────────────────────
+  function drawConstellationNames(state) {
+    if (!state.showNames) return;
+    const ctx = mainCtx;
+    const starById = {};
+    starScreenPos.forEach(sp => { starById[sp.id] = sp; });
+
+    ctx.save();
+    ctx.font = '300 12px Pretendard, system-ui, sans-serif';
+    ctx.letterSpacing = '1px';
+
+    DATA_CONST.forEach(con => {
+      // Find centroid of visible stars
+      const visStars = [];
+      const allIds = new Set();
+      con.lines.forEach(([a, b]) => { allIds.add(a); allIds.add(b); });
+      allIds.forEach(id => {
+        const sp = starById[id];
+        if (sp && sp.screen.visible && sp.alt > 5) visStars.push(sp.screen);
+      });
+      if (visStars.length < 2) return;
+
+      const cx = visStars.reduce((s, p) => s + p.x, 0) / visStars.length;
+      const cy = visStars.reduce((s, p) => s + p.y, 0) / visStars.length;
+
+      // Fade in when animation done or no animation
+      const nameAlpha = constAnim.active ? 0 : 0.6;
+      if (nameAlpha <= 0) return;
+
+      ctx.fillStyle = `rgba(180, 200, 240, ${nameAlpha})`;
+      ctx.textAlign = 'center';
+      ctx.fillText(con.name, cx, cy);
+    });
+    ctx.restore();
+  }
+
+  // ─── Draw a single star ────────────────────────────────────────────
+  function drawStar(ctx, x, y, mag, color, glowMult, showHighlight, twinkleFactor, horizFade) {
+    const { core, glowR, glowA } = getStarSize(mag);
+
+    ctx.save();
+    ctx.globalAlpha = horizFade;
+
+    // Glow
+    if (glowR > 0) {
+      const hexToRgb = hex => {
+        const r = parseInt(hex.slice(1,3),16);
+        const g = parseInt(hex.slice(3,5),16);
+        const b = parseInt(hex.slice(5,7),16);
+        return [r,g,b];
+      };
+      const [r,g,b] = hexToRgb(color.startsWith('#') ? color : '#ffffff');
+      const gr2 = ctx.createRadialGradient(x, y, 0, x, y, glowR * glowMult);
+      gr2.addColorStop(0, `rgba(${r},${g},${b},${glowA * twinkleFactor})`);
+      gr2.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.fillStyle = gr2;
+      ctx.beginPath();
+      ctx.arc(x, y, glowR * glowMult, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Core
+    ctx.fillStyle = color;
+    ctx.globalAlpha = horizFade * twinkleFactor;
+    ctx.beginPath();
+    ctx.arc(x, y, core, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Highlight (brightest stars)
+    if (showHighlight && mag <= 0) {
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.beginPath();
+      ctx.arc(x, y, 1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // ─── Draw all stars ────────────────────────────────────────────────
+  function drawStars(state, now) {
+    const { lpLevel } = state;
+    // Limiting magnitudes by light pollution
+    const magLimits = [2.0, 3.0, 3.8, 4.2, 4.5];
+    const magLimit = magLimits[lpLevel - 1];
+    // Glow strength by LP
+    const glowMults = [0.5, 0.7, 1.0, 1.2, 1.5];
+    const glowMult = glowMults[lpLevel - 1];
+
+    const ctx = mainCtx;
+    ctx.save();
+
+    DATA_STARS.forEach((s, i) => {
+      const [id, nameKo, nameEn, con, ra, dec, mag, sp] = s;
+      if (mag > magLimit) return;
+      const sp_data = starScreenPos[i];
+      if (!sp_data || !sp_data.screen.visible) return;
+      if (sp_data.alt <= 0) return;
+
+      const { x, y } = sp_data.screen;
+      const color = getStarColor(sp);
+
+      // Twinkle for bright stars
+      let twinkle = 1;
+      if (mag <= 2) {
+        // Each star has a stable twinkling based on its id
+        const freq = 0.3 + (id % 13) * 0.04;
+        const phase = (id * 137.508) % (Math.PI * 2);
+        const amp = 0.15;
+        twinkle = 1 + amp * Math.sin(now * freq * 0.001 * Math.PI * 2 + phase);
+      }
+
+      // Hover effect
+      let hoverMult = 1;
+      if (state.hoveredStarId === id) {
+        hoverMult = 1.5 + 0.5 * (1 - Math.min(1, (now - state.hoverStartTime) / 200));
+      }
+
+      // Focus mode: dim stars not in focused constellation
+      let focusFade = 1;
+      if (focusedConst) {
+        const inFocus = focusedConst.lines.some(([a,b]) => a === id || b === id);
+        focusFade = inFocus ? 1 : 0.15;
+      }
+
+      ctx.globalAlpha = sp_data.horizFade * focusFade;
+
+      // Opening animation alpha
+      const openAlpha = state.starAlpha ? state.starAlpha(id, mag) : 1;
+      ctx.globalAlpha *= openAlpha;
+
+      if (mag > 3) {
+        // Dark stars - just a point
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, 0.8, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.restore();
+        ctx.save();
+        drawStar(ctx, x, y, mag, color, glowMult * hoverMult, mag <= 0, twinkle, sp_data.horizFade * focusFade * openAlpha);
+      }
+    });
+
+    ctx.restore();
+
+    // Draw hover label
+    if (state.hoveredStarId !== null) {
+      drawHoverLabel(state, now);
+    }
+  }
+
+  // ─── Draw hover star label ─────────────────────────────────────────
+  function drawHoverLabel(state, now) {
+    const idx = DATA_STARS.findIndex(s => s[0] === state.hoveredStarId);
+    if (idx < 0) return;
+    const s = DATA_STARS[idx];
+    const [id, nameKo, nameEn, ,,,mag] = s;
+    const sp = starScreenPos[idx];
+    if (!sp || !sp.screen.visible) return;
+
+    const elapsed = now - state.hoverStartTime;
+    const alpha = Math.min(0.9, elapsed / 150);
+    if (alpha <= 0) return;
+
+    const label = nameEn && nameKo ? `${nameEn} ${nameKo}` : (nameEn || nameKo || '');
+    if (!label) return;
+
+    const ctx = mainCtx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font = '11px Pretendard, system-ui, sans-serif';
+    ctx.fillStyle = 'rgba(200, 220, 255, 0.9)';
+    ctx.fillText(label, sp.screen.x + 10, sp.screen.y - 8);
+    ctx.restore();
+  }
+
+  // ─── Draw planets ─────────────────────────────────────────────────
+  function drawPlanets(state) {
+    if (!state.showPlanets) return;
+    const ctx = mainCtx;
+    ctx.save();
+
+    planetScreenPos.forEach(p => {
+      const size = getStarSize(p.mag);
+      const r = Math.max(2, size.core);
+
+      // No twinkle for planets
+      if (size.glowR > 0) {
+        const hexToRgb = hex => [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
+        const [pr, pg, pb] = hexToRgb(p.color.startsWith('#') ? p.color : '#ffffff');
+        const gr = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size.glowR);
+        gr.addColorStop(0, `rgba(${pr},${pg},${pb},${size.glowA})`);
+        gr.addColorStop(1, `rgba(${pr},${pg},${pb},0)`);
+        ctx.fillStyle = gr;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, size.glowR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.horizFade;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Planet name label
+      ctx.font = '11px Pretendard, system-ui, sans-serif';
+      ctx.fillStyle = `rgba(200,220,255,0.8)`;
+      ctx.globalAlpha = p.horizFade;
+      ctx.fillText(p.name, p.x + r + 4, p.y + 4);
+    });
+
+    ctx.restore();
+  }
+
+  // ─── Draw horizon and compass ─────────────────────────────────────
+  function drawHorizon(state) {
+    const { viewAlt, viewAz, fov } = state;
+    const W = mainCanvas.width, H = mainCanvas.height;
+    const cx = W/2, cy = H/2;
+    const scale = Math.min(W, H) / 2;
+    const ctx = mainCtx;
+
+    // Draw horizon arc
+    const points = [];
+    for (let az = 0; az <= 360; az += 3) {
+      const sc = horizontalToScreen(0, az, viewAlt, viewAz, fov, cx, cy, scale);
+      if (sc.visible) points.push({ x: sc.x, y: sc.y });
+    }
+
+    if (points.length > 2) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(60, 80, 120, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.moveTo(points[0].x, points[0].y);
+      points.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Compass labels
+    const compass = [
+      { label: 'N', az: 0 }, { label: 'E', az: 90 },
+      { label: 'S', az: 180 }, { label: 'W', az: 270 },
+    ];
+
+    ctx.save();
+    ctx.font = '14px Pretendard, system-ui, sans-serif';
+    ctx.fillStyle = 'rgba(150, 170, 210, 0.7)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    compass.forEach(({ label, az }) => {
+      const sc = horizontalToScreen(-3, az, viewAlt, viewAz, fov, cx, cy, scale);
+      if (sc.visible) ctx.fillText(label, sc.x, sc.y);
+    });
+    ctx.restore();
+  }
+
+  // ─── Draw meteors ─────────────────────────────────────────────────
+  function drawMeteors(state, now) {
+    if (!state.showMeteors) {
+      meteors = [];
+      return;
+    }
+
+    const W = mainCanvas.width, H = mainCanvas.height;
+    const ctx = mainCtx;
+
+    // Spawn new meteor
+    if (now - lastMeteorTime > nextMeteorInterval && meteors.length === 0) {
+      const angle = (Math.random() * 60 - 30 + 230) * Math.PI / 180; // mostly downward
+      const len = 80 + Math.random() * 120;
+      const x = Math.random() * W;
+      const y = Math.random() * H * 0.6;
+      meteors.push({
+        x, y,
+        vx: Math.cos(angle) * 4,
+        vy: Math.sin(angle) * 4,
+        len, life: 0, maxLife: 500,
+        startX: x, startY: y
+      });
+      lastMeteorTime = now;
+      nextMeteorInterval = 10000 + Math.random() * 20000;
+    }
+
+    ctx.save();
+    meteors = meteors.filter(m => m.life < m.maxLife);
+    meteors.forEach(m => {
+      m.life += 16;
+      const t = m.life / m.maxLife;
+      const fade = t < 0.2 ? t / 0.2 : 1 - (t - 0.2) / 0.8;
+
+      const tailLen = m.len * Math.min(1, t * 4);
+      const cx2 = m.startX + m.vx * m.life * 0.1;
+      const cy2 = m.startY + m.vy * m.life * 0.1;
+      const dx = -m.vx / Math.hypot(m.vx, m.vy);
+      const dy = -m.vy / Math.hypot(m.vx, m.vy);
+
+      const grad = ctx.createLinearGradient(cx2, cy2, cx2 + dx * tailLen, cy2 + dy * tailLen);
+      grad.addColorStop(0, `rgba(255, 255, 255, ${fade * 0.9})`);
+      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+      ctx.beginPath();
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2 - t * 1.5;
+      ctx.moveTo(cx2, cy2);
+      ctx.lineTo(cx2 + dx * tailLen, cy2 + dy * tailLen);
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  // ─── Star Trail: accumulate on offscreen canvas ────────────────────
+  function updateTrail(state) {
+    if (!state.showTrail || !state.isPlaying || state.isDragging) return;
+
+    const ctx = trailCtx;
+    ctx.save();
+    DATA_STARS.forEach((s, i) => {
+      const [id,,,,,,mag] = s;
+      if (mag > 2) return; // Only bright stars
+      const sp = starScreenPos[i];
+      if (!sp || !sp.screen.visible || sp.alt <= 0) return;
+      const color = getStarColor(s[7]);
+      const [r,g,b] = [
+        parseInt(color.slice(1,3),16)||200,
+        parseInt(color.slice(3,5),16)||200,
+        parseInt(color.slice(5,7),16)||255
+      ];
+      ctx.fillStyle = `rgba(${r},${g},${b},0.03)`;
+      ctx.fillRect(sp.screen.x - 0.5, sp.screen.y - 0.5, 1, 1);
+    });
+    ctx.restore();
+  }
+
+  function clearTrail(fadeOut = false) {
+    if (fadeOut) {
+      let alpha = 1;
+      const fade = () => {
+        trailCtx.globalAlpha = 0.1;
+        trailCtx.fillStyle = 'rgba(0,0,0,0.1)';
+        trailCtx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
+        trailCtx.globalAlpha = 1;
+        alpha -= 0.1;
+        if (alpha > 0) requestAnimationFrame(fade);
+        else trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+      };
+      requestAnimationFrame(fade);
+    } else {
+      trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+    }
+  }
+
+  // ─── Polaris 북극성 항상 표시 ─────────────────────────────────────
+  function drawPolarisIndicator() {
+    const POLARIS_ID = 37;
+    const polarisIdx = DATA_STARS.findIndex(s => s[0] === POLARIS_ID);
+    if (polarisIdx < 0) return;
+
+    const sp = starScreenPos[polarisIdx];
+    if (!sp || sp.alt <= 0) return; // 지평선 아래면 표시 안 함
+
+    const ctx = mainCtx;
+    const W = mainCanvas.width, H = mainCanvas.height;
+    const margin = 36;
+
+    if (sp.screen.visible) {
+      // ── 화면 안에 있을 때: 테두리 링 + "북극성" 라벨 ──
+      const { x, y } = sp.screen;
+
+      ctx.save();
+      // 특별 링
+      ctx.beginPath();
+      ctx.arc(x, y, 14, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(140, 190, 255, 0.55)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 한국어 라벨 "북극성"
+      ctx.font = '300 11px Pretendard, system-ui, sans-serif';
+      ctx.fillStyle = 'rgba(180, 210, 255, 0.95)';
+      ctx.textAlign = 'left';
+      ctx.fillText('북극성', x + 16, y + 4);
+      ctx.restore();
+
+    } else {
+      // ── 화면 밖에 있을 때: 가장자리 방향 화살표 ──
+      const cx = W / 2, cy = H / 2;
+      const { x: ox, y: oy } = sp.screen;
+      const angle = Math.atan2(oy - cy, ox - cx);
+
+      // 화면 가장자리 교점 계산
+      const cos = Math.cos(angle), sin = Math.sin(angle);
+      let t = Infinity;
+      if (cos > 0)  t = Math.min(t, (W - margin - cx) / cos);
+      if (cos < 0)  t = Math.min(t, (margin - cx) / cos);
+      if (sin > 0)  t = Math.min(t, (H - margin - cy) / sin);
+      if (sin < 0)  t = Math.min(t, (margin - cy) / sin);
+
+      const ex = cx + cos * t;
+      const ey = cy + sin * t;
+
+      ctx.save();
+      // 화살표
+      ctx.translate(ex, ey);
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.moveTo(10, 0);
+      ctx.lineTo(-5, -5);
+      ctx.lineTo(-5, 5);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(140, 190, 255, 0.75)';
+      ctx.fill();
+
+      // 점선 원
+      ctx.beginPath();
+      ctx.arc(0, 0, 14, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(140, 190, 255, 0.35)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 라벨
+      ctx.rotate(-angle); // 텍스트는 항상 바로
+      ctx.font = '300 10px Pretendard, system-ui, sans-serif';
+      ctx.fillStyle = 'rgba(140, 190, 255, 0.85)';
+      ctx.textAlign = 'center';
+      ctx.fillText('북극성', 0, 26);
+      ctx.restore();
+    }
+  }
+
+  // ─── Focus mode dimming overlay ────────────────────────────────────
+  function drawFocusDim(state) {
+    if (!focusedConst) return;
+    const W = mainCanvas.width, H = mainCanvas.height;
+    const ctx = mainCtx;
+    ctx.save();
+    ctx.fillStyle = `rgba(0,0,0,${focusDimAlpha})`;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
+  // ─── Start constellation drawing animation ─────────────────────────
+  function startConstAnimation(now) {
+    const segments = [];
+    const starById = {};
+    starScreenPos.forEach(sp => { starById[sp.id] = sp; });
+
+    DATA_CONST.forEach(con => {
+      con.lines.forEach(([id1, id2], idx) => {
+        const sp1 = starById[id1], sp2 = starById[id2];
+        if (!sp1 || !sp2 || !sp1.screen.visible || !sp2.screen.visible) return;
+        segments.push({
+          key: `${id1}-${id2}`,
+          delay: idx * 50,
+          t: 0, done: false
+        });
+      });
+    });
+
+    constAnim = { active: true, startTime: now, segments };
+  }
+
+  function stopConstAnimation() {
+    constAnim.active = false;
+    constAnim.segments.forEach(s => { s.t = 1; s.done = true; });
+  }
+
+  // ─── Set focus constellation ───────────────────────────────────────
+  function setFocusConst(con, targetDimAlpha) {
+    focusedConst = con;
+    focusDimAlpha = targetDimAlpha;
+  }
+
+  // ─── Main render ───────────────────────────────────────────────────
+  function render(state, now) {
+    if (!mainCanvas) return;
+    const W = mainCanvas.width, H = mainCanvas.height;
+    mainCtx.clearRect(0, 0, W, H);
+
+    // 1. Background
+    drawBackground(state);
+    // 2. Stardust
+    drawStardust(state);
+    // 3. Milky Way
+    drawMilkyWay(state);
+    // 4. Grid
+    drawGrid(state);
+    // 5. Star Trail (offscreen canvas drawn by app via trailCanvas CSS)
+    updateTrail(state);
+    // 6. Horizon mask
+    drawHorizonMask(state);
+    // 7+9. Stars (dark + bright)
+    drawStars(state, now);
+    // 8. Constellation lines
+    drawConstellationLines(state, now);
+    // 10. Planets
+    drawPlanets(state);
+    // 11. Constellation names
+    drawConstellationNames(state);
+    // 12+13. Horizon + compass
+    drawHorizon(state);
+    // 14. Meteors
+    drawMeteors(state, now);
+    // 15. 북극성 항상 표시
+    drawPolarisIndicator();
+    // Focus dim (P3)
+    drawFocusDim(state);
+  }
+
+  // ─── Public API ────────────────────────────────────────────────────
+  return {
+    init,
+    reproject,
+    render,
+    startConstAnimation,
+    stopConstAnimation,
+    clearTrail,
+    setFocusConst,
+    get constAnimActive() { return constAnim.active; },
+  };
+})();
+
+
+// ═══ audio.js ═══
+// [11] AUDIO — 앰비언트 사운드 (Web Audio API, 프로시저럴)
+'use strict';
+
+const AUDIO = (() => {
+  let ctx = null;
+  let masterGain = null;
+  let windNode = null;
+  let isRunning = false;
+  let cricketTimer = null;
+  const TARGET_VOLUME = 0.04;
+
+  function createAudioContext() {
+    if (ctx) return ctx;
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0, ctx.currentTime);
+      masterGain.connect(ctx.destination);
+    } catch(e) {
+      ctx = null;
+    }
+    return ctx;
+  }
+
+  // ─── Brown noise generator ───────────────────────────────────────
+  function createBrownNoise() {
+    if (!ctx) return null;
+    const bufferSize = ctx.sampleRate * 2;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let lastOut = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      data[i] = (lastOut + 0.02 * white) / 1.02;
+      lastOut = data[i];
+      data[i] *= 3.5; // normalize
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.loop = true;
+
+    // Low-pass filter (wind-like)
+    const lpf = ctx.createBiquadFilter();
+    lpf.type = 'lowpass';
+    lpf.frequency.setValueAtTime(200, ctx.currentTime);
+    lpf.Q.setValueAtTime(1, ctx.currentTime);
+
+    // Volume LFO (0.1 Hz gentle swell)
+    const lfo = ctx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(0.1, ctx.currentTime);
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.setValueAtTime(0.3, ctx.currentTime);
+    lfo.connect(lfoGain);
+
+    const windGain = ctx.createGain();
+    windGain.gain.setValueAtTime(0.7, ctx.currentTime);
+    lfoGain.connect(windGain.gain);
+
+    src.connect(lpf);
+    lpf.connect(windGain);
+    windGain.connect(masterGain);
+
+    lfo.start();
+    src.start();
+
+    return { src, lpf, windGain, lfo };
+  }
+
+  // ─── Single cricket chirp ────────────────────────────────────────
+  function chirp() {
+    if (!ctx || !isRunning) return;
+    const freq = 4000 + Math.random() * 1000;
+    const pan = (Math.random() - 0.5) * 2; // -1 to 1
+
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.015, ctx.currentTime + 0.01);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.08);
+
+    const panner = ctx.createStereoPanner();
+    panner.pan.setValueAtTime(pan, ctx.currentTime);
+
+    osc.connect(gain);
+    gain.connect(panner);
+    panner.connect(masterGain);
+
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.1);
+
+    // Schedule next chirp
+    const nextDelay = 2000 + Math.random() * 3000;
+    cricketTimer = setTimeout(chirp, nextDelay);
+  }
+
+  // ─── Start audio ─────────────────────────────────────────────────
+  function start(immediate = false) {
+    if (!createAudioContext()) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    if (isRunning) return;
+    isRunning = true;
+
+    windNode = createBrownNoise();
+
+    // Fade in master gain
+    const targetT = ctx.currentTime + (immediate ? 0 : 2.0);
+    masterGain.gain.cancelScheduledValues(ctx.currentTime);
+    masterGain.gain.setValueAtTime(
+      immediate ? TARGET_VOLUME : 0,
+      ctx.currentTime
+    );
+    if (!immediate) {
+      masterGain.gain.linearRampToValueAtTime(TARGET_VOLUME, targetT);
+    }
+
+    // Start cricket chirps
+    const firstDelay = 1000 + Math.random() * 2000;
+    cricketTimer = setTimeout(chirp, firstDelay);
+  }
+
+  // ─── Stop audio ──────────────────────────────────────────────────
+  function stop() {
+    if (!isRunning) return;
+    isRunning = false;
+
+    clearTimeout(cricketTimer);
+
+    if (ctx && masterGain) {
+      masterGain.gain.cancelScheduledValues(ctx.currentTime);
+      masterGain.gain.setValueAtTime(masterGain.gain.value, ctx.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+    }
+
+    setTimeout(() => {
+      if (!isRunning && windNode) {
+        try { windNode.src.stop(); } catch(e) {}
+        try { windNode.lfo.stop(); } catch(e) {}
+        windNode = null;
+      }
+    }, 400);
+  }
+
+  // ─── Public API ──────────────────────────────────────────────────
+  return { start, stop };
+})();
+
+
+// ═══ ui.js ═══
+// [12] UI — 사용자 입력 처리
+'use strict';
+
+const UI = (() => {
+  let state, app;
+  let infoPanelOpen = false;
+  let miniMapOpen = false;
+
+  // ─── Init ─────────────────────────────────────────────────────────
+  function init(appState, appFns) {
+    state = appState;
+    app = appFns;
+
+    wireTimeControls();
+    wireToggleButtons();
+    wireLightPollution();
+    wireInfoPanel();
+    wireMiniMap();
+    wireDatePicker();
+    wireLocationBtn();
+  }
+
+  // ─── Time Controls ────────────────────────────────────────────────
+  function wireTimeControls() {
+    const playBtn   = document.getElementById('playBtn');
+    const speedBtn  = document.getElementById('speedBtn');
+    const slider    = document.getElementById('timeSlider');
+
+    playBtn.addEventListener('click', () => app.togglePlay());
+
+    speedBtn.addEventListener('click', () => {
+      const speeds = [1, 5, 30, 60];
+      const labels = ['×1','×5','×30','×60'];
+      const cur = speeds.indexOf(state.playSpeed);
+      state.playSpeed = speeds[(cur + 1) % speeds.length];
+      speedBtn.textContent = labels[(cur + 1) % speeds.length];
+    });
+
+    slider.addEventListener('input', () => {
+      // Slider = minutes since 18:00 KST today (0-720 = 18:00 to 06:00 next day)
+      const min = parseInt(slider.value);
+      const base = getBaseDate();
+      state.date = new Date(base.getTime() + min * 60000);
+      app.updateJD();
+      app.RENDERER.reproject(state);
+      app.RENDERER.clearTrail(false);
+      updateTimeDisplay();
+    });
+  }
+
+  function getBaseDate() {
+    const d = new Date(state.date);
+    // Today 18:00 KST = 09:00 UTC
+    const todayKST = new Date(d.getTime() + 9*3600000);
+    todayKST.setUTCHours(9, 0, 0, 0);
+    return new Date(todayKST.getTime() - 9*3600000);
+  }
+
+  function updateTimeDisplay() {
+    const kst = new Date(state.date.getTime() + 9*3600000);
+    const y = kst.getUTCFullYear();
+    const mo = kst.getUTCMonth() + 1;
+    const day = kst.getUTCDate();
+    const h = String(kst.getUTCHours()).padStart(2,'0');
+    const m = String(kst.getUTCMinutes()).padStart(2,'0');
+    document.getElementById('timeDisplay').textContent =
+      `${y}년 ${mo}월 ${day}일 ${h}:${m} KST`;
+  }
+
+  // ─── Toggle Buttons ───────────────────────────────────────────────
+  function wireToggleButtons() {
+    document.getElementById('btnLines').addEventListener('click', () => app.toggleLines());
+    document.getElementById('btnNames').addEventListener('click', () => app.toggleNames());
+    document.getElementById('btnGrid').addEventListener('click', () => app.toggleGrid());
+    document.getElementById('btnMilky').addEventListener('click', () => app.toggleMilky());
+    document.getElementById('btnMeteor').addEventListener('click', () => app.toggleMeteors());
+    document.getElementById('btnTrail').addEventListener('click', () => app.toggleTrail());
+    document.getElementById('btnAudio').addEventListener('click', () => app.toggleAudio());
+    document.getElementById('todayBtn').addEventListener('click', () => {
+      const now = new Date();
+      const kst = new Date(now.getTime() + 9*3600000);
+      kst.setUTCHours(13, 0, 0, 0); // 22:00 KST
+      state.date = new Date(kst.getTime() - 9*3600000);
+      app.updateJD();
+      app.RENDERER.reproject(state);
+      app.RENDERER.clearTrail(false);
+      document.getElementById('timeSlider').value = 240; // 22:00 = 4h after 18:00 = 240min
+      updateTimeDisplay();
+    });
+  }
+
+  // ─── Light Pollution ──────────────────────────────────────────────
+  function wireLightPollution() {
+    const slider = document.getElementById('lpSlider');
+    const label  = document.getElementById('lpLabel');
+    const labels = ['도심','교외','시골','산간','완전 암흑'];
+
+    slider.addEventListener('input', () => {
+      const lp = parseInt(slider.value);
+      state.lpLevel = lp;
+      label.textContent = labels[lp - 1];
+      app.RENDERER.reproject(state);
+    });
+  }
+
+  // ─── Date Picker ─────────────────────────────────────────────────
+  function wireDatePicker() {
+    const dp = document.getElementById('datePicker');
+    dp.addEventListener('change', () => {
+      const [y, mo, d] = dp.value.split('-').map(Number);
+      const kst = new Date(state.date.getTime() + 9*3600000);
+      kst.setUTCFullYear(y, mo-1, d);
+      state.date = new Date(kst.getTime() - 9*3600000);
+      app.updateJD();
+      app.RENDERER.reproject(state);
+      updateTimeDisplay();
+    });
+  }
+
+  // ─── Location Button ──────────────────────────────────────────────
+  function wireLocationBtn() {
+    document.getElementById('locationBtn').addEventListener('click', () => {
+      if (miniMapOpen) closeMiniMap();
+      else openMiniMap();
+    });
+  }
+
+  // ─── Info Panel ───────────────────────────────────────────────────
+  function openInfoPanel(con) {
+    const panel = document.getElementById('infoPanel');
+    const allIds = new Set();
+    con.lines.forEach(([a,b]) => { allIds.add(a); allIds.add(b); });
+
+    // Find stars in this constellation
+    const conStars = DATA_STARS
+      .filter(s => allIds.has(s[0]) && s[2]) // has English name
+      .sort((a,b) => a[6] - b[6])            // sort by magnitude
+      .slice(0, 8);
+
+    // Populate panel
+    document.getElementById('infoPanelTitle').textContent = con.name;
+    document.getElementById('infoPanelSubtitle').textContent = `${con.nameEn} · ${con.abbr}`;
+    document.getElementById('infoPanelMyth').textContent = con.myth || '';
+
+    const tbody = document.getElementById('infoPanelStars');
+    tbody.innerHTML = '';
+    conStars.forEach(s => {
+      const [,nameKo, nameEn,,,, mag, sp] = s;
+      const spColors = {O:'🔵',B:'🔵',A:'⚪',F:'🟡',G:'🟡',K:'🟠',M:'🔴'};
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${nameKo || nameEn || '-'}</td>
+        <td>${mag.toFixed(2)}</td>
+        <td>${spColors[sp] || '⚪'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Animate open
+    if (!infoPanelOpen) {
+      panel.classList.add('open');
+      infoPanelOpen = true;
+    } else {
+      // Cross-fade content
+      panel.style.opacity = '0.5';
+      setTimeout(() => { panel.style.opacity = '1'; }, 150);
+    }
+  }
+
+  function closeInfoPanel() {
+    const panel = document.getElementById('infoPanel');
+    panel.classList.remove('open');
+    infoPanelOpen = false;
+  }
+
+  document.getElementById && document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('infoPanelClose');
+    if (closeBtn) closeBtn.addEventListener('click', closeInfoPanel);
+  });
+
+  // ─── Mini Map ─────────────────────────────────────────────────────
+  let mapCanvas, mapCtx;
+  let currentPin = { x: 77, y: 37 }; // Default Seoul
+
+  function openMiniMap() {
+    const el = document.getElementById('miniMap');
+    el.classList.add('open');
+    miniMapOpen = true;
+    if (!mapCanvas) {
+      mapCanvas = document.getElementById('mapCanvas');
+      mapCtx = mapCanvas.getContext('2d');
+      wireMapInteractions();
+    }
+    drawMap();
+  }
+
+  function closeMiniMap() {
+    document.getElementById('miniMap').classList.remove('open');
+    miniMapOpen = false;
+  }
+
+  function latLngToMapXY(lat, lng) {
+    return {
+      x: (lng - 124.0) * 26,
+      y: (38.5 - lat) * 40
+    };
+  }
+
+  function mapXYToLatLng(x, y) {
+    return {
+      lat: 38.5 - y / 40,
+      lng: x / 26 + 124.0
+    };
+  }
+
+  function drawMap(hoverX, hoverY) {
+    if (!mapCtx) return;
+    const W = mapCanvas.width, H = mapCanvas.height;
+    mapCtx.clearRect(0, 0, W, H);
+
+    // Draw peninsula outline
+    if (DATA_MAP && DATA_MAP.peninsulaPath) {
+      mapCtx.beginPath();
+      DATA_MAP.peninsulaPath.forEach(([x, y], i) => {
+        if (i === 0) mapCtx.moveTo(x, y); else mapCtx.lineTo(x, y);
+      });
+      mapCtx.closePath();
+      mapCtx.fillStyle = 'rgba(100, 149, 237, 0.05)';
+      mapCtx.fill();
+      mapCtx.strokeStyle = 'rgba(100, 149, 237, 0.3)';
+      mapCtx.lineWidth = 1;
+      mapCtx.stroke();
+    }
+
+    // Jeju Island
+    if (DATA_MAP && DATA_MAP.jejuPath) {
+      mapCtx.beginPath();
+      DATA_MAP.jejuPath.forEach(([x, y], i) => {
+        if (i === 0) mapCtx.moveTo(x, y); else mapCtx.lineTo(x, y);
+      });
+      mapCtx.closePath();
+      mapCtx.fillStyle = 'rgba(100, 149, 237, 0.05)';
+      mapCtx.fill();
+      mapCtx.strokeStyle = 'rgba(100, 149, 237, 0.3)';
+      mapCtx.lineWidth = 1;
+      mapCtx.stroke();
+    }
+
+    // Ulleungdo dot
+    if (DATA_MAP && DATA_MAP.ulleungdo) {
+      const [ux, uy] = DATA_MAP.ulleungdo;
+      mapCtx.fillStyle = 'rgba(100, 149, 237, 0.4)';
+      mapCtx.beginPath();
+      mapCtx.arc(ux, uy, 2, 0, Math.PI * 2);
+      mapCtx.fill();
+    }
+
+    // Current location pin
+    mapCtx.save();
+    mapCtx.shadowColor = '#4a90d9';
+    mapCtx.shadowBlur = 8;
+    mapCtx.fillStyle = '#4a90d9';
+    mapCtx.beginPath();
+    mapCtx.arc(currentPin.x, currentPin.y, 5, 0, Math.PI * 2);
+    mapCtx.fill();
+    mapCtx.restore();
+
+    // Hover crosshair and coords
+    if (hoverX !== undefined) {
+      mapCtx.save();
+      mapCtx.strokeStyle = 'rgba(255,255,255,0.2)';
+      mapCtx.lineWidth = 0.5;
+      mapCtx.beginPath();
+      mapCtx.moveTo(hoverX, 0); mapCtx.lineTo(hoverX, H);
+      mapCtx.moveTo(0, hoverY); mapCtx.lineTo(W, hoverY);
+      mapCtx.stroke();
+      mapCtx.restore();
+
+      const ll = mapXYToLatLng(hoverX, hoverY);
+      const lat = ll.lat.toFixed(2);
+      const lng = ll.lng.toFixed(2);
+      const hemi = ll.lat >= 0 ? 'N' : 'S';
+      document.getElementById('mapCoords').textContent =
+        `${Math.abs(lat)}°${hemi}, ${lng}°E`;
+    }
+  }
+
+  function wireMapInteractions() {
+    mapCanvas.addEventListener('mousemove', e => {
+      const rect = mapCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      drawMap(x, y);
+    });
+    mapCanvas.addEventListener('mouseleave', () => {
+      drawMap();
+      document.getElementById('mapCoords').textContent = '';
+    });
+
+    mapCanvas.addEventListener('click', e => {
+      const rect = mapCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const ll = mapXYToLatLng(x, y);
+
+      // Point-in-polygon check for peninsula
+      if (!isInsideKorea(ll.lat, ll.lng)) return;
+
+      currentPin = { x, y };
+      const cityName = findNearestCity(ll.lat, ll.lng);
+      app.setLocation(ll.lat, ll.lng, cityName);
+      drawMap();
+    });
+
+    // Preset buttons
+    document.getElementById('mapPresets').addEventListener('click', e => {
+      const cityName = e.target.dataset.city;
+      if (!cityName) return;
+      const city = DATA_CITIES.find(c => c.name === cityName);
+      if (!city) return;
+      const xy = latLngToMapXY(city.lat, city.lng);
+      currentPin = xy;
+      app.setLocation(city.lat, city.lng, city.name);
+      drawMap();
+      if (city.name === '시드니' || city.name === '레이캬비크') {
+        closeMiniMap();
+      }
+    });
+
+    // Overseas preset buttons (outside mapPresets, below the divider)
+    document.querySelectorAll('[data-city]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const cname = e.target.dataset.city;
+        const city = DATA_CITIES.find(c => c.name === cname);
+        if (!city) return;
+        const xy = latLngToMapXY(city.lat, city.lng);
+        currentPin = { x: Math.max(0,Math.min(208,xy.x)), y: Math.max(0,Math.min(220,xy.y)) };
+        app.setLocation(city.lat, city.lng, city.name);
+        closeMiniMap();
+      });
+    });
+
+    // GPS button (if added)
+    document.addEventListener('click', e => {
+      if (e.target.id === 'gpsBtn') {
+        navigator.geolocation?.getCurrentPosition(pos => {
+          const { latitude: lat, longitude: lng } = pos.coords;
+          const xy = latLngToMapXY(lat, lng);
+          currentPin = { x: Math.max(0,Math.min(208,xy.x)), y: Math.max(0,Math.min(220,xy.y)) };
+          const cityName = findNearestCity(lat, lng);
+          app.setLocation(lat, lng, cityName);
+          drawMap();
+        }, () => {});
+      }
+    });
+  }
+
+  // ─── Point-in-polygon: rough Korea check ──────────────────────────
+  function isInsideKorea(lat, lng) {
+    if (!PENINSULA_POLYGON) return true; // fallback
+    const poly = PENINSULA_POLYGON;
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const [yi, xi] = poly[i];
+      const [yj, xj] = poly[j];
+      const intersect = ((xi > lng) !== (xj > lng)) &&
+        (lat < (yj - yi) * (lng - xi) / (xj - xi) + yi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+
+  // ─── Find nearest city ────────────────────────────────────────────
+  function findNearestCity(lat, lng) {
+    if (!DATA_CITIES) return '알 수 없음';
+    let best = DATA_CITIES[0], bestD = Infinity;
+    DATA_CITIES.forEach(c => {
+      const dlat = c.lat - lat, dlng = c.lng - lng;
+      const d = dlat*dlat + dlng*dlng;
+      if (d < bestD) { bestD = d; best = c; }
+    });
+    return best.name;
+  }
+
+  // ─── Constellation detection (for canvas click) ───────────────────
+  function findConstellationAt(mx, my, starScreenPositions) {
+    if (!starScreenPositions) return null;
+
+    // Build map from star id to screen position
+    const starById = {};
+    starScreenPositions.forEach(sp => { if(sp) starById[sp.id] = sp; });
+
+    let bestCon = null, bestDist = 60 * 60;
+
+    DATA_CONST.forEach(con => {
+      const allIds = new Set();
+      con.lines.forEach(([a,b]) => { allIds.add(a); allIds.add(b); });
+      let sumX = 0, sumY = 0, count = 0;
+      allIds.forEach(id => {
+        const sp = starById[id];
+        if (sp && sp.screen && sp.screen.visible && sp.alt > 3) {
+          sumX += sp.screen.x; sumY += sp.screen.y; count++;
+        }
+      });
+      if (count < 2) return;
+      const cx = sumX/count, cy = sumY/count;
+      const d = (mx-cx)*(mx-cx) + (my-cy)*(my-cy);
+      if (d < bestDist) {
+        bestDist = d;
+        bestCon = con;
+      }
+    });
+    return bestCon;
+  }
+
+  // ─── Close panels on outside click ───────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('click', e => {
+      const panel = document.getElementById('infoPanel');
+      const map = document.getElementById('miniMap');
+      const locBtn = document.getElementById('locationBtn');
+      if (panel && infoPanelOpen && !panel.contains(e.target)) {
+        closeInfoPanel();
+      }
+      if (map && miniMapOpen && !map.contains(e.target) && e.target !== locBtn) {
+        closeMiniMap();
+      }
+    });
+
+    document.getElementById('infoPanelClose')?.addEventListener('click', closeInfoPanel);
+  });
+
+  // ─── Public API ───────────────────────────────────────────────────
+  return {
+    init,
+    openInfoPanel,
+    closeInfoPanel,
+    openMiniMap,
+    closeMiniMap,
+    findConstellationAt,
+    updateTimeDisplay,
+  };
+})();
+
+
+// ═══ app.js ═══
+// [13] APP — 초기화, 오프닝 시퀀스, 메인 루프
+'use strict';
+
+// ─── Application State ─────────────────────────────────────────────
+const STATE = {
+  // Location
+  lat: 37.5088,
+  lng: 127.0631,
+  cityName: '서울',
+
+  // Time
+  date: new Date(),
+  timeOffsetMin: 0,   // minutes offset from 18:00
+  jd: 0,
+
+  // Viewport
+  viewAlt: 45,
+  viewAz: 180,
+  fov: 90,
+
+  // Playback
+  isPlaying: false,
+  playSpeed: 1,  // 1,5,30,60
+
+  // Toggles
+  showLines:   true,
+  showNames:   true,
+  showGrid:    false,
+  showMilky:   false,
+  showMeteors: false,
+  showTrail:   false,
+  showPlanets: true,
+  audioOn:     true,
+
+  // Light pollution (1-5)
+  lpLevel: 3,
+
+  // Interaction
+  isDragging: false,
+  dragStartX: 0, dragStartY: 0,
+  dragStartAlt: 0, dragStartAz: 0,
+  hoveredStarId: null,
+  hoverStartTime: 0,
+  hoveredConst: null,
+
+  // Opening sequence
+  introPhase: 0,  // 0..6 (6=COMPLETE)
+  introStartTime: 0,
+
+  // Opening star animation
+  brightStarAlphas: {},  // id -> {alpha, scale}
+  allStarAlpha: 0,
+
+  // Focus mode
+  focusedConst: null,
+  savedViewAlt: 45,
+  savedViewAz: 180,
+  savedFov: 90,
+};
+
+// ─── Constants ─────────────────────────────────────────────────────
+const INTRO_COMPLETE = 6;
+const PLAY_SPEEDS = [1, 5, 30, 60];
+
+// ─── DOM references ────────────────────────────────────────────────
+let mainCanvas, trailCanvas;
+let audioModule;
+
+// ─── Initialization ────────────────────────────────────────────────
+function init() {
+  mainCanvas  = document.getElementById('mainCanvas');
+  trailCanvas = document.getElementById('trailCanvas');
+
+  resizeCanvases();
+  window.addEventListener('resize', resizeCanvases);
+
+  RENDERER.init(mainCanvas, trailCanvas);
+
+  // Set initial time (today at 22:00 KST)
+  const now = new Date();
+  const kst = new Date(now.getTime() + 9 * 3600 * 1000);
+  kst.setUTCHours(13, 0, 0, 0); // 22:00 KST = 13:00 UTC
+  STATE.date = kst;
+  STATE.timeOffsetMin = 0;
+  updateJD();
+
+  // Set date picker
+  const dp = document.getElementById('datePicker');
+  const d = new Date(now.getTime() + 9*3600000);
+  dp.value = d.toISOString().slice(0,10);
+
+  // Start IP geolocation (parallel to opening)
+  fetchIPLocation();
+
+  // Start opening sequence
+  STATE.introStartTime = performance.now();
+  STATE.introPhase = 0;
+  showOpeningEmoji();
+
+  // Register event listeners
+  registerEvents();
+
+  // Start main loop
+  requestAnimationFrame(mainLoop);
+}
+
+function resizeCanvases() {
+  const W = window.innerWidth, H = window.innerHeight;
+  [mainCanvas, trailCanvas].forEach(c => {
+    c.width  = W;
+    c.height = H;
+  });
+}
+
+// ─── Julian Day calculation ────────────────────────────────────────
+function updateJD() {
+  const d = STATE.date;
+  const utH = d.getUTCHours() + d.getUTCMinutes()/60 + d.getUTCSeconds()/3600;
+  STATE.jd = dateToJD(d.getUTCFullYear(), d.getUTCMonth()+1, d.getUTCDate(), utH);
+}
+
+// ─── IP Geolocation (async, non-blocking) ─────────────────────────
+function fetchIPLocation() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3000);
+
+  // district = 구 단위 (송파구), city = 시 단위 (서울), lang=ko → 한국어
+  fetch('http://ip-api.com/json/?fields=lat,lon,city,district&lang=ko', { signal: controller.signal })
+    .then(r => r.json())
+    .then(data => {
+      clearTimeout(timeout);
+      if (data && data.lat && data.lon) {
+        // 구 단위 우선, 없으면 시 단위
+        const locationName = data.district || data.city || '감지된 위치';
+        setLocation(data.lat, data.lon, locationName);
+      }
+    })
+    .catch(() => { /* Use default Samsung Station */ });
+}
+
+// ─── Location setting ─────────────────────────────────────────────
+function setLocation(lat, lng, cityName, animate = false) {
+  const prevLat = STATE.lat;
+  const bigChange = Math.abs(lat - prevLat) > 10;
+
+  STATE.lat = lat;
+  STATE.lng = lng;
+  STATE.cityName = cityName;
+
+  // Default view direction by hemisphere
+  if (lat < 0) {
+    STATE.viewAz = 0; // Southern hemisphere faces north
+  } else {
+    STATE.viewAz = 180; // Northern hemisphere faces south
+  }
+
+  updateJD();
+  RENDERER.reproject(STATE);
+  RENDERER.clearTrail(false);
+
+  // Update UI
+  document.getElementById('locationBtn').textContent = `📍 ${cityName}`;
+  document.getElementById('headerText').textContent = `🌌 ${cityName}의 밤하늘`;
+
+  if (bigChange && STATE.introPhase >= INTRO_COMPLETE) {
+    // Fade transition for big location changes
+    const overlay = document.getElementById('fadeOverlay');
+    overlay.style.transition = 'background 0.4s';
+    overlay.style.background = 'rgba(0,0,0,0.9)';
+    setTimeout(() => {
+      RENDERER.reproject(STATE);
+      if (STATE.showLines) RENDERER.startConstAnimation(performance.now());
+      overlay.style.transition = 'background 0.6s';
+      overlay.style.background = 'rgba(0,0,0,0)';
+    }, 400);
+  }
+}
+
+// ─── Opening sequence ─────────────────────────────────────────────
+function showOpeningEmoji() {
+  const emoji = document.getElementById('openingEmoji');
+  emoji.style.animation = 'emojiPulse 1s ease-in-out infinite';
+  emoji.style.opacity = '0.3';
+}
+
+function skipIntro() {
+  STATE.introPhase = INTRO_COMPLETE;
+  finishIntro();
+}
+
+function finishIntro() {
+  document.getElementById('openingEmoji').classList.add('hidden');
+  document.getElementById('header').classList.add('visible');
+  document.getElementById('controlBar').classList.add('visible');
+  STATE.allStarAlpha = 1;
+  Object.keys(STATE.brightStarAlphas).forEach(id => {
+    STATE.brightStarAlphas[id] = { alpha: 1, scale: 1 };
+  });
+  RENDERER.reproject(STATE);
+  RENDERER.stopConstAnimation();
+  // Start ambient sound
+  if (STATE.audioOn && audioModule) audioModule.start(true);
+}
+
+function updateIntroPhase(now) {
+  if (STATE.introPhase >= INTRO_COMPLETE) return;
+  const t = now - STATE.introStartTime;
+
+  if (STATE.introPhase === 0 && t >= 200) {
+    // Fade out emoji
+    document.getElementById('openingEmoji').classList.add('hidden');
+    STATE.introPhase = 1;
+    // Begin stardust fade-in (handled in render via allStarAlpha)
+    STATE.allStarAlpha = 0;
+  }
+
+  if (STATE.introPhase === 1 && t >= 600) {
+    STATE.introPhase = 2;
+    // Begin bright star pop-in
+    RENDERER.reproject(STATE);
+  }
+
+  if (STATE.introPhase === 2 && t >= 1400) {
+    STATE.introPhase = 3;
+    STATE.allStarAlpha = 1;
+    // Begin ambient sound
+    if (STATE.audioOn && audioModule) audioModule.start(false);
+  }
+
+  if (STATE.introPhase === 3 && t >= 1900) {
+    STATE.introPhase = 4;
+    // Start constellation line drawing
+    RENDERER.startConstAnimation(now);
+  }
+
+  if (STATE.introPhase === 4 && t >= 3000) {
+    STATE.introPhase = 5;
+    // Show header + control bar
+    document.getElementById('header').classList.add('visible');
+  }
+
+  if (STATE.introPhase === 5 && t >= 3500) {
+    STATE.introPhase = INTRO_COMPLETE;
+    document.getElementById('controlBar').classList.add('visible');
+    startIdleTimer();
+  }
+
+  // Animate stardust alpha (phase 1: 200ms-1200ms)
+  if (STATE.introPhase >= 1 && STATE.introPhase < 3) {
+    STATE.allStarAlpha = Math.min(0.3, (t - 200) / 1000 * 0.3);
+  }
+}
+
+// ─── Star alpha callback for opening animation ─────────────────────
+STATE.starAlpha = function(id, mag) {
+  if (STATE.introPhase >= INTRO_COMPLETE) return 1;
+
+  if (STATE.introPhase < 2) {
+    return STATE.allStarAlpha;
+  }
+
+  const t = performance.now() - STATE.introStartTime;
+
+  if (mag <= 1 && STATE.introPhase >= 2) {
+    // Bright stars pop in sequentially
+    const brightIds = DATA_STARS.filter(s => s[6] <= 1).map(s => s[0]).sort();
+    const idx = brightIds.indexOf(id);
+    if (idx < 0) return 0;
+    const delay = 600 + idx * 40;
+    const elapsed = t - delay;
+    if (elapsed < 0) return 0;
+    const a = Math.min(1, elapsed / 200);
+    return a;
+  }
+
+  if (STATE.introPhase >= 3) return 1;
+  return STATE.allStarAlpha;
+};
+
+// ─── Idle timer for control bar ────────────────────────────────────
+let idleTimer = null;
+function resetIdle() {
+  const bar = document.getElementById('controlBar');
+  bar.classList.remove('idle');
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => bar.classList.add('idle'), 5000);
+}
+function startIdleTimer() {
+  document.addEventListener('mousemove', resetIdle, { passive: true });
+  resetIdle();
+}
+
+// ─── Main animation loop ───────────────────────────────────────────
+let lastTimestamp = 0;
+function mainLoop(now) {
+  requestAnimationFrame(mainLoop);
+
+  const dt = now - lastTimestamp;
+  lastTimestamp = now;
+
+  // Update intro
+  updateIntroPhase(now);
+
+  // Advance time if playing
+  if (STATE.isPlaying && STATE.introPhase >= INTRO_COMPLETE) {
+    const simDt = dt * STATE.playSpeed / 1000; // seconds of simulation time
+    STATE.date = new Date(STATE.date.getTime() + simDt * 1000);
+    updateJD();
+
+    // Update slider position
+    const slider = document.getElementById('timeSlider');
+    const base = getBaseDate();
+    const elapsedMin = (STATE.date - base) / 60000;
+    slider.value = Math.max(0, Math.min(720, elapsedMin));
+    updateTimeDisplay();
+
+    RENDERER.reproject(STATE);
+  }
+
+  RENDERER.render(STATE, now);
+}
+
+// ─── Time helpers ──────────────────────────────────────────────────
+function getBaseDate() {
+  // Returns today 18:00 KST = 09:00 UTC
+  const d = new Date(STATE.date);
+  const kst = new Date(d.getTime() + 9*3600000);
+  kst.setUTCHours(9, 0, 0, 0); // 18:00 KST
+  return new Date(kst.getTime() - 9*3600000);
+}
+
+function updateTimeDisplay() {
+  const kst = new Date(STATE.date.getTime() + 9*3600000);
+  const y = kst.getUTCFullYear();
+  const mo = kst.getUTCMonth() + 1;
+  const day = kst.getUTCDate();
+  const h = String(kst.getUTCHours()).padStart(2,'0');
+  const m = String(kst.getUTCMinutes()).padStart(2,'0');
+  document.getElementById('timeDisplay').textContent = `${y}년 ${mo}월 ${day}일 ${h}:${m} KST`;
+}
+
+// ─── Event listeners ───────────────────────────────────────────────
+function registerEvents() {
+  const canvas = mainCanvas;
+
+  // Drag to rotate view
+  canvas.addEventListener('mousedown', e => {
+    if (STATE.introPhase < INTRO_COMPLETE) { skipIntro(); return; }
+    STATE.isDragging = true;
+    STATE.dragStartX = e.clientX;
+    STATE.dragStartY = e.clientY;
+    STATE.dragStartAlt = STATE.viewAlt;
+    STATE.dragStartAz  = STATE.viewAz;
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (STATE.introPhase < INTRO_COMPLETE) return;
+    resetIdle();
+
+    if (STATE.isDragging) {
+      const dx = e.clientX - STATE.dragStartX;
+      const dy = e.clientY - STATE.dragStartY;
+      STATE.viewAz  = (STATE.dragStartAz  - dx * 0.3 + 360) % 360;
+      STATE.viewAlt = Math.max(-90, Math.min(90, STATE.dragStartAlt + dy * 0.3));
+      RENDERER.reproject(STATE);
+    } else {
+      // Star hover detection
+      updateStarHover(e.clientX, e.clientY);
+      // Constellation hover
+      updateConstHover(e.clientX, e.clientY);
+    }
+  });
+
+  canvas.addEventListener('mouseup', () => { STATE.isDragging = false; });
+  canvas.addEventListener('mouseleave', () => {
+    STATE.isDragging = false;
+    STATE.hoveredStarId = null;
+    STATE.hoveredConst = null;
+  });
+
+  // Wheel to zoom
+  canvas.addEventListener('wheel', e => {
+    if (STATE.introPhase < INTRO_COMPLETE) return;
+    e.preventDefault();
+    STATE.fov = Math.max(30, Math.min(150, STATE.fov + (e.deltaY > 0 ? 5 : -5)));
+    RENDERER.reproject(STATE);
+  }, { passive: false });
+
+  // Double click to center + constellation focus
+  canvas.addEventListener('dblclick', e => {
+    if (STATE.introPhase < INTRO_COMPLETE) return;
+    // Check if clicking a constellation
+    const con = findConstellationAt(e.clientX, e.clientY);
+    if (con) {
+      enterFocusMode(con);
+    } else {
+      // Center view on click point
+      // (simplified: just center on approximate direction)
+    }
+  });
+
+  // Single click for constellation info panel
+  canvas.addEventListener('click', e => {
+    if (STATE.introPhase < INTRO_COMPLETE) { skipIntro(); return; }
+    if (STATE.isDragging) return;
+    const con = findConstellationAt(e.clientX, e.clientY);
+    if (con) {
+      UI.openInfoPanel(con);
+    } else {
+      UI.closeInfoPanel();
+    }
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (STATE.introPhase < INTRO_COMPLETE) { skipIntro(); return; }
+    resetIdle();
+    const key = e.key.toUpperCase();
+    switch(key) {
+      case ' ': e.preventDefault(); togglePlay(); break;
+      case 'T': if(STATE.isPlaying) toggleTrail(); break;
+      case 'C': toggleLines(); break;
+      case 'N': toggleNames(); break;
+      case 'G': toggleGrid(); break;
+      case 'M': toggleMilky(); break;
+      case 'S': toggleMeteors(); break;
+      case 'A': toggleAudio(); break;
+      case 'L': cycleLightPollution(); break;
+      case 'I': replayIntro(); break;
+      case 'R': resetView(); break;
+      case 'ESCAPE':
+        if (STATE.focusedConst) exitFocusMode();
+        else if (document.getElementById('infoPanel').classList.contains('open')) UI.closeInfoPanel();
+        else if (document.getElementById('miniMap').classList.contains('open')) UI.closeMiniMap();
+        break;
+    }
+  });
+}
+
+// ─── Star hover detection ──────────────────────────────────────────
+function updateStarHover(mx, my) {
+  let bestId = null, bestDist = 15 * 15;
+  DATA_STARS.forEach((s, i) => {
+    const [id,,,,,,mag] = s;
+    if (mag > 2) return;
+    const sp = RENDERER._starScreenPos ? RENDERER._starScreenPos[i] : null;
+    // Access via reproject state - we'll use a workaround
+    // Actually starScreenPos is internal. Let's check distances from the last render.
+  });
+  // Simplified: use exposed API or just skip for now
+  // (Will be wired properly in UI.js)
+}
+
+// ─── Constellation detection ───────────────────────────────────────
+function findConstellationAt(mx, my) {
+  // Find closest constellation centroid
+  // (Simplified: check if click is within 50px of any star in the constellation)
+  // Return the constellation object or null
+  return null; // To be implemented in UI.js
+}
+
+function updateConstHover(mx, my) {
+  // To be implemented in UI.js
+}
+
+// ─── Toggle functions ─────────────────────────────────────────────
+function togglePlay() {
+  STATE.isPlaying = !STATE.isPlaying;
+  document.getElementById('playBtn').textContent = STATE.isPlaying ? '⏸' : '▶';
+}
+
+function toggleLines() {
+  STATE.showLines = !STATE.showLines;
+  const btn = document.getElementById('btnLines');
+  btn.classList.toggle('active', STATE.showLines);
+  if (STATE.showLines) RENDERER.startConstAnimation(performance.now());
+}
+
+function toggleNames() {
+  STATE.showNames = !STATE.showNames;
+  document.getElementById('btnNames').classList.toggle('active', STATE.showNames);
+}
+
+function toggleGrid() {
+  STATE.showGrid = !STATE.showGrid;
+  document.getElementById('btnGrid').classList.toggle('active', STATE.showGrid);
+}
+
+function toggleMilky() {
+  STATE.showMilky = !STATE.showMilky;
+  document.getElementById('btnMilky').classList.toggle('active', STATE.showMilky);
+}
+
+function toggleMeteors() {
+  STATE.showMeteors = !STATE.showMeteors;
+  document.getElementById('btnMeteor').classList.toggle('active', STATE.showMeteors);
+}
+
+function toggleTrail() {
+  STATE.showTrail = !STATE.showTrail;
+  document.getElementById('btnTrail').classList.toggle('active', STATE.showTrail);
+  if (!STATE.showTrail) RENDERER.clearTrail(true);
+}
+
+function toggleAudio() {
+  STATE.audioOn = !STATE.audioOn;
+  document.getElementById('btnAudio').textContent = STATE.audioOn ? '🔊' : '🔇';
+  document.getElementById('btnAudio').classList.toggle('active', STATE.audioOn);
+  if (audioModule) {
+    if (STATE.audioOn) audioModule.start(true);
+    else audioModule.stop();
+  }
+}
+
+function cycleLightPollution() {
+  STATE.lpLevel = (STATE.lpLevel % 5) + 1;
+  document.getElementById('lpSlider').value = STATE.lpLevel;
+  const labels = ['도심','교외','시골','산간','완전 암흑'];
+  document.getElementById('lpLabel').textContent = labels[STATE.lpLevel-1];
+}
+
+function replayIntro() {
+  STATE.introPhase = 0;
+  STATE.introStartTime = performance.now();
+  STATE.allStarAlpha = 0;
+  STATE.brightStarAlphas = {};
+  document.getElementById('header').classList.remove('visible');
+  document.getElementById('controlBar').classList.remove('visible');
+  showOpeningEmoji();
+}
+
+function resetView() {
+  STATE.viewAlt = 45;
+  STATE.viewAz = STATE.lat < 0 ? 0 : 180;
+  STATE.fov = 90;
+  RENDERER.reproject(STATE);
+}
+
+// ─── Focus mode ────────────────────────────────────────────────────
+function enterFocusMode(con) {
+  STATE.focusedConst = con;
+  STATE.savedViewAlt = STATE.viewAlt;
+  STATE.savedViewAz  = STATE.viewAz;
+  STATE.savedFov     = STATE.fov;
+  RENDERER.setFocusConst(con, 0.6);
+
+  // Show focus label
+  const label = document.getElementById('focusLabel');
+  label.textContent = `${con.name} ${con.nameEn}`;
+  label.classList.add('visible');
+
+  document.getElementById('focusOverlay').classList.add('active');
+}
+
+function exitFocusMode() {
+  STATE.focusedConst = null;
+  STATE.viewAlt = STATE.savedViewAlt;
+  STATE.viewAz  = STATE.savedViewAz;
+  STATE.fov     = STATE.savedFov;
+  RENDERER.setFocusConst(null, 0);
+  RENDERER.reproject(STATE);
+
+  document.getElementById('focusLabel').classList.remove('visible');
+  document.getElementById('focusOverlay').classList.remove('active');
+}
+
+// ─── Wire up UI module ─────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // AUDIO module
+  try {
+    if (typeof AUDIO !== 'undefined') {
+      audioModule = AUDIO;
+    }
+  } catch(e) {}
+
+  init();
+
+  // Wire up UI controls (defined in ui.js)
+  if (typeof UI !== 'undefined') {
+    UI.init(STATE, {
+      setLocation, togglePlay, toggleLines, toggleNames, toggleGrid,
+      toggleMilky, toggleMeteors, toggleTrail, toggleAudio,
+      cycleLightPollution, replayIntro, resetView, updateJD,
+      RENDERER
+    });
+  }
+});
+
+
+</script>
+</body>
+</html>

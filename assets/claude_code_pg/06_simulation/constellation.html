@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>별자리 시뮬레이터</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #0a0e1a;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, 'Pretendard', sans-serif;
+      color: rgba(200, 215, 255, 0.95);
+      user-select: none;
+    }
+
+    #mainCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      cursor: grab;
+    }
+    #mainCanvas:active { cursor: grabbing; }
+
+    #trailCanvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    /* ─── GLASS BASE ─── */
+    .glass {
+      background: rgba(10, 14, 40, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(120, 160, 255, 0.15);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .glass-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: rgba(200, 215, 255, 0.7);
+      padding: 8px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .glass-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(120, 160, 255, 0.3);
+      color: rgba(200, 215, 255, 1.0);
+    }
+    .glass-btn.active {
+      background: rgba(74, 144, 217, 0.25);
+      border-color: rgba(74, 144, 217, 0.5);
+      color: #ffffff;
+    }
+    .glass-btn.small {
+      padding: 4px 10px;
+      font-size: 11px;
+      border-radius: 8px;
+    }
+
+    /* ─── HEADER ─── */
+    #header {
+      position: fixed;
+      top: 20px; left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 300;
+      letter-spacing: 2px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 100;
+    }
+    #header.visible { opacity: 1; }
+
+    /* ─── BRANDING ─── */
+    #branding {
+      position: fixed;
+      bottom: 100px; right: 20px;
+      font-size: 12px;
+      color: rgba(200, 215, 255, 0.35);
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    /* ─── CONTROL BAR ─── */
+    #controlBar {
+      position: fixed;
+      bottom: 20px;
+      left: 24px; right: 24px;
+      padding: 16px 24px;
+      border-radius: 16px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+      z-index: 100;
+    }
+    #controlBar.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #controlBar.idle {
+      opacity: 0.3;
+    }
+    #controlBar:hover {
+      opacity: 1 !important;
+    }
+
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .ctrl-row + .ctrl-row { margin-top: 8px; }
+
+    .ctrl-sep {
+      width: 1px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 4px;
+    }
+
+    /* Time display */
+    #timeDisplay {
+      font-size: 16px;
+      font-weight: 300;
+      font-variant-numeric: tabular-nums;
+      color: rgba(200, 215, 255, 0.9);
+      min-width: 180px;
+      text-align: right;
+    }
+
+    /* Speed button */
+    #speedBtn {
+      min-width: 44px;
+      text-align: center;
+    }
+
+    /* ─── TIME SLIDER ─── */
+    .slider-wrap {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      height: 18px;
+    }
+    #timeSlider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      outline: none;
+      cursor: pointer;
+    }
+    #timeSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 12px rgba(74, 144, 217, 0.6);
+      cursor: pointer;
+    }
+    #timeSlider::-moz-range-thumb {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 12px rgba(74, 144, 217, 0.6);
+      border: none;
+      cursor: pointer;
+    }
+
+    /* ─── LIGHT POLLUTION SLIDER ─── */
+    #lpSlider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100px;
+      height: 4px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      outline: none;
+      cursor: pointer;
+    }
+    #lpSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 0 8px rgba(74, 144, 217, 0.5);
+      cursor: pointer;
+    }
+
+    /* ─── INFO PANEL ─── */
+    #infoPanel {
+      position: fixed;
+      top: 80px; bottom: 80px;
+      left: 0;
+      width: 300px;
+      border-radius: 0 16px 16px 0;
+      padding: 20px;
+      transform: translateX(-100%);
+      opacity: 0;
+      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+      z-index: 200;
+      overflow-y: auto;
+    }
+    #infoPanel.open {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    #infoPanelTitle {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    #infoPanelSubtitle {
+      font-size: 13px;
+      color: rgba(200, 215, 255, 0.5);
+      margin-bottom: 12px;
+    }
+    .panel-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 12px 0;
+    }
+    #infoPanelMyth {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(200, 215, 255, 0.7);
+      margin-bottom: 12px;
+    }
+
+    .star-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .star-table th {
+      text-align: left;
+      padding: 6px 8px;
+      color: rgba(200, 215, 255, 0.5);
+      font-weight: 400;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .star-table td {
+      padding: 8px 8px;
+      color: rgba(200, 215, 255, 0.85);
+    }
+    .star-table tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: none;
+      border: none;
+      color: rgba(200, 215, 255, 0.5);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: color 0.2s;
+    }
+    .close-btn:hover { color: rgba(200, 215, 255, 1); }
+
+    /* ─── MINI MAP ─── */
+    #miniMap {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.95);
+      width: 240px;
+      height: 360px;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #miniMap.open {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+      pointer-events: all;
+    }
+    #mapCanvas {
+      flex: 1;
+      border-radius: 8px;
+      cursor: crosshair;
+    }
+    .map-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .map-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 2px 0;
+    }
+    #mapCoords {
+      font-size: 11px;
+      color: rgba(200, 215, 255, 0.5);
+      text-align: center;
+      min-height: 14px;
+    }
+
+    /* ─── DATE PICKER ─── */
+    #datePicker {
+      background: rgba(10, 14, 40, 0.8);
+      border: 1px solid rgba(120, 160, 255, 0.2);
+      border-radius: 8px;
+      color: rgba(200, 215, 255, 0.9);
+      font-size: 13px;
+      padding: 6px 10px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+    }
+    #datePicker:focus {
+      border-color: rgba(74, 144, 217, 0.5);
+    }
+
+    /* ─── FOCUS OVERLAY ─── */
+    #focusOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0);
+      pointer-events: none;
+      transition: background 0.6s ease-out;
+      z-index: 50;
+    }
+    #focusOverlay.active {
+      background: rgba(0, 0, 0, 0.6);
+      pointer-events: all;
+    }
+
+    #focusLabel {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 24px;
+      font-weight: 300;
+      letter-spacing: 3px;
+      padding: 10px 24px;
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 201;
+      pointer-events: none;
+    }
+    #focusLabel.visible { opacity: 1; }
+
+    /* ─── FADE OVERLAY ─── */
+    #fadeOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0);
+      pointer-events: none;
+      z-index: 300;
+    }
+
+    /* ─── OPENING EMOJI ─── */
+    #openingEmoji {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 60px;
+      opacity: 0;
+      z-index: 400;
+      pointer-events: none;
+      animation: emojiPulse 1s ease-in-out infinite;
+    }
+    @keyframes emojiPulse {
+      0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.05); }
+    }
+    #openingEmoji.hidden {
+      animation: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(120, 160, 255, 0.3); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- Canvas layers -->
+<canvas id="trailCanvas"></canvas>
+<canvas id="mainCanvas"></canvas>
+
+<!-- Opening emoji -->
+<div id="openingEmoji">🌌</div>
+
+<!-- Fade overlay for location transitions -->
+<div id="fadeOverlay"></div>
+
+<!-- Focus mode overlay -->
+<div id="focusOverlay"></div>
+<div id="focusLabel" class="glass"></div>
+
+<!-- Header -->
+<div id="header" class="glass">
+  <span id="headerText">🌌 서울의 밤하늘</span>
+</div>
+
+<!-- Branding -->
+<div id="branding">AI 에이전트를 고용하라 · AI ROASTING</div>
+
+<!-- Info Panel (left side) -->
+<div id="infoPanel" class="glass">
+  <button class="close-btn" id="infoPanelClose">✕</button>
+  <div id="infoPanelTitle">오리온자리</div>
+  <div id="infoPanelSubtitle">Orion · Ori</div>
+  <div class="panel-divider"></div>
+  <div id="infoPanelMyth">신화/유래 텍스트</div>
+  <div class="panel-divider"></div>
+  <table class="star-table">
+    <thead>
+      <tr><th>별 이름</th><th>등급</th><th>색상</th></tr>
+    </thead>
+    <tbody id="infoPanelStars"></tbody>
+  </table>
+</div>
+
+<!-- Mini Map -->
+<div id="miniMap" class="glass">
+  <canvas id="mapCanvas" width="208" height="220"></canvas>
+  <div id="mapCoords"></div>
+  <div class="map-presets" id="mapPresets">
+    <button class="glass-btn small" data-city="서울">서울</button>
+    <button class="glass-btn small" data-city="부산">부산</button>
+    <button class="glass-btn small" data-city="강릉">강릉</button>
+    <button class="glass-btn small" data-city="제주">제주</button>
+    <button class="glass-btn small" data-city="울릉도">울릉도</button>
+  </div>
+  <div class="map-divider"></div>
+  <div class="map-presets">
+    <button class="glass-btn small" data-city="시드니">🌏 시드니</button>
+    <button class="glass-btn small" data-city="레이캬비크">🌍 레이캬비크</button>
+  </div>
+</div>
+
+<!-- Control Bar -->
+<div id="controlBar" class="glass">
+  <!-- Top row: playback + slider + time -->
+  <div class="ctrl-row">
+    <button class="glass-btn" id="playBtn" title="Space: 재생/정지">▶</button>
+    <button class="glass-btn" id="speedBtn" title="재생 속도">×1</button>
+    <div class="slider-wrap">
+      <input type="range" id="timeSlider" min="0" max="720" value="240" step="1">
+    </div>
+    <div id="timeDisplay">22:00 KST</div>
+  </div>
+  <!-- Bottom row: location + toggles -->
+  <div class="ctrl-row">
+    <button class="glass-btn" id="locationBtn" title="위치 변경">📍 서울</button>
+    <input type="date" id="datePicker" title="날짜 변경">
+    <button class="glass-btn small" id="todayBtn">오늘 밤</button>
+    <div class="ctrl-sep"></div>
+    <span style="font-size:12px;color:rgba(200,215,255,0.5)">💡</span>
+    <input type="range" id="lpSlider" min="1" max="5" value="3" step="1" title="광해">
+    <span id="lpLabel" style="font-size:12px;color:rgba(200,215,255,0.6);min-width:50px">시골</span>
+    <div class="ctrl-sep"></div>
+    <button class="glass-btn active" id="btnLines" title="C: 별자리 선">☆ 선</button>
+    <button class="glass-btn active" id="btnNames" title="N: 별자리 이름">Aa 이름</button>
+    <button class="glass-btn" id="btnGrid" title="G: 격자"># 격자</button>
+    <button class="glass-btn" id="btnMilky" title="M: 은하수">🌌 은하수</button>
+    <button class="glass-btn" id="btnMeteor" title="S: 유성">✨ 유성</button>
+    <button class="glass-btn" id="btnTrail" title="T: Star Trail">◎ Trail</button>
+    <button class="glass-btn active" id="btnAudio" title="A: 사운드">🔊</button>
+  </div>
+</div>
+
+<!-- Scripts (Phase 1 data files) -->
+<script src="data_stars.js"></script>
+<script src="data_constellations.js"></script>
+<script src="data_planets.js"></script>
+<script src="data_map.js"></script>
+
+<!-- Scripts (Phase 2 engine) -->
+<script src="astro.js"></script>
+<script src="planets.js"></script>
+<script src="renderer.js"></script>
+
+<!-- Scripts (Phase 3-5 UI + features) -->
+<script src="audio.js"></script>
+<script src="ui.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
