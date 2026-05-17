@@ -670,8 +670,16 @@
             .role-grid { grid-template-columns: 1fr; }
             .sub-menu { gap: 0; padding: 10px 0; }
             .sub-menu a { padding: 6px 10px; max-width: 100px; }
-            .header-pages { flex-wrap: wrap; gap: 8px; }
-            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            .header-pages {
+                flex-direction: column; gap: 8px;
+                margin: 18px auto 0; max-width: 100%;
+            }
+            .header-page-link {
+                width: 100%; max-width: none; flex: 0 0 auto;
+                padding: 11px 16px; font-size: 13px;
+                justify-content: flex-start; border-radius: 14px;
+            }
+            .header-page-link .hpl-icon { font-size: 16px; }
             .nm-card { padding: 22px 18px; }
             .ref-link .ref-desc { display: none; }
             .flow-row { flex-direction: column; gap: 8px; }
@@ -679,7 +687,6 @@
         }
         @media (max-width: 480px) {
             header h1 { font-size: 24px; }
-            .header-page-link { font-size: 11px; padding: 7px 12px; }
         }
     </style>
 </head>
@@ -690,6 +697,7 @@
     <h1>종목 분석 후 카톡으로 보고 받기</h1>
     <p>Claude Cowork에서 DART 스킬과 카카오톡을 연결해 매일 아침 종목 분석을 받아보는 실전 워크플로우</p>
     <div class="header-pages" id="pages-final">
+        <a href="google-sheets-dashboard.html" class="header-page-link"><span class="hpl-icon">&#x1F4CB;</span> 구글 시트 대시보드</a>
         <a href="stock-kakaotalk.html" class="header-page-link active"><span class="hpl-icon">&#x1F4CA;</span> 종목 분석 &rarr; 카톡</a>
         <a href="harness-book.html" class="header-page-link"><span class="hpl-icon">&#x1F4DA;</span> 책 쓰기</a>
     </div>
@@ -838,10 +846,14 @@
                 </a>
             </div>
 
-            <a class="ref-link" href="https://airoasting.github.io/dart/kakao_20260510.html" target="_blank" rel="noopener" style="margin-top: 18px;">
-                <span class="ref-icon">&#x1F441;&#xFE0F;</span>
-                실제 결과 미리보기: 카카오 1Q2026 분석 리포트
-                <span class="ref-desc">샘플 출력</span>
+            <a class="skill-preview" href="https://airoasting.github.io/dart/kakao_20260510.html" target="_blank" rel="noopener">
+                <span class="sp-icon">&#x1F4CA;</span>
+                <span class="sp-body">
+                    <span class="sp-label">OUTPUT &middot; 샘플 리포트</span>
+                    <span class="sp-title">카카오 1Q2026 분석 리포트</span>
+                    <span class="sp-url">airoasting.github.io/dart/kakao_20260510.html</span>
+                </span>
+                <span class="sp-arrow">&rarr;</span>
             </a>
 
         </div>
@@ -1664,6 +1676,7 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
     .sm-drawer { display: block; }
     nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
     .header-pages {
         flex-direction: column !important;
         flex-wrap: nowrap !important;
@@ -1682,7 +1695,29 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
         padding: 11px 14px !important;
         border-radius: 12px !important;
     }
+    /* 헤더 상단 여백 통일 */
     header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
 }
 </style>
 <button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
@@ -1693,7 +1728,7 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
 <aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
     <div class="sm-drawer-heading" id="smDrawerHeading"></div>
     <a href="index.html" class="sm-drawer-back">
-        <span aria-hidden="true">&larr;</span><span>목록으로</span>
+        <span aria-hidden="true">←</span><span>목록으로</span>
     </a>
     <nav class="sm-drawer-list" id="smDrawerList"></nav>
 </aside>
@@ -1704,6 +1739,7 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     var toggle = document.getElementById('smMenuToggle');
     var backdrop = document.getElementById('smMenuBackdrop');
     var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
     if (heading) {
         var pageTitle = '';
         var activeLink = document.querySelector('.header-page-link.active');
