@@ -351,7 +351,10 @@ a{color:inherit;text-decoration:none}
 </main>
 
 <script>
-const DATA_URL = './pizza-data.json';
+// Google Sheets 직접 fetch (gviz CSV endpoint, CORS 허용)
+const SHEET_ID = '1ZUOzgPdXKMp7mkyjTOhZ9wfaRRe9IuuGkekKNKG41ZQ';
+const SHEET_GID = '38840795';
+const DATA_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
 
 // ── 색상 ──
 const SCOLS = ['#5b8dee','#fc5c7d','#48cfad','#f7b731','#a55eea','#4ecdc4','#fd9644','#45aaf2','#26de81'];
@@ -401,17 +404,137 @@ function xYearCB(labels){
 }
 
 // ─────────────────────────────────────────
-// Google Sheets(파생 JSON) → 대시보드 데이터 집계
+// CSV 파서 (RFC4180 호환: 따옴표 안의 쉼표/줄바꿈 처리)
+// ─────────────────────────────────────────
+function parseCSV(text){
+  const rows = [];
+  let cur = '', row = [], inq = false;
+  for (let i = 0; i < text.length; i++){
+    const ch = text[i];
+    if (inq){
+      if (ch === '"' && text[i+1] === '"'){ cur += '"'; i++; }
+      else if (ch === '"'){ inq = false; }
+      else { cur += ch; }
+    } else {
+      if (ch === '"'){ inq = true; }
+      else if (ch === ','){ row.push(cur); cur = ''; }
+      else if (ch === '\n' || ch === '\r'){
+        if (ch === '\r' && text[i+1] === '\n') i++;
+        row.push(cur); cur = '';
+        if (row.length > 1 || row[0] !== '') rows.push(row);
+        row = [];
+      } else { cur += ch; }
+    }
+  }
+  if (cur !== '' || row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+
+// 숫자 변환 (쉼표 천단위 / 공백 / % 제거)
+function toNum(s){
+  if (s == null) return 0;
+  const t = String(s).replace(/[,%\s]/g, '');
+  const n = parseFloat(t);
+  return isNaN(n) ? 0 : n;
+}
+
+// ─────────────────────────────────────────
+// Google Sheets CSV → 대시보드 데이터 집계
 // ─────────────────────────────────────────
 async function loadAndAggregate(){
-  const r = await fetch(DATA_URL);
-  const raw = await r.json();
-  const F = raw.ops_fields;
-  const ops = raw.ops.map(row => { const o={}; F.forEach((f,i)=>o[f]=row[i]); return o; });
-  const cat = raw.cat.map(r => ({store:r[0], date:r[1], cat:r[2], revenue:r[3], orders:r[4]}));
-  const stores = raw.stores.slice();
-  const dates  = raw.dates.slice();
-  const cats   = raw.cats.slice();
+  const resp = await fetch(DATA_URL);
+  if (!resp.ok) throw new Error(`Google Sheets fetch 실패 (HTTP ${resp.status})`);
+  const text = await resp.text();
+  const rows = parseCSV(text);
+  if (rows.length < 2) throw new Error('CSV에 데이터가 없습니다.');
+  const header = rows[0];
+  const body = rows.slice(1);
+
+  // 한국어 헤더 → 내부 키 매핑 (위치 인덱스)
+  const colMap = {
+    'store':'매장명', 'date':'날짜(YYYY-MM)', 'cat':'매출카테고리',
+    'revenue':' 매출액(만원) ', 'workdays':'영업일수', 'orders':'총주문건수',
+    'aov':'객단가(만원)', 'hall':'홀_주문비중', 'delivery':'배달_주문비중', 'takeout':'포장_주문비중',
+    'baemin':'배민_주문수', 'coupang':'쿠팡이츠_주문수', 'yogiyo':'요기요_주문수',
+    'lunch':'점심피크_매출비중', 'dinner':'저녁피크_매출비중', 'night':'야간_매출비중',
+    'cogs':'식자재비(만원)', 'labor':'인건비(만원)', 'rent':'임차료(만원)',
+    'fee':'플랫폼수수료(만원)', 'royalty':'로열티(만원)', 'ad':'광고분담금(만원)',
+    'profit':'영업이익(만원)', 'margin':'영업이익률(%)',
+    'new_cust':'신규고객수', 'revisit':'재방문율',
+    'rating':'리뷰평점', 'waste':'식자재폐기율', 'qsc':'QSC점수', 'claim':'클레임건수',
+  };
+  // 헤더 트림 후 매칭 (헤더 셀이 ' 매출액(만원) ' 처럼 공백 포함될 수 있음)
+  const trimmed = header.map(h => h.trim());
+  const find = (label) => {
+    const want = label.trim();
+    const idx = trimmed.indexOf(want);
+    if (idx >= 0) return idx;
+    // 공백/특수문자 무시 fallback
+    const norm = s => s.replace(/\s+/g,'');
+    return trimmed.findIndex(h => norm(h) === norm(want));
+  };
+  const idx = {};
+  for (const [k, label] of Object.entries(colMap)){
+    const i = find(label);
+    if (i < 0) throw new Error(`CSV 컬럼을 찾을 수 없습니다: ${label}`);
+    idx[k] = i;
+  }
+
+  // cat 레코드: (store, date, cat, revenue, orders) — 모든 행 사용
+  const cat = body.map(r => ({
+    store: r[idx.store],
+    date:  r[idx.date],
+    cat:   r[idx.cat],
+    revenue: toNum(r[idx.revenue]),
+    orders:  toNum(r[idx.orders]),
+  }));
+
+  // ops 레코드: (store, date) 단위 1회 집계
+  //  - orders / 운영 지표는 카테고리마다 동일하게 중복 저장되어 있으므로 첫 행 값을 사용
+  //  - revenue 는 카테고리 합으로 계산
+  const opsMap = new Map();
+  for (const r of body){
+    const key = r[idx.store] + '|' + r[idx.date];
+    if (opsMap.has(key)){
+      opsMap.get(key).revenue += toNum(r[idx.revenue]);
+      continue;
+    }
+    opsMap.set(key, {
+      store: r[idx.store],
+      date:  r[idx.date],
+      orders:   toNum(r[idx.orders]),
+      aov:      toNum(r[idx.aov]),
+      hall:     toNum(r[idx.hall]),
+      delivery: toNum(r[idx.delivery]),
+      takeout:  toNum(r[idx.takeout]),
+      baemin:   toNum(r[idx.baemin]),
+      coupang:  toNum(r[idx.coupang]),
+      yogiyo:   toNum(r[idx.yogiyo]),
+      lunch:    toNum(r[idx.lunch]),
+      dinner:   toNum(r[idx.dinner]),
+      night:    toNum(r[idx.night]),
+      cogs:     toNum(r[idx.cogs]),
+      labor:    toNum(r[idx.labor]),
+      rent:     toNum(r[idx.rent]),
+      fee:      toNum(r[idx.fee]),
+      royalty:  toNum(r[idx.royalty]),
+      ad:       toNum(r[idx.ad]),
+      profit:   toNum(r[idx.profit]),
+      margin:   toNum(r[idx.margin]),
+      new_cust: toNum(r[idx.new_cust]),
+      revisit:  toNum(r[idx.revisit]),
+      rating:   toNum(r[idx.rating]),
+      waste:    toNum(r[idx.waste]),
+      qsc:      toNum(r[idx.qsc]),
+      claim:    toNum(r[idx.claim]),
+      revenue:  toNum(r[idx.revenue]),
+    });
+  }
+  const ops = [...opsMap.values()];
+
+  const stores = [...new Set(ops.map(o => o.store))].sort();
+  const dates  = [...new Set(ops.map(o => o.date))].sort();
+  const cats   = [...new Set(cat.map(r => r.cat))].sort();
 
   const yearOf = d => d.split('-')[0];
   const years = [...new Set(dates.map(yearOf))].sort();
