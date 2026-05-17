@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/code-plugin.html">
+    <meta property="og:title" content="스킬·MCP를 플러그인으로 묶기 | AI ROASTING">
+    <meta property="og:description" content="흩어진 스킬과 자주 쓰는 MCP를 하나의 패키지로 묶어 팀에 배포합니다. 한 줄 설치 명령으로 모두가 같은 자동화를 씁니다.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/code-plugin.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="스킬·MCP를 플러그인으로 묶기 | AI ROASTING">
+    <meta name="twitter:description" content="흩어진 스킬과 자주 쓰는 MCP를 하나의 패키지로 묶어 팀에 배포합니다. 한 줄 설치 명령으로 모두가 같은 자동화를 씁니다.">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>스킬·MCP를 플러그인으로 묶기 | AI ROASTING</title>
+    <meta name="description" content="흩어진 스킬과 자주 쓰는 MCP를 하나의 패키지로 묶어 팀 전체가 같은 자동화를 쓰게 만드는 실전 가이드.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+            --skill-blue: #3B82F6;
+            --skill-green: #10B981;
+            --skill-amber: #F59E0B;
+            --skill-purple: #8B5CF6;
+            --skill-pink: #EC4899;
+            --skill-cyan: #06B6D4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { word-break: keep-all; font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Mode Tabs ── */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* ── Header Page Links ── */
+        .header-pages {
+            max-width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .header-page-link {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 9px 10px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1;
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px max(0px, calc(50% - 480px));
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 140px; }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; padding-left: 20px; }
+
+        /* ── 섹션 구분 ── */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 28px 0; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        #why + .step-divider { margin-top: 0; }
+        .step-badge {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 1.2px; text-transform: uppercase;
+            color: var(--ant-orange); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px; border-radius: 20px; white-space: nowrap;
+        }
+
+        /* ── 모듈 박스 (M1/M2/M3 외곽) ── */
+        .module-box {
+            background: var(--nm-bg);
+            border-radius: 28px;
+            box-shadow: var(--nm-shadow);
+            padding: 36px 32px;
+            margin-bottom: 40px;
+        }
+        .module-header { text-align: center; margin-bottom: 24px; padding-bottom: 22px; border-bottom: 1.5px dashed rgba(0,0,0,0.08); }
+        .module-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 46px; height: 46px;
+            background: var(--ant-orange); color: #fff;
+            border-radius: 50%;
+            font-weight: 800; font-size: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 6px 14px rgba(217,119,87,0.3);
+        }
+        .module-title { font-size: 22px; font-weight: 800; color: #3A3530; margin-bottom: 6px; letter-spacing: -0.3px; }
+        .module-subtitle { font-size: 13px; color: #888; }
+
+        /* 설명/실습/점검 라벨 띠 */
+        .module-band { display: flex; align-items: center; gap: 12px; margin: 26px 0 14px; }
+        .module-band:first-of-type { margin-top: 4px; }
+        .module-band-tag {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            color: #fff;
+            background: var(--ant-orange);
+            padding: 5px 14px; border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(217,119,87,0.25);
+        }
+        .module-band-tag.practice { background: var(--skill-blue); box-shadow: 0 3px 8px rgba(59,130,246,0.25); }
+        .module-band-tag.check { background: var(--skill-green); box-shadow: 0 3px 8px rgba(16,185,129,0.25); }
+        .module-band-label { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .module-band-line { flex: 1; height: 1px; background: #E0DCD4; }
+
+        /* 모듈 안의 nm-card는 inset 톤으로 변환 (그림자 중첩 방지) */
+        .module-box .nm-card {
+            box-shadow: var(--nm-inset);
+            border-radius: 16px;
+            padding: 24px 26px;
+            margin-bottom: 14px;
+        }
+        .module-box .nm-card:last-child { margin-bottom: 0; }
+
+        /* 폴더 트리 시각화 */
+        .folder-tree {
+            background: #2A2825; color: #E8E4DE;
+            font-family: 'Menlo', 'Monaco', monospace;
+            font-size: 13px; line-height: 1.85;
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin: 14px 0;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        .folder-tree .ft-required { color: #FF9D7A; font-weight: 700; }
+        .folder-tree .ft-optional { color: #8FB996; }
+        .folder-tree .ft-comment { color: #888; }
+
+        /* 점진적 공개 3단계 */
+        .disclosure-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0; }
+        .disclosure-card { background: var(--nm-bg); box-shadow: var(--nm-inset); border-radius: 14px; padding: 18px 16px; text-align: center; }
+        .disclosure-card .dc-level {
+            display: inline-block; font-size: 11px; font-weight: 800;
+            color: var(--ant-orange); background: rgba(217,119,87,0.1);
+            padding: 3px 10px; border-radius: 10px; margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .disclosure-card h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .disclosure-card p { font-size: 12.5px; color: #5C5650; line-height: 1.6; }
+
+        /* MCP vs Skills 비교표 */
+        .vs-table {
+            display: grid; grid-template-columns: 1fr 1fr;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            border-radius: 14px; overflow: hidden;
+            margin: 14px 0;
+        }
+        .vs-table .vs-head { padding: 14px 18px; font-size: 13px; font-weight: 800; color: #fff; text-align: center; }
+        .vs-table .vs-head.mcp { background: linear-gradient(135deg, #5570B0, #3F4F87); }
+        .vs-table .vs-head.skill { background: linear-gradient(135deg, #D97757, #B35535); }
+        .vs-table .vs-row { padding: 12px 18px; font-size: 13.5px; color: #5C5650; line-height: 1.6; border-top: 1px solid rgba(0,0,0,0.06); }
+
+        /* description 좋은/나쁜 비교 */
+        .desc-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+        .desc-card {
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            border-radius: 14px; padding: 18px 20px;
+        }
+        .desc-card .dc-tag {
+            display: inline-block; font-size: 11px; font-weight: 800;
+            padding: 3px 10px; border-radius: 10px;
+            letter-spacing: 1px; margin-bottom: 10px;
+        }
+        .desc-card.bad .dc-tag { color: #C04848; background: rgba(192,72,72,0.1); }
+        .desc-card.good .dc-tag { color: #2D8055; background: rgba(45,128,85,0.1); }
+        .desc-card pre {
+            font-family: 'Menlo', monospace; font-size: 12.5px; line-height: 1.7;
+            color: #3A3530; white-space: pre-wrap; word-break: break-word;
+            margin: 0;
+        }
+
+        /* description 공식 */
+        .desc-formula {
+            display: flex; align-items: center; justify-content: center;
+            flex-wrap: wrap; gap: 10px;
+            background: linear-gradient(135deg, rgba(217,119,87,0.08), rgba(217,119,87,0.03));
+            border: 1.5px solid rgba(217,119,87,0.25);
+            border-radius: 14px;
+            padding: 18px;
+            margin: 14px 0;
+        }
+        .desc-formula .df-block {
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 10px; padding: 8px 16px;
+            font-size: 13px; font-weight: 700; color: #3A3530;
+        }
+        .desc-formula .df-plus { color: var(--ant-orange); font-weight: 800; font-size: 18px; }
+
+        /* 미니 점검 체크박스 */
+        .mini-check { background: var(--nm-bg); box-shadow: var(--nm-inset); border-radius: 14px; padding: 18px 22px; }
+        .mini-check h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 12px; }
+        .mini-check-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 8px 0; cursor: pointer;
+            font-size: 13.5px; color: #5C5650; line-height: 1.5;
+        }
+        .mini-check-item input { margin-top: 3px; cursor: pointer; accent-color: var(--ant-orange); flex-shrink: 0; }
+
+        /* 트리거 시그널 그리드 */
+        .signal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+        .signal-card { background: var(--nm-bg); box-shadow: var(--nm-inset); border-radius: 14px; padding: 18px 20px; }
+        .signal-card.under { border-left: 4px solid #C04848; }
+        .signal-card.over { border-left: 4px solid #B58A2E; }
+        .signal-card h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .signal-card ul { padding-left: 18px; margin: 0; }
+        .signal-card li { font-size: 13px; color: #5C5650; line-height: 1.7; margin-bottom: 4px; }
+        .signal-card .sc-fix { margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(0,0,0,0.1); font-size: 13px; color: #3A3530; }
+        .signal-card .sc-fix strong { color: var(--ant-orange); }
+
+        /* Critical Rules 카드 */
+        .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+        .rule-row { display: flex; align-items: center; gap: 10px; background: var(--nm-bg); box-shadow: var(--nm-inset); border-radius: 12px; padding: 12px 16px; font-size: 13px; color: #3A3530; }
+        .rule-row.ok::before { content: '✅'; flex-shrink: 0; }
+        .rule-row.no::before { content: '❌'; flex-shrink: 0; }
+        .rule-row code { font-family: 'Menlo', monospace; font-size: 12px; background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; }
+
+        /* Quick Checklist (4구간) */
+        .quick-checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+        .quick-checklist-group { background: var(--nm-bg); box-shadow: var(--nm-inset); border-radius: 14px; padding: 18px 20px; }
+        .quick-checklist-group h4 { font-size: 13px; font-weight: 800; color: var(--ant-orange); margin-bottom: 10px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .qc-item { display: flex; align-items: flex-start; gap: 9px; padding: 5px 0; font-size: 13px; color: #5C5650; line-height: 1.5; cursor: pointer; }
+        .qc-item input { margin-top: 3px; cursor: pointer; accent-color: var(--ant-orange); flex-shrink: 0; }
+
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--ant-orange); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { font-size: 11px; font-weight: 700; color: var(--ant-orange); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 강조 박스 ── */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(217,119,87,0.08) 0%, rgba(217,119,87,0.03) 100%);
+            border: 1.5px solid rgba(217,119,87,0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin: 20px 0;
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* ── 비교 그리드 ── */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .change-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        .tip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .compare-nm { background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm); padding: 20px; }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* ── 푸터 ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* ── 뉴모 테이블 ── */
+        .nm-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .nm-table-wrap table { width: 100%; border-collapse: collapse; }
+        .nm-table-wrap thead { background: var(--ant-dark); }
+        .nm-table-wrap th {
+            text-align: left; padding: 12px 16px;
+            font-size: 14px; font-weight: 600; color: #fff;
+        }
+        .nm-table-wrap td {
+            padding: 12px 16px; font-size: 14px; color: #5C5650;
+            border-bottom: 1px solid #E8E4DE;
+        }
+        .nm-table-wrap tbody tr:last-child td { border-bottom: none; }
+        .nm-table-wrap tbody tr:hover { background: rgba(217,119,87,0.04); }
+
+        /* ══════════════════════════════════════════
+           스킬 입문 전용 스타일
+           ══════════════════════════════════════════ */
+
+        /* ── HERO 타자기 ── */
+        .hero-question {
+            font-size: 28px;
+            font-weight: 800;
+            color: #3A3530;
+            text-align: center;
+            min-height: 44px;
+            margin-bottom: 8px;
+        }
+        .hero-question .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 32px;
+            background: var(--ant-orange);
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink 0.7s step-end infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        .hero-sub { font-size: 15px; color: #888; text-align: center; margin-top: 12px; }
+        .hero-badge {
+            display: inline-block;
+            font-size: 12px; font-weight: 700;
+            color: var(--ant-orange);
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 18px;
+            border-radius: 20px;
+            margin-top: 16px;
+            letter-spacing: 1px;
+        }
+        .hero-cta-arrow {
+            display: flex; justify-content: center; margin-top: 24px;
+            animation: bounce-down 1.5s ease-in-out infinite;
+        }
+        @keyframes bounce-down {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+        /* ── 스크롤 애니메이션 ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.15s; }
+        .reveal-delay-2 { transition-delay: 0.3s; }
+        .reveal-delay-3 { transition-delay: 0.45s; }
+
+        /* ── 비유 카드 (Before/After) ── */
+        .ba-grid { display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0; align-items: center; margin: 18px 0; }
+        .ba-card {
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm); padding: 22px 20px;
+        }
+        .ba-card.before { border-top: 3px solid #EF5350; }
+        .ba-card.after { border-top: 3px solid #4CAF50; }
+        .ba-card .ba-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+        .ba-card.before .ba-label { color: #C62828; }
+        .ba-card.after .ba-label { color: #2E7D32; }
+        .ba-card .ba-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-size: 14px; color: #5C5650; line-height: 1.65; }
+        .ba-card .ba-item:last-child { margin-bottom: 0; }
+        .ba-arrow { font-size: 24px; color: var(--ant-orange); font-weight: 800; text-align: center; }
+
+        /* ── 실전 팁 카드의 요소 라벨 ── */
+        .tip-principle {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 999px;
+            letter-spacing: 0.02em;
+        }
+        .pp-trigger  { color: var(--skill-blue);   background: rgba(59, 130, 246, 0.10); }
+        .pp-role     { color: var(--skill-green);  background: rgba(16, 185, 129, 0.10); }
+        .pp-process  { color: var(--skill-amber);  background: rgba(245, 158, 11, 0.12); }
+        .pp-format   { color: var(--skill-purple); background: rgba(139, 92, 246, 0.10); }
+        .pp-boundary { color: var(--ant-orange);   background: rgba(217, 119, 87, 0.12); }
+        .pp-ops      { color: #6A6A7A;             background: rgba(106, 106, 122, 0.10); }
+        .tip-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0 6px;
+        }
+        .tip-icon { font-size: 20px; line-height: 1; }
+        .tip-title { font-size: 14px; font-weight: 700; color: #3A3530; }
+
+        /* ── 5가지 구성 요소 태그 ── */
+        .cc-tag {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 12px;
+            background: rgba(217, 119, 87, 0.12);
+            color: var(--ant-orange);
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+
+        /* ── 실습 스텝 카드 ── */
+        .practice-steps { display: flex; flex-direction: column; gap: 18px; margin: 18px 0; }
+        .practice-step-card {
+            display: flex; gap: 20px; align-items: flex-start;
+            background: var(--nm-bg); border-radius: 18px;
+            box-shadow: var(--nm-shadow-sm); padding: 24px;
+            transition: all 0.3s;
+        }
+        .practice-step-card:hover { box-shadow: var(--nm-shadow); transform: translateX(4px); }
+        .ps-num {
+            width: 24px; height: 24px; border-radius: 7px;
+            background: var(--ant-orange);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 900; color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(217,119,87,0.3);
+        }
+        .ps-num.c-trigger  { background: var(--skill-blue);   box-shadow: 0 2px 5px rgba(59,130,246,0.30); }
+        .ps-num.c-role     { background: var(--skill-green);  box-shadow: 0 2px 5px rgba(16,185,129,0.30); }
+        .ps-num.c-process  { background: var(--skill-amber);  box-shadow: 0 2px 5px rgba(245,158,11,0.30); }
+        .ps-num.c-format   { background: var(--skill-purple); box-shadow: 0 2px 5px rgba(139,92,246,0.30); }
+        .ps-num.c-boundary { background: var(--ant-orange);   box-shadow: 0 2px 5px rgba(217,119,87,0.30); }
+        .ps-num.c-principle { background: #5A4A3D; box-shadow: 0 2px 5px rgba(90,74,61,0.35); font-size: 10px; }
+
+        /* 4원칙 그리드 */
+        .principles-2col {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 18px 0;
+        }
+        @media (max-width: 768px) {
+            .principles-2col { grid-template-columns: 1fr; gap: 14px; }
+        }
+
+        /* 매핑 칩 */
+        .map-chip {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 22px; height: 22px; border-radius: 6px;
+            color: #fff; font-size: 11px; font-weight: 900;
+            padding: 0 6px;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+        .map-chip.c-trigger   { background: var(--skill-blue); }
+        .map-chip.c-role      { background: var(--skill-green); }
+        .map-chip.c-process   { background: var(--skill-amber); }
+        .map-chip.c-format    { background: var(--skill-purple); }
+        .map-chip.c-boundary  { background: var(--ant-orange); }
+        .map-chip.c-principle { background: #5A4A3D; font-size: 10px; }
+        .ps-body { word-break: keep-all; flex: 1; }
+        .ps-body h4 { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .ps-body p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .ps-code {
+            background: var(--ant-dark); color: #e0e0e0;
+            border-radius: 12px; padding: 16px 18px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px; line-height: 1.8;
+            margin-top: 12px; white-space: pre-wrap;
+            position: relative;
+        }
+        .ps-code .highlight { color: var(--ant-orange); font-weight: 600; }
+        .copy-btn-nm {
+            position: absolute; top: 10px; right: 10px;
+            font-size: 11px; font-weight: 700;
+            color: #fff; background: var(--ant-orange);
+            border: none; padding: 5px 14px; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .copy-btn-nm:hover { background: #c56a4d; transform: scale(1.03); }
+
+        /* ── 파일 첨부 플로우 ── */
+        .flow-steps { display: flex; align-items: center; justify-content: center; gap: 0; margin: 24px 0; flex-wrap: wrap; }
+        .flow-node {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm); padding: 18px 20px;
+            text-align: center; min-width: 160px;
+            transition: all 0.3s;
+        }
+        .flow-node:hover { transform: translateY(-3px); box-shadow: var(--nm-shadow); }
+        .flow-node .fn-step { font-size: 11px; font-weight: 800; color: var(--ant-orange); letter-spacing: 1.5px; margin-bottom: 4px; }
+        .flow-node .fn-title { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 2px; }
+        .flow-node .fn-desc { font-size: 12px; color: #888; }
+        .flow-arrow { font-size: 22px; color: var(--ant-orange); font-weight: 800; padding: 0 10px; }
+
+        /* ── 업로드 타임라인 ── */
+        .upload-timeline { display: flex; flex-direction: column; gap: 0; margin: 18px 0; position: relative; }
+        .ut-step {
+            padding: 16px 0; position: relative;
+        }
+        .ut-row {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 6px;
+        }
+        .ut-dot {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 800; color: var(--ant-orange);
+            flex-shrink: 0;
+        }
+        .ut-row h4 { font-size: 15px; font-weight: 700; color: #3A3530; line-height: 24px; margin: 0; }
+
+        /* ── 같은 박스 안 서브 헤딩 ── */
+        .sub-h {
+            font-size: 16px;
+            font-weight: 800;
+            color: #3A3530;
+            margin: 32px 0 4px;
+            padding-left: 14px;
+            border-left: 3px solid var(--ant-orange);
+            line-height: 1.4;
+        }
+        .sub-h-desc {
+            font-size: 14px;
+            color: #8A8479;
+            margin-bottom: 14px;
+            padding-left: 17px;
+        }
+        .ut-step p { font-size: 14px; color: #5C5650; line-height: 1.65; margin: 0; }
+
+        /* ── 활용 사례 카드 (가로) ── */
+        .usecase-nm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .usecase-nm {
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm); padding: 20px;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .usecase-nm:hover { transform: translateY(-3px); box-shadow: var(--nm-shadow); }
+        .usecase-nm .un-icon { font-size: 24px; margin-bottom: 8px; }
+        .usecase-nm h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .usecase-nm .un-desc { font-size: 13px; color: #888; line-height: 1.5; margin-bottom: 8px; }
+        .usecase-nm .un-result { font-size: 13px; font-weight: 600; color: var(--ant-orange); line-height: 1.5; }
+        .usecase-nm::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            border-radius: 16px 0 0 16px;
+        }
+        .usecase-nm:nth-child(1)::after { background: var(--skill-blue); }
+        .usecase-nm:nth-child(2)::after { background: var(--skill-green); }
+        .usecase-nm:nth-child(3)::after { background: var(--skill-amber); }
+        .usecase-nm:nth-child(4)::after { background: var(--skill-purple); }
+        .usecase-nm:nth-child(5)::after { background: var(--skill-pink); }
+        .usecase-nm:nth-child(6)::after { background: var(--skill-cyan); }
+
+        /* ── 체크리스트 ── */
+        .checklist-group { margin-bottom: 24px; }
+        .checklist-group-header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #E8E4DE;
+        }
+        .checklist-group-dot {
+            width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+        }
+        .checklist-group-title { font-size: 15px; font-weight: 700; color: #3A3530; }
+        .checklist-group-count {
+            margin-left: auto;
+            font-size: 13px; font-weight: 700;
+            padding: 2px 10px; border-radius: 10px;
+            background: rgba(0,0,0,0.05);
+        }
+        .checklist-item {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .checklist-item:hover { background: rgba(0,0,0,0.03); }
+        .checklist-item.checked { background: rgba(76,175,80,0.06); }
+        .checklist-item input[type="checkbox"] {
+            width: 18px; height: 18px; margin-top: 1px;
+            accent-color: var(--ant-orange);
+            cursor: pointer; flex-shrink: 0;
+        }
+        .checklist-item label {
+            font-size: 14px; color: #5C5650; line-height: 1.5;
+            cursor: pointer;
+        }
+        .checklist-item.checked label { color: #999; text-decoration: line-through; }
+
+        /* 진단 결과 */
+        .diag-result {
+            display: none;
+            margin-top: 24px;
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .diag-result.show { display: block; }
+        .diag-result .dr-level { font-size: 32px; margin-bottom: 4px; }
+        .diag-result .dr-title { font-size: 18px; font-weight: 800; color: #3A3530; margin-bottom: 4px; }
+        .diag-result .dr-state { font-size: 14px; color: #888; margin-bottom: 12px; }
+        .diag-result .dr-action {
+            font-size: 14px; font-weight: 600; color: #fff;
+            padding: 10px 20px; border-radius: 12px;
+            display: inline-block; margin-top: 8px;
+            text-decoration: none;
+        }
+
+        /* ── 트러블슈팅 아코디언 ── */
+        .trouble-accordion { margin: 18px 0; }
+        .trouble-item-nm {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            margin-bottom: 12px; overflow: hidden;
+            transition: all 0.3s;
+        }
+        .trouble-item-nm:hover { box-shadow: var(--nm-shadow); }
+        .trouble-q {
+            display: flex; align-items: center; gap: 12px;
+            padding: 16px 20px; cursor: pointer;
+            font-size: 14px; font-weight: 700; color: #3A3530;
+        }
+        .trouble-q .tq-icon { font-size: 18px; flex-shrink: 0; }
+        .trouble-q .tq-arrow { margin-left: auto; font-size: 14px; color: #999; transition: transform 0.3s; flex-shrink: 0; }
+        .trouble-item-nm.open .trouble-q .tq-arrow { transform: rotate(180deg); }
+        .trouble-a {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding: 0 20px;
+        }
+        .trouble-item-nm.open .trouble-a { max-height: 300px; padding: 0 20px 16px; }
+        .trouble-a p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .trouble-a strong { color: var(--ant-orange); }
+
+        /* ── 페이지 네비 ── */
+        .page-nav {
+            max-width: 960px; margin: 0 auto; padding: 0 32px 36px;
+            display: flex; justify-content: space-between; align-items: center; gap: 16px;
+        }
+        .page-nav-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            text-decoration: none; color: var(--ant-orange);
+            font-size: 14px; font-weight: 600;
+            padding: 10px 16px;
+            background: var(--nm-bg); border-radius: 12px;
+            box-shadow: var(--nm-shadow-sm);
+            transition: all 0.2s;
+        }
+        .page-nav-link:hover { box-shadow: var(--nm-inset); }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 8px 16px 64px; }
+            .hero-question { font-size: 22px; min-height: 34px; }
+            .ba-grid { grid-template-columns: 1fr; gap: 12px; }
+            .ba-arrow { transform: rotate(90deg); }
+            .flow-steps { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); padding: 6px 0; }
+            .flow-node { min-width: auto; width: 100%; }
+            .usecase-nm-grid { grid-template-columns: 1fr; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .change-grid { grid-template-columns: 1fr; }
+            .tip-grid { grid-template-columns: 1fr; }
+            .ba-grid { grid-template-columns: 1fr; }
+            .practice-steps { gap: 14px; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 4px; max-width: none; flex: 1; min-width: 0; }
+            .sm-sub { display: none; }
+            .sm-title { font-size: 10.5px; line-height: 1.25; word-break: keep-all; }
+            .header-pages { flex-wrap: wrap; gap: 8px; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            /* Step navigator */
+            .step-nav { max-width: 100%; gap: 0; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+            .step-nav { max-width: 100%; margin: 16px 0 14px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 6px; max-width: 14px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+        }
+
+        /* ── 카운트업 ── */
+        @keyframes count-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        .count-up { animation: count-pulse 0.5s ease-in-out; }
+
+        /* ── 시쓰기 실습 (멀티 페르소나 브릿지) ── */
+        .persona-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 4px 0 20px;
+        }
+        .persona-chip {
+            font-size: 13px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            white-space: nowrap;
+        }
+        .pc-black  { color: #2A2A2A; }
+        .pc-red    { color: #C93030; }
+        .pc-gold   { color: #8F6809; }
+        .pc-purple { color: #7B3FA0; }
+        .pc-white  { color: #6A6A7A; }
+
+        .poem-quote { margin: 0 0 18px; }
+        .poem-title {
+            font-weight: 800;
+            color: var(--ant-orange);
+            margin-bottom: 10px;
+            font-size: 14px;
+            letter-spacing: 0.02em;
+        }
+        .poem-quote p {
+            font-style: italic;
+            line-height: 2;
+            color: #5C5650;
+            font-size: 14.5px;
+            margin: 0;
+        }
+
+        .ps-num-x {
+            background: #B8B2A8 !important;
+            color: #fff;
+        }
+
+        .poem-skill-block { margin: 18px 0 0; }
+        .poem-skill-block .ps-code {
+            margin-top: 0;
+            padding: 18px 20px 18px 20px;
+            font-size: 12.5px;
+        }
+        .install-guide {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin-bottom: 14px;
+        }
+        .install-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--ant-orange);
+            letter-spacing: 0.03em;
+            margin-bottom: 12px;
+        }
+        .install-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            counter-reset: install;
+        }
+        .install-steps li {
+            counter-increment: install;
+            position: relative;
+            padding-left: 32px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .install-steps li:last-child { margin-bottom: 0; }
+        .install-steps li::before {
+            content: counter(install, lower-alpha);
+            position: absolute;
+            left: 0;
+            top: 2px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #8A8378;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .install-steps strong { color: #3A3530; font-weight: 700; }
+        .principle-label {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #F0D8C8;
+            background: rgba(217, 119, 87, 0.18);
+            border: 1px solid rgba(217, 119, 87, 0.35);
+            border-radius: 999px;
+            padding: 1px 9px;
+            margin-left: 6px;
+            letter-spacing: 0.02em;
+            vertical-align: 2px;
+        }
+
+        .mock-result {
+            margin-top: 18px;
+            padding: 22px 24px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 16px;
+        }
+        .mock-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--ant-orange);
+            letter-spacing: 0.03em;
+            margin-bottom: 14px;
+        }
+        .mock-body { display: flex; flex-direction: column; gap: 10px; }
+        .mock-line {
+            font-size: 14px;
+            line-height: 1.75;
+            color: #5C5650;
+        }
+        .mock-name {
+            display: inline-block;
+            font-weight: 800;
+            font-size: 13px;
+            margin-right: 8px;
+            min-width: 60px;
+        }
+        .mock-divider {
+            height: 1px;
+            background: rgba(0,0,0,0.08);
+            margin: 6px 0 4px;
+        }
+        .mock-quote {
+            margin: 0 0 12px;
+            padding: 10px 14px;
+            border-left: 3px solid var(--ant-orange);
+            background: rgba(217, 119, 87, 0.06);
+            border-radius: 8px;
+            font-style: italic;
+            font-size: 13.5px;
+            color: #5C5650;
+            line-height: 1.7;
+        }
+        .mock-line.consensus {
+            font-weight: 600;
+            color: #3A3530;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .mock-consensus-body { display: inline-block; }
+
+        .library-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            padding: 11px 20px;
+            background: var(--skill-purple);
+            color: #fff;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: var(--nm-shadow-sm);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .library-link:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--nm-shadow);
+        }
+        .library-link-arrow { transition: transform 0.18s ease; }
+        .library-link:hover .library-link-arrow { transform: translateX(3px); }
+        .library-link-compact {
+            margin-top: 0;
+            padding: 8px 14px;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .install-steps .kbd {
+            display: inline-block;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            background: rgba(217, 119, 87, 0.10);
+            border-radius: 6px;
+            padding: 2px 8px;
+            margin: 0 2px;
+        }
+
+        .poem-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 18px;
+            padding: 11px 20px;
+            background: var(--ant-orange);
+            color: #fff;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            box-shadow: var(--nm-shadow-sm);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .poem-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--nm-shadow);
+        }
+        .poem-cta-arrow {
+            transition: transform 0.18s ease;
+        }
+        .poem-cta:hover .poem-cta-arrow {
+            transform: translateX(3px);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="claude-orientation.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="ai-fluency.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-design.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="cowork-intro.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="claude-md-templates.html">5</a>
+    </nav>
+    <a href="index.html" class="back-link">&larr; 목록으로</a>
+    <h1>스킬·MCP를 플러그인으로 묶기</h1>
+    <p>흩어진 스킬과 자주 쓰는 MCP를 한 패키지로 묶어 팀에 배포합니다</p>
+    <div class="mode-tabs">
+        <span class="mode-tab active" id="tab-skill" onclick="switchMode('skill')">스킬</span>
+        <span class="mode-tab" id="tab-design" onclick="switchMode('design')">실전</span>
+    </div>
+    <div class="header-pages" id="pages-skill">
+        <a href="claude-md-templates.html" class="header-page-link"><span class="hpl-icon">📋</span> CLAUDE.md</a>
+        <a href="skills.html" class="header-page-link"><span class="hpl-icon">🎨</span> 나만의 Skill 만들기</a>
+        <a href="code-plugin.html" class="header-page-link active"><span class="hpl-icon">🧩</span> 스킬·MCP 플러그인</a>
+    </div>
+    <div class="header-pages" id="pages-design" style="display:none;">
+        <a href="harness-engineering.html" class="header-page-link"><span class="hpl-icon">🐴</span> 하네스 엔지니어링</a>
+        <a href="agent-design.html" class="header-page-link"><span class="hpl-icon">🎯</span> 팀 설계</a>
+    </div>
+    <div class="header-pages" id="pages-final" style="display:none;">
+        <a href="harness-book.html" class="header-page-link"><span class="hpl-icon">&#x1F4DA;</span> 책 쓰기</a>
+        <a href="automation-master.html" class="header-page-link"><span class="hpl-icon">🏆</span> 자동화 실전 적용</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#next" class="active" data-sec="next">
+        <span class="sm-num">1</span>
+        <span class="sm-title">스킬, 그 다음</span>
+        <span class="sm-sub">세 가지 벽</span>
+    </a>
+    <a href="#mcp" data-sec="mcp">
+        <span class="sm-num">2</span>
+        <span class="sm-title">MCP는 짝꿍</span>
+        <span class="sm-sub">스킬에 손발 달기</span>
+    </a>
+    <a href="#anatomy" data-sec="anatomy">
+        <span class="sm-num">3</span>
+        <span class="sm-title">플러그인 해부</span>
+        <span class="sm-sub">폴더와 plugin.json</span>
+    </a>
+    <a href="#build" data-sec="build">
+        <span class="sm-num">4</span>
+        <span class="sm-title">묶는 3단계</span>
+        <span class="sm-sub">실전 빌드</span>
+    </a>
+    <a href="#distribute" data-sec="distribute">
+        <span class="sm-num">5</span>
+        <span class="sm-title">팀에 뿌리기</span>
+        <span class="sm-sub">배포와 운영</span>
+    </a>
+    <a href="#checklist" data-sec="checklist">
+        <span class="sm-num">6</span>
+        <span class="sm-title">체크리스트</span>
+        <span class="sm-sub">출시 전 점검</span>
+    </a>
+</nav>
+
+<main class="container">
+
+
+
+    <!-- ═══════════════════════════════════════
+         이 페이지를 읽기 전에 (브릿지)
+         ═══════════════════════════════════════ -->
+    <div class="nm-card reveal" style="background: rgba(217,119,87,0.06); border-left: 4px solid var(--ant-orange); margin-top: 4px;">
+        <p style="font-size: 14px; color: #5C5650; margin: 0;"><strong>이 페이지는 <a href="skills.html" style="color: var(--ant-orange); font-weight: 700;">나만의 Skill 만들기</a>를 먼저 읽고 오는 페이지입니다.</strong> 스킬을 한 번이라도 직접 만들어본 분에게, 여러 스킬과 도구를 한 묶음으로 만들어 팀에 뿌리는 방법을 설명합니다.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         ① 스킬, 그 다음 (세 가지 벽)
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="next"></div>
+    <div class="step-divider"><span class="step-badge">스킬, 그 다음</span></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>스킬 하나를 만들고 나면 마주치는 세 가지 벽</h2>
+            <p class="card-subtitle">스킬 만드는 법은 익혔습니다. 그 다음에 막히는 자리들입니다</p>
+
+            <ul>
+                <li><strong>벽 ① 나만 씁니다.</strong> 내 claude.ai 계정에만 깔려 있어서, 팀원에게 알려주려면 SKILL.md 본문을 일일이 복사해 붙여넣게 해야 합니다.</li>
+                <li><strong>벽 ② 손발이 없습니다.</strong> 스킬은 "어떻게 일할지"를 알지만, DART에서 데이터를 가져오거나 구글 시트에 결과를 쓰는 일은 못 합니다.</li>
+                <li><strong>벽 ③ 흩어져 있습니다.</strong> 하나의 시나리오에 스킬 두세 개가 같이 쓰여도, 깔 때는 하나씩 따로 깝니다. 누가 어떤 버전을 갖고 있는지 알기 어렵습니다.</li>
+            </ul>
+
+            <div class="tip-box reveal" style="margin-top: 22px;">
+                <div class="tip-label">INSIGHT</div>
+                <p>세 벽의 답은 같습니다. <strong>스킬에 도구(MCP)를 붙이고, 관련된 것끼리 한 폴더로 묶고, 한 줄 명령으로 깔 수 있게 만든다.</strong> 그 묶음의 이름이 <strong>플러그인</strong>입니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         ② MCP, 스킬의 짝꿍
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="mcp"></div>
+    <div class="step-divider"><span class="step-badge">MCP는 짝꿍</span></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>MCP가 뭔가요?</h2>
+            <p class="card-subtitle">Claude에게 "이 도구를 쓸 수 있어"라고 알려주는 통로</p>
+
+            <p>스킬이 "이 일은 이렇게 해"라고 알려주는 매뉴얼이라면, MCP(Model Context Protocol)는 "이 도구를 쓸 수 있어"라고 연결해 주는 통로입니다. Claude가 DART에서 공시 데이터를 가져오거나, 구글 시트에 표를 쓰거나, 내 PC 폴더의 파일을 읽을 수 있게 만드는 길입니다.</p>
+
+            <div class="ba-grid" style="margin-top: 24px;">
+                <div class="ba-card before reveal reveal-delay-1">
+                    <div class="ba-label">스킬만 있을 때</div>
+                    <div class="ba-item"><span>📝</span> "이런 양식으로 정리해줘"는 안다</div>
+                    <div class="ba-item"><span>📝</span> 그런데 데이터를 어디서 가져오지?</div>
+                    <div class="ba-item"><span>📝</span> 결과를 어디에 저장하지?</div>
+                </div>
+                <div class="ba-arrow">→</div>
+                <div class="ba-card after reveal reveal-delay-2">
+                    <div class="ba-label">스킬 + MCP가 만났을 때</div>
+                    <div class="ba-item"><span>🚀</span> DART MCP가 데이터를 가져온다</div>
+                    <div class="ba-item"><span>🚀</span> 스킬이 우리 회사 양식대로 정리한다</div>
+                    <div class="ba-item"><span>🚀</span> 구글 시트 MCP가 자동으로 올린다</div>
+                </div>
+            </div>
+
+            <div class="sub-h">스킬과 MCP의 역할 분담</div>
+            <div class="change-grid">
+                <div class="inset-box reveal reveal-delay-1" style="text-align: center;">
+                    <div style="font-size: 28px; margin-bottom: 8px;">🧠</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 4px;">스킬 = 머리</div>
+                    <p style="font-size: 13px;">어떻게 일할지<br>(절차·형식·톤)</p>
+                </div>
+                <div class="inset-box reveal reveal-delay-2" style="text-align: center;">
+                    <div style="font-size: 28px; margin-bottom: 8px;">🤲</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 4px;">MCP = 손발</div>
+                    <p style="font-size: 13px;">무슨 도구를 쓸지<br>(API·파일·데이터)</p>
+                </div>
+                <div class="inset-box reveal reveal-delay-3" style="text-align: center;">
+                    <div style="font-size: 28px; margin-bottom: 8px;">🧩</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 4px;">플러그인 = 몸</div>
+                    <p style="font-size: 13px;">머리와 손발을<br>한 단위로 묶음</p>
+                </div>
+            </div>
+
+            <div class="tip-box reveal" style="margin-top: 22px;">
+                <div class="tip-label">자주 쓰는 MCP 예시</div>
+                <p><strong>데이터 분야</strong>는 DART, OpenDart, Kensho(S&amp;P), BigQuery, Snowflake가 자주 쓰입니다.<br>
+                <strong>업무 도구 분야</strong>는 Google Sheets, Notion, Slack, Gmail, Calendar가 대표적입니다.<br>
+                <strong>개발·파일 분야</strong>는 GitHub, Filesystem, Postgres, Playwright(브라우저 자동화)가 있습니다.<br>
+                <span style="color: var(--ant-orange); font-weight: 700;">이 중 내가 자주 쓰는 두세 개를 골라 관련 스킬과 묶으면 그게 첫 플러그인입니다.</span></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         ③ 플러그인 해부 (폴더 + plugin.json)
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="anatomy"></div>
+    <div class="step-divider"><span class="step-badge">플러그인 해부</span></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>플러그인 폴더 구조</h2>
+            <p class="card-subtitle">필수는 plugin.json 하나. 나머지는 묶고 싶은 만큼만 넣습니다</p>
+<div class="folder-tree">my-plugin/
+├── <span class="ft-required">.claude-plugin/</span>
+│   └── <span class="ft-required">plugin.json</span>           <span class="ft-comment"># 이름·버전·MCP 설정</span>
+├── <span class="ft-optional">skills/</span>                   <span class="ft-comment"># 묶고 싶은 스킬들 (skills.html에서 만든 것)</span>
+│   ├── report-format/
+│   │   └── SKILL.md
+│   └── data-clean/
+│       └── SKILL.md
+├── <span class="ft-optional">agents/</span>                   <span class="ft-comment"># 선택: 역할별 서브에이전트</span>
+├── <span class="ft-optional">commands/</span>                 <span class="ft-comment"># 선택: 슬래시 커맨드</span>
+└── <span class="ft-optional">README.md</span>                 <span class="ft-comment"># 받는 사람을 위한 설치·사용 안내</span></div>
+            <p style="margin-top: 14px;">핵심은 스킬과 MCP가 한 폴더 안에 같이 들어간다는 점입니다. 스킬은 <code class="kbd">skills/</code> 하위에 폴더째 넣고, MCP는 <code class="kbd">.claude-plugin/plugin.json</code> 안에서 선언합니다.</p>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>plugin.json, MCP를 같이 묶는 자리</h2>
+            <p class="card-subtitle">mcpServers 항목 하나가 플러그인의 핵심입니다</p>
+<div class="folder-tree">{
+  "name": "report-suite",
+  "version": "0.1.0",
+  "description": "분기 실적 보고서: DART 데이터 + 우리 회사 양식",
+  "author": "jade@linercorp.com",
+  <span class="ft-required">"mcpServers"</span>: {
+    "dart": {
+      "command": "npx",
+      "args": ["-y", "@opendart/mcp-server"],
+      "env": { "DART_API_KEY": "${DART_API_KEY}" }
+    },
+    "google-sheets": {
+      "command": "npx",
+      "args": ["-y", "@google/sheets-mcp"]
+    }
+  }
+}</div>
+            <p style="margin-top: 14px;">이 플러그인을 깔면 <strong>skills/ 안의 스킬 두 개와 DART MCP, 구글 시트 MCP가 한꺼번에 설정됩니다.</strong> API 키 같은 비밀은 반드시 <code class="kbd">${ENV_VAR}</code> 형태로 적어 설치하는 사람의 환경에서 읽도록 합니다. plugin.json에 직접 적으면 안 됩니다.</p>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         ④ 묶는 3단계
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="build"></div>
+    <div class="step-divider"><span class="step-badge">묶는 3단계</span></div>
+    <section>
+        <div class="module-box reveal">
+            <div class="module-header">
+                <div class="module-num">1</div>
+                <div class="module-title">한 시나리오로 좁힌다</div>
+                <div class="module-subtitle">"무엇을 자동화하는 묶음인가"를 한 문장으로 정의</div>
+            </div>
+            <div class="nm-card">
+                <p>이미 만든 스킬을 다 넣고 싶은 유혹부터 끊습니다. 묶음의 정체성이 흐려지면 받는 사람이 무엇에 쓰는지 알 수 없습니다.</p>
+                <ul>
+                    <li><strong>한 문장 정의 예시.</strong> "DART 데이터로 분기 실적 보고서를 만든다"</li>
+                    <li>이 문장에 직접 쓰는 스킬만 <code class="kbd">skills/</code>에 모읍니다.</li>
+                    <li>이 문장에 필요한 MCP만 <code class="kbd">mcpServers</code>에 적습니다.</li>
+                    <li>"있으면 좋을 것 같은" 자산은 다음 버전(0.2.0)으로 미룹니다.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="module-box reveal">
+            <div class="module-header">
+                <div class="module-num">2</div>
+                <div class="module-title">plugin.json을 짠다</div>
+                <div class="module-subtitle">name · version · mcpServers 세 줄이 핵심</div>
+            </div>
+            <div class="nm-card">
+                <p>위 예시를 그대로 복사해 세 칸만 바꿉니다.</p>
+                <ul>
+                    <li><strong>name.</strong> 영문 소문자와 하이픈으로 짓습니다. 설치할 때 식별자가 됩니다.</li>
+                    <li><strong>version.</strong> 처음에는 <code class="kbd">0.1.0</code>으로 시작합니다. 스킬 본문이 바뀌면 끝자리(0.1.1), MCP 구성이 바뀌면 가운데(0.2.0), 사용법이 바뀌면 앞자리(1.0.0)를 올립니다.</li>
+                    <li><strong>mcpServers.</strong> 묶을 MCP들의 실행 명령을 적습니다. 환경 변수는 <code class="kbd">${...}</code> 형태로 빼둡니다.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="module-box reveal">
+            <div class="module-header">
+                <div class="module-num">3</div>
+                <div class="module-title">깨끗한 환경에서 직접 깐다</div>
+                <div class="module-subtitle">"내 노트북에서만 동작하는 플러그인"을 거른다</div>
+            </div>
+            <div class="nm-card">
+                <p>가장 흔한 실수는 본인 환경에 이미 깔려 있는 무언가에 의존하는 플러그인을 만드는 일입니다. 새 디렉토리에서 직접 깔아보면 누락된 환경 변수, 잘못된 경로가 바로 드러납니다.</p>
+                <ul>
+                    <li>새 디렉토리로 이동해 <code class="kbd">/plugin install /path/to/my-plugin</code>을 실행합니다.</li>
+                    <li>Claude를 새로 띄워 묶음 안의 스킬이 자동으로 호출되는지 확인합니다.</li>
+                    <li>MCP가 붙었는지, 도구 목록에 노출되는지 확인합니다.</li>
+                    <li>안 되는 게 있으면 plugin.json을 고치고 버전을 <code class="kbd">0.1.1</code>로 올립니다.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         ⑤ 팀에 뿌리기 (배포와 운영)
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="distribute"></div>
+    <div class="step-divider"><span class="step-badge">팀에 뿌리기</span></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>배포 3가지 방법</h2>
+            <p class="card-subtitle">팀 규모와 공개 범위에 따라 고릅니다</p>
+            <ul>
+                <li><strong>① 로컬 폴더 공유.</strong> 사내 공유 드라이브에 폴더째 올려둡니다. 한두 명 작은 팀이거나 비공개 자산일 때 적합합니다.</li>
+                <li><strong>② GitHub 저장소.</strong> <code class="kbd">git clone</code> 후 <code class="kbd">/plugin install</code>을 칩니다. 팀 단위 배포의 표준이고, 버전 관리와 이슈 추적이 같이 따라옵니다.</li>
+                <li><strong>③ 플러그인 마켓플레이스.</strong> 외부 공개 자산입니다. 다른 사람도 검색해서 깔 수 있는 형태로 풀립니다.</li>
+            </ul>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>받는 사람을 위한 README 5줄</h2>
+            <p class="card-subtitle">5줄짜리 README가 30분의 설치 안내를 대체합니다</p>
+            <ul>
+                <li><strong>한 줄 정의.</strong> 이 플러그인이 무엇을 자동화하는지</li>
+                <li><strong>설치 명령.</strong> <code class="kbd">/plugin install ...</code> 한 줄</li>
+                <li><strong>필요한 환경 변수.</strong> API 키 등 사용자가 미리 준비할 것</li>
+                <li><strong>첫 사용 예시.</strong> 깐 직후 바로 칠 수 있는 한 마디</li>
+                <li><strong>업데이트 방법.</strong> 새 버전을 받는 한 줄</li>
+            </ul>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>묶음 예시 4가지</h2>
+            <p class="card-subtitle">스킬과 MCP가 한 묶음으로 만나는 실제 시나리오</p>
+
+            <div class="tip-grid">
+                <div class="inset-box reveal reveal-delay-1">
+                    <div class="tip-head"><span class="tip-icon">📊</span><span class="tip-title">분기 실적 리포트</span></div>
+                    <p style="font-size: 13px;"><strong>스킬</strong> · 보고서 양식 + 데이터 정리<br><strong>MCP</strong> · DART OpenAPI<br><strong>한 마디</strong> · "삼성전자 4분기 실적 정리해줘"</p>
+                </div>
+                <div class="inset-box reveal reveal-delay-2">
+                    <div class="tip-head"><span class="tip-icon">✍️</span><span class="tip-title">콘텐츠 발행</span></div>
+                    <p style="font-size: 13px;"><strong>스킬</strong> · 한국어 윤문 + SEO 메타<br><strong>MCP</strong> · Notion 또는 WordPress<br><strong>한 마디</strong> · "이 초고 다듬어서 올려줘"</p>
+                </div>
+                <div class="inset-box reveal reveal-delay-3">
+                    <div class="tip-head"><span class="tip-icon">🎨</span><span class="tip-title">5-Color Harness</span></div>
+                    <p style="font-size: 13px;"><strong>스킬</strong> · BLACK·RED·SILVER·BLUE·GOLD 5개<br><strong>MCP</strong> · Filesystem (산출물 저장)<br><strong>한 마디</strong> · "이 보고서 5-Color로 평가해줘"</p>
+                </div>
+                <div class="inset-box reveal reveal-delay-1">
+                    <div class="tip-head"><span class="tip-icon">🖼️</span><span class="tip-title">슬라이드 제작</span></div>
+                    <p style="font-size: 13px;"><strong>스킬</strong> · 슬라이드 라이브러리 + 카피 작성<br><strong>MCP</strong> · pptx-maker<br><strong>한 마디</strong> · "이 주제로 10장짜리 덱 만들어줘"</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════
+         ⑥ 출시 전 체크리스트 (인터랙티브)
+         ═══════════════════════════════════════ -->
+    <div class="content-section" id="checklist"></div>
+    <div class="step-divider"><span class="step-badge">체크리스트</span></div>
+    <section>
+        <div class="nm-card reveal">
+            <h2>플러그인 출시 전 7개 점검</h2>
+            <p class="card-subtitle">항목을 클릭해서 체크하세요. 7개에 모두 체크가 되면 팀에 뿌릴 준비가 끝난 겁니다</p>
+
+            <div class="checklist-group">
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <input type="checkbox" tabindex="-1">
+                    <label>한 문장으로 "무엇을 자동화하는 묶음인지" 말할 수 있다</label>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <input type="checkbox" tabindex="-1">
+                    <label><code class="kbd">.claude-plugin/plugin.json</code>이 있고 <code class="kbd">name</code>, <code class="kbd">version</code>, <code class="kbd">mcpServers</code>가 채워져 있다</label>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <input type="checkbox" tabindex="-1">
+                    <label>묶음 안의 스킬이 정의한 시나리오 안에서만 쓰인다 (안 쓰는 스킬은 빠졌다)</label>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <input type="checkbox" tabindex="-1">
+                    <label>API 키 같은 비밀은 plugin.json에 직접 적지 않고 환경 변수로 빼두었다</label>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <input type="checkbox" tabindex="-1">
+                    <label>새 디렉토리에서 직접 깔아 한 번 돌려봤다</label>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <input type="checkbox" tabindex="-1">
+                    <label>받는 사람이 칠 첫 한 마디가 README에 적혀 있다</label>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <input type="checkbox" tabindex="-1">
+                    <label>업데이트할 때 버전을 어떻게 올릴지 본인이 알고 있다</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section reveal">
+            <h3>플러그인 한 개를 출시했다면, 다음은 팀 설계입니다</h3>
+            <p>플러그인은 한 사람의 자동화를 묶는 단위였습니다. 다음은 여러 Claude를 역할별로 묶어 일하게 만드는 단계입니다.<br>솔로·파이프라인·팀·오케스트라 4가지 패턴으로 자동화 흐름을 설계해보세요.</p>
+            <div class="cta-buttons">
+                <a class="cta-btn primary" href="agent-design.html">🎯 팀 설계로 →</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <span class="footer-link-row">
+        <a href="index.html?about=1" class="footer-about-link">가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="index.html?license=1" class="footer-about-link">라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Mode Tabs ──
+function switchMode(mode) {
+    document.getElementById('tab-design').classList.toggle('active', mode === 'design');
+    document.getElementById('tab-skill').classList.toggle('active', mode === 'skill');
+    document.getElementById('pages-design').style.display = mode === 'design' ? 'flex' : 'none';
+    document.getElementById('pages-skill').style.display = mode === 'skill' ? 'flex' : 'none';
+    document.getElementById('pages-final').style.display = mode === 'final' ? 'flex' : 'none';
+}
+
+// ── 타자기 효과 ──
+(function(){
+    var q1 = '매번 같은 설명을 반복하고 있나요?';
+    var q2 = '스킬 하나면 그 반복이 끝납니다.';
+    var el1 = document.getElementById('heroQ1');
+    var el2 = document.getElementById('heroQ2');
+    if(!el1 || !el2) return;
+    var i = 0, j = 0;
+
+    function typeQ1(){
+        if(i <= q1.length){
+            el1.innerHTML = q1.substring(0, i) + '<span class="cursor"></span>';
+            i++;
+            setTimeout(typeQ1, 60);
+        } else {
+            el1.innerHTML = q1;
+            setTimeout(typeQ2, 400);
+        }
+    }
+    function typeQ2(){
+        if(j <= q2.length){
+            el2.innerHTML = q2.substring(0, j) + '<span class="cursor"></span>';
+            j++;
+            setTimeout(typeQ2, 50);
+        } else {
+            el2.innerHTML = q2;
+        }
+    }
+    setTimeout(typeQ1, 600);
+})();
+
+// ── 스크롤 Reveal 애니메이션 ──
+(function(){
+    var reveals = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+            if(e.isIntersecting){
+                e.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    reveals.forEach(function(el){ observer.observe(el); });
+})();
+
+// ── Sub Menu Scroll Spy ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l){ var s = document.getElementById(l.dataset.sec); if(s) sections.push({id:l.dataset.sec, el:s, link:l}); });
+
+    function update(){
+        var trigger = window.scrollY + window.innerHeight - 100;
+        var current = sections[0];
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= trigger) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                activeLink.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    update();
+})();
+
+// ── 복사 함수들 ──
+function copyPoemSkill(btn) {
+    var skill = `---
+name: poem-critique-team
+description: 사용자가 시·운문·자작시 초고를 보내거나 "퇴고", "다듬어줘", "비평해줘", "어때?" 같은 검토 요청을 시 텍스트와 함께 보낼 때 다섯 페르소나(블랙·래드·골드·퍼플·화이트)가 다각도로 비평하고 4가지 개선 방향을 합의문으로 정리합니다.
+---
+
+# 시 비평 5인 팀
+
+## 호출 조건
+
+다음 중 하나에 해당하면 즉시 이 절차를 시작한다.
+
+- 사용자가 행이 나뉜 짧은 텍스트(시·운문)를 붙여넣고 의견을 묻는다
+- "퇴고", "다듬어줘", "비평", "어떤지 봐줘" 같은 키워드가 시 텍스트와 함께 등장한다
+
+## 페르소나
+
+각 페르소나는 한 문단(2~3문장)으로 응답하며 [핵심 진단] + [구체적 제안]을 모두 담는다.
+
+- 블랙 (시인 · 총괄, 차분한 어조): 시 전체의 독자성과 화자의 목소리를 본다. 마지막에 합의문을 작성한다.
+- 래드 (평론가, 단호한 어조): 클리셰와 진부한 비유를 짚어 신선한 이미지로 교체할 것을 제안한다.
+- 골드 (일반 독자, 솔직한 어조): 한 번 읽고 마음에 남는 한 장면이 있는지 말한다.
+- 퍼플 (언어 미학, 섬세한 어조): 직접 진술된 감정을 사물·장면으로 객관물화하도록 제안한다.
+- 화이트 (운율 · 호흡, 음악적 어조): 행 길이와 호흡의 단조로움을 짚고 변주를 제안한다.
+
+## 진행 규칙
+
+1. 수신: 받은 시 초고를 인용 블록으로 다시 보여준다
+2. 비평: 래드 → 골드 → 퍼플 → 화이트 순으로 각자 한 문단
+3. 합의: 블랙이 4가지 개선 방향(①②③④)으로 합의문 정리
+4. 재비평: 수정본을 받으면 같은 절차를 반복하되, 합의 단계에서 이전 대비 개선된 점과 남은 과제를 명시한다
+
+## 출력 형식
+
+> (원문 인용)
+
+**래드 (평론가)**: …
+**골드 (독자)**: …
+**퍼플 (언어 미학)**: …
+**화이트 (운율)**: …
+
+**블랙의 합의 · 개선 방향**
+① … ② … ③ … ④ …
+
+## 하지 말 것
+
+- 사용자가 명시적으로 요청하지 않으면 수정본을 직접 써주지 않는다 (방향만 제시)
+- 페르소나끼리 반박하며 토론을 늘이지 않는다 (각자 한 문단)
+- 산문·일기·메모에는 이 스킬을 적용하지 않는다
+`;
+    navigator.clipboard.writeText(skill).then(function(){
+        btn.textContent = '완료!';
+        setTimeout(function(){ btn.textContent = '복사'; }, 2000);
+    });
+}
+
+function copyAutoPrompt() {
+    var prompt = '첨부한 파일은 우리 회사에서 실제로 사용하는 [보고서/제안서/이메일] 양식이야.\n\n이 양식의 구조, 형식, 톤앤매너를 분석해서\nClaude Skill용 SKILL.md 파일을 만들어줘.\n\n조건:\n- name과 description은 한국어로\n- description에는 이 스킬이 작동할 키워드를 3개 이상 포함\n- Instructions는 단계별로 구체적으로\n- Output Format은 첨부 파일의 구조를 그대로 반영\n- Examples는 실제 사용 상황 3가지 이상';
+    navigator.clipboard.writeText(prompt).then(function(){
+        var btns = document.querySelectorAll('.copy-btn-nm');
+        btns[1].textContent = '완료!';
+        setTimeout(function(){ btns[1].textContent = '복사'; }, 2000);
+    });
+}
+
+// ── 트러블슈팅 아코디언 ──
+function toggleTrouble(el) {
+    el.classList.toggle('open');
+}
+
+// ── 체크리스트 ──
+function toggleCheck(item) {
+    var cb = item.querySelector('input[type="checkbox"]');
+    cb.checked = !cb.checked;
+    item.classList.toggle('checked', cb.checked);
+    updateCounts();
+}
+
+function updateCounts() {
+    var principles = ['trigger', 'role', 'process', 'format', 'boundary'];
+    var fulfilled = 0;
+    principles.forEach(function(p) {
+        var group = document.querySelector('[data-principle="' + p + '"]');
+        if (!group) return;
+        var checks = group.querySelectorAll('input[type="checkbox"]:checked');
+        var total = group.querySelectorAll('input[type="checkbox"]');
+        var countEl = document.getElementById('count-' + p);
+        if (countEl) countEl.textContent = checks.length + ' / ' + total.length;
+        if (checks.length > 0) fulfilled += 1;
+    });
+    showDiagResult(fulfilled);
+}
+
+function showDiagResult(fulfilled) {
+    var el = document.getElementById('diagResult');
+    var data = [
+        null,
+        { emoji: '🌱', title: '시작 단계 · 1 / 5 구성 요소 충족', state: '한 가지 구성 요소가 잡혔습니다. 나머지 네 가지를 채워보세요.', action: '5가지 구성 요소 다시 보기', color: '#A89D8E', link: '#components' },
+        { emoji: '🔨', title: '골격 작성 중 · 2 / 5 구성 요소 충족', state: '절반에 가까워졌습니다. 빈 구성 요소를 채우면 결과가 안정됩니다.', action: '5가지 구성 요소 다시 보기', color: '#C9A488', link: '#components' },
+        { emoji: '📐', title: '튼튼한 스킬 · 3 / 5 구성 요소 충족', state: '핵심 구조가 잡혔습니다. 두 가지만 더 채우면 완성입니다.', action: '실전 팁으로 보강', color: '#D69470', link: '#tips' },
+        { emoji: '🚀', title: '거의 10점 · 4 / 5 구성 요소 충족', state: '한 가지만 더 채우면 완성된 스킬이 됩니다.', action: '실전 팁으로 보강', color: '#CC7548', link: '#tips' },
+        { emoji: '🏆', title: '10점 스킬 · 5 / 5 구성 요소 충족', state: '다섯 구성 요소를 모두 갖췄습니다. 더 정교한 스킬로 레벨업하세요.', action: '스킬 중급으로 레벨업', color: '#B85831', link: 'skills-intermediate.html' }
+    ];
+    if (fulfilled === 0) {
+        el.classList.remove('show');
+        return;
+    }
+    var d = data[fulfilled];
+    el.classList.add('show');
+    el.style.background = 'linear-gradient(135deg, ' + d.color + '11, ' + d.color + '06)';
+    el.style.border = '2px solid ' + d.color + '44';
+    document.getElementById('drLevel').textContent = d.emoji;
+    document.getElementById('drTitle').textContent = d.title;
+    document.getElementById('drState').textContent = d.state;
+    var actionEl = document.getElementById('drAction');
+    actionEl.textContent = d.action;
+    actionEl.style.background = d.color;
+    actionEl.href = d.link;
+}
+</script>
+
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'agent-design.html';
+    }
+});
+</script>
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #B0544A; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    /* 헤더 상단 여백 통일 */
+    header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+</body>
+</html>
