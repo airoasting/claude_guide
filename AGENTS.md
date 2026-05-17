@@ -71,7 +71,6 @@
 |---|---|---|---|---|
 | `claude-md-templates.html` | 10분 | 중급 | 5개 | 스킬 트랙 |
 | `skills.html` | 20분 | 중급 | 7개 | 나만의 Skill 만들기 |
-| `four-elements.html` | 15분 | 고급 | 5개 | 에이전트, 서브에이전트, 스킬, 후크 |
 | `agent-design.html` | 20분 | 고급 | 5개 | 솔로 → 파이프라인 → 팀 → 오케스트라 |
 | `harness-engineering.html` | 15분 | 고급 | 7개 | 하네스 6가지 구성 요소 |
 
