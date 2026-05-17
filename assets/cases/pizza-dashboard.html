@@ -86,6 +86,9 @@ a{color:inherit;text-decoration:none}
 .ctr{display:flex;gap:5px}
 .cb2{padding:6px 12px;font-size:11px;font-weight:600;color:var(--ts);cursor:pointer;border-radius:20px;transition:all .2s}
 .cb2.on{color:#fff;background:linear-gradient(135deg,var(--blue),var(--teal));box-shadow:3px 3px 8px rgba(91,141,238,.35)}
+.cat-legend{display:grid;grid-template-columns:repeat(3,1fr);column-gap:10px;row-gap:8px;padding:4px 8px 2px;justify-items:start}
+.cat-legend .cli{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--tp);white-space:nowrap}
+.cat-legend .cdot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
 
 .dt{width:100%;border-collapse:collapse}
 .dt th{font-size:10px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.8px;padding:10px 12px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid rgba(160,175,195,.22)}
@@ -197,7 +200,8 @@ a{color:inherit;text-decoration:none}
   <div class="cg">
     <div class="cc nR c4">
       <div class="ch"><div><div class="ct">카테고리별 매출 비중</div><div class="cs">전체 기간 누적</div></div></div>
-      <div style="position:relative;flex:1;min-height:420px"><canvas id="catC"></canvas></div>
+      <div style="position:relative;flex:1;min-height:360px"><canvas id="catC"></canvas></div>
+      <div id="catLegend" class="cat-legend"></div>
     </div>
     <div class="cc nR c8">
       <div class="ch">
@@ -854,17 +858,24 @@ function initYearly(){
 function initCat(){
   const ctx = document.getElementById('catC').getContext('2d');
   const cols = ['#5b8dee','#fc5c7d','#48cfad','#f7b731','#a55eea','#4ecdc4'];
+  const labels = D.category_revenue.labels;
+  const legendEl = document.getElementById('catLegend');
+  if(legendEl){
+    legendEl.innerHTML = labels.map((lab,i)=>
+      `<span class="cli"><span class="cdot" style="background:${cols[i % cols.length]}"></span>${lab}</span>`
+    ).join('');
+  }
   charts.cat = new Chart(ctx,{
     type:'doughnut',
-    data:{ labels:D.category_revenue.labels, datasets:[{
+    data:{ labels, datasets:[{
       data: D.category_revenue.values,
       backgroundColor: cols.map(c=>c+'cc'), borderColor:cols, borderWidth:2, hoverOffset:8
     }]},
     options:{
       responsive:true, maintainAspectRatio:false, cutout:'62%',
-      layout:{ padding:{ top:6, bottom:6, left:60, right:60 } },
+      layout:{ padding:{ top:6, bottom:6, left:30, right:30 } },
       plugins:{
-        legend:{ position:'bottom', labels:{ boxWidth:10, font:{size:10.5}, padding:10 }},
+        legend:{ display:false },
         tooltip:{ ...TT, callbacks:{ label:c=>{
           const t=c.dataset.data.reduce((a,b)=>a+b,0);
           return ' '+Math.round(c.parsed/100).toLocaleString()+' 백만원 ('+(c.parsed/t*100).toFixed(1)+'%)';
