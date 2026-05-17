@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://airoasting.github.io/claude_guide/google-sheets-dashboard.html">
     <meta property="og:title" content="구글 시트 기반 대시보드 만들기 | AI ROASTING">
-    <meta property="og:description" content="Claude Cowork에 구글 워크스페이스를 연결하고, 시트 데이터를 탐색해 글래스모피즘 인터랙티브 대시보드를 만드는 5단계 실전 가이드.">
+    <meta property="og:description" content="Claude Cowork에 구글 워크스페이스를 연결하고, 시트 데이터를 탐색해 뉴모피즘 인터랙티브 대시보드를 만드는 5단계 실전 가이드. Google Sheets CSV를 직접 fetch.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
     <meta property="og:url" content="https://airoasting.github.io/claude_guide/google-sheets-dashboard.html">
     <meta name="twitter:card" content="summary_large_image">
     <title>구글 시트 기반 대시보드 만들기 | AI ROASTING</title>
-    <meta name="description" content="Claude Cowork + Google Workspace + 글래스모피즘. 시트를 탐색하고 인터랙티브 대시보드를 자동으로 만드는 실전 가이드.">
+    <meta name="description" content="Claude Cowork + Google Workspace + 뉴모피즘. Google Sheets CSV를 직접 읽어 5개 탭 인터랙티브 대시보드를 자동으로 만드는 실전 가이드.">
     <style>
         @font-face {
             font-family: 'Pretendard';
@@ -334,77 +334,78 @@
         .roadmap-arrow { color: #B8B0A6; font-size: 14px; flex-shrink: 0; transition: all 0.2s; }
         .roadmap-card:hover .roadmap-arrow { color: var(--book-teal); transform: translateX(2px); }
 
-        /* Glassy CTA preview */
+        /* Neumorphism CTA preview — matches the pizza dashboard look */
         .preview-card {
             position: relative;
-            background: linear-gradient(135deg, #1a0b3d 0%, #4a1d7a 30%, #7a2d8a 60%, #c84a82 100%);
+            background: #e8edf2;
             border-radius: 22px;
-            padding: 36px 32px;
+            padding: 32px 30px;
             margin: 24px 0;
             text-decoration: none;
             display: block;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(74, 29, 122, 0.35);
+            box-shadow: 8px 8px 24px #c5cad1, -8px -8px 24px #ffffff;
             transition: transform 0.3s, box-shadow 0.3s;
         }
-        .preview-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(74, 29, 122, 0.45); }
+        .preview-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 12px 12px 30px #c5cad1, -12px -12px 30px #ffffff;
+        }
         .preview-card::before {
             content: ''; position: absolute;
-            top: -40px; right: -30px;
+            top: -30px; right: -30px;
             width: 220px; height: 220px;
-            background: radial-gradient(circle, rgba(255, 107, 157, 0.45) 0%, transparent 60%);
+            background: radial-gradient(circle, rgba(91,141,238,0.18) 0%, transparent 60%);
             pointer-events: none;
         }
         .preview-card::after {
             content: ''; position: absolute;
             bottom: -60px; left: -40px;
-            width: 280px; height: 280px;
-            background: radial-gradient(circle, rgba(110, 224, 255, 0.35) 0%, transparent 60%);
+            width: 260px; height: 260px;
+            background: radial-gradient(circle, rgba(165,94,234,0.16) 0%, transparent 60%);
             pointer-events: none;
         }
         .preview-card .pv-body { position: relative; z-index: 1; }
         .preview-card .pv-label {
             display: inline-block;
             padding: 4px 12px;
-            background: rgba(255,255,255,0.18);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.25);
+            background: linear-gradient(135deg, #5b8dee, #a55eea);
             border-radius: 999px;
-            font-size: 11px; font-weight: 700;
+            font-size: 11px; font-weight: 800;
             color: #fff; letter-spacing: 1px;
             margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(91,141,238,0.35);
         }
         .preview-card .pv-title {
             font-size: 22px; font-weight: 800;
-            color: #fff; margin-bottom: 6px;
+            color: #2d3748; margin-bottom: 6px;
             letter-spacing: -0.5px;
         }
         .preview-card .pv-desc {
-            font-size: 14px; color: rgba(255,255,255,0.85);
+            font-size: 14px; color: #5C5650;
             line-height: 1.6; margin-bottom: 14px;
         }
         .preview-card .pv-meta {
-            display: flex; gap: 14px; flex-wrap: wrap;
-            font-size: 12px; color: rgba(255,255,255,0.75);
+            display: flex; gap: 10px; flex-wrap: wrap;
+            font-size: 12px; color: #5C5650;
         }
         .preview-card .pv-meta span {
-            padding: 5px 12px;
-            background: rgba(255,255,255,0.10);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.18);
+            padding: 6px 12px;
+            background: #e8edf2;
+            box-shadow: inset 3px 3px 7px #c5cad1, inset -3px -3px 7px #ffffff;
             border-radius: 999px;
-            font-weight: 600;
+            font-weight: 700;
+            color: #4a5568;
         }
         .preview-card .pv-cta {
             display: inline-flex; align-items: center; gap: 6px;
-            margin-top: 16px;
-            padding: 10px 18px;
-            background: rgba(255,255,255,0.18);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.3);
+            margin-top: 18px;
+            padding: 11px 20px;
+            background: linear-gradient(135deg, #5b8dee, #a55eea);
             border-radius: 12px;
             font-size: 13px; font-weight: 700;
             color: #fff;
+            box-shadow: 4px 4px 12px rgba(91,141,238,0.35), -2px -2px 6px rgba(255,255,255,0.6);
         }
 
         .data-grid {
@@ -458,7 +459,7 @@
 <header>
     <a href="index.html" class="back-link">&larr; 목록으로</a>
     <h1>구글 시트 기반 대시보드 만들기</h1>
-    <p>Claude Cowork에 구글 워크스페이스를 연결하고, 시트를 탐색해 글래스모피즘 대시보드를 자동 생성하는 실전 워크플로우</p>
+    <p>Claude Cowork에 구글 워크스페이스를 연결하고, 시트를 탐색해 Google Sheets CSV를 직접 읽는 뉴모피즘 대시보드를 자동 생성하는 실전 워크플로우</p>
     <div class="header-pages">
         <a href="google-sheets-dashboard.html" class="header-page-link active"><span class="hpl-icon">&#x1F4CB;</span> 구글 시트 대시보드</a>
         <a href="stock-kakaotalk.html" class="header-page-link"><span class="hpl-icon">&#x1F4CA;</span> 종목 분석 &rarr; 카톡</a>
@@ -471,8 +472,8 @@
     <a href="#step1"><span class="sm-num">1</span><span class="sm-title">Workspace 연결</span><span class="sm-sub">Cowork 커넥터</span></a>
     <a href="#step2"><span class="sm-num">2</span><span class="sm-title">시트 복사</span><span class="sm-sub">내 드라이브</span></a>
     <a href="#step3"><span class="sm-num">3</span><span class="sm-title">탐색 분석</span><span class="sm-sub">EDA 프롬프트</span></a>
-    <a href="#step4"><span class="sm-num">4</span><span class="sm-title">대시보드</span><span class="sm-sub">글래스모피즘</span></a>
-    <a href="#step5"><span class="sm-num">5</span><span class="sm-title">배포</span><span class="sm-sub">자동 갱신</span></a>
+    <a href="#step4"><span class="sm-num">4</span><span class="sm-title">대시보드</span><span class="sm-sub">뉴모피즘 5탭</span></a>
+    <a href="#step5"><span class="sm-num">5</span><span class="sm-title">배포</span><span class="sm-sub">시트 라이브 연동</span></a>
     <a href="#result"><span class="sm-num">✓</span><span class="sm-title">결과 미리보기</span><span class="sm-sub">샘플 대시보드</span></a>
 </nav>
 
@@ -495,7 +496,7 @@
                 </a>
             </div>
 
-            <p>매월 매출 데이터를 정리하면서 "이번 달 어느 매장이 빠졌지?", "배달 비중이 얼마나 늘었지?" 같은 질문을 사람이 매번 손으로 그려서 답하기는 비효율적입니다. 이 실습에서는 <strong>Claude Cowork</strong>에 <strong>Google Workspace</strong>를 연결하고, 한 번의 대화로 시트를 탐색해 <strong>글래스모피즘 인터랙티브 대시보드</strong>까지 만들어 봅니다.</p>
+            <p>매월 매출 데이터를 정리하면서 "이번 달 어느 매장이 빠졌지?", "배달 비중이 얼마나 늘었지?" 같은 질문을 사람이 매번 손으로 그려서 답하기는 비효율적입니다. 이 실습에서는 <strong>Claude Cowork</strong>에 <strong>Google Workspace</strong>를 연결하고, 한 번의 대화로 시트를 탐색해 <strong>Google Sheets에서 데이터를 바로 읽는 뉴모피즘 인터랙티브 대시보드</strong>까지 만들어 봅니다.</p>
 
             <p style="margin-top: 12px;">완성 후 흐름은 이렇습니다.</p>
 
@@ -521,7 +522,7 @@
                 <div class="flow-node">
                     <div class="fn-icon">&#x1F48E;</div>
                     <div class="fn-label">HTML 대시보드</div>
-                    <div class="fn-sub">글래스모피즘</div>
+                    <div class="fn-sub">뉴모피즘 · 5개 탭</div>
                 </div>
             </div>
 
@@ -555,7 +556,7 @@
                     <span class="roadmap-num">4</span>
                     <span class="roadmap-body">
                         <span class="roadmap-label">STEP 4</span>
-                        <span class="roadmap-title">글래스모피즘 대시보드 생성</span>
+                        <span class="roadmap-title">뉴모피즘 5탭 대시보드 생성</span>
                     </span>
                     <span class="roadmap-arrow">&rarr;</span>
                 </a>
@@ -563,7 +564,7 @@
                     <span class="roadmap-num">5</span>
                     <span class="roadmap-body">
                         <span class="roadmap-label">STEP 5</span>
-                        <span class="roadmap-title">배포와 월간 자동 갱신</span>
+                        <span class="roadmap-title">배포 · Sheets 라이브 연동</span>
                     </span>
                     <span class="roadmap-arrow">&rarr;</span>
                 </a>
@@ -571,7 +572,7 @@
 
             <a class="ref-link" href="assets/cases/pizza-dashboard.html" target="_blank" rel="noopener" style="margin-top: 18px;">
                 <span class="ref-icon">&#x1F441;&#xFE0F;</span>
-                완성 결과 미리보기: 피자 프랜차이즈 EDA 대시보드
+                완성 결과 미리보기: 피자 프랜차이즈 경영 대시보드
                 <span class="ref-desc">샘플 출력</span>
             </a>
         </div>
@@ -627,7 +628,7 @@
                 <div class="wf-step">
                     <div class="wf-step-num">1</div>
                     <div class="wf-step-content">
-                        <div class="wf-step-label">Claude Desktop 실행 후 Cowork 진입</div>
+                        <div class="wf-step-label">Claude Desktop 실행 후 Cowork 선택</div>
                         <div class="wf-step-desc"><strong>Claude Desktop</strong>(macOS/Windows 데스크톱 앱)을 실행하고, 새 대화의 모델/도구 선택 영역에서 <strong>Cowork</strong>를 켭니다.</div>
                     </div>
                 </div>
@@ -762,21 +763,22 @@ https://docs.google.com/spreadsheets/d/내-시트-ID/edit
 
     <!-- STEP 4 -->
     <div class="content-section" id="step4"></div>
-    <div class="step-divider"><span class="step-badge">STEP 4 &middot; 글래스모피즘 인터랙티브 대시보드 생성</span></div>
+    <div class="step-divider"><span class="step-badge">STEP 4 &middot; 뉴모피즘 5탭 인터랙티브 대시보드 생성</span></div>
     <section>
         <div class="nm-card">
             <h2>대시보드 한 장으로 압축하기</h2>
-            <p class="card-subtitle">EDA에서 잡아낸 인사이트를 글래스모피즘 디자인의 단일 HTML 파일로 패키징합니다</p>
+            <p class="card-subtitle">EDA에서 잡아낸 인사이트를 뉴모피즘 라이트 디자인 · 5개 탭의 단일 HTML 파일로 패키징합니다</p>
 
-            <p>차트를 따로따로 만들어 두면 보는 사람이 흐름을 잃습니다. 모든 인사이트를 한 페이지 안에 모으고 <strong>필터로 좁혀 가며 보는 인터랙티브 대시보드</strong>로 만들 때 의사결정 속도가 크게 빨라집니다. 디자인은 <strong>글래스모피즘</strong>(반투명 유리 카드와 컬러풀 그라데이션 배경)을 씁니다. 정보 밀도가 높아도 시각적 피로가 덜합니다.</p>
+            <p>차트를 따로따로 만들어 두면 보는 사람이 흐름을 잃습니다. 모든 인사이트를 한 페이지 안에 모으고 <strong>탭과 필터로 좁혀 가며 보는 인터랙티브 대시보드</strong>로 만들 때 의사결정 속도가 크게 빨라집니다. 디자인은 <strong>뉴모피즘</strong>(라이트 톤 배경에 부드러운 그림자로 카드가 떠 있는 듯한 소프트 UI)을 씁니다. 정보 밀도가 높아도 눈이 덜 피로하고, 표·차트·KPI 카드가 서로 같은 톤으로 묶입니다.</p>
 
             <div class="inset-box">
-                <div class="inset-label">설계 원칙 · 한 화면에 들어가야 할 것</div>
-                <p>좋은 대시보드는 다음 4단으로 구성됩니다.<br>
-                <strong>1단 (필터)</strong>에서 매장과 기간, 카테고리를 칩(chip)으로 토글합니다.<br>
-                <strong>2단 (KPI 카드 5개)</strong>은 매출·영업이익·이익률·주문수·객단가를 보여 줍니다.<br>
-                <strong>3단 (메인 차트)</strong>은 큰 화면에 월별 추세를, 작은 화면에 카테고리 믹스를 배치합니다.<br>
-                <strong>4단 (보조 차트)</strong>은 매장 랭킹과 비용 구조, 채널·시간대, 품질·고객·리스크를 묶어 보여 줍니다.</p>
+                <div class="inset-label">설계 원칙 · 5개 탭으로 시야 나누기</div>
+                <p>경영 대시보드는 한 화면에 모든 걸 우겨넣기보다 <strong>주제별 5개 탭</strong>으로 나눠 두는 편이 빠릅니다.<br>
+                <strong>1. 종합 개요</strong> · 핵심 KPI 6개 + 월별 매출/이익 + 카테고리 믹스 + 매장 랭킹.<br>
+                <strong>2. 매장별 실적</strong> · 매장 칩 토글, 매장별 월 매출 라인, 이익률 막대, 상위 3개 매장 레이더.<br>
+                <strong>3. P&amp;L 분석</strong> · 월별 비용 누적 바, 비용 구성 도넛, 영업이익률 추이.<br>
+                <strong>4. 채널 &amp; 플랫폼</strong> · 매장별 홀/배달/포장 믹스, 배민·쿠팡이츠·요기요 점유, 월별 플랫폼 트렌드.<br>
+                <strong>5. 품질 &amp; 고객</strong> · QSC·리뷰 추이, 재방문율, 매장별 품질 테이블.</p>
             </div>
 
             <div class="inset-box" style="margin-top: 18px;">
@@ -787,66 +789,77 @@ https://docs.google.com/spreadsheets/d/내-시트-ID/edit
             <div class="prompt-box">
 <button class="copy-btn" onclick="copy(this)">복사</button>
 방금 분석한 데이터로 EDA로 탐색 가능한 인터랙티브
-대시보드를 만들어줘.
+대시보드를 단일 HTML 한 파일로 만들어줘.
 
-- 글래스모피즘 디자인으로
-- 매장 · 기간 · 카테고리 필터로 좁혀 볼 수 있게
-- 한 화면 안에 핵심 KPI와 차트가 모두 보이게</div>
+- 뉴모피즘 라이트 디자인 (소프트 그림자)
+- 종합 / 매장별 / P&L / 채널 / 품질 5개 탭
+- 연도 셀렉터로 기간 좁히기 + 매장 칩 토글
+- 데이터는 Google Sheets CSV(gviz)에서 직접 fetch
+- 차트는 Chart.js 사용</div>
 
             <div class="highlight-box">
-                <div class="hl-title">왜 데이터를 별도 JSON으로 분리하나</div>
+                <div class="hl-title">왜 Google Sheets에서 직접 CSV로 읽나</div>
                 <ul>
-                    <li>HTML 파일이 가벼워집니다. 그래서 편집과 배포가 빨라집니다.</li>
-                    <li>월간 자동 갱신을 할 때 <strong>JSON만 바꿔치기</strong>하면 됩니다.</li>
-                    <li>다른 사람과 공유할 때 데이터 노출 범위를 따로 통제할 수 있습니다.</li>
-                    <li>차트 코드와 데이터가 분리되어 있어 나중에 수정하기가 쉽습니다.</li>
+                    <li><strong>중간 JSON 파일이 필요 없습니다.</strong> 시트만 갱신하면 대시보드가 같이 갱신됩니다.</li>
+                    <li>로컬에 데이터 사본을 두지 않아 <strong>"시트 따로, 대시보드 따로"가 어긋날 일이 없습니다.</strong></li>
+                    <li>엔드포인트는 <code>https://docs.google.com/spreadsheets/d/{ID}/gviz/tq?tqx=out:csv&amp;gid={GID}</code>. CORS가 열려 있어 GitHub Pages 등 정적 호스팅에서 바로 fetch됩니다.</li>
+                    <li>시트가 <strong>"링크가 있는 모든 사용자(보기)"</strong>로 공개돼 있어야 합니다. 비공개면 401이 떨어집니다.</li>
+                    <li>한국어 헤더 → 내부 키 매핑을 코드에 한 번만 정의해 두면, 컬럼 순서가 바뀌어도 동작합니다.</li>
                 </ul>
             </div>
 
             <div class="tip-box">
-                <div class="tip-label">글래스모피즘이 데이터 시각화에 맞는 이유</div>
-                <p>차트가 많은 대시보드는 시각적 피로가 쉽게 쌓입니다. 글래스모피즘은 <strong>배경 그라데이션이 전체 분위기를 잡아 주고, 카드가 반투명으로 떠 있어 정보 위계가 자연스럽게 잡힙니다.</strong> 색상이 강한 차트도 카드의 흐릿한 경계 덕분에 서로 충돌하지 않습니다.</p>
+                <div class="tip-label">뉴모피즘이 경영 대시보드에 맞는 이유</div>
+                <p>경영자가 매일 보는 화면은 화려함보다 <strong>안정감</strong>이 중요합니다. 뉴모피즘은 <strong>라이트 톤 배경에 카드가 부드럽게 떠 있는 형태</strong>라 정보 밀도를 높여도 눈이 피로하지 않고, 표·차트·KPI 카드의 톤이 통일됩니다. 강렬한 컬러가 필요한 차트는 카드 안쪽에서만 강조되기 때문에 화면 전체가 흐트러지지 않습니다.</p>
             </div>
         </div>
     </section>
 
     <!-- STEP 5 -->
     <div class="content-section" id="step5"></div>
-    <div class="step-divider"><span class="step-badge">STEP 5 &middot; 배포와 월간 자동 갱신</span></div>
+    <div class="step-divider"><span class="step-badge">STEP 5 &middot; 배포와 Sheets 라이브 연동</span></div>
     <section>
         <div class="nm-card">
             <h2>완성한 대시보드를 매달 꾸준히 쓰기</h2>
-            <p class="card-subtitle">한 번 만든 대시보드가 한 달 안에 잊히지 않도록, 갱신과 공유 흐름까지 함께 설계해 둡니다</p>
+            <p class="card-subtitle">시트만 갱신하면 대시보드가 같이 갱신되는 구조 — 운영 비용이 거의 0에 가깝습니다</p>
 
-            <p>대시보드는 <strong>만든 순간보다 운영하는 동안 쌓이는 가치</strong>가 더 큽니다. 한 번 만들고 끝낼 일이 아니라, 매월 데이터가 갱신될 때 새 버전이 자동으로 올라오도록 같이 설계해 둡니다.</p>
+            <p>대시보드는 <strong>만든 순간보다 운영하는 동안 쌓이는 가치</strong>가 더 큽니다. 이번 구조는 데이터를 시트에서 직접 읽기 때문에, 매월 따로 갱신 스크립트를 돌릴 필요가 없습니다. <strong>시트 한 곳만 업데이트하면</strong> 다음 방문자에게 새 숫자가 그대로 보입니다.</p>
 
             <div class="wf-steps">
                 <div class="wf-step">
                     <div class="wf-step-num">1</div>
                     <div class="wf-step-content">
-                        <div class="wf-step-label">로컬에서 동작 확인</div>
-                        <div class="wf-step-desc">생성된 HTML을 브라우저로 열어 보면서 필터·KPI·차트가 모두 정상으로 움직이는지 확인합니다. <strong>JSON 경로</strong>(상대 경로)와 차트 라이브러리 CDN이 제대로 잡혀 있는지도 같이 점검합니다.</div>
+                        <div class="wf-step-label">시트 공개 권한 확인</div>
+                        <div class="wf-step-desc">시트의 <strong>공유 &gt; 일반 액세스</strong>를 <strong>"링크가 있는 모든 사용자(뷰어)"</strong>로 열어 둡니다. 비공개 상태면 <code>gviz/tq?tqx=out:csv</code> 엔드포인트가 401/302로 막힙니다. 민감 데이터가 같이 들어 있으면 별도 시트로 분리해 두세요.</div>
                     </div>
                 </div>
                 <div class="wf-connector"></div>
                 <div class="wf-step">
                     <div class="wf-step-num">2</div>
                     <div class="wf-step-content">
-                        <div class="wf-step-label">GitHub Pages로 무료 배포</div>
-                        <div class="wf-step-desc">생성된 폴더를 GitHub 저장소에 푸시하고 <strong>Pages</strong>를 켜면 24시간 접근 가능한 URL이 생깁니다. 이 URL을 노션이나 슬랙에 그대로 공유하면 됩니다.</div>
+                        <div class="wf-step-label">로컬에서 동작 확인</div>
+                        <div class="wf-step-desc">생성된 HTML을 브라우저로 열어 <strong>CSV fetch가 성공하는지</strong>, 5개 탭이 모두 정상으로 그려지는지, 연도 셀렉터·매장 칩 토글이 동작하는지 점검합니다. 콘솔에 CORS 오류가 뜨면 시트 권한부터 의심하세요.</div>
                     </div>
                 </div>
                 <div class="wf-connector"></div>
                 <div class="wf-step">
                     <div class="wf-step-num">3</div>
                     <div class="wf-step-content">
-                        <div class="wf-step-label">월간 갱신 스킬 등록</div>
-                        <div class="wf-step-desc">Cowork에 <strong>refresh-dashboard</strong> 같은 스킬을 등록해 둡니다. 매월 1일 시트를 다시 읽어 JSON만 새로 써 주면 대시보드가 자동으로 갱신됩니다. 차트 코드는 손대지 않아도 됩니다.</div>
+                        <div class="wf-step-label">GitHub Pages로 무료 배포</div>
+                        <div class="wf-step-desc">HTML 한 파일을 GitHub 저장소에 푸시하고 <strong>Pages</strong>를 켜면 24시간 접근 가능한 URL이 생깁니다. 데이터는 원격(Sheets)에서 가져오니, 페이지 자체는 캐시가 잘 먹어 빠르게 뜹니다.</div>
                     </div>
                 </div>
                 <div class="wf-connector"></div>
                 <div class="wf-step">
                     <div class="wf-step-num">4</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">월간 갱신은 "시트만 업데이트"</div>
+                        <div class="wf-step-desc">이번 구조에서 매월 해야 할 일은 단 하나 — <strong>시트에 새 달 데이터를 한 줄 더 추가</strong>하는 것입니다. 사용자가 다음 번 페이지를 열면 새 숫자가 자동으로 반영됩니다. 별도 JSON 변환, 재배포, refresh 스킬 모두 필요하지 않습니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step">
+                    <div class="wf-step-num">5</div>
                     <div class="wf-step-content">
                         <div class="wf-step-label">의사결정자에게 링크 한 줄</div>
                         <div class="wf-step-desc">대시보드는 만들었다고 끝이 아닙니다. <strong>"매월 첫째 주 월요일, 이 링크 한 번씩만 봐 주세요"</strong>까지 같이 약속해 두세요. 그래야 대시보드가 계속 살아 있는 도구로 남습니다.</div>
@@ -867,15 +880,15 @@ https://docs.google.com/spreadsheets/d/내-시트-ID/edit
     <section>
         <div class="nm-card">
             <h2>예제 시트로 만든 완성품</h2>
-            <p class="card-subtitle">위 5단계를 그대로 따라가 만들어진 실제 글래스모피즘 대시보드입니다</p>
+            <p class="card-subtitle">위 5단계를 그대로 따라가 만들어진 실제 뉴모피즘 5탭 대시보드입니다 · 데이터는 Google Sheets CSV를 직접 fetch합니다</p>
 
-            <p>아래 카드를 누르면 새 탭에서 인터랙티브 대시보드가 열립니다. <strong>매장과 연도, 카테고리를 자유롭게 토글해 보세요.</strong> 모든 차트와 KPI가 즉시 다시 계산됩니다.</p>
+            <p>아래 카드를 누르면 새 탭에서 인터랙티브 대시보드가 열립니다. <strong>5개 탭을 옮겨 다니며 연도 셀렉터와 매장 칩을 토글해 보세요.</strong> 모든 차트와 KPI가 즉시 다시 계산됩니다. 페이지를 열 때마다 시트의 최신 데이터를 가져오기 때문에, 시트만 갱신해도 같은 URL에 새 숫자가 떠 있습니다.</p>
 
             <a class="preview-card" href="assets/cases/pizza-dashboard.html" target="_blank" rel="noopener">
                 <div class="pv-body">
                     <span class="pv-label">LIVE DEMO</span>
-                    <div class="pv-title">🍕 피자 프랜차이즈 EDA 대시보드</div>
-                    <div class="pv-desc">전국 9개 직영점 · 73개월 · 39개 지표 · 10개 인터랙티브 차트</div>
+                    <div class="pv-title">🍕 피자 프랜차이즈 경영 대시보드</div>
+                    <div class="pv-desc">전국 9개 직영점 · 73개월 · 39개 지표 · 5개 탭 · Google Sheets 라이브 연동</div>
                     <div class="pv-meta">
                         <span>총매출 571억</span>
                         <span>영업이익 97억</span>
@@ -887,13 +900,13 @@ https://docs.google.com/spreadsheets/d/내-시트-ID/edit
             </a>
 
             <div class="highlight-box">
-                <div class="hl-title">완성품에서 확인할 수 있는 인사이트 예시</div>
+                <div class="hl-title">5개 탭에서 확인할 수 있는 인사이트 예시</div>
                 <ul>
-                    <li><strong>매장 격차.</strong> 1위 서울 강남점은 9위 제주 연동점보다 누적 매출이 약 1.6배 많습니다.</li>
-                    <li><strong>채널 구조.</strong> 배달 비중이 55% 내외를 차지하고, 나머지는 홀과 포장이 나눠 가집니다.</li>
-                    <li><strong>비용 구조.</strong> 식자재비와 인건비를 합치면 전체 비용의 약 70%에 이릅니다.</li>
-                    <li><strong>품질 추세.</strong> QSC 점수가 95점대를 유지하고, 리뷰 평점도 4점대에서 안정적으로 움직입니다.</li>
-                    <li><strong>리스크 신호.</strong> 특정 분기에 클레임이 튀는 매장이 어디인지 식별할 수 있습니다.</li>
+                    <li><strong>종합 개요.</strong> 매장별 매출 랭킹과 카테고리 믹스로 어디가 1위이고 무엇이 가장 잘 팔리는지 한눈에 보입니다.</li>
+                    <li><strong>매장별 실적.</strong> 매장 칩을 두세 개만 켜서 매장 간 월별 매출 곡선을 직접 비교할 수 있습니다.</li>
+                    <li><strong>P&amp;L 분석.</strong> 식자재비·인건비가 전체 비용에서 차지하는 비중과, 월별 영업이익률의 추세를 같이 보여 줍니다.</li>
+                    <li><strong>채널 &amp; 플랫폼.</strong> 매장마다 홀·배달·포장 비중이 다르다는 점, 배민·쿠팡이츠·요기요의 점유가 시기별로 어떻게 변했는지 확인할 수 있습니다.</li>
+                    <li><strong>품질 &amp; 고객.</strong> QSC 점수·리뷰 평점·재방문율·클레임 건수가 어떤 매장에서 흔들리는지 신호를 잡을 수 있습니다.</li>
                 </ul>
             </div>
 
@@ -917,10 +930,10 @@ https://docs.google.com/spreadsheets/d/내-시트-ID/edit
 
             <p>이 실습이 끝나면 다음 네 가지가 손에 남습니다.</p>
             <ul>
-                <li><strong>재사용 가능한 대시보드 틀.</strong> 글래스모피즘 HTML과 JSON을 분리한 구조라서 다른 종류의 데이터에도 그대로 갖다 쓸 수 있습니다.</li>
+                <li><strong>재사용 가능한 대시보드 틀.</strong> 뉴모피즘 HTML 한 파일 안에서 Google Sheets CSV를 직접 읽고 집계하는 구조라, 다른 데이터에도 시트 ID·gid만 바꿔 끼우면 그대로 쓸 수 있습니다.</li>
                 <li><strong>한 줄짜리 EDA 프롬프트.</strong> "이 시트를 EDA로 분석해줘" 한 줄이 앞으로 모든 시트 분석의 출발점이 됩니다.</li>
-                <li><strong>대시보드 4단 구성 감각.</strong> 필터 · KPI · 메인 차트 · 보조 차트로 정리하는 흐름이 앞으로 차트를 고를 때 기준이 됩니다.</li>
-                <li><strong>매달 가볍게 갱신하는 습관.</strong> JSON만 바꿔치기하면 되니까, 대시보드가 매달 살아 있는 도구로 이어집니다.</li>
+                <li><strong>5탭 경영 대시보드 구성 감각.</strong> 종합 / 매장 / P&amp;L / 채널 / 품질로 시야를 나누는 흐름이 앞으로 차트를 고를 때 기준이 됩니다.</li>
+                <li><strong>"시트만 갱신" 운영 모델.</strong> 따로 JSON을 갈아끼우거나 재배포할 필요 없이, 시트 한 줄만 추가하면 다음 방문자에게 새 숫자가 보입니다.</li>
             </ul>
         </div>
     </section>
@@ -929,7 +942,7 @@ https://docs.google.com/spreadsheets/d/내-시트-ID/edit
 
 <footer>
     <div class="footer-brand">AI ROASTING</div>
-    <div class="footer-text">Claude Cowork × Google Workspace × Glassmorphism · 2026</div>
+    <div class="footer-text">Claude Cowork × Google Workspace × Neumorphism · 2026</div>
 </footer>
 
 <script>
