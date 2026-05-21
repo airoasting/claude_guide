@@ -31,7 +31,7 @@
 | `glossary.html` | max-width 70% + width 64% → 700px, gap 12→14 |
 | `google-sheets-dashboard.html` | max-width 960px → 700px, 버튼 max-width 320→280 |
 | `license-compare.html` | max-width 70% + width 64% → 700px, gap 12→14 |
-| `stock-kakaotalk.html` | max-width 70% + 960px 중복 → 700px, 버튼 max-width 320→280 |
+| `stock-messenger.html` | max-width 70% + 960px 중복 → 700px, 버튼 max-width 320→280 |
 | `ui-design.html` | max-width 70% + width 64% → 700px, gap 12→14, padding 20→22 |
 
 이미 기준에 부합하던 파일 (변경 없음): `project-intro.html`, `multi-persona.html`.
@@ -89,7 +89,7 @@
 | `claude-orientation.html` | 2-menu 기준. `.hero-inner` 존재 |
 | `cowork-intro.html`, `cowork.html` | `.hero-inner` **없음** → `.header-pages`에 직접 절대 max-width 적용 |
 | `claude-design.html` | "공식 갤러리에서 실제 예시 보기" 버튼 의도적 제거 (재추가 금지) |
-| `google-sheets-dashboard.html`, `stock-kakaotalk.html`, `harness-book.html` | 실전 예제 카드. index에서 골드 액센트(`#B8860B` left-border)로 표시한다 |
+| `google-sheets-dashboard.html`, `stock-messenger.html`, `harness-book.html` | 실전 예제 카드. index에서 골드 액센트(`#B8860B` left-border)로 표시한다 |
 
 ---
 
