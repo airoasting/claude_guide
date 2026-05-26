@@ -77,8 +77,9 @@
 ### 실전 예제 (골드 액센트, 좌측 보더 `#B8860B`)
 | 페이지 | 시간 | 난이도 | header-pages | 특성 |
 |---|---|---|---|---|
-| `google-sheets-dashboard.html` | 12분 | 중급 | 3개 | 골드 액센트 카드 |
-| `stock-messenger.html` | 15분 | 고급 | 3개 | 골드 액센트 카드 |
+| `google-sheets-dashboard.html` | 12분 | 중급 | 4개 | 골드 액센트 카드 |
+| `stock-messenger.html` | 15분 | 고급 | 4개 | 골드 액센트 카드 |
+| `korean-law-mcp.html` | 10분 | 중급 | 4개 | Claude Desktop Customize 커넥터 추가. 법제처 Open API |
 | `harness-book.html` | 20분 | 고급 | 9개 | 책쓰기 실전, 최다 메뉴 |
 
 ### 바이브코딩 백과사전 (header-pages: 3개)

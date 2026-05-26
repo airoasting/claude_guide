@@ -6,7 +6,16 @@
 
 ## 최근 세션 변경 로그
 
-### 2026-05-17 (현재 세션)
+### 2026-05-26
+
+| # | 명령 | 범위 | 결과 |
+|---|---|---|---|
+| 1 | 실전 예제에 한국 법령 검색 MCP 페이지 신규 추가 | `korean-law-mcp.html`, `index.html` | Claude Desktop Customize 메뉴에서 커스텀 커넥터 등록 흐름, 법제처 OC 키 발급, 환각 검증·영향 그래프·단계별 안내 활용까지 5단계. 인덱스 실전 예제 카드 2x2 그리드로 재배치 |
+| 2 | 4-menu 헤더 표준 정의 | `google-sheets-dashboard.html`, `stock-messenger.html`, `harness-book.html` | `.header-pages` max-width 940px + flex-wrap. 세 페이지 모두 4번째 링크 추가 |
+| 3 | wf-step 연결선 동적 높이로 변경 | `korean-law-mcp.html` | 고정 18px `.wf-connector` div 대신 `.wf-step::before` 가상요소가 단계 높이에 맞춰 자동으로 늘어나도록 수정. 이미지가 포함된 단계에서도 선이 끊기지 않음 |
+| 4 | 페이지 인벤토리 갱신 | `AGENTS.md` 2절 | 실전 예제 4페이지 체제로 업데이트 |
+
+### 2026-05-17
 
 | # | 명령 | 범위 | 결과 |
 |---|---|---|---|
