@@ -433,6 +433,75 @@
             margin-bottom: 32px;
         }
         .hero-sub-row .hero-sub { margin-bottom: 0; }
+        .hero-meta {
+            display: flex; align-items: center; flex-wrap: wrap;
+            gap: 8px; margin-bottom: 32px;
+        }
+        .hero-meta-item {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 600;
+            color: rgba(255,255,255,0.72);
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 5px 12px; border-radius: 100px;
+            white-space: nowrap;
+        }
+        .hero-meta-item .hero-meta-label {
+            font-weight: 500; color: rgba(255,255,255,0.5);
+        }
+        .hero-meta-item .hero-meta-dot {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: #5fd08a; flex-shrink: 0;
+        }
+        .hero-meta-peek {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 700;
+            color: #fff; text-decoration: none;
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.28);
+            padding: 5px 13px 5px 11px; border-radius: 100px;
+            white-space: nowrap; cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.15s;
+        }
+        .hero-meta-peek:hover { background: rgba(255,255,255,0.28); border-color: rgba(255,255,255,0.45); transform: translateY(-1px); }
+        .hero-meta-peek svg { width: 14px; height: 14px; opacity: 0.95; }
+
+        /* Anthropic 엿보기 (iframe 모달) */
+        .peek-overlay {
+            display: none;
+            position: fixed; inset: 0; z-index: 260;
+            background: rgba(20,17,15,0.6);
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            opacity: 0; transition: opacity 0.25s;
+            align-items: center; justify-content: center;
+            padding: 40px 20px;
+        }
+        body.peek-open .peek-overlay { display: flex; opacity: 1; }
+        body.peek-open { overflow: hidden; }
+        .peek-modal {
+            position: relative;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+            width: 100%; max-width: 1248px;
+            height: 100%; max-height: 860px;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            transform: translateY(16px); opacity: 0;
+            transition: transform 0.32s ease, opacity 0.32s ease;
+        }
+        body.peek-open .peek-modal { transform: translateY(0); opacity: 1; }
+        .peek-close {
+            position: absolute; top: 12px; right: 12px; z-index: 5;
+            width: 36px; height: 36px; border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.92);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            cursor: pointer; color: #2D2622; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .peek-close:hover { background: #F0EBE3; color: #1F1A17; }
+        .peek-close svg { width: 22px; height: 22px; }
+        .peek-frame { flex: 1 1 auto; width: 100%; border: 0; display: block; }
         .about-link {
             display: inline-flex; align-items: center; gap: 4px;
             color: #fff; text-decoration: none;
@@ -765,6 +834,11 @@
             .hero-sub { font-size: 13px; margin-bottom: 20px; }
             .hero-sub-row { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 20px; }
             .hero-sub-row .hero-sub { margin-bottom: 0; }
+            .hero-meta { gap: 6px; margin-bottom: 20px; }
+            .hero-meta-item { font-size: 11px; padding: 4px 10px; }
+            .hero-meta-peek { display: none; }
+            .peek-overlay { padding: 0; }
+            .peek-modal { max-width: none; max-height: none; height: 100%; border-radius: 0; }
 
             /* 히어로 내 Claude 소개 */
             .hero-intro { margin-top: 24px; padding-top: 20px; }
@@ -937,6 +1011,15 @@
         <div class="hero-sub-row">
             <p class="hero-sub">AI와 함께 일하는 5단계 실전 가이드 · 진단부터 자동화까지</p>
             <a href="?about=1" class="about-link" data-about-open>이 가이드는 어떤 목적으로 만들어졌나요? <span aria-hidden="true">↗</span></a>
+        </div>
+
+        <div class="hero-meta">
+            <button type="button" class="hero-meta-peek" data-peek-open aria-haspopup="dialog">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                Anthropic 엿보기
+            </button>
+            <span class="hero-meta-item"><span class="hero-meta-dot"></span><span class="hero-meta-label">최종 업데이트</span> 2026년 6월</span>
+            <span class="hero-meta-item"><span class="hero-meta-label">최신 모델</span> Claude Opus 4.8</span>
         </div>
 
         <!-- Claude 소개 (히어로 하단) -->
@@ -1415,6 +1498,16 @@
 </section>
 
 <!-- ── 푸터 ── -->
+<!-- ── Anthropic 엿보기 모달 ── -->
+<div class="peek-overlay" id="peekOverlay" role="dialog" aria-modal="true" aria-label="Anthropic 엿보기" aria-hidden="true">
+    <div class="peek-modal" role="document">
+        <button class="peek-close" id="peekClose" aria-label="닫기" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+        </button>
+        <iframe class="peek-frame" id="peekFrame" title="Anthropic 엿보기" loading="lazy" data-src="assets/anthropic_intro.html"></iframe>
+    </div>
+</div>
+
 <!-- ── 가이드 소개 모달 ── -->
 <div class="about-overlay" id="aboutOverlay" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" aria-hidden="true">
     <article class="about-modal" role="document">
@@ -1635,6 +1728,31 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && document.body.classList.contains('about-open')) setAboutOpen(false);
+    });
+
+    // ── Anthropic 엿보기 (iframe 모달) ──
+    var peekOverlay = document.getElementById('peekOverlay');
+    var peekClose = document.getElementById('peekClose');
+    var peekFrame = document.getElementById('peekFrame');
+    function setPeekOpen(open) {
+        document.body.classList.toggle('peek-open', open);
+        if (peekOverlay) peekOverlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+        if (open) {
+            if (document.body.classList.contains('menu-open')) setMenuOpen(false);
+            if (peekFrame && !peekFrame.getAttribute('src')) {
+                peekFrame.setAttribute('src', peekFrame.getAttribute('data-src'));
+            }
+        }
+    }
+    document.querySelectorAll('[data-peek-open]').forEach(function(el) {
+        el.addEventListener('click', function(e) { e.preventDefault(); setPeekOpen(true); });
+    });
+    if (peekClose) peekClose.addEventListener('click', function() { setPeekOpen(false); });
+    if (peekOverlay) peekOverlay.addEventListener('click', function(e) {
+        if (e.target === peekOverlay) setPeekOpen(false);
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('peek-open')) setPeekOpen(false);
     });
 
     // ── 라이선스 (About 모달 내 스크롤) ──
