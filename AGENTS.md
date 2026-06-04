@@ -85,7 +85,7 @@
 | `korean-law-mcp.html` | MCP 연결 | 10분 | 중급 | Claude Desktop Customize 커넥터 추가. 법제처 Open API |
 | `stock-messenger.html` | MCP 연결 | 15분 | 고급 | 기업 공시 데이터 분석. DART 스킬 + 텔레그램 봇 |
 
-### 바이브코딩 백과사전 (header-pages: 4개)
+### 하네스 엔지니어링 백과사전 (header-pages: 4개)
 | 페이지 | 시간 | 난이도 | 특성 |
 |---|---|---|---|
 | `file-types.html` | 필요할 때 | 참고 | 파일 8종 비교 |
