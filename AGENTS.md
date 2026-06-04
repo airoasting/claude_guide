@@ -27,7 +27,7 @@
 
 ---
 
-## 2. 페이지 인벤토리 (29개)
+## 2. 페이지 인벤토리 (30개)
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 
@@ -74,13 +74,16 @@
 | `agent-design.html` | 20분 | 고급 | 5개 | 솔로 → 파이프라인 → 팀 → 오케스트라 |
 | `harness-engineering.html` | 15분 | 고급 | 7개 | 하네스 6가지 구성 요소 |
 
-### 실전 예제 (골드 액센트, 좌측 보더 `#B8860B`)
-| 페이지 | 시간 | 난이도 | header-pages | 특성 |
+### 실전 예제 (골드 액센트, 좌측 보더 `#B8860B`, header-pages: 5개 공통)
+인덱스의 실전 예제 섹션은 두 묶음으로 나뉜다. `기본 예제`(바로 써먹는 실무 자동화)와 `MCP 연결`(외부 도구와 연동하는 워크플로우). 5개 페이지는 모두 같은 5링크 header-pages 내비를 공유한다.
+
+| 페이지 | 묶음 | 시간 | 난이도 | 특성 |
 |---|---|---|---|---|
-| `google-sheets-dashboard.html` | 12분 | 중급 | 4개 | 골드 액센트 카드 |
-| `stock-messenger.html` | 15분 | 고급 | 4개 | 골드 액센트 카드 |
-| `korean-law-mcp.html` | 10분 | 중급 | 4개 | Claude Desktop Customize 커넥터 추가. 법제처 Open API |
-| `harness-book.html` | 20분 | 고급 | 9개 | 책쓰기 실전, 최다 메뉴 |
+| `google-sheets-dashboard.html` | 기본 예제 | 12분 | 중급 | 골드 액센트 카드 |
+| `harness-book.html` | 기본 예제 | 20분 | 고급 | 책쓰기 실전, 자체 sub-menu 최다 |
+| `playmcp-kakao.html` | MCP 연결 | 12분 | 중급 | `claude mcp add`로 Kakao PlayMCP 연결, 나와의 채팅방 전송 |
+| `korean-law-mcp.html` | MCP 연결 | 10분 | 중급 | Claude Desktop Customize 커넥터 추가. 법제처 Open API |
+| `stock-messenger.html` | MCP 연결 | 15분 | 고급 | 기업 공시 데이터 분석. DART 스킬 + 텔레그램 봇 |
 
 ### 바이브코딩 백과사전 (header-pages: 3개)
 | 페이지 | 시간 | 난이도 | 특성 |
