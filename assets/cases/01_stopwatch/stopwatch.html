@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>스톱워치 — Picasso</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #f4efe4;
+      --panel: #faf6ec;
+      --ink: #1c1a17;
+      --text-primary: #1c1a17;
+      --text-secondary: #7a7363;
+      --p-blue: #2f5d8a;
+      --p-yellow: #e8b730;
+      --p-red: #c8433a;
+      --p-teal: #2f8f86;
+      --p-cream: #f3e9cf;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 15%, #fbf7ec 0%, #ede5d2 60%, #e3d8bf 100%);
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 40px 34px 34px;
+      width: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      border: 3px solid var(--ink);
+      box-shadow: 14px 14px 0 rgba(28,26,23,0.85);
+      position: relative;
+    }
+
+    /* 타이틀 */
+    .title {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    /* 시간 디스플레이 — 피카소 얼굴이 배경 */
+    .display {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: var(--p-cream);
+      border-radius: 12px;
+      border: 3px solid var(--ink);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 14px;
+    }
+
+    .face-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    /* 숫자를 얼굴 아래에 띄우는 작은 명판 */
+    .time-plate {
+      position: relative;
+      z-index: 2;
+      background: rgba(250, 246, 236, 0.72);
+      backdrop-filter: blur(2px);
+      border: 2.5px solid var(--ink);
+      border-radius: 9px;
+      padding: 8px 16px 6px;
+      box-shadow: 5px 5px 0 rgba(28,26,23,0.7);
+    }
+
+    .time-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .time-main {
+      font-size: 44px;
+      font-weight: 400;
+      letter-spacing: -2px;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .time-ms {
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--p-red);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .lap-current-display {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.5px;
+      min-height: 16px;
+    }
+
+    /* 버튼 영역 */
+    .buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+    }
+
+    .btn {
+      border: 3px solid var(--ink);
+      cursor: pointer;
+      background: var(--panel);
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+      position: relative;
+    }
+
+    /* 서브 버튼 (랩/재설정) */
+    .btn-sub {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      background: var(--p-yellow);
+      box-shadow: 5px 5px 0 rgba(28,26,23,0.8);
+    }
+
+    .btn-sub:disabled {
+      color: #9a948a;
+      background: #ece6d8;
+      box-shadow: 3px 3px 0 rgba(28,26,23,0.3);
+      cursor: default;
+    }
+
+    .btn-sub:not(:disabled):active {
+      transform: translate(3px, 3px);
+      box-shadow: 2px 2px 0 rgba(28,26,23,0.8);
+    }
+
+    /* 메인 버튼 (시작/정지) */
+    .btn-main {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      font-size: 18px;
+      font-weight: 800;
+      color: #faf6ec;
+      background: var(--p-teal);
+      box-shadow: 6px 6px 0 rgba(28,26,23,0.85);
+    }
+
+    .btn-main.running {
+      background: var(--p-red);
+    }
+
+    .btn-main:active {
+      transform: translate(3px, 3px);
+      box-shadow: 3px 3px 0 rgba(28,26,23,0.85);
+    }
+
+    /* 랩 목록 */
+    .laps-section {
+      width: 100%;
+    }
+
+    .laps-header {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 4px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      border-bottom: 2.5px solid var(--ink);
+    }
+
+    .laps-list {
+      /* 정확히 3행만 노출, 그 이상은 스크롤 */
+      max-height: 132px;
+      overflow-y: auto;
+    }
+
+    .laps-list::-webkit-scrollbar { display: none; }
+
+    .lap-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 4px;
+      border-bottom: 1.5px solid #ddd3bd;
+      font-size: 15px;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+      animation: fadeSlide 0.25s ease;
+    }
+
+    .lap-num {
+      color: var(--text-secondary);
+      font-size: 13px;
+      min-width: 52px;
+    }
+
+    .lap-split {
+      flex: 1;
+      text-align: center;
+    }
+
+    .lap-total {
+      min-width: 90px;
+      text-align: right;
+      color: var(--text-secondary);
+    }
+
+    .lap-row.fastest .lap-split { color: var(--p-teal); font-weight: 700; }
+    .lap-row.slowest .lap-split { color: var(--p-red); font-weight: 700; }
+
+    .no-laps {
+      text-align: center;
+      color: #b6ad98;
+      font-size: 13px;
+      padding: 16px 0 4px;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: #b6ad98;
+      letter-spacing: 0.5px;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="title">Stopwatch · Picasso</div>
+
+    <div class="display">
+      <!-- 피카소 입체파 얼굴 (정면+측면 분할) -->
+      <svg class="face-bg" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <!-- 배경: 큐비즘 면 분할 (틸 / 머스터드 / 적갈) -->
+        <rect x="0" y="0" width="300" height="300" fill="#3a6f68"/>
+        <path d="M0 0 H300 V112 L0 70 Z" fill="#c79a2e"/>
+        <path d="M0 70 L300 112 V300 H180 Z" fill="#2f6058"/>
+        <path d="M180 300 L300 112 V300 Z" fill="#8a3d2f"/>
+        <path d="M0 184 L180 300 H0 Z" fill="#46524a"/>
+
+        <!-- 머리/그림자 덩어리 (얼굴 뒤 어두운 면) -->
+        <path d="M70 40 C40 70 36 150 54 214 C70 268 130 296 172 282
+                 C150 250 150 120 150 80 C150 52 110 24 70 40 Z" fill="#23201c"/>
+
+        <!-- 얼굴: 정면 절반 (창백한 면) — 각진 윤곽 -->
+        <path d="M150 36
+                 L96 50 L72 104 L80 150 L66 192 L96 238
+                 L138 262 L150 258 Z"
+              fill="#efe6d2" stroke="#161310" stroke-width="3.4" stroke-linejoin="round"/>
+
+        <!-- 얼굴: 측면(프로필) 절반 — 그늘진 황토 면, 더 어둡게 -->
+        <path d="M150 36
+                 L206 46 L236 96 L248 150 L232 206 L196 250
+                 L160 268 L150 258 Z"
+              fill="#c98f49" stroke="#161310" stroke-width="3.4" stroke-linejoin="round"/>
+
+        <!-- 측면 면 안의 추가 음영 면 (입체 분절) -->
+        <path d="M150 150 L248 150 L232 206 L196 250 L160 268 L150 200 Z"
+              fill="#9c6a32" opacity="0.85"/>
+        <path d="M150 36 L206 46 L236 96 L150 96 Z" fill="#dca85e" opacity="0.7"/>
+
+        <!-- 중앙 분할 솔기 (얼굴을 둘로) -->
+        <path d="M150 36 L150 258" stroke="#161310" stroke-width="3.4"/>
+
+        <!-- 이마 측면 윤곽 강조선 -->
+        <path d="M150 96 L236 96 M150 150 L248 150 M150 200 L232 206"
+              stroke="#161310" stroke-width="2" opacity="0.55"/>
+
+        <!-- 코: 정면+프로필 합성 (사선으로 꺾인 코) -->
+        <path d="M132 96 L150 92 L150 176 L120 168 Z"
+              fill="#e2d2b4" stroke="#161310" stroke-width="3"/>
+        <path d="M150 92 L196 150 L168 176 L150 176 Z"
+              fill="#b07d3c" stroke="#161310" stroke-width="3"/>
+        <!-- 콧구멍 -->
+        <path d="M150 168 Q166 172 168 176 L150 176 Z" fill="#161310"/>
+        <ellipse cx="134" cy="168" rx="6" ry="4" fill="#161310"/>
+
+        <!-- 왼쪽 눈: 정면 아몬드 (위를 봄) -->
+        <g>
+          <path d="M70 118 Q98 100 130 116 Q104 134 70 118 Z"
+                fill="#faf6ec" stroke="#161310" stroke-width="3"/>
+          <path d="M70 118 Q98 100 130 116" fill="none" stroke="#161310" stroke-width="3.4"/>
+          <circle cx="102" cy="116" r="11" fill="#2f5d8a"/>
+          <circle cx="102" cy="116" r="4.5" fill="#161310"/>
+          <!-- 속눈썹 -->
+          <path d="M72 116 L64 110 M86 106 L82 98 M104 103 L104 95" stroke="#161310" stroke-width="2" stroke-linecap="round"/>
+        </g>
+
+        <!-- 오른쪽 눈: 프로필이라 옆에서 본 반쪽 눈 (높이 다름) -->
+        <g>
+          <path d="M178 96 Q206 84 226 100 Q204 116 184 112 Z"
+                fill="#faf6ec" stroke="#161310" stroke-width="3"/>
+          <circle cx="202" cy="100" r="9" fill="#3a7a72"/>
+          <circle cx="202" cy="100" r="3.5" fill="#161310"/>
+          <path d="M180 95 L172 88 M198 86 L196 79" stroke="#161310" stroke-width="2" stroke-linecap="round"/>
+        </g>
+
+        <!-- 눈썹: 서로 다른 굵기/각도 -->
+        <path d="M66 100 Q98 84 132 96" fill="none" stroke="#161310" stroke-width="5" stroke-linecap="round"/>
+        <path d="M176 80 Q204 70 230 84" fill="none" stroke="#161310" stroke-width="4" stroke-linecap="round"/>
+
+        <!-- 입: 비대칭 분절 입술 + 이빨 -->
+        <path d="M104 206 Q140 196 188 214 Q156 244 122 236 Q108 222 104 206 Z"
+              fill="#b23a30" stroke="#161310" stroke-width="3.2"/>
+        <path d="M104 206 Q140 198 150 208 L150 240 Q134 240 122 236 Q108 222 104 206 Z"
+              fill="#7e271f"/>
+        <path d="M104 206 Q146 200 188 214" fill="none" stroke="#161310" stroke-width="3"/>
+        <rect x="138" y="206" width="13" height="10" fill="#faf6ec" stroke="#161310" stroke-width="1.8"/>
+        <rect x="151" y="208" width="12" height="10" fill="#e7dcc4" stroke="#161310" stroke-width="1.8"/>
+
+        <!-- 귀 (측면쪽) -->
+        <path d="M236 150 Q258 146 256 172 Q250 190 234 184 Z"
+              fill="#c98f49" stroke="#161310" stroke-width="3"/>
+        <path d="M242 158 Q252 158 250 172" fill="none" stroke="#161310" stroke-width="2"/>
+
+        <!-- 머리카락 결 / 장식선 -->
+        <path d="M70 40 Q110 30 150 40 M60 80 Q90 64 124 70" stroke="#0c0a08" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <circle cx="60" cy="244" r="6" fill="#c79a2e" stroke="#161310" stroke-width="2"/>
+        <circle cx="214" cy="262" r="5" fill="#b23a30" stroke="#161310" stroke-width="2"/>
+      </svg>
+
+      <div class="time-plate">
+        <div class="time-row">
+          <span class="time-main" id="timeMain">00:00</span><span class="time-ms" id="timeMs">.00</span>
+        </div>
+      </div>
+      <div class="lap-current-display" id="lapCurrentDisplay" style="position:relative;z-index:2;"></div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn btn-sub" id="btnLapReset" onclick="lapOrReset()" disabled>랩</button>
+      <button class="btn btn-main" id="btnStart" onclick="toggleStart()"><span>시작</span></button>
+      <button class="btn btn-sub" id="btnPlaceholder" style="visibility:hidden;"></button>
+    </div>
+
+    <div class="laps-section">
+      <div class="laps-header">
+        <span>랩</span>
+        <span>구간</span>
+        <span>누적</span>
+      </div>
+      <div class="laps-list" id="lapsList">
+        <div class="no-laps" id="noLaps">랩 기록이 없습니다</div>
+      </div>
+    </div>
+
+    <div class="hint">Space: 시작/정지 &nbsp;·&nbsp; L: 랩 &nbsp;·&nbsp; R: 재설정</div>
+  </div>
+
+  <script>
+    let startTime = 0;
+    let elapsed = 0;
+    let timerInterval = null;
+    let running = false;
+    let laps = [];
+    let lastLapTime = 0;
+
+    const timeMain    = document.getElementById('timeMain');
+    const timeMs      = document.getElementById('timeMs');
+    const lapCurrent  = document.getElementById('lapCurrentDisplay');
+    const btnStart    = document.getElementById('btnStart');
+    const btnLapReset = document.getElementById('btnLapReset');
+    const lapsList    = document.getElementById('lapsList');
+
+    function fmt(ms) {
+      const s  = Math.floor(ms / 1000);
+      const m  = Math.floor(s / 60);
+      const cs = Math.floor((ms % 1000) / 10);
+      return {
+        main: `${String(m).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`,
+        cs:   `.${String(cs).padStart(2,'0')}`
+      };
+    }
+
+    function updateDisplay(ms) {
+      const { main, cs } = fmt(ms);
+      timeMain.textContent = main;
+      timeMs.textContent   = cs;
+    }
+
+    function toggleStart() {
+      if (running) {
+        clearInterval(timerInterval);
+        elapsed += Date.now() - startTime;
+        running = false;
+        btnStart.querySelector('span').textContent = '시작';
+        btnStart.classList.remove('running');
+        btnLapReset.textContent = '재설정';
+        btnLapReset.disabled = false;
+        lapCurrent.textContent = '';
+      } else {
+        startTime = Date.now();
+        timerInterval = setInterval(tick, 30);
+        running = true;
+        btnStart.querySelector('span').textContent = '정지';
+        btnStart.classList.add('running');
+        btnLapReset.textContent = '랩';
+        btnLapReset.disabled = false;
+      }
+    }
+
+    function tick() {
+      const now = elapsed + Date.now() - startTime;
+      updateDisplay(now);
+      const split = now - lastLapTime;
+      const { main, cs } = fmt(split);
+      lapCurrent.textContent = `랩 ${laps.length + 1}  ${main}${cs}`;
+    }
+
+    function lapOrReset() {
+      if (running) {
+        const now = elapsed + Date.now() - startTime;
+        const split = now - lastLapTime;
+        laps.unshift({ split, total: now });
+        lastLapTime = now;
+        renderLaps();
+      } else {
+        clearInterval(timerInterval);
+        elapsed = 0;
+        running = false;
+        laps = [];
+        lastLapTime = 0;
+        updateDisplay(0);
+        lapCurrent.textContent = '';
+        btnStart.querySelector('span').textContent = '시작';
+        btnStart.classList.remove('running');
+        btnLapReset.textContent = '랩';
+        btnLapReset.disabled = true;
+        lapsList.innerHTML = '<div class="no-laps">랩 기록이 없습니다</div>';
+      }
+    }
+
+    function renderLaps() {
+      if (laps.length === 0) {
+        lapsList.innerHTML = '<div class="no-laps">랩 기록이 없습니다</div>';
+        return;
+      }
+      const splits = laps.map(l => l.split);
+      const minS   = Math.min(...splits);
+      const maxS   = Math.max(...splits);
+
+      lapsList.innerHTML = laps.map((l, i) => {
+        let cls = '';
+        if (laps.length > 1) {
+          if (l.split === minS) cls = 'fastest';
+          else if (l.split === maxS) cls = 'slowest';
+        }
+        const { main: sm, cs: scs } = fmt(l.split);
+        const { main: tm, cs: tcs } = fmt(l.total);
+        return `
+          <div class="lap-row ${cls}">
+            <span class="lap-num">랩 ${laps.length - i}</span>
+            <span class="lap-split">${sm}${scs}</span>
+            <span class="lap-total">${tm}${tcs}</span>
+          </div>`;
+      }).join('');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.code === 'Space') { e.preventDefault(); toggleStart(); }
+      else if ((e.key === 'l' || e.key === 'L') && running) lapOrReset();
+      else if ((e.key === 'r' || e.key === 'R') && !running && elapsed > 0) lapOrReset();
+    });
+  </script>
+</body>
+</html>
