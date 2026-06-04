@@ -85,12 +85,13 @@
 | `korean-law-mcp.html` | MCP 연결 | 10분 | 중급 | Claude Desktop Customize 커넥터 추가. 법제처 Open API |
 | `stock-messenger.html` | MCP 연결 | 15분 | 고급 | 기업 공시 데이터 분석. DART 스킬 + 텔레그램 봇 |
 
-### 바이브코딩 백과사전 (header-pages: 3개)
+### 바이브코딩 백과사전 (header-pages: 4개)
 | 페이지 | 시간 | 난이도 | 특성 |
 |---|---|---|---|
 | `file-types.html` | 필요할 때 | 참고 | 파일 8종 비교 |
 | `license-compare.html` | 필요할 때 | 참고 | 오픈소스 라이선스 |
 | `glossary.html` | 필요할 때 | 참고 | 용어 사전 |
+| `security-guide.html` | 필요할 때 | 참고 | 비개발자용 AI 협업 보안 5가지. overview 표 + 5섹션 + 체크리스트. sub-menu 6개 |
 
 ### 디자인·시각화 갤러리 (header-pages: 3개)
 | 페이지 | 시간 | 난이도 | 특성 |
@@ -130,6 +131,7 @@
 |---|---|---|---|---|
 | 2개 | `claude-orientation.html` | 490px | 약 238px | 490px |
 | 3개 | `ai-fluency.html` | 700px | 약 224px | 700px |
+| 4개 | `file-types.html` (백과사전), 실전 예제 트랙 공통 | 940px | 약 217px | 940px |
 | 5개 | 미정 | 미정 | 미정 | 미정 |
 | 7개 | 미정 | 미정 | 미정 | 미정 |
 | 9개 | 미정 | 미정 | 미정 | 미정 |
