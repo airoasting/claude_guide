@@ -13,6 +13,7 @@
 | 1 | 보안 가이드 페이지 신규 추가 | `security-guide.html`, `index.html` | 비개발자용 AI 협업 보안 가이드. overview 표(5대 리스크) + 5섹션(입력·데이터학습·연결·실행권한·사고대응) + 30초 체크리스트. file-types 골격 클론, sub-menu 6개. 인덱스 백과사전 섹션에 4번째 카드 추가. 카드 그리드를 3열에서 2열로 바꿔 2x2로 배치(카드 가로 폭 확대) |
 | 2 | 백과사전 트랙을 4-menu로 확장 | `file-types.html`, `license-compare.html`, `glossary.html`, `security-guide.html` | `.header-pages` max-width 700px → 940px(기존 4-menu 표준과 정렬). 네 페이지 모두 `보안 가이드` 링크 추가. 용어 사전 라벨을 `용어 사전 46선`/`용어 사전 60선`에서 `용어 사전`으로 통일 |
 | 3 | 페이지 인벤토리·4-menu 폭 표준 명문화 | `AGENTS.md` 2절·3.2절 | 백과사전 트랙 4개로 갱신, 3.2 폭 표에 4개 행(940px) 추가 |
+| 4 | 푸터 `가이드 소개`를 페이지 내 팝업으로 전환 | 콘텐츠 31개 파일 | 기존엔 `index.html?about=1`로 이동했으나, 각 페이지에 가이드 소개 모달(스타일·마크업·자체 스크립트)을 `</body>` 직전 `<!-- ABOUT-MODAL-INJECTED -->` 블록으로 주입. 푸터 링크를 `data-about-open`·`data-license-open` 트리거로 교체해 그 자리에서 모달만 띄움. 모달 CTA는 `index.html#section-1`로 연결. `?about=1`/`?license=1` 쿼리 진입도 호환. 푸터에 해당 링크가 없는 `google-sheets-dashboard.html`은 대상 제외 |
 
 ### 2026-05-26
 
