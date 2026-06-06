@@ -653,11 +653,32 @@
             }
             .reveal { opacity: 1; transform: none; }
         }
+    
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+        }
     </style>
 </head>
 <body>
 
 <header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
     <a href="index.html" class="back-link">&larr; 목록으로</a>
     <h1>구글 시트 기반 대시보드 만들기</h1>
     <p>Claude Cowork에 구글 워크스페이스를 연결하고, 시트를 탐색해 Google Sheets CSV를 직접 읽는 뉴모피즘 대시보드를 자동 생성하는 실전 워크플로우</p>
@@ -1463,5 +1484,24 @@ function switchMode(mode) {
     document.getElementById('pages-mcp').style.display = mode === 'mcp' ? 'flex' : 'none';
 }
 </script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
 </body>
 </html>

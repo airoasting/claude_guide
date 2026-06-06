@@ -47,6 +47,20 @@
             overflow: hidden;
             border-radius: 0 0 32px 32px;
             box-shadow: 0 12px 32px rgba(122,46,21,0.18);
+            isolation: isolate;
+        }
+        /* 헤더 배경 루프 영상 — 끊김 없이 계속 반복 재생된다 */
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: 0;
+            opacity: 0.6;
+            /* 흑백 + soft-light 합성 — 원래 테라코타 색은 그대로 두고 빛의 움직임만 얹는다 */
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
         }
         .hero::before {
             content: '';
@@ -54,6 +68,7 @@
             width: 480px; height: 480px;
             background: radial-gradient(circle, rgba(196,98,63,0.2) 0%, transparent 60%);
             pointer-events: none;
+            z-index: 1;
         }
         .hero::after {
             content: '';
@@ -62,7 +77,7 @@
             background: linear-gradient(to bottom, rgba(122,46,21,0.08) 0%, transparent 100%);
             pointer-events: none;
         }
-        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
 
         .hero-watermark { display: none; }
 
@@ -81,7 +96,9 @@
         }
         .hero-brand-logo img {
             width: 18px; height: 18px; display: block; border-radius: 50%;
+            transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
         }
+        .hero-brand:hover .hero-brand-logo img { transform: rotate(360deg) scale(1.12); }
         .hero h1 {
             font-size: 49px; font-weight: 800; color: #fff;
             letter-spacing: -1px; line-height: 1.2; margin-bottom: 8px;
@@ -445,14 +462,33 @@
             background: rgba(255,255,255,0.07);
             border: 1px solid rgba(255,255,255,0.1);
             padding: 5px 12px; border-radius: 100px;
-            white-space: nowrap;
+            white-space: nowrap; cursor: default;
+            transition: background 0.25s ease, border-color 0.25s ease,
+                        color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .hero-meta-item:hover {
+            background: rgba(255,224,202,0.18);
+            border-color: rgba(255,209,178,0.42);
+            color: rgba(255,255,255,0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(122,46,21,0.3);
         }
         .hero-meta-item .hero-meta-label {
             font-weight: 500; color: rgba(255,255,255,0.5);
+            transition: color 0.25s ease;
         }
+        .hero-meta-item:hover .hero-meta-label { color: rgba(255,255,255,0.72); }
         .hero-meta-item .hero-meta-dot {
             width: 5px; height: 5px; border-radius: 50%;
             background: #5fd08a; flex-shrink: 0;
+            transition: box-shadow 0.25s ease;
+        }
+        .hero-meta-item:hover .hero-meta-dot {
+            animation: hero-dot-pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes hero-dot-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(95,208,138,0.55); }
+            50%      { box-shadow: 0 0 0 5px rgba(95,208,138,0); }
         }
         .hero-meta-peek {
             display: inline-flex; align-items: center; gap: 6px;
@@ -771,6 +807,31 @@
         .lic-copy:hover { background: rgba(0,0,0,0.05); color: #2D2622; border-color: rgba(0,0,0,0.35); }
         .lic-copy svg { width: 11px; height: 11px; }
         .lic-copy.copied { background: #2D8A4E; color: #fff; border-color: #2D8A4E; }
+        /* ── 업데이트 내역 (About 모달 내장) ── */
+        .about-changelog-section { margin-top: 22px; }
+        .changelog-list {
+            margin: 0; max-height: 300px; overflow-y: auto;
+            background: #FFFFFF; border-radius: 12px;
+            padding: 4px 22px; border: 1px solid rgba(0,0,0,0.05);
+        }
+        .changelog-item {
+            display: grid; grid-template-columns: 96px 1fr; gap: 16px;
+            padding: 13px 0; border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .changelog-item:last-child { border-bottom: none; }
+        .changelog-meta { display: flex; flex-direction: column; gap: 4px; }
+        .changelog-ver {
+            align-self: flex-start; font-size: 12px; font-weight: 800; color: #B45309;
+            background: rgba(217,119,6,0.10); border-radius: 6px; padding: 1px 8px; letter-spacing: 0.2px;
+        }
+        .changelog-date { font-size: 11.5px; color: #9A938C; }
+        .changelog-title { font-size: 13.5px; font-weight: 700; color: #2D2622; margin: 0 0 3px; line-height: 1.4; }
+        .changelog-desc { font-size: 12.5px; color: #6A645E; margin: 0; line-height: 1.55; word-break: keep-all; }
+        @media (max-width: 768px) {
+            .changelog-list { padding: 4px 18px; }
+            .changelog-item { grid-template-columns: 1fr; gap: 6px; padding: 12px 0; }
+            .changelog-meta { flex-direction: row; align-items: center; gap: 8px; }
+        }
         .license-footnote {
             margin: 16px 0 0;
             font-size: 12.5px; color: #7A7570; line-height: 1.6;
@@ -991,8 +1052,26 @@
         .card-section:nth-of-type(5) { animation-delay: 0.94s; }
         .card-section:nth-of-type(n+6) { animation-delay: 1.0s; }
 
+        /* 히어로 등장 — 콘텐츠가 시차를 두고 떠오른다 */
+        @keyframes hero-rise {
+            from { opacity: 0; transform: translate3d(0, 18px, 0); }
+            to   { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        .hero-brand,
+        .hero h1,
+        .hero-sub-row,
+        .hero-meta,
+        .hero-intro {
+            animation: hero-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .hero-brand   { animation-delay: 0.05s; }
+        .hero h1      { animation-delay: 0.14s; }
+        .hero-sub-row { animation-delay: 0.24s; }
+        .hero-meta    { animation-delay: 0.32s; }
+        .hero-intro   { animation-delay: 0.42s; }
+
         @media (prefers-reduced-motion: reduce) {
-            .hero, .hero-brand, .hero h1, .hero-sub-row, .hero-intro,
+            .hero, .hero-brand, .hero h1, .hero-sub-row, .hero-meta, .hero-intro,
             .hero-btn, .nav-wrapper, main.container, .card-section {
                 animation: none !important;
                 opacity: 1 !important;
@@ -1006,6 +1085,9 @@
 
 <!-- ── HERO ── -->
 <header class="hero">
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
     <img class="hero-watermark" src="assets/logos/logo1-white.png" alt="" aria-hidden="true">
     <div class="hero-inner">
         <p class="hero-brand"><span class="hero-brand-logo"><img src="assets/logos/logo1-transparent.png" alt="AI ROASTING 로고"></span>AI ROASTING</p>
@@ -1539,97 +1621,8 @@
     </div>
 </div>
 
-<!-- ── 가이드 소개 모달 ── -->
-<div class="about-overlay" id="aboutOverlay" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" aria-hidden="true">
-    <article class="about-modal" role="document">
-        <button class="about-close" id="aboutClose" aria-label="닫기" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
-        </button>
-
-        <div class="about-modal-body">
-            <p class="about-eyebrow">ABOUT</p>
-
-            <div class="about-quote">
-                <h1 id="aboutTitle">"개발 말고, 비즈니스용으로는 Claude를 어떻게 써야 하나요?"</h1>
-                <p>AI 이야기를 나누면서 가장 자주 받는 질문입니다.</p>
-            </div>
-
-            <div class="about-intro">
-                <p>시중에 나와 있는 Claude 자료는 대부분 개발자를 대상으로 합니다. 그래서 이 가이드는 <strong>비즈니스 리더가 의사결정과 보고, 자동화에 바로 활용할 수 있도록</strong> 같은 도구를 비즈니스 관점으로 다시 정리한 자료입니다.</p>
-                <p>코드를 한 줄도 모르는 리더도 진단부터 자동화까지 한 번에 따라올 수 있도록 전체 내용을 5단계로 구성했습니다.</p>
-            </div>
-
-            <div class="about-cards-grid">
-                <section class="about-card">
-                    <div class="about-card-head">
-                        <span class="about-card-num">01</span>
-                        <span class="about-card-title">왜 만들었나요</span>
-                    </div>
-                    <p>AI 강의에서 가장 자주 받는 질문이 있습니다. "프롬프트는 어떻게 써야 잘 쓰나요?", "Claude Code는 어떻게 쓰나요?" 같은 질문입니다.<br><br>매번 같은 답을 반복하는 대신, <strong>한 권으로 정리된 표준 레퍼런스</strong>를 만들기로 했습니다. 이 가이드가 그 시작입니다.</p>
-                </section>
-
-                <section class="about-card accent-2">
-                    <div class="about-card-head">
-                        <span class="about-card-num">02</span>
-                        <span class="about-card-title">선정 기준</span>
-                    </div>
-                    <p class="about-lede">모든 기능을 담지는 않았습니다. 다음 세 가지 기준을 모두 만족하는 내용만 골라 담았습니다.</p>
-                    <ul class="about-sublist">
-                        <li><span class="ab-roman">I</span><span>코드나 터미널 지식 없이도 바로 시작할 수 있을 것</span></li>
-                        <li><span class="ab-roman">II</span><span>비즈니스 리더가 곧장 실무에 적용할 수 있을 것</span></li>
-                        <li><span class="ab-roman">III</span><span>한국의 업무 환경(보고, 결재, 미팅, 문서)에 맞을 것</span></li>
-                    </ul>
-                </section>
-            </div>
-
-            <div class="about-license-section" id="aboutLicense">
-                <p class="about-eyebrow" style="margin-top:0;">LICENSE</p>
-                <h2 class="license-title" id="licenseTitle">저작권 안내 (Copyright Notice)</h2>
-                <div class="license-text">
-                    <p class="lic-meta">Copyright (c) 2026 AI ROASTING <span class="lic-author">(강정구 / jaydenjkang@gmail.com<button type="button" class="lic-copy" data-copy-text="jaydenjkang@gmail.com" aria-label="이메일 복사" title="이메일 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>)</span><br>v1.0 · 2026-03-01</p>
-                    <p class="lic-meta">본 가이드의 저작권은 작성자에게 있습니다. 인용된 Anthropic 콘텐츠와 사용된 외부 자산(Pretendard Variable, MIT/Apache 2.0 등 오픈소스 라이브러리)은 각 권리자에게 귀속되며 해당 라이선스가 적용됩니다.</p>
-
-                    <h3>1. 금지되는 행위</h3>
-                    <ul>
-                        <li>사전 서면 동의 없는 복제, 배포, 전송, 2차적 저작물 작성</li>
-                        <li>상업적 활용 (강의, 교육 자료, 출판, 컨설팅, 사내 교육 포함)</li>
-                        <li>저작권 표시·출처 정보의 제거나 변형</li>
-                        <li>기계학습·생성형 AI 모델의 학습 데이터로 수집·사용</li>
-                    </ul>
-
-                    <h3>2. 허용되는 사용</h3>
-                    <ul>
-                        <li>개인 학습 목적의 열람과 참고</li>
-                        <li>저작권법 제28조에 따른 정당한 인용 (출처 URL과 작성자 명시)</li>
-                    </ul>
-
-                    <h3>3. 사용 허가 신청</h3>
-                    <p class="lic-body">상업적 사용이나 2차적 저작물 작성을 원하시면 jaydenjkang@gmail.com으로 사용 목적·범위·기간을 명시해 신청해 주십시오. 서면 회신으로 명시적 승인을 받은 경우에만 허가가 인정됩니다.</p>
-
-                    <h3>4. 면책 및 준거법</h3>
-                    <p class="lic-body">본 콘텐츠는 있는 그대로(as-is) 제공되며, 사용으로 발생한 손해에 대해 작성자는 책임을 지지 않습니다. 본 약관은 대한민국법에 따라 해석되며, 사전 고지 후 변경될 수 있습니다.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="about-cta-bar">
-            <div class="about-cta-left">
-                <span class="about-byline-logo"><img src="assets/logos/logo1-transparent.png" alt="AI ROASTING 로고"></span>
-                <span class="about-byline-name">강정구 <span>·</span> Jayden Kang</span>
-                <div class="about-byline-icons">
-                    <a href="https://www.linkedin.com/in/jayden-kang/" target="_blank" rel="noopener" aria-label="LinkedIn">
-                        <svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                    </a>
-                    <a class="fb" href="https://www.facebook.com/jayden.kang" target="_blank" rel="noopener" aria-label="Facebook">
-                        <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                    </a>
-                </div>
-            </div>
-            <a href="#section-1" class="about-cta-btn" data-about-cta>가이드 시작하기 →</a>
-        </div>
-    </article>
-</div>
-
+<!-- 가이드 소개 모달: 마크업은 단일 소스 assets/about-modal.js 에서 주입 (이 페이지는 CSS·동작을 자체 보유) -->
+<script src="assets/about-modal.js" data-mode="markup"></script>
 <footer>
     <p class="footer-brand">AI ROASTING</p>
     <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
@@ -1742,11 +1735,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-about-cta]').forEach(function(el) {
         el.addEventListener('click', function(e) {
             var href = el.getAttribute('href') || '';
+            var hi = href.indexOf('#');
             setAboutOpen(false);
-            if (href.charAt(0) === '#') {
-                e.preventDefault();
-                var target = document.querySelector(href);
+            if (hi >= 0) {
+                var target = document.querySelector(href.slice(hi));
                 if (target) {
+                    e.preventDefault();
                     setTimeout(function() {
                         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }, 80);
@@ -2120,6 +2114,31 @@ document.addEventListener('DOMContentLoaded', function() {
         startAuto();
     })();
 });
+</script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        try { v.pause(); } catch (e) {}
+        return;
+    }
+    v.muted = true;
+    var tryPlay = function () {
+        var p = v.play();
+        if (p && typeof p.catch === 'function') p.catch(function () {});
+    };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    // 자동재생이 막히면 첫 사용자 상호작용에서 재생
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
 </script>
 
 </body>
