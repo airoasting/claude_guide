@@ -77,7 +77,7 @@
 
 자동화 실전(design) 헤더 내비는 3-menu다. `pages-design` 그룹은 `하네스 엔지니어링 · 도구 · 다이내믹 워크플로우` 3링크를 공유한다(`harness-engineering.html`, `claude-tools.html`, `harness-workflows.html`, `claude-md-templates.html`, `code-plugin.html`, `skills.html`). 순서는 하네스 엔지니어링 → 도구 → 다이내믹 워크플로우로 고정한다.
 
-`agent-design.html`(팀 설계)은 2026-06-08에 인덱스와 전 페이지 내비·링크·키보드 핸들러에서 제거했다. 파일 자체는 보존하되 어디서도 링크하지 않는 아카이브 후보다. 되살리려면 `pages-design` 내비, index 자동화 카드, `ai-levels.html` 로드맵, 키보드 `5` 핸들러를 함께 되돌린다. 그 자리는 `claude-tools.html`이 대신한다.
+`agent-design.html`(팀 설계)은 2026-06-08에 인덱스와 전 페이지 내비·링크·키보드 핸들러에서 제거했다. 파일은 `backups/agent-design.html`로 옮겨 git 추적에서 뺐다(`backups/`는 gitignore 대상 로컬 아카이브). 되살리려면 파일을 루트로 되돌린 뒤 `pages-design` 내비, index 자동화 카드, `ai-levels.html` 로드맵, 키보드 `5` 핸들러를 함께 복원한다. 그 자리는 `claude-tools.html`이 대신한다.
 
 ### 실전 예제 (골드 액센트, 좌측 보더 `#B8860B`, header-pages: 5개 공통)
 인덱스의 실전 예제 섹션은 두 묶음으로 나뉜다. `기본 예제`(바로 써먹는 실무 자동화)와 `MCP 연결`(외부 도구와 연동하는 워크플로우). 5개 페이지는 모두 같은 5링크 header-pages 내비를 공유한다.
