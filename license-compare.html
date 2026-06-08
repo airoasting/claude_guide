@@ -930,7 +930,12 @@ License along with this program. If not, see
         if(activeLink){
             var nav = document.getElementById('subMenu');
             var lr = activeLink.getBoundingClientRect(), nr = nav.getBoundingClientRect();
-            if(lr.left < nr.left || lr.right > nr.right) activeLink.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+            if(lr.left < nr.left || lr.right > nr.right){
+                // 가로 서브메뉴만 스크롤한다. sticky 컨테이너 안에서 scrollIntoView를 부르면
+                // 브라우저가 창을 서브메뉴의 원래(고정 전) 위치로 끌어올려 하단을 못 보게 만든다.
+                var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.clientWidth) / 2;
+                nav.scrollTo({left: target, behavior: 'smooth'});
+            }
         }
     }
     window.addEventListener('scroll', update, {passive:true});
