@@ -65,8 +65,9 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [팀 설계: 솔로에서 오케스트라까지](agent-design.html) | 솔로, 파이프라인, 팀, 오케스트라 4가지 설계 패턴 |
-| [하네스 엔지니어링이란?](harness-engineering.html) | AI가 일하는 환경을 설계하는 6가지 구성 요소 |
+| [하네스 엔지니어링이란?](harness-engineering.html) | 같은 모델도 하네스에 따라 결과가 달라집니다. 역할 분리·컨텍스트 리셋 두 원칙 |
+| [Claude의 도구란?](claude-tools.html) | 내장 도구·MCP·커넥터·스킬·플러그인. 도구 다섯 종류를 한 지도로 정리 |
+| [다이내믹 워크플로우](harness-workflows.html) | Claude Code가 작업마다 하네스를 직접 짜는 6가지 패턴 |
 
 ---
 

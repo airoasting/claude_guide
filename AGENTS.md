@@ -27,7 +27,7 @@
 
 ---
 
-## 2. 페이지 인벤토리 (31개)
+## 2. 페이지 인벤토리 (32개)
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 

@@ -22,6 +22,7 @@
 | 10 | 개념 섹션 가시성 개선: 최상위 카드 7개 → 3개로 통합 | `harness-workflows.html` 개념 섹션 | "카드가 너무 많이 나누어져 가시성 저하" 피드백. 최상위 그림자 카드 7개(정의·대비·방식·왜·출처·역할그리드·핵심메시지)를 3카드(무엇/어떻게/왜)로 통합. 무엇=정의+한 문장+대비, 어떻게=네 가지 방식+용어, 왜=실패 3종+핵심 메시지+출처. h2를 무엇/어떻게/왜로 통일해 시선 닻 부여 |
 | 11 | 평면 하어라인 시안 폐기, 뉴모피즘 컴포넌트로 복구 | `harness-workflows.html` 개념 섹션 | 10번에서 시도한 평면(하어라인 표·구분선 리스트) 디자인이 사이트 뉴모피즘 톤과 안 맞고 대비가 약해 "더 안 보임" 피드백. 3카드 구조는 유지하되 내부를 사이트 기본 raised 컴포넌트로 환원(대비=`compare-grid`, 네 가지 방식=`comp-grid`, 실패 3종=`role-grid`, 한 문장=`highlight-box`, 핵심=`key-message`, 용어=`tip-box`). 가시성·일관성 회복 |
 | 12 | `claude-tools.html` 마감 + `agent-design.html` 아카이브 | `claude-tools.html`, `README.md`, `assets/about-modal.js`, `backups/` | 다섯 종류 카드를 번호 Pill 가로 5열 `.tool-map-grid`로 재배치, 서브에이전트 언급 전부 제거, 라벨 `5갈래 지도`→`다섯 종류의 도구`, 연결법 카드 3개를 `.comp-grid.cols-3` 한 줄로, `보안과 다음` 섹션(sec6)과 서브메뉴 항목 삭제(5섹션). README·소개 모달 CHANGELOG v1.5.0(2026-06-07) 부제를 `보안 가이드 · 하네스 엔지니어링 개념 설명 업데이트`로 갱신. `agent-design.html`을 `backups/`로 옮겨 git 추적 제외 |
+| 13 | md 문서 현행화 (agent-design 아카이브 반영) | `README.md`, `AGENTS.md` | README `실전. AI 에이전트 설계` 목록에서 `팀 설계`(agent-design 링크) 행을 빼고 `하네스 엔지니어링 · Claude의 도구 · 다이내믹 워크플로우` 3행으로 교체. AGENTS 페이지 인벤토리 카운트 31→32(claude-tools·harness-workflows 추가, agent-design 아카이브 반영). MEMORY 과거 로그와 commit 연계 표준화 수치(29개 등)는 기록이라 보존 |
 
 ### 2026-06-07
 
