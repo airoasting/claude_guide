@@ -6,6 +6,22 @@
 
 ## 최근 세션 변경 로그
 
+### 2026-06-08
+
+| # | 명령 | 범위 | 결과 |
+|---|---|---|---|
+| 1 | 다이내믹 워크플로우 페이지 신규 추가 | `harness-workflows.html`, `index.html` | Anthropic 블로그 "A harness for every task: dynamic workflows in Claude Code" 기반. `harness-engineering.html` 골격을 클론해 CSS·햄버거·스크립트를 그대로 쓰고 메타·헤더·서브메뉴·본문만 교체. 4섹션(개념·왜 필요한가·6가지 패턴·실전 사용법). 단일 컨텍스트 3대 실패(게으름·자기편향·목표표류)와 6패턴(분류후실행·펼치고합치기·적대적검증·생성후거르기·토너먼트·끝까지반복) 정리. 인덱스 자동화 트랙 실전 묶음을 2열에서 3열로 바꾸고 `하네스 엔지니어링 실전 가이드` 카드 추가 |
+| 2 | 자동화 실전(design) 헤더 내비를 3-menu로 확장 | `harness-engineering.html`, `harness-workflows.html`, `agent-design.html`, `claude-md-templates.html`, `code-plugin.html`, `skills.html` | `pages-design` 그룹에 `다이내믹 워크플로우` 링크(🔀) 추가. 6개 파일 모두 `하네스 엔지니어링 · 다이내믹 워크플로우 · 팀 설계` 3링크로 통일 |
+| 3 | 개념 영역 10점 개선 (BLACK·PINK·GOLD 5-Color 진단 반영) | `harness-workflows.html` 개념 섹션 | "무슨 의미인지 애매" 피드백 해소. 상단에 `한 문장으로` 정의 박스 추가, 하네스를 페이지 안에서 정의(타 페이지 의존 제거), `보통의 사용 vs 다이내믹 워크플로우` 대비표 신설, 비유1을 맞춤 공구함에서 프로젝트 매니저로 교체(본질=팀 분담에 정렬), `agent()` 등 함수명을 큰 제목에서 회색 작은 주석으로 강등하고 평어 제목으로 교체, `용어 정리`로 하네스·워크플로우 관계 명시 |
+| 4 | 6패턴 섹션에 원본 도식을 인라인 SVG로 재현 | `harness-workflows.html` 6가지 패턴 섹션 | 기존 단순 flow-diagram(작업분해→병렬→검증→합성)을 Anthropic "Six Workflow Patterns" 도식 그대로 재현한 인라인 SVG로 교체. 6카드(Classify-And-Act·Fanout-And-Synthesize·Adversarial Verification·Generate-And-Filter·Tournament·Loop Until Done), 주황 강조 경로·점선 discarded·양방향 검증 화살표 포함. 좁은 화면 가로 스크롤(min-width 840px), figcaption에 출처 표기 |
+| 5 | 도구(Tools) 페이지 신규 추가 | `claude-tools.html`, `index.html`, `ai-levels.html` | "Claude에게 손발을 붙이는 다섯 갈래" 허브 레퍼런스. `harness-workflows.html` 골격 클론(CSS·햄버거·스크립트 그대로, 메타·헤더·서브메뉴·본문만 교체). 브레인스토밍으로 하이브리드 성격 확정(5갈래 개념 지도 + MCP vs 커넥터만 깊게). 6섹션(도구란·5갈래 지도·MCP와 커넥터·무엇을 고르나·연결하는 법·보안과 다음). 5갈래=내장도구·MCP·커넥터·스킬·플러그인, 각 카드는 기존 실전 페이지로 링크(중복 회피). 5갈래는 가로 5열 `.tool-map-grid`로 한 줄에 나열하고 각 카드 좌상단에 번호 Pill(1~5)을 둬 순서를 또렷하게 드러냈다(≤768px 2열, ≤460px 1열). 인덱스 자동화 실전 카드를 `하네스 엔지니어링 → 도구 → 다이내믹 워크플로우` 순서로 재배치, `ai-levels.html` 로드맵 3단계를 도구로 교체 |
+| 6 | `agent-design.html`(팀 설계) 인덱스·전 페이지 링크 제거 | `index.html` 외 18개 파일 | 파일은 보존, 어디서도 링크하지 않는 아카이브 후보로 전환. `pages-design` 내비(harness-engineering·harness-workflows·claude-md-templates·code-plugin·skills 5개)에서 `팀 설계` 자리를 `도구`로 교체하고 순서를 하네스 엔지니어링·도구·다이내믹 워크플로우로 고정. 키보드 `5` 핸들러 14개 파일을 `claude-tools.html`로 리디렉트. CTA·next-layer 링크(harness-engineering·harness-workflows·code-plugin·skills·claude-md-templates)도 도구로 교체. 전수 검증: agent-design 잔여 참조 0 |
+| 7 | `harness-workflows.html` 실전 예시 추가 + 호출 설명 정밀화 (5-Color @all 반영) | `harness-workflows.html` | 6패턴 섹션 끝에 `한 작업이 실제로 도는 모습` 카드 신설(경쟁사 40곳 조사 예시 4단계, 단계별 패턴 태그, "코드 작업도 똑같다" 팁). `어떻게 부르나`를 opt-in·토큰 과금·명시 신호 기준으로 정밀화 |
+| 8 | `harness-workflows.html` 개념·왜 필요한가를 `개념` 한 섹션으로 통합 + 비유 제거 | `harness-workflows.html` | sec1(개념)과 sec2(왜 필요한가)를 하나의 `개념` 섹션으로 합침. 프로젝트 매니저·주문형 생산 라인 비유(cluster-box) 삭제. 개념 섹션 카드 순서: 정의 → 보통의 사용과 다른 점 → 일을 나누는 네 가지 방식 → 왜 굳이 나누나(단일 컨텍스트 3대 실패). 서브메뉴 4개에서 3개로(개념·6가지 패턴·실전 사용법), 섹션 id·번호 sec1~sec3로 재정렬 |
+| 9 | 6패턴 도식과 설명을 패턴별 한 박스로 통합 (BLACK·PINK·GOLD 5-Color 반영) | `harness-workflows.html` 6가지 패턴 섹션 | 큰 통합 SVG 1개 + 별도 설명 카드 6개의 중복을 제거. `.pat-grid` 2열에 패턴별 카드 6개를 두고 각 카드 안에 [번호 배지 + 한국어 제목(영어 병기) + 미니 도식(인셋 박스) + 언제 + 설명]을 함께 담음. 도식 라벨을 한국어(영어) 병기로 전환(과제·분류기·종합·작업자·검증자·생성기·후보안·필터·채택·폐기·결승·최종·에이전트·완료 등). 마커·`.wf-*` 스타일을 섹션 상단 공용 `<style>`+숨김 `<svg><defs>`로 이전. 토너먼트 상단 라벨 겹침·반복 카드 긴 라벨 보정 |
+| 10 | 개념 섹션 가시성 개선: 최상위 카드 7개 → 3개로 통합 | `harness-workflows.html` 개념 섹션 | "카드가 너무 많이 나누어져 가시성 저하" 피드백. 최상위 그림자 카드 7개(정의·대비·방식·왜·출처·역할그리드·핵심메시지)를 3카드(무엇/어떻게/왜)로 통합. 무엇=정의+한 문장+대비, 어떻게=네 가지 방식+용어, 왜=실패 3종+핵심 메시지+출처. h2를 무엇/어떻게/왜로 통일해 시선 닻 부여 |
+| 11 | 평면 하어라인 시안 폐기, 뉴모피즘 컴포넌트로 복구 | `harness-workflows.html` 개념 섹션 | 10번에서 시도한 평면(하어라인 표·구분선 리스트) 디자인이 사이트 뉴모피즘 톤과 안 맞고 대비가 약해 "더 안 보임" 피드백. 3카드 구조는 유지하되 내부를 사이트 기본 raised 컴포넌트로 환원(대비=`compare-grid`, 네 가지 방식=`comp-grid`, 실패 3종=`role-grid`, 한 문장=`highlight-box`, 핵심=`key-message`, 용어=`tip-box`). 가시성·일관성 회복 |
+
 ### 2026-06-07
 
 | # | 명령 | 범위 | 결과 |

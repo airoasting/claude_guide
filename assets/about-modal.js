@@ -375,7 +375,7 @@
                 <div class="changelog-list">
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v1.5.0</span><span class="changelog-date">2026-06-07</span></div>
-                        <div class="changelog-body"><p class="changelog-title">보안 가이드 추가</p><p class="changelog-desc">비즈니스 리더용 AI 협업 보안 5가지 가이드라인을 추가했습니다.</p></div>
+                        <div class="changelog-body"><p class="changelog-title">보안 가이드 · 하네스 엔지니어링 개념 설명 업데이트</p><p class="changelog-desc">비즈니스 리더용 AI 협업 보안 5가지 가이드라인을 추가했습니다. 하네스 엔지니어링 실전 트랙의 카드 3개(하네스 엔지니어링·Claude의 도구·다이내믹 워크플로우)도 새로 정비했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v1.4.0</span><span class="changelog-date">2026-05-31</span></div>

@@ -27,7 +27,7 @@
 
 ---
 
-## 2. 페이지 인벤토리 (30개)
+## 2. 페이지 인벤토리 (31개)
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 
@@ -71,8 +71,13 @@
 |---|---|---|---|---|
 | `claude-md-templates.html` | 10분 | 중급 | 5개 | 스킬 트랙 |
 | `skills.html` | 20분 | 중급 | 7개 | 나만의 Skill 만들기 |
-| `agent-design.html` | 20분 | 고급 | 5개 | 솔로 → 파이프라인 → 팀 → 오케스트라 |
 | `harness-engineering.html` | 15분 | 고급 | 7개 | 하네스 6가지 구성 요소 |
+| `claude-tools.html` | 12분 | 중급 | 7개 | 도구 다섯 종류(내장·MCP·커넥터·스킬·플러그인). `harness-workflows.html` 골격 클론. MCP vs 커넥터를 깊게 다룬다. sub-menu 5섹션(도구란·다섯 종류의 도구·MCP와 커넥터·무엇을 고르나·연결하는 법). 다섯 종류는 번호 Pill 가로 5열 |
+| `harness-workflows.html` | 15분 | 고급 | 7개 | 다이내믹 워크플로우. 단일 컨텍스트 3대 실패 + 6패턴. `harness-engineering.html` 골격 클론 |
+
+자동화 실전(design) 헤더 내비는 3-menu다. `pages-design` 그룹은 `하네스 엔지니어링 · 도구 · 다이내믹 워크플로우` 3링크를 공유한다(`harness-engineering.html`, `claude-tools.html`, `harness-workflows.html`, `claude-md-templates.html`, `code-plugin.html`, `skills.html`). 순서는 하네스 엔지니어링 → 도구 → 다이내믹 워크플로우로 고정한다.
+
+`agent-design.html`(팀 설계)은 2026-06-08에 인덱스와 전 페이지 내비·링크·키보드 핸들러에서 제거했다. 파일 자체는 보존하되 어디서도 링크하지 않는 아카이브 후보다. 되살리려면 `pages-design` 내비, index 자동화 카드, `ai-levels.html` 로드맵, 키보드 `5` 핸들러를 함께 되돌린다. 그 자리는 `claude-tools.html`이 대신한다.
 
 ### 실전 예제 (골드 액센트, 좌측 보더 `#B8860B`, header-pages: 5개 공통)
 인덱스의 실전 예제 섹션은 두 묶음으로 나뉜다. `기본 예제`(바로 써먹는 실무 자동화)와 `MCP 연결`(외부 도구와 연동하는 워크플로우). 5개 페이지는 모두 같은 5링크 header-pages 내비를 공유한다.
