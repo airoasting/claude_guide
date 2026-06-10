@@ -1,0 +1,2770 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/harness-engineering.html">
+    <meta property="og:title" content="AI ROASTING · Claude 완전 정복">
+    <meta property="og:description" content="LG전자 최고경영자를 위한 Claude 완전 정복 플러그인부터 클로드 코드까지 5단계 실전 가이드">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/harness-engineering.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI ROASTING · Claude 완전 정복">
+    <meta name="twitter:description" content="LG전자 최고경영자를 위한 Claude 완전 정복 플러그인부터 클로드 코드까지 5단계 실전 가이드">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>하네스 엔지니어링 실전: 경영 사례 | AI ROASTING</title>
+    <meta name="description" content="사장님이 방금 실습에서 한 일이 곧 하네스 설계였습니다. 리서치 브리프 품질 루프와 경영 시뮬레이션 의사결정 루프로 역할 분리·컨텍스트 리셋을 풀어냅니다.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --page-bg: #E7E2D9;
+            --nm-bg: #FCFBF8;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 0 0 0 1px rgba(58,53,48,.06), 0 1px 2px rgba(58,53,48,.04), 0 14px 30px -12px rgba(58,53,48,.16);
+            --nm-shadow-sm: 0 0 0 1px rgba(58,53,48,.07), 0 1px 3px rgba(58,53,48,.06);
+            --nm-inset: inset 0 0 0 1px rgba(58,53,48,.09);
+            --ant-orange: #A50034;
+            --ant-dark: #1A1917;
+            --skill-blue: #3B82F6;
+            --skill-green: #10B981;
+            --skill-amber: #F59E0B;
+            --skill-rose: #9C3A4F;
+            --skill-pink: #EC4899;
+            --skill-cyan: #06B6D4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { word-break: keep-all; font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--page-bg); color: #3A3530; line-height: 1.6; }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #C8123E 0%, #A50034 48%, #7A0026 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(200,18,62,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Header Page Links ── */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin: 22px auto 0;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 940px;
+        }
+        .header-page-link {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 9px 10px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1;
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(165,0,52,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(165,0,52,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #9C3A4F;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 100px; }
+        .step-divider { scroll-margin-top: 130px; }
+        #case1.step-divider, #case3.step-divider { scroll-margin-top: 160px; }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 클러스터 박스 (관련 블록 묶음) ── */
+        .cluster-box {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 22px 24px 24px;
+            margin: 16px 0 8px;
+        }
+        .cluster-box > .analogy-grid { margin-top: 0; margin-bottom: 16px; }
+        .cluster-box > .key-message { margin: 0; }
+
+        /* ── analogy 2열 그리드 ── */
+        .analogy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 8px 0; }
+        .analogy-grid .analogy-box {
+            margin-bottom: 0;
+            padding: 20px 22px;
+            flex-direction: column;
+            align-items: stretch;
+            text-align: left;
+            gap: 6px;
+        }
+        .analogy-grid .analogy-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .analogy-grid .analogy-head .analogy-titles strong {
+            display: block;
+            font-size: 16px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 4px;
+        }
+        .analogy-grid .analogy-head .analogy-titles strong:last-child { margin-bottom: 0; }
+        .analogy-grid .analogy-body p { font-size: 14px; color: #5C5650; line-height: 1.75; margin: 0; }
+        .analogy-grid .analogy-body strong {
+            display: inline;
+            font-size: inherit;
+            margin-bottom: 0;
+            font-weight: 700;
+            color: #3A3530;
+        }
+        @media (max-width: 768px) { .analogy-grid { grid-template-columns: 1fr; } }
+
+        /* ── 섹션 박스 (각 섹션의 외곽 컨테이너) ── */
+        .section-box {
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            margin-bottom: 32px;
+        }
+        .section-box > .nm-card {
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+            padding: 14px 4px;
+            margin-bottom: 0;
+        }
+        .section-box > .nm-card:last-child {
+            padding-bottom: 6px;
+        }
+        .section-box > .nm-card:first-child {
+            padding-top: 4px;
+        }
+        .section-box > .nm-card:first-child {
+            padding-top: 8px;
+        }
+        .section-box > .nm-card:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        .section-box > .analogy-box,
+        .section-box > .key-message {
+            box-shadow: var(--nm-shadow-sm);
+            margin: 16px 0;
+        }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; }
+
+        /* ── 스크롤 프로그레스 바 ── */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;
+            background: linear-gradient(90deg, var(--ant-orange), #E0708A);
+            width: 0%; transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(165,0,52,0.4);
+        }
+
+        /* ── 섹션 구분 ── */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 30px 0 28px; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: rgba(58,53,48,0.14); }
+        .step-badge {
+            font-size: 13px; font-weight: 800;
+            letter-spacing: 0.5px;
+            color: var(--ant-orange); background: #EDEAE4;
+            box-shadow: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            padding: 8px 24px; border-radius: 20px; white-space: nowrap;
+        }
+
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--ant-orange); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { display: inline-block; font-size: 11px; font-weight: 700; background: var(--ant-orange); color: #fff; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 강조 박스 ── */
+        .highlight-box {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border: none;
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin: 12px 0 4px;
+        }
+
+        /* ── 섹션 인트로 (박스 최상단 한 줄) ── */
+        .section-intro {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            letter-spacing: 0.3px;
+            padding: 0 4px 14px;
+            margin-bottom: 4px;
+            border-bottom: 1px dashed rgba(165,0,52,0.25);
+        }
+        .section-intro .si-label {
+            display: inline-block;
+            background: rgba(165,0,52,0.12);
+            color: var(--ant-orange);
+            padding: 3px 10px;
+            border-radius: 6px;
+            margin-right: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+        .section-intro .si-text { color: #3A3530; font-weight: 700; vertical-align: middle; }
+
+        /* ── 출처 미니 카드 ── */
+        .source-mini {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin: 14px 0 18px;
+        }
+        .source-mini-icon {
+            width: 40px; height: 40px; flex-shrink: 0;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--ant-orange), #B83A57);
+            color: #fff; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(165,0,52,0.3);
+        }
+        .source-mini-body { flex: 1; min-width: 0; }
+        .source-mini-body .sm-title {
+            font-size: 13px; font-weight: 800; color: #3A3530;
+            display: block; margin-bottom: 2px;
+        }
+        .source-mini-body .sm-meta {
+            font-size: 11px; color: #888; margin-bottom: 6px;
+        }
+        .source-mini-body p { font-size: 13px; color: #5C5650; line-height: 1.7; margin: 0; }
+        .source-mini-body a { color: var(--ant-orange); font-weight: 700; text-decoration: none; }
+        .source-mini-body a:hover { text-decoration: underline; }
+
+        /* ── 문제 2-pack 그리드 ── */
+        .problem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 8px 0 18px;
+        }
+        .problem-card {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 22px 22px 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .problem-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .problem-card.pc-1::before { background: linear-gradient(90deg, #C8123E, #E0708A); }
+        .problem-card.pc-2::before { background: linear-gradient(90deg, var(--skill-rose), #BD7286); }
+        .problem-head {
+            display: flex; align-items: flex-start; gap: 12px;
+        }
+        .problem-num {
+            font-size: 22px; font-weight: 900;
+            background: linear-gradient(135deg, #1A1917, #3A3530);
+            -webkit-background-clip: text; background-clip: text;
+            color: transparent;
+            line-height: 1; flex-shrink: 0;
+            padding-top: 2px;
+        }
+        .problem-card.pc-1 .problem-num {
+            background: linear-gradient(135deg, #C8123E, #E0708A);
+            -webkit-background-clip: text; background-clip: text;
+        }
+        .problem-card.pc-2 .problem-num {
+            background: linear-gradient(135deg, var(--skill-rose), #BD7286);
+            -webkit-background-clip: text; background-clip: text;
+        }
+        .problem-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .problem-title strong {
+            font-size: 16px; font-weight: 800; color: #3A3530;
+        }
+        .problem-title .problem-en {
+            font-size: 11px; color: #999; letter-spacing: 0.5px;
+            text-transform: uppercase; font-weight: 700;
+        }
+        .problem-tagline {
+            font-size: 13px; color: #5C5650; line-height: 1.7;
+            font-weight: 600;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+            margin: 0;
+        }
+        .problem-card .quote-box {
+            margin: 0;
+            padding: 18px 20px 16px 38px;
+            font-size: 13px;
+        }
+        .problem-card .quote-box p { font-size: 13px; line-height: 1.75; padding-left: 0; }
+        .problem-card .quote-box .quote-author { padding-left: 0; }
+        .problem-card .quote-box::before { font-size: 48px; top: 0px; left: 12px; }
+        .problem-card.pc-1 .quote-box {
+            background: linear-gradient(135deg, rgba(200,18,62,0.05) 0%, rgba(200,18,62,0.01) 100%);
+        }
+        .problem-card.pc-1 .quote-box::before { color: rgba(200,18,62,0.18); }
+        .problem-card.pc-2 .quote-box {
+            background: linear-gradient(135deg, rgba(156,58,79,0.05) 0%, rgba(156,58,79,0.01) 100%);
+        }
+        .problem-card.pc-2 .quote-box::before { color: rgba(156,58,79,0.18); }
+        .problem-analogy {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 12px;
+            padding: 12px 16px;
+        }
+        .problem-analogy .pa-label {
+            display: inline-block;
+            font-size: 10px; font-weight: 800;
+            color: var(--ant-orange);
+            background: rgba(165,0,52,0.12);
+            padding: 2px 8px; border-radius: 5px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .problem-analogy p { font-size: 13px; color: #5C5650; line-height: 1.7; margin: 0; }
+
+        /* ── 문제 → 원칙 브릿지 ── */
+        .problem-bridge {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: -10px 0 6px;
+            padding: 0 8px;
+        }
+        .pb-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0 2px;
+            --pb-color: #999;
+            --pb-bg: rgba(0,0,0,0.04);
+        }
+        .pb-col.pb-1 { --pb-color: #A50034; --pb-bg: rgba(200,18,62,0.12); }
+        .pb-col.pb-2 { --pb-color: #9C3A4F; --pb-bg: rgba(156,58,79,0.12); }
+        .pb-line {
+            width: 2px;
+            height: 18px;
+            background: linear-gradient(180deg, var(--pb-color), rgba(255,255,255,0));
+            border-radius: 1px;
+            opacity: 0.85;
+        }
+        .pb-pill {
+            font-size: 10.5px; font-weight: 800;
+            letter-spacing: 0.6px;
+            color: var(--pb-color);
+            background: var(--pb-bg);
+            padding: 4px 12px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .pb-tip {
+            width: 0; height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 7px solid var(--pb-color);
+            opacity: 0.9;
+        }
+
+        /* ── 처방 카드 ── */
+        .solution-card {
+            background: linear-gradient(140deg, #1F1B17 0%, #2A2420 100%);
+            border-radius: 20px;
+            padding: 26px 28px;
+            margin: 4px 0 18px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .solution-card::before {
+            content: '';
+            position: absolute; top: -60px; right: -40px;
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(165,0,52,0.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .solution-card .sc-badge {
+            display: inline-block;
+            font-size: 11px; font-weight: 800;
+            color: var(--ant-orange);
+            background: rgba(165,0,52,0.18);
+            padding: 4px 12px; border-radius: 6px;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 10px;
+        }
+        .solution-card .sc-title {
+            font-size: 20px; font-weight: 800;
+            color: #fff; margin-bottom: 4px;
+            position: relative; z-index: 1;
+        }
+        .solution-card .sc-sub {
+            font-size: 13px; color: rgba(255,255,255,0.65);
+            margin-bottom: 18px;
+            position: relative; z-index: 1;
+        }
+        .solution-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            position: relative; z-index: 1;
+        }
+        .solution-item {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 16px 18px;
+            transition: all 0.25s;
+        }
+        .solution-item:hover {
+            background: rgba(255,255,255,0.10);
+            transform: translateY(-2px);
+        }
+        .solution-item .si-arrow {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 800;
+            color: var(--ant-orange);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .solution-item .si-pill {
+            font-size: 11.5px; font-weight: 800;
+            color: var(--ant-orange);
+            background: rgba(165,0,52,0.18);
+            padding: 5px 12px;
+            border-radius: 999px;
+            letter-spacing: 0.4px;
+            margin-bottom: 12px;
+        }
+        .solution-item--standalone {
+            background: linear-gradient(140deg, #1F1B17 0%, #2A2420 100%);
+            border: none;
+            border-radius: 18px;
+            padding: 22px 22px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .solution-item--standalone::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .solution-item--standalone.si-1::before { background: linear-gradient(90deg, #C8123E, #E0708A); }
+        .solution-item--standalone.si-2::before { background: linear-gradient(90deg, #9C3A4F, #BD7286); }
+        .solution-item--standalone:hover { background: linear-gradient(140deg, #221E19 0%, #2E2723 100%); }
+
+        /* ── 사례 1 원칙 적용 라벨 ── */
+        .principle-pill {
+            display: inline-block;
+            font-size: 11.5px; font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 999px;
+            letter-spacing: 0.4px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+        }
+        .principle-pill.pp-1 { background: rgba(200,18,62,0.12); color: #A50034; }
+        .principle-pill.pp-2 { background: rgba(156,58,79,0.12); color: #9C3A4F; }
+        .nm-card.pc-applied-1 { border-top: 3px solid #C8123E; }
+        .nm-card.pc-applied-2 { border-top: 3px solid #9C3A4F; }
+        .nm-card .sub-section-title {
+            font-size: 16px; font-weight: 800; color: #3A3530;
+            margin: 28px 0 12px; padding-left: 0;
+        }
+
+        /* ── 사례 1 원칙 2-pack ── */
+        .applied-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 8px 0 0;
+        }
+        .applied-card {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 22px 22px 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .applied-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .applied-card.ac-1::before { background: linear-gradient(90deg, #C8123E, #E0708A); }
+        .applied-card.ac-2::before { background: linear-gradient(90deg, #9C3A4F, #BD7286); }
+        .applied-card h3 {
+            font-size: 17px; font-weight: 800; color: #3A3530;
+            margin: 4px 0 0;
+        }
+        .applied-card .ac-tagline {
+            font-size: 13px; color: #5C5650; line-height: 1.7;
+            font-weight: 600;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+            margin: 0;
+        }
+        .applied-card ul {
+            font-size: 13px; color: #5C5650; line-height: 1.75;
+            padding-left: 18px; margin: 0;
+        }
+        .applied-card li { margin-bottom: 4px; }
+        .applied-card .principle-pill { margin-bottom: 0; }
+
+        @media (max-width: 768px) {
+            .applied-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── 역할 분담 카드 (3-col 지원 + 새 색상) ── */
+        .applied-grid.three-col { grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+        @media (max-width: 768px) {
+            .applied-grid.three-col { grid-template-columns: 1fr; }
+        }
+        .applied-card.ac-planner::before { background: linear-gradient(90deg, #6366F1, #818CF8); }
+        .applied-card.ac-generator::before { background: linear-gradient(90deg, #D97759, #F59E0B); }
+        .applied-card.ac-evaluator::before { background: linear-gradient(90deg, #14B8A6, #2DD4BF); }
+        .principle-pill.pp-planner   { background: rgba(99,102,241,0.12); color: #4F46E5; }
+        .principle-pill.pp-generator { background: rgba(217,119,89,0.16); color: #B45309; }
+        .principle-pill.pp-evaluator { background: rgba(20,184,166,0.14); color: #0F766E; }
+        .applied-card .role-io {
+            list-style: none; padding-left: 0; margin: 0;
+            display: flex; flex-direction: column;
+            font-size: 13px; color: #5C5650; line-height: 1.65;
+        }
+        .applied-card .role-io li {
+            display: grid; grid-template-columns: 64px 1fr; gap: 10px;
+            margin-bottom: 0; padding: 8px 0;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+        .applied-card .role-io li:first-child { border-top: none; padding-top: 2px; }
+        .applied-card .role-io strong {
+            font-size: 11px; font-weight: 800; color: #3A3530;
+            letter-spacing: 0.6px;
+            padding-top: 2px;
+        }
+        .applied-card .role-io span { display: block; }
+
+        /* ── 역할 카드 통합 pill (이름 + 역할 라벨 한 버튼) ── */
+        .applied-card .role-card-pill {
+            display: inline-flex; align-items: baseline; gap: 10px;
+            padding: 9px 16px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            border: 1px solid transparent;
+        }
+        .applied-card .role-card-pill strong {
+            font-size: 17px; font-weight: 800;
+        }
+        .applied-card .role-card-pill span {
+            font-size: 11px; font-weight: 800; opacity: 0.78;
+            letter-spacing: 0.5px;
+        }
+        .applied-card .role-card-pill.rcp-planner {
+            background: rgba(99,102,241,0.13);
+            color: #4F46E5;
+            border-color: rgba(99,102,241,0.22);
+        }
+        .applied-card .role-card-pill.rcp-generator {
+            background: rgba(217,119,89,0.16);
+            color: #B45309;
+            border-color: rgba(217,119,89,0.24);
+        }
+        .applied-card .role-card-pill.rcp-evaluator {
+            background: rgba(20,184,166,0.14);
+            color: #0F766E;
+            border-color: rgba(20,184,166,0.24);
+        }
+
+        /* ── 원칙 1 → 역할 섹션 내려오는 화살표 (인라인) ── */
+        .role-arrow-down {
+            position: relative;
+            height: 32px;
+            margin: 14px 0 6px;
+        }
+        .role-arrow-down::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 25%;
+            transform: translateX(-50%);
+            width: 2px; height: 22px;
+            background: linear-gradient(180deg, rgba(200,18,62,0.35), #C8123E);
+            border-radius: 2px;
+        }
+        .role-arrow-down::after {
+            content: "";
+            position: absolute;
+            top: 21px; left: 25%;
+            margin-left: -7px;
+            width: 0; height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 9px solid #C8123E;
+        }
+        @media (max-width: 768px) {
+            .role-arrow-down::before { left: 50%; }
+            .role-arrow-down::after { left: 50%; }
+        }
+
+        /* ── 원칙 1 풀어보기 (zoom-in callout) ── */
+        .zoom-in-section {
+            position: relative;
+            margin-top: 44px;
+        }
+        .zoom-in-section .zoom-arrow {
+            position: absolute;
+            top: -34px; left: 25%;
+            transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center;
+            pointer-events: none;
+        }
+        .zoom-in-section .zoom-arrow::before {
+            content: "";
+            width: 2px; height: 22px;
+            background: linear-gradient(180deg, rgba(200,18,62,0.35), #C8123E);
+            border-radius: 2px;
+        }
+        .zoom-in-section .zoom-arrow::after {
+            content: "";
+            width: 0; height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 9px solid #C8123E;
+            margin-top: -1px;
+        }
+        .zoom-in-card {
+            background: linear-gradient(180deg, rgba(200,18,62,0.07) 0%, rgba(200,18,62,0.015) 100%);
+            border: 1px solid rgba(200,18,62,0.22);
+            border-radius: 14px;
+            padding: 22px 22px 20px;
+            position: relative;
+        }
+        .zoom-in-pill {
+            display: inline-block;
+            background: rgba(200,18,62,0.14);
+            color: #A50034;
+            font-size: 11.5px; font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 999px;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .zoom-in-title {
+            font-size: 17px; font-weight: 800; color: #3A3530;
+            margin: 4px 0 16px;
+            line-height: 1.5;
+        }
+        @media (max-width: 768px) {
+            .zoom-in-section .zoom-arrow { left: 50%; }
+        }
+
+        .solution-item strong {
+            display: block;
+            font-size: 15px; font-weight: 800; color: #fff;
+            margin-bottom: 6px;
+        }
+        .solution-item p {
+            font-size: 12.5px; color: rgba(255,255,255,0.7);
+            line-height: 1.65; margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .problem-grid { grid-template-columns: 1fr; }
+            .solution-grid { grid-template-columns: 1fr; }
+            .problem-bridge { grid-template-columns: 1fr; gap: 4px; }
+            .source-mini { padding: 14px 16px; gap: 12px; }
+            .solution-card { padding: 22px 20px; }
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* ── 비교 그리드 ── */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm { background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm); padding: 20px; position: relative; overflow: hidden; transition: transform 0.25s; }
+        .compare-nm:hover { transform: translateY(-2px); }
+        .compare-nm::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
+        .compare-nm:first-child::before { background: #C8123E; }
+        .compare-nm:last-child::before { background: var(--skill-green); }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+
+        /* ── 뉴모 테이블 ── */
+        .nm-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .nm-table-wrap table { width: 100%; border-collapse: collapse; }
+        .nm-table-wrap thead { background: var(--ant-dark); }
+        .nm-table-wrap th {
+            text-align: left; padding: 12px 16px;
+            font-size: 14px; font-weight: 600; color: #fff;
+        }
+        .nm-table-wrap td {
+            padding: 12px 16px; font-size: 14px; color: #5C5650;
+            border-bottom: 1px solid #E8E4DE;
+        }
+        .nm-table-wrap tbody tr:nth-child(even) { background: rgba(0,0,0,0.015); }
+        .nm-table-wrap tbody tr:last-child td { border-bottom: none; }
+        .nm-table-wrap tbody tr.build-row,
+        .nm-table-wrap tbody tr.build-row:nth-child(even) { background: rgba(165,0,52,0.14); }
+        .nm-table-wrap tbody tr:hover { background: rgba(165,0,52,0.06); }
+        .nm-table-wrap tbody tr.build-row:hover { background: rgba(165,0,52,0.20); }
+
+        /* ── 3열 역할 카드 ── */
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+        .role-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .role-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .role-card:nth-child(1)::before { background: linear-gradient(90deg, var(--skill-blue), #60A5FA); }
+        .role-card:nth-child(2)::before { background: linear-gradient(90deg, var(--ant-orange), #E0708A); }
+        .role-card:nth-child(3)::before { background: linear-gradient(90deg, var(--skill-rose), #BD7286); }
+        .role-card:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 12px 26px -10px rgba(58,53,48,.20); }
+        .role-icon { font-size: 32px; margin-bottom: 12px; }
+        .role-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 8px; }
+        .role-card p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .role-card .role-example {
+            margin-top: 12px; padding-top: 12px;
+            border-top: 1px solid #E8E4DE;
+            font-size: 12px; color: #888; line-height: 1.6;
+            text-align: left;
+        }
+
+        /* ── 6칸 구성요소 그리드 ── */
+        .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .comp-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .comp-item:hover { transform: translateY(-2px); }
+        .comp-item .comp-icon { font-size: 24px; margin-bottom: 8px; }
+        .comp-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px; }
+        .comp-item .comp-q { font-size: 12px; color: var(--ant-orange); font-weight: 600; margin-bottom: 8px; }
+        .comp-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(150deg, #C8123E 0%, #A50034 48%, #7A0026 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* ── 참고 자료 ── */
+        .ref-section { margin-top: 36px; }
+        .ref-title { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 14px; }
+        .ref-links { display: flex; flex-direction: column; gap: 10px; }
+        .ref-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ref-link:hover { transform: translateY(-1px); color: var(--ant-orange); }
+        .ref-link .ref-icon { font-size: 18px; flex-shrink: 0; }
+        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
+
+        /* ── 푸터 ── */
+        footer { background: #1A1917; text-align: center; padding: 34px 32px 28px; border-radius: 28px 28px 0 0; }
+        .footer-brand { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 17px; font-weight: 800; color: #fff; letter-spacing: 1px; text-transform: uppercase; margin: 0 0 6px; }
+        .footer-brand-logo { height: 18px; width: auto; display: block; }
+        .footer-li { display: inline-flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; margin-left: 5px; opacity: 0.9; transition: opacity 0.2s, transform 0.15s; }
+        .footer-li:hover { opacity: 1; transform: translateY(-1px); }
+        .footer-li svg { width: 14px; height: 14px; display: block; }
+        .footer-text { font-size: 12.5px; color: rgba(255,255,255,0.6); margin: 0; }
+        .footer-news { display: inline-flex; align-items: center; gap: 7px; margin-top: 14px; font-size: 11px; font-weight: 700; color: #fff; text-decoration: none; background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.22); padding: 4px 16px; border-radius: 100px; white-space: nowrap; transition: background 0.2s, border-color 0.2s, transform 0.15s; }
+        .footer-news:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.42); transform: translateY(-1px); }
+        .footer-news .fn-arrow { font-size: 11px; opacity: 0.95; }
+        .footer-copy { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 16px; }
+        /* ── 스크롤 애니메이션 ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal.delay-1 { transition-delay: 0.1s; }
+        .reveal.delay-2 { transition-delay: 0.2s; }
+        .reveal.delay-3 { transition-delay: 0.3s; }
+
+        /* ── 헤더 로드 애니메이션 ── */
+        @keyframes headerFadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes headerFadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .header-animate-1 { animation: headerFadeDown 0.55s ease both; animation-delay: 0.05s; }
+        .header-animate-2 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.18s; }
+        .header-animate-3 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.32s; }
+        .header-animate-4 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.44s; }
+        .header-animate-5 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.56s; }
+
+        /* ── 부유 애니메이션 (analogy-icon) ── */
+        @keyframes floatBob {
+            0%, 100% { transform: translateY(0px); }
+            50%       { transform: translateY(-7px); }
+        }
+        .analogy-icon { animation: floatBob 3.2s ease-in-out infinite; }
+        .analogy-box:nth-of-type(2) .analogy-icon { animation-delay: -1s; }
+        .analogy-box:nth-of-type(3) .analogy-icon { animation-delay: -2.1s; }
+
+        /* ── step-badge shimmer ── */
+        @keyframes shimmerScan {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .step-badge {
+            background-image: linear-gradient(
+                105deg,
+                #EDEAE4 40%,
+                rgba(255,255,255,0.85) 50%,
+                #EDEAE4 60%
+            );
+            background-size: 200% auto;
+            animation: shimmerScan 2.8s linear infinite;
+        }
+
+        /* ── key-message 테두리 glow ── */
+        @keyframes borderGlow {
+            0%, 100% { border-color: rgba(165,0,52,0.25); box-shadow: none; }
+            50%       { border-color: rgba(165,0,52,0.55); box-shadow: 0 0 18px rgba(165,0,52,0.18); }
+        }
+        .key-message { animation: borderGlow 3s ease-in-out infinite; }
+
+        /* ── 그리드 stagger ── */
+        .stagger-child {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+        .stagger-child.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── nm-card 호버 리프트 ── */
+        .nm-card {
+            transition: transform 0.28s ease, box-shadow 0.28s ease;
+        }
+        .nm-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 16px 34px -12px rgba(58,53,48,.22);
+        }
+
+        /* ── flow-node 순차 하이라이트 ── */
+        @keyframes nodeFlash {
+            0%, 100% { box-shadow: 0 0 0 1px rgba(58,53,48,.08), 0 2px 6px rgba(58,53,48,.08); }
+            50%       { box-shadow: 0 0 0 3px rgba(165,0,52,0.4), 0 2px 6px rgba(58,53,48,.08); }
+        }
+        .flow-node:nth-child(1)  { animation: nodeFlash 3s ease-in-out infinite; animation-delay: 0s; }
+        .flow-node:nth-child(3)  { animation: nodeFlash 3s ease-in-out infinite; animation-delay: 1s; }
+        .flow-node:nth-child(5)  { animation: nodeFlash 3s ease-in-out infinite; animation-delay: 2s; }
+
+        /* ── 비유 박스 ── */
+        .analogy-box {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 28px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .analogy-icon {
+            width: 64px; height: 64px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--ant-orange), #B83A57);
+            color: #fff;
+            font-size: 28px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(165,0,52,0.3);
+        }
+        .analogy-body { flex: 1; }
+        .analogy-body strong {
+            font-size: 16px; font-weight: 700; color: #3A3530;
+            display: block; margin-bottom: 6px;
+        }
+        .analogy-body p {
+            font-size: 14px; color: #5C5650; line-height: 1.75; margin: 0;
+        }
+
+        /* ── 핵심 메시지 배너 ── */
+        .key-message {
+            background: linear-gradient(135deg, rgba(165,0,52,0.12) 0%, rgba(165,0,52,0.04) 100%);
+            border: 2px solid rgba(165,0,52,0.3);
+            border-radius: 20px;
+            padding: 28px 32px;
+            text-align: center;
+            margin: 24px 0;
+        }
+        .key-message p {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            line-height: 1.7;
+        }
+        .key-message .km-highlight {
+            color: var(--ant-orange);
+            font-weight: 800;
+            background: linear-gradient(180deg, transparent 60%, rgba(165,0,52,0.15) 60%);
+            padding: 0 2px;
+        }
+
+        /* ── 미디어 박스 ── */
+        .media-box {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 20px 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .media-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 12px 26px -10px rgba(58,53,48,.20);
+        }
+        .media-box video, .media-box img {
+            width: 100%;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+        .media-box:hover img {
+            transform: scale(1.02);
+        }
+        .media-box .media-caption {
+            padding: 14px 20px;
+            font-size: 13px;
+            color: #888;
+            line-height: 1.6;
+            border-top: 1px solid #E8E4DE;
+            background: rgba(0,0,0,0.015);
+        }
+        .media-box .media-caption strong {
+            color: #3A3530;
+        }
+
+        /* ── 인용 박스 ── */
+        .quote-box {
+            background: linear-gradient(135deg, rgba(165,0,52,0.04) 0%, rgba(165,0,52,0.01) 100%);
+            border-radius: 16px;
+            box-shadow: var(--nm-inset);
+            padding: 28px 32px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .quote-box::before {
+            content: '\201C';
+            font-size: 64px;
+            color: rgba(165,0,52,0.15);
+            position: absolute;
+            top: 4px;
+            left: 18px;
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+        .quote-box p {
+            font-size: 15px;
+            color: #4A4540;
+            line-height: 1.85;
+            font-style: italic;
+            padding-left: 28px;
+        }
+        .quote-box .quote-author {
+            font-size: 12px;
+            color: #999;
+            font-style: normal;
+            margin-top: 12px;
+            padding-left: 28px;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── 플로우 다이어그램 ── */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 28px 0;
+            flex-wrap: nowrap;
+            padding: 24px 16px;
+            background: rgba(0,0,0,0.015);
+            border-radius: 20px;
+            overflow-x: auto;
+        }
+        .flow-node {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 22px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 160px;
+            transition: transform 0.25s;
+        }
+        .flow-node:hover { transform: translateY(-3px); }
+        .flow-node .fn-icon { font-size: 26px; margin-bottom: 8px; }
+        .flow-node h4 { font-size: 13px; font-weight: 700; color: #3A3530; }
+        .flow-node p { font-size: 11px; color: #888; margin-top: 4px; }
+        .flow-arrow {
+            font-size: 20px;
+            color: var(--ant-orange);
+            padding: 0 10px;
+            font-weight: 700;
+            animation: arrowPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(3px); }
+        }
+
+        /* ── 4칸 그리드 ── */
+        .grade-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .grade-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .grade-item:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 12px 26px -10px rgba(58,53,48,.20); }
+        .grade-item .grade-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            font-size: 13px; font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .grade-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .grade-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* ── 이미지 그리드 ── */
+        .img-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 20px 0;
+        }
+        .img-compare .media-box { margin: 0; }
+
+        /* ── 프롬프트 예시 블록 ── */
+        .prompt-block {
+            position: relative;
+            margin-top: 20px;
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .prompt-block-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px;
+            background: #2d2d2d;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .prompt-block-label {
+            font-size: 12px; font-weight: 700;
+            color: var(--ant-orange); letter-spacing: 0.5px;
+        }
+        .prompt-copy-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 600; color: #aaa;
+            background: #3a3a3a; border: none; border-radius: 6px;
+            padding: 5px 10px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .prompt-copy-btn:hover { background: #4a4a4a; color: #fff; }
+        .prompt-copy-btn.copied { color: #7EE8A2; background: rgba(126,232,162,0.15); }
+        .prompt-block pre {
+            margin: 0; padding: 20px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 13px; line-height: 1.7;
+            color: #d4d4d4;
+            white-space: pre-wrap; word-break: keep-all;
+            overflow-x: auto;
+        }
+        .prompt-block .kw { color: #f4a97a; font-weight: 700; }
+        .prompt-block .cm { color: #7a7a7a; }
+        .prompt-block .val { color: #7ee8a2; }
+
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 24px 16px 48px; }
+            .section-box { padding: 0; border-radius: 0; margin-bottom: 24px; }
+            .section-box > .nm-card { padding: 18px 0; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .role-grid { grid-template-columns: 1fr; }
+            .comp-grid { grid-template-columns: 1fr; }
+            .grade-grid { grid-template-columns: 1fr; }
+            .img-compare { grid-template-columns: 1fr; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .header-pages { flex-wrap: wrap; gap: 8px; max-width: 100%; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            .analogy-box { flex-direction: column; text-align: center; }
+            .nm-table-wrap { font-size: 13px; }
+            .nm-table-wrap th, .nm-table-wrap td { padding: 10px 12px; font-size: 13px; }
+            .prompt-block pre { font-size: 12px; line-height: 1.6; }
+            .ref-link .ref-desc { display: none; }
+            .flow-diagram { flex-direction: column; gap: 8px; padding: 20px 12px; }
+            .flow-node { height: auto; min-height: 100px; }
+            .flow-arrow { transform: rotate(90deg); padding: 4px 0; animation-name: arrowPulseMobile; }
+            @keyframes arrowPulseMobile {
+                0%, 100% { opacity: 0.5; transform: rotate(90deg) translateX(0); }
+                50% { opacity: 1; transform: rotate(90deg) translateX(3px); }
+            }
+            /* Step navigator */
+            .step-nav { max-width: 100%; gap: 0; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+            .step-nav { max-width: 100%; margin: 16px 0 14px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 6px; max-width: 14px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+            .prompt-block pre { font-size: 11px; line-height: 1.55; padding: 14px; }
+        }
+    
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+        }
+
+        /* ── 히어로 컨셉 공식 ── */
+        .concept-hero { margin: 30px 0 6px; }
+        .concept-formula {
+            position: relative; overflow: hidden;
+            background: linear-gradient(180deg, #FFFFFF 0%, #FAF6F0 100%);
+            border-radius: 24px;
+            box-shadow: 0 0 0 1.5px rgba(165,0,52,.22), 0 22px 46px -18px rgba(58,53,48,.22);
+            padding: 26px 30px 24px; text-align: center;
+        }
+        .concept-formula::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--ant-orange), #E0708A, var(--skill-amber));
+        }
+        /* eyebrow */
+        .cf-eyebrow { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+        .cf-eyebrow-pill {
+            font-size: 11px; font-weight: 800; letter-spacing: 1.2px; color: #fff; text-transform: uppercase;
+            background: linear-gradient(135deg, var(--ant-orange), #B83A57);
+            padding: 5px 13px; border-radius: 999px; box-shadow: 0 4px 12px rgba(165,0,52,.3);
+        }
+        .cf-eyebrow-sub { font-size: 12.5px; font-weight: 600; color: #8A8178; }
+        .cf-eq {
+            display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center;
+            gap: 6px 10px; font-size: 22px; font-weight: 800; color: #3A3530; letter-spacing: -0.3px;
+        }
+        .cf-lead { display: inline-flex; align-items: center; gap: 10px; flex-wrap: nowrap; padding-top: 5px; }
+        .cf-bracket { display: inline-flex; align-items: flex-start; gap: 9px; flex-wrap: nowrap; }
+        .cf-op { padding: 5px 0; line-height: 1.25; white-space: nowrap; }
+        .cf-op.cf-label { color: var(--ant-orange); }
+        .cf-op.cf-x { color: #A89F94; }
+        .cf-op.cf-paren { color: #C0B8AD; }
+        .cf-group { display: inline-flex; flex-direction: column; align-items: center; gap: 9px; }
+        .cf-grow {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 5px 9px; border-radius: 14px; background: var(--nm-bg); box-shadow: var(--nm-inset);
+        }
+        .cf-term {
+            display: inline-flex; align-items: center; font-size: 16px; font-weight: 800;
+            padding: 4px 11px; border-radius: 999px; background: var(--nm-light); box-shadow: var(--nm-shadow-sm);
+        }
+        .cf-term.t-role { color: var(--ant-orange); }
+        .cf-term.t-rubric { color: var(--skill-rose); }
+        .cf-term.t-ctx { color: var(--skill-blue); }
+        .cf-dot { color: #B5ADA2; font-weight: 700; font-size: 15px; }
+        .cf-glabel {
+            display: inline-flex; align-items: center; gap: 6px; color: #fff;
+            font-size: 12.5px; font-weight: 800; padding: 4px 13px; border-radius: 999px;
+        }
+        .cf-glabel .gl-num {
+            width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,.28);
+            font-size: 10px; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .cf-glabel.gl-role { background: var(--ant-orange); }
+        .cf-glabel.gl-ctx { background: var(--skill-blue); }
+        .cf-sub { margin-top: 18px; font-size: 12.5px; color: #6B645B; font-weight: 500; line-height: 1.65; }
+        .cf-sub b { color: #3A3530; font-weight: 700; }
+
+        .cf-map { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 0; }
+        /* 공식 → ①② 카드 연결선 */
+        .cf-connect { position: relative; width: 100%; height: 46px; margin-top: 4px; }
+        .cf-connect svg { display: block; width: 100%; height: 100%; overflow: visible; }
+        .cf-connect .cc-line { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+        .cf-connect .cc-1 { stroke: var(--ant-orange); }
+        .cf-connect .cc-2 { stroke: var(--skill-blue); }
+        .cf-connect .cc-arrow { position: absolute; bottom: -2px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid; transform: translateX(-50%); }
+        .cf-connect .cc-arrow.a1 { left: 24.7%; border-top-color: var(--ant-orange); }
+        .cf-connect .cc-arrow.a2 { left: 75.3%; border-top-color: var(--skill-blue); }
+        @media (max-width: 980px) { .cf-connect { display: none; } .cf-map { margin-top: 20px; } }
+        .cf-map-card {
+            background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm);
+            padding: 16px 16px 15px; text-align: left; text-decoration: none; display: block;
+            border-top: 3px solid transparent; transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .cf-map-card:hover { transform: translateY(-3px); box-shadow: var(--nm-shadow); }
+        .cf-map-card .cmc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+        .cf-map-card .cmc-num {
+            width: 22px; height: 22px; border-radius: 50%; color: #fff; flex-shrink: 0;
+            font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .cf-map-card .cmc-en { font-size: 15px; font-weight: 800; color: #3A3530; }
+        .cf-map-card .cmc-ko { font-size: 12.5px; color: #6B645B; line-height: 1.55; margin-bottom: 11px; }
+        .cf-map-card .cmc-link {
+            font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 9px; border-radius: 999px; background: var(--nm-light); box-shadow: var(--nm-shadow-sm);
+        }
+        .cf-map-card.m-role { border-top-color: var(--ant-orange); } .cf-map-card.m-role .cmc-num { background: var(--ant-orange); } .cf-map-card.m-role .cmc-link { color: var(--ant-orange); }
+        .cf-map-card.m-ctx { border-top-color: var(--skill-blue); } .cf-map-card.m-ctx .cmc-num { background: var(--skill-blue); } .cf-map-card.m-ctx .cmc-link { color: var(--skill-blue); }
+
+        /* 5요소 공식 추가 항 */
+        .cf-row { display: inline-flex; align-items: center; gap: 6px; }
+        .cf-paren-sm { font-size: 18px; }
+        .cf-term.t-tools { color: var(--skill-green); }
+        .cf-term.t-flow { color: var(--skill-amber); }
+        .cf-group.is-ghost { opacity: 0.7; }
+        .cf-glabel.gl-ghost { background: transparent; border: 1.5px dashed; }
+        .cf-glabel.gl-ghost .gl-num { color: #fff; }
+        .cf-glabel.gl-tools { color: var(--skill-green); border-color: var(--skill-green); }
+        .cf-glabel.gl-tools .gl-num { background: var(--skill-green); }
+        .cf-glabel.gl-flow { color: var(--skill-amber); border-color: var(--skill-amber); }
+        .cf-glabel.gl-flow .gl-num { background: var(--skill-amber); }
+
+        /* ③④ 포인터 줄 */
+        .cf-pointer {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px;
+            margin-top: 16px; padding-top: 15px; border-top: 1px dashed #D8D1C7;
+        }
+        .cf-pointer .cfp-label { font-size: 12px; font-weight: 800; color: #8A8178; }
+        .cf-pchip {
+            display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+            font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm); transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .cf-pchip:hover { box-shadow: var(--nm-shadow); transform: translateY(-2px); }
+        .cf-pchip .cfp-num { width: 18px; height: 18px; border-radius: 50%; color: #fff; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+        .cf-pchip.p-tools { color: var(--skill-green); } .cf-pchip.p-tools .cfp-num { background: var(--skill-green); }
+        .cf-pchip.p-flow { color: var(--skill-amber); } .cf-pchip.p-flow .cfp-num { background: var(--skill-amber); }
+
+        /* ── 공식 카드형 (리디자인) ── */
+        .cf-eq2 {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px;
+        }
+        @media (min-width: 980px) { .cf-eq2 { flex-wrap: nowrap; } }
+        .cf-brand {
+            font-size: 19px; font-weight: 800; color: var(--ant-orange); letter-spacing: -0.3px;
+            display: inline-flex; align-items: center; gap: 8px; margin-right: 1px; white-space: nowrap;
+        }
+        .cf-brand .cf-eq-sign { color: #B0A89D; font-weight: 700; font-size: 20px; }
+        .fx-card {
+            position: relative;
+            border-radius: 13px; overflow: hidden; min-width: 94px;
+            background: var(--nm-bg); box-shadow: 0 0 0 1px rgba(58,53,48,.08), 0 3px 10px rgba(58,53,48,.12);
+            display: flex; flex-direction: column; text-align: center; flex-shrink: 0;
+            transition: transform .25s cubic-bezier(.34,1.45,.5,1), box-shadow .25s ease;
+        }
+        .fx-card:hover { transform: translateY(-6px) scale(1.05); z-index: 3; }
+        .fx-model:hover { box-shadow: 0 0 0 1px rgba(42,36,32,.32), 0 16px 30px -10px rgba(42,36,32,.5); }
+        .fx-1:hover { box-shadow: 0 0 0 1px rgba(165,0,52,.4), 0 16px 30px -10px rgba(165,0,52,.5); }
+        .fx-2:hover { box-shadow: 0 0 0 1px rgba(59,130,246,.4), 0 16px 30px -10px rgba(59,130,246,.5); }
+        .fx-3:hover { box-shadow: 0 0 0 1px rgba(16,185,129,.4), 0 16px 30px -10px rgba(16,185,129,.45); }
+        .fx-4:hover { box-shadow: 0 0 0 1px rgba(245,158,11,.4), 0 16px 30px -10px rgba(245,158,11,.45); }
+        .fx-card:hover .fx-num { animation: fxNumPop .42s ease; }
+        @keyframes fxNumPop { 0%,100% { transform: scale(1); } 45% { transform: scale(1.4); } }
+        .fx-term {
+            padding: 11px 15px 9px; font-size: 15.5px; font-weight: 800; letter-spacing: -0.2px; white-space: nowrap;
+            display: flex; align-items: center; justify-content: center; gap: 5px; line-height: 1;
+        }
+        .fx-mid { color: #C2BAAF; font-weight: 700; }
+        .fx-label {
+            padding: 6px 12px 7px; font-size: 11.5px; font-weight: 800; color: #fff; white-space: nowrap;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .fx-num {
+            width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,.28);
+            font-size: 10px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        /* 엔진(모델) */
+        .fx-model .fx-term { color: #2A2420; background: rgba(42,36,32,.07); }
+        .fx-model .fx-label { background: linear-gradient(135deg, #3A3530, #1F1B17); letter-spacing: 1.5px; font-size: 11px; }
+        /* ① Role · Rubric */
+        .fx-1 .fx-term { background: rgba(165,0,52,.12); }
+        .fx-1 .fx-a { color: var(--ant-orange); }
+        .fx-1 .fx-b { color: var(--skill-rose); }
+        .fx-1 .fx-label { background: linear-gradient(135deg, var(--ant-orange), #B83A57); }
+        /* ② Context */
+        .fx-2 .fx-term { color: var(--skill-blue); background: rgba(59,130,246,.11); }
+        .fx-2 .fx-label { background: linear-gradient(135deg, var(--skill-blue), #2563EB); }
+        /* ③④ 포인터(ghost) */
+        .fx-ghost { box-shadow: 0 0 0 1px rgba(58,53,48,.05), 0 1px 4px rgba(58,53,48,.07); }
+        .fx-ghost .fx-label { color: inherit; background: transparent; }
+        .fx-3 .fx-term, .fx-3 .fx-label { color: var(--skill-green); }
+        .fx-3 .fx-term { background: rgba(16,185,129,.10); }
+        .fx-3 .fx-label { border-top: 1.5px dashed rgba(16,185,129,.45); }
+        .fx-3 .fx-num { background: var(--skill-green); color: #fff; }
+        .fx-4 .fx-term, .fx-4 .fx-label { color: var(--skill-amber); }
+        .fx-4 .fx-term { background: rgba(245,158,11,.12); }
+        .fx-4 .fx-label { border-top: 1.5px dashed rgba(245,158,11,.45); }
+        .fx-4 .fx-num { background: var(--skill-amber); color: #fff; }
+        /* × 연결 뱃지 */
+        .fx-mul {
+            font-size: 12px; font-weight: 800; color: #A89F94; flex-shrink: 0;
+            width: 20px; height: 20px; border-radius: 50%; background: var(--page-bg);
+            box-shadow: inset 0 0 0 1px rgba(58,53,48,.12);
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        @media (max-width: 560px) {
+            .cf-brand { width: 100%; justify-content: center; margin-bottom: 2px; }
+        }
+
+        /* 개념 한 줄 정의 배지 */
+        .concept-def {
+            margin-top: 16px; padding: 15px 18px; border-radius: 14px;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            display: flex; align-items: flex-start; gap: 13px;
+        }
+        .concept-def .cd-tag {
+            flex-shrink: 0; font-size: 10.5px; font-weight: 800; color: #fff; background: var(--ant-orange);
+            padding: 5px 11px; border-radius: 999px; letter-spacing: .3px; margin-top: 2px; white-space: nowrap;
+        }
+        .concept-def p { font-size: 14px; color: #3A3530; line-height: 1.7; font-weight: 500; margin: 0; }
+        .concept-def b { color: var(--ant-orange); font-weight: 800; }
+        @media (max-width: 480px) { .concept-def { flex-direction: column; gap: 9px; } }
+
+        /* 비유 카드 → 공식 매핑 태그 */
+        .analogy-map { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+        .am-tag {
+            font-size: 11.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm); color: #5C5650;
+        }
+        .am-tag .am-k { font-weight: 800; }
+        .am-tag.am-model .am-k { color: #8A8178; }
+        .am-tag.am-harness .am-k { color: var(--ant-orange); }
+
+        /* 원칙 카드: 공식 항 pill + 해결 라벨 (어두운 배경) */
+        .solution-item .si-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+        .solution-item .si-head strong { margin-bottom: 0; }
+        .solution-item .si-terms { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; }
+        .solution-item .si-terms .cf-term {
+            font-size: 12.5px; padding: 3px 11px; border-radius: 8px;
+            background: rgba(255,255,255,0.05); box-shadow: none; border: 1px solid rgba(255,255,255,0.14);
+        }
+        .solution-item .si-terms .cf-term.t-role { color: #F28FA6; }
+        .solution-item .si-terms .cf-term.t-rubric { color: #D8A4AE; }
+        .solution-item .si-terms .cf-term.t-ctx { color: #7DA8F7; }
+        .solution-item .si-terms .si-dot { color: rgba(255,255,255,0.35); }
+        .solution-item .si-dot { color: rgba(255,255,255,0.4); font-weight: 700; }
+        .solution-item .si-solve {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 800; color: #fff; padding: 4px 11px; border-radius: 999px; margin-bottom: 11px;
+        }
+        .solution-item.si-1 .si-solve { background: var(--ant-orange); }
+        .solution-item.si-2 .si-solve { background: var(--skill-blue); }
+        .solution-item p b { color: #fff; font-weight: 700; }
+
+        @media (max-width: 768px) {
+            .cf-eq { font-size: 18px; gap: 8px; }
+            .cf-term { font-size: 14px; }
+        }
+        @media (max-width: 480px) {
+            .cf-map { grid-template-columns: 1fr; }
+            .concept-formula { padding: 20px 14px 18px; border-radius: 18px; }
+            .cf-brand { font-size: 16px; }
+            .fx-card { min-width: 80px; border-radius: 11px; }
+            .fx-term { font-size: 13.5px; padding: 8px 10px 6px; }
+            .fx-label { font-size: 10px; padding: 5px 8px 6px; }
+            .fx-num { width: 14px; height: 14px; font-size: 9px; }
+            .fx-mul { width: 18px; height: 18px; font-size: 11px; }
+            .cf-sub { font-size: 12px; margin-top: 14px; }
+            .cf-pointer { gap: 6px; padding-top: 12px; }
+            .cf-pchip { font-size: 11px; padding: 5px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <nav class="step-nav header-animate-1">
+        <a class="step-node" href="claude-orientation.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="persona.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="harness-engineering.html">3</a>
+    </nav>
+    <a href="index.html" class="back-link header-animate-2">&larr; 목록으로</a>
+    <h1 class="header-animate-3">하네스 엔지니어링이란?</h1>
+    <p class="header-animate-4">같은 AI 모델이라도, 어떤 하네스 위에서 돌리느냐에 따라 결과가 완전히 달라집니다</p>
+    <div class="header-pages" id="pages-design">
+        <a href="harness-engineering.html" class="header-page-link active"><span class="hpl-icon">&#x1F40E;</span> 하네스 엔지니어링</a>
+        <a href="claude-tools.html" class="header-page-link"><span class="hpl-icon">&#x1F9F0;</span> 도구</a>
+        <a href="harness-workflows.html" class="header-page-link"><span class="hpl-icon">&#x1F500;</span> 멀티 에이전트 소환</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec1" data-sec="sec1">
+        <span class="sm-num">1</span>
+        <span class="sm-title">개념</span>
+        <span class="sm-sub">What</span>
+    </a>
+    <a href="#sec3" data-sec="sec3">
+        <span class="sm-num">2</span>
+        <span class="sm-title">중요성</span>
+        <span class="sm-sub">Why</span>
+    </a>
+    <a href="#case1" data-sec="case1">
+        <span class="sm-num">3</span>
+        <span class="sm-title">사례 1</span>
+        <span class="sm-sub">리서치 브리프</span>
+    </a>
+    <a href="#case3" data-sec="case3">
+        <span class="sm-num">4</span>
+        <span class="sm-title">사례 2</span>
+        <span class="sm-sub">경영 시뮬레이션</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- ═══════ STEP 1: 개념 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec1"><span class="step-badge">개념</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>하네스 엔지니어링이란 AI가 일하는 환경 전체를 설계하는 것</h2>
+            <div class="concept-def">
+                <span class="cd-tag">한 줄 정의</span>
+                <p><b>하네스</b>는 모델을 감싸 일을 시키는 <b>구조 전체</b>입니다. 무엇을 알려주고(맥락), 누가 만들고 채점하며(역할·기준), 어떤 도구를 쥐여줄지를 정해 둔 판. <b>모델은 그 안에서 돌아가는 엔진 하나</b>일 뿐입니다.</p>
+            </div>
+        </div>
+
+        <div class="cluster-box reveal">
+        <div class="analogy-grid">
+            <div class="analogy-box delay-1">
+                <div class="analogy-head">
+                    <div class="analogy-icon">&#x1F40E;</div>
+                    <div class="analogy-titles">
+                        <strong>비유 1: 말과 마구</strong>
+                    </div>
+                </div>
+                <div class="analogy-body">
+                    <p>말의 (근육, 속도)는 AI 모델에 해당합니다.<br>
+                    <strong>말에게 씌우는 마구, 달리는 길, 신호 체계</strong>는 하네스에 해당합니다.<br><br>
+                    아무리 좋은 말이라도 올바른 마구 없이는 원하는 방향으로 달리지 못합니다. AI도 마찬가지입니다.</p>
+                    <div class="analogy-map">
+                        <span class="am-tag am-model"><span class="am-k">모델</span> = 말의 근육·속도</span>
+                        <span class="am-tag am-harness"><span class="am-k">하네스</span> = 마구·길·신호 체계</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analogy-box delay-2">
+                <div class="analogy-head">
+                    <div class="analogy-icon" style="background: linear-gradient(135deg, var(--skill-blue), #2563EB);">&#x1F9D1;&#x200D;&#x1F4BC;</div>
+                    <div class="analogy-titles">
+                        <strong>비유 2: 신입사원과 온보딩</strong>
+                    </div>
+                </div>
+                <div class="analogy-body">
+                    <p>아무리 똑똑한 신입사원도 <strong>업무 매뉴얼 없이</strong> 첫날부터 혼자 일하면 실수투성이입니다.<br>
+                    업무 범위, 보고 체계, 사용 도구, 금지 사항을 정리해 둔<br>
+                    <strong>온보딩 시스템 전체</strong>가 바로 하네스입니다.<br>
+                    <span style="color: var(--ant-orange); font-weight: 600;">AI에게 "이렇게 일해"라고 알려주는 회사 시스템이 곧 하네스입니다.</span></p>
+                    <div class="analogy-map">
+                        <span class="am-tag am-model"><span class="am-k">모델</span> = 신입의 머리(지능)</span>
+                        <span class="am-tag am-harness"><span class="am-k">하네스</span> = 온보딩 시스템 전체</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="key-message reveal">
+            <p>경쟁력은 <span class="km-highlight">누가 더 좋은 모델을 쓰느냐</span>가 아니라,<br>
+            <span class="km-highlight">누가 더 좋은 하네스를 설계했느냐</span>에서 나옵니다.</p>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ 히어로 컨셉 공식 (개념 → 중요성 브릿지) ═══════ -->
+    <div class="concept-hero reveal">
+      <div class="concept-formula">
+        <div class="cf-eq2">
+            <span class="cf-brand">하네스 엔지니어링 <span class="cf-eq-sign">=</span></span>
+
+            <div class="fx-card fx-model">
+                <div class="fx-term">LLM 모델</div>
+                <div class="fx-label">ENGINE</div>
+            </div>
+
+            <span class="fx-mul">&times;</span>
+
+            <div class="fx-card fx-1">
+                <div class="fx-term"><span class="fx-a">Role</span><span class="fx-mid">&middot;</span><span class="fx-b">Rubric</span></div>
+                <div class="fx-label"><span class="fx-num">1</span>역할 분리</div>
+            </div>
+
+            <span class="fx-mul">&times;</span>
+
+            <div class="fx-card fx-2">
+                <div class="fx-term">Context</div>
+                <div class="fx-label"><span class="fx-num">2</span>컨텍스트 인수인계</div>
+            </div>
+
+            <span class="fx-mul">&times;</span>
+
+            <div class="fx-card fx-3 fx-ghost">
+                <div class="fx-term">Tools</div>
+                <div class="fx-label"><span class="fx-num">3</span>도구</div>
+            </div>
+
+            <span class="fx-mul">&times;</span>
+
+            <div class="fx-card fx-4 fx-ghost">
+                <div class="fx-term">Workflow</div>
+                <div class="fx-label"><span class="fx-num">4</span>작업 흐름</div>
+            </div>
+        </div>
+        <p class="cf-sub">
+            방금 두 비유를 <b>하나의 공식</b>으로 묶으면 이렇습니다. 모델은 <b>곱해지는 한 항</b>일 뿐, 다섯 묶음 중 하나라도 0이면 결과도 0이 됩니다.<br>
+            이 페이지는 <b>① 역할 분리 · ② 컨텍스트 인수인계</b>를 깊게 다루고, <b>③ 도구 · ④ 작업 흐름</b>은 다음 두 장에서 다룹니다.
+        </p>
+      </div>
+
+      <div class="cf-connect" aria-hidden="true">
+        <svg viewBox="0 0 1000 100" preserveAspectRatio="none" width="100%" height="100%">
+            <path class="cc-line cc-1" d="M 436 0 L 247 100"/>
+            <path class="cc-line cc-2" d="M 590 0 L 753 100"/>
+        </svg>
+        <span class="cc-arrow a1"></span>
+        <span class="cc-arrow a2"></span>
+      </div>
+
+      <div class="cf-map">
+            <a class="cf-map-card m-role" href="#sec3">
+                <div class="cmc-top"><span class="cmc-num">1</span><span class="cmc-en">Role &middot; Rubric</span></div>
+                <div class="cmc-ko">만드는 자(Generator)와 채점하는 자(Evaluator)를 나누고, 합격 기준(Rubric)은 채점자가 외부에서 쥔다</div>
+                <span class="cmc-link">↓ 원칙 1 · 역할 분리</span>
+            </a>
+            <a class="cf-map-card m-ctx" href="#sec3">
+                <div class="cmc-top"><span class="cmc-num">2</span><span class="cmc-en">Context</span></div>
+                <div class="cmc-ko">맥락을 비우고, 이전 상태를 문서(MD)로 이어받아 새 세션을 시작한다</div>
+                <span class="cmc-link">↓ 원칙 2 · 컨텍스트 리셋</span>
+            </a>
+        </div>
+
+        <div class="cf-pointer">
+            <span class="cfp-label">③④ 는 다음 장에서 &rarr;</span>
+            <a class="cf-pchip p-tools" href="claude-tools.html"><span class="cfp-num">3</span>도구 · 「Claude의 도구」 장</a>
+            <a class="cf-pchip p-flow" href="harness-workflows.html"><span class="cfp-num">4</span>작업 흐름 · 「멀티 에이전트 소환」 장</a>
+        </div>
+    </div>
+
+    <!-- ═══════ STEP 3: 하네스 설계가 중요한 이유 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec3"><span class="step-badge">하네스 설계가 중요한 이유</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="section-intro">
+            <span class="si-label">왜 중요한가</span>
+            <span class="si-text">혼자 일하는 AI는 두 가지 이유로 무너집니다</span>
+        </div>
+
+        <div class="source-mini reveal">
+            <div class="source-mini-icon">&#x1F4C4;</div>
+            <div class="source-mini-body">
+                <span class="sm-title">Anthropic이 직접 공개한 하네스 설계 보고서</span>
+                <div class="sm-meta">2026년 3월 24일, Anthropic Labs의 Prithvi Rajasekaran 발표</div>
+                <p>"<a href="https://www.anthropic.com/engineering/harness-design-long-running-apps" target="_blank" rel="noopener">장기 실행 앱 개발을 위한 하네스 설계</a>"에서 Anthropic은 하네스 없이 AI에게 긴 작업을 맡겼을 때 반복적으로 나타나는 <strong>두 가지 근본 문제</strong>를 짚었습니다.</p>
+            </div>
+        </div>
+
+        <div class="problem-grid reveal">
+            <div class="problem-card pc-1">
+                <div class="problem-head">
+                    <div class="problem-num">01</div>
+                    <div class="problem-title">
+                        <strong>자기 평가의 함정</strong>
+                        <span class="problem-en">Self-Evaluation Trap</span>
+                    </div>
+                </div>
+                <p class="problem-tagline">자기 결과물을 스스로 채점하면 항상 후하게 나옵니다</p>
+                <div class="quote-box">
+                    <p>자신이 생성한 작업물을 평가하라고 하면, 에이전트는 자신감 있게 칭찬하는 경향을 보입니다. 인간 관찰자에게는 품질이 명백히 평범한 수준인데도 말입니다.</p>
+                    <div class="quote-author">Prithvi Rajasekaran, Anthropic Labs</div>
+                </div>
+                <div class="problem-analogy">
+                    <span class="pa-label">일상 비유</span>
+                    <p>학생이 자기 시험지를 직접 채점하면 점수가 후하게 나오는 것과 같습니다.</p>
+                </div>
+            </div>
+
+            <div class="problem-card pc-2">
+                <div class="problem-head">
+                    <div class="problem-num">02</div>
+                    <div class="problem-title">
+                        <strong>컨텍스트 불안</strong>
+                        <span class="problem-en">Context Anxiety</span>
+                    </div>
+                </div>
+                <p class="problem-tagline">긴 작업 도중에 갑자기 대충 마무리합니다</p>
+                <div class="quote-box">
+                    <p>모델은 긴 작업에서 컨텍스트 윈도우가 차오르면 일관성을 잃습니다. 일부 모델은 "컨텍스트 불안"을 보이며, 한계에 가까워졌다고 인지하면 작업을 조기에 마무리해 버립니다.</p>
+                    <div class="quote-author">Prithvi Rajasekaran, Anthropic Labs</div>
+                </div>
+                <div class="problem-analogy">
+                    <span class="pa-label">일상 비유</span>
+                    <p>10페이지짜리 보고서를 시켰는데 7페이지에서 갑자기 "이상 마치겠습니다"라고 끝내버리는 셈입니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="problem-bridge reveal" aria-hidden="true">
+            <div class="pb-col pb-1">
+                <div class="pb-line"></div>
+                <div class="pb-tip"></div>
+            </div>
+            <div class="pb-col pb-2">
+                <div class="pb-line"></div>
+                <div class="pb-tip"></div>
+            </div>
+        </div>
+
+        <div class="solution-grid reveal">
+            <div class="solution-item solution-item--standalone si-1">
+                <span class="si-arrow si-pill">원칙 1</span>
+                <div class="si-head">
+                    <strong>역할 분리</strong>
+                    <span class="si-terms"><span class="cf-term t-role">Role</span><span class="si-dot">&middot;</span><span class="cf-term t-rubric">Rubric</span></span>
+                </div>
+                <span class="si-solve">↳ 자기 평가의 함정을 해결</span>
+                <p>"만드는 사람"과 "검토하는 사람"은 반드시 분리해야 합니다. 만드는 AI(<b>Generator</b>·생성자)와 평가하는 AI(<b>Evaluator</b>·채점자)를 따로 두고, 합격 기준(<b>Rubric</b>)을 채점자가 외부에서 쥔 채 냉정하게 채점하게 만듭니다.</p>
+            </div>
+            <div class="solution-item solution-item--standalone si-2">
+                <span class="si-arrow si-pill">원칙 2</span>
+                <div class="si-head">
+                    <strong>컨텍스트 리셋</strong>
+                    <span class="si-terms"><span class="cf-term t-ctx">Context</span></span>
+                </div>
+                <span class="si-solve">↳ 컨텍스트 불안을 해결</span>
+                <p>이전 상태를 "구조화된 MD 파일"로 인수인계해야 합니다. 작업 기억(<b>컨텍스트 윈도우</b>)을 완전히 비우고, 교대 근무자에게 인수인계서를 넘기듯 새 세션을 시작합니다.</p>
+            </div>
+        </div>
+
+        <div class="key-message reveal">
+            <p><span class="km-highlight">만드는 자와 검토하는 자를 분리하고, 이전 맥락은 문서로 넘깁니다.</span><br>
+            <span style="font-size: 15px; font-weight: 500; color: #5C5650;">이 두 원칙이 긴 작업을 끝까지 무너지지 않게 만듭니다.</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 4: 해결책 ═══════ -->
+    <div class="step-divider reveal content-section" id="case1"><span class="step-badge">사례 1: Generator-Evaluator 구조</span></div>
+    <section>
+      <div class="section-box reveal">
+
+        <!-- 결과: 리서치 브리프 품질 루프 (맨 위) -->
+        <div class="nm-card reveal">
+            <h2>리서치 브리프 품질 루프</h2>
+            <p class="card-subtitle">"이 브리프 믿어도 되나?"라는 주관적 질문을, 만드는 AI와 검수하는 AI로 나눠 점수로 바꾼 결과</p>
+
+            <p>실습 2에서 만든 자동 브리프를 떠올려 보세요. 한 AI가 기사를 모으고, 요약하고, "우리 사업에 주는 의미"까지 적었습니다. 그런데 그 AI에게 "이 브리프 정확해?"라고 물으면 자기 결과물이라 늘 후하게 답합니다. 바로 <strong>자기 평가의 함정</strong>입니다. 그래서 <strong>만드는 AI(Generator)</strong>와 <strong>검수하는 AI(Evaluator)</strong>를 나눕니다. 검수자는 출처·사실·인사이트의 구체성을 외부 기준으로 냉정하게 채점합니다.</p>
+
+            <div class="inset-box" style="margin-top: 16px;">
+                <div class="inset-label">사실 이건 새로운 게 아닙니다</div>
+                <p>생산 라인과 품질검사를 나누는 것과 같습니다. 만드는 손과 검사하는 손을 분리하는 것입니다. LG전자가 수십 년간 공장에서 해온 일을, 문서 한 장에 그대로 옮긴 것뿐입니다. 사장님은 이미 이 구조의 전문가입니다.</p>
+            </div>
+
+            <div class="sub-section-title">한 번 돌리면 이렇게 바뀝니다</div>
+            <div class="nm-table-wrap">
+                <table>
+                    <thead><tr><th>항목</th><th>1회차 · 검수 전</th><th>4회차 · 검수 후</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>출처</strong></td><td>홍보성 보도자료 혼입</td><td>tier-1 매체·원문 링크만</td></tr>
+                        <tr><td><strong>사실</strong></td><td>수치 출처 불명</td><td>숫자·인용 모두 원문 대조</td></tr>
+                        <tr><td><strong>인사이트</strong></td><td>"주목된다" 수준</td><td>"환율 10% 상승 시 로봇 부품 원가 Y" 수준</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="font-size: 12.5px; color: #8a847d; margin: 8px 2px 0;">검수 기준을 외부에서 쥐자, 브리프의 성격 자체가 바뀝니다. 위는 동작 방식을 보여주는 예시입니다.</p>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">근거 · Anthropic 실측</div>
+                <p>Anthropic이 같은 Generator-Evaluator 구조를 측정한 결과, <strong>첫 회차부터</strong> 아무 기준 없이 만든 것보다 품질이 뚜렷이 높았습니다. "채점 기준의 문구 자체가 결과물의 성격을 직접 형성한다"는 것이 핵심 발견입니다. (출처는 하단)</p>
+            </div>
+        </div>
+
+        <!-- 두 원칙 적용 (2-pack 가로) -->
+        <div class="nm-card reveal">
+            <h2>어떻게 가능했는가: 두 원칙의 적용</h2>
+
+            <div class="applied-grid">
+                <div class="applied-card ac-1">
+                    <span class="principle-pill pp-1">원칙 1 적용</span>
+                    <h3>역할 분리</h3>
+                    <p class="ac-tagline">브리프를 쓰는 AI와 채점하는 AI를 완전히 나눈다</p>
+                    <ul>
+                        <li>Generator는 브리프를 쓰고, Evaluator는 출처를 실제로 열어 보고 채점</li>
+                        <li>Evaluator는 <strong>4가지 기준</strong>으로 분해 (출처 신뢰도, 사실 정확성, 인사이트 구체성, 광고·중복 혼입)</li>
+                        <li>최대 5회 반복하며 개선</li>
+                    </ul>
+                </div>
+                <div class="applied-card ac-2">
+                    <span class="principle-pill pp-2">원칙 2 적용</span>
+                    <h3>컨텍스트 리셋</h3>
+                    <p class="ac-tagline">두 AI는 대화하지 않고 파일로만 주고받는다</p>
+                    <ul>
+                        <li>같은 메시지 창에서 대화하지 않음</li>
+                        <li>Generator는 <strong>brief.md</strong>에, Evaluator는 채점 결과를 <strong>review.md</strong>에 기록</li>
+                        <li>매 회차 컨텍스트를 처음부터 새로 시작</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 원칙 1 풀어보기: 두 역할의 분담 (zoom-in) -->
+        <div class="zoom-in-section reveal">
+            <div class="zoom-arrow"></div>
+            <div class="zoom-in-card">
+                <span class="zoom-in-pill">원칙 1 풀어보기</span>
+                <div class="zoom-in-title">두 AI는 입력·출력·임무가 정확히 이렇게 다릅니다</div>
+                <div class="applied-grid">
+                    <div class="applied-card ac-generator">
+                        <div class="role-card-pill rcp-generator"><strong>Generator</strong><span>역할 1 · 작성자</span></div>
+                        <p class="ac-tagline">리서치 정의서에 맞춰 브리프를 쓰고, 지적받은 항목만 다시 고친다</p>
+                        <ul class="role-io">
+                            <li><strong>입력</strong><span>리서치 정의서 + 직전 회차의 <strong>review.md</strong></span></li>
+                            <li><strong>출력</strong><span><strong>brief.md</strong> (요약 + 출처 + 인사이트)</span></li>
+                            <li><strong>임무</strong><span>9.5점 미만 항목만 골라 다시 작성</span></li>
+                            <li><strong>안 함</strong><span>자기 브리프 채점, 점수 변경</span></li>
+                        </ul>
+                    </div>
+                    <div class="applied-card ac-evaluator">
+                        <div class="role-card-pill rcp-evaluator"><strong>Evaluator</strong><span>역할 2 · 검수자</span></div>
+                        <p class="ac-tagline">출처를 직접 열어 보고 4가지 기준으로 냉정하게 채점한다</p>
+                        <ul class="role-io">
+                            <li><strong>입력</strong><span><strong>brief.md</strong> (Generator가 방금 쓴 결과)</span></li>
+                            <li><strong>출력</strong><span><strong>review.md</strong> (점수표 + 개선 사항)</span></li>
+                            <li><strong>임무</strong><span>출처 신뢰도, 사실 정확성, 인사이트 구체성, 광고 혼입을 각 10점으로 평가</span></li>
+                            <li><strong>안 함</strong><span>브리프 직접 수정, 다음 회차 작성</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 프롬프트: 간략 + 상세 -->
+        <div class="nm-card reveal">
+            <h2>프롬프트 예시</h2>
+            <p class="card-subtitle">간략 버전으로 간단하게 실습을 하고, 상세 버전으로 설계하세요</p>
+
+            <div class="prompt-block" style="margin-top: 16px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">간략 버전 (한계점: 한 모델이 두 역할을 흉내내 진짜 분리는 아님)</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'generatorPromptShort')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="generatorPromptShort"><span class="kw"># 이 프롬프트가 하려는 일</span>
+주간 리서치 브리프 한 부를 자동으로 데스크 수준까지 끌어올린다.
+같은 AI에게 작성과 검수를 모두 맡기면 자기 결과에 후해지는 문제가 있다.
+그래서 두 역할을 나눈다. 쓰는 <span class="val">Generator</span>, 채점하는 <span class="val">Evaluator</span>.
+
+<span class="kw"># 등장 인물</span>
+<span class="val">Generator</span> (작성자)
+  · 입력: 리서치 정의서(키워드·소스·제외 기준) + (있으면) 직전 채점표
+  · 출력: 브리프 한 부 (요약 + 출처 링크 + "우리 사업에 주는 의미")
+  · 임무: 4가지 채점 항목을 모두 9.5점 이상으로 끌어올리기
+  · 안 함: 자기 결과 채점, 점수 임의 변경
+
+<span class="val">Evaluator</span> (검수자)
+  · 입력: 방금 Generator가 쓴 브리프
+  · 출력: 항목별 점수 + 개선 사항
+  · 임무: 출처를 실제로 열어 확인하고 냉정하게 채점, 점수보다 개선 사항을 먼저 적기
+  · 안 함: 브리프 직접 수정, 다음 회차 작성
+
+<span class="kw"># 합격 기준 (각 10점 만점)</span>
+1. 출처 신뢰도: tier-1 매체·원문인가, 홍보성 보도자료는 아닌가
+2. 사실 정확성: 숫자와 인용이 원문과 일치하는가
+3. 인사이트 구체성: "우리 사업에 주는 의미"가 행동으로 이어지는가
+4. 잡음 제거:   광고·중복·출처 불명이 걸러졌는가
+
+<span class="kw"># 입력</span>
+리서치 정의서: <span class="cm">(실습 2에서 만든 정의서를 붙여넣기)</span>
+
+<span class="kw"># 진행 순서</span>
+한 회차 = <span class="val">Generator</span> 출력 → <span class="val">Evaluator</span> 출력.
+2회차부터 Generator는 직전 채점표에서 9.5점 미만 항목만 손본다. 나머지는 절대 건드리지 않는다.
+
+<span class="kw"># 종료 조건</span>
+4개 항목 모두 9.5점 이상이면 종료. 아니면 다음 회차로. 최대 5회까지.</pre>
+            </div>
+
+            <div class="prompt-block" style="margin-top: 16px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">상세 버전</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'generatorPrompt')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="generatorPrompt"><span class="kw"># 이 프롬프트가 하려는 일</span>
+주간 리서치 브리프를 자동으로 데스크 수준까지 끌어올린다.
+간략 버전과 달리, Claude Code의 Task 도구로 <span class="val">Generator</span>와 <span class="val">Evaluator</span>를 별도의 서브에이전트로 띄운다.
+두 에이전트는 매 회차 새 컨텍스트에서 시작하고, 같은 메시지 창에서 대화하지 않고 파일로만 주고받는다.
+
+<span class="kw"># 작업 디렉토리</span>
+<span class="val">./brief-loop/</span>
+  ├─ <span class="val">brief.md</span>    <span class="cm">(Generator의 출력)</span>
+  └─ <span class="val">review.md</span>   <span class="cm">(Evaluator의 출력)</span>
+
+<span class="kw"># 합격 기준 (각 10점 만점, 총 40점)</span>
+1. 출처 신뢰도:  tier-1 매체·원문인가, 홍보성 보도자료는 아닌가
+2. 사실 정확성:  숫자·인용이 원문과 일치하는가
+3. 인사이트 구체성: "우리 사업에 주는 의미"가 행동으로 이어지는가
+4. 잡음 제거:    광고·중복·출처 불명이 걸러졌는가
+
+<span class="kw"># 입력</span>
+리서치 정의서: <span class="cm">(실습 2에서 만든 키워드·소스·제외 기준)</span>
+
+<span class="kw"># 메인 에이전트 절차 (최대 5회)</span>
+회차마다 다음 3단계를 순서대로 수행한다.
+
+<span class="cm">1.</span> Task 도구로 <span class="val">generator-agent</span>를 호출한다.
+   입력: 리서치 정의서 + (있으면) <span class="val">./brief-loop/review.md</span>
+   산출물: <span class="val">./brief-loop/brief.md</span>
+
+<span class="cm">2.</span> Task 도구로 <span class="val">evaluator-agent</span>를 호출한다.
+   입력: <span class="val">./brief-loop/brief.md</span>
+   산출물: <span class="val">./brief-loop/review.md</span>
+
+<span class="cm">3.</span> review.md를 읽는다.
+   모든 항목이 9.5점 이상이면 <span class="val">STATUS: COMPLETED</span>를 선언하고 종료.
+   아니면 다음 회차로 넘어간다.
+
+<span class="kw"># generator-agent 시스템 프롬프트</span>
+너는 주간 리서치 브리프를 쓰는 Generator다.
+- 리서치 정의서를 읽는다. 직전 review.md가 있으면 함께 읽는다.
+- 4가지 합격 기준을 목표로 브리프를 <span class="val">./brief-loop/brief.md</span>에 저장한다.
+- 모든 주장에 원문 출처 링크를 단다. 직전 review.md가 있으면 9.5점 미만 항목만 수정한다.
+- 수정한 항목에는 다음 표시를 단다.
+  <span class="cm"># 수정 (N회차): [항목명] - [변경 내용]</span>
+
+<span class="kw"># evaluator-agent 시스템 프롬프트</span>
+너는 브리프를 검수하는 Evaluator다.
+- <span class="val">./brief-loop/brief.md</span>를 읽고, 인용된 출처를 실제로 열어 확인한다.
+- 4가지 항목을 각 10점 만점으로 채점하고, 결과를 <span class="val">./brief-loop/review.md</span>에 다음 형식으로 기록한다.
+
+  <span class="val">| 회차 | 출처 신뢰도 | 사실 정확성 | 인사이트 구체성 | 잡음 제거 | 총점 |</span>
+  <span class="val">|  N   |    X점     |    X점     |      X점       |   X점    | XX점 |</span>
+
+  표 다음에 9.5점 미만 항목별로 "무엇이 부족한가, 무엇을 바꿔야 하는가"를 구체적으로 적는다.
+- 9점 이상은 출처와 사실이 모두 확인될 때만 준다. 점수보다 개선 사항을 먼저 적는다.
+- 브리프를 직접 수정하지 않는다.</pre>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ 사례 2: 경영 시뮬레이션 ═══════ -->
+    <div class="step-divider reveal content-section" id="case3"><span class="step-badge">사례 2: Planner-Generator-Evaluator 구조</span></div>
+    <section>
+      <div class="section-box reveal">
+
+        <!-- 결과: 경영 시뮬레이션 의사결정 루프 (맨 위) -->
+        <div class="nm-card reveal">
+            <h2>경영 시뮬레이션 의사결정 루프</h2>
+            <p class="card-subtitle">"AI는 어디까지, 사람은 어디서 승인하는가"를 plan.md 한 장에 못박은 결과</p>
+
+            <p>실습 3에서 환율·원자재 변동이 원가와 KPI에 주는 영향을 시뮬레이션했습니다. 거기서 진짜 중요한 건 시뮬레이터가 아니라 <strong>경계</strong>였습니다. 계산은 AI가, 가정의 승인과 의사결정은 사람이 합니다. 그 경계를 구조로 굳히면 <strong>3-Agent 하네스</strong>가 됩니다. 사람(사장님)이 Planner 단계에서 합격 기준과 승인할 가정을 <strong>plan.md</strong>에 못박고, 그 기준은 Generator도 Evaluator도 바꾸지 못합니다. <strong>plan.md를 쥔 사람이 의사결정 권한을 쥡니다.</strong></p>
+
+            <div class="inset-box" style="margin-top: 16px;">
+                <div class="inset-label">이것도 새로운 게 아닙니다</div>
+                <p>사업계획을 세울 때 먼저 목표 마진·리스크 한계를 합의하고(기획), 실무가 시나리오를 돌리고(실행), 재무·리스크가 검증하는(감사) 순서 그대로입니다. 다른 점은 단 하나. 합의문이 사람 머릿속이 아니라 plan.md라는 문서에 박혀, 누구도 임의로 못 바꾼다는 것입니다.</p>
+            </div>
+
+            <div class="sub-section-title">plan.md 한 장이 경계를 만듭니다</div>
+            <div class="nm-table-wrap">
+                <table>
+                    <thead><tr><th>plan.md에 사람이 못박는 것</th><th>그래서 AI가 못 하는 것</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>합격 기준</strong> · "영업이익률 X% 이하면 FAIL"</td><td>기준을 느슨하게 바꿔 통과시키기</td></tr>
+                        <tr><td><strong>승인 가정</strong> · "환율·원자재 가정 변경은 사람 승인 필수"</td><td>가정을 몰래 바꿔 결과 미화하기</td></tr>
+                        <tr><td><strong>판단 경계</strong> · "투자 결정은 사람, 계산·제안은 AI"</td><td>스스로 의사결정을 내리기</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">근거 · Anthropic 실측</div>
+                <p>Anthropic이 같은 3-Agent 구조로 풀스택 앱을 만든 실측에서, 반복할수록 시간과 비용이 급격히 줄었습니다. 3차 빌드는 1차의 <strong>약 1/12</strong>로 끝났습니다. Evaluator가 남은 문제만 정확히 짚어 주기 때문입니다. (출처는 하단)</p>
+            </div>
+        </div>
+
+        <!-- 두 원칙 적용 (3-Agent로 확장) -->
+        <div class="nm-card reveal">
+            <h2>어떻게 가능했는가: 두 원칙의 적용 (3-Agent로 확장)</h2>
+            <p style="font-size: 13.5px; color: #5C5650; margin: 0 0 12px;">전사 의사결정은 브리프보다 한 단계 더 무겁습니다. 사례 1의 2-Agent 구조에 <strong>Planner(기획자)</strong>를 더하고, 시작 전에 "무엇이 성공이고 어디까지가 사람 몫인지"를 먼저 합의하는 <strong>스프린트 계약</strong>을 둡니다.</p>
+
+            <div class="applied-grid">
+                <div class="applied-card ac-1">
+                    <span class="principle-pill pp-1">원칙 1 적용</span>
+                    <h3>역할 분리</h3>
+                    <p class="ac-tagline">Planner를 더해 기획·계산·검증을 모두 분리한다</p>
+                    <ul>
+                        <li><strong>Planner</strong>가 합격 기준과 판단 경계를 plan.md로 확정</li>
+                        <li><strong>Generator</strong>가 시나리오 계산 모델을 짜고, <strong>Evaluator</strong>가 결과를 기준으로 판정</li>
+                        <li>Evaluator는 PASS/FAIL만 판정한다 (가정·기준은 못 바꿈)</li>
+                    </ul>
+                </div>
+                <div class="applied-card ac-2">
+                    <span class="principle-pill pp-2">원칙 2 적용</span>
+                    <h3>컨텍스트 리셋</h3>
+                    <p class="ac-tagline">합격 기준을 먼저 합의하고 모든 소통은 파일로 한다</p>
+                    <ul>
+                        <li><strong>스프린트 계약</strong>: 시작 전에 plan.md로 합격 기준 합의 ("좋아 보인다" 대신 측정 가능한 조건)</li>
+                        <li>Generator는 계산 결과를, Evaluator는 판정을 feedback.md로 남김</li>
+                        <li>매 회차 컨텍스트를 새로 시작</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 원칙 1 풀어보기: 세 역할의 분담 (zoom-in) -->
+        <div class="zoom-in-section reveal">
+            <div class="zoom-arrow"></div>
+            <div class="zoom-in-card">
+                <span class="zoom-in-pill">원칙 1 풀어보기</span>
+                <div class="zoom-in-title">세 역할의 분담: 누가 무엇을 하고, 사람은 어디서 승인하나</div>
+                <div class="applied-grid three-col">
+                    <div class="applied-card ac-planner">
+                        <div class="role-card-pill rcp-planner"><strong>Planner</strong><span>역할 1 · 기획자 (사람이 승인)</span></div>
+                        <p class="ac-tagline">시작 전에 합격 기준과 판단 경계를 사람과 합의한다</p>
+                        <ul class="role-io">
+                            <li><strong>입력</strong><span>1~4문장의 시뮬레이션 요청</span></li>
+                            <li><strong>출력</strong><span><strong>plan.md</strong> (합격 기준 + 승인할 가정 + 판단 경계)</span></li>
+                            <li><strong>임무</strong><span>"좋아 보인다" 대신 PASS/FAIL 기준 + 사람 승인 지점 명시</span></li>
+                            <li><strong>안 함</strong><span>계산, 합격 판정</span></li>
+                        </ul>
+                    </div>
+                    <div class="applied-card ac-generator">
+                        <div class="role-card-pill rcp-generator"><strong>Generator</strong><span>역할 2 · 제작자</span></div>
+                        <p class="ac-tagline">기준대로 시나리오를 계산하고, FAIL 항목만 고친다</p>
+                        <ul class="role-io">
+                            <li><strong>입력</strong><span><strong>plan.md</strong> + 직전 회차의 <strong>feedback.md</strong></span></li>
+                            <li><strong>출력</strong><span>시나리오별 원가·KPI 계산 결과</span></li>
+                            <li><strong>임무</strong><span>FAIL 기준을 PASS로 바꾸는 데 집중</span></li>
+                            <li><strong>안 함</strong><span>합격 기준·가정 변경, 자기 판정</span></li>
+                        </ul>
+                    </div>
+                    <div class="applied-card ac-evaluator">
+                        <div class="role-card-pill rcp-evaluator"><strong>Evaluator</strong><span>역할 3 · 검증자</span></div>
+                        <p class="ac-tagline">계산을 검증하고 plan.md 기준으로 PASS/FAIL을 판정한다</p>
+                        <ul class="role-io">
+                            <li><strong>입력</strong><span>Generator가 방금 낸 계산 결과</span></li>
+                            <li><strong>출력</strong><span><strong>feedback.md</strong> (기준별 PASS/FAIL + 근거)</span></li>
+                            <li><strong>임무</strong><span>계산 검증, 가정 위반·리스크 임계 초과 표시</span></li>
+                            <li><strong>안 함</strong><span>결과 수정, 합격 기준 변경</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 프롬프트: 간략 + 상세 -->
+        <div class="nm-card reveal">
+            <h2>프롬프트 예시</h2>
+            <p class="card-subtitle">간략 버전으로 간단하게 실습을 하고, 상세 버전으로 설계하세요</p>
+
+            <div class="prompt-block" style="margin-top: 16px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">간략 버전 (한계점: 한 모델이 세 역할을 흉내내 진짜 분리는 아님)</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'dawPromptShort')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="dawPromptShort"><span class="kw"># 이 프롬프트가 하려는 일</span>
+환율·원자재 변동이 원가와 KPI에 주는 영향을 시뮬레이션한다.
+"좋아 보인다"라는 주관에서 벗어나 PASS/FAIL로 판정 가능한 합격 기준을 먼저 합의하고,
+사람이 승인할 가정과 판단 경계를 못박은 뒤에 계산을 반복한다.
+
+<span class="kw"># 등장 인물</span>
+<span class="val">Planner</span> (기획자, 사람이 승인)
+  · 입력: 1~4문장의 시뮬레이션 요청
+  · 출력: 합격 기준 + 승인할 가정 + 판단 경계가 적힌 plan.md
+  · 임무: "좋아 보인다" 대신 PASS/FAIL 기준과 사람 승인 지점 설계
+  · 안 함: 계산, 합격 판정
+
+<span class="val">Generator</span> (제작자)
+  · 입력: plan.md + (있으면) 직전 회차 피드백
+  · 출력: 시나리오별 원가·KPI 계산 결과
+  · 임무: FAIL 기준을 PASS로 바꾸기
+  · 안 함: 합격 기준·가정 변경, 자기 판정
+
+<span class="val">Evaluator</span> (검증자)
+  · 입력: 방금 Generator가 낸 결과
+  · 출력: 기준별 PASS/FAIL + 근거
+  · 임무: 계산을 검증하고 가정 위반·리스크 임계 초과를 표시
+  · 안 함: 결과 수정, 합격 기준 변경
+
+<span class="kw"># 입력</span>
+시뮬레이션 요청: <span class="cm">(예: 환율 USD +10% 시 가전·로봇 주력 제품 원가·이익률 영향)</span>
+
+<span class="kw"># 진행 순서 (최대 3회차)</span>
+1회차에만 <span class="val">Planner</span>를 호출한다.
+  · Planner: 측정 가능한 합격 기준과 사람 승인 지점을 plan.md로. 주관적 표현 금지.
+  · 사람이 plan.md를 검토·승인한 뒤에만 다음으로 넘어간다.
+  · Generator: plan.md대로 시나리오를 계산.
+  · Evaluator: 기준별 결과를 <span class="val">| 기준 | 판정 | 근거 |</span> 표로 출력. 점수보다 근거를 먼저 적는다.
+
+2회차부터:
+  · Generator: 직전 회차에서 FAIL인 기준만 손본다. 나머지는 그대로 둔다.
+  · Evaluator: 다시 판정한다.
+
+<span class="kw"># 종료 조건</span>
+모든 기준 PASS면 종료. 아니면 다음 회차로. 최대 3회까지.</pre>
+            </div>
+
+            <div class="prompt-block" style="margin-top: 16px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">상세 버전</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'dawPrompt')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="dawPrompt"><span class="kw"># 이 프롬프트가 하려는 일</span>
+경영 시뮬레이션을 PASS/FAIL 기반으로 자동 구축한다.
+"이 판단이 안전한가"를 측정 가능한 합격 기준과 사람 승인 지점으로 바꾼 뒤,
+Claude Code의 Task 도구로 <span class="val">Planner</span> / <span class="val">Generator</span> / <span class="val">Evaluator</span>를 별도 서브에이전트로 띄운다.
+세 에이전트는 매 단계 새 컨텍스트에서 시작하고, 같은 메시지 창에서 대화하지 않고 파일로만 주고받는다.
+
+<span class="kw"># 작업 디렉토리</span>
+<span class="val">./sim-build/</span>
+  ├─ <span class="val">plan.md</span>       <span class="cm">(Planner의 합격 기준 + 승인 가정 + 판단 경계)</span>
+  ├─ <span class="val">model/</span>        <span class="cm">(Generator의 계산 모델·결과)</span>
+  └─ <span class="val">feedback.md</span>   <span class="cm">(Evaluator의 PASS/FAIL + 근거)</span>
+
+<span class="kw"># 입력</span>
+시뮬레이션 요청: <span class="cm">(한두 문장. 예: 환율 +10% 시 주력 제품 원가·이익률 영향)</span>
+
+<span class="kw"># Phase 1. 기획·합의 (사람 승인 필수)</span>
+계산을 시작하기 전에 합격 기준과 경계를 먼저 굳힌다.
+
+<span class="cm">1.</span> Task 도구로 <span class="val">planner-agent</span>를 호출한다.
+   입력: 시뮬레이션 요청
+   산출물: <span class="val">./sim-build/plan.md</span>
+
+<span class="cm">2.</span> 사람(의사결정자)이 plan.md를 검토한다.
+   합격 기준·가정·판단 경계가 타당하면 plan.md 하단에 <span class="val">STATUS: APPROVED</span> 추가.
+   아니면 1번으로 돌아가 기준을 다시 쓴다. 이 승인은 사람만 한다.
+
+<span class="kw"># Phase 2. 계산·검증 (최대 N회차)</span>
+기준이 굳어지면 그제서야 시나리오를 돌린다.
+
+회차마다 다음 3단계를 순서대로 수행한다.
+
+<span class="cm">1.</span> Task 도구로 <span class="val">generator-agent</span>를 호출한다.
+   입력: <span class="val">plan.md</span> + (있으면) <span class="val">feedback.md</span>
+   산출물: <span class="val">./sim-build/model/</span>
+
+<span class="cm">2.</span> Task 도구로 <span class="val">evaluator-agent</span>를 호출한다.
+   입력: <span class="val">plan.md</span> + <span class="val">./sim-build/model/</span>
+   산출물: <span class="val">./sim-build/feedback.md</span>
+
+<span class="cm">3.</span> feedback.md를 읽는다.
+   모든 기준이 PASS면 <span class="val">STATUS: COMPLETED</span>를 추가하고 종료.
+   아니면 다음 회차로.
+
+<span class="kw"># planner-agent 시스템 프롬프트</span>
+너는 시뮬레이션 기획자다. 1~4문장 요청을 받아 plan.md를 작성한다.
+- 합격 기준은 번호가 매겨진 측정 가능한 조건 5개 이상. <span class="cm">(예: "환율 +10% 시 어떤 제품도 영업이익률 X% 미만이면 FAIL")</span>
+- 사람이 승인해야 하는 가정과, AI가 못 넘는 판단 경계를 명시한다.
+- 주관적 표현 금지. 데이터 출처·기준일·단위도 함께 명시한다.
+
+<span class="kw"># generator-agent 시스템 프롬프트</span>
+너는 계산 모델 작성자다. plan.md만을 진실의 원천으로 보고 <span class="val">./sim-build/model/</span>에 시나리오를 계산한다.
+- (있으면) 직전 feedback.md에서 FAIL인 기준 번호만 수정한다. 나머지는 절대 건드리지 않는다.
+- plan.md의 가정을 임의로 바꾸지 않는다. 가정 변경이 필요하면 멈추고 사람 승인을 요청한다.
+
+<span class="kw"># evaluator-agent 시스템 프롬프트</span>
+너는 검증자다. plan.md의 합격 기준만을 근거로 <span class="val">./sim-build/model/</span>의 결과를 판정한다.
+- 계산을 다시 짚어 검증하고, 가정 위반·리스크 임계 초과가 있으면 표시한다.
+- 결과를 feedback.md에 다음 형식으로 기록한다.
+
+  <span class="val">| 기준 번호 | 판정 (PASS/FAIL) | 근거 |</span>
+
+- 근거는 재현 가능하게 구체적으로 적는다.
+- 결과를 직접 수정하지 않는다.</pre>
+            </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 출처 섹션 -->
+    <div class="ref-section reveal">
+        <div class="ref-title">출처</div>
+        <div class="ref-links">
+            <a class="ref-link" href="https://www.anthropic.com/engineering/harness-design-long-running-apps" target="_blank" rel="noopener">
+                <span class="ref-icon">&#x1F4D6;</span>
+                <span>
+                    Anthropic Engineering | "Harness design for long-running application development"<br>
+                    <span style="font-size: 12px; color: #999; font-weight: 400;">저자: Prithvi Rajasekaran (Anthropic Labs) / 2026년 3월 24일 게시</span>
+                </span>
+                <span class="ref-desc">원문</span>
+            </a>
+        </div>
+        <p style="font-size: 12px; color: #999; margin-top: 14px; line-height: 1.7;">
+            이 페이지의 모든 인용문, 이미지, 동영상, 데이터 테이블은 위 Anthropic 엔지니어링 블로그 원문에서 발췌한 것입니다.<br>
+본 자료는 교육 및 강의 목적으로 정리되었으며, 원문의 저작권은 Anthropic에 있습니다.
+        </p>
+    </div>
+
+    <!-- CTA 섹션 -->
+    <div class="cta-section reveal">
+        <h3>하네스 설계, 직접 해보세요</h3>
+        <p>핵심은 하나입니다. 같은 Claude라도 하네스가 다르면 결과가 완전히 달라집니다.<br>그리고 그 하네스는 새로 배우는 기술이 아닙니다. 만드는 손과 검사하는 손을 나누고, 인수인계를 문서로 넘기는 것. 사장님이 이미 회사를 운영해 온 방식을 AI에 옮긴 것뿐입니다. 방금 실습 2·3에서 한 일이 바로 그것입니다.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn secondary" href="index.html">&larr; 목록으로</a>
+            <a class="cta-btn primary" href="claude-tools.html">Claude의 도구 살펴보기 &rarr;</a>
+        </div>
+    </div>
+</main>
+
+
+<footer>
+    <p class="footer-brand"><img class="footer-brand-logo" src="assets/logos/logo1-white.png" alt="">AI ROASTING<a class="footer-li" href="https://www.linkedin.com/in/jayden-kang/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg></a></p>
+    <p class="footer-text">LG전자 최고경영자를 위한 Claude 완전 정복</p>
+    <a class="footer-news" href="https://www.linkedin.com/newsletters/ai-%EB%A1%9C%EC%8A%A4%ED%8C%85-7321517076899127296/" target="_blank" rel="noopener">AI 로스팅 뉴스레터<span class="fn-arrow" aria-hidden="true">↗</span></a>
+    <p class="footer-copy">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+// ── 스크롤 애니메이션 ──
+var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+// ── 그리드 stagger 애니메이션 ──
+var gridSelectors = '.role-grid, .comp-grid, .grade-grid, .compare-grid';
+document.querySelectorAll(gridSelectors).forEach(function(grid) {
+    var children = grid.children;
+    for (var i = 0; i < children.length; i++) {
+        children[i].classList.add('stagger-child');
+        children[i].style.transitionDelay = (i * 0.1) + 's';
+    }
+});
+var staggerObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            var children = entry.target.children;
+            for (var i = 0; i < children.length; i++) {
+                children[i].classList.add('visible');
+            }
+        }
+    });
+}, { threshold: 0.15 });
+document.querySelectorAll(gridSelectors).forEach(function(grid) {
+    staggerObserver.observe(grid);
+});
+
+// ── 서브메뉴 활성화 ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a');
+    var sections = [];
+    var scrollEndTimer = null;
+    var clickedLink = null;
+
+    links.forEach(function(l){
+        var id = l.getAttribute('data-sec');
+        var el = document.getElementById(id);
+        if(el) sections.push({el:el, link:l});
+
+        l.addEventListener('click', function(){
+            links.forEach(function(x){ x.classList.remove('active'); });
+            l.classList.add('active');
+            clickedLink = l;
+        });
+    });
+
+    function update(){
+        if(clickedLink) return;
+        var smEl = document.getElementById('subMenu');
+        var scrollY = window.scrollY + (smEl ? smEl.offsetHeight : 0) + 16;
+        var current = null;
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                // 가로 서브메뉴만 스크롤한다. sticky 컨테이너 안에서 scrollIntoView를 부르면
+                // 브라우저가 창을 서브메뉴의 원래(고정 전) 위치로 끌어올려 하단을 못 보게 만든다.
+                var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.clientWidth) / 2;
+                nav.scrollTo({left: target, behavior: 'smooth'});
+            }
+        }
+    }
+    window.addEventListener('scroll', function(){
+        if(scrollEndTimer) clearTimeout(scrollEndTimer);
+        scrollEndTimer = setTimeout(function(){
+            clickedLink = null;
+            update();
+        }, 150);
+        update();
+    }, {passive:true});
+    update();
+})();
+
+// ── 스크롤 프로그레스 바 ──
+(function(){
+    var bar = document.getElementById('scrollProgress');
+    if(!bar) return;
+    function updateProgress(){
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = progress + '%';
+    }
+    window.addEventListener('scroll', updateProgress, {passive:true});
+    updateProgress();
+})();
+
+function copyPrompt(btn, sourceId) {
+    var id = sourceId || btn.closest('.prompt-block').querySelector('pre').id;
+    var text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(function() {
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 복사됨';
+        setTimeout(function() {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> 복사하기';
+        }, 2000);
+    });
+}
+</script>
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 6px 16px -6px rgba(58,53,48,.18);
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 6px 16px -6px rgba(58,53,48,.18);
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 0 0 0 1px rgba(58,53,48,.10); background: rgba(58,53,48,.04); }
+.sm-drawer-item.active { background: rgba(165,0,52,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #A50034; box-shadow: 0 2px 8px rgba(165,0,52,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #9C3A4F; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    /* 헤더 상단 여백 통일 */
+    header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+
+<!-- 가이드 소개 모달: 단일 소스 assets/about-modal.js 에서 주입 -->
+<script src="assets/about-modal.js"></script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+</body>
+</html>

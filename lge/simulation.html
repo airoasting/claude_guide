@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실습 3 · 데이터 기반 경영 시뮬레이션 | LG전자 Claude 실습</title>
+    <meta name="description" content="원자재·환율 10개년 데이터로 원가·KPI 변동을 시뮬레이션하는 MVP를 Claude Code로 만들고, AI 판단과 사람 승인의 경계를 정하는 실습.">
+    <link rel="stylesheet" href="lge.css">
+</head>
+<body>
+
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <nav class="step-nav load-anim load-d1">
+        <a class="step-node" href="claude-orientation.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="persona.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="harness-engineering.html">3</a>
+    </nav>
+    <a href="index.html" class="back-link load-anim load-d1">&larr; 목록으로</a>
+    <h1 class="load-anim load-d2">데이터 기반 경영 시뮬레이션</h1>
+    <p class="load-anim load-d3">원자재·환율 변동이 원가와 KPI에 주는 영향을 시뮬레이션하고, 판단의 경계를 정합니다</p>
+    <div class="header-pages load-anim load-d4">
+        <a href="persona.html" class="header-page-link">① 영문 메일</a>
+        <a href="research.html" class="header-page-link">② 리서치 브리프</a>
+        <a href="simulation.html" class="header-page-link active">③ 경영 시뮬레이션</a>
+    </div>
+</header>
+
+<nav class="sub-menu" id="subMenu">
+    <a href="#s0" class="active" data-sec="s0"><span class="sm-num">0</span><span class="sm-title">한눈에</span><span class="sm-sub">입력·출력</span></a>
+    <a href="#s1" data-sec="s1"><span class="sm-num">1</span><span class="sm-title">데이터 준비</span><span class="sm-sub">내부·외부</span></a>
+    <a href="#s2" data-sec="s2"><span class="sm-num">2</span><span class="sm-title">MVP 만들기</span><span class="sm-sub">Claude Code</span></a>
+    <a href="#s3" data-sec="s3"><span class="sm-num">3</span><span class="sm-title">시나리오</span><span class="sm-sub">돌려 보기</span></a>
+    <a href="#s4" data-sec="s4"><span class="sm-num">4</span><span class="sm-title">리스크 제안</span><span class="sm-sub">변동성 신호</span></a>
+    <a href="#s5" data-sec="s5"><span class="sm-num">5</span><span class="sm-title">판단 경계</span><span class="sm-sub">AI와 사람</span></a>
+    <a href="#s6" data-sec="s6"><span class="sm-num">6</span><span class="sm-title">자주 묻는 질문</span><span class="sm-sub">FAQ</span></a>
+</nav>
+
+<main class="container">
+
+    <!-- ═══ SECTION 0 ═══ -->
+    <div class="step-divider content-section reveal" id="s0" style="margin-top:0;">
+        <div class="step-divider-line"></div>
+        <div class="step-divider-badge">입력과 출력 한눈에</div>
+        <div class="step-divider-line"></div>
+    </div>
+
+    <div class="section-box reveal">
+        <div class="section-box-header">
+            <span class="section-num">0</span>
+            <span class="section-box-title">시나리오를 넣으면 결과가 나옵니다</span>
+            <span class="section-box-sub">가정 → 계산 → 영향</span>
+        </div>
+        <p class="section-scenario">구조는 단순합니다. <strong>가정을 넣고</strong>, 모델이 <strong>계산하고</strong>, 그 결과가 원가와 KPI, 리스크로 <strong>돌아옵니다.</strong></p>
+        <div class="compare-grid">
+            <div class="compare-card reveal-scale stagger-1">
+                <div class="compare-header"><span class="compare-axis">입력 (가정)</span></div>
+                <div class="compare-row">
+                    <div class="compare-item good"><span class="ci-icon">📈</span><span>환율 변동 (예: USD +10%)</span></div>
+                    <div class="compare-item good"><span class="ci-icon">🛢️</span><span>원자재 가격 변동</span></div>
+                    <div class="compare-item good"><span class="ci-icon">⚙️</span><span>제품별 원가 구조</span></div>
+                </div>
+            </div>
+            <div class="compare-card reveal-scale stagger-2">
+                <div class="compare-header"><span class="compare-axis">처리 (모델)</span></div>
+                <div class="compare-row">
+                    <div class="compare-item good"><span class="ci-icon">🧮</span><span>변동을 원가에 <strong>반영해 계산</strong></span></div>
+                    <div class="compare-item good"><span class="ci-icon">🔁</span><span>여러 시나리오를 <strong>한 번에</strong></span></div>
+                </div>
+            </div>
+            <div class="compare-card reveal-scale stagger-3">
+                <div class="compare-header"><span class="compare-axis">출력 (영향)</span></div>
+                <div class="compare-row">
+                    <div class="compare-item good"><span class="ci-icon">📊</span><span>제품별 원가 변동</span></div>
+                    <div class="compare-item good"><span class="ci-icon">🎯</span><span>전사 KPI 변화</span></div>
+                    <div class="compare-item good"><span class="ci-icon">⚠️</span><span>리스크·이슈 제안</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="metric-grid" style="margin-top:20px;">
+            <div class="metric-card reveal-scale stagger-1">
+                <div><span class="metric-value">30~50</span><span class="metric-unit">%</span></div>
+                <div class="metric-label">의사결정 리드타임 단축 목표</div>
+            </div>
+            <div class="metric-card reveal-scale stagger-2">
+                <div><span class="metric-value">10</span><span class="metric-unit">개년</span></div>
+                <div class="metric-label">연동하는 원자재·환율 데이터</div>
+            </div>
+            <div class="metric-card reveal-scale stagger-3">
+                <div><span class="metric-value">MVP</span></div>
+                <div class="metric-label">완성품이 아니라 최소 기능부터</div>
+            </div>
+        </div>
+        <div class="note-box"><strong>숫자는 목표이자 측정 대상입니다.</strong> 변동 발생 후 영향 산출까지 걸리던 시간을 기준선으로 재고, 시뮬레이터 도입 후와 비교해 실제 단축 폭을 확인합니다.</div>
+        <a href="sim-dashboard.html" target="_blank" rel="noopener" class="demo-bar reveal">
+            <span class="demo-bar-icon" aria-hidden="true">📊</span>
+            <span class="demo-bar-body">
+                <span class="demo-bar-title">시뮬레이션 대시보드 미리 보기</span>
+                <span class="demo-bar-sub">환율·구리·유가·철강·알루미늄·해상운임 6개 지표 3개년 실데이터로 만든, 이 실습의 완성형 결과물입니다.</span>
+            </span>
+            <span class="demo-bar-cta">대시보드 열기<span class="db-arrow" aria-hidden="true">→</span></span>
+        </a>
+    </div>
+
+    <!-- ═══ SECTION 1 ═══ -->
+    <div class="step-divider content-section reveal" id="s1">
+        <div class="step-divider-line"></div>
+        <div class="step-divider-badge">1단계 · 데이터 준비</div>
+        <div class="step-divider-line"></div>
+    </div>
+
+    <div class="section-box reveal">
+        <div class="section-box-header">
+            <span class="section-num">1</span>
+            <span class="section-box-title">활용 데이터를 모읍니다</span>
+            <span class="section-box-sub">내부 원가 구조 + 외부 시세</span>
+        </div>
+        <p class="section-scenario">시뮬레이션은 <strong>두 종류의 데이터</strong>가 만나야 돌아갑니다. 우리가 가진 원가 구조와, 시장에서 움직이는 시세입니다.</p>
+        <div class="do-list">
+            <div class="do-step reveal-left stagger-1">
+                <span class="do-num">1</span>
+                <div class="do-body">
+                    <div class="do-title">내부: 제품별 원가 구조</div>
+                    <p class="do-text">제품 한두 종을 골라 <strong>원가에서 원자재가 차지하는 비중, 수입 부품의 통화</strong>를 정리합니다. 처음에는 대표 제품만으로 충분합니다.</p>
+                </div>
+            </div>
+            <div class="do-step reveal-right stagger-2">
+                <span class="do-num">2</span>
+                <div class="do-body">
+                    <div class="do-title">외부: 원자재·환율 10개년</div>
+                    <p class="do-text">주요 원자재 가격과 환율의 <strong>과거 시계열</strong>을 모읍니다. 공개 데이터로 시작하고, 필요하면 사내 구매 데이터와 연동합니다.</p>
+                </div>
+            </div>
+            <div class="do-step reveal-left stagger-3">
+                <span class="do-num">3</span>
+                <div class="do-body">
+                    <div class="do-title">연습은 표본으로, 실데이터는 사내에서</div>
+                    <p class="do-text">실제 원가는 민감합니다. 연습 단계에서는 <strong>익명화한 표본</strong>으로 방법을 익히고, 실데이터는 <strong>승인된 사내 환경</strong>에서만 다룹니다.</p>
+                </div>
+            </div>
+        </div>
+        <div class="note-box"><strong>데이터 출처를 적어 둡니다.</strong> 어떤 수치를 어디서 가져왔는지 남겨야, 나중에 결과를 의심할 때 근거를 되짚을 수 있습니다. 시세의 기준일과 단위도 함께 기록합니다.</div>
+        <div class="claude-tip">이 실습을 위해 실제 데이터를 미리 준비해 두었습니다. 환율·구리·유가·철강·알루미늄·해상운임 6개 지표의 최근 3개년(2023.06~2026.05) 월별 시세를 출처와 함께 담았습니다. <a href="sim-dashboard.html" target="_blank" rel="noopener" style="color: var(--lg-red); font-weight: 800;">시뮬레이션 대시보드 열기 →</a> · <a href="assets/data/lge-commodities.xlsx" download target="_blank" rel="noopener" style="color: var(--lg-red); font-weight: 800;">엑셀 데이터 내려받기</a></div>
+    </div>
+
+    <!-- ═══ SECTION 2 ═══ -->
+    <div class="step-divider content-section reveal" id="s2">
+        <div class="step-divider-line"></div>
+        <div class="step-divider-badge">2단계 · MVP 만들기</div>
+        <div class="step-divider-line"></div>
+    </div>
+
+    <div class="section-box reveal">
+        <div class="section-box-header">
+            <span class="section-num">2</span>
+            <span class="section-box-title">Claude Code로 최소 기능부터</span>
+            <span class="section-box-sub">코드를 몰라도 만듭니다</span>
+        </div>
+        <p class="section-scenario">Claude Code를 켜고, <strong>말로 설명하면</strong> 계산 모델을 만들어 줍니다 (데스크톱 앱에서도 같은 방식으로 진행합니다). 사장님은 무엇을 원하는지 정하고, 결과가 맞는지 검증합니다.</p>
+        <div class="do-list">
+            <div class="do-step reveal-left stagger-1">
+                <span class="do-num">1</span>
+                <div class="do-body">
+                    <div class="do-title">작업 폴더에 데이터를 둡니다</div>
+                    <p class="do-text">준비한 원가 구조와 시세 데이터를 한 폴더에 모으고, Claude Code에서 그 폴더를 엽니다. Claude Code가 <strong>그 안의 파일을 읽고</strong> 작업합니다.</p>
+                </div>
+            </div>
+            <div class="do-step reveal-right stagger-2">
+                <span class="do-num">2</span>
+                <div class="do-body">
+                    <div class="do-title">원하는 것을 말로 설명합니다</div>
+                    <p class="do-text">"환율과 원자재 가격을 넣으면 제품별 원가가 얼마나 바뀌는지 계산하는 도구를 만들어 줘"처럼 <strong>목표를 문장으로</strong> 줍니다.</p>
+                </div>
+            </div>
+            <div class="do-step reveal-left stagger-3">
+                <span class="do-num">3</span>
+                <div class="do-body">
+                    <div class="do-title">작게 만들고 바로 검증합니다</div>
+                    <p class="do-text">한 제품, 두세 변수로 먼저 돌려 봅니다. <strong>손으로 계산한 값과 대조</strong>해 맞으면 범위를 넓힙니다. 틀리면 어디가 틀렸는지 묻습니다.</p>
+                </div>
+            </div>
+        </div>
+        <div class="prompt-box reveal">
+            <span class="pb-label">▸ MVP 요청 프롬프트</span>
+            <pre>이 폴더의 데이터로 간단한 원가 시뮬레이터를 만들어 줘.
+
+입력: 환율 변동률, 주요 원자재 가격 변동률
+계산: 제품별 원가 구조에 변동을 반영
+출력: 제품별 원가 변화(%, 금액), 전사 합산 영향
+
+먼저 제품 <span class="pb-var">한 종</span>, 변수 <span class="pb-var">환율·구리 가격</span>만으로
+가장 단순한 버전을 만들어 줘.
+계산 과정을 내가 검증할 수 있게 중간값도 보여 줘.</pre>
+        </div>
+        <div class="claude-tip">계산 과정을 함께 보여 달라고 하세요. 결과 숫자만 받으면 검증할 수 없습니다. 중간 단계가 보이면 어디서 가정이 들어갔는지 확인할 수 있습니다.</div>
+    </div>
+
+    <!-- ═══ SECTION 3 ═══ -->
+    <div class="step-divider content-section reveal" id="s3">
+        <div class="step-divider-line"></div>
+        <div class="step-divider-badge">3단계 · 시나리오 돌리기</div>
+        <div class="step-divider-line"></div>
+    </div>
+
+    <div class="section-box reveal">
+        <div class="section-box-header">
+            <span class="section-num">3</span>
+            <span class="section-box-title">가정을 바꿔 가며 돌립니다</span>
+            <span class="section-box-sub">한 번 만들면 시나리오는 무한히</span>
+        </div>
+        <p class="section-scenario">모델이 서면, 이제 <strong>"이러면 어떻게 되나"</strong>를 마음껏 물을 수 있습니다. 같은 모델에 가정만 바꿔 넣습니다.</p>
+        <div class="overview-card" style="margin-bottom:18px;">
+            <div class="overview-title">
+                <span class="overview-title-badge">예시</span>
+                <span class="overview-title-text">시나리오별 영향 (가상 수치)</span>
+            </div>
+            <div class="overview-table-wrap">
+                <table class="overview-table">
+                    <thead>
+                        <tr><th>시나리오</th><th>대표 제품 원가</th><th>전사 영향</th><th>긴급도</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="ov-name" data-label="시나리오">환율 +10%</td><td class="ov-role" data-label="원가">+4.2%</td><td class="ov-use" data-label="전사">영업이익 압박</td><td data-label="긴급도"><span class="risk-pill high">높음</span></td></tr>
+                        <tr><td class="ov-name" data-label="시나리오">구리 +20%</td><td class="ov-role" data-label="원가">+2.7%</td><td class="ov-use" data-label="전사">특정 라인 집중</td><td data-label="긴급도"><span class="risk-pill med">중간</span></td></tr>
+                        <tr><td class="ov-name" data-label="시나리오">환율·원자재 동반 상승</td><td class="ov-role" data-label="원가">+6.5%</td><td class="ov-use" data-label="전사">가격·헤지 검토</td><td data-label="긴급도"><span class="risk-pill high">높음</span></td></tr>
+                        <tr><td class="ov-name" data-label="시나리오">환율 -5%</td><td class="ov-role" data-label="원가">-2.1%</td><td class="ov-use" data-label="전사">여력 확보</td><td data-label="긴급도"><span class="risk-pill low">낮음</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="note-box"><strong>환율은 양쪽으로 작용합니다.</strong> 환율 상승은 수입 부품 원가를 올리는 동시에 수출 매출에는 우호적으로 작용합니다. 이 MVP는 원가 측면만 먼저 다루고, 매출·헤지 효과는 검증 후 확장 단계에서 더합니다.</div>
+        <div class="prompt-box reveal">
+            <span class="pb-label">▸ 시나리오 프롬프트</span>
+            <pre>다음 세 가지 시나리오를 한 번에 돌려서 비교해 줘.
+
+A. 환율 +10%
+B. 구리 +20%
+C. A와 B가 동시에 발생
+
+시나리오마다 제품별 원가 변동과
+전사 합산 영향을 표로 보여 주고,
+어느 시나리오가 가장 위험한지 짚어 줘.
+숫자의 근거가 된 가정을 함께 적어 줘.</pre>
+        </div>
+        <div class="note-box"><strong>가정을 늘 함께 봅니다.</strong> 같은 모델이라도 어떤 가정을 넣었느냐에 따라 결과가 달라집니다. AI가 결과를 줄 때 <strong>어떤 가정 위에 선 숫자인지</strong> 반드시 함께 확인합니다.</div>
+    </div>
+
+    <!-- ═══ SECTION 4 ═══ -->
+    <div class="step-divider content-section reveal" id="s4">
+        <div class="step-divider-line"></div>
+        <div class="step-divider-badge">4단계 · 리스크·이슈 제안</div>
+        <div class="step-divider-line"></div>
+    </div>
+
+    <div class="section-box reveal">
+        <div class="section-box-header">
+            <span class="section-num">4</span>
+            <span class="section-box-title">위험 신호를 먼저 짚게 합니다</span>
+            <span class="section-box-sub">제안이지 결정이 아닙니다</span>
+        </div>
+        <p class="section-scenario">시뮬레이션 결과에서 <strong>변동성이 크거나 대비가 필요한 항목</strong>을 AI가 먼저 골라내게 합니다. 사람이 모든 숫자를 뒤지지 않아도 됩니다.</p>
+        <div class="card-grid">
+            <div class="topic-card reveal-left stagger-1" style="--tc: var(--c-input);">
+                <div class="topic-card-header">
+                    <span class="topic-name">변동성 큰 항목</span>
+                    <span class="topic-tag" style="--tc: var(--c-input);">주의</span>
+                </div>
+                <p class="topic-desc">작은 가정 변화에도 원가가 크게 흔들리는 제품·부품을 짚습니다. <strong>가장 먼저 들여다볼 곳</strong>을 알려 줍니다.</p>
+            </div>
+            <div class="topic-card reveal-right stagger-2" style="--tc: var(--c-exec);">
+                <div class="topic-card-header">
+                    <span class="topic-name">대비가 필요한 신호</span>
+                    <span class="topic-tag" style="--tc: var(--c-exec);">검토</span>
+                </div>
+                <p class="topic-desc">특정 통화·원자재 의존이 높아 <strong>헤지나 공급선 다변화</strong>를 검토할 항목을 제안합니다. 어디까지나 검토 거리입니다.</p>
+            </div>
+            <div class="topic-card full reveal stagger-3" style="--tc: var(--scope-corp);">
+                <div class="topic-card-header">
+                    <span class="topic-name">제안의 형태</span>
+                    <span class="topic-tag" style="--tc: var(--scope-corp);">핵심</span>
+                </div>
+                <p class="topic-desc">AI는 "이 항목이 위험하니 <strong>검토를 권합니다</strong>"까지만 말합니다. "헤지하라", "가격을 올려라" 같은 <strong>결정은 내리지 않습니다.</strong> 제안과 결정 사이의 이 선을 다음 단계에서 직접 긋습니다.</p>
+                <p class="topic-alt">리스크 제안에는 근거가 된 가정과 데이터를 함께 달게 합니다.</p>
+            </div>
+        </div>
+        <div class="prompt-box reveal">
+            <span class="pb-label">▸ 리스크 제안 프롬프트</span>
+            <pre>위 시뮬레이션 결과에서 경영진이 먼저 봐야 할
+리스크를 골라 줘.
+
+리스크마다:
+- 무엇이 문제인가 (한 줄)
+- 어떤 가정에서 커지는가
+- 검토해 볼 선택지 (결정이 아니라 후보)
+- 근거 데이터
+
+결정은 내리지 말고, 판단 거리만 정리해 줘.</pre>
+        </div>
+    </div>
+
+    <!-- ═══ SECTION 5 ═══ -->
+    <div class="step-divider content-section reveal" id="s5">
+        <div class="step-divider-line"></div>
+        <div class="step-divider-badge">5단계 · AI와 사람의 판단 경계</div>
+        <div class="step-divider-line"></div>
+    </div>
+
+    <div class="section-box reveal">
+        <div class="section-box-header">
+            <span class="section-num">5</span>
+            <span class="section-box-title">어디까지 AI이고, 어디서 사람인가</span>
+            <span class="section-box-sub">이 실습의 진짜 결과물</span>
+        </div>
+        <p class="section-scenario">시뮬레이터보다 중요한 것이 이 표입니다. <strong>권한과 책임의 경계</strong>를 분명히 구분해야, AI 결과를 안심하고 의사결정에 쓸 수 있습니다.</p>
+        <div class="overview-card" style="margin-bottom:18px;">
+            <div class="overview-title">
+                <span class="overview-title-badge">권한·책임 매트릭스</span>
+                <span class="overview-title-text">단계별로 누가 무엇을 쥐는가</span>
+            </div>
+            <div class="overview-table-wrap">
+                <table class="overview-table">
+                    <thead>
+                        <tr><th>단계</th><th>AI가 하는 일</th><th>사람이 하는 일</th><th>책임</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="ov-name" data-label="단계">데이터·가정</td><td class="ov-role" data-label="AI">데이터를 정리·검증 보조</td><td class="ov-use" data-label="사람">어떤 가정을 쓸지 <strong>승인</strong></td><td data-label="책임"><span class="risk-pill med">사람</span></td></tr>
+                        <tr><td class="ov-name" data-label="단계">계산·시뮬레이션</td><td class="ov-role" data-label="AI"><strong>계산을 자동 수행</strong></td><td class="ov-use" data-label="사람">결과를 표본으로 검증</td><td data-label="책임"><span class="risk-pill med">사람 (표본 검증)</span></td></tr>
+                        <tr><td class="ov-name" data-label="단계">리스크 도출</td><td class="ov-role" data-label="AI">위험 항목을 <strong>제안</strong></td><td class="ov-use" data-label="사람">제안을 채택·기각</td><td data-label="책임"><span class="risk-pill med">사람</span></td></tr>
+                        <tr><td class="ov-name" data-label="단계">의사결정</td><td class="ov-role" data-label="AI">관여하지 않음</td><td class="ov-use" data-label="사람"><strong>결정하고 실행 지시</strong></td><td data-label="책임"><span class="risk-pill high">사람</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="compare-grid">
+            <div class="compare-card reveal-scale stagger-1">
+                <div class="compare-header"><span class="compare-axis">AI에게 맡길 것</span></div>
+                <div class="compare-row">
+                    <div class="compare-item good"><span class="ci-icon">✓</span><span>반복 계산과 <strong>대량 시나리오</strong></span></div>
+                    <div class="compare-item good"><span class="ci-icon">✓</span><span>패턴 찾기와 <strong>1차 정리</strong></span></div>
+                    <div class="compare-item good"><span class="ci-icon">✓</span><span>"먼저 볼 곳" 제안</span></div>
+                </div>
+            </div>
+            <div class="compare-card reveal-scale stagger-2">
+                <div class="compare-header"><span class="compare-axis">사람이 해야 할 것</span></div>
+                <div class="compare-row">
+                    <div class="compare-item good"><span class="ci-icon">✓</span><span><strong>가정의 타당성</strong> 승인</span></div>
+                    <div class="compare-item good"><span class="ci-icon">✓</span><span>맥락과 <strong>전략적 판단</strong></span></div>
+                    <div class="compare-item good"><span class="ci-icon">✓</span><span>최종 결정과 <strong>책임</strong></span></div>
+                </div>
+            </div>
+            <div class="compare-card reveal-scale stagger-3">
+                <div class="compare-header"><span class="compare-axis">절대 넘으면 안되는 선</span></div>
+                <div class="compare-row">
+                    <div class="compare-item bad"><span class="ci-icon">✗</span><span>AI가 <strong>가격·투자 결정</strong></span></div>
+                    <div class="compare-item bad"><span class="ci-icon">✗</span><span>검증 없는 <strong>자동 실행</strong></span></div>
+                    <div class="compare-item bad"><span class="ci-icon">✗</span><span>가정을 <strong>블랙박스</strong>로 두기</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="note-box"><strong>한 문장으로.</strong> AI는 계산하고 제안하는 분석가이고, 사람은 가정을 승인하고 결정을 내리는 경영자입니다. 이 역할을 흐리지 않는 한, 시뮬레이션은 의사결정을 빠르고 단단하게 만듭니다.</div>
+    </div>
+
+    <!-- ═══ SECTION 6 ═══ -->
+    <div class="step-divider content-section reveal" id="s6">
+        <div class="step-divider-line"></div>
+        <div class="step-divider-badge">자주 묻는 질문</div>
+        <div class="step-divider-line"></div>
+    </div>
+
+    <div class="section-box reveal">
+        <div class="section-box-header">
+            <span class="section-num">6</span>
+            <span class="section-box-title">자주 묻는 질문</span>
+            <span class="section-box-sub">실습 전에 자주 나오는 물음</span>
+        </div>
+        <div class="qa-list">
+            <div class="qa-item reveal">
+                <div class="qa-q">완성된 예시를 미리 볼 수 있습니까?</div>
+                <div class="qa-a"><span>네, 미리 보실 수 있습니다. 이 실습으로 만들 결과물을 <strong>완성형 예시</strong>로 준비해 두었습니다. 환율·구리·유가·철강·알루미늄·해상운임 6개 지표의 3개년 실데이터로 시나리오별 원가·KPI 변동을 보여 주는 시뮬레이션입니다.
+                    <span class="file-btn-row">
+                        <a href="sim-dashboard.html" target="_blank" rel="noopener" class="file-btn">시뮬레이션 예시 파일 열기<span class="fb-arrow" aria-hidden="true">↗</span></a>
+                        <a href="assets/data/lge-commodities.xlsx" download target="_blank" rel="noopener" class="file-btn alt">엑셀 데이터 내려받기<span class="fb-arrow" aria-hidden="true">↗</span></a>
+                    </span>
+                </span></div>
+            </div>
+            <div class="qa-item reveal">
+                <div class="qa-q">AI 계산을 믿어도 됩니까?</div>
+                <div class="qa-a"><span>검증한 만큼만 믿습니다. 작은 범위에서 <strong>손계산과 결과가 맞는지</strong> 대조하고, 중간 계산까지 함께 확인합니다. 이렇게 검증을 통과한 모델만 의사결정에 씁니다.</span></div>
+            </div>
+            <div class="qa-item reveal">
+                <div class="qa-q">코드를 모르는데 만들 수 있습니까?</div>
+                <div class="qa-a"><span>네, 코드를 몰라도 만들 수 있습니다. 무엇을 원하는지 <strong>말로 설명</strong>하면 Claude Code가 코드를 대신 작성합니다. 사장님의 역할은 코딩이 아니라, 무엇을 계산할지 정하고 결과가 맞는지 판단하는 것입니다.</span></div>
+            </div>
+            <div class="qa-item reveal">
+                <div class="qa-q">실데이터를 넣어도 안전합니까?</div>
+                <div class="qa-a"><span>다루는 환경을 지키면 안전합니다. 연습 단계는 <strong>익명화한 표본</strong>으로 방법만 익히고, 실데이터는 <strong>승인된 사내 환경</strong>에서만 다룹니다. 외부로 내보내도 되는 데이터인지 늘 먼저 확인합니다.</span></div>
+            </div>
+            <div class="qa-item reveal">
+                <div class="qa-q">MVP 다음은 무엇입니까?</div>
+                <div class="qa-a"><span>상시 운영 도구로 키우는 단계입니다. 검증된 MVP에 <strong>데이터 자동 연동과 정기 갱신</strong>을 더하면 됩니다. 다만 그 전에 권한·책임 경계가 먼저 합의돼 있어야 합니다.</span></div>
+            </div>
+        </div>
+        <div class="check-list" style="margin-top:24px;">
+            <div class="check-item reveal-scale stagger-1"><span class="ck-box">✓</span><span>제품·변수를 <strong>작게</strong> 시작했는가</span></div>
+            <div class="check-item reveal-scale stagger-2"><span class="ck-box">✓</span><span>결과를 <strong>표본으로 검증</strong>했는가</span></div>
+            <div class="check-item reveal-scale stagger-3"><span class="ck-box">✓</span><span>결과마다 <strong>가정</strong>을 함께 봤는가</span></div>
+            <div class="check-item reveal-scale stagger-4"><span class="ck-box">✓</span><span>리스크는 <strong>제안</strong>으로만 받았는가</span></div>
+            <div class="check-item reveal-scale stagger-5"><span class="ck-box">✓</span><span>권한·책임 <strong>경계를 합의</strong>했는가</span></div>
+            <div class="check-item reveal-scale stagger-6"><span class="ck-box">✓</span><span>실데이터는 <strong>사내 환경</strong>에서만 다뤘는가</span></div>
+        </div>
+    </div>
+
+    <div class="cta-card reveal-scale">
+        <div class="cta-title">실습을 마쳤다면, 다음은 3단계입니다</div>
+        <div class="cta-desc">나의 문체에서 시작해 팀의 정보, 전사 의사결정까지 직접 만들어 봤습니다.<br>이제 그 경험을 반복 가능한 구조로 정리할 차례입니다.</div>
+        <a href="harness-engineering.html" class="cta-btn">3단계 · 하네스 엔지니어링 →</a>
+    </div>
+
+</main>
+
+<footer>
+    <p class="footer-brand"><img class="footer-brand-logo" src="assets/logos/logo1-white.png" alt="">AI ROASTING<a class="footer-li" href="https://www.linkedin.com/in/jayden-kang/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg></a></p>
+    <p class="footer-text">LG전자 최고경영자를 위한 Claude 완전 정복</p>
+    <a class="footer-news" href="https://www.linkedin.com/newsletters/ai-%EB%A1%9C%EC%8A%A4%ED%8C%85-7321517076899127296/" target="_blank" rel="noopener">AI 로스팅 뉴스레터<span class="fn-arrow" aria-hidden="true">↗</span></a>
+    <p class="footer-copy">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<!-- ## SM-HAMBURGER START ## -->
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back"><span aria-hidden="true">←</span><span>목록으로</span></a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<!-- ## SM-HAMBURGER END ## -->
+
+<script src="lge.js"></script>
+
+</body>
+</html>
