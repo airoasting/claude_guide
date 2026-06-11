@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>데이터 기반 경영 시뮬레이션 · 실습 교재</title>
+<style>
+@font-face{
+  font-family:'Pretendard';
+  src:url('../lge/assets/fonts/PretendardVariable.ttf') format('truetype-variations');
+  font-weight:45 920;
+  font-display:swap;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:#EBEEF2;
+  font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  color:#2C3641;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 44px 0;}
+.hero-inner{max-width:1200px;margin:0 auto;padding:0 32px;}
+.footer-inner{max-width:1200px;margin:0 auto;padding:0 32px;}
+
+/* ---------- 공통 카드 ---------- */
+.card{
+  background:#EBEEF2;
+  border-radius:22px;
+  box-shadow:9px 9px 18px rgba(150,160,176,0.42),-9px -9px 18px rgba(255,255,255,0.92);
+  padding:26px 28px;
+}
+.inset{
+  box-shadow:inset 6px 6px 12px rgba(150,160,176,0.34),inset -6px -6px 12px rgba(255,255,255,0.9);
+  border-radius:18px;
+}
+.label-tag{
+  display:inline-block;padding:3px 12px;border-radius:999px;
+  font-size:11.5px;font-weight:700;color:#fff;background:#0067B1;
+  letter-spacing:0.02em;vertical-align:middle;
+}
+.label-tag.gray{background:#7F8995;}
+.label-tag.deep{background:#003D73;}
+
+/* ---------- 헤더 ---------- */
+.hero{
+  background:linear-gradient(150deg,#0091DA 0%,#0067B1 48%,#003D73 100%);
+  padding:48px 0 44px;
+  color:#fff;
+  border-radius:0 0 28px 28px;
+}
+.hero .badge{
+  display:inline-block;background:rgba(255,255,255,0.16);
+  border:1px solid rgba(255,255,255,0.32);
+  padding:5px 16px;border-radius:999px;
+  font-size:12.5px;font-weight:700;letter-spacing:0.06em;margin-bottom:18px;
+}
+.hero h1{font-size:33px;font-weight:800;letter-spacing:-0.01em;line-height:1.3;margin-bottom:12px;}
+.hero p{font-size:15.5px;color:rgba(255,255,255,0.88);max-width:760px;}
+.hero .meta{margin-top:20px;font-size:12.5px;color:rgba(255,255,255,0.62);}
+
+/* ---------- 섹션 제목 ---------- */
+.sec{margin-top:52px;}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.sec-num{
+  width:34px;height:34px;border-radius:12px;flex:none;
+  background:#0067B1;color:#fff;font-weight:800;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:4px 4px 9px rgba(150,160,176,0.4),-4px -4px 9px rgba(255,255,255,0.9);
+}
+.sec-head h2{font-size:20px;font-weight:800;letter-spacing:-0.01em;color:#1E2731;}
+.sec-desc{font-size:14px;color:#6E7884;margin-bottom:22px;}
+
+/* ---------- KPI ---------- */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.kpi{padding:20px 22px 16px;}
+.kpi .k-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.kpi .k-name{font-size:13px;font-weight:700;color:#616C78;}
+.kpi .k-val{font-size:24px;font-weight:800;color:#1E2731;letter-spacing:-0.01em;line-height:1.2;}
+.kpi .k-unit{font-size:12px;font-weight:600;color:#8C95A1;margin-left:4px;}
+.kpi .k-chg{font-size:13px;font-weight:700;margin-top:2px;}
+.kpi .k-chg.up{color:#0091DA;}
+.kpi .k-chg.down{color:#7F8995;}
+.kpi .k-chg small{font-weight:500;color:#8C95A1;margin-left:5px;}
+.kpi svg{display:block;margin-top:10px;width:100%;height:40px;}
+
+/* ---------- 차트 컨트롤 ---------- */
+.ctrl-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.chips{display:flex;flex-wrap:wrap;gap:9px;}
+.chip{
+  border:none;cursor:pointer;font-family:inherit;
+  background:#EBEEF2;border-radius:999px;padding:7px 15px 7px 12px;
+  font-size:12.5px;font-weight:700;color:#8C95A1;
+  display:flex;align-items:center;gap:7px;
+  box-shadow:5px 5px 10px rgba(150,160,176,0.38),-5px -5px 10px rgba(255,255,255,0.9);
+  transition:box-shadow .15s,color .15s;
+}
+.chip .dot{width:9px;height:9px;border-radius:50%;background:#BAC2CC;transition:background .15s;}
+.chip.on{
+  color:#2C3641;
+  box-shadow:inset 4px 4px 9px rgba(150,160,176,0.36),inset -4px -4px 9px rgba(255,255,255,0.9);
+}
+.chip.on .dot{background:var(--c);}
+.seg{
+  display:flex;border-radius:999px;padding:4px;
+  box-shadow:inset 4px 4px 9px rgba(150,160,176,0.32),inset -4px -4px 9px rgba(255,255,255,0.9);
+}
+.seg button{
+  border:none;cursor:pointer;font-family:inherit;
+  background:transparent;border-radius:999px;padding:6px 16px;
+  font-size:12.5px;font-weight:700;color:#8C95A1;transition:all .15s;
+}
+.seg button.on{
+  background:#0067B1;color:#fff;
+  box-shadow:3px 3px 7px rgba(0,61,115,0.35);
+}
+.chart-box{position:relative;}
+.chart-box svg{display:block;width:100%;height:auto;}
+.tip{
+  position:absolute;pointer-events:none;display:none;z-index:5;
+  background:#1E2731;color:#fff;border-radius:12px;padding:10px 14px;
+  font-size:12px;line-height:1.7;box-shadow:6px 6px 14px rgba(20,30,45,0.35);
+  min-width:170px;
+}
+.tip .t-month{font-weight:800;font-size:12.5px;margin-bottom:4px;color:#CDE7F5;}
+.tip .t-row{display:flex;align-items:center;gap:7px;white-space:nowrap;}
+.tip .t-dot{width:8px;height:8px;border-radius:50%;flex:none;}
+.obs{
+  margin-top:18px;padding:13px 18px;border-radius:16px;
+  box-shadow:inset 4px 4px 9px rgba(150,160,176,0.3),inset -4px -4px 9px rgba(255,255,255,0.88);
+  font-size:13.5px;color:#4E5965;
+}
+.obs b{color:#0067B1;font-weight:800;margin-right:8px;}
+
+/* ---------- 변동률 미니 카드 ---------- */
+.mc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.mc{padding:18px 20px;}
+.mc .m-name{font-size:13px;font-weight:800;color:#2C3641;display:flex;align-items:center;gap:7px;margin-bottom:10px;}
+.mc .m-name .dot{width:9px;height:9px;border-radius:50%;}
+.mc table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.mc td{padding:3px 0;color:#6E7884;}
+.mc td:last-child{text-align:right;font-weight:700;color:#2C3641;}
+.mc td .up{color:#0091DA;}
+.mc td .down{color:#7F8995;}
+
+/* ---------- 히트맵 ---------- */
+.corr-flex{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap;}
+.corr-legend{font-size:12.5px;color:#6E7884;flex:1;min-width:220px;}
+.corr-legend .lg-bar{height:12px;border-radius:999px;margin:10px 0 4px;background:linear-gradient(90deg,#7F8995,#EBEEF2,#0067B1);box-shadow:inset 2px 2px 5px rgba(150,160,176,0.3);}
+.corr-legend .lg-cap{display:flex;justify-content:space-between;font-size:11px;color:#8C95A1;}
+
+/* ---------- 시뮬레이션 ---------- */
+.sim-grid{display:grid;grid-template-columns:430px 1fr;gap:22px;align-items:stretch;}
+.sl-row{margin-bottom:18px;}
+.sl-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;}
+.sl-head .sl-name{font-size:13.5px;font-weight:700;color:#3C4753;}
+.sl-head .sl-val{font-size:14px;font-weight:800;min-width:58px;text-align:right;}
+.sl-val.plus{color:#0091DA;}
+.sl-val.minus{color:#7F8995;}
+.sl-val.zero{color:#8C95A1;}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:14px;border-radius:999px;background:#EBEEF2;outline:none;
+  box-shadow:inset 4px 4px 8px rgba(150,160,176,0.38),inset -4px -4px 8px rgba(255,255,255,0.9);
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:26px;height:26px;border-radius:50%;cursor:pointer;border:none;
+  background:radial-gradient(circle at center,#0067B1 0 6px,#EBEEF2 7px 100%);
+  box-shadow:3px 3px 7px rgba(150,160,176,0.5),-3px -3px 7px rgba(255,255,255,0.95);
+}
+input[type=range]::-moz-range-thumb{
+  width:26px;height:26px;border-radius:50%;cursor:pointer;border:none;
+  background:radial-gradient(circle at center,#0067B1 0 6px,#EBEEF2 7px 100%);
+  box-shadow:3px 3px 7px rgba(150,160,176,0.5),-3px -3px 7px rgba(255,255,255,0.95);
+}
+.preset-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;}
+.preset{
+  border:none;cursor:pointer;font-family:inherit;
+  background:#EBEEF2;border-radius:14px;padding:9px 15px;
+  font-size:12.5px;font-weight:700;color:#003D73;
+  box-shadow:5px 5px 11px rgba(150,160,176,0.4),-5px -5px 11px rgba(255,255,255,0.9);
+  transition:box-shadow .12s;
+}
+.preset:active,.preset.on{
+  box-shadow:inset 4px 4px 9px rgba(150,160,176,0.36),inset -4px -4px 9px rgba(255,255,255,0.9);
+}
+.preset.reset{color:#7F8995;}
+.fx-note{
+  margin-top:16px;padding:11px 15px;border-radius:14px;font-size:12.5px;color:#616C78;flex:1;
+  box-shadow:inset 4px 4px 9px rgba(150,160,176,0.28),inset -4px -4px 9px rgba(255,255,255,0.86);
+}
+.prod{padding:20px 24px;margin-bottom:18px;}
+.prod:last-child{margin-bottom:0;}
+.prod .p-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.prod .p-head h4{font-size:16px;font-weight:800;color:#1E2731;}
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:9px;}
+.bar-row .b-name{flex:none;width:104px;font-size:12px;font-weight:700;color:#6E7884;}
+.bar-track{
+  flex:1;height:16px;border-radius:999px;position:relative;overflow:hidden;
+  box-shadow:inset 3px 3px 7px rgba(150,160,176,0.34),inset -3px -3px 7px rgba(255,255,255,0.88);
+}
+.bar-fill{position:absolute;top:0;height:100%;border-radius:999px;transition:all .2s ease;}
+.bar-zero{position:absolute;top:-2px;bottom:-2px;width:2px;background:rgba(95,108,124,0.45);}
+.bar-row .b-val{flex:none;width:118px;text-align:right;font-size:13px;font-weight:800;}
+.b-val .sub{display:block;font-size:11px;font-weight:600;color:#8C95A1;}
+.advice{padding:22px 24px;}
+.advice h4{font-size:15px;font-weight:800;color:#1E2731;display:flex;align-items:center;gap:9px;margin-bottom:12px;}
+.advice ul{list-style:none;}
+.advice li{
+  font-size:13px;color:#4E5965;padding:7px 0;display:flex;gap:9px;align-items:flex-start;
+}
+.advice li::before{content:'';width:7px;height:7px;border-radius:50%;background:#0091DA;flex:none;margin-top:7px;}
+.advice .ai-note{
+  margin-top:12px;padding:10px 14px;border-radius:12px;font-size:12px;color:#7F8995;font-weight:600;
+  box-shadow:inset 3px 3px 7px rgba(150,160,176,0.26),inset -3px -3px 7px rgba(255,255,255,0.84);
+}
+.bom-wrap{overflow-x:auto;}
+table.bom{width:100%;border-collapse:collapse;font-size:12.5px;min-width:680px;}
+table.bom th{
+  text-align:right;padding:9px 10px;color:#8C95A1;font-weight:700;font-size:11.5px;
+  border-bottom:1px solid rgba(150,160,176,0.35);white-space:nowrap;
+}
+table.bom th:first-child{text-align:left;}
+table.bom td{padding:9px 10px;text-align:right;color:#3C4753;font-weight:600;border-bottom:1px solid rgba(150,160,176,0.18);white-space:nowrap;}
+table.bom td:first-child{text-align:left;font-weight:800;color:#1E2731;}
+table.bom tr:last-child td{border-bottom:none;}
+
+/* ---------- 출처 ---------- */
+.src-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+.src{padding:20px 22px;}
+.src .s-head{display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap;}
+.src .s-head b{font-size:14px;color:#1E2731;font-weight:800;}
+.src p{font-size:12.5px;color:#616C78;margin-bottom:8px;}
+.src .links{display:flex;flex-wrap:wrap;gap:7px;}
+.src .links a{
+  font-size:11px;font-weight:700;color:#003D73;text-decoration:none;
+  padding:3px 10px;border-radius:999px;
+  box-shadow:3px 3px 7px rgba(150,160,176,0.34),-3px -3px 7px rgba(255,255,255,0.88);
+}
+.src .links a:hover{box-shadow:inset 2px 2px 5px rgba(150,160,176,0.32),inset -2px -2px 5px rgba(255,255,255,0.86);}
+.disclaim{
+  margin-top:20px;padding:18px 24px;border-radius:18px;
+  box-shadow:inset 5px 5px 11px rgba(150,160,176,0.3),inset -5px -5px 11px rgba(255,255,255,0.88);
+  font-size:13px;color:#4E5965;
+}
+.disclaim b{color:#0067B1;}
+
+/* ---------- 반응형 ---------- */
+@media (max-width:980px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .mc-grid{grid-template-columns:repeat(2,1fr);}
+  .sim-grid{grid-template-columns:1fr;}
+}
+@media (max-width:768px){
+  .wrap{padding:24px 14px 0;}
+  .hero{padding:32px 0 28px;}
+  .hero-inner{padding:0 18px;}
+  .footer-inner{padding:0 18px;}
+  .hero h1{font-size:25px;}
+  .sec-head h2{font-size:18px;}
+  .kpi-grid,.mc-grid,.src-grid{grid-template-columns:1fr;}
+  .ctrl-row{flex-direction:column;align-items:flex-start;}
+  .bar-row .b-name{width:84px;}
+  .bar-row .b-val{width:96px;}
+  .card{padding:20px 18px;}
+}
+</style>
+</head>
+<body>
+
+<!-- 헤더 (전체 가로 폭) -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="badge">실습 교재</span>
+    <h1>데이터 기반 경영 시뮬레이션</h1>
+    <p>실제 3개년 시장 데이터 6개 지표로 탐색적 분석(EDA)을 수행하고, 변수 변화가 가상 제품 3종의 원가와 영업이익률에 미치는 영향을 직접 움직여 보는 대시보드입니다.</p>
+    <div class="meta">2023.06 ~ 2026.05 월간 데이터 · 환율 / 구리 / 유가 / 철강 / 알루미늄 / 해상운임 · 생성일 2026-06-10</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 1. KPI -->
+  <section class="sec">
+    <div class="sec-head"><div class="sec-num">1</div><h2>시장 지표 요약</h2></div>
+    <p class="sec-desc">각 지표의 최신값(2026년 5월)과 36개월 누적 변화율, 추세 미니 그래프입니다.</p>
+    <div class="kpi-grid" id="kpiGrid"></div>
+  </section>
+
+  <!-- 2. EDA -->
+  <section class="sec">
+    <div class="sec-head"><div class="sec-num">2</div><h2>탐색적 분석 (EDA)</h2></div>
+    <p class="sec-desc">시계열 추세, 월간 변동률, 지표 간 상관관계를 차례로 살펴봅니다. 모든 코멘트는 아래 데이터에서 직접 계산한 사실입니다.</p>
+
+    <div class="card">
+      <div class="ctrl-row">
+        <div class="chips" id="chipRow"></div>
+        <div class="seg" id="modeSeg">
+          <button data-mode="norm" class="on">정규화 (시작=100)</button>
+          <button data-mode="raw">실제 값</button>
+        </div>
+      </div>
+      <div class="chart-box" id="chartBox">
+        <svg id="mainChart" viewBox="0 0 1000 440" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="tip" id="chartTip"></div>
+      </div>
+      <div class="obs" id="obsChart"></div>
+    </div>
+
+    <div style="margin-top:26px;">
+      <div class="mc-grid" id="mcGrid"></div>
+      <div class="obs" id="obsMc" style="margin-top:18px;"></div>
+    </div>
+
+    <div class="card" style="margin-top:26px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <span class="label-tag">상관관계</span>
+        <b style="font-size:15px;color:#1E2731;">월간 변동률 기준 피어슨 상관계수 (6 × 6)</b>
+      </div>
+      <div class="corr-flex">
+        <div class="chart-box" style="flex:none;width:min(100%,560px);">
+          <svg id="corrSvg" viewBox="0 0 560 480" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div class="tip" id="corrTip"></div>
+        </div>
+        <div class="corr-legend">
+          <p>월간 변동률(전월 대비 %) 35개 구간으로 계산했습니다. 수준(레벨)이 아니라 변화율 기준이므로, 단순히 함께 우상향한 지표라도 상관이 낮게 나올 수 있습니다.</p>
+          <div class="lg-bar"></div>
+          <div class="lg-cap"><span>-1.0 (역방향)</span><span>0</span><span>+1.0 (동행)</span></div>
+        </div>
+      </div>
+      <div class="obs" id="obsCorr"></div>
+    </div>
+  </section>
+
+  <!-- 3. 시뮬레이션 -->
+  <section class="sec">
+    <div class="sec-head"><div class="sec-num">3</div><h2>원가 영향 시뮬레이션</h2></div>
+    <p class="sec-desc">슬라이더로 6개 변수를 움직이면 가상 제품 3종의 원가 변화율과 영업이익률 영향이 즉시 계산됩니다. 가중치와 이익률은 교육용 가정입니다.</p>
+
+    <div class="sim-grid">
+      <div class="card" style="display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px;">
+          <span class="label-tag">변수 조정</span>
+          <b style="font-size:14px;color:#1E2731;">기준 시점 대비 변동률 (-30% ~ +30%)</b>
+        </div>
+        <div id="sliderArea"></div>
+        <div style="display:flex;align-items:center;gap:9px;margin:20px 0 10px;">
+          <span class="label-tag deep">리스크 시나리오</span>
+        </div>
+        <div class="preset-row" id="presetRow"></div>
+        <div class="fx-note">환율 슬라이더는 양방향으로 작동합니다. 원화 약세(+)는 달러 결제 매출을 원화 기준으로 늘리는 동시에, 달러로 사오는 원자재 원가도 함께 밀어 올립니다. 두 효과를 모두 반영해 계산합니다.</div>
+      </div>
+
+      <div>
+        <div id="prodArea"></div>
+        <div class="card advice" style="margin-top:18px;">
+          <h4><span class="label-tag gray">검토 권고</span>시뮬레이션이 제안하는 점검 주제</h4>
+          <ul id="adviceList"></ul>
+          <div class="ai-note">이 패널은 현재 설정에서 점검할 만한 주제를 제안할 뿐입니다. 실행 여부와 우선순위 결정은 경영진의 영역입니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:26px;">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;flex-wrap:wrap;">
+        <span class="label-tag">교육용 가정</span>
+        <b style="font-size:15px;color:#1E2731;">가상 제품 3종의 원가 구성 가중치 (총원가 대비 %)</b>
+      </div>
+      <div class="bom-wrap">
+        <table class="bom" id="bomTable"></table>
+      </div>
+      <p style="font-size:12px;color:#8C95A1;margin-top:12px;">가중치, 수출 비중, 기준 영업이익률은 LG전자 2025 사업보고서의 부문별 원재료 구성(철강 13.1%, 레진 7.3%, 구리 1.8~45.6% 등)과 부문 손익을 참고해 설정한 교육용 가정이며, 실제 제품의 원가 구조와 다릅니다. 레진은 유가 변동의 40%가 전이된다고 가정합니다. 기타(USD)는 디스플레이, 반도체 등 달러 결제 품목, 기타(KRW)는 인건비 등 원화 비용을 뜻합니다.</p>
+    </div>
+  </section>
+
+  <!-- 4. 출처 -->
+  <section class="sec">
+    <div class="sec-head"><div class="sec-num">4</div><h2>데이터 출처와 한계</h2></div>
+    <p class="sec-desc">시리즈별 기준, 원출처, 추정 구간입니다. 모든 시계열은 원천 데이터와 교차검증을 거쳤습니다.</p>
+    <div class="src-grid" id="srcGrid"></div>
+    <div class="disclaim" id="lgeSrc"></div>
+    <div class="disclaim" style="margin-top:14px;">
+      <b>고지</b> · 본 자료는 POSCO 경영진 강의 실습을 위한 <b>교육용 자료</b>입니다. 시뮬레이션의 제품, 가중치, 이익률은 가상의 설정이며, 투자 판단이나 구매 의사결정에 직접 사용해서는 안 됩니다. 생성일 2026-06-11.
+    </div>
+  </section>
+
+</div>
+
+<!-- 푸터 (전체 가로 폭) -->
+<footer style="background:#141A22;text-align:center;padding:34px 0 28px;margin-top:56px;border-radius:28px 28px 0 0;">
+  <div class="footer-inner">
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;">
+      <img src="../lge/assets/logos/logo1-white.png" alt="AI ROASTING 로고" style="height:18px;display:block;">
+      <span style="font-size:17px;font-weight:800;color:#FFFFFF;letter-spacing:0.02em;">AI ROASTING</span>
+    </div>
+    <p style="color:rgba(255,255,255,0.58);font-size:13px;margin:0 0 6px;">POSCO 경영진을 위한 Claude 완전 정복 · 실습 교재</p>
+    <p style="color:rgba(255,255,255,0.34);font-size:12px;margin:0;">© 2026 AI ROASTING</p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ================= 데이터 (인라인 임베드, 외부 호출 없음) ================= */
+const DATA = {
+  "series": [
+    {
+      "key": "usdkrw",
+      "unit": "KRW per USD",
+      "points": [
+        {"month":"2023-06","value":1297.25},{"month":"2023-07","value":1282.28},{"month":"2023-08","value":1321.76},{"month":"2023-09","value":1334.24},{"month":"2023-10","value":1351.51},{"month":"2023-11","value":1308.15},{"month":"2023-12","value":1304.39},
+        {"month":"2024-01","value":1325.91},{"month":"2024-02","value":1331.33},{"month":"2024-03","value":1331.68},{"month":"2024-04","value":1367.86},{"month":"2024-05","value":1364.72},{"month":"2024-06","value":1379.05},{"month":"2024-07","value":1382.05},{"month":"2024-08","value":1351.44},{"month":"2024-09","value":1330.70},{"month":"2024-10","value":1362.37},{"month":"2024-11","value":1395.02},{"month":"2024-12","value":1440.00},
+        {"month":"2025-01","value":1452.19},{"month":"2025-02","value":1444.79},{"month":"2025-03","value":1458.35},{"month":"2025-04","value":1439.78},{"month":"2025-05","value":1391.44},{"month":"2025-06","value":1364.68},{"month":"2025-07","value":1379.30},{"month":"2025-08","value":1389.00},{"month":"2025-09","value":1392.91},{"month":"2025-10","value":1423.08},{"month":"2025-11","value":1459.88},{"month":"2025-12","value":1465.36},
+        {"month":"2026-01","value":1455.50},{"month":"2026-02","value":1447.29},{"month":"2026-03","value":1490.52},{"month":"2026-04","value":1483.80},{"month":"2026-05","value":1488.40}
+      ],
+      "sources": [
+        "https://www.federalreserve.gov/releases/h10/hist/dat00_ko.htm",
+        "https://www.x-rates.com/average/?from=USD&to=KRW&amount=1&year=2026",
+        "https://www.x-rates.com/average/?from=USD&to=KRW&amount=1&year=2023"
+      ],
+      "notes": "기준: 현물환 월평균. 연준 H.10 일별 정오(noon) 환율(영업일 기준)을 월별 산술평균해 산출, 보간·추정 구간 없음(36/36개월 원천 데이터). 교차검증: X-Rates 월평균과 시작값(2023-06: 1297.25 vs 1295.69) 및 최신값(2026-05: 1488.40 vs 1489.64)이 0.2% 이내 일치. 한계: 한국은행 매매기준율과는 고시 시점 차이로 소폭(통상 1~3원) 다를 수 있음. 참고: 2025년 말~2026년 상반기 환율이 1,45x~1,49x로 통상 범위보다 높은 원화 약세 구간임을 웹에서 확인함(2026-06 초에는 1,5xx 진입).",
+      "verified": true
+    },
+    {
+      "key": "lme_copper",
+      "unit": "USD/톤",
+      "points": [
+        {"month":"2023-06","value":8386.23},{"month":"2023-07","value":8445.26},{"month":"2023-08","value":8351.77},{"month":"2023-09","value":8270.86},{"month":"2023-10","value":7939.66},{"month":"2023-11","value":8173.95},{"month":"2023-12","value":8394.11},
+        {"month":"2024-01","value":8344.30},{"month":"2024-02","value":8310.74},{"month":"2024-03","value":8675.63},{"month":"2024-04","value":9482.43},{"month":"2024-05","value":10129.07},{"month":"2024-06","value":9641.60},{"month":"2024-07","value":9393.57},{"month":"2024-08","value":8963.71},{"month":"2024-09","value":9254.50},{"month":"2024-10","value":9539.24},{"month":"2024-11","value":9074.79},{"month":"2024-12","value":8919.53},
+        {"month":"2025-01","value":8977.57},{"month":"2025-02","value":9329.25},{"month":"2025-03","value":9731.07},{"month":"2025-04","value":9192.13},{"month":"2025-05","value":9529.78},{"month":"2025-06","value":9833.74},{"month":"2025-07","value":9778.22},{"month":"2025-08","value":9645.85},{"month":"2025-09","value":9952.73},{"month":"2025-10","value":10696.02},{"month":"2025-11","value":10800.78},{"month":"2025-12","value":11803.79},
+        {"month":"2026-01","value":13088.88},{"month":"2026-02","value":12967.83},{"month":"2026-03","value":12498.98},{"month":"2026-04","value":12891.38},{"month":"2026-05","value":13507.13}
+      ],
+      "sources": [
+        "https://www.westmetall.com/en/markdaten.php?action=averages&field=LME_Cu_cash&year=2023",
+        "https://www.westmetall.com/en/markdaten.php?action=averages&field=LME_Cu_cash&year=2024",
+        "https://www.westmetall.com/en/markdaten.php?action=averages&field=LME_Cu_cash&year=2025",
+        "https://www.westmetall.com/en/markdaten.php?action=averages&field=LME_Cu_cash&year=2026",
+        "https://www.indexmundi.com/commodities/?commodity=copper&months=60",
+        "https://www.alumeco.com/metal-prices/copper/"
+      ],
+      "notes": "기준: LME 구리 현물(Cash Settlement) 월평균, USD/톤 (Westmetall 집계). 36개월 전 구간 원천 데이터 확보, 보간 없음. 교차 확인: 2023-06 IndexMundi(IMF 기준) 8,396.52 vs Westmetall 8,386.23 (±0.1% 수준 일치), 2026-01~03 IndexMundi와 정합, 2026-04~05 Alumeco(12,892 / 13,508)와 일치. 한계: Westmetall은 LME 공식 데이터 재게시 사이트로 2차 출처이며, 2026-05는 5/29까지 영업일 평균.",
+      "verified": true
+    },
+    {
+      "key": "oil",
+      "unit": "USD/배럴",
+      "points": [
+        {"month":"2023-06","value":74.67},{"month":"2023-07","value":80.46},{"month":"2023-08","value":86.61},{"month":"2023-09","value":93.08},{"month":"2023-10","value":90.62},{"month":"2023-11","value":83.45},{"month":"2023-12","value":77.22},
+        {"month":"2024-01","value":78.86},{"month":"2024-02","value":81.18},{"month":"2024-03","value":84.70},{"month":"2024-04","value":89.39},{"month":"2024-05","value":83.53},{"month":"2024-06","value":82.17},{"month":"2024-07","value":83.94},{"month":"2024-08","value":77.95},{"month":"2024-09","value":73.43},{"month":"2024-10","value":74.65},{"month":"2024-11","value":72.79},{"month":"2024-12","value":73.31},
+        {"month":"2025-01","value":80.14},{"month":"2025-02","value":74.97},{"month":"2025-03","value":71.71},{"month":"2025-04","value":66.89},{"month":"2025-05","value":63.01},{"month":"2025-06","value":68.50},{"month":"2025-07","value":69.23},{"month":"2025-08","value":67.87},{"month":"2025-09","value":67.75},{"month":"2025-10","value":64.30},{"month":"2025-11","value":63.83},{"month":"2025-12","value":61.98},
+        {"month":"2026-01","value":63.91},{"month":"2026-02","value":68.36},{"month":"2026-03","value":91.88},{"month":"2026-04","value":92.70},{"month":"2026-05","value":94.70}
+      ],
+      "sources": [
+        "https://www.indexmundi.com/commodities/?commodity=crude-oil-dubai&months=60",
+        "https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Pink-Sheet-May-2026.pdf",
+        "https://thedocs.worldbank.org/en/doc/74e8be41ceb20fa0da750cda2f6b9e4e-0050012026/related/CMO-Pink-Sheet-June-2026.pdf",
+        "https://fred.stlouisfed.org/graph/fredgraph.csv?id=POILDUBUSDM"
+      ],
+      "notes": "기준: 두바이유(Dubai Fateh 32° API) 현물 월평균, World Bank Commodities Price Data(Pink Sheet) 계열. 월별 36개월 전체 확보, 보간 없음. 2026-04·05는 World Bank Pink Sheet 2026년 5월호·6월호 원문 PDF에서 직접 추출. 교차검증: 2023-06은 WB 74.67 vs IMF/FRED 74.73으로 일치. 한계: 2026년 3~5월 유가 급등 구간(2026-02 말 이란 사태)에서 IMF 계열(FRED)이 WB 계열과 크게 불일치하므로, 해당 구간은 출처에 따라 수치 차이가 크다는 점을 해석 시 유의할 것.",
+      "verified": true
+    },
+    {
+      "key": "steel",
+      "unit": "USD/톤(metric tonne)",
+      "points": [
+        {"month":"2023-06","value":1025.5},{"month":"2023-07","value":979.5},{"month":"2023-08","value":896.5},{"month":"2023-09","value":793.5},{"month":"2023-10","value":777.5},{"month":"2023-11","value":957},{"month":"2023-12","value":1130},
+        {"month":"2024-01","value":1142},{"month":"2024-02","value":1036.5},{"month":"2024-03","value":916.5},{"month":"2024-04","value":924},{"month":"2024-05","value":865.5},{"month":"2024-06","value":801.5},{"month":"2024-07","value":748.5},{"month":"2024-08","value":726.5},{"month":"2024-09","value":756},{"month":"2024-10","value":765},{"month":"2024-11","value":766},{"month":"2024-12","value":752.5},
+        {"month":"2025-01","value":770.5},{"month":"2025-02","value":819},{"month":"2025-03","value":971},{"month":"2025-04","value":1014.5},{"month":"2025-05","value":1003.5},{"month":"2025-06","value":961},{"month":"2025-07","value":958},{"month":"2025-08","value":917.5},{"month":"2025-09","value":891.5},{"month":"2025-10","value":888.5},{"month":"2025-11","value":911.5},{"month":"2025-12","value":960.5},
+        {"month":"2026-01","value":980.5},{"month":"2026-02","value":1032.5},{"month":"2026-03","value":1070},{"month":"2026-04","value":1143},{"month":"2026-05","value":1162}
+      ],
+      "sources": [
+        "https://steelbenchmarker.com/history.pdf",
+        "https://steelbenchmarker.com/history2.pdf",
+        "https://tradingeconomics.com/commodity/hrc-steel",
+        "https://www.steelmarketupdate.com/2023/08/04/hrc-vs-galvanized-price-spread-widens/"
+      ],
+      "notes": "기준: 미국(USA East of the Mississippi) 열연강판(Hot-Rolled Band) 현물 FOB mill 가격, SteelBenchmarker 격주 공표치 2건을 단순평균한 월평균, USD/metric tonne. 전 36개월 실측치로 보간 구간 없음. 교차검증: SMU 보도 및 TradingEconomics CME HRC 추세와 정합. 한계: 미국 내수 현물 기준이라 LG전자의 실제 글로벌 조달가(한국/중국 비중 큼)보다 레벨이 높고 변동성이 큼. 같은 기간 중국 HRB ex-works는 약 $380~455/t 수준으로 크게 낮음.",
+      "verified": true
+    },
+    {
+      "key": "lme_aluminum",
+      "unit": "USD/톤",
+      "points": [
+        {"month":"2023-06","value":2184.75},{"month":"2023-07","value":2159.73},{"month":"2023-08","value":2136.57},{"month":"2023-09","value":2184.67},{"month":"2023-10","value":2192.21},{"month":"2023-11","value":2202.26},{"month":"2023-12","value":2182.43},
+        {"month":"2024-01","value":2192.82},{"month":"2024-02","value":2179.46},{"month":"2024-03","value":2226.16},{"month":"2024-04","value":2506.10},{"month":"2024-05","value":2564.54},{"month":"2024-06","value":2497.61},{"month":"2024-07","value":2349.13},{"month":"2024-08","value":2343.67},{"month":"2024-09","value":2449.92},{"month":"2024-10","value":2595.58},{"month":"2024-11","value":2582.19},{"month":"2024-12","value":2541.02},
+        {"month":"2025-01","value":2573.40},{"month":"2025-02","value":2657.60},{"month":"2025-03","value":2658.29},{"month":"2025-04","value":2371.60},{"month":"2025-05","value":2448.79},{"month":"2025-06","value":2525.96},{"month":"2025-07","value":2606.37},{"month":"2025-08","value":2597.34},{"month":"2025-09","value":2653.32},{"month":"2025-10","value":2793.09},{"month":"2025-11","value":2819.06},{"month":"2025-12","value":2875.53},
+        {"month":"2026-01","value":3141.89},{"month":"2026-02","value":3065.19},{"month":"2026-03","value":3372.95},{"month":"2026-04","value":3600.63},{"month":"2026-05","value":3670.18}
+      ],
+      "sources": [
+        "https://www.indexmundi.com/commodities/?commodity=aluminum&months=60",
+        "https://www.westmetall.com/en/markdaten.php?action=averages&field=LME_Al_cash",
+        "https://www.westmetall.com/en/markdaten.php?action=averages&field=LME_Al_cash&year=2023",
+        "https://www.zamak.us/lme-aluminum-prices-2026/"
+      ],
+      "notes": "기준: LME 알루미늄 현물(cash settlement) 월평균. 2023-06~2026-03은 IndexMundi 월간 시리즈, 2026-04~05는 Westmetall LME cash settlement 월평균. 보간·추정 구간 없음(36개월 전부 원천 데이터). 교차검증: 시작값 2023-06 IndexMundi 2,184.75 vs Westmetall 2,181.07(차이 약 0.2%), 최신 2026-04/05는 Zamak 일별 평균과 0.2% 이내 일치. 한계: 출처 간 평균 산정 방식 차이로 수 달러 수준 편차 존재.",
+      "verified": true
+    },
+    {
+      "key": "scfi",
+      "unit": "지수(pt)",
+      "points": [
+        {"month":"2023-06","value":964.15},{"month":"2023-07","value":976.63},{"month":"2023-08","value":1028.66,"estimated":true},{"month":"2023-09","value":956.03},{"month":"2023-10","value":891.55,"estimated":true},{"month":"2023-11","value":996.57,"estimated":true},{"month":"2023-12","value":1230.22},
+        {"month":"2024-01","value":2130.35},{"month":"2024-02","value":2164.65},{"month":"2024-03","value":1820.27},{"month":"2024-04","value":1803.16},{"month":"2024-05","value":2643.69},{"month":"2024-06","value":3438.50},{"month":"2024-07","value":3599.74},{"month":"2024-08","value":3185.79},{"month":"2024-09","value":2434.71},{"month":"2024-10","value":2103.35},{"month":"2024-11","value":2256.17},{"month":"2024-12","value":2372.84},
+        {"month":"2025-01","value":2243.03},{"month":"2025-02","value":1691.46},{"month":"2025-03","value":1351.32},{"month":"2025-04","value":1369.36},{"month":"2025-05","value":1620.85},{"month":"2025-06","value":2014.92},{"month":"2025-07","value":1684.07},{"month":"2025-08","value":1472.21},{"month":"2025-09","value":1288.82},{"month":"2025-10","value":1356.23},{"month":"2025-11","value":1435.79},{"month":"2025-12","value":1528.33},
+        {"month":"2026-01","value":1499.03},{"month":"2026-02","value":1283.71},{"month":"2026-03","value":1683.32},{"month":"2026-04","value":1883.79},{"month":"2026-05","value":2221.19}
+      ],
+      "sources": [
+        "https://container-news.com/scfi/",
+        "https://www.kcla.kr/web/inc/html/4-1_3.asp",
+        "https://www.stockq.org/index/SCFI.php",
+        "https://www.ksg.co.kr/news/main_newsView.jsp?pNum=147108",
+        "https://www.dnews.co.kr/uhtml/view.jsp?idxno=202412201603101290509",
+        "http://www.4th.kr/news/articleView.html?idxno=2081390",
+        "https://www.hankookilbo.com/News/Read/A2024011415490001744",
+        "https://www.data.go.kr/data/15068274/fileData.do",
+        "https://opencontainer.kr/index/scfi-2024-2025/"
+      ],
+      "notes": "기준: SSE(상하이해운거래소) 주간 발표 SCFI 종합지수(현물 스팟)의 월평균. 2023~2024년 주간치는 Container News의 SSE 차트 데이터, 2025-01~2026-05 주간치는 한국관세물류협회(KCLA) 표 전량 사용, StockQ·KSG 기사로 교차 확인. 한계/보간: 2023-08(주간 2회), 2023-10(주간 1회), 2023-11(주간 2회)은 주간치 일부 누락 상태의 부분 평균이라 estimated 처리(관측치 기반). 2026-05는 5/29까지 4주 평균이며 중동 사태발 급등 구간이라 월말 단일치(6/5 2726.48)와 차이 큼. 검증: 2023년 연평균(공공데이터포털 1005.79)과 1% 내 일치.",
+      "verified": true
+    }
+  ],
+  "lge": {
+    "segments": [
+      {"name":"H&A(생활가전, 구분류)","year":"2023","revenue":30.17,"op":1.99},
+      {"name":"H&A(생활가전, 구분류)","year":"2024","revenue":33.20,"op":2.04},
+      {"name":"HE(TV, 구분류)","year":"2023","revenue":14.20,"op":0.38},
+      {"name":"HE(TV, 구분류)","year":"2024","revenue":15.23,"op":0.32},
+      {"name":"HS(Home Appliance Solution, 신분류·재작성)","year":"2023","revenue":22.70,"op":1.32},
+      {"name":"HS(Home Appliance Solution, 신분류·재작성)","year":"2024","revenue":24.81,"op":1.30},
+      {"name":"HS(Home Appliance Solution, 신분류)","year":"2025","revenue":26.13,"op":1.28},
+      {"name":"MS(Media entertainment Solution, TV 포함, 신분류·재작성)","year":"2023","revenue":19.58,"op":0.44},
+      {"name":"MS(Media entertainment Solution, TV 포함, 신분류·재작성)","year":"2024","revenue":20.89,"op":0.27},
+      {"name":"MS(Media entertainment Solution, TV 포함, 신분류)","year":"2025","revenue":19.43,"op":-0.75},
+      {"name":"ES(에어컨/HVAC, 신분류·재작성)","year":"2023","revenue":7.88,"op":0.61},
+      {"name":"ES(에어컨/HVAC, 신분류·재작성)","year":"2024","revenue":8.82,"op":0.68},
+      {"name":"ES(에어컨/HVAC, 신분류)","year":"2025","revenue":9.32,"op":0.65},
+      {"name":"전사 연결","year":"2023","revenue":82.26,"op":3.65},
+      {"name":"전사 연결","year":"2024","revenue":87.73,"op":3.42},
+      {"name":"전사 연결","year":"2025","revenue":89.20,"op":2.48}
+    ],
+    "materials": [
+      {"name":"Steel(철강)","share":13.1,"note":"HS(생활가전) 제품 철판물. 2025년 HS부문 매입액 1조4,602억원, HS부문 원재료 매입의 13.1% (ES부문에서는 813억원, 10.0%). 주요 매입처 ㈜포스코 등. 평균가격 2024년 -0.7%, 2025년 -1.3% (HS 기준). 출처: 2025 사업보고서"},
+      {"name":"Resin(레진)","share":7.3,"note":"HS 제품 사출물. 2025년 HS부문 매입액 8,077억원, HS부문 매입의 7.3% (ES부문 1,435억원, 17.7%). 주요 매입처 ㈜LG화학 등. 평균가격 2024년 +2.4%, 2025년 +3.0% (HS 기준). 출처: 2025 사업보고서"},
+      {"name":"Copper(구리)","share":1.8,"note":"열교환기 G/Tube용. HS부문 1,975억원(1.8%), ES부문에서는 3,695억원으로 ES 매입의 45.6%(최대 품목). 매입처 Golden Dragon, Hailiang 등. 평균가격 2024년 +9.5%, 2025년 +8.1% (HS 기준). 출처: 2025 사업보고서"},
+      {"name":"LCD 모듈","share":38.3,"note":"MS(TV 등 영상기기) Display용. 2025년 MS부문 매입액 4조1,242억원, MS부문 원재료 매입의 38.3%(최대 품목). 매입처 엘지디스플레이㈜, BOE 등. 평균가격 2024년 +16.0%, 2025년 -12.7%. 출처: 2025 사업보고서"},
+      {"name":"Chip(반도체)","share":6.8,"note":"영상기기 부품. 2025년 MS부문 매입액 7,353억원(6.8%). 매입처 Realtek, MediaTek 등. 평균가격 2024년 +2.5%, 2025년 -1.1%. VS부문에서도 Chip 4,146억원(6.3%). 출처: 2025 사업보고서"},
+      {"name":"기타(부문별 합산 참고)","note":"2025년 부문별 원재료 매입 총액: HS 11조1,056억, MS 10조7,714억, VS 6조5,906억, ES 8,099억, LG이노텍 17조4,096억원. 각 부문 매입액 중 '기타' 비중이 HS 77.8%, MS 54.9% 등으로 커서 위 share는 부문 내 품목 비중임에 유의. 출처: 2025 사업보고서"}
+    ],
+    "costStructure": "연결 매출원가율: 2023년 75.9%, 2024년 75.6%, 2025년 76.6%. 원재료비 비중: 연결 주석 29 '비용의 성격별 분류' 기준 '원재료 및 상품 등의 사용액'이 2025년 55조5,227억원으로 매출원가 대비 약 81%. 시뮬레이션 가정으로 '매출원가의 약 80%가 원재료·상품 사용액, 매출 대비 원재료비 약 62%' 수준이 합리적. 환율 민감도: 원화 환율 10% 변동 시 법인세비용차감전순손익 영향은 2025년말 기준 미국달러/원 ±1,278억원, 유로/원 ±69억원. 주요 노출 통화는 USD·EUR이며 파생상품 헤지로 관리(투기 목적 파생거래 금지). 출처: 2025 사업보고서 연결재무제표 주석 '재무위험관리, 외환위험'.",
+    "sources": [
+      "LG전자 사업보고서 (2025.12), DART 접수번호 20260313000662, 2026-03-13 제출. 부문별 매출·영업이익(신분류 HS/MS/VS/ES), 원재료 현황, 환율 민감도, 비용의 성격별 분류",
+      "LG전자 사업보고서 (2024.12), DART 접수번호 20250317001029, 2025-03-17 제출. 구분류 H&A/HE 부문별 매출·영업이익, 연결 재무제표",
+      "OpenDART 단일회사 주요계정/전체 재무제표 API (corp_code 00401731). 연결 매출액·영업이익·매출원가 2023~2025",
+      "참고: LG전자는 2025년 조직개편으로 H&A를 HS로, HE를 MS(TV+IT+ID 통합)로 바꾸고 에어컨/HVAC을 ES로 분리. 구 H&A와 신 HS+ES, 구 HE와 신 MS는 범위가 달라 직접 비교 불가"
+    ]
+  }
+};
+
+/* ================= 시리즈 메타 ================= */
+const SKEYS = ["usdkrw","lme_copper","oil","steel","lme_aluminum","scfi"];
+const META = {
+  usdkrw:       {label:"원/달러 환율",    short:"환율",     color:"#0067B1", dec:1, unit:"원/달러"},
+  lme_copper:   {label:"LME 구리",       short:"구리",     color:"#0091DA", dec:0, unit:"USD/톤"},
+  oil:          {label:"두바이유",        short:"유가",     color:"#003D73", dec:1, unit:"USD/배럴"},
+  steel:        {label:"미국 열연강판",   short:"철강",     color:"#5AAEE0", dec:0, unit:"USD/톤"},
+  lme_aluminum: {label:"LME 알루미늄",   short:"알루미늄", color:"#5A7E9E", dec:0, unit:"USD/톤"},
+  scfi:         {label:"SCFI 운임지수",  short:"운임",     color:"#7F8995", dec:0, unit:"pt"}
+};
+const S = {};
+DATA.series.forEach(s => S[s.key] = s);
+const MONTHS = S.usdkrw.points.map(p => p.month);
+const N = MONTHS.length;
+
+/* ================= 헬퍼 ================= */
+const $ = id => document.getElementById(id);
+function vals(k){ return S[k].points.map(p => p.value); }
+function fmtNum(v, dec){
+  return v.toLocaleString("ko-KR", {minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function signPct(v, dec){
+  dec = (dec === undefined) ? 1 : dec;
+  return (v >= 0 ? "+" : "") + v.toFixed(dec) + "%";
+}
+function monthLabel(m){ return m.slice(2).replace("-", "."); }   // "2023-06" -> "23.06"
+function monthKo(m){ const [y, mo] = m.split("-"); return y + "년 " + parseInt(mo, 10) + "월"; }
+function mean(a){ return a.reduce((s, v) => s + v, 0) / a.length; }
+function stdev(a){
+  const m = mean(a);
+  return Math.sqrt(a.reduce((s, v) => s + (v - m) * (v - m), 0) / (a.length - 1));
+}
+function mChanges(k){
+  const v = vals(k), out = [];
+  for(let i = 1; i < v.length; i++) out.push((v[i] - v[i-1]) / v[i-1] * 100);
+  return out;
+}
+function totalChange(k){
+  const v = vals(k);
+  return (v[v.length-1] - v[0]) / v[0] * 100;
+}
+function pearson(a, b){
+  const ma = mean(a), mb = mean(b);
+  let num = 0, da = 0, db = 0;
+  for(let i = 0; i < a.length; i++){
+    num += (a[i] - ma) * (b[i] - mb);
+    da += (a[i] - ma) * (a[i] - ma);
+    db += (b[i] - mb) * (b[i] - mb);
+  }
+  return num / Math.sqrt(da * db);
+}
+function esc(t){ return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function cleanText(t){ return String(t).replace(/\s—\s/g, " · "); }
+function smoothPath(pts){
+  if(pts.length < 3) return "M" + pts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join("L");
+  let d = "M" + pts[0][0].toFixed(1) + "," + pts[0][1].toFixed(1);
+  for(let i = 0; i < pts.length - 1; i++){
+    const p0 = pts[Math.max(0, i-1)], p1 = pts[i], p2 = pts[i+1], p3 = pts[Math.min(pts.length-1, i+2)];
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += "C" + c1x.toFixed(1) + "," + c1y.toFixed(1) + " " + c2x.toFixed(1) + "," + c2y.toFixed(1) + " " + p2[0].toFixed(1) + "," + p2[1].toFixed(1);
+  }
+  return d;
+}
+
+/* ================= 1. KPI 카드 ================= */
+(function renderKPI(){
+  let html = "";
+  SKEYS.forEach(k => {
+    const m = META[k], v = vals(k);
+    const last = v[v.length - 1], chg = totalChange(k);
+    const up = chg >= 0;
+    // 스파크라인 (130x40)
+    const mn = Math.min(...v), mx = Math.max(...v);
+    const pts = v.map((val, i) => [
+      4 + i / (N - 1) * 122,
+      34 - (val - mn) / (mx - mn) * 28
+    ]);
+    const spark = smoothPath(pts);
+    html += '<div class="card kpi">' +
+      '<div class="k-top"><span class="k-name">' + m.label + '</span><span class="label-tag" style="background:' + m.color + ';">' + m.short + '</span></div>' +
+      '<div class="k-val">' + fmtNum(last, m.dec) + '<span class="k-unit">' + m.unit + '</span></div>' +
+      '<div class="k-chg ' + (up ? "up" : "down") + '">' + (up ? "▲" : "▼") + ' ' + signPct(chg) + '<small>36개월 누적</small></div>' +
+      '<svg viewBox="0 0 130 40" preserveAspectRatio="none">' +
+        '<path d="' + spark + '" fill="none" stroke="' + m.color + '" stroke-width="2.2" stroke-linecap="round"/>' +
+        '<circle cx="' + pts[pts.length-1][0].toFixed(1) + '" cy="' + pts[pts.length-1][1].toFixed(1) + '" r="3" fill="' + m.color + '"/>' +
+      '</svg></div>';
+  });
+  $("kpiGrid").innerHTML = html;
+})();
+
+/* ================= 2-1. 메인 시계열 차트 ================= */
+const chartState = { active: new Set(SKEYS), mode: "norm" };
+
+(function buildChips(){
+  let html = "";
+  SKEYS.forEach(k => {
+    const m = META[k];
+    html += '<button class="chip on" data-key="' + k + '" style="--c:' + m.color + ';"><span class="dot"></span>' + m.short + '</button>';
+  });
+  $("chipRow").innerHTML = html;
+  $("chipRow").querySelectorAll(".chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const k = btn.dataset.key;
+      if(chartState.active.has(k)){
+        if(chartState.active.size === 1) return;  // 최소 1개 유지
+        chartState.active.delete(k);
+        btn.classList.remove("on");
+      } else {
+        chartState.active.add(k);
+        btn.classList.add("on");
+      }
+      renderChart();
+    });
+  });
+  $("modeSeg").querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      chartState.mode = btn.dataset.mode;
+      $("modeSeg").querySelectorAll("button").forEach(b => b.classList.toggle("on", b === btn));
+      renderChart();
+    });
+  });
+})();
+
+const CH = { L: 62, R: 18, T: 18, B: 44, W: 1000, H: 440 };
+let chartGeom = null;   // 렌더 후 좌표계 저장 (툴팁용)
+
+function seriesValues(k){
+  const v = vals(k);
+  if(chartState.mode === "norm"){
+    const base = v[0];
+    return v.map(x => x / base * 100);
+  }
+  return v;
+}
+function renderChart(){
+  const act = SKEYS.filter(k => chartState.active.has(k));
+  let mn = Infinity, mx = -Infinity;
+  act.forEach(k => seriesValues(k).forEach(v => { if(v < mn) mn = v; if(v > mx) mx = v; }));
+  const pad = (mx - mn) * 0.07 || 1;
+  mn -= pad; mx += pad;
+
+  const plotW = CH.W - CH.L - CH.R, plotH = CH.H - CH.T - CH.B;
+  const x = i => CH.L + i / (N - 1) * plotW;
+  const y = v => CH.T + (mx - v) / (mx - mn) * plotH;
+  chartGeom = { x, y, act, mn, mx };
+
+  let svg = "";
+  // 그리드 + y라벨
+  for(let g = 0; g <= 5; g++){
+    const gv = mn + (mx - mn) * g / 5;
+    const gy = y(gv);
+    svg += '<line x1="' + CH.L + '" y1="' + gy.toFixed(1) + '" x2="' + (CH.W - CH.R) + '" y2="' + gy.toFixed(1) + '" stroke="rgba(125,138,155,0.22)" stroke-width="1"/>';
+    const lbl = chartState.mode === "norm" ? gv.toFixed(0) : (gv >= 1000 ? Math.round(gv).toLocaleString("ko-KR") : gv.toFixed(0));
+    svg += '<text x="' + (CH.L - 9) + '" y="' + (gy + 4).toFixed(1) + '" text-anchor="end" font-size="11.5" fill="#8C95A1" font-weight="600">' + lbl + '</text>';
+  }
+  // 정규화 모드: 기준선 100 강조
+  if(chartState.mode === "norm" && 100 > mn && 100 < mx){
+    svg += '<line x1="' + CH.L + '" y1="' + y(100).toFixed(1) + '" x2="' + (CH.W - CH.R) + '" y2="' + y(100).toFixed(1) + '" stroke="rgba(0,61,115,0.32)" stroke-width="1.4" stroke-dasharray="5 4"/>';
+  }
+  // x라벨 (6개월 간격)
+  for(let i = 0; i < N; i += 6){
+    svg += '<text x="' + x(i).toFixed(1) + '" y="' + (CH.H - 16) + '" text-anchor="middle" font-size="11.5" fill="#8C95A1" font-weight="600">' + monthLabel(MONTHS[i]) + '</text>';
+  }
+  svg += '<text x="' + x(N-1).toFixed(1) + '" y="' + (CH.H - 16) + '" text-anchor="middle" font-size="11.5" fill="#003D73" font-weight="700">' + monthLabel(MONTHS[N-1]) + '</text>';
+  // 시리즈 path
+  act.forEach(k => {
+    const sv = seriesValues(k);
+    const pts = sv.map((v, i) => [x(i), y(v)]);
+    svg += '<path d="' + smoothPath(pts) + '" fill="none" stroke="' + META[k].color + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>';
+  });
+  // 호버 레이어 자리
+  svg += '<g id="hoverLayer"></g>';
+  svg += '<rect id="hoverPad" x="' + CH.L + '" y="' + CH.T + '" width="' + plotW + '" height="' + plotH + '" fill="transparent"/>';
+  $("mainChart").innerHTML = svg;
+  bindChartHover();
+}
+
+function bindChartHover(){
+  const svgEl = $("mainChart"), box = $("chartBox"), tip = $("chartTip");
+  const pad = svgEl.querySelector("#hoverPad");
+  const layer = svgEl.querySelector("#hoverLayer");
+  function onMove(evt){
+    const rect = svgEl.getBoundingClientRect();
+    const sx = (evt.clientX - rect.left) / rect.width * CH.W;
+    const plotW = CH.W - CH.L - CH.R;
+    let idx = Math.round((sx - CH.L) / plotW * (N - 1));
+    idx = Math.max(0, Math.min(N - 1, idx));
+    const g = chartGeom;
+    const gx = g.x(idx);
+    let hov = '<line x1="' + gx.toFixed(1) + '" y1="' + CH.T + '" x2="' + gx.toFixed(1) + '" y2="' + (CH.H - CH.B) + '" stroke="rgba(0,61,115,0.45)" stroke-width="1.2" stroke-dasharray="4 3"/>';
+    let rows = "";
+    g.act.forEach(k => {
+      const raw = vals(k)[idx];
+      const sv = seriesValues(k)[idx];
+      hov += '<circle cx="' + gx.toFixed(1) + '" cy="' + g.y(sv).toFixed(1) + '" r="4.4" fill="' + META[k].color + '" stroke="#EBEEF2" stroke-width="1.6"/>';
+      const extra = chartState.mode === "norm" ? ' <span style="opacity:.6;">(지수 ' + sv.toFixed(1) + ')</span>' : "";
+      rows += '<div class="t-row"><span class="t-dot" style="background:' + META[k].color + ';"></span>' + META[k].short + ' ' + fmtNum(raw, META[k].dec) + extra + '</div>';
+    });
+    layer.innerHTML = hov;
+    tip.innerHTML = '<div class="t-month">' + monthKo(MONTHS[idx]) + '</div>' + rows;
+    tip.style.display = "block";
+    const bRect = box.getBoundingClientRect();
+    let lx = (gx / CH.W) * bRect.width + 14;
+    if(lx + tip.offsetWidth > bRect.width - 8) lx = (gx / CH.W) * bRect.width - tip.offsetWidth - 14;
+    tip.style.left = lx + "px";
+    tip.style.top = Math.max(4, evt.clientY - bRect.top - tip.offsetHeight - 16) + "px";
+  }
+  pad.addEventListener("mousemove", onMove);
+  pad.addEventListener("mouseleave", () => { tip.style.display = "none"; layer.innerHTML = ""; });
+}
+renderChart();
+
+/* 차트 관찰 코멘트 (데이터에서 계산) */
+(function obsChart(){
+  const ranked = SKEYS.map(k => ({k, c: totalChange(k)})).sort((a, b) => b.c - a.c);
+  const top3 = ranked.slice(0, 3).map(r => META[r.k].short + " " + signPct(r.c)).join(", ");
+  const fx = totalChange("usdkrw");
+  $("obsChart").innerHTML = "<b>관찰</b>2023년 6월을 100으로 두면 2026년 5월 기준 누적 상승 폭은 " + top3 +
+    " 순으로 큽니다. 같은 기간 환율도 " + signPct(fx) + " 올라, 달러 표시 원자재의 원화 환산 부담은 표시된 수치보다 더 큽니다.";
+})();
+
+/* ================= 2-2. 월간 변동률 미니 카드 ================= */
+(function renderMC(){
+  let html = "";
+  const sds = [];
+  SKEYS.forEach(k => {
+    const ch = mChanges(k);
+    const avg = mean(ch), sd = stdev(ch);
+    sds.push({k, sd});
+    let maxI = 0, minI = 0;
+    ch.forEach((c, i) => { if(c > ch[maxI]) maxI = i; if(c < ch[minI]) minI = i; });
+    html += '<div class="card mc">' +
+      '<div class="m-name"><span class="dot" style="background:' + META[k].color + ';"></span>' + META[k].label + '</div>' +
+      '<table>' +
+      '<tr><td>월평균 변동률</td><td>' + signPct(avg, 2) + '</td></tr>' +
+      '<tr><td>최대 상승월</td><td>' + monthLabel(MONTHS[maxI + 1]) + ' <span class="up">' + signPct(ch[maxI]) + '</span></td></tr>' +
+      '<tr><td>최대 하락월</td><td>' + monthLabel(MONTHS[minI + 1]) + ' <span class="down">' + signPct(ch[minI]) + '</span></td></tr>' +
+      '<tr><td>변동성 (표준편차)</td><td>±' + sd.toFixed(1) + '%p</td></tr>' +
+      '</table></div>';
+  });
+  $("mcGrid").innerHTML = html;
+  sds.sort((a, b) => b.sd - a.sd);
+  $("obsMc").innerHTML = "<b>관찰</b>월간 변동성은 " + META[sds[0].k].short + "(±" + sds[0].sd.toFixed(1) +
+    "%p)이 가장 크고 " + META[sds[sds.length-1].k].short + "(±" + sds[sds.length-1].sd.toFixed(1) +
+    "%p)이 가장 작습니다. 변동성이 큰 지표일수록 단월 수치보다 추세선으로 읽는 편이 안전합니다.";
+})();
+
+/* ================= 2-3. 상관관계 히트맵 ================= */
+(function renderCorr(){
+  const ch = {};
+  SKEYS.forEach(k => ch[k] = mChanges(k));
+  const R = SKEYS.map(a => SKEYS.map(b => pearson(ch[a], ch[b])));
+
+  function cellColor(r){
+    const t = Math.min(1, Math.abs(r));
+    if(r >= 0){
+      // EBEEF2 -> 0067B1 (POSCO 블루)
+      const c1 = [235, 238, 242], c2 = [0, 103, 177];
+      const c = c1.map((v, i) => Math.round(v + (c2[i] - v) * t));
+      return "rgb(" + c.join(",") + ")";
+    }
+    const c1 = [235, 238, 242], c2 = [95, 108, 124];
+    const c = c1.map((v, i) => Math.round(v + (c2[i] - v) * t));
+    return "rgb(" + c.join(",") + ")";
+  }
+
+  const cell = 66, gap = 5, ox = 96, oy = 56;
+  let svg = "";
+  SKEYS.forEach((k, j) => {
+    const cx = ox + j * (cell + gap) + cell / 2;
+    svg += '<text x="' + cx + '" y="' + (oy - 14) + '" text-anchor="middle" font-size="12.5" font-weight="700" fill="#616C78">' + META[k].short + '</text>';
+  });
+  SKEYS.forEach((ka, i) => {
+    svg += '<text x="' + (ox - 12) + '" y="' + (oy + i * (cell + gap) + cell / 2 + 4) + '" text-anchor="end" font-size="12.5" font-weight="700" fill="#616C78">' + META[ka].short + '</text>';
+    SKEYS.forEach((kb, j) => {
+      const r = R[i][j];
+      const xx = ox + j * (cell + gap), yy = oy + i * (cell + gap);
+      const txtCol = Math.abs(r) > 0.55 ? "#FFFFFF" : "#4E5965";
+      svg += '<g class="corr-cell" data-i="' + i + '" data-j="' + j + '" style="cursor:pointer;">' +
+        '<rect x="' + xx + '" y="' + yy + '" width="' + cell + '" height="' + cell + '" rx="14" fill="' + cellColor(r) + '"/>' +
+        '<text x="' + (xx + cell/2) + '" y="' + (yy + cell/2 + 4) + '" text-anchor="middle" font-size="13" font-weight="700" fill="' + txtCol + '">' + (i === j ? "1.00" : r.toFixed(2)) + '</text></g>';
+    });
+  });
+  $("corrSvg").innerHTML = svg;
+
+  // 셀 호버 툴팁
+  const tip = $("corrTip"), boxEl = $("corrSvg").parentElement;
+  $("corrSvg").querySelectorAll(".corr-cell").forEach(g => {
+    g.addEventListener("mousemove", evt => {
+      const i = +g.dataset.i, j = +g.dataset.j;
+      tip.innerHTML = '<div class="t-month">' + META[SKEYS[i]].short + " × " + META[SKEYS[j]].short + '</div>' +
+        '<div class="t-row">상관계수 ' + (R[i][j] >= 0 ? "+" : "") + R[i][j].toFixed(3) + '</div>';
+      tip.style.display = "block";
+      const bRect = boxEl.getBoundingClientRect();
+      let lx = evt.clientX - bRect.left + 14;
+      if(lx + tip.offsetWidth > bRect.width - 4) lx = evt.clientX - bRect.left - tip.offsetWidth - 14;
+      tip.style.left = lx + "px";
+      tip.style.top = (evt.clientY - bRect.top - tip.offsetHeight - 12) + "px";
+    });
+    g.addEventListener("mouseleave", () => tip.style.display = "none");
+  });
+
+  // 코멘트: 최대 양/음 상관 쌍
+  let best = {v: -2, i: 0, j: 0}, worst = {v: 2, i: 0, j: 0};
+  for(let i = 0; i < 6; i++) for(let j = i + 1; j < 6; j++){
+    if(R[i][j] > best.v) best = {v: R[i][j], i, j};
+    if(R[i][j] < worst.v) worst = {v: R[i][j], i, j};
+  }
+  $("obsCorr").innerHTML = "<b>관찰</b>월간 변동률 기준으로 양의 상관이 가장 강한 조합은 " +
+    META[SKEYS[best.i]].short + "·" + META[SKEYS[best.j]].short + " (+" + best.v.toFixed(2) + ")이고, 음의 상관이 가장 강한 조합은 " +
+    META[SKEYS[worst.i]].short + "·" + META[SKEYS[worst.j]].short + " (" + worst.v.toFixed(2) + ")입니다. 상관은 인과가 아니므로 동행 여부의 단서로만 활용하시기 바랍니다.";
+})();
+
+/* ================= 3. 시뮬레이션 ================= */
+const OIL_TO_RESIN = 0.4;   // 유가 변동의 레진 가격 전이율 (교육용 가정)
+const SLIDERS = [
+  {id:"fx",       label:"원/달러 환율", color:"#0067B1"},
+  {id:"copper",   label:"구리 (LME)",   color:"#0091DA"},
+  {id:"oil",      label:"유가 (두바이)", color:"#003D73"},
+  {id:"steel",    label:"철강 (열연)",  color:"#5AAEE0"},
+  {id:"aluminum", label:"알루미늄 (LME)", color:"#5A7E9E"},
+  {id:"freight",  label:"해상운임 (SCFI)", color:"#7F8995"}
+];
+const PRODUCTS = [
+  {name:"올레드 TV", seg:"MS", margin:2.5, exportShare:0.75,
+   bom:{steel:3, copper:1, aluminum:4, resin:6, freight:5, usdOther:55, krwOther:26}},
+  {name:"드럼 세탁기", seg:"HS", margin:6.0, exportShare:0.60,
+   bom:{steel:18, copper:4, aluminum:3, resin:10, freight:6, usdOther:24, krwOther:35}},
+  {name:"시스템 에어컨", seg:"ES", margin:7.5, exportShare:0.35,
+   bom:{steel:10, copper:16, aluminum:6, resin:6, freight:4, usdOther:23, krwOther:35}}
+];
+const BOM_COLS = [
+  {k:"steel", n:"철강"}, {k:"copper", n:"구리"}, {k:"aluminum", n:"알루미늄"},
+  {k:"resin", n:"레진(유가 연동)"}, {k:"freight", n:"해상운임"},
+  {k:"usdOther", n:"기타(USD)"}, {k:"krwOther", n:"기타(KRW)"}
+];
+const DRIVER_NAME = {steel:"철강", copper:"구리", aluminum:"알루미늄", resin:"레진(유가)", freight:"해상운임", usdOther:"환율(달러 결제 기타 원가)", krwOther:"원화 비용"};
+const sim = {fx:0, copper:0, oil:0, steel:0, aluminum:0, freight:0};
+
+(function buildSliders(){
+  let html = "";
+  SLIDERS.forEach(s => {
+    html += '<div class="sl-row">' +
+      '<div class="sl-head"><span class="sl-name"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:' + s.color + ';margin-right:7px;"></span>' + s.label + '</span>' +
+      '<span class="sl-val zero" id="val_' + s.id + '">0%</span></div>' +
+      '<input type="range" min="-30" max="30" step="1" value="0" id="sl_' + s.id + '">' +
+      '</div>';
+  });
+  $("sliderArea").innerHTML = html;
+  SLIDERS.forEach(s => {
+    $("sl_" + s.id).addEventListener("input", e => {
+      sim[s.id] = +e.target.value;
+      clearPresetHighlight();
+      renderSim();
+    });
+  });
+})();
+
+const PRESETS = [
+  {name:"구리 급등 + 원화 약세", set:{fx:10, copper:25, oil:5, steel:5, aluminum:12, freight:5}},
+  {name:"물류 운임 급등", set:{fx:3, copper:0, oil:15, steel:0, aluminum:0, freight:30}},
+  {name:"원자재 안정 + 원화 강세", set:{fx:-8, copper:-12, oil:-15, steel:-8, aluminum:-10, freight:-20}}
+];
+(function buildPresets(){
+  let html = "";
+  PRESETS.forEach((p, i) => {
+    html += '<button class="preset" data-i="' + i + '">' + p.name + '</button>';
+  });
+  html += '<button class="preset reset" data-i="-1">초기화</button>';
+  $("presetRow").innerHTML = html;
+  $("presetRow").querySelectorAll(".preset").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const i = +btn.dataset.i;
+      const set = i < 0 ? {fx:0, copper:0, oil:0, steel:0, aluminum:0, freight:0} : PRESETS[i].set;
+      Object.keys(set).forEach(k => {
+        sim[k] = set[k];
+        $("sl_" + k).value = set[k];
+      });
+      clearPresetHighlight();
+      if(i >= 0) btn.classList.add("on");
+      renderSim();
+    });
+  });
+})();
+function clearPresetHighlight(){
+  $("presetRow").querySelectorAll(".preset").forEach(b => b.classList.remove("on"));
+}
+
+/* BOM 표 */
+(function renderBom(){
+  let html = "<thead><tr><th>제품 (교육용 가상)</th>";
+  BOM_COLS.forEach(c => html += "<th>" + c.n + "</th>");
+  html += "<th>수출 비중</th><th>기준 영업이익률</th></tr></thead><tbody>";
+  PRODUCTS.forEach(p => {
+    html += "<tr><td>" + p.name + ' <span class="label-tag gray" style="font-size:10px;padding:2px 8px;">' + p.seg + " 참고</span></td>";
+    BOM_COLS.forEach(c => html += "<td>" + p.bom[c.k] + "%</td>");
+    html += "<td>" + Math.round(p.exportShare * 100) + "%</td><td>" + p.margin.toFixed(1) + "%</td></tr>";
+  });
+  html += "</tbody>";
+  $("bomTable").innerHTML = html;
+})();
+
+/* 시뮬레이션 계산 */
+function computeSim(){
+  const f = sim.fx / 100;
+  // 각 원가 항목의 변화율: 달러 결제 항목은 (1+가격변동)x(1+환율변동)-1
+  const usdFactor = p => (1 + p) * (1 + f) - 1;
+  const parts = {
+    steel:    usdFactor(sim.steel / 100),
+    copper:   usdFactor(sim.copper / 100),
+    aluminum: usdFactor(sim.aluminum / 100),
+    resin:    usdFactor(OIL_TO_RESIN * sim.oil / 100),
+    freight:  usdFactor(sim.freight / 100),
+    usdOther: f,
+    krwOther: 0
+  };
+  return PRODUCTS.map(p => {
+    let dc = 0;
+    const contrib = {};
+    Object.keys(p.bom).forEach(k => {
+      const c = p.bom[k] / 100 * parts[k];
+      contrib[k] = c;
+      dc += c;
+    });
+    const R = 1 + p.exportShare * f;            // 원화 환산 매출 지수
+    const cost0 = 100 - p.margin;               // 매출 100 기준 총원가
+    const newMargin = (100 * R - cost0 * (1 + dc)) / (100 * R) * 100;
+    return {p, dc: dc * 100, revChg: (R - 1) * 100, newMargin, contrib};
+  });
+}
+
+/* 게이지/바 렌더 */
+function barHtml(value, range, color){
+  // range: [min, max], 0 기준 양방향 바
+  const [mn, mx] = range;
+  const zero = (0 - mn) / (mx - mn) * 100;
+  const v = Math.max(mn, Math.min(mx, value));
+  const vp = (v - mn) / (mx - mn) * 100;
+  let left, width;
+  if(v >= 0){ left = zero; width = vp - zero; }
+  else { left = vp; width = zero - vp; }
+  return '<div class="bar-track">' +
+    '<div class="bar-zero" style="left:' + zero + '%;"></div>' +
+    '<div class="bar-fill" style="left:' + left + '%;width:' + Math.max(width, 0.5) + '%;background:' + color + ';"></div>' +
+    '</div>';
+}
+
+function renderSim(){
+  // 슬라이더 값 라벨
+  SLIDERS.forEach(s => {
+    const v = sim[s.id];
+    const el = $("val_" + s.id);
+    el.textContent = (v > 0 ? "+" : "") + v + "%";
+    el.className = "sl-val " + (v > 0 ? "plus" : v < 0 ? "minus" : "zero");
+  });
+
+  const res = computeSim();
+  let html = "";
+  res.forEach(r => {
+    const dm = r.newMargin - r.p.margin;
+    const costColor = r.dc >= 0 ? "linear-gradient(90deg,#0091DA,#0067B1)" : "linear-gradient(90deg,#7F8995,#616C78)";
+    const mColor = r.newMargin >= 0 ? "linear-gradient(90deg,#0067B1,#003D73)" : "linear-gradient(90deg,#003D73,#002A52)";
+    const negTag = r.newMargin < 0 ? ' <span class="label-tag deep" style="font-size:10px;padding:2px 8px;">적자 전환</span>' : "";
+    html += '<div class="card prod">' +
+      '<div class="p-head"><span class="label-tag">' + r.p.seg + ' 참고</span><h4>' + r.p.name + '</h4>' + negTag + '</div>' +
+      '<div class="bar-row"><span class="b-name">원가 변화</span>' + barHtml(r.dc, [-25, 25], costColor) +
+        '<span class="b-val" style="color:' + (r.dc >= 0 ? "#0091DA" : "#7F8995") + ';">' + signPct(r.dc) + '</span></div>' +
+      '<div class="bar-row"><span class="b-name">매출(원화 환산)</span>' + barHtml(r.revChg, [-25, 25], "linear-gradient(90deg,#5A7E9E,#003D73)") +
+        '<span class="b-val" style="color:#616C78;">' + signPct(r.revChg) + '</span></div>' +
+      '<div class="bar-row"><span class="b-name">영업이익률</span>' + barHtml(r.newMargin, [-10, 15], mColor) +
+        '<span class="b-val" style="color:' + (r.newMargin >= 0 ? "#1E2731" : "#003D73") + ';">' + r.newMargin.toFixed(1) + '%' +
+        '<span class="sub">기준 ' + r.p.margin.toFixed(1) + '% (' + (dm >= 0 ? "+" : "") + dm.toFixed(1) + '%p)</span></span></div>' +
+      '</div>';
+  });
+  $("prodArea").innerHTML = html;
+  renderAdvice(res);
+}
+
+function renderAdvice(res){
+  const anyMove = SLIDERS.some(s => sim[s.id] !== 0);
+  const list = $("adviceList");
+  if(!anyMove){
+    list.innerHTML = "<li>아직 조정된 변수가 없습니다. 슬라이더를 움직이거나 리스크 시나리오 프리셋을 눌러 보시기 바랍니다.</li>" +
+      "<li>참고로 EDA 기준 최근 36개월 누적 상승 폭은 운임, 알루미늄, 구리 순으로 컸습니다.</li>";
+    return;
+  }
+  const items = [];
+  // 이익률 하락 폭이 가장 큰 제품
+  const worst = res.slice().sort((a, b) => (a.newMargin - a.p.margin) - (b.newMargin - b.p.margin))[0];
+  const dmW = worst.newMargin - worst.p.margin;
+  items.push("현재 설정에서 이익률 영향이 가장 큰 제품은 " + worst.p.name + "입니다. 영업이익률이 " +
+    worst.p.margin.toFixed(1) + "%에서 " + worst.newMargin.toFixed(1) + "%로 " + (dmW >= 0 ? "+" : "") + dmW.toFixed(1) + "%p 변합니다.");
+  // 그 제품의 최대 기여 변수
+  let drv = null, dv = 0;
+  Object.keys(worst.contrib).forEach(k => {
+    if(k === "krwOther") return;
+    if(Math.abs(worst.contrib[k]) > Math.abs(dv)){ dv = worst.contrib[k]; drv = k; }
+  });
+  if(drv){
+    items.push("원가 변화 기여도가 가장 큰 항목은 " + DRIVER_NAME[drv] + "(" + signPct(dv * 100) +
+      "p)입니다. 해당 품목의 조달 계약 구조와 헤지 비중을 점검 안건으로 검토해 보시기 바랍니다.");
+  }
+  // 적자 전환 경고
+  const losers = res.filter(r => r.newMargin < 0);
+  if(losers.length){
+    items.push(losers.map(r => r.p.name).join(", ") + "은(는) 이 시나리오에서 적자로 전환됩니다. 가격 전가 가능 폭과 프로모션 일정의 재검토 여지를 함께 보시기 바랍니다.");
+  }
+  // 환율 양면성
+  if(sim.fx !== 0){
+    const dir = sim.fx > 0 ? "원화 약세" : "원화 강세";
+    items.push(dir + " 설정이 매출과 원가 양쪽에 동시에 반영되어 있습니다. 제품별 수출 비중에 따라 순효과의 방향이 달라지므로, 지역 믹스별로 나누어 보시는 것도 방법입니다.");
+  }
+  list.innerHTML = items.map(t => "<li>" + t + "</li>").join("");
+}
+renderSim();
+
+/* ================= 4. 출처 ================= */
+(function renderSources(){
+  let html = "";
+  DATA.series.forEach(s => {
+    const m = META[s.key];
+    const basis = cleanText(s.notes.split(". ")[0]) + ".";
+    const est = s.points.filter(p => p.estimated).map(p => monthKo(p.month));
+    const estLine = est.length
+      ? '<p><b style="color:#0067B1;">추정 구간</b> · ' + est.join(", ") + " (주간 원천치 일부 누락분의 부분 평균, 보간 아님)</p>"
+      : "<p><b style=\"color:#7F8995;\">추정 구간 없음</b> · 36개월 전부 원천 데이터입니다.</p>";
+    let links = "";
+    s.sources.slice(0, 4).forEach(u => {
+      let host = u;
+      try { host = new URL(u).hostname.replace(/^www\./, ""); } catch(e) {}
+      links += '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(host) + "</a>";
+    });
+    if(s.sources.length > 4) links += '<span style="font-size:11px;color:#8C95A1;align-self:center;">외 ' + (s.sources.length - 4) + "건</span>";
+    html += '<div class="card src">' +
+      '<div class="s-head"><span class="label-tag" style="background:' + m.color + ';">' + m.short + '</span><b>' + m.label + '</b>' +
+      '<span style="font-size:11px;color:#8C95A1;font-weight:600;">' + esc(s.unit) + '</span></div>' +
+      "<p>" + esc(basis) + "</p>" + estLine +
+      '<div class="links">' + links + "</div></div>";
+  });
+  $("srcGrid").innerHTML = html;
+
+  let lgeHtml = "<b>LG전자 재무·원재료 데이터 출처</b><ul style='margin:8px 0 0 18px;'>";
+  DATA.lge.sources.forEach(t => lgeHtml += "<li style='margin-bottom:4px;'>" + esc(cleanText(t)) + "</li>");
+  lgeHtml += "</ul><p style='margin-top:10px;font-size:12px;color:#7F8995;'>" + esc(cleanText(DATA.lge.costStructure)) + "</p>";
+  $("lgeSrc").innerHTML = lgeHtml;
+})();
+</script>
+</body>
+</html>
