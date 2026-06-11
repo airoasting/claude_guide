@@ -95,6 +95,7 @@ node server.js     # 또는 임의의 정적 서버
 - 디자인 규약은 상위 [AGENTS.md](../AGENTS.md)를 따른다. 핵심 두 가지.
   - em dash(`—`) 금지. 본문은 경어로 통일.
   - 박스 왼쪽 컬러 테두리(border-left accent) 금지. 유형 색은 채워진 라벨 태그에 담는다.
+  - 섹션 제목은 전 페이지 공통으로 데스크톱 20px / 모바일(≤768px) 18px로 통일한다. 선택자는 페이지마다 다르다(`.section-header-block h2`·`.nm-card h2`·`.section-hd h2`·`.sec-head h2`·`.section-box-title`). 새 섹션 제목을 넣을 때 이 두 값을 맞춘다.
 - 헤더 영상은 사이트 표준(soft-light 합성)을 그대로 쓴다. 색 보정 불필요.
 
 ## 분류
