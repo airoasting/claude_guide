@@ -91,7 +91,7 @@
             background: #FFFFFF;
             border-radius: 16px;
             padding: 18px 22px;
-            border-left: 4px solid #A04828;
+            border: 1px solid rgba(74,53,7,0.10);
             box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 6px 18px rgba(74,53,7,0.05);
             transition: transform 0.25s ease, box-shadow 0.25s ease;
             cursor: default;
@@ -100,7 +100,6 @@
             transform: translateY(-4px);
             box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 12px 28px rgba(74,53,7,0.12);
         }
-        .about-card.accent-2 { border-left-color: #B35535; }
         .about-card-head {
             display: flex; align-items: center; gap: 12px;
             margin-bottom: 10px;
@@ -374,63 +373,67 @@
                 <h2 class="license-title">업데이트 내역</h2>
                 <div class="changelog-list">
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.5.0</span><span class="changelog-date">2026-06-07</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.6</span><span class="changelog-date">2026-06-14</span></div>
+                        <div class="changelog-body"><p class="changelog-title">루프 엔지니어링 트랙 신설</p><p class="changelog-desc">행동하고 검증하고 다시 도는 피드백 루프를 시스템으로 설계하는 '루프 엔지니어링' 트랙을 새로 깔았습니다. 클로드 코드 /loop를 다루는 루프 엔지니어링 페이지와 정해진 시각에 무인으로 도는 Routines 예약 실행 페이지를 더하고, 프롬프트 작성법에 위임 4요소(목표·채점·검증·멈춤) 섹션과 최신 모델 Fable 5 표기를 반영했습니다.</p></div>
+                    </div>
+                    <div class="changelog-item">
+                        <div class="changelog-meta"><span class="changelog-ver">v1.5</span><span class="changelog-date">2026-06-07</span></div>
                         <div class="changelog-body"><p class="changelog-title">보안 가이드 · 하네스 엔지니어링 개념 설명 업데이트</p><p class="changelog-desc">비즈니스 리더용 AI 협업 보안 5가지 가이드라인을 추가했습니다. 하네스 엔지니어링 실전 트랙의 카드 3개(하네스 엔지니어링·Claude의 도구·다이내믹 워크플로우)도 새로 정비했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.4.0</span><span class="changelog-date">2026-05-31</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.4</span><span class="changelog-date">2026-05-31</span></div>
                         <div class="changelog-body"><p class="changelog-title">한국 법령 MCP 예제 추가</p><p class="changelog-desc">Claude Desktop 커넥터로 법제처 Open API를 연결하는 실전 흐름을 더했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.3.0</span><span class="changelog-date">2026-05-24</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.3</span><span class="changelog-date">2026-05-24</span></div>
                         <div class="changelog-body"><p class="changelog-title">용어 사전 6막 재구성</p><p class="changelog-desc">AI 70년사를 6막 60선 흐름으로 풀어낸 용어 사전을 새로 짜고 외부 자산 연결을 정비했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.2.0</span><span class="changelog-date">2026-05-17</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.2</span><span class="changelog-date">2026-05-17</span></div>
                         <div class="changelog-body"><p class="changelog-title">표준화</p><p class="changelog-desc">사이트 전반의 본문 폭과 헤더 메뉴를 통일하고 운영 문서 체계를 정착시켰습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.1.0</span><span class="changelog-date">2026-05-10</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.1</span><span class="changelog-date">2026-05-10</span></div>
                         <div class="changelog-body"><p class="changelog-title">공유 미리보기 + 강의 자료 보강</p><p class="changelog-desc">링크를 공유할 때 보이는 미리보기 정보(메타 태그)를 정리하고, 강의에 바로 쓸 수 있도록 슬라이드 흐름과 예시 자료를 보강했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.0.0</span><span class="changelog-date">2026-05-03</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.0</span><span class="changelog-date">2026-05-03</span></div>
                         <div class="changelog-body"><p class="changelog-title">모바일 최적화 + 첫 화면 리뉴얼</p><p class="changelog-desc">모바일 사용성을 전면 보강하고 첫 화면과 안내 모달을 새로 짰습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.8.0</span><span class="changelog-date">2026-04-26</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v0.8</span><span class="changelog-date">2026-04-26</span></div>
                         <div class="changelog-body"><p class="changelog-title">자동화 트랙 정비</p><p class="changelog-desc">자동화 트랙의 실습 흐름과 슬라이드 자료를 다듬었습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.7.0</span><span class="changelog-date">2026-04-19</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v0.7</span><span class="changelog-date">2026-04-19</span></div>
                         <div class="changelog-body"><p class="changelog-title">진단 트랙 재설계</p><p class="changelog-desc">자율주행 비유 기반 5단계 진단 트랙으로 커리큘럼 입구를 다시 설계했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.6.0</span><span class="changelog-date">2026-04-12</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v0.6</span><span class="changelog-date">2026-04-12</span></div>
                         <div class="changelog-body"><p class="changelog-title">자산 정리</p><p class="changelog-desc">실습 결과물과 부록 페이지를 한곳으로 정리했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.5.0</span><span class="changelog-date">2026-04-05</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v0.5</span><span class="changelog-date">2026-04-05</span></div>
                         <div class="changelog-body"><p class="changelog-title">백과사전 보강</p><p class="changelog-desc">백과사전 페이지를 늘리고 자동화·에이전트 트랙 연결을 정돈했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.4.0</span><span class="changelog-date">2026-03-22</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v0.4</span><span class="changelog-date">2026-03-22</span></div>
                         <div class="changelog-body"><p class="changelog-title">학습 동선 보강</p><p class="changelog-desc">진입 페이지의 학습 동선과 안내 문구를 보강했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.3.0</span><span class="changelog-date">2026-03-15</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v0.3</span><span class="changelog-date">2026-03-15</span></div>
                         <div class="changelog-body"><p class="changelog-title">시각적 정체성 + 실습 연결</p><p class="changelog-desc">뉴모피즘 디자인 시스템을 도입하고 실전 과제 트랙을 본격 연결했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.2.0</span><span class="changelog-date">2026-03-01</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v0.2</span><span class="changelog-date">2026-03-01</span></div>
                         <div class="changelog-body"><p class="changelog-title">비개발자 동선 보강</p><p class="changelog-desc">비개발자 독자를 위한 진단 동선과 모바일 안내를 추가했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.1.0</span><span class="changelog-date">2026-02-24</span></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v0.1</span><span class="changelog-date">2026-02-24</span></div>
                         <div class="changelog-body"><p class="changelog-title">첫 공개</p><p class="changelog-desc">'Claude 완전 정복' 첫 골격을 GitHub에 공개했습니다.</p></div>
                     </div>
                 </div>
-                <p class="license-footnote">매주 일요일을 기준 날짜로 그 주의 작업을 묶어 버전을 부여합니다. 메이저(전체 표준화·방향 전환), 마이너(새 페이지·기능·큰 디자인 변경), 패치(작은 수정·문구 정리) 순으로 자릿수를 올립니다.</p>
+                <p class="license-footnote">매주 업데이트한 내용을 정리해서 버전을 업그레이드 하고 있습니다. 메이저(전체 표준화·방향 전환), 마이너(새 페이지·기능·큰 디자인 변경), 패치(작은 수정·문구 정리) 순으로 자릿수를 올립니다.</p>
             </div>
         </div>
 
