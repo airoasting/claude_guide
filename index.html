@@ -1526,11 +1526,11 @@
         </div>
     </div>
 
-    <!-- 수강생 갤러리 -->
-    <div class="card-section" id="section-showcase" style="margin-top: 64px; padding-top: 40px; border-top: 2px solid rgba(0,0,0,0.06);">
+    <!-- 수강생 쇼케이스 -->
+    <div class="card-section" id="section-showcase" style="margin-top: 64px; padding-top: 40px;">
         <div class="section-header" style="padding-top: 0;">
             <span class="section-num" style="background: #D97757;">쇼케이스</span>
-            <span class="section-title">수강생 갤러리</span>
+            <span class="section-title">수강생 쇼케이스</span>
         </div>
         <p class="section-subtitle">같은 한마디에서 출발했지만, 한 사람 한 사람의 상상력과 삶이 전혀 다르게 나왔습니다</p>
         <section class="cards" style="grid-template-columns: 1fr 1fr;">
@@ -1880,6 +1880,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     var sectionIds = ['section-1','section-project','section-plugin','section-cowork','section-code','section-skills','section-final'];
     var sections = sectionIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
+    // 가이드 섹션이 끝나는 지점(수강생 한 마디 시작). 이 아래로는 서브 메뉴 활성 없음.
+    var afterGuide = document.getElementById('section-voices');
 
     // 방문 기록
     var VISITED_KEY = 'ai_roasting_visited';
@@ -1911,6 +1913,11 @@ document.addEventListener('DOMContentLoaded', function() {
         var scrollTop = window.scrollY;
         // 히어로 영역에서는 활성 없음
         if (scrollTop < sections[0].offsetTop - navH - 60) {
+            navBtns.forEach(function(btn) { btn.classList.remove('active'); });
+            return;
+        }
+        // 수강생 쇼케이스부터는 가이드 범위 밖 → 활성 없음(예제 고정 방지)
+        if (afterGuide && scrollTop >= afterGuide.offsetTop - navH - 20) {
             navBtns.forEach(function(btn) { btn.classList.remove('active'); });
             return;
         }
