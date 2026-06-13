@@ -27,7 +27,7 @@
 
 ---
 
-## 2. 페이지 인벤토리 (32개)
+## 2. 페이지 인벤토리 (33개)
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 
@@ -103,13 +103,20 @@
 | `korean-law-mcp.html` | MCP 연결 | 10분 | 중급 | Claude Desktop Customize 커넥터 추가. 법제처 Open API |
 | `stock-messenger.html` | MCP 연결 | 15분 | 고급 | 기업 공시 데이터 분석. DART 스킬 + 텔레그램 봇 |
 
-### 하네스 엔지니어링 백과사전 (header-pages: 4개)
+### 하네스 엔지니어링 백과사전 (header-pages: 3개)
 | 페이지 | 시간 | 난이도 | 특성 |
 |---|---|---|---|
 | `file-types.html` | 필요할 때 | 참고 | 파일 8종 비교 |
 | `license-compare.html` | 필요할 때 | 참고 | 오픈소스 라이선스 |
 | `glossary.html` | 필요할 때 | 참고 | 용어 사전 |
-| `security-guide.html` | 필요할 때 | 참고 | 비개발자용 AI 협업 보안 5가지. overview 표 + 5섹션 + 체크리스트. sub-menu 6개 |
+
+2026-06-13에 `security-guide.html`을 백과사전에서 빼서 아래 `보안·법률` 섹션으로 옮겼다. 그래서 백과사전은 3-menu(700px)로 내렸다.
+
+### 보안·법률 (header-pages: 2개)
+| 페이지 | 시간 | 난이도 | 특성 |
+|---|---|---|---|
+| `security-guide.html` | 필요할 때 | 참고 | 비개발자용 AI 협업 보안. overview 표 + 5섹션 + 판례. sub-menu 7개. 2-menu(490px). 끝 CTA는 `ai-basic-law.html`로 크로스링크 |
+| `ai-basic-law.html` | 필요할 때 | 참고 | 인공지능기본법 안내. 히스토리 타임라인 + 주요국 비교 + 의무 주체 3분류 + 5대 의무 표 + 고영향 카드 하단 법 제2조 제4호 원문(가~차) 블록 + FAQ 17문 + 자가점검·참고자료(지원데스크 + 사례집 직접 링크 2개). sub-menu 7개. `security-guide.html` 골격 클론. 끝 CTA는 `security-guide.html`로 크로스링크. 출처는 과기정통부·KOSA 지원데스크 사례집과 가이드라인. 유권해석 아닌 참고 자료임을 본문에 명시 |
 
 ### 디자인·시각화 갤러리 (header-pages: 3개)
 | 페이지 | 시간 | 난이도 | 특성 |
@@ -147,9 +154,9 @@
 
 | 메뉴 수 | 기준 페이지 | `.header-pages` max-width | 각 버튼 폭 | 총합 |
 |---|---|---|---|---|
-| 2개 | `claude-orientation.html` | 490px | 약 238px | 490px |
-| 3개 | `ai-fluency.html` | 700px | 약 224px | 700px |
-| 4개 | `file-types.html` (백과사전), 실전 예제 트랙 공통 | 940px | 약 217px | 940px |
+| 2개 | `claude-orientation.html`, 보안·법률 트랙(`security-guide`·`ai-basic-law`) | 490px | 약 238px | 490px |
+| 3개 | `ai-fluency.html`, 백과사전 트랙(`file-types`·`license-compare`·`glossary`) | 700px | 약 224px | 700px |
+| 4개 | 실전 예제 트랙 공통 | 940px | 약 217px | 940px |
 | 5개 | 미정 | 미정 | 미정 | 미정 |
 | 7개 | 미정 | 미정 | 미정 | 미정 |
 | 9개 | 미정 | 미정 | 미정 | 미정 |
