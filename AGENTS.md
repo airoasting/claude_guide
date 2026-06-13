@@ -27,7 +27,7 @@
 
 ---
 
-## 2. 페이지 인벤토리 (37개)
+## 2. 페이지 인벤토리 (38개)
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 
@@ -98,11 +98,12 @@
 
 `agent-design.html`(팀 설계)은 2026-06-08에 인덱스와 전 페이지 내비·링크·키보드 핸들러에서 제거했다. 파일은 `backups/agent-design.html`로 옮겨 git 추적에서 뺐다(`backups/`는 gitignore 대상 로컬 아카이브). 되살리려면 파일을 루트로 되돌린 뒤 `pages-design` 내비, index 자동화 카드, `ai-levels.html` 로드맵, 키보드 `5` 핸들러를 함께 복원한다. 그 자리는 `claude-tools.html`이 대신한다.
 
-### 실전 예제 (골드 액센트, 좌측 보더 `#B8860B`, header-pages: 5개 공통)
-인덱스의 실전 예제 섹션은 두 묶음으로 나뉜다. `기본 예제`(바로 써먹는 실무 자동화)와 `MCP 연결`(외부 도구와 연동하는 워크플로우). 5개 페이지는 모두 같은 5링크 header-pages 내비를 공유한다.
+### 실전 예제 (골드 액센트, 좌측 보더 `#B8860B`, header-pages: 6개 공통)
+인덱스의 실전 예제 섹션은 두 묶음으로 나뉜다. `기본 예제`(바로 써먹는 실무 자동화)와 `MCP 연결`(외부 도구와 연동하는 워크플로우). 6개 페이지는 모두 같은 6링크 header-pages 내비를 공유한다(`기본 예제` 3 + `MCP 연결` 3). 기본 예제 그룹은 뉴스 클리핑 → 구글 시트 대시보드 → 책 쓰기 순서로 고정한다.
 
 | 페이지 | 묶음 | 시간 | 난이도 | 특성 |
 |---|---|---|---|---|
+| `news-clipping.html` | 기본 예제 | 15분 | 중급 | 뉴스 클리핑 자동화. `google-sheets-dashboard.html` 골격 클론. 테마→Tier1 매체→주기→포맷→스킬→루틴 6단계. 철강(steel-brief) 예시로 끝까지 관통. sub-menu 8섹션, STEP5·6은 `skills.html`·`routines.html`로 연결. 기본 예제 그룹의 첫 카드 |
 | `google-sheets-dashboard.html` | 기본 예제 | 12분 | 중급 | 골드 액센트 카드 |
 | `harness-book.html` | 기본 예제 | 20분 | 고급 | 책쓰기 실전, 자체 sub-menu 최다 |
 | `playmcp-kakao.html` | MCP 연결 | 12분 | 중급 | Claude Desktop **왼쪽 사이드바 Customize(사용자 지정)→커넥터→커넥터 둘러보기**에서 `playmcp` 검색→PlayMCP 추가→연결→카카오 로그인→권한 동의(URL 직접 입력·터미널 방식 아님. 진입은 `설정`이 아니라 `Customize(사용자 지정)`). 5단계(도구함·커넥터·첫 테스트·루틴으로 만들기·운영+트러블슈팅, 옛 STEP1 준비 제거). STEP1 도구함에 카카오톡 `+ 도구함에 추가` 다크 카드(노란 TALK 인라인 SVG, max-width 460px) + PlayMCP 공식 링크(skill-preview, INTRO에서 이동). STEP2에 6컷 연결 스크린샷 `assets/kakaotalk.webp`(사용자 제공, 2048px). STEP4 루틴(id `step-routine`)은 7시 57분 Routines 예약(첫 테스트에서 분리). STEP5는 운영 기준 카드+트러블슈팅 FAQ 카드 2장 병합(옛 `#faq` 구분선·앵커 제거). 나와의 채팅방 전송 + Routines 매일 7시 57분 응원(정각 회피=예약 지연 최대 30분). 면책 박스는 `주의 사항`(좌측 컬러 띠지 제거, [[no-left-color-bar-cliche]]). 참고자료는 PlayMCP·카카오 발표 2개만(Anthropic·MCP 링크 삭제). 주의: sub-menu/roadmap 표시 번호 1~4지만 섹션 id는 `step2`~`step5` 유지(앵커 깨짐 방지) |
