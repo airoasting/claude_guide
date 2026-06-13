@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>스틸 크로노</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' fill='none' stroke='%23bcc0c4' stroke-width='9'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:"Helvetica Neue",Arial,'Pretendard',sans-serif;
+    background:radial-gradient(circle at 50% 28%,#3b3d41 0%,#202225 45%,#0f1012 100%);
+    display:flex;align-items:center;justify-content:center;color:#cfd2d4;padding:14px}
+  .watch{position:relative;width:280px;height:280px;margin-top:14px}
+
+  /* 상단 크라운(고리 버튼) */
+  .crown{position:absolute;top:-17px;left:50%;transform:translateX(-50%);width:44px;height:30px;z-index:1;
+    border-radius:9px 9px 7px 7px;
+    background:linear-gradient(180deg,#eef1f3 0%,#c2c6ca 38%,#888c90 72%,#6a6e72 100%);
+    box-shadow:0 4px 6px rgba(0,0,0,.55),inset 0 2px 2px rgba(255,255,255,.7),inset 0 -2px 3px rgba(0,0,0,.35)}
+  .crown::after{content:"";position:absolute;left:50%;top:8px;transform:translateX(-50%);width:18px;height:6px;border-radius:3px;
+    background:#3f4347;box-shadow:inset 0 1px 2px rgba(0,0,0,.7)}
+
+  /* 브러시드 메탈 베젤 */
+  .bezel{position:absolute;inset:0;border-radius:50%;padding:23px;
+    background:conic-gradient(from 90deg,#83878b,#e9ecef,#a9adb1,#d8dce0,#7e8286,#eef1f3,#9fa3a7,#d2d6da,#83878b);
+    box-shadow:0 16px 34px rgba(0,0,0,.65),inset 0 3px 4px rgba(255,255,255,.75),inset 0 -4px 8px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.2)}
+  .bezel::before{content:"";position:absolute;inset:11px;border-radius:50%;
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.18)}
+
+  /* 나사 4개 */
+  .screw{position:absolute;width:13px;height:13px;border-radius:50%;z-index:3;
+    background:radial-gradient(circle at 35% 28%,#f2f4f6,#a4a8ac 58%,#646468);
+    box-shadow:0 1px 2px rgba(0,0,0,.6),inset 0 -1px 2px rgba(0,0,0,.45)}
+  .screw::after{content:"";position:absolute;left:50%;top:50%;width:9px;height:1.8px;border-radius:1px;background:#54585c;
+    transform:translate(-50%,-50%) rotate(42deg);box-shadow:0 1px 0 rgba(255,255,255,.25)}
+  .s-t{top:5px;left:50%;transform:translateX(-50%)}
+  .s-b{bottom:5px;left:50%;transform:translateX(-50%)}
+  .s-l{left:5px;top:50%;transform:translateY(-50%)}
+  .s-r{right:5px;top:50%;transform:translateY(-50%)}
+
+  /* 다이얼(유리 안쪽) */
+  .dial{position:relative;width:100%;height:100%;border-radius:50%;overflow:hidden;
+    background:radial-gradient(circle at 50% 38%,#34373b 0%,#1b1d20 70%,#101113 100%);
+    box-shadow:inset 0 7px 22px rgba(0,0,0,.85),inset 0 0 0 2px #2b2e32;
+    display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .dial::after{content:"";position:absolute;top:-30%;left:-10%;width:80%;height:60%;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%);pointer-events:none}/* 유리 반사 */
+  .ticks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .cross::before{content:"";position:absolute;left:50%;top:14%;bottom:14%;width:1px;background:rgba(200,205,210,.10);transform:translateX(-50%)}
+  .cross::after{content:"";position:absolute;top:50%;left:14%;right:14%;height:1px;background:rgba(200,205,210,.10);transform:translateY(-50%)}
+  .laps{position:absolute;top:30px;left:0;right:0;z-index:1;text-align:center;pointer-events:none;
+    font-family:"Courier New",monospace;font-size:9.5px;line-height:1.5;letter-spacing:1px;
+    color:rgba(168,216,160,.85);text-shadow:0 0 4px rgba(120,200,120,.35)}
+  .laps span{color:rgba(150,191,138,.65);margin-right:4px}
+  .brand{font-size:9px;font-weight:700;letter-spacing:.4em;color:#7e858a;text-indent:.4em;margin-bottom:4px;z-index:1}
+  .time{z-index:1;font-family:"Courier New",monospace;font-weight:700;font-variant-numeric:tabular-nums;
+    font-size:33px;letter-spacing:3px;color:#c8e8c0;text-shadow:0 0 9px rgba(140,220,140,.55),0 0 2px rgba(200,255,200,.7)}
+  .time .cs{font-size:18px;color:#8fbf8a;letter-spacing:2px}
+  .row{display:flex;gap:13px;margin-top:11px;z-index:1}
+  button{position:relative;width:48px;height:48px;border-radius:50%;border:none;cursor:pointer;overflow:hidden;
+    font-family:inherit;font-weight:800;font-size:8.5px;letter-spacing:.07em;color:#fff;
+    text-shadow:0 1px 1px rgba(0,0,0,.5);
+    box-shadow:0 5px 8px rgba(0,0,0,.6),inset 0 3px 4px rgba(255,255,255,.5),inset 0 -4px 6px rgba(0,0,0,.45);
+    transition:transform .07s,filter .15s}
+  button::before{content:"";position:absolute;top:5px;left:9px;width:22px;height:11px;border-radius:50%;
+    background:rgba(255,255,255,.4);filter:blur(2px);pointer-events:none}
+  button:active{transform:translateY(2px);box-shadow:0 2px 4px rgba(0,0,0,.6),inset 0 2px 3px rgba(0,0,0,.4)}
+  #b1{background:radial-gradient(circle at 40% 30%,#74e07e,#36a342 75%,#208030)}
+  #b1.run{background:radial-gradient(circle at 40% 30%,#ef7d68,#c23f2c 75%,#9a2a1a)}
+  #b3{background:radial-gradient(circle at 40% 30%,#ead85f,#b09a22 75%,#8a7818)}
+  #b2{background:radial-gradient(circle at 40% 30%,#ef7676,#c23030 75%,#9a2020)}
+  button:disabled{filter:grayscale(.5) brightness(.62);cursor:default}
+  button:focus-visible{outline:2px solid #c8e8c0;outline-offset:3px}
+</style>
+</head>
+<body>
+  <div class="watch">
+    <div class="crown" aria-hidden="true"></div>
+    <div class="bezel" aria-hidden="true">
+      <span class="screw s-t"></span><span class="screw s-r"></span><span class="screw s-b"></span><span class="screw s-l"></span>
+      <div class="dial">
+        <svg class="ticks" viewBox="0 0 200 200" id="ticks" aria-hidden="true"></svg>
+        <div class="cross" aria-hidden="true"></div>
+        <div class="laps" id="laps"></div>
+        <div class="time"><span id="t">00:00<span class="cs">.00</span></span></div>
+        <div class="row">
+          <button id="b1">START</button>
+          <button id="b3" disabled>RESET</button>
+          <button id="b2" disabled>LAP</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+(function(){
+  // 눈금 생성 (60분틱, 5단위 강조)
+  var ns="http://www.w3.org/2000/svg",svg=document.getElementById("ticks");
+  for(var i=0;i<60;i++){var a=i*6*Math.PI/180,maj=(i%5===0),r1=maj?77:84,r2=92;
+    var l=document.createElementNS(ns,"line");
+    l.setAttribute("x1",(100+r1*Math.sin(a)).toFixed(2));l.setAttribute("y1",(100-r1*Math.cos(a)).toFixed(2));
+    l.setAttribute("x2",(100+r2*Math.sin(a)).toFixed(2));l.setAttribute("y2",(100-r2*Math.cos(a)).toFixed(2));
+    l.setAttribute("stroke",maj?"rgba(214,219,224,.55)":"rgba(170,176,182,.30)");
+    l.setAttribute("stroke-width",maj?2:1);l.setAttribute("stroke-linecap","round");svg.appendChild(l);}
+
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lapsEl=document.getElementById('laps');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(cc).padStart(2,'0')+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
+  function draw(){t.innerHTML=f(el());}
+  function renderLaps(){var h='';for(var i=laps.length-1;i>=Math.max(0,laps.length-3);i--){h+='<span>L'+(i+1)+'</span>'+plain(laps[i])+'<br>';}lapsEl.innerHTML=h;}
+  function ui(){b1.textContent=run?'STOP':(el()>0?'RESUME':'START');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lapsEl.innerHTML='';}
+  function lap(){if(!run)return;var e=el();last=e;laps.push(e);renderLaps();}
+  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

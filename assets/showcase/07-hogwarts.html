@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>호그와트 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23241a14'/><text y='.92em' x='14' font-size='80' fill='%23D4AF37'>⚡</text></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:"Georgia","Times New Roman",'Pretendard',serif;
+    background:
+      radial-gradient(1.5px 1.5px at 14% 18%,rgba(255,250,220,.9),transparent),
+      radial-gradient(1.5px 1.5px at 82% 12%,rgba(255,250,220,.8),transparent),
+      radial-gradient(1px 1px at 24% 70%,rgba(255,250,220,.7),transparent),
+      radial-gradient(1px 1px at 70% 78%,rgba(255,250,220,.7),transparent),
+      radial-gradient(1.5px 1.5px at 90% 52%,rgba(255,250,220,.8),transparent),
+      radial-gradient(1px 1px at 8% 46%,rgba(255,250,220,.7),transparent),
+      radial-gradient(1px 1px at 50% 8%,rgba(255,250,220,.6),transparent),
+      radial-gradient(circle at 50% 30%,#3A2A55 0%,#241836 48%,#140E22 100%);
+    display:flex;align-items:center;justify-content:center;color:#EBDDBB;padding:14px}
+  .frame{position:relative;width:100%;max-width:266px;padding:18px 22px 18px;border-radius:10px;
+    background:linear-gradient(180deg,rgba(58,40,28,.55),rgba(22,15,12,.62));
+    border:1px solid rgba(201,162,71,.5);
+    box-shadow:0 16px 36px rgba(0,0,0,.55),inset 0 0 26px rgba(120,40,50,.16),inset 0 0 0 4px rgba(201,162,71,.10);
+    display:flex;flex-direction:column;align-items:center;gap:8px}
+  /* 금장 코너 장식 */
+  .corner{position:absolute;width:20px;height:20px;border:2px solid #C9A24A}
+  .corner.tl{top:7px;left:7px;border-right:0;border-bottom:0;border-radius:6px 0 0 0}
+  .corner.tr{top:7px;right:7px;border-left:0;border-bottom:0;border-radius:0 6px 0 0}
+  .corner.bl{bottom:7px;left:7px;border-right:0;border-top:0;border-radius:0 0 0 6px}
+  .corner.br{bottom:7px;right:7px;border-left:0;border-top:0;border-radius:0 0 6px 0}
+  .crest{width:62px;height:74px;margin-top:2px;filter:drop-shadow(0 3px 5px rgba(0,0,0,.5))}
+  .brand{font-size:24px;font-weight:700;color:#E7C765;letter-spacing:1px;text-shadow:0 1px 3px rgba(0,0,0,.6),0 0 14px rgba(231,199,101,.3)}
+  .sub{font-size:10px;letter-spacing:.46em;color:#B79FC9;text-indent:.46em;margin-top:-2px}
+  .rule{display:flex;align-items:center;gap:8px;width:88%;color:#C9A24A;font-size:11px;margin:3px 0 1px}
+  .rule::before,.rule::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,#8a6a2a,transparent)}
+  .time{font-weight:700;font-variant-numeric:tabular-nums;font-size:37px;color:#F6ECCB;letter-spacing:1px;
+    text-shadow:0 0 12px rgba(180,130,210,.5),0 1px 2px rgba(0,0,0,.5)}
+  .time .cs{font-size:18px;color:#D4AF37}
+  .lapline{min-height:15px;font-size:11px;font-weight:700;letter-spacing:.5px;color:#CDB680;
+    font-variant-numeric:tabular-nums;text-shadow:0 0 6px rgba(180,130,210,.3)}
+  .row{display:flex;gap:8px;margin-top:4px}
+  button{font-family:inherit;font-weight:700;font-size:11px;cursor:pointer;padding:9px 0;width:68px;border-radius:5px;
+    border:1px solid #C9A24A;background:rgba(201,162,71,.10);color:#EBDDBB;transition:transform .07s,background .15s;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+  button:active{transform:translateY(2px)}
+  #b1{background:linear-gradient(180deg,#9A2330,#6E1520);color:#F6E2C4;border-color:#C9A24A;
+    box-shadow:0 2px 8px rgba(120,20,30,.5),inset 0 1px 0 rgba(255,255,255,.18)}
+  #b1.run{background:linear-gradient(180deg,#3A2E72,#241A4E)}
+  button:disabled{opacity:.42;cursor:default}
+  .recs{width:100%;display:flex;flex-direction:column;gap:4px;max-height:66px;overflow:auto;margin-top:3px}
+  .recs div{display:flex;justify-content:space-between;font-size:12px;color:#CDB680;border-bottom:1px solid rgba(201,162,71,.22);padding:4px 2px;font-variant-numeric:tabular-nums}
+  .recs .mk{color:#D4AF37}
+  button:focus-visible{outline:2px solid #F6ECCB;outline-offset:2px}
+</style>
+</head>
+<body>
+  <div class="frame">
+    <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+
+    <svg class="crest" viewBox="0 0 62 74" aria-hidden="true">
+      <!-- 별/관 장식 -->
+      <path d="M31 1 l2.2 4.6 5 .7 -3.6 3.5 .9 5 -4.5-2.4 -4.5 2.4 .9-5 -3.6-3.5 5-.7Z" fill="#E7C765"/>
+      <!-- 방패 -->
+      <path d="M6 12 H56 V40 C56 56 42 66 31 71 C20 66 6 56 6 40 Z" fill="#1c1526" stroke="#C9A24A" stroke-width="2.4"/>
+      <!-- 4분할 (그리핀도르/슬리데린/래번클로/후플푸프) -->
+      <clipPath id="sh"><path d="M7.2 13.2 H54.8 V40 C54.8 55.2 41.4 64.8 31 69.6 C20.6 64.8 7.2 55.2 7.2 40 Z"/></clipPath>
+      <g clip-path="url(#sh)">
+        <rect x="7" y="12" width="24" height="29" fill="#7E1018"/>   <!-- 적 -->
+        <rect x="31" y="12" width="25" height="29" fill="#1C4D33"/>  <!-- 녹 -->
+        <rect x="7" y="41" width="24" height="32" fill="#21407A"/>   <!-- 청 -->
+        <rect x="31" y="41" width="25" height="32" fill="#C9A227"/>  <!-- 금 -->
+        <circle cx="19" cy="26" r="6" fill="none" stroke="#E7C765" stroke-width="1.4" opacity=".85"/>  <!-- 사자(원형 약식) -->
+        <path d="M37 20 q8 6 0 12" fill="none" stroke="#9BD3A8" stroke-width="1.6"/>                  <!-- 뱀 -->
+        <path d="M14 50 l5-6 5 6 -5 2 Z" fill="#9DBBE6"/>                                              <!-- 독수리 약식 -->
+        <circle cx="43" cy="56" r="5" fill="#7A5E12"/>                                                <!-- 오소리 약식 -->
+      </g>
+      <!-- 금장 분할선 -->
+      <path d="M31 12 V71 M7 40 H55" stroke="#C9A24A" stroke-width="2"/>
+      <path d="M6 12 H56 V40 C56 56 42 66 31 71 C20 66 6 56 6 40 Z" fill="none" stroke="#C9A24A" stroke-width="2.4"/>
+    </svg>
+
+    <div class="brand">Hogwarts</div>
+    <div class="rule">✦</div>
+    <div class="time"><span id="t">00:00<span class="cs">.00</span></span></div>
+    <div class="lapline" id="lapline"></div>
+    <div class="row">
+      <button id="b1">START</button>
+      <button id="b2" disabled>LAP</button>
+      <button id="b3" disabled>RESET</button>
+    </div>
+  </div>
+<script>
+(function(){
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lapline=document.getElementById('lapline');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(cc).padStart(2,'0')+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
+  function draw(){t.innerHTML=f(el());}
+  function ui(){b1.textContent=run?'STOP':(el()>0?'RESUME':'START');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lapline.textContent='';}
+  function lap(){if(!run)return;var e=el();last=e;laps.push(e);lapline.textContent='⚡ LAP '+laps.length+'  ·  '+plain(e);}
+  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>강아지 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐶</text></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background:#FBF1E2;display:flex;align-items:center;justify-content:center;color:#6B4A2B;padding:14px}
+  .wrap{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:300px}
+  .dog{width:170px;height:158px;position:relative}
+  .ear{position:absolute;top:34px;width:46px;height:96px;border-radius:48% 48% 50% 50%;background:#9A6А3A;background:#9A6A3A;
+    box-shadow:inset -4px -6px 10px rgba(0,0,0,.18);z-index:1}
+  .ear.l{left:6px;transform:rotate(14deg)}.ear.r{right:6px;transform:rotate(-14deg)}
+  .face{position:absolute;left:50%;top:18px;transform:translateX(-50%);width:124px;height:120px;border-radius:50% 50% 48% 48%;
+    background:radial-gradient(circle at 40% 34%,#F2D6AC,#E0BC86 72%);box-shadow:inset -6px -8px 16px rgba(0,0,0,.1),0 8px 18px rgba(150,100,40,.18);z-index:2}
+  .patch{position:absolute;left:50%;top:30px;transform:translateX(-50%) translateX(26px);width:46px;height:52px;border-radius:50%;
+    background:#C89858;opacity:.55;z-index:2}
+  .eye{position:absolute;top:52px;width:15px;height:17px;border-radius:50%;background:#3B2415;z-index:3}
+  .eye.l{left:40px}.eye.r{right:40px}
+  .eye::after{content:"";position:absolute;top:2px;right:2px;width:5px;height:5px;border-radius:50%;background:#fff}
+  .snout{position:absolute;left:50%;top:72px;transform:translateX(-50%);width:56px;height:42px;border-radius:50%;
+    background:radial-gradient(circle at 45% 35%,#FBEBD2,#EBD2A8);z-index:3}
+  .nose{position:absolute;left:50%;top:74px;transform:translateX(-50%);width:24px;height:17px;border-radius:50%;background:#3B2415;z-index:4}
+  .tongue{position:absolute;left:50%;top:104px;transform:translateX(-50%);width:18px;height:24px;border-radius:0 0 12px 12px;background:#EB7E8E;z-index:3}
+  .tongue::after{content:"";position:absolute;left:50%;top:2px;transform:translateX(-50%);width:2px;height:16px;background:rgba(0,0,0,.12)}
+  .time{font-variant-numeric:tabular-nums;font-weight:800;font-size:42px;letter-spacing:1px;color:#5A3A1C}
+  .time .cs{font-size:22px;color:#B07A3E}
+  .row{display:flex;gap:9px}
+  button{font-family:inherit;font-weight:800;font-size:14px;color:#fff;border:none;cursor:pointer;
+    padding:13px 0;width:80px;border-radius:22px;box-shadow:0 4px 0 rgba(0,0,0,.13),0 6px 10px rgba(0,0,0,.10);transition:transform .07s,opacity .15s}
+  button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.13)}
+  #b1{background:#7CB86A}#b1.run{background:#E07856}
+  #b2{background:#86C36F}#b3{background:#B6ADA0}
+  button:disabled{opacity:.42;cursor:default}
+  .lp{font-size:12px;color:#9A7A52;font-weight:700;min-height:16px}
+  button:focus-visible{outline:3px solid #5A3A1C;outline-offset:2px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="dog" aria-hidden="true">
+      <span class="ear l"></span><span class="ear r"></span>
+      <span class="face"></span><span class="patch"></span>
+      <span class="eye l"></span><span class="eye r"></span>
+      <span class="snout"></span><span class="nose"></span><span class="tongue"></span>
+    </div>
+    <div class="time"><span id="t">00:00<span class="cs">.00</span></span></div>
+    <div class="row">
+      <button id="b1">시작</button>
+      <button id="b2" disabled>랩</button>
+      <button id="b3" disabled>초기화</button>
+    </div>
+    <div class="lp" id="lp"></div>
+  </div>
+<script>
+(function(){
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lp=document.getElementById('lp');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(cc).padStart(2,'0')+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
+  function draw(){t.innerHTML=f(el());}
+  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);lp.textContent='랩 '+laps.length+'  +'+plain(sp);}
+  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

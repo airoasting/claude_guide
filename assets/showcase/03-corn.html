@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>옥수수 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌽</text></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background:linear-gradient(180deg,#EAF6FF 0%,#F3FBE9 60%,#FBF3D8 100%);
+    display:flex;align-items:center;justify-content:center;color:#5A3A1C;padding:14px}
+  .wrap{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:300px}
+  .corn{position:relative;width:128px;height:158px}
+  .silk{position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:60px;height:18px}
+  .silk span{position:absolute;bottom:0;left:50%;width:2px;height:16px;transform-origin:bottom center;
+    background:linear-gradient(180deg,transparent,#C98A3A);border-radius:2px}
+  .silk span:nth-child(1){transform:translateX(-50%) rotate(-26deg);height:12px}
+  .silk span:nth-child(2){transform:translateX(-50%) rotate(-8deg)}
+  .silk span:nth-child(3){transform:translateX(-50%) rotate(8deg)}
+  .silk span:nth-child(4){transform:translateX(-50%) rotate(24deg);height:12px}
+  .leaf{position:absolute;bottom:2px;left:50%;width:56px;height:108px;transform-origin:bottom center;
+    border-radius:6% 94% 6% 94% / 0 100% 0 100%;
+    background:linear-gradient(135deg,#95CE5C,#6FB23E 55%,#4E8C2A);z-index:1}
+  .leaf.l{transform:translateX(-50%) rotate(-26deg) scaleX(-1)}
+  .leaf.r{transform:translateX(-50%) rotate(26deg)}
+  .cob{position:absolute;left:50%;top:0;transform:translateX(-50%);width:92px;height:154px;z-index:2;
+    border-radius:50% 50% 46% 46% / 28% 28% 60% 60%;
+    background-color:#F6C338;
+    background-image:
+      radial-gradient(ellipse 8px 10px at 8px 9px,#FFE06A 0 42%,#F6C338 55%,#E0982A 78%,transparent 82%),
+      radial-gradient(ellipse 8px 10px at 8px 9px,#FFE06A 0 42%,#F6C338 55%,#E0982A 78%,transparent 82%);
+    background-size:20px 24px,20px 24px;background-position:0 0,10px 12px;
+    box-shadow:inset -8px -10px 22px rgba(150,90,10,.3),inset 8px 8px 18px rgba(255,240,170,.5),0 8px 16px rgba(120,80,20,.18)}
+  .time{font-variant-numeric:tabular-nums;font-weight:800;font-size:42px;letter-spacing:1px;color:#5A3A1C}
+  .time .cs{font-size:22px;color:#B07A3E}
+  .row{display:flex;gap:9px}
+  button{font-family:inherit;font-weight:800;font-size:14px;color:#fff;border:none;cursor:pointer;
+    padding:13px 0;width:80px;border-radius:22px;box-shadow:0 4px 0 rgba(0,0,0,.13),0 6px 10px rgba(0,0,0,.10);transition:transform .07s,opacity .15s}
+  button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.13)}
+  #b1{background:#57B84A}#b1.run{background:#E0705C}
+  #b2{background:#E0982A}#b3{background:#B6ADA0}
+  button:disabled{opacity:.42;cursor:default}
+  .lp{font-size:12px;color:#9A7A52;font-weight:700;min-height:16px}
+  button:focus-visible{outline:3px solid #5A3A1C;outline-offset:2px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="corn" aria-hidden="true">
+      <div class="silk"><span></span><span></span><span></span><span></span></div>
+      <span class="leaf l"></span><span class="leaf r"></span>
+      <span class="cob"></span>
+    </div>
+    <div class="time"><span id="t">00:00<span class="cs">.00</span></span></div>
+    <div class="row">
+      <button id="b1">시작</button>
+      <button id="b2" disabled>랩</button>
+      <button id="b3" disabled>초기화</button>
+    </div>
+    <div class="lp" id="lp"></div>
+  </div>
+<script>
+(function(){
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lp=document.getElementById('lp');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(cc).padStart(2,'0')+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
+  function draw(){t.innerHTML=f(el());}
+  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);lp.textContent='랩 '+laps.length+'  +'+plain(sp);}
+  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

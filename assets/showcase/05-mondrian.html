@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>몬드리안 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23E33'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:"Helvetica Neue",Arial,'Pretendard',sans-serif;background:#EDEAE1;
+    display:flex;align-items:center;justify-content:center;color:#111;padding:14px}
+  .wrap{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:280px}
+  .title{font-size:12px;font-weight:800;letter-spacing:.34em;color:#111;text-indent:.34em}
+  .canvas{position:relative;width:264px;height:200px;background:#fff;border:6px solid #111;box-shadow:0 10px 24px rgba(0,0,0,.2)}
+  .blk{position:absolute;border:6px solid #111}
+  .red{background:#E2231A}.blu{background:#1356A8}.yel{background:#F6CB16}
+  .b1{left:-6px;top:-6px;width:96px;height:62px}            /* red top-left */
+  .b2{right:-6px;top:-6px;width:70px;height:48px}           /* blue top-right */
+  .b3{left:-6px;bottom:-6px;width:64px;height:58px}         /* yellow bottom-left */
+  .b4{right:-6px;bottom:-6px;width:90px;height:44px}        /* red bottom-right */
+  .mid{position:absolute;left:-6px;right:-6px;top:74px;height:54px;border-top:6px solid #111;border-bottom:6px solid #111;background:#fff;
+    display:flex;align-items:center;justify-content:center}
+  .time{font-weight:800;font-variant-numeric:tabular-nums;font-size:38px;letter-spacing:1px;color:#111}
+  .time .cs{font-size:18px;color:#E2231A}
+  .row{display:flex;gap:0;border:5px solid #111;background:#111}
+  button{font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;padding:12px 0;width:82px;border:none;color:#111;
+    transition:transform .07s,filter .15s}
+  button+button{border-left:5px solid #111}
+  button:active{transform:translateY(2px)}
+  #b2{background:#1356A8;color:#fff}#b1{background:#E2231A;color:#fff}#b1.run{background:#111;color:#fff}#b3{background:#F6CB16}
+  button:disabled{opacity:.45;cursor:default}
+  .lp{font-size:11px;color:#444;min-height:14px;font-weight:700;letter-spacing:.04em}
+  button:focus-visible{outline:3px solid #1356A8;outline-offset:2px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="canvas" aria-hidden="true">
+      <div class="blk red b1"></div>
+      <div class="blk blu b2"></div>
+      <div class="blk yel b3"></div>
+      <div class="blk red b4"></div>
+      <div class="mid"><span class="time"><span id="t">00:00<span class="cs">.00</span></span></span></div>
+    </div>
+    <div class="row">
+      <button id="b2" disabled>랩</button>
+      <button id="b1">시작</button>
+      <button id="b3" disabled>리셋</button>
+    </div>
+    <div class="lp" id="lp"></div>
+  </div>
+<script>
+(function(){
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lp=document.getElementById('lp');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(cc).padStart(2,'0')+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
+  function draw(){t.innerHTML=f(el());}
+  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);lp.textContent='LAP '+laps.length+'  +'+plain(sp);}
+  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>
