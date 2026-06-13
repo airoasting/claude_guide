@@ -27,7 +27,7 @@
 
 ---
 
-## 2. 페이지 인벤토리 (33개)
+## 2. 페이지 인벤토리 (32개)
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 
@@ -44,12 +44,13 @@
 | `project-intro.html` | 20분 | 입문 | 프로젝트 셋업, 시스템 프롬프트 |
 | `multi-persona.html` | 10분 | 중급 | 5인 페르소나 토론 (5-Color Harness와 연결) |
 
-### 2단계 · 디자인·플러그인 (header-pages: 3개)
+### 2단계 · 디자인·플러그인 (header-pages: 2개)
 | 페이지 | 시간 | 난이도 | 특성 |
 |---|---|---|---|
-| `claude-design.html` | 10분 | 입문 | Anthropic Labs 디자인 도구. "공식 갤러리에서 실제 예시 보기" 버튼은 의도적으로 제거됐다 (commit 02e1329) |
-| `chrome-plugin.html` | 10분 | 입문 | 크롬에서 Claude 사용 |
+| `chrome-plugin.html` | 10분 | 입문 | 크롬에서 Claude 사용. 2단계 트랙의 첫 페이지이자 로드맵 step-node `2`의 대상 |
 | `claude-plugin.html` | 10분 | 입문 | 엑셀, 파워포인트, 워드 3종 플러그인 |
+
+`claude-design.html`(Claude Design)은 2026-06-13에 인덱스 갤러리 카드·전 페이지 로드맵 step-node `2`·갤러리 트랙 내비·multi-persona next 버튼에서 제거하고 `backups/claude-design.html`로 옮겨 git 추적에서 뺐다(`backups/`는 gitignore 대상). 되살리려면 파일을 루트로 되돌린 뒤 step-node `2` 대상(현재 `chrome-plugin.html`), 갤러리 트랙 내비(`eda-gallery`·`component-gallery`·`ui-design`), `index.html` 갤러리 카드, `multi-persona.html` next 카드를 함께 복원한다.
 
 ### 3단계 · 클로드 코워크 (header-pages: 2개)
 | 페이지 | 시간 | 난이도 | 특성 |
