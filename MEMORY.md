@@ -10,6 +10,7 @@
 
 | # | 명령 | 범위 | 결과 |
 |---|---|---|---|
+| 2 | `security-guide.html` Section 1(입력 보안·자격증명)에 GitHub 인증키 유출 실제 사고 추가 | `security-guide.html` | 사용자 요청("github에 인증키 박아서 사고 난 사례"). 새 리스크가 아니라 자격증명 카드가 다루는 위험의 실증이라 5대 리스크 표는 그대로 두고 Section 1 안에 배치. 기존 `case-ledger`/`case-entry` 컴포넌트 재사용, 사고용 라벨 `.kind-leak`(배경 `--c-input` #e74c3c) 1개 신설. 사례 2건(우버 2016: 비공개 GitHub 저장소의 AWS 키로 5,700만 명 유출·10만 달러 입막음·1.48억 달러 합의·CSO 형사 유죄 / 토요타 2022: T-Connect 소스 코드 GitHub 공개 5년·접속 키 노출·고객 29.6만 명 이메일), 출처 링크 FTC·BleepingComputer. 마무리 claude-tip에 봇 스캔 메커니즘 + `github-guide.html` 링크. em dash 0, 배지색·링크·렌더 검증 |
 | 1 | 5단계 자동화 헤더 토글을 `스킬/실전` 2단에서 `하네스/도구/루프` 3단으로 전환 (Rule 5) | `harness-engineering.html`, `claude-tools.html`, `harness-workflows.html`, `claude-md-templates.html`, `skills.html`, `code-plugin.html`, `loop-engineering.html`, `routines.html` | 8개 페이지 공통. 기존 2단 토글(`tab-skill`/`tab-design`, `pages-skill`/`pages-design`)을 3단(`tab-harness`/`tab-tool`/`tab-loop`, `pages-harness`/`pages-tool`/`pages-loop`)으로 재배치. 묶음은 `index.html` 자동화 3트랙과 1:1: 하네스(하네스 엔지니어링·도구·멀티 에이전트 소환), 도구(CLAUDE.md·나만의 Skill·스킬·MCP 플러그인), 루프(루프 엔지니어링·Routines). 루프 2개 페이지는 토글이 아예 없던 상태라 토글+나머지 두 그룹을 새로 주입. `switchMode`를 `['harness','tool','loop']` 제네릭으로 통일하고, span 기반이던 3개 페이지(skills·code-plugin·claude-md-templates)는 `<button>`으로 바꾸며 `.mode-tab`에 `border:none; background:none; font-family:inherit` 리셋 추가(누락 시 회색 기본 배경 노출되던 버그 수정). 데스크톱·모바일(375px) 검증, 콘솔 에러 0 |
 
 ### 2026-06-11
