@@ -27,7 +27,7 @@
 
 ---
 
-## 2. 페이지 인벤토리 (36개)
+## 2. 페이지 인벤토리 (37개)
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 
@@ -131,10 +131,11 @@
 | `component-gallery.html` | 참고 | 참고 | UI 컴포넌트 40종 |
 | `ui-design.html` | 참고 | 참고 | UI 디자인 트렌드 30종 |
 
-### 수강생 갤러리
+### 수강생 쇼케이스 (header-pages: 2개)
 | 페이지 | 시간 | 난이도 | 특성 |
 |---|---|---|---|
-| `showcase.html` | 참고 | 참고 | 수강생 결과물 모음. 9개 스탑워치 iframe 라이브 임베드, 3유형 분류 |
+| `showcase.html` | 참고 | 참고 | 수강생 결과물 모음. 9개 스탑워치 iframe 라이브 임베드, 3유형 분류. 헤더에 `시로 쓴 자화상`·`스탑워치 쇼케이스` 2개 토글(아이콘 없는 텍스트 링크) |
+| `showcase-poems.html` | 참고 | 참고 | 멀티 페르소나 실습으로 완성한 시 23편 모음(`AI 시대, 일하는 사람들의 하루`). `showcase.html`과 같은 2개 토글로 연동. CTA는 `multi-persona.html`로 크로스링크 |
 
 ---
 
