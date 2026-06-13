@@ -105,7 +105,7 @@
 |---|---|---|---|---|
 | `google-sheets-dashboard.html` | 기본 예제 | 12분 | 중급 | 골드 액센트 카드 |
 | `harness-book.html` | 기본 예제 | 20분 | 고급 | 책쓰기 실전, 자체 sub-menu 최다 |
-| `playmcp-kakao.html` | MCP 연결 | 12분 | 중급 | `claude mcp add`로 Kakao PlayMCP 연결, 나와의 채팅방 전송 |
+| `playmcp-kakao.html` | MCP 연결 | 12분 | 중급 | Claude Desktop **왼쪽 사이드바 Customize(사용자 지정)→커넥터→커넥터 둘러보기**에서 `playmcp` 검색→PlayMCP 추가→연결→카카오 로그인→권한 동의(URL 직접 입력·터미널 방식 아님. 진입은 `설정`이 아니라 `Customize(사용자 지정)`). 5단계(도구함·커넥터·첫 테스트·루틴으로 만들기·운영+트러블슈팅, 옛 STEP1 준비 제거). STEP1 도구함에 카카오톡 `+ 도구함에 추가` 다크 카드(노란 TALK 인라인 SVG, max-width 460px) + PlayMCP 공식 링크(skill-preview, INTRO에서 이동). STEP2에 6컷 연결 스크린샷 `assets/kakaotalk.webp`(사용자 제공, 2048px). STEP4 루틴(id `step-routine`)은 7시 57분 Routines 예약(첫 테스트에서 분리). STEP5는 운영 기준 카드+트러블슈팅 FAQ 카드 2장 병합(옛 `#faq` 구분선·앵커 제거). 나와의 채팅방 전송 + Routines 매일 7시 57분 응원(정각 회피=예약 지연 최대 30분). 면책 박스는 `주의 사항`(좌측 컬러 띠지 제거, [[no-left-color-bar-cliche]]). 참고자료는 PlayMCP·카카오 발표 2개만(Anthropic·MCP 링크 삭제). 주의: sub-menu/roadmap 표시 번호 1~4지만 섹션 id는 `step2`~`step5` 유지(앵커 깨짐 방지) |
 | `korean-law-mcp.html` | MCP 연결 | 10분 | 중급 | Claude Desktop Customize 커넥터 추가. 법제처 Open API |
 | `stock-messenger.html` | MCP 연결 | 15분 | 고급 | 기업 공시 데이터 분석. DART 스킬 + 텔레그램 봇 |
 
