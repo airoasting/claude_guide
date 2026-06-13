@@ -6,6 +6,12 @@
 
 ## 최근 세션 변경 로그
 
+### 2026-06-13
+
+| # | 명령 | 범위 | 결과 |
+|---|---|---|---|
+| 1 | 5단계 자동화 헤더 토글을 `스킬/실전` 2단에서 `하네스/도구/루프` 3단으로 전환 (Rule 5) | `harness-engineering.html`, `claude-tools.html`, `harness-workflows.html`, `claude-md-templates.html`, `skills.html`, `code-plugin.html`, `loop-engineering.html`, `routines.html` | 8개 페이지 공통. 기존 2단 토글(`tab-skill`/`tab-design`, `pages-skill`/`pages-design`)을 3단(`tab-harness`/`tab-tool`/`tab-loop`, `pages-harness`/`pages-tool`/`pages-loop`)으로 재배치. 묶음은 `index.html` 자동화 3트랙과 1:1: 하네스(하네스 엔지니어링·도구·멀티 에이전트 소환), 도구(CLAUDE.md·나만의 Skill·스킬·MCP 플러그인), 루프(루프 엔지니어링·Routines). 루프 2개 페이지는 토글이 아예 없던 상태라 토글+나머지 두 그룹을 새로 주입. `switchMode`를 `['harness','tool','loop']` 제네릭으로 통일하고, span 기반이던 3개 페이지(skills·code-plugin·claude-md-templates)는 `<button>`으로 바꾸며 `.mode-tab`에 `border:none; background:none; font-family:inherit` 리셋 추가(누락 시 회색 기본 배경 노출되던 버그 수정). 데스크톱·모바일(375px) 검증, 콘솔 에러 0 |
+
 ### 2026-06-11
 
 | # | 명령 | 범위 | 결과 |

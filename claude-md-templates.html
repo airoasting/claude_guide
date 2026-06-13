@@ -177,6 +177,9 @@
             cursor: pointer;
             transition: all 0.2s;
             user-select: none;
+            border: none;
+            background: none;
+            font-family: inherit;
         }
         .mode-tab.active {
             background: rgba(255,255,255,0.18);
@@ -808,19 +811,24 @@
         <a class="back-link load-anim load-d2" href="index.html">← 목록으로</a>
         <h1 class="load-anim load-d3">CLAUDE.md · AGENTS.md · MEMORY.md</h1>
         <p class="load-anim load-d4">매일 출근하면 어제를 잊는 AI에게, 3개의 파일로 규칙을 알려줍니다</p>
-        <div class="mode-tabs load-anim load-d5">
-            <span class="mode-tab active" id="tab-skill" onclick="switchMode('skill')">스킬</span>
-            <span class="mode-tab" id="tab-design" onclick="switchMode('design')">실전</span>
+        <div class="mode-tabs load-anim load-d5" role="tablist">
+            <button class="mode-tab" id="tab-harness" onclick="switchMode('harness')" role="tab" aria-selected="false">하네스</button>
+            <button class="mode-tab active" id="tab-tool" onclick="switchMode('tool')" role="tab" aria-selected="true">도구</button>
+            <button class="mode-tab" id="tab-loop" onclick="switchMode('loop')" role="tab" aria-selected="false">루프</button>
         </div>
-        <div class="header-pages load-anim load-d6" id="pages-skill">
+        <div class="header-pages load-anim load-d6" id="pages-harness" style="display:none;">
+            <a href="harness-engineering.html" class="header-page-link"><span class="hpl-icon">🐴</span> 하네스 엔지니어링</a>
+            <a href="claude-tools.html" class="header-page-link"><span class="hpl-icon">🧰</span> 도구</a>
+            <a href="harness-workflows.html" class="header-page-link"><span class="hpl-icon">&#x1F465;</span> 멀티 에이전트 소환</a>
+        </div>
+        <div class="header-pages load-anim load-d6" id="pages-tool">
             <a href="claude-md-templates.html" class="header-page-link active"><span class="hpl-icon">📋</span> CLAUDE.md</a>
             <a href="skills.html" class="header-page-link"><span class="hpl-icon">🎨</span> 나만의 Skill 만들기</a>
             <a href="code-plugin.html" class="header-page-link"><span class="hpl-icon">🧩</span> 스킬·MCP 플러그인</a>
         </div>
-        <div class="header-pages load-anim load-d6" id="pages-design" style="display:none;">
-            <a href="harness-engineering.html" class="header-page-link"><span class="hpl-icon">🐴</span> 하네스 엔지니어링</a>
-            <a href="claude-tools.html" class="header-page-link"><span class="hpl-icon">🧰</span> 도구</a>
-            <a href="harness-workflows.html" class="header-page-link"><span class="hpl-icon">&#x1F465;</span> 멀티 에이전트 소환</a>
+        <div class="header-pages load-anim load-d6" id="pages-loop" style="display:none;">
+            <a href="loop-engineering.html" class="header-page-link"><span class="hpl-icon">🔁</span> 루프 엔지니어링</a>
+            <a href="routines.html" class="header-page-link"><span class="hpl-icon">⏰</span> Routines 예약 실행</a>
         </div>
     </header>
 
@@ -1260,10 +1268,14 @@ commit 메시지, AI 응답까지 모두 같은 기준으로 쓴다.
 
     <script>
         function switchMode(mode) {
-            document.getElementById('tab-skill').classList.toggle('active', mode === 'skill');
-            document.getElementById('tab-design').classList.toggle('active', mode === 'design');
-            document.getElementById('pages-skill').style.display = mode === 'skill' ? 'flex' : 'none';
-            document.getElementById('pages-design').style.display = mode === 'design' ? 'flex' : 'none';
+            document.querySelectorAll('.mode-tab').forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+            var active = document.getElementById('tab-' + mode);
+            active.classList.add('active');
+            active.setAttribute('aria-selected','true');
+            ['harness','tool','loop'].forEach(function(m){
+                var el = document.getElementById('pages-' + m);
+                if(el) el.style.display = (m === mode) ? 'flex' : 'none';
+            });
         }
 
         function copyTemplate(btn) {

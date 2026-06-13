@@ -75,7 +75,20 @@
 | `claude-tools.html` | 12분 | 중급 | 7개 | 도구 다섯 종류(내장·MCP·커넥터·스킬·플러그인). `harness-workflows.html` 골격 클론. MCP vs 커넥터를 깊게 다룬다. sub-menu 5섹션(도구란·다섯 종류의 도구·MCP와 커넥터·무엇을 고르나·연결하는 법). 다섯 종류는 번호 Pill 가로 5열 |
 | `harness-workflows.html` | 15분 | 고급 | 6개 | 멀티 에이전트 소환. `/goal` 한 줄로 목표를 선언하면 Claude가 에이전트 팀을 직접 설계해 끝까지 실행한다. sub-menu 6섹션(한 세션의 한계·/goal 선언·팀 설계·실전 사례·직접 해보기·FAQ). 본문에는 하네스/다이내믹 워크플로우를 개념어로 유지한다. `harness-engineering.html` 골격 클론 |
 
-자동화 실전(design) 헤더 내비는 3-menu다. `pages-design` 그룹은 `하네스 엔지니어링 · 도구 · 멀티 에이전트 소환` 3링크를 공유한다(`harness-engineering.html`, `claude-tools.html`, `harness-workflows.html`, `claude-md-templates.html`, `code-plugin.html`, `skills.html`). 순서는 하네스 엔지니어링 → 도구 → 멀티 에이전트 소환으로 고정한다. 페이지 제목과 내비 라벨은 `멀티 에이전트 소환`이고, 본문 안에서는 `다이내믹 워크플로우`를 하네스 한 벌을 가리키는 개념어로 계속 쓴다.
+자동화 5단계 8개 페이지는 헤더에 공통 3단 토글(`하네스 · 도구 · 루프`)을 단다. 토글은 `index.html` 자동화 섹션의 3묶음과 1:1로 맞춘다. 묶음·그룹 id·구성은 다음과 같다.
+
+| 토글 탭 | 그룹 id | 링크 (순서 고정) |
+|---|---|---|
+| 하네스 | `pages-harness` | 하네스 엔지니어링(`harness-engineering.html`) · 도구(`claude-tools.html`) · 멀티 에이전트 소환(`harness-workflows.html`) |
+| 도구 | `pages-tool` | CLAUDE.md(`claude-md-templates.html`) · 나만의 Skill 만들기(`skills.html`) · 스킬·MCP 플러그인(`code-plugin.html`) |
+| 루프 | `pages-loop` | 루프 엔지니어링(`loop-engineering.html`) · Routines 예약 실행(`routines.html`) |
+
+규칙:
+- 토글 순서는 하네스 → 도구 → 루프로 고정한다(index 트랙 순서와 동일).
+- 각 페이지는 자기 묶음의 탭을 기본 active로 두고, 해당 그룹만 표시한다(나머지 두 그룹은 `style="display:none;"`).
+- 탭은 `<button class="mode-tab" id="tab-{harness|tool|loop}" role="tab">`, `switchMode(mode)`는 `['harness','tool','loop']`를 순회하며 `tab-`/`pages-` 접두사로 토글한다(8개 페이지 공통).
+- `.mode-tab`은 `<button>`이라 `border:none; background:none; font-family:inherit` 리셋이 반드시 들어가야 한다(누락 시 브라우저 기본 회색 배경이 보인다).
+- 페이지 제목과 내비 라벨은 `멀티 에이전트 소환`이고, 본문 안에서는 `다이내믹 워크플로우`를 하네스 한 벌을 가리키는 개념어로 계속 쓴다.
 
 `agent-design.html`(팀 설계)은 2026-06-08에 인덱스와 전 페이지 내비·링크·키보드 핸들러에서 제거했다. 파일은 `backups/agent-design.html`로 옮겨 git 추적에서 뺐다(`backups/`는 gitignore 대상 로컬 아카이브). 되살리려면 파일을 루트로 되돌린 뒤 `pages-design` 내비, index 자동화 카드, `ai-levels.html` 로드맵, 키보드 `5` 핸들러를 함께 복원한다. 그 자리는 `claude-tools.html`이 대신한다.
 
