@@ -339,35 +339,6 @@
                 </section>
             </div>
 
-            <div class="about-license-section" id="aboutLicense">
-                <p class="about-eyebrow" style="margin-top:0;">LICENSE</p>
-                <h2 class="license-title" id="licenseTitle">저작권 안내 (Copyright Notice)</h2>
-                <div class="license-text">
-                    <p class="lic-meta">Copyright (c) 2026 AI ROASTING <span class="lic-author">(강정구 / jaydenjkang@gmail.com<button type="button" class="lic-copy" data-copy-text="jaydenjkang@gmail.com" aria-label="이메일 복사" title="이메일 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>)</span><br>v1.0 · 2026-03-01</p>
-                    <p class="lic-meta">본 가이드의 저작권은 작성자에게 있습니다. 인용된 Anthropic 콘텐츠와 사용된 외부 자산(Pretendard Variable, MIT/Apache 2.0 등 오픈소스 라이브러리)은 각 권리자에게 귀속되며 해당 라이선스가 적용됩니다.</p>
-
-                    <h3>1. 금지되는 행위</h3>
-                    <ul>
-                        <li>사전 서면 동의 없는 복제, 배포, 전송, 2차적 저작물 작성</li>
-                        <li>상업적 활용 (강의, 교육 자료, 출판, 컨설팅, 사내 교육 포함)</li>
-                        <li>저작권 표시·출처 정보의 제거나 변형</li>
-                        <li>기계학습·생성형 AI 모델의 학습 데이터로 수집·사용</li>
-                    </ul>
-
-                    <h3>2. 허용되는 사용</h3>
-                    <ul>
-                        <li>개인 학습 목적의 열람과 참고</li>
-                        <li>저작권법 제28조에 따른 정당한 인용 (출처 URL과 작성자 명시)</li>
-                    </ul>
-
-                    <h3>3. 사용 허가 신청</h3>
-                    <p class="lic-body">상업적 사용이나 2차적 저작물 작성을 원하시면 jaydenjkang@gmail.com으로 사용 목적·범위·기간을 명시해 신청해 주십시오. 서면 회신으로 명시적 승인을 받은 경우에만 허가가 인정됩니다.</p>
-
-                    <h3>4. 면책 및 준거법</h3>
-                    <p class="lic-body">본 콘텐츠는 있는 그대로(as-is) 제공되며, 사용으로 발생한 손해에 대해 작성자는 책임을 지지 않습니다. 본 약관은 대한민국법에 따라 해석되며, 사전 고지 후 변경될 수 있습니다.</p>
-                </div>
-            </div>
-
             <div class="about-changelog-section">
                 <p class="about-eyebrow" style="margin-top:0;">CHANGELOG</p>
                 <h2 class="license-title">업데이트 내역</h2>
@@ -434,6 +405,35 @@
                     </div>
                 </div>
                 <p class="license-footnote">매주 업데이트한 내용을 정리해서 버전을 업그레이드 하고 있습니다. 메이저(전체 표준화·방향 전환), 마이너(새 페이지·기능·큰 디자인 변경), 패치(작은 수정·문구 정리) 순으로 자릿수를 올립니다.</p>
+            </div>
+
+            <div class="about-license-section" id="aboutLicense">
+                <p class="about-eyebrow" style="margin-top:0;">LICENSE</p>
+                <h2 class="license-title" id="licenseTitle">저작권 안내 (Copyright Notice)</h2>
+                <div class="license-text">
+                    <p class="lic-meta">Copyright (c) 2026 AI ROASTING <span class="lic-author">(강정구 / jaydenjkang@gmail.com<button type="button" class="lic-copy" data-copy-text="jaydenjkang@gmail.com" aria-label="이메일 복사" title="이메일 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>)</span><br>v1.0 · 2026-03-01</p>
+                    <p class="lic-meta">본 가이드의 저작권은 작성자에게 있습니다. 인용된 Anthropic 콘텐츠와 사용된 외부 자산(Pretendard Variable, MIT/Apache 2.0 등 오픈소스 라이브러리)은 각 권리자에게 귀속되며 해당 라이선스가 적용됩니다.</p>
+
+                    <h3>1. 금지되는 행위</h3>
+                    <ul>
+                        <li>사전 서면 동의 없는 복제, 배포, 전송, 2차적 저작물 작성</li>
+                        <li>상업적 활용 (강의, 교육 자료, 출판, 컨설팅, 사내 교육 포함)</li>
+                        <li>저작권 표시·출처 정보의 제거나 변형</li>
+                        <li>기계학습·생성형 AI 모델의 학습 데이터로 수집·사용</li>
+                    </ul>
+
+                    <h3>2. 허용되는 사용</h3>
+                    <ul>
+                        <li>개인 학습 목적의 열람과 참고</li>
+                        <li>저작권법 제28조에 따른 정당한 인용 (출처 URL과 작성자 명시)</li>
+                    </ul>
+
+                    <h3>3. 사용 허가 신청</h3>
+                    <p class="lic-body">상업적 사용이나 2차적 저작물 작성을 원하시면 jaydenjkang@gmail.com으로 사용 목적·범위·기간을 명시해 신청해 주십시오. 서면 회신으로 명시적 승인을 받은 경우에만 허가가 인정됩니다.</p>
+
+                    <h3>4. 면책 및 준거법</h3>
+                    <p class="lic-body">본 콘텐츠는 있는 그대로(as-is) 제공되며, 사용으로 발생한 손해에 대해 작성자는 책임을 지지 않습니다. 본 약관은 대한민국법에 따라 해석되며, 사전 고지 후 변경될 수 있습니다.</p>
+                </div>
             </div>
         </div>
 
