@@ -27,7 +27,7 @@
 
 ---
 
-## 2. 페이지 인벤토리 (38개)
+## 2. 페이지 인벤토리 (39개)
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 
@@ -58,14 +58,17 @@
 | `cowork-intro.html` | 10분 | 입문 | 로컬 파일과 Gmail, Calendar, Drive 연결. `.hero-inner` 없음. `.header-pages`에 직접 max-width 490px 적용 |
 | `cowork.html` | 과제별 | 중급 | 실전 과제 8가지. `.hero-inner` 없음 동일 처리 |
 
-### 4단계 · 클로드 코드 (header-pages: 5개)
-| 페이지 | 시간 | 난이도 | 특성 |
-|---|---|---|---|
-| `claude-code-101.html` | 10분 | 입문 | 노코드 트랙 입구. Claude Desktop |
-| `claude-code-tasks.html` | 과제별 | 중급 | 바이브코딩 7단계 |
-| `github-guide.html` | 20분 | 중급 | GitHub과 Vercel 배포 |
-| `checklist.html` | 단계별 | 고급 | CLI 트랙 20단계 체크리스트 |
-| `cheatsheet.html` | 레퍼런스 | 참고 | 슬래시 명령어와 단축키 |
+### 4단계 · 클로드 코드 (header-pages: 노코드 3 + CLI 3 토글)
+헤더는 `노코드`/`CLI` 두 그룹을 `switchMode`로 토글한다(`pages-nocode` 3링크, `pages-cli` 3링크). 두 그룹 모두 3링크라 폭이 대칭이다. `claude-code-101.html`은 예외로, 표준 토글 헤더 대신 `track-toggle-btn` 방식의 커스텀 입구 헤더를 쓴다(`pages-cli` 그룹 없음).
+
+| 페이지 | 트랙 | 시간 | 난이도 | 특성 |
+|---|---|---|---|---|
+| `claude-code-101.html` | 노코드 | 10분 | 입문 | 노코드 트랙 입구. Claude Desktop. 커스텀 헤더(track-toggle-btn) |
+| `claude-code-tasks.html` | 노코드 | 과제별 | 중급 | 바이브코딩 7단계 |
+| `github-guide.html` | 노코드 | 20분 | 중급 | GitHub과 Vercel 배포 |
+| `checklist.html` | CLI | 단계별 | 고급 | CLI 트랙 20단계 체크리스트 |
+| `cheatsheet.html` | CLI | 레퍼런스 | 참고 | 슬래시 명령어와 단축키 |
+| `claude-code-best-practices.html` | CLI | 15분 | 고급 | 클로드 코드 베스트 프랙티스 9원칙. `cheatsheet.html` 골격 클론. code.claude.com/docs best-practices 한국어판(예시는 개발 코드가 아니라 비즈니스 리더·지식 노동자 사례로 번안: 매출 분석·제안서·대시보드·뉴스 브리핑 등). sub-menu 5섹션(컨텍스트 뿌리 + 3카테고리 + 체크리스트). 본문 9원칙을 3카테고리로 묶는다: `#basics` 기본기(원칙 1~3 검증·탐색계획·구체적지시), `#ops` 환경과 운영(4~6 환경설정·소통·세션관리), `#mastery` 숙련(7~9 자동화확장·실패패턴·직관). 각 카테고리는 `.content-section`(스크롤스파이 단위), 그 안에 `.cat-banner`(오렌지 그라데이션 배너)+`.principle` 9개. 원칙 한 줄은 `.tip`, 본문은 `.nm-card`(산문·Before/After 표 `td.ba-before/.ba-after`·`.code-example`). 끝에 `#checklist` 섹션(9원칙 한 줄 점검, `.bp-check` 체크박스 9개, 진행바, localStorage 키 `ccbp-checklist` 저장) + `.next-links`(하네스·루프 크로스링크). 키보드 `5`→`claude-tools.html` |
 
 ### 5단계 · 자동화 (8개)
 세 묶음(하네스·도구·루프)으로 나뉜다. 8개 페이지는 헤더에 공통 3단 토글을 달고, sub-menu는 모두 6섹션이다.
@@ -144,7 +147,7 @@
 
 ### 3.1 콘텐츠 영역 사이즈 (`.container`)
 
-모든 콘텐츠 페이지(29개)는 공통 규격을 따른다 (commit 97f4331에서 통일).
+모든 콘텐츠 페이지(30개)는 공통 규격을 따른다 (commit 97f4331에서 통일).
 
 ```css
 .container {
@@ -223,7 +226,7 @@
 원칙: 햄버거는 사이트 공통의 단일 패턴이다. 페이지별로 다르게 만들지 않는다.
 
 적용 범위:
-- 29개 콘텐츠 페이지 전부에 동일한 코드가 들어 있다.
+- 30개 콘텐츠 페이지 전부에 동일한 코드가 들어 있다.
 - 마커 주석으로 구역을 명확히 한다. `<!-- ## SM-HAMBURGER START ## -->`와 `<!-- ## SM-HAMBURGER END ## -->` 사이만 수정하거나 교체한다.
 
 브레이크포인트와 동작 전환:
@@ -276,7 +279,7 @@ JS 동작 (단일 IIFE, 외부 의존 없음):
 유지보수 규칙:
 - 햄버거 블록은 사이트 공통 자산이다. 한 페이지에서 수정하면 전 페이지에 동일하게 반영해야 한다.
 - 페이지가 `nav.sub-menu`를 가지지 않으면(일부 레퍼런스 페이지) 드로어 리스트가 비어 보일 수 있다. 그 페이지에서도 sub-menu 골격은 유지하는 것을 권장한다.
-- 드로어 폭(320px), 버튼 위치(top 14, right 14), 브레이크포인트(768px)는 변경하지 않는다. 바꾸려면 29개 전체를 일괄 수정해야 한다.
+- 드로어 폭(320px), 버튼 위치(top 14, right 14), 브레이크포인트(768px)는 변경하지 않는다. 바꾸려면 30개 전체를 일괄 수정해야 한다.
 
 ### 3.4 중간 분기 (`≤1160px`, 비-모바일 축소)
 - `.header-page-link`의 폰트는 12px, padding은 8px 14px, border-radius는 12px로 줄어든다.
