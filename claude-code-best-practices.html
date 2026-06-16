@@ -961,6 +961,18 @@
             content: ''; position: absolute; top: 44px; left: 0; right: 0;
             height: 1px; background: rgba(255,255,255,0.07);
         }
+        /* 코드블록 복사 버튼 */
+        .code-copy {
+            position: absolute; top: 10px; right: 14px; z-index: 2;
+            border: none; cursor: pointer; font-family: inherit;
+            font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.65);
+            background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 8px;
+            display: inline-flex; align-items: center; gap: 5px;
+            transition: background 0.18s, color 0.18s;
+        }
+        .code-copy:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .code-copy:active { transform: translateY(1px); }
+        .code-copy.copied { background: rgba(39,201,63,0.25); color: #b6f0c0; }
 
         /* 서브메뉴 활성 표식 + 부드러운 전환 */
         .sub-menu a { position: relative; transition: background 0.2s; }
@@ -1511,6 +1523,37 @@ function switchMode(mode) {
                 });
             }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
             targets.forEach(function(t){ io.observe(t); });
+        })();
+
+        // ── 코드블록 복사 버튼 ──
+        (function(){
+            var fallbackCopy = function(text){
+                var ta = document.createElement('textarea');
+                ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta); ta.focus(); ta.select();
+                try { document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(ta);
+            };
+            document.querySelectorAll('.code-example').forEach(function(block){
+                var code = block.querySelector('code');
+                if (!code) return;
+                var btn = document.createElement('button');
+                btn.type = 'button'; btn.className = 'code-copy'; btn.textContent = '복사';
+                btn.setAttribute('aria-label', '프롬프트 복사');
+                btn.addEventListener('click', function(){
+                    var text = code.textContent.split('\n')
+                        .map(function(line){ return line.replace(/^\s*>\s?/, ''); })
+                        .join('\n').trim();
+                    var done = function(){
+                        btn.textContent = '복사됨'; btn.classList.add('copied');
+                        setTimeout(function(){ btn.textContent = '복사'; btn.classList.remove('copied'); }, 1500);
+                    };
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(done, function(){ fallbackCopy(text); done(); });
+                    } else { fallbackCopy(text); done(); }
+                });
+                block.insertBefore(btn, block.firstChild);
+            });
         })();
     </script>
 <script>
