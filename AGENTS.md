@@ -58,8 +58,8 @@
 | `cowork-intro.html` | 10분 | 입문 | 로컬 파일과 Gmail, Calendar, Drive 연결. `.hero-inner` 없음. `.header-pages`에 직접 max-width 490px 적용 |
 | `cowork.html` | 과제별 | 중급 | 실전 과제 8가지. `.hero-inner` 없음 동일 처리 |
 
-### 4단계 · 클로드 코드 (header-pages: 노코드 3 + CLI 3 토글)
-헤더는 `노코드`/`CLI` 두 그룹을 `switchMode`로 토글한다(`pages-nocode` 3링크, `pages-cli` 3링크). 두 그룹 모두 3링크라 폭이 대칭이다. `claude-code-101.html`은 예외로, 표준 토글 헤더 대신 `track-toggle-btn` 방식의 커스텀 입구 헤더를 쓴다(`pages-cli` 그룹 없음).
+### 4단계 · 클로드 코드 (header-pages: 노코드 3 + CLI 2 + 비법 1, 3탭 토글)
+헤더는 `노코드`/`CLI`/`비법` 세 그룹을 `switchMode`로 토글한다(`pages-nocode` 3링크, `pages-cli` 2링크, `pages-tip` 1링크). `switchMode`는 `['nocode','cli','tip']` 3-way이고 표준 토글 5개 페이지(`claude-code-tasks`·`github-guide`·`checklist`·`cheatsheet`·`claude-code-best-practices`)가 공유한다. `claude-code-best-practices.html`만 `비법` 탭이 기본 active다. `claude-code-101.html`은 예외로, 표준 토글 헤더 대신 `track-toggle-btn` 방식의 커스텀 입구 헤더를 쓴다(`비법` 버튼 포함, `pages-*` 그룹 없음).
 
 | 페이지 | 트랙 | 시간 | 난이도 | 특성 |
 |---|---|---|---|---|
