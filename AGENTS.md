@@ -37,12 +37,14 @@
 | `claude-orientation.html` | 5분 | 입문 | 2-menu 기준 페이지. `.hero-inner` 700px + `.header-pages` 70% (=490px) |
 | `ai-levels.html` | 5분 | 입문 | 자율주행 1~5단계 비유. 헤더에 별도 배지 없이 h1과 p, header-pages만 있다 |
 
-### 1단계 · 기본기 (header-pages: 3개)
-| 페이지 | 시간 | 난이도 | 특성 |
-|---|---|---|---|
-| `ai-fluency.html` | 10분 | 입문 | 3-menu 기준 페이지. Anthropic 9,830건 대화 분석. 데스크톱 h1과 모바일 h1이 다르다 (`.t-desktop` / `.t-mobile`) |
-| `project-intro.html` | 20분 | 입문 | 프로젝트 셋업, 시스템 프롬프트 |
-| `multi-persona.html` | 10분 | 중급 | 5인 페르소나 토론 (5-Color Harness와 연결) |
+### 1단계 · 기본기 + 검증 (header-pages: 기본기/검증 2탭 토글, 5개 페이지)
+2026-06-19에 1단계를 한 섹션 안 두 묶음으로 재구성했다(5단계 자동화 스타일). 인덱스 1단계 섹션은 `🌱 기본기`(track-label, 3카드: `ai-fluency`·`project-intro`·`multi-persona`) + `🔍 검증`(track-label, 2카드: `ai-sycophancy`·`ai-hallucination`)을 담고, 이 섹션은 진단과 2단계 사이에 둔다. 5개 페이지는 모두 헤더에 `기본기 | 검증` 2탭 토글을 단다(`mode-tabs` + `switchMode(['basic','verify'])`, `pages-basic` 3링크 / `pages-verify` 2링크, `.header-pages` 700px). 기본기 페이지는 `tab-basic` 기본 active, 검증 페이지는 `tab-verify` 기본 active. track-label 배지 색은 `.basic #3a7a5a`·`.verify #B35535`. 검증 2페이지 상세는 아래 `검증 묶음` 표 참고.
+
+| 페이지 | 묶음 | 시간 | 난이도 | 특성 |
+|---|---|---|---|---|
+| `ai-fluency.html` | 기본기 | 10분 | 입문 | 3-menu 기준 페이지. Anthropic 9,830건 대화 분석. 데스크톱 h1과 모바일 h1이 다르다 (`.t-desktop` / `.t-mobile`) |
+| `project-intro.html` | 기본기 | 20분 | 입문 | 프로젝트 셋업, 시스템 프롬프트 |
+| `multi-persona.html` | 기본기 | 10분 | 중급 | 5인 페르소나 토론 (5-Color Harness와 연결) |
 
 ### 2단계 · 디자인·플러그인 (header-pages: 2개)
 | 페이지 | 시간 | 난이도 | 특성 |
@@ -121,10 +123,10 @@
 | `license-compare.html` | 필요할 때 | 참고 | 오픈소스 라이선스 5종. 상단에 제약 수위 신호등 모델(초록 MIT·Apache / 노랑 LGPL / 빨강 GPL·AGPL). sub-menu 5섹션(신호등·비교표·허용적·카피레프트·선택 가이드) |
 | `glossary.html` | 필요할 때 | 참고 | AI 용어 사전 68선(6막 구성). 6막 하네스·운영에 `피지컬 AI` 추가 |
 
-2026-06-13에 `security-guide.html`을 백과사전에서 빼서 아래 `보안·법률` 섹션으로 옮겼다. 그래서 백과사전은 3-menu(700px)로 내렸다. 같은 날 섹션 이름을 `하네스 엔지니어링 백과사전`에서 `AI 백과사전`으로 바꿨다. 2026-06-18에 인덱스에서 `디자인·시각화 갤러리` 섹션을 `AI 백과사전` 섹션 위로 올렸다(쇼케이스 → 갤러리 → 백과사전 → 보안·법률 → 검증 순).
+2026-06-13에 `security-guide.html`을 백과사전에서 빼서 아래 `보안·법률` 섹션으로 옮겼다. 그래서 백과사전은 3-menu(700px)로 내렸다. 같은 날 섹션 이름을 `하네스 엔지니어링 백과사전`에서 `AI 백과사전`으로 바꿨다. 2026-06-18에 인덱스에서 `디자인·시각화 갤러리` 섹션을 `AI 백과사전` 섹션 위로 올렸다. 2026-06-19에 인덱스 `AI 제대로 검증하기` 섹션을 1단계 안 검증 묶음으로 옮기고, `AI 백과사전`을 맨 하단으로 내렸다(하단 순서: 후기 → 쇼케이스 → 갤러리 → 보안·법률 → AI 백과사전).
 
-### 보안·법률 (header-pages: 3개)
-2026-06-18에 `ai-hallucination.html`을 추가하면서 트랙이 2-menu(490px)→3-menu(700px)로 승격됐다. 처음엔 세 페이지(`ai-hallucination`·`security-guide`·`ai-basic-law`)가 3링크 내비(`환각 줄이기`·`보안 가이드`·`인공지능기본법`)를 공유했다. 같은 날 인덱스 `보안·법률` 섹션 카드는 2개(`security-guide`·`ai-basic-law`)로 줄였고, `ai-hallucination` 카드는 맨 하단 `AI 제대로 검증하기` 섹션으로 옮겼다. 이어서 `ai-hallucination`의 header-pages를 2링크(`동조 줄이기`·`환각 줄이기`, 490px)로 바꿔 `ai-sycophancy`와 짝지었다. 그래서 `security-guide`·`ai-basic-law`는 아직 3링크 내비를 갖고 있고 그 안의 `환각 줄이기` 링크는 단방향으로 남아 있다(추후 두 페이지를 2링크 `보안 가이드`·`인공지능기본법`로 정리 후보).
+### 보안·법률 (header-pages: 2개)
+2026-06-18에 `ai-hallucination.html`을 추가하면서 트랙이 한때 3-menu(700px)로 올라갔다가, 2026-06-19에 다시 2-menu(490px)로 정리됐다. 현재 `security-guide`·`ai-basic-law` 두 페이지가 2링크 내비(`보안 가이드`·`인공지능기본법`, 490px)를 공유한다. `ai-hallucination`은 1단계 검증 묶음으로 옮겨 `기본기 | 검증` 토글을 쓰므로, 보안·법률 두 페이지 내비에서 `환각 줄이기` 링크를 빼 단방향 참조를 없앴다.
 
 | 페이지 | 시간 | 난이도 | 특성 |
 |---|---|---|---|
@@ -132,13 +134,13 @@
 | `security-guide.html` | 필요할 때 | 참고 | 비개발자용 AI 협업 보안. overview 표 + 5섹션 + 판례. sub-menu 7개. 끝 CTA는 `ai-basic-law.html`로 크로스링크 |
 | `ai-basic-law.html` | 필요할 때 | 참고 | 인공지능기본법 안내. 히스토리 타임라인 + 주요국 비교 + 의무 주체 3분류 + 5대 의무 표 + 고영향 카드 하단 법 제2조 제4호 원문(가~차) 블록 + FAQ 17문 + 자가점검·참고자료(지원데스크 + 사례집 직접 링크 2개). sub-menu 7개. `security-guide.html` 골격 클론. 끝 CTA는 `security-guide.html`로 크로스링크. 출처는 과기정통부·KOSA 지원데스크 사례집과 가이드라인. 유권해석 아닌 참고 자료임을 본문에 명시 |
 
-### AI 제대로 검증하기 (인덱스 맨 하단 섹션, section-num `검증`/`#B35535`)
-2026-06-18 신설. 인덱스 맨 하단에 둔 2카드 섹션이다(id `section-verify`). `AI가 그럴듯하게 동의하거나 지어낼 때, 답을 그대로 믿지 않고 검증하는 법`이라는 한 주제로 동조와 환각을 묶었다. 두 카드는 평범한 `.card`(골드 그라데이션·실전 태그 없음)다. `ai-hallucination.html` 카드는 옛 `보안·법률`에서, `ai-sycophancy.html` 카드는 옛 `실전 예제 · 글 다듬기`에서 이 섹션으로 모았다.
+### 검증 묶음 (1단계 안 `🔍 검증` track-label, 카드 배지 색 `#B35535`)
+2026-06-18 신설(옛 인덱스 맨 하단 `AI 제대로 검증하기` 섹션). 2026-06-19에 1단계 안 두 번째 묶음(`🔍 검증`)으로 흡수했다. `AI가 그럴듯하게 동의하거나 지어낼 때, 답을 그대로 믿지 않고 검증하는 법`이라는 한 주제로 동조와 환각을 묶었다. 인덱스 카드 2장은 평범한 `.card`(왼쪽 띠지 없음, 시간·난이도 배지 있음: 동조 8분 입문 / 환각 12분 중급)다. 두 페이지 모두 헤더에 `기본기 | 검증` 토글을 달고 `tab-verify` 기본 active다.
 
 | 페이지 | 시간 | 난이도 | 특성 |
 |---|---|---|---|
-| `ai-sycophancy.html` | 8분 | 입문 | AI의 동조(sycophancy)를 줄이는 법(옛 `ai-skepticism.html`, 2026-06-18 개명·전면 재작성). `news-clipping` 골격 클론, header-pages 2링크는 `ai-hallucination.html`과 짝(동조 줄이기·환각 줄이기, 490px). 공개 연구 5건 인용(Anthropic 2310.13548 · DeepMind 2308.03958 · SycEval 2502.08177 · ELEPHANT 2505.13995 · OpenAI GPT-4o 2025.4 롤백). sub-menu 6섹션(한눈에·동조란·왜 생기나·줄이는 법·점검표·참고자료. STEP4 `Claude로` 크로스링크 섹션은 2026-06-18 삭제). 동조 두 유형(진보/퇴행·사회적), 원인(RLHF·스케일·단기 피드백), 줄이는 법 5(결론 숨기기·비판 허락·점수·"다시"·역할 분리), 점검표 5(키워드+한 줄·경어), 참고자료 ref-link 5(읽는 법 박스 삭제). SycEval 수치(58.19%·퇴행 14.66%·지속 78.5%)를 본문에 인용. 왼쪽 띠지(h2·tip-box border-left) 제거 [[no-left-color-bar-cliche]] |
-| `ai-hallucination.html` | 필요할 때 | 참고 | 위 `보안·법률` 표 참고. 페이지는 보안·법률 3링크 트랙에 그대로 남고, 인덱스 카드만 이 섹션에 둔다 |
+| `ai-sycophancy.html` | 8분 | 입문 | AI의 동조(sycophancy)를 줄이는 법(옛 `ai-skepticism.html`, 2026-06-18 개명·전면 재작성). `news-clipping` 골격 클론. 2026-06-19 헤더를 `기본기 | 검증` 2탭 토글로 교체(pages-basic 3링크 / pages-verify 2링크, 700px, `tab-verify` 기본 active). 공개 연구 5건 인용(Anthropic 2310.13548 · DeepMind 2308.03958 · SycEval 2502.08177 · ELEPHANT 2505.13995 · OpenAI GPT-4o 2025.4 롤백). sub-menu 6섹션(한눈에·동조란·왜 생기나·줄이는 법·점검표·참고자료. STEP4 `Claude로` 크로스링크 섹션은 2026-06-18 삭제). 동조 두 유형(진보/퇴행·사회적), 원인(RLHF·스케일·단기 피드백), 줄이는 법 5(결론 숨기기·비판 허락·점수·"다시"·역할 분리), 점검표 5(키워드+한 줄·경어), 참고자료 ref-link 5(읽는 법 박스 삭제). SycEval 수치(58.19%·퇴행 14.66%·지속 78.5%)를 본문에 인용. 왼쪽 띠지(h2·tip-box border-left) 제거 [[no-left-color-bar-cliche]] |
+| `ai-hallucination.html` | 12분 | 중급 | 본문 상세는 위 `보안·법률` 표 행 참고. 2026-06-19 헤더를 `기본기 | 검증` 토글로 교체(`tab-verify` 기본 active)하고 보안·법률 트랙에서 검증 묶음으로 옮겼다. 인덱스 카드도 1단계 검증 묶음에 둔다 |
 
 ### 디자인·시각화 갤러리 (header-pages: 3개)
 | 페이지 | 시간 | 난이도 | 특성 |
