@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>스위스 크로노그래프</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%231a2540' stroke='%23d4af37' stroke-width='8'/><line x1='50' y1='50' x2='50' y2='16' stroke='%23d4af37' stroke-width='3'/></svg>" />
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:Georgia,'Times New Roman',serif;
+    background:radial-gradient(circle at 50% 34%,#1b1c20 0%,#0e0f12 60%,#060607 100%);
+    display:flex;align-items:center;justify-content:center;padding:10px}
+  .watch{position:relative;width:300px;height:300px;display:flex;align-items:center;justify-content:center}
+  /* 푸셔 3개 */
+  .pusher{position:absolute;right:-2px;width:22px;height:30px;z-index:1;border-radius:5px 7px 7px 5px;
+    background:linear-gradient(180deg,#f3e3a4 0%,#d4af37 42%,#9c7c22 78%,#caa83a 100%);
+    box-shadow:2px 2px 5px rgba(0,0,0,.6),inset 0 2px 2px rgba(255,255,255,.6),inset 0 -2px 3px rgba(0,0,0,.4)}
+  .p1{top:78px}.p3{bottom:78px}
+  .p2{top:50%;transform:translateY(-50%);height:42px;width:18px;
+    background:repeating-linear-gradient(90deg,#d4af37 0 2px,#9c7c22 2px 4px)}
+  /* 골드 베젤 */
+  .bezel{position:relative;width:268px;height:268px;border-radius:50%;
+    background:conic-gradient(from 90deg,#9c7c22,#f6e9b0,#caa83a,#fff3c4,#a8861f,#f0dd9a,#8f7019,#e7cf7e,#9c7c22);
+    padding:16px;box-shadow:0 18px 38px rgba(0,0,0,.65),inset 0 3px 5px rgba(255,255,255,.7),inset 0 -5px 10px rgba(0,0,0,.55)}
+  .bezel::before{content:"";position:absolute;inset:9px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),inset 0 0 14px rgba(0,0,0,.5)}
+  .dial{position:relative;width:100%;height:100%;border-radius:50%;overflow:hidden;
+    background:radial-gradient(circle at 50% 40%,#27355c 0%,#1a2340 55%,#10162b 100%);
+    box-shadow:inset 0 6px 20px rgba(0,0,0,.7)}
+  .dial::after{content:"";position:absolute;inset:0;border-radius:50%;
+    background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.025) 0deg 1deg,transparent 1deg 2deg)}
+  .ticks{position:absolute;inset:0}
+  .brand{position:absolute;left:0;right:0;top:30%;text-align:center;z-index:2;color:#d8c98e}
+  .brand .b1{font-size:13px;letter-spacing:5px;text-indent:5px}
+  .brand .b2{font-size:9px;font-style:italic;letter-spacing:1px;color:#b9a460;margin-top:1px}
+  .made{position:absolute;left:0;right:0;bottom:22%;text-align:center;z-index:2;
+    font-size:7.5px;letter-spacing:3px;color:#8f7d4a;text-indent:3px}
+  .digi{position:absolute;left:0;right:0;top:54%;text-align:center;z-index:3;
+    font-family:"Courier New",monospace;font-weight:700;font-variant-numeric:tabular-nums;
+    font-size:25px;letter-spacing:3px;color:#f4ecd2;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+  .digi .cs{font-size:15px;color:#c9b06a}
+  .hand{position:absolute;left:50%;top:50%;width:2px;height:118px;z-index:2;
+    background:linear-gradient(#f6e9b0,#d4af37 70%,#9c7c22);transform-origin:50% 92px;
+    transform:translate(-50%,-92px) rotate(0deg);border-radius:2px;box-shadow:0 0 5px rgba(212,175,55,.4)}
+  .hand::after{content:"";position:absolute;left:50%;bottom:-26px;width:2px;height:26px;background:#d4af37;transform:translateX(-50%)}
+  .pin{position:absolute;left:50%;top:50%;width:9px;height:9px;border-radius:50%;z-index:4;transform:translate(-50%,-50%);
+    background:radial-gradient(circle at 38% 32%,#fff3c4,#d4af37 60%,#9c7c22)}
+  .hit{position:absolute;right:-8px;width:42px;height:46px;z-index:6;cursor:pointer;
+    background:transparent;border:none;padding:0;margin:0;pointer-events:auto}
+  .h1{top:66px}.h2{top:50%;transform:translateY(-50%);height:56px}.h3{bottom:66px}
+  .hit:focus-visible{outline:2px solid #f6e9b0;outline-offset:2px;border-radius:6px}
+  .hint{position:absolute;left:0;right:0;bottom:1px;text-align:center;font-family:Arial,sans-serif;
+    font-size:8.5px;letter-spacing:.5px;color:#6b5e3a}
+</style>
+</head>
+<body>
+  <div class="watch">
+    <span class="pusher p1" aria-hidden="true"></span>
+    <span class="pusher p2" aria-hidden="true"></span>
+    <span class="pusher p3" aria-hidden="true"></span>
+    <div class="bezel">
+      <div class="dial">
+        <svg class="ticks" viewBox="0 0 240 240" id="ticks" aria-hidden="true"></svg>
+        <div class="brand"><div class="b1">CHRONOGRAPHE</div><div class="b2">Gen&egrave;ve</div></div>
+        <div class="digi"><span id="t">00:00<span class="cs">.00</span></span></div>
+        <div class="made">SWISS MADE</div>
+        <div class="hand" id="hand"></div>
+        <div class="pin"></div>
+      </div>
+    </div>
+    <button class="hit h1" id="b1" aria-label="시작 / 정지"></button>
+    <button class="hit h2" id="b3" aria-label="리셋"></button>
+    <button class="hit h3" id="b2" aria-label="랩"></button>
+    <div class="hint" id="hint">위 버튼 시작 · 가운데 리셋 · 아래 랩</div>
+  </div>
+<script>
+(function(){
+  var ns="http://www.w3.org/2000/svg",svg=document.getElementById('ticks');
+  for(var i=0;i<60;i++){var a=i*6*Math.PI/180,maj=(i%5===0),r1=maj?98:104,r2=112,l=document.createElementNS(ns,'line');
+    l.setAttribute('x1',(120+r1*Math.sin(a)).toFixed(1));l.setAttribute('y1',(120-r1*Math.cos(a)).toFixed(1));
+    l.setAttribute('x2',(120+r2*Math.sin(a)).toFixed(1));l.setAttribute('y2',(120-r2*Math.cos(a)).toFixed(1));
+    l.setAttribute('stroke',maj?'#d4af37':'rgba(212,175,55,.4)');l.setAttribute('stroke-width',maj?2.4:1);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
+  var t=document.getElementById('t'),hand=document.getElementById('hand'),hint=document.getElementById('hint'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,stt=0,acc=0,iv=null,laps=[];
+  function el(){return acc+(run?performance.now()-stt:0);}
+  function parts(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);return[mm,ss,cc];}
+  function pad(n){return String(n).padStart(2,'0');}
+  function f(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1])+'<span class="cs">.'+pad(p[2])+'</span>';}
+  function plain(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1])+'.'+pad(p[2]);}
+  function draw(){var e=el();t.innerHTML=f(e);hand.style.transform='translate(-50%,-92px) rotate('+((e/1000)%60*6)+'deg)';}
+  function ui(){
+    hint.textContent=run?'위 버튼 정지 · 아래 랩':(el()>0?'위 재개 · 가운데 리셋':'위 버튼 시작 · 가운데 리셋 · 아래 랩');
+  }
+  function start(){run=true;stt=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;stt=0;laps=[];draw();ui();}
+  function lap(){if(!run)return;laps.push(el());hint.textContent='LAP '+laps.length+' · '+plain(laps[laps.length-1]);}
+  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

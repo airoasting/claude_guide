@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>바이오랩 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23eaf1fb'/><path d='M44 22h12v20l16 30a6 6 0 0 1-5 9H33a6 6 0 0 1-5-9l16-30z' fill='none' stroke='%232f6fd6' stroke-width='6'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Pretendard',"Helvetica Neue",Arial,sans-serif;
+    background:linear-gradient(150deg,#eef2f8 0%,#e4ebf5 100%);
+    display:flex;align-items:center;justify-content:center;padding:10px;color:#1f2937}
+  .card{width:296px;background:#fff;border-radius:18px;padding:14px 15px 13px;
+    box-shadow:0 16px 36px rgba(40,70,120,.16),0 2px 6px rgba(40,70,120,.08)}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;letter-spacing:1px;color:#2c3a4f}
+  .ico{width:26px;height:26px;border-radius:8px;background:#e8f0fc;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .pill{font-size:10px;font-weight:800;letter-spacing:.5px;padding:5px 10px;border-radius:20px;
+    background:#eef1f4;color:#7a8696;display:flex;align-items:center;gap:5px}
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:#aeb7c2}
+  .pill.run{background:#e7f6ee;color:#2e9e62}.pill.run::before{background:#2e9e62}
+  .stats{display:flex;background:#f5f7fa;border-radius:12px;padding:9px 6px;margin-bottom:10px}
+  .stat{flex:1;text-align:center;position:relative}
+  .stat+.stat::before{content:"";position:absolute;left:0;top:14%;height:72%;width:1px;background:#e2e7ee}
+  .stat .k{font-size:10px;color:#9aa4b1;font-weight:600;margin-bottom:3px}
+  .stat .v{font-size:15px;font-weight:800;color:#2c3a4f;font-variant-numeric:tabular-nums}
+  .clock{background:#f6f8fb;border-radius:14px;padding:11px 14px 12px;text-align:center;margin-bottom:10px}
+  .clab{font-size:10px;letter-spacing:2px;color:#9aa4b1;font-weight:700;margin-bottom:3px}
+  .time{font-weight:800;font-variant-numeric:tabular-nums;color:#1a2230;font-size:37px;line-height:1;letter-spacing:1px}
+  .time .cs{font-size:19px;color:#aab3bf}
+  .bar{height:6px;border-radius:6px;background:#e4e9f0;margin-top:9px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#3f8ddb,#56c08a);transition:width .25s}
+  .lhead{display:flex;justify-content:space-between;font-size:10px;color:#9aa4b1;font-weight:700;padding:0 2px 4px}
+  .laps{height:58px;overflow:hidden}
+  .lap{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #eef1f5;font-size:12px}
+  .lap .no{color:#aab3bf;font-weight:700;width:24px;font-variant-numeric:tabular-nums}
+  .lap .tag{flex:1;border-radius:8px;padding:5px 10px;font-weight:700;font-size:12px;display:flex;align-items:center;gap:6px}
+  .lap .tg{font-variant-numeric:tabular-nums;font-weight:800;color:#374151;font-size:12px}
+  .tag.pip{background:#eaf2fc;color:#2f6fd6}.tag.bkr{background:#e9f6ee;color:#2e9e62}
+  .empty{font-size:11.5px;color:#b6bfca;text-align:center;padding:18px 0}
+  .row{display:flex;gap:8px;margin-top:9px}
+  button{flex:1;font-family:inherit;font-weight:800;font-size:12px;letter-spacing:.5px;padding:10px 0;
+    border:none;border-radius:11px;cursor:pointer;transition:transform .06s,filter .15s}
+  button:active{transform:translateY(1px)}
+  #b1{background:#2f6fd6;color:#fff}#b1.run{background:#e05a4d}
+  #b2{background:#e9f6ee;color:#2e9e62}#b3{background:#eef1f4;color:#7a8696}
+  button:disabled{opacity:.45;cursor:default}
+  button:focus-visible{outline:2px solid #2f6fd6;outline-offset:2px}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+      <div class="brand"><span class="ico">🧪</span>BIO-LAB</div>
+      <div class="pill" id="pill">READY</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">실험 ID</div><div class="v">EXP-001</div></div>
+      <div class="stat"><div class="k">파이펫</div><div class="v" id="np">0</div></div>
+      <div class="stat"><div class="k">비커</div><div class="v" id="nb">0</div></div>
+    </div>
+    <div class="clock">
+      <div class="clab">ELAPSED TIME</div>
+      <div class="time"><span id="t">00:00<span class="cs">.00</span></span></div>
+      <div class="bar"><i id="bar"></i></div>
+    </div>
+    <div class="lhead"><span>NO. &nbsp;작업</span><span>기록</span></div>
+    <div class="laps" id="laps"><div class="empty">LAP 버튼으로 작업 기록을 남겨보세요</div></div>
+    <div class="row">
+      <button id="b2" disabled>＋ 작업 기록</button>
+      <button id="b1">시작</button>
+      <button id="b3" disabled>리셋</button>
+    </div>
+  </div>
+<script>
+(function(){
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),
+      lapsEl=document.getElementById('laps'),pill=document.getElementById('pill'),bar=document.getElementById('bar'),
+      np=document.getElementById('np'),nb=document.getElementById('nb');
+  var run=false,st=0,acc=0,iv=null,laps=[];
+  function el(){return acc+(run?performance.now()-st:0);}
+  function parts(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);return[mm,ss,cc];}
+  function pad(n){return String(n).padStart(2,'0');}
+  function f(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1])+'<span class="cs">.'+pad(p[2])+'</span>';}
+  function plain(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1])+'.'+pad(p[2]);}
+  function draw(){var e=el();t.innerHTML=f(e);bar.style.width=Math.min(100,(e/1000)%100/100*100)+'%';}
+  function counts(){var p=0,b=0;laps.forEach(function(l){l.kind==='pip'?p++:b++;});np.textContent=p;nb.textContent=b;}
+  function renderLaps(){
+    if(!laps.length){lapsEl.innerHTML='<div class="empty">LAP 버튼으로 작업 기록을 남겨보세요</div>';return;}
+    var h='';for(var i=laps.length-1;i>=0;i--){var l=laps[i];
+      h+='<div class="lap"><span class="no">#'+(i+1)+'</span><span class="tag '+l.kind+'">'+
+         (l.kind==='pip'?'💧 파이펫':'🧫 비커')+'</span><span class="tg">'+plain(l.ms)+'</span></div>';}
+    lapsEl.innerHTML=h;
+  }
+  function setPill(){pill.textContent=run?'RUNNING':(el()>0?'PAUSED':'READY');pill.classList.toggle('run',run);}
+  function ui(){b1.textContent=run?'일시정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;setPill();}
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];draw();ui();renderLaps();counts();bar.style.width='0';}
+  function lap(){if(!run)return;laps.push({ms:el(),kind:laps.length%2===0?'bkr':'pip'});renderLaps();counts();}
+  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

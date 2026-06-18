@@ -27,7 +27,7 @@
 
 ---
 
-## 2. 페이지 인벤토리 (39개)
+## 2. 페이지 인벤토리 (40개)
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 
@@ -122,10 +122,13 @@
 
 2026-06-13에 `security-guide.html`을 백과사전에서 빼서 아래 `보안·법률` 섹션으로 옮겼다. 그래서 백과사전은 3-menu(700px)로 내렸다. 같은 날 섹션 이름을 `하네스 엔지니어링 백과사전`에서 `AI 백과사전`으로 바꿨다.
 
-### 보안·법률 (header-pages: 2개)
+### 보안·법률 (header-pages: 3개)
+2026-06-18에 `ai-hallucination.html`을 이 섹션 첫 카드로 추가하면서 트랙이 2-menu(490px)→3-menu(700px)로 승격됐다. 세 페이지(`ai-hallucination`·`security-guide`·`ai-basic-law`)는 동일한 3링크 내비(`환각 줄이기`·`보안 가이드`·`인공지능기본법`)를 공유한다.
+
 | 페이지 | 시간 | 난이도 | 특성 |
 |---|---|---|---|
-| `security-guide.html` | 필요할 때 | 참고 | 비개발자용 AI 협업 보안. overview 표 + 5섹션 + 판례. sub-menu 7개. 2-menu(490px). 끝 CTA는 `ai-basic-law.html`로 크로스링크 |
+| `ai-hallucination.html` | 필요할 때 | 참고 | AI 환각을 벗어나는 법. `ai-basic-law.html` 골격 클론. 사건 케이스(빅4 가짜 각주: EY 27개 중 16개·KPMG 45개 중 5개 정확·법정 판례 1,450건+, GPTZero 조사)를 거울 삼아 실전 검증법으로 전개. sub-menu 7섹션(한눈에·무슨 일이·왜 생기나·벗어나는 법·Claude로·점검표·참고자료). 환각 4유형 overview 표, case-ledger 3건(kind-fail·kind-spread 신규), 원인 2층(모델·조직), 5가지 습관(topic-card+예시), Claude 연결(웹검색·검증프롬프트·`multi-persona.html`·`claude-tools.html`·`harness-workflows.html` 크로스링크), 납품 전 check-list 8개. 끝 CTA는 `security-guide.html`로 크로스링크. 공개 보도 기반 참고 자료임 명시 |
+| `security-guide.html` | 필요할 때 | 참고 | 비개발자용 AI 협업 보안. overview 표 + 5섹션 + 판례. sub-menu 7개. 끝 CTA는 `ai-basic-law.html`로 크로스링크 |
 | `ai-basic-law.html` | 필요할 때 | 참고 | 인공지능기본법 안내. 히스토리 타임라인 + 주요국 비교 + 의무 주체 3분류 + 5대 의무 표 + 고영향 카드 하단 법 제2조 제4호 원문(가~차) 블록 + FAQ 17문 + 자가점검·참고자료(지원데스크 + 사례집 직접 링크 2개). sub-menu 7개. `security-guide.html` 골격 클론. 끝 CTA는 `security-guide.html`로 크로스링크. 출처는 과기정통부·KOSA 지원데스크 사례집과 가이드라인. 유권해석 아닌 참고 자료임을 본문에 명시 |
 
 ### 디자인·시각화 갤러리 (header-pages: 3개)
@@ -147,7 +150,7 @@
 
 ### 3.1 콘텐츠 영역 사이즈 (`.container`)
 
-모든 콘텐츠 페이지(30개)는 공통 규격을 따른다 (commit 97f4331에서 통일).
+모든 콘텐츠 페이지(31개)는 공통 규격을 따른다 (commit 97f4331에서 29개 통일, 이후 증가).
 
 ```css
 .container {
@@ -170,8 +173,8 @@
 
 | 메뉴 수 | 기준 페이지 | `.header-pages` max-width | 각 버튼 폭 | 총합 |
 |---|---|---|---|---|
-| 2개 | `claude-orientation.html`, 보안·법률 트랙(`security-guide`·`ai-basic-law`) | 490px | 약 238px | 490px |
-| 3개 | `ai-fluency.html`, 백과사전 트랙(`file-types`·`license-compare`·`glossary`) | 700px | 약 224px | 700px |
+| 2개 | `claude-orientation.html` | 490px | 약 238px | 490px |
+| 3개 | `ai-fluency.html`, 백과사전 트랙(`file-types`·`license-compare`·`glossary`), 보안·법률 트랙(`ai-hallucination`·`security-guide`·`ai-basic-law`) | 700px | 약 224px | 700px |
 | 4개 | 실전 예제 트랙 공통 | 940px | 약 217px | 940px |
 | 5개 | 미정 | 미정 | 미정 | 미정 |
 | 7개 | 미정 | 미정 | 미정 | 미정 |
@@ -226,7 +229,7 @@
 원칙: 햄버거는 사이트 공통의 단일 패턴이다. 페이지별로 다르게 만들지 않는다.
 
 적용 범위:
-- 30개 콘텐츠 페이지 전부에 동일한 코드가 들어 있다.
+- 31개 콘텐츠 페이지 전부에 동일한 코드가 들어 있다.
 - 마커 주석으로 구역을 명확히 한다. `<!-- ## SM-HAMBURGER START ## -->`와 `<!-- ## SM-HAMBURGER END ## -->` 사이만 수정하거나 교체한다.
 
 브레이크포인트와 동작 전환:

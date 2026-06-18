@@ -6,6 +6,15 @@
 
 ## 최근 세션 변경 로그
 
+### 2026-06-18
+
+| # | 명령 | 범위 | 결과 |
+|---|---|---|---|
+| 4 | `ai-hallucination.html` maily.so 출처 제거 + 1차 출처로 교체 + 딜로이트 사건 추가 + 자신 없는 표현 삭제 | `ai-hallucination.html`, `MEMORY.md` | 사용자 4건. ① maily.so 링크 전부 제거(s6 ref 1개). ② s6 참고자료를 1차 출처로 재구성(GPTZero EY·GPTZero KPMG·Financial Times·Fortune 딜로이트·Damien Charlotin 판례 DB 5개). ③ 딜로이트 case-entry 신설(KPMG와 산업전반 사이): Fortune(2025.11) 확인해 캐나다 뉴펀들랜드래브라도 주정부 보건 보고서 약 160만 달러·526쪽·존재하지 않는 학술 논문/가짜 공저자, 호주 보고서 부분 환불, kind-fail `가짜 인용`, 출처 Fortune. case-entry 3→4(EY·KPMG·Deloitte·산업전반, `빅4 중 3곳` 타이틀과 일치). ④ note-box의 `사건의 세부 수치는 보도 시점 기준이며 이후 정정될 수 있습니다`(자신 없는 표현) 삭제, `모든 수치에 1차 출처를 달았습니다…직접 확인할 수 있습니다`로 단정 교체. 검증: maily 0(href·텍스트), 자신없는 문구 0, case 4·ref 5·딜로이트 출처 href, em dash 0, 콘솔 0, 딜로이트 카드 렌더 캡처 |
+| 3 | `ai-hallucination.html` 사건 카드 하단에 1차 출처 명시 + 참고자료 보강 | `ai-hallucination.html`, `MEMORY.md` | 사용자 "이거 하단에 출처 명확히 달아줘"(케이스 카드 가리킴). 환각 페이지 특성상 검증 안 된 URL 금지 원칙으로 원문(maily.so) 재확인해 1차 출처 추출. `.case-source` 컴포넌트 신설(점선 상단 보더·오렌지 `출처` 라벨·밑줄 링크·`.cs-sep`). 각 case-entry 하단에 추가: EY=GPTZero EY 조사, KPMG=GPTZero KPMG+Financial Times+TechCrunch, 산업전반=Canadian Lawyer(설리번)+Fortune(NeurIPS)+Damien Charlotin 판례 DB. s6 참고자료의 GPTZero 홈 링크를 EY 조사 페이지로 교체하고 판례 DB(ref 2→3) 추가. 검증: case-source 3개·링크 href 정확, ref 3개, em dash 0, 콘솔 0, 데스크톱 렌더 캡처. 연도 정정(사용자 "2026으로 정정" 선택): 출처 보도일 기준으로 EY·KPMG case-month 2025→2026, 산업 전반 2025→`2025~26`(Deloitte 2025.11 포함), lead `2025년`→`2026년`. 단 법정 판례 통계 `90%가 2025년에 몰렸습니다`는 사건 발생 시점이라 2025 유지(Damien Charlotin DB). 렌더 확인 완료 |
+| 2 | `ai-hallucination.html` 본문 한국어 윤문(korean 스킬) | `ai-hallucination.html`, `MEMORY.md` | 사용자 "em dash 빼고 자연스러운 한국어로, 주술 구조 맞추어서". BLACK 외과 교정 9곳(의미·숫자·고유명사 100% 보존): 주술 깨짐 `신뢰를 파는 회사들이 신뢰를 깎였습니다`→`정작 신뢰를 잃었습니다`, 어색 주술 `막는 쪽은 사람의 절차입니다`→`막아 내는 일은 사람의 절차에 달려 있습니다`, 번역투 `404를 반환하거나`→`404로 뜨거나`(case+표 2곳), 주어 모호 `무더기로 무너졌습니다`→`거짓이 무더기로 드러났습니다`, 딱딱한 `중복·모순되게 제시하는`→`여러 곳에서 서로 다르게 적어 놓은`, 종결 미완 fact-desc 3곳 완결(`…가짜.`→`…가짜였습니다`), topic-eg 평어 2곳 경어로 통일(말투 이탈 해소, 인용 프롬프트 반말은 보존). 검증: em dash 0·당신 0·content-section 7, 콘솔 0, 렌더 innerText에서 교정 반영 확인 |
+| 1 | 보안·법률 섹션 첫 카드로 `ai-hallucination.html`(AI의 환각을 벗어나는 법) 신설 | `ai-hallucination.html`(신규), `index.html`, `security-guide.html`, `ai-basic-law.html`, `AGENTS.md`, `MEMORY.md` | 사용자 `/goal`(maily.so 빅4 가짜 각주 글 기반, 인덱스 맨 하단 섹션 첫 카드, 10점). 브레인스토밍으로 각도 확정(실전 기법 + Claude 연결). ① `ai-basic-law.html` 골격 클론(CSS·hero-video·SM-HAMBURGER·about-modal·스크롤스파이·reveal 그대로). meta/canonical/og·title 갱신, h1 `AI의 환각을 벗어나는 법`. sub-menu 7섹션(한눈에·무슨 일이·왜 생기나·벗어나는 법·Claude로·점검표·참고자료). 본문: 환각 4유형 overview 표, fact-row 3(EY 27중16·KPMG 45중5·판례 1,450건+), case-ledger 3건(EY·KPMG·산업확산, `.kind-fail`#c0392b·`.kind-spread`#8a5a2b 신규), 원인 2층(모델 3+조직 3 topic-card), 벗어나는 5가지 습관(topic-card+예시), Claude 연결 4카드(`.topic-link` 신규, `claude-tools`·`multi-persona`·`harness-workflows` 크로스링크), 납품 전 check-list 8개, ref 2개(원문·GPTZero). 끝 CTA→`security-guide.html`. ② 섹션 2-menu(490px)→3-menu(700px) 승격: `ai-hallucination`·`security-guide`·`ai-basic-law` 3링크 내비(`환각 줄이기`·`보안 가이드`·`인공지능기본법`) 공유, 세 파일 `.header-pages` max-width 490→700. ③ index 보안·법률 섹션 첫 카드로 추가(🧭·참고), 카드 2→3이라 인라인 `grid-template-columns:1fr 1fr` 제거(기본 `.cards` 3열). ④ AGENTS 인벤토리 39→40·콘텐츠 30→31, 보안·법률 섹션(2개→3개)·§3.2 폭 표(보안·법률을 2개행→3개행) 갱신. 검증: em dash 0·"당신" 0, content-section 7·sub-menu 7 정합, `<main>` 1쌍, 콘솔 0, 크로스링크 5개 파일 실재, 데스크톱 헤더·3-menu·lead·fact 렌더 스샷, 모바일 375px 오버플로 0(docW=375)·햄버거 노출·sub-menu 숨김·header-pages 세로 스택·드로어 7항목 복제(heading `환각 줄이기`), index 섹션 3카드 첫 카드 환각. 스샷은 스크롤 상태에서 상단 고정 글리치(DOM eval 병행 확인) |
+
 ### 2026-06-17
 
 | # | 명령 | 범위 | 결과 |
@@ -149,7 +158,7 @@
 | 메뉴 수 | 기준 페이지 | 통일 완료 | 상태 |
 |---|---|---|---|
 | 2개 | `claude-orientation.html` | `ai-levels.html`, `cowork-intro.html`, `cowork.html` | ✅ 4/4 |
-| 3개 | `ai-fluency.html` | 13개 페이지 전체 | ✅ 13/13 |
+| 3개 | `ai-fluency.html` | 13개 페이지 + 보안·법률 트랙 3개(`ai-hallucination`·`security-guide`·`ai-basic-law`, 2026-06-18 승격) | ✅ 16/16 |
 | 5개 | 미정 | 없음 | ⏸ 미착수 |
 | 7개 | 미정 | 없음 | ⏸ 미착수 |
 | 9개 | 미정 | 없음 | ⏸ 미착수 |

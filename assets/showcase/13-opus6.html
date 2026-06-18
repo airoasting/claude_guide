@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Opus 6.0 대기 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23080706'/><circle cx='50' cy='50' r='34' fill='none' stroke='%23d9b25a' stroke-width='6'/><path d='M50 30v22l15 9' fill='none' stroke='%23d9b25a' stroke-width='6' stroke-linecap='round'/></svg>" />
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:"Courier New",monospace;
+    background:radial-gradient(circle at 50% 36%,#161310 0%,#0b0907 60%,#050403 100%);
+    display:flex;align-items:center;justify-content:center;padding:8px;color:#d9b25a;overflow:hidden}
+  .stars{position:fixed;inset:0;pointer-events:none}
+  .stars i{position:absolute;width:2px;height:2px;border-radius:50%;background:#caa85a;opacity:.5}
+  .wrap{position:relative;z-index:2;text-align:center;width:288px}
+  .eyebrow{font-size:9.5px;letter-spacing:3px;color:#8a7340;font-weight:700}
+  .eyebrow::before{content:"\231B  "}
+  .head{font-size:20px;font-weight:800;letter-spacing:1px;line-height:1.12;margin:5px 0 3px;
+    color:#e9c873;text-shadow:0 0 14px rgba(217,178,90,.4)}
+  .sub{font-size:10.5px;font-style:italic;color:#73643f;letter-spacing:.5px}
+  .clock{position:relative;width:148px;height:148px;margin:9px auto 5px}
+  .clock svg{position:absolute;inset:0}
+  .face{position:absolute;inset:8px;border-radius:50%;border:1px solid rgba(217,178,90,.18);
+    box-shadow:inset 0 0 30px rgba(217,178,90,.06)}
+  .hand{position:absolute;left:50%;top:50%;width:2px;height:54px;background:linear-gradient(#e9c873,#8a6f30);
+    transform-origin:50% 100%;transform:translate(-50%,-100%) rotate(0deg);border-radius:2px;
+    box-shadow:0 0 6px rgba(217,178,90,.5)}
+  .dot{position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;background:#e9c873;transform:translate(-50%,-50%);z-index:3}
+  .cd{position:absolute;left:0;right:0;top:50%;transform:translateY(-64%);z-index:2}
+  .time{font-weight:800;font-variant-numeric:tabular-nums;font-size:33px;letter-spacing:2px;color:#f0d488;
+    text-shadow:0 0 12px rgba(217,178,90,.45)}
+  .cs{display:block;font-size:14px;color:#b79653;margin-top:1px}
+  .units{font-size:7.5px;letter-spacing:1px;color:#7a663c;margin-top:6px;white-space:nowrap}
+  .laps{position:absolute;left:0;right:0;bottom:15px;z-index:2;pointer-events:none;
+    font-size:8.5px;line-height:1.5;letter-spacing:.5px;color:rgba(233,200,115,.82);font-variant-numeric:tabular-nums}
+  .laps b{color:#8a7340;font-weight:700;margin-right:3px}
+  .ready{font-size:10px;letter-spacing:1.5px;color:#8a7340;font-weight:700;margin-top:5px}
+  .ready::before{content:"\25CF ";color:#c9a14b}
+  .ready.run{color:#d9b25a}.ready.run::before{color:#e9c873}
+  .row{display:flex;gap:15px;justify-content:center;margin-top:9px}
+  button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(217,178,90,.35);cursor:pointer;
+    background:rgba(217,178,90,.06);color:#d9b25a;display:flex;align-items:center;justify-content:center;
+    transition:transform .08s,background .15s,filter .15s}
+  button svg{width:18px;height:18px;fill:currentColor}
+  button:active{transform:scale(.92)}
+  #b1{width:56px;height:56px;background:radial-gradient(circle at 40% 32%,#e9c873,#b98e30);border-color:#e9c873;color:#1a1308}
+  #b1 svg{width:23px;height:23px}
+  button:disabled{opacity:.35;cursor:default}
+  button:focus-visible{outline:2px solid #e9c873;outline-offset:3px}
+</style>
+</head>
+<body>
+  <div class="stars" id="stars" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="eyebrow">TIME ELAPSED SINCE WE STARTED</div>
+    <div class="head">WAITING FOR<br>CLAUDE OPUS 6.0</div>
+    <div class="sub">...it will be worth it. probably.</div>
+    <div class="clock">
+      <svg viewBox="0 0 172 172" id="ticks" aria-hidden="true"></svg>
+      <div class="face"></div>
+      <div class="cd">
+        <div class="time"><span id="t">00:00</span><span class="cs" id="cs">.00</span></div>
+        <div class="units">HOURS · MINUTES · SECONDS</div>
+      </div>
+      <div class="hand" id="hand"></div>
+      <div class="dot"></div>
+      <div class="laps" id="laps"></div>
+    </div>
+    <div class="ready" id="ready">READY TO SUFFER</div>
+    <div class="row">
+      <button id="b2" disabled aria-label="랩"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm1-13h-2v6l5 3 1-1.7-4-2.3z"/></svg></button>
+      <button id="b1" aria-label="시작/정지"><svg id="i1" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+      <button id="b3" disabled aria-label="리셋"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg></button>
+    </div>
+  </div>
+<script>
+(function(){
+  var t=document.getElementById('t'),cs=document.getElementById('cs'),hand=document.getElementById('hand'),
+      ready=document.getElementById('ready'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),i1=document.getElementById('i1'),stars=document.getElementById('stars'),lapsEl=document.getElementById('laps');
+  var seed=11;function rnd(){seed=(seed*9301+49297)%233280;return seed/233280;}
+  for(var i=0;i<40;i++){var s=document.createElement('i');s.style.left=(rnd()*100).toFixed(1)+'%';s.style.top=(rnd()*100).toFixed(1)+'%';s.style.opacity=(0.2+rnd()*0.5).toFixed(2);stars.appendChild(s);}
+  // 눈금
+  var ns="http://www.w3.org/2000/svg",svg=document.getElementById('ticks');
+  for(var k=0;k<60;k++){var a=k*6*Math.PI/180,maj=(k%5===0),r1=maj?70:74,r2=80,l=document.createElementNS(ns,'line');
+    l.setAttribute('x1',(86+r1*Math.sin(a)).toFixed(1));l.setAttribute('y1',(86-r1*Math.cos(a)).toFixed(1));
+    l.setAttribute('x2',(86+r2*Math.sin(a)).toFixed(1));l.setAttribute('y2',(86-r2*Math.cos(a)).toFixed(1));
+    l.setAttribute('stroke',maj?'rgba(217,178,90,.55)':'rgba(217,178,90,.22)');l.setAttribute('stroke-width',maj?2:1);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
+  var PLAY='<path d="M8 5v14l11-7z"/>',PAUSE='<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
+  var run=false,stt=0,acc=0,iv=null,laps=[];
+  function el(){return acc+(run?performance.now()-stt:0);}
+  function parts(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);return[mm,ss,cc];}
+  function pad(n){return String(n).padStart(2,'0');}
+  function plain(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1])+'.'+pad(p[2]);}
+  function draw(){var e=el(),p=parts(e);t.textContent=pad(p[0])+':'+pad(p[1]);cs.textContent='.'+pad(p[2]);
+    hand.style.transform='translate(-50%,-100%) rotate('+((e/1000)%60*6)+'deg)';}
+  function renderLaps(){var h='';for(var i=laps.length-1;i>=Math.max(0,laps.length-2);i--){h+='<b>L'+(i+1)+'</b>'+plain(laps[i])+'<br>';}lapsEl.innerHTML=h;}
+  function ui(){i1.innerHTML=run?PAUSE:PLAY;b2.disabled=!run;b3.disabled=run||el()===0;
+    ready.textContent=run?(laps.length?'STILL WAITING.'+'.'.repeat(laps.length%3+1):'SUFFERING...'):(el()>0?'STILL WAITING':'READY TO SUFFER');ready.classList.toggle('run',run);}
+  function start(){run=true;stt=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;stt=0;laps=[];lapsEl.innerHTML='';draw();ui();}
+  function lap(){if(!run)return;laps.push(el());renderLaps();ui();}
+  b1.onclick=function(){run?stop():start();};b3.onclick=reset;
+  b2.onclick=lap;
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

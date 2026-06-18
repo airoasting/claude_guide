@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>레트로 게임기 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='18' y='10' width='64' height='80' rx='10' fill='%23c0392b'/><rect x='30' y='24' width='40' height='30' fill='%23f0ede4'/></svg>" />
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:"Courier New",monospace;
+    background:radial-gradient(circle at 50% 30%,#2a0d08 0%,#160604 60%,#0a0302 100%);
+    display:flex;align-items:center;justify-content:center;padding:10px;color:#2a2a2a}
+  .gb{width:262px;background:linear-gradient(160deg,#d8443a 0%,#c0392b 45%,#9c2b20 100%);
+    border-radius:16px 16px 26px 26px;padding:12px 12px 14px;
+    box-shadow:0 14px 30px rgba(0,0,0,.6),inset 0 2px 2px rgba(255,255,255,.25),inset 0 -4px 8px rgba(0,0,0,.35)}
+
+  /* 픽셀 화면 */
+  .screen{background:#1a1612;border:5px solid #1a1612;border-radius:8px;overflow:hidden;
+    box-shadow:inset 0 0 0 2px #3a342c}
+  .scene{position:relative;height:84px;background:linear-gradient(#8fcf6e 0%,#8fcf6e 62%,#d9c184 62%,#cdb277 100%);
+    image-rendering:pixelated;overflow:hidden}
+  .px{position:absolute;image-rendering:pixelated}
+  .roof{background:#b1402f}.wall{background:#efe6cf}.door{background:#7a4a22}
+  .tree{background:#3f7a36}.trunk{background:#6b4a25}.win{background:#9fd0ef}
+  .scene::after{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(transparent 0 3px,rgba(0,0,0,.05) 3px 4px);pointer-events:none}
+
+  /* LCD 스탑워치 */
+  .lcd{background:#efece2;padding:9px 12px 11px}
+  .lcd-top{font-size:9px;font-weight:700;letter-spacing:2px;color:#6a6155;margin-bottom:2px}
+  .lcd-top::before{content:"\25B6 ";color:#c0392b}
+  .time{font-weight:800;font-variant-numeric:tabular-nums;color:#2c2722;text-align:center;
+    font-size:30px;letter-spacing:1px;line-height:1.1;
+    text-shadow:1px 1px 0 #cfc8ba,2px 2px 0 #bdb5a4}
+  .time .cs{font-size:17px;color:#7a7064}
+  .laprec{height:24px;margin-top:3px;font-size:9px;color:#857b6d;text-align:center;letter-spacing:.5px;line-height:1.4;overflow:hidden}
+  .laprec b{color:#c0392b}
+  .row{display:flex;gap:7px;justify-content:center;margin-top:8px}
+  button{flex:1;font-family:inherit;font-weight:800;font-size:11px;letter-spacing:1px;color:#fff;
+    padding:8px 0;border:none;border-radius:5px;cursor:pointer;
+    box-shadow:0 3px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.4);transition:transform .06s,filter .15s}
+  button:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+  #b2{background:#2f56c0}#b1{background:#c0392b}#b1.run{background:#1f9d57}#b3{background:#7f7468}
+  button:disabled{filter:grayscale(.6) brightness(.8);cursor:default}
+  button:focus-visible{outline:2px solid #1a1612;outline-offset:2px}
+
+  /* 컨트롤 패드 */
+  .pad{display:flex;align-items:center;justify-content:space-between;margin-top:11px;padding:0 4px}
+  .dpad{position:relative;width:40px;height:40px}
+  .dpad i{position:absolute;background:#5a1812;border-radius:3px;box-shadow:inset 0 1px 1px rgba(255,255,255,.15)}
+  .dpad .v{left:14px;top:2px;width:12px;height:36px}
+  .dpad .h{left:2px;top:14px;width:36px;height:12px}
+  .ab{display:flex;gap:9px}
+  .ab b{width:24px;height:24px;border-radius:50%;background:#7a1f16;color:#f0d0c8;
+    display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;
+    box-shadow:inset 0 -2px 3px rgba(0,0,0,.4),0 1px 1px rgba(255,255,255,.2)}
+  .start{display:flex;gap:5px;margin-top:9px;justify-content:center}
+  .start i{width:24px;height:5px;border-radius:3px;background:#6f1d14;transform:rotate(-20deg)}
+</style>
+</head>
+<body>
+  <div class="gb">
+    <div class="screen">
+      <div class="scene" aria-hidden="true">
+        <span class="px tree" style="left:6px;top:6px;width:14px;height:14px"></span>
+        <span class="px trunk" style="left:11px;top:20px;width:4px;height:8px"></span>
+        <span class="px roof" style="left:30px;top:18px;width:46px;height:13px"></span>
+        <span class="px wall" style="left:30px;top:31px;width:46px;height:22px"></span>
+        <span class="px win" style="left:36px;top:37px;width:9px;height:9px"></span>
+        <span class="px door" style="left:58px;top:42px;width:9px;height:11px"></span>
+        <span class="px roof" style="left:92px;top:18px;width:46px;height:13px"></span>
+        <span class="px wall" style="left:92px;top:31px;width:46px;height:22px"></span>
+        <span class="px win" style="left:98px;top:37px;width:9px;height:9px"></span>
+        <span class="px door" style="left:120px;top:42px;width:9px;height:11px"></span>
+        <span class="px tree" style="left:152px;top:8px;width:16px;height:16px"></span>
+        <span class="px trunk" style="left:158px;top:24px;width:4px;height:7px"></span>
+        <span class="px tree" style="left:176px;top:4px;width:14px;height:14px"></span>
+        <span class="px trunk" style="left:181px;top:18px;width:4px;height:8px"></span>
+      </div>
+      <div class="lcd">
+        <div class="lcd-top">STOP WATCH</div>
+        <div class="time"><span id="t">00:00:00<span class="cs">.00</span></span></div>
+        <div class="laprec" id="laps">아직 기록 없음...</div>
+        <div class="row">
+          <button id="b2" disabled>LAP</button>
+          <button id="b1">START</button>
+          <button id="b3" disabled>RESET</button>
+        </div>
+      </div>
+    </div>
+    <div class="pad" aria-hidden="true">
+      <span class="dpad"><i class="v"></i><i class="h"></i></span>
+      <span class="ab"><b>B</b><b>A</b></span>
+    </div>
+    <div class="start" aria-hidden="true"><i></i><i></i></div>
+  </div>
+<script>
+(function(){
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lapsEl=document.getElementById('laps');
+  var run=false,st=0,acc=0,iv=null,laps=[];
+  function el(){return acc+(run?performance.now()-st:0);}
+  function parts(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);return [hh,mm,ss,cc];}
+  function pad(n){return String(n).padStart(2,'0');}
+  function f(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1])+':'+pad(p[2])+'<span class="cs">.'+pad(p[3])+'</span>';}
+  function plain(ms){var p=parts(ms);return pad(p[1])+':'+pad(p[2])+'.'+pad(p[3]);}
+  function draw(){t.innerHTML=f(el());}
+  function renderLaps(){if(!laps.length){lapsEl.innerHTML='아직 기록 없음...';return;}var h='';for(var i=laps.length-1;i>=Math.max(0,laps.length-2);i--){h+='<b>LAP '+(i+1)+'</b> '+plain(laps[i])+'<br>';}lapsEl.innerHTML=h;}
+  function ui(){b1.textContent=run?'STOP':(el()>0?'GO':'START');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];draw();ui();renderLaps();}
+  function lap(){if(!run)return;laps.push(el());renderLaps();}
+  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>
