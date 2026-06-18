@@ -45,6 +45,7 @@
             --c-gold:   #8F6809;
             --c-purple: #7B3FA0;
             --c-white:  #6A6A7A;
+            --c-blue:   #2E6FB0;
         }
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -130,7 +131,25 @@
         .section-block { scroll-margin-top: 148px; }
         .chapter-divider { scroll-margin-top: 124px; }
 
-        .header-pages { max-width: 100%;
+        .mode-tabs {
+            display: inline-flex; gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px; padding: 4px; margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px; font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px; border-radius: 20px;
+            cursor: pointer; transition: all 0.2s; user-select: none;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18); color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+        .header-pages { max-width: 700px;
             margin-left: auto;
             margin-right: auto;
             display: flex; justify-content: center; gap: 14px; margin-top: 22px; position: relative; z-index: 1; }
@@ -239,6 +258,20 @@
         .compare-result { font-size: 13.5px; color: var(--t2); line-height: 1.68; }
         .compare-result strong { color: var(--t1); }
         .compare-result .highlight { color: var(--orange); font-weight: 700; }
+
+        /* Prompt box with copy button */
+        .prompt-wrap { position: relative; margin-bottom: 12px; }
+        .prompt-wrap .compare-prompt { padding-top: 42px; margin-bottom: 0; }
+        .copy-btn {
+            position: absolute; top: 10px; right: 10px; z-index: 2;
+            font-family: inherit; font-size: 11.5px; font-weight: 600;
+            color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(255,255,255,0.20); border-radius: 8px;
+            padding: 5px 12px; cursor: pointer;
+            transition: background 0.18s, color 0.18s, border-color 0.18s;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.20); }
+        .copy-btn.copied { background: var(--orange); color: #fff; border-color: var(--orange); }
 
         /* ═══════════════════════════════
            5 PERSONAS
@@ -398,18 +431,19 @@
         .dialogue-intro strong { color: var(--t1); }
         .dialogue-list { display: flex; flex-direction: column; gap: 12px; }
         .dialogue-item {
-            display: flex; gap: 14px; align-items: flex-start;
+            display: flex; gap: 14px; align-items: center;
         }
         .d-badge {
             min-width: 52px; height: 28px; border-radius: 100px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 11px; font-weight: 800; flex-shrink: 0; margin-top: 2px;
+            font-size: 11px; font-weight: 800; flex-shrink: 0;
         }
         .d-black  { background: rgba(42,42,42,0.09); color: var(--c-black); }
         .d-red    { background: rgba(201,48,48,0.09); color: var(--c-red); }
         .d-gold   { background: rgba(196,146,12,0.10); color: var(--c-gold); }
         .d-purple { background: rgba(123,63,160,0.09); color: var(--c-purple); }
         .d-white  { background: rgba(106,106,122,0.08); color: var(--c-white); }
+        .d-blue   { background: rgba(46,111,176,0.10); color: var(--c-blue); }
         .dialogue-item p { font-size: 13.5px; color: var(--t2); line-height: 1.65; }
         .dialogue-item p strong { color: var(--t1); font-weight: 700; }
         .d-score {
@@ -1041,118 +1075,61 @@
         <a class="back-link" href="index.html">← 목록으로</a>
         <h1>멀티 페르소나 토론</h1>
         <p class="hero-sub">그냥 물으면 일반 답변,<br>전문가 팀에게 물어보면 검증된 결론이 나옵니다</p>
-        <div class="header-pages">
+        <div class="mode-tabs">
+            <span class="mode-tab active" id="tab-basic" onclick="switchMode('basic')">기본기</span>
+            <span class="mode-tab" id="tab-verify" onclick="switchMode('verify')">검증</span>
+        </div>
+        <div class="header-pages" id="pages-basic">
             <a href="ai-fluency.html" class="header-page-link"><span class="hpl-icon">📊</span> 프롬프트 잘 쓰는 법</a>
             <a href="project-intro.html" class="header-page-link"><span class="hpl-icon">📁</span> 프로젝트 만들기</a>
             <a href="multi-persona.html" class="header-page-link active"><span class="hpl-icon">👥</span> 멀티 페르소나</a>
+        </div>
+        <div class="header-pages" id="pages-verify" style="display:none;">
+            <a href="ai-sycophancy.html" class="header-page-link"><span class="hpl-icon">&#x1F9D0;</span> 동조 줄이기</a>
+            <a href="ai-hallucination.html" class="header-page-link"><span class="hpl-icon">&#x1F9ED;</span> 환각 줄이기</a>
         </div>
     </div>
 </header>
 
 <!-- STICKY SUB-MENU -->
 <nav class="sub-menu" id="subMenu">
-    <a href="#cd-1" class="active" data-sec="sec-0" data-secs="cd-1,sec-0,sec-1">
+    <a href="#cd-2" class="active" data-sec="sec-ref" data-secs="cd-2,sec-ref">
         <span class="sm-num">1</span>
-        <span class="sm-title">비교 & 실전</span>
-    </a>
-    <a href="#cd-2" data-sec="sec-ref" data-secs="cd-2,sec-ref">
-        <span class="sm-num">2</span>
         <span class="sm-title">원리</span>
+    </a>
+    <a href="#cd-1" data-sec="sec-0" data-secs="cd-1,sec-0,sec-1">
+        <span class="sm-num">2</span>
+        <span class="sm-title">비교 & 실전</span>
     </a>
     <a href="#cd-poem" data-sec="sec-poem" data-secs="cd-poem,sec-poem">
         <span class="sm-num">3</span>
         <span class="sm-title">시 쓰기 실습</span>
     </a>
-    <a href="#cd-3b" data-sec="sec-2" data-secs="cd-3b,sec-2,sec-3">
+    <a href="#cd-eval" data-sec="sec-eval" data-secs="cd-eval,sec-eval">
         <span class="sm-num">4</span>
+        <span class="sm-title">평가하기</span>
+    </a>
+    <a href="#cd-3b" data-sec="sec-2" data-secs="cd-3b,sec-2,sec-3">
+        <span class="sm-num">5</span>
         <span class="sm-title">토론 설계</span>
     </a>
     <a href="#cd-3" data-sec="sec-5" data-secs="cd-3,sec-5">
-        <span class="sm-num">5</span>
+        <span class="sm-num">6</span>
         <span class="sm-title">팀 구성</span>
     </a>
     <a href="#cd-4" data-sec="sec-6" data-secs="cd-4,sec-6">
-        <span class="sm-num">6</span>
+        <span class="sm-num">7</span>
         <span class="sm-title">프로젝트 지침</span>
     </a>
     <a href="#cd-5" data-sec="sec-7" data-secs="cd-5,sec-7">
-        <span class="sm-num">7</span>
+        <span class="sm-num">8</span>
         <span class="sm-title">활용 팁</span>
     </a>
 </nav>
 
 <main class="container">
 
-    <!-- Step 1 -->
-    <div class="chapter-divider" id="cd-1">
-        <span class="chapter-badge">비교 & 실전 예시</span>
-    </div>
-
-    <!-- ─── 1. Before / After ─── -->
-    <div class="section-block" id="sec-0">
-        <div class="section-hd">
-            <h2>같은 질문, 완전히 다른 결과</h2>
-            <p class="section-sub">팀장 + 팀원 구성만 추가하면 답변의 깊이가 달라집니다</p>
-        </div>
-
-        <div class="compare-grid">
-            <div class="compare-card before">
-                <span class="compare-tag">Before 혼자 물어보기</span>
-                <h3>단일 질문</h3>
-                <div class="compare-prompt">"이번 분기 사업 현황 보고서, 어떻게 하면 더 좋아질까?"</div>
-                <div class="compare-result">
-                    <strong>한 관점의 일반적 피드백: 누가 써도 나올 수 있는 답변</strong><br><br>
-                    결과:<br>
-                    · 핵심 지표를 앞에 배치하면 좋겠다<br>
-                    · 근거 데이터를 보강하면 좋겠다
-                </div>
-            </div>
-            <div class="compare-card after">
-                <span class="compare-tag">After 멀티 페르소나 토론</span>
-                <h3>역할 팀 구성 + 토론</h3>
-                <div class="compare-prompt">너희는 사업 현황 보고서를 검토하는 3인 전문가 팀이다.<br><br>블랙 (팀장 / 전략기획): 논리 흐름과 핵심 메시지 일관성<br>골드 (15년차 현장 리더, 실행 가능성 체크): 현장에서 바로 실행가능한지 체크<br>퍼플 (경영진 전략 비서): 경영진이 30초 안에 설득되는지<br><br>@all, 이번 분기 사업 현황 보고서를 10점 만점으로 평가하고 개선점 제안해줘. 이후 블랙이 의견을 종합해 최종 개선안을 정리해줘.</div>
-                <div class="compare-result">
-                    <strong>전문가 관점의 교차 검증: 검증된 구체적 개선안 도출</strong><br><br>
-                    결과:<br>
-                    · 블랙: "결론이 마지막 페이지에 묻혀 있다"<br>
-                    · 골드: "현장 팀장이 뭘 해야 하는지 안 보인다"<br>
-                    · 퍼플: "제목에 So What이 없다"
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ─── 2. 실전 대화 예시 ─── -->
-    <div class="section-block" id="sec-1">
-        <div class="section-hd">
-            <h2>실제로 이렇게 나옵니다</h2>
-            <p class="section-sub">@all, 이번 분기 사업 현황 보고서를 10점 만점으로 평가해줘</p>
-        </div>
-
-        <div class="dialogue-box">
-            <div class="dialogue-intro">사업 현황 보고서를 검토하는 3인 팀: 블랙(전략기획), 골드(현장 팀장), 퍼플(경영진 전략 비서)이 각자 관점에서 평가하고 개선 방향을 제시하는 장면입니다.</div>
-            <div class="dialogue-list">
-                <div class="dialogue-item">
-                    <span class="d-badge d-black">블랙</span>
-                    <p><span class="d-score" style="color:var(--c-black)">7점.</span> 구조는 갖춰졌지만 결론이 마지막 페이지에 묻혀있습니다. 경영진은 끝까지 안 읽어요. <strong>1페이지에 핵심 수치 3개와 결론을 올려야</strong> 보고서가 살아납니다.</p>
-                </div>
-                <div class="dialogue-item">
-                    <span class="d-badge d-gold">골드</span>
-                    <p><span class="d-score" style="color:var(--c-gold)">6점.</span> 현장 팀장 입장에서 "그래서 우리 팀이 뭘 해야 하나"가 안 보입니다. <strong>각 섹션 끝에 액션 아이템 한 줄씩만 추가하면</strong> 현장에서 바로 쓸 수 있습니다.</p>
-                </div>
-                <div class="dialogue-item">
-                    <span class="d-badge d-purple">퍼플</span>
-                    <p><span class="d-score" style="color:var(--c-purple)">4점.</span> 제목이 '2024 Q4 실적 현황'이면 경영진이 긴장하지 않습니다. <strong>'성장 정체 진입, 지금 전략 전환 필요'처럼</strong> So What이 담긴 제목으로 바꿔야 읽힙니다.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="template-note">
-            <strong>결론 (블랙 종합):</strong> 제목 강화(퍼플) + 1P 요약(블랙) + 액션 플랜 추가(골드) → 3가지를 개선하면 10점으로 보완됩니다.
-        </div>
-    </div>
-
-    <!-- Step 2 -->
+    <!-- 원리 -->
     <div class="chapter-divider" id="cd-2">
         <span class="chapter-badge">원리</span>
     </div>
@@ -1161,7 +1138,6 @@
     <div class="section-block" id="sec-ref">
         <div class="section-hd">
             <h2>왜 역할 부여가 효과적인가: Anthropic 연구</h2>
-            <p class="section-sub">단순 프롬프트 트릭이 아닌 이유</p>
         </div>
 
         <div class="research-card">
@@ -1194,10 +1170,94 @@
                         같은 질문이라도 3가지 역할을 부여하면 3개의 독립된 전문가 사고 회로가 작동합니다. 단순히 같은 질문을 반복하는 것과 근본적으로 다른 이유가 바로 이것입니다.
                     </div>
                 </div>
+                <div class="rp-item">
+                    <div class="rp-num">04</div>
+                    <div class="rp-text">
+                        <strong>그 캐릭터들은 수백만 권의 책에서 왔습니다</strong><br>
+                        2025년 저작권 소송(Bartz v. Anthropic)에서, Anthropic이 학습을 위해 수백만 권의 종이책을 사들여 한 권씩 스캔·디지털화했고 해적 사이트에서도 700만 권 이상(LibGen 500만, Pirate Library Mirror 200만 이상)을 내려받았다는 사실이 드러났습니다. 법원은 합법 구매·스캔은 정당한 이용, 해적본 복제는 침해로 보았고 15억 달러 합의로 종결됐습니다. AI가 호출하는 '전문가 캐릭터'의 사고 회로는 바로 이 방대한 책 속 인물들에서 나옵니다.
+                    </div>
+                </div>
             </div>
-            <a href="https://www.anthropic.com/research/persona-selection-model" target="_blank" class="research-link">
-                Anthropic 연구 원문 보기 →
-            </a>
+            <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                <a href="https://www.anthropic.com/research/persona-selection-model" target="_blank" class="research-link">
+                    Anthropic 연구 원문 보기 →
+                </a>
+                <a href="https://www.npr.org/2025/09/05/nx-s1-5529404/anthropic-settlement-authors-copyright-ai" target="_blank" class="research-link" style="color:var(--t2);">
+                    출처: NPR 보도 →
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 비교 & 실전 예시 -->
+    <div class="chapter-divider" id="cd-1">
+        <span class="chapter-badge">비교 & 실전 예시</span>
+    </div>
+
+    <!-- ─── 1. Before / After ─── -->
+    <div class="section-block" id="sec-0">
+        <div class="section-hd">
+            <h2>같은 질문, 완전히 다른 결과</h2>
+            <p class="section-sub">팀장 + 팀원 구성만 추가하면 답변의 깊이가 달라집니다</p>
+        </div>
+
+        <div class="compare-grid">
+            <div class="compare-card before">
+                <span class="compare-tag">Before 혼자 물어보기</span>
+                <h3>단일 질문</h3>
+                <div class="compare-prompt">"이번 분기 사업 현황 보고서, 어떻게 하면 더 좋아질까?"</div>
+                <div class="compare-result">
+                    <strong>한 관점의 일반적 피드백: 누가 써도 나올 수 있는 답변</strong><br><br>
+                    결과:<br>
+                    · 핵심 지표를 앞에 배치하면 좋겠다<br>
+                    · 근거 데이터를 보강하면 좋겠다
+                </div>
+            </div>
+            <div class="compare-card after">
+                <span class="compare-tag">After 멀티 페르소나 토론</span>
+                <h3>역할 팀 구성 + 토론</h3>
+                <div class="prompt-wrap">
+                    <button class="copy-btn" type="button" onclick="copyPrompt(this)">복사하기</button>
+                    <div class="compare-prompt">너희는 사업 현황 보고서를 검토하는 3인 전문가 팀이다.<br><br>블랙 (팀장 / 전략기획): 논리 흐름과 핵심 메시지 일관성<br>골드 (15년차 현장 리더, 실행 가능성 체크): 현장에서 바로 실행가능한지 체크<br>퍼플 (경영진 전략 비서): 경영진이 30초 안에 설득되는지<br><br>@all, 이번 분기 사업 현황 보고서를 10점 만점으로 평가하고 개선점 제안해줘. 이후 블랙이 의견을 종합해 최종 개선안을 정리해줘.</div>
+                </div>
+                <div class="compare-result">
+                    <strong>전문가 관점의 교차 검증: 검증된 구체적 개선안 도출</strong><br><br>
+                    결과:<br>
+                    · 블랙: "결론이 마지막 페이지에 묻혀 있다"<br>
+                    · 골드: "현장 팀장이 뭘 해야 하는지 안 보인다"<br>
+                    · 퍼플: "제목에 So What이 없다"
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── 2. 실전 대화 예시 ─── -->
+    <div class="section-block" id="sec-1">
+        <div class="section-hd">
+            <h2>실제로 이렇게 나옵니다</h2>
+            <p class="section-sub">@all, 이번 분기 사업 현황 보고서를 10점 만점으로 평가해줘</p>
+        </div>
+
+        <div class="dialogue-box">
+            <div class="dialogue-intro">사업 현황 보고서를 검토하는 3인 팀: 블랙(전략기획), 골드(현장 팀장), 퍼플(경영진 전략 비서)이 각자 관점에서 평가하고 개선 방향을 제시하는 장면입니다.</div>
+            <div class="dialogue-list">
+                <div class="dialogue-item">
+                    <span class="d-badge d-black">블랙</span>
+                    <p><span class="d-score" style="color:var(--c-black)">7점.</span> 구조는 갖춰졌지만 결론이 마지막 페이지에 묻혀있습니다. 경영진은 끝까지 안 읽어요. <strong>1페이지에 핵심 수치 3개와 결론을 올려야</strong> 보고서가 살아납니다.</p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-gold">골드</span>
+                    <p><span class="d-score" style="color:var(--c-gold)">6점.</span> 현장 팀장 입장에서 "그래서 우리 팀이 뭘 해야 하나"가 안 보입니다. <strong>각 섹션 끝에 실행 항목 한 줄씩만 추가하면</strong> 현장에서 바로 쓸 수 있습니다.</p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-purple">퍼플</span>
+                    <p><span class="d-score" style="color:var(--c-purple)">4점.</span> 제목이 '2024 Q4 실적 현황'이면 경영진이 긴장하지 않습니다. <strong>'성장 정체 진입, 지금 전략 전환 필요'처럼</strong> So What이 담긴 제목으로 바꿔야 읽힙니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="template-note">
+            <strong>결론 (블랙 종합):</strong> 제목 강화(퍼플) + 1P 요약(블랙) + 실행 계획 추가(골드) → 3가지를 개선하면 10점으로 보완됩니다.
         </div>
     </div>
 
@@ -1208,48 +1268,179 @@
 
     <div class="section-block" id="sec-poem">
         <div class="section-hd">
-            <h2>시 쓰기 실습: 초고에 5인 팀을 붙이면</h2>
-            <p class="section-sub">감상문이 시로 바뀌는 순간</p>
+            <h2>시 쓰기 실습: 5인 팀에게 주제를 던지면</h2>
+            <p class="section-sub">보고서에서 통한 방식이 시에서도 그대로 통합니다</p>
         </div>
 
         <div class="dialogue-box">
-            <div class="dialogue-intro" style="white-space:pre-line;">
-<strong>초고:</strong> 「가을 저녁」
-
-노을이 붉게 타오르고
-낙엽은 바람에 흩날린다
-나는 홀로 길을 걷는다
-쓸쓸함이 마음에 스며든다</div>
             <div class="dialogue-intro">
-                <strong>팀 구성:</strong> 블랙(시인·구성), 래드(문학 비평), 골드(일반 독자), 퍼플(언어 미학), 화이트(리듬·운율).
-                각자 10점 만점으로 평가하고 블랙이 종합합니다.
+                보고서에서 통한 방식은 분야를 가리지 않습니다. 시로 바꿔 보면 좋고 나쁨이 한눈에 드러나서, 여러 전문가를 붙였을 때 품질이 어떻게 올라가는지 과정을 그대로 관찰할 수 있습니다. <strong>5인 팀은 서로 다른 인간 캐릭터 다섯을 동시에 불러내는 일</strong>입니다. 시인, 비평가, 독자, 언어 미학자, 공감 비평가가 각자의 시선으로 같은 주제를 마주하면, 한 사람에게선 나올 수 없는 시 한 편이 만들어집니다.
+            </div>
+            <div class="dialogue-intro"><strong>실제로 넣은 프롬프트</strong> (제가 제안한 주제는 '오래 신은 운동화'입니다)</div>
+            <div class="prompt-wrap">
+                <button class="copy-btn" type="button" onclick="copyPrompt(this)">복사하기</button>
+                <div class="compare-prompt" style="white-space:pre-line;">너희는 시 한 편을 함께 쓰는 5인 창작 팀이다.
+
+블랙 (팀장 / 시인·구성): 이 시만의 고유한 시선을 잡는다
+래드 (문학 비평가): 상투어와 클리셰를 걷어낸다
+골드 (일반 독자): 읽고 나서 남는 장면을 챙긴다
+퍼플 (언어 미학): 감정을 직접 말하지 않고 사물로 번역한다
+블루 (공감 비평가): 독자의 감정이 흐르는 결을 살핀다
+
+@all, '오래 신은 운동화'를 주제로 시 한 편을 써줘.
+각자 자기 관점에서 한 줄씩 제안하고, 블랙이 종합해 한 편으로 완성해줘.</div>
             </div>
             <div class="dialogue-list">
                 <div class="dialogue-item">
                     <span class="d-badge d-black">블랙</span>
-                    <p><span class="d-score" style="color:var(--c-black)">5점.</span> 주제 의식은 있지만 '가을 = 쓸쓸함'이라는 전형에 갇혀 있습니다. 시인의 고유한 시선이 없어요. <strong>"그 저녁에만 발견한 한 장면"을 첫 행에 박아야</strong> 이 시가 당신의 시가 됩니다.</p>
+                    <p>'추억'으로 시작하면 흔한 시가 됩니다. <strong>현관에 한쪽만 닳은 뒤축</strong>, 거기서 시작하면 이 운동화만의 시선이 생깁니다.</p>
                 </div>
                 <div class="dialogue-item">
                     <span class="d-badge d-red">래드</span>
-                    <p><span class="d-score" style="color:var(--c-red)">3점.</span> "붉게 타오르고", "바람에 흩날린다", "쓸쓸함이 스며든다". 이 세 문장이 모두 수십 년치 시집에서 본 상투어입니다. <strong>상투어 하나라도 낯선 비유로 바꾸지 않으면</strong> 시가 아니라 감상문입니다.</p>
+                    <p>'함께 걸어온 세월', '정든 신발' 같은 말은 미리 빼둡시다. <strong>그 표현이 들어오는 순간</strong> 누구나 쓴 시가 됩니다.</p>
                 </div>
                 <div class="dialogue-item">
                     <span class="d-badge d-gold">골드</span>
-                    <p><span class="d-score" style="color:var(--c-gold)">6점.</span> 읽기는 편안했는데 읽고 나서 남는 장면이 없습니다. 일반 독자로서 <strong>"아, 저건 내가 지난주에 본 장면"이라는 구체성 하나</strong>가 있으면 오래 마음에 남아요.</p>
+                    <p>신발장에 가지런히 둔 모습 말고, <strong>현관에 아무렇게나 벗어둔 그 장면</strong>이 읽고 나서 오래 남습니다.</p>
                 </div>
                 <div class="dialogue-item">
                     <span class="d-badge d-purple">퍼플</span>
-                    <p><span class="d-score" style="color:var(--c-purple)">4점.</span> '노을', '낙엽', '홀로', '쓸쓸함'. 시어가 감정을 곧바로 말해버립니다. <strong>감정은 숨기고 사물로 번역해야</strong> 시가 됩니다. "쓸쓸함"을 지우고, 쓸쓸해 보이는 물건 하나로 대체하세요.</p>
+                    <p>'정들었다'고 말하지 맙시다. <strong>늘어난 끈, 지워진 바닥 무늬</strong>로 보여주면 감정이 사물로 번역됩니다.</p>
                 </div>
                 <div class="dialogue-item">
-                    <span class="d-badge d-white">화이트</span>
-                    <p><span class="d-score" style="color:var(--c-white)">5점.</span> 네 행의 길이와 호흡이 모두 비슷해서 음악이 단조롭습니다. <strong>한 행은 일부러 짧게 끊고, 한 행은 길게 늘어뜨려</strong> 리듬에 변곡점을 주세요. 소리 내어 읽으면 차이가 들립니다.</p>
+                    <span class="d-badge d-blue">블루</span>
+                    <p>마지막 행에서 독자가 <strong>자기 신발을 내려다보게</strong> 만들어야 합니다. 거기서 시가 독자의 것이 됩니다.</p>
                 </div>
             </div>
         </div>
 
         <div class="template-note">
-            <strong>결론 (블랙 종합):</strong> 상투어 제거(래드) + 감정의 사물화(퍼플) + 리듬 변주(화이트) + 구체적 장면(골드). 네 가지를 적용하면 다음 초고에서 '가을 저녁'이 아니라 <strong>당신의 그 저녁</strong>이 드러납니다.
+            <strong>결론 (블랙 종합):</strong> 고유한 시선(블랙) + 상투어 제거(래드) + 구체적 장면(골드) + 감정의 사물화(퍼플) + 독자의 감정 흐름(블루). 다섯 관점을 한 편으로 엮으면 아래처럼 나옵니다.
+        </div>
+
+        <div class="dialogue-box">
+            <div class="dialogue-intro" style="white-space:pre-line;">
+<strong>완성작:</strong> 「오래 신은 운동화」
+
+현관에 아무렇게나 벗어둔
+뒤축은 한쪽만 깊게 닳았다
+끈은 늘어나 더는 조여지지 않고
+바닥의 무늬는 내 걸음을 따라 지워졌다
+신을 때마다 발이 먼저 길을 안다</div>
+            <div class="dialogue-list">
+                <div class="dialogue-item">
+                    <span class="d-badge d-black">블랙</span>
+                    <p>1·2행: '추억'이라는 말 대신 <strong>한쪽만 닳은 뒤축</strong>이라는 고유한 첫 장면으로 시를 열었습니다.</p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-red">래드</span>
+                    <p>'함께 걸어온 세월', '정든 신발' 같은 <strong>상투어를 한 줄도 들이지 않았습니다.</strong></p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-gold">골드</span>
+                    <p>'현관에 아무렇게나 벗어둔'이라는 <strong>누구나 아는 구체적 장면</strong>이 첫 행에 들어왔습니다.</p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-purple">퍼플</span>
+                    <p>'정들었다'를 말하지 않고 <strong>늘어난 끈과 지워진 무늬</strong>라는 사물로 감정을 번역했습니다.</p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-blue">블루</span>
+                    <p>마지막 행 <strong>'발이 먼저 길을 안다'</strong>에서 독자는 자기 신발을 떠올리게 됩니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="template-note">
+            혼자 쓰면 '오래 신은 운동화 = 추억'이라는 첫 연상에서 멈춥니다. <strong>5개의 독립된 캐릭터가 동시에 작동하면 그 전형이 깨지고</strong>, 누구의 것도 아닌 운동화가 당신의 운동화가 됩니다.
+        </div>
+    </div>
+
+    <!-- 평가하기 -->
+    <div class="chapter-divider" id="cd-eval">
+        <span class="chapter-badge">평가하기</span>
+    </div>
+
+    <div class="section-block" id="sec-eval">
+        <div class="section-hd">
+            <h2>평가하기: 9.5점이 넘을 때까지</h2>
+            <p class="section-sub">같은 팀이 평가자로 돌아서서 블랙의 시를 채점합니다</p>
+        </div>
+
+        <div class="dialogue-box">
+            <div class="dialogue-intro">
+                시를 쓴 다음이 진짜입니다. 블랙이 쓴 시를 나머지 <strong>네 명이 평가자로 돌아서서 각자 10점 만점으로 채점</strong>하고, 블랙은 그 지적을 반영해 다시 씁니다. <strong>모두가 9.5점을 넘길 때까지</strong> 이 과정을 반복합니다.
+            </div>
+            <div class="dialogue-intro"><strong>실제로 넣은 프롬프트</strong></div>
+            <div class="prompt-wrap">
+                <button class="copy-btn" type="button" onclick="copyPrompt(this)">복사하기</button>
+                <div class="compare-prompt" style="white-space:pre-line;">@all, 방금 완성한 시를 각자 10점 만점으로 채점하고, 가장 약한 한 가지만 짚어줘.
+블랙은 채점에서 빠지고, 받은 지적을 반영해 시를 다시 써줘.
+모든 평가자가 9.5점 이상을 줄 때까지 이 과정을 반복해줘.</div>
+            </div>
+        </div>
+
+        <div class="template-note"><strong>1라운드 채점</strong> &middot; 아직 합격선 아래입니다</div>
+
+        <div class="dialogue-box">
+            <div class="dialogue-list">
+                <div class="dialogue-item">
+                    <span class="d-badge d-red">래드</span>
+                    <p><span class="d-score" style="color:var(--c-red)">7.5점.</span> '깊게 닳았다'의 <strong>'깊게'가 군더더기</strong>입니다. 닳았다는 사실만으로 충분합니다.</p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-gold">골드</span>
+                    <p><span class="d-score" style="color:var(--c-gold)">8점.</span> 4행이 길어서 <strong>장면이 한 번에 들어오지 않습니다.</strong> 끊어 읽게 해주세요.</p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-purple">퍼플</span>
+                    <p><span class="d-score" style="color:var(--c-purple)">9점.</span> 거의 됐습니다. '내 걸음을 따라'가 <strong>살짝 설명적</strong>이에요.</p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-blue">블루</span>
+                    <p><span class="d-score" style="color:var(--c-blue)">8점.</span> 마지막 행 여운은 좋은데 <strong>한 박자 빨리 끝나</strong> 감정이 덜 고입니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="template-note"><strong>블랙 개작</strong> &middot; 네 지적을 반영해 다시 씁니다</div>
+
+        <div class="dialogue-box">
+            <div class="dialogue-intro" style="white-space:pre-line;">
+<strong>2차 개작:</strong> 「오래 신은 운동화」
+
+현관에 아무렇게나 벗어둔
+뒤축은 한쪽만 닳았다
+끈은 늘어나 더는 조여지지 않는다
+바닥의 무늬는 자리마다 다르게 지워졌고
+신을 때마다, 발이 먼저 길을 안다</div>
+        </div>
+
+        <div class="template-note"><strong>2라운드 채점</strong> &middot; 전원 9.5점 이상, 합격</div>
+
+        <div class="dialogue-box">
+            <div class="dialogue-list">
+                <div class="dialogue-item">
+                    <span class="d-badge d-red">래드</span>
+                    <p><span class="d-score" style="color:var(--c-red)">9.5점.</span> 군더더기가 빠지니 행이 단단해졌습니다.</p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-gold">골드</span>
+                    <p><span class="d-score" style="color:var(--c-gold)">9.5점.</span> 끊어지는 호흡 덕에 장면이 또렷합니다.</p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-purple">퍼플</span>
+                    <p><span class="d-score" style="color:var(--c-purple)">9.6점.</span> '자리마다 다르게 지워졌고'로 바뀌며 감정이 완전히 사물로 옮겨졌습니다.</p>
+                </div>
+                <div class="dialogue-item">
+                    <span class="d-badge d-blue">블루</span>
+                    <p><span class="d-score" style="color:var(--c-blue)">9.5점.</span> 쉼표 하나로 마지막 행이 한 박자 늦춰져 여운이 깁니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="template-note">
+            혼자였다면 첫 완성작에서 멈췄을 겁니다. <strong>평가자가 따로 있고 9.5점이라는 합격선이 있으면</strong> 같은 모델이 자기 글을 한 번 더 깎습니다. 멀티 페르소나를 '쓰기'가 아니라 '완성'에 쓰는 이유입니다.
         </div>
     </div>
 
@@ -1261,8 +1452,8 @@
     <!-- ─── 3. How It Works ─── -->
     <div class="section-block" id="sec-2">
         <div class="section-hd">
-            <h2>이 구조로 설계해야 결과가 달라집니다</h2>
-            <p class="section-sub">3단계 구조가 답변의 깊이를 만듭니다</p>
+            <h2>이 3단계를 거쳐야 답이 깊어집니다</h2>
+            <p class="section-sub">각자 발언 → 반박 → 종합, 이 순서가 답의 깊이를 만듭니다</p>
         </div>
 
         <div class="principle-grid">
@@ -1288,7 +1479,7 @@
     <div class="section-block" id="sec-3">
         <div class="section-hd">
             <h2>토론 프로세스</h2>
-            <p class="section-sub">4단계로 자연스럽게 퀄리티가 올라갑니다</p>
+            <p class="section-sub">4단계를 거치며 답의 품질이 차근차근 올라갑니다</p>
         </div>
 
         <div class="flow-wrap">
@@ -1345,7 +1536,7 @@
                         <div class="oc-members">
                             <div class="oc-member"><div class="oc-vline-branch"></div><div class="oc-node oc-red">래드<small>반론·허점 검토</small></div></div>
                             <div class="oc-member"><div class="oc-vline-branch"></div><div class="oc-node oc-gold">골드<small>경영진 독자 역할</small></div></div>
-                            <div class="oc-member"><div class="oc-vline-branch"></div><div class="oc-node oc-purple">퍼플<small>임팩트·설득력</small></div></div>
+                            <div class="oc-member"><div class="oc-vline-branch"></div><div class="oc-node oc-purple">퍼플<small>설득력·강조</small></div></div>
                             <div class="oc-member"><div class="oc-vline-branch"></div><div class="oc-node oc-white">화이트<small>구조·가독성</small></div></div>
                         </div>
                     </div>
@@ -1361,7 +1552,7 @@
 블랙 (팀장 · 전략 총괄): 핵심 논지를 설정하고 팀원 의견을 조율해 최종 방향을 결정한다.
 래드 (비판적 검토): 논리 허점, 근거 부족, 반론 가능성을 날카롭게 짚는다.
 골드 (독자 시뮬레이션): 경영진·의사결정자 입장에서 설득되는지를 판단한다.
-퍼플 (임팩트 강화): 메시지의 설득력, 표현, 핵심 강조 방식을 개선한다.
+퍼플 (설득력 강화): 메시지의 힘, 표현, 핵심 강조 방식을 개선한다.
 화이트 (구조·가독성): 목차, 흐름, 단락 구성, 정보 전달 방식을 최적화한다.
 
 사용자가 보고서 주제나 초안을 제시하면, 5인이 각자 관점에서 분석하고 블랙이 최종 방향을 정리한다.</pre>
@@ -1410,7 +1601,7 @@
             <!-- 바이브코딩 -->
             <div class="scenario-card">
                 <div class="sc-header">
-                    <div class="sc-title"><span class="sc-icon">💻</span><span>바이브코딩 리뷰</span></div>
+                    <div class="sc-title"><span class="sc-icon">💻</span><span>AI 코딩 결과 검토</span></div>
                     <button class="sc-toggle-btn" onclick="toggleScenario(this)">프롬프트로 보기</button>
                 </div>
                 <div class="sc-org-view">
@@ -1540,13 +1731,13 @@
     <div class="section-block" id="sec-7">
         <div class="section-hd">
             <h2>더 좋은 결과를 위한 팁</h2>
-            <p class="section-sub">알아두면 결과물이 달라지는 설계 원칙들</p>
+            <p class="section-sub">이것만 지켜도 결과가 눈에 띄게 좋아지는 원칙들</p>
         </div>
 
         <div class="tips-box">
             <div class="tips-title" style="font-size: 11px;font-weight:700;color:var(--t3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;">팀 설계</div>
             <ul class="tips-list" id="tips-checklist" style="margin-bottom:22px;">
-                <li><label><input type="checkbox" id="tip1"><span class="tip-cb-visual"></span><span class="tip-cb-text"><strong>역할은 직책이 아닌 관점으로 정의하세요.</strong> "CFO"보다 "모든 판단을 숫자 리스크로 환산하는 사람"이 10배 날카로운 답을 냅니다</span></label></li>
+                <li><label><input type="checkbox" id="tip1"><span class="tip-cb-visual"></span><span class="tip-cb-text"><strong>역할은 직책이 아닌 관점으로 정의하세요.</strong> "CFO"보다 "모든 판단을 숫자 리스크로 환산하는 사람"이 훨씬 날카로운 답을 냅니다</span></label></li>
                 <li><label><input type="checkbox" id="tip2"><span class="tip-cb-visual"></span><span class="tip-cb-text"><strong>비판자 역할은 선택이 아닌 필수입니다.</strong> 불편한 진실을 말하는 팀원이 없으면 AI는 동의만 반복합니다</span></label></li>
                 <li><label><input type="checkbox" id="tip3"><span class="tip-cb-visual"></span><span class="tip-cb-text"><strong>팀원은 3~5명이 적정입니다.</strong> 6명 이상이면 각자 발언량이 줄고 토론이 표면적으로 흘러갑니다</span></label></li>
             </ul>
@@ -1557,7 +1748,7 @@
             </ul>
             <div class="tips-title" style="font-size: 11px;font-weight:700;color:var(--t3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;">결과 활용</div>
             <ul class="tips-list">
-                <li><label><input type="checkbox" id="tip6"><span class="tip-cb-visual"></span><span class="tip-cb-text"><strong>토론 직후 "팀장이 실행 계획을 정리해줘"를 이어서 입력하세요.</strong> 분석이 액션으로 이어지는 순간 AI의 가치가 달라집니다</span></label></li>
+                <li><label><input type="checkbox" id="tip6"><span class="tip-cb-visual"></span><span class="tip-cb-text"><strong>토론 직후 "팀장이 실행 계획을 정리해줘"를 이어서 입력하세요.</strong> 분석이 행동으로 이어지는 순간, AI는 보고서가 아니라 결정을 돕습니다</span></label></li>
                 <li><label><input type="checkbox" id="tip7"><span class="tip-cb-visual"></span><span class="tip-cb-text"><strong>같은 주제를 팀 구성만 바꿔 두 번 돌려보세요.</strong> "기술팀"으로 돌린 결과와 "영업팀"으로 돌린 결과가 다르다면, 그 차이가 실제 의사결정의 맹점입니다</span></label></li>
             </ul>
         </div>
@@ -1648,7 +1839,7 @@ function copyExample(btn) {
     const text = `지금부터 팀 회의를 시작합니다.
 
 ## 논의 주제
-이 바이브코딩 프로젝트의 완성도와 개선 방향
+이 AI 코딩 프로젝트의 완성도와 개선 방향
 
 ## 팀 구성 (총 5명)
 팀장: 블랙 (시니어 개발자·아키텍처) · 각 팀원과 비판적으로 토론하고, 최종 결론을 도출
@@ -1781,7 +1972,7 @@ function copyQuick(btn) {
 
 // ── Sub Menu Scroll Spy (merged groups) ──
 (function(){
-    var links = document.querySelectorAll('.sub-menu a[data-secs]');
+    var links = Array.prototype.slice.call(document.querySelectorAll('.sub-menu a[data-secs]'));
     var groups = [];
     links.forEach(function(l){
         var ids = l.dataset.secs.split(',');
@@ -1789,18 +1980,45 @@ function copyQuick(btn) {
         ids.forEach(function(id){ var e = document.getElementById(id); if(e) els.push(e); });
         if(els.length) groups.push({link:l, els:els});
     });
+    var locked = false, scrollTimer;
+    function setActive(link){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(link) link.classList.add('active');
+    }
+    function topOf(el){ return el.getBoundingClientRect().top + window.scrollY; }
     function update(){
+        if(locked || !groups.length) return;
+        // 페이지 맨 아래에 닿으면 마지막 항목을 선택 (짧은 섹션이라 임계점에 못 닿는 경우 보정)
+        if(window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2){
+            setActive(groups[groups.length - 1].link); return;
+        }
         var smEl = document.getElementById('subMenu');
-        var scrollY = window.scrollY + (smEl ? smEl.offsetHeight : 0) + 16;
+        // 임계선은 anchor 안착 위치(scroll-margin-top 124px)보다 살짝 아래로 고정.
+        // 좁은 화면에선 가로 서브메뉴 바가 숨겨져 높이가 0으로 잡히므로 바 높이에 의존하지 않는다.
+        var smBottom = smEl ? smEl.getBoundingClientRect().bottom : 0;
+        var probe = window.scrollY + Math.max(smBottom + 16, 132);
         var current = groups[0];
         for(var i = 0; i < groups.length; i++){
-            var top = Math.min.apply(null, groups[i].els.map(function(e){ return e.offsetTop; }));
-            if(top <= scrollY) current = groups[i];
+            var top = Math.min.apply(null, groups[i].els.map(topOf));
+            if(top <= probe) current = groups[i];
         }
-        links.forEach(function(l){ l.classList.remove('active'); });
-        if(current) current.link.classList.add('active');
+        setActive(current ? current.link : null);
     }
-    window.addEventListener('scroll', update, {passive:true});
+    // 클릭 즉시 해당 항목을 선택하고, 부드러운 스크롤이 끝날 때까지 스파이를 잠금
+    links.forEach(function(l){
+        l.addEventListener('click', function(){
+            setActive(l);
+            locked = true;
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(function(){ locked = false; update(); }, 700);
+        });
+    });
+    window.addEventListener('scroll', function(){
+        if(!locked) update();
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(function(){ locked = false; update(); }, 140);
+    }, {passive:true});
+    window.addEventListener('resize', update);
     update();
 })();
 </script>
@@ -2006,7 +2224,20 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
         if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
         html += '</span>';
         item.innerHTML = html;
-        item.addEventListener('click', function() { setOpen(false); });
+        item.addEventListener('click', function(ev) {
+            // 드로어 열림 중 body{overflow:hidden}이 anchor 스크롤을 막으므로,
+            // 먼저 드로어를 닫고(overflow 해제·reflow) 절대 위치로 직접 스크롤한다.
+            ev.preventDefault();
+            setOpen(false);
+            var id = (item.getAttribute('href') || '').replace('#', '');
+            var target = id && document.getElementById(id);
+            if (target) {
+                setTimeout(function(){
+                    var y = target.getBoundingClientRect().top + window.scrollY - 124;
+                    window.scrollTo(0, Math.max(0, y));  // CSS scroll-behavior(smooth) 적용
+                }, 60);
+            }
+        });
         list.appendChild(item);
         drawerItems.push(item);
     });
@@ -2035,6 +2266,37 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
 })();
 </script>
 <!-- ## SM-HAMBURGER END ## -->
+
+<!-- 프롬프트 복사 버튼 -->
+<script>
+function switchMode(mode) {
+    ['basic','verify'].forEach(function(m){
+        var t=document.getElementById('tab-'+m); if(t) t.classList.toggle('active', mode===m);
+        var p=document.getElementById('pages-'+m); if(p) p.style.display = mode===m ? 'flex' : 'none';
+    });
+}
+function copyPrompt(btn){
+    var box = btn.parentElement.querySelector('.compare-prompt');
+    if(!box) return;
+    var text = box.innerText;
+    function done(){
+        var prev = btn.textContent;
+        btn.textContent = '복사됨';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = prev; btn.classList.remove('copied'); }, 1600);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done).catch(function(){ fallback(text); done(); });
+    } else { fallback(text); done(); }
+    function fallback(t){
+        var ta = document.createElement('textarea');
+        ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(ta);
+    }
+}
+</script>
 
 <!-- 가이드 소개 모달: 단일 소스 assets/about-modal.js 에서 주입 -->
 <script src="assets/about-modal.js"></script>

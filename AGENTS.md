@@ -27,7 +27,7 @@
 
 ---
 
-## 2. 페이지 인벤토리 (40개)
+## 2. 페이지 인벤토리 (42개)
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 
@@ -101,11 +101,12 @@
 
 `agent-design.html`(팀 설계)은 2026-06-08에 인덱스와 전 페이지 내비·링크·키보드 핸들러에서 제거했다. 파일은 `backups/agent-design.html`로 옮겨 git 추적에서 뺐다(`backups/`는 gitignore 대상 로컬 아카이브). 되살리려면 파일을 루트로 되돌린 뒤 `pages-design` 내비, index 자동화 카드, `ai-levels.html` 로드맵, 키보드 `5` 핸들러를 함께 복원한다. 그 자리는 `claude-tools.html`이 대신한다.
 
-### 실전 예제 (골드 액센트, 좌측 보더 `#B8860B`, header-pages: 6개 공통)
-인덱스의 실전 예제 섹션은 두 묶음으로 나뉜다. `기본 예제`(바로 써먹는 실무 자동화)와 `MCP 연결`(외부 도구와 연동하는 워크플로우). 6개 페이지는 모두 같은 6링크 header-pages 내비를 공유한다(`기본 예제` 3 + `MCP 연결` 3). 기본 예제 그룹은 뉴스 클리핑 → 구글 시트 대시보드 → 책 쓰기 순서로 고정한다.
+### 실전 예제 (골드 액센트, 좌측 보더 `#B8860B`)
+인덱스의 실전 예제 섹션은 세 묶음으로 나뉜다. `글 다듬기`(AI 티 없이 사람 글로 만들기, 맨 앞) → `기본 예제`(바로 써먹는 실무 자동화) → `MCP 연결`(외부 도구와 연동하는 워크플로우). `기본 예제`·`MCP 연결` 6개 페이지는 같은 6링크 header-pages 내비를 공유한다(`기본 예제` 3 + `MCP 연결` 3). `글 다듬기`는 인덱스에서 `ai-writing.html` 카드 1개만 둔다(2026-06-18 `ai-sycophancy.html`를 맨 하단 `AI 제대로 검증하기` 섹션으로 옮김). mode-tabs는 없다. 2026-06-18 `ai-sycophancy.html`의 header-pages 짝을 `ai-writing`에서 `ai-hallucination`으로 바꿨다(2링크 `동조 줄이기`·`환각 줄이기`, 490px). 그래서 `ai-writing`의 header-pages는 여전히 `동조 줄이기 → ai-sycophancy`를 갖지만 단방향이다(ai-sycophancy는 ai-writing으로 되돌아가지 않는다. 추후 정리 후보). 기본 예제 그룹은 뉴스 클리핑 → 구글 시트 대시보드 → 책 쓰기 순서로 고정한다.
 
 | 페이지 | 묶음 | 시간 | 난이도 | 특성 |
 |---|---|---|---|---|
+| `ai-writing.html` | 글 다듬기 | 12분 | 중급 | AI가 쓴 티를 지우는 법. `news-clipping.html` 골격 클론(mode-tabs 제거, header-pages 2링크: 쓴 티 지우기·동조 줄이기 → `ai-sycophancy.html`). sub-menu 8섹션(한눈에·말버릇·교묘한 패턴·장면으로·버릇 차단·사람의 몫·참고자료·다음 행동). AI 한국어 말버릇 8개(번역투·형용사·접속사·문장길이 + 명언공장·보편위로·판단회피·부풀리기), Before/After 표 3개, 금지어 프롬프트 2개(2026-06-18 프롬프트 박스 빈 줄 제거·규칙을 한 줄씩 붙임), 8 대 2 원칙. 2026-06-18 공개 연구 4건 인용: INTRO에 Jones &amp; Bergen(2024, arXiv:2405.08007 튜링 테스트 GPT-4 54%·판단 근거는 문체/정서)·Doshi &amp; Hauser(2024, Science Advances 10.7% 더 비슷=균질화), STEP1에 GPTZero 버스티니스·Kobak 외(2025, Science Advances 과잉어휘 13.5%) tip-box, 끝 `#refs` 참고자료 섹션(ref-link 4개, 영어 연구지만 한국어에도 동일 원리 단서). 워크플로 step의 "당신"은 4.10 따라 "사람/자기"로 교체(예시 인용문 안 "당신"은 유지). 2026-06-19 스타일을 `ai-hallucination.html` idiom으로 정렬: 왼쪽 컬러 띠지 전면 제거(h2·tip-box border-left 삭제 [[no-left-color-bar-cliche]]), 색은 라벨 점(dot ::before 7px)으로 이동(tip-label·inset-label), 카드·박스에 hairline 테두리(`--hairline:#D4CEC4`) 추가, 그림자 토큰을 ai-hallucination 수준으로 약화(2px 소프트), step-badge shimmer 애니메이션 제거(정적 뱃지), h2는 weight 800·#2A2520. 강조색은 페이지 정체성 위해 테라코타(`#B35535`) 유지(ai-hallucination의 본문 주황 `#D97757`은 미적용, 헤더 그라데이션은 두 페이지 동일). [[korean]] 스킬·`multi-persona.html` 크로스링크. 글 다듬기 묶음의 단독 카드(인덱스) |
 | `news-clipping.html` | 기본 예제 | 15분 | 중급 | 뉴스 클리핑 자동화. `google-sheets-dashboard.html` 골격 클론. 테마→Tier1 매체→주기→포맷→스킬→루틴 6단계. 철강(steel-brief) 예시로 끝까지 관통. sub-menu 8섹션, STEP5·6은 `skills.html`·`routines.html`로 연결. 기본 예제 그룹의 첫 카드 |
 | `google-sheets-dashboard.html` | 기본 예제 | 12분 | 중급 | 골드 액센트 카드 |
 | `harness-book.html` | 기본 예제 | 20분 | 고급 | 책쓰기 실전, 자체 sub-menu 최다 |
@@ -120,16 +121,24 @@
 | `license-compare.html` | 필요할 때 | 참고 | 오픈소스 라이선스 5종. 상단에 제약 수위 신호등 모델(초록 MIT·Apache / 노랑 LGPL / 빨강 GPL·AGPL). sub-menu 5섹션(신호등·비교표·허용적·카피레프트·선택 가이드) |
 | `glossary.html` | 필요할 때 | 참고 | AI 용어 사전 68선(6막 구성). 6막 하네스·운영에 `피지컬 AI` 추가 |
 
-2026-06-13에 `security-guide.html`을 백과사전에서 빼서 아래 `보안·법률` 섹션으로 옮겼다. 그래서 백과사전은 3-menu(700px)로 내렸다. 같은 날 섹션 이름을 `하네스 엔지니어링 백과사전`에서 `AI 백과사전`으로 바꿨다.
+2026-06-13에 `security-guide.html`을 백과사전에서 빼서 아래 `보안·법률` 섹션으로 옮겼다. 그래서 백과사전은 3-menu(700px)로 내렸다. 같은 날 섹션 이름을 `하네스 엔지니어링 백과사전`에서 `AI 백과사전`으로 바꿨다. 2026-06-18에 인덱스에서 `디자인·시각화 갤러리` 섹션을 `AI 백과사전` 섹션 위로 올렸다(쇼케이스 → 갤러리 → 백과사전 → 보안·법률 → 검증 순).
 
 ### 보안·법률 (header-pages: 3개)
-2026-06-18에 `ai-hallucination.html`을 이 섹션 첫 카드로 추가하면서 트랙이 2-menu(490px)→3-menu(700px)로 승격됐다. 세 페이지(`ai-hallucination`·`security-guide`·`ai-basic-law`)는 동일한 3링크 내비(`환각 줄이기`·`보안 가이드`·`인공지능기본법`)를 공유한다.
+2026-06-18에 `ai-hallucination.html`을 추가하면서 트랙이 2-menu(490px)→3-menu(700px)로 승격됐다. 처음엔 세 페이지(`ai-hallucination`·`security-guide`·`ai-basic-law`)가 3링크 내비(`환각 줄이기`·`보안 가이드`·`인공지능기본법`)를 공유했다. 같은 날 인덱스 `보안·법률` 섹션 카드는 2개(`security-guide`·`ai-basic-law`)로 줄였고, `ai-hallucination` 카드는 맨 하단 `AI 제대로 검증하기` 섹션으로 옮겼다. 이어서 `ai-hallucination`의 header-pages를 2링크(`동조 줄이기`·`환각 줄이기`, 490px)로 바꿔 `ai-sycophancy`와 짝지었다. 그래서 `security-guide`·`ai-basic-law`는 아직 3링크 내비를 갖고 있고 그 안의 `환각 줄이기` 링크는 단방향으로 남아 있다(추후 두 페이지를 2링크 `보안 가이드`·`인공지능기본법`로 정리 후보).
 
 | 페이지 | 시간 | 난이도 | 특성 |
 |---|---|---|---|
 | `ai-hallucination.html` | 필요할 때 | 참고 | AI 환각을 벗어나는 법. `ai-basic-law.html` 골격 클론. 사건 케이스(빅4 가짜 각주: EY 27개 중 16개·KPMG 45개 중 5개 정확·법정 판례 1,450건+, GPTZero 조사)를 거울 삼아 실전 검증법으로 전개. sub-menu 7섹션(한눈에·무슨 일이·왜 생기나·벗어나는 법·Claude로·점검표·참고자료). 환각 4유형 overview 표, case-ledger 3건(kind-fail·kind-spread 신규), 원인 2층(모델·조직), 5가지 습관(topic-card+예시), Claude 연결(웹검색·검증프롬프트·`multi-persona.html`·`claude-tools.html`·`harness-workflows.html` 크로스링크), 납품 전 check-list 8개. 끝 CTA는 `security-guide.html`로 크로스링크. 공개 보도 기반 참고 자료임 명시 |
 | `security-guide.html` | 필요할 때 | 참고 | 비개발자용 AI 협업 보안. overview 표 + 5섹션 + 판례. sub-menu 7개. 끝 CTA는 `ai-basic-law.html`로 크로스링크 |
 | `ai-basic-law.html` | 필요할 때 | 참고 | 인공지능기본법 안내. 히스토리 타임라인 + 주요국 비교 + 의무 주체 3분류 + 5대 의무 표 + 고영향 카드 하단 법 제2조 제4호 원문(가~차) 블록 + FAQ 17문 + 자가점검·참고자료(지원데스크 + 사례집 직접 링크 2개). sub-menu 7개. `security-guide.html` 골격 클론. 끝 CTA는 `security-guide.html`로 크로스링크. 출처는 과기정통부·KOSA 지원데스크 사례집과 가이드라인. 유권해석 아닌 참고 자료임을 본문에 명시 |
+
+### AI 제대로 검증하기 (인덱스 맨 하단 섹션, section-num `검증`/`#B35535`)
+2026-06-18 신설. 인덱스 맨 하단에 둔 2카드 섹션이다(id `section-verify`). `AI가 그럴듯하게 동의하거나 지어낼 때, 답을 그대로 믿지 않고 검증하는 법`이라는 한 주제로 동조와 환각을 묶었다. 두 카드는 평범한 `.card`(골드 그라데이션·실전 태그 없음)다. `ai-hallucination.html` 카드는 옛 `보안·법률`에서, `ai-sycophancy.html` 카드는 옛 `실전 예제 · 글 다듬기`에서 이 섹션으로 모았다.
+
+| 페이지 | 시간 | 난이도 | 특성 |
+|---|---|---|---|
+| `ai-sycophancy.html` | 8분 | 입문 | AI의 동조(sycophancy)를 줄이는 법(옛 `ai-skepticism.html`, 2026-06-18 개명·전면 재작성). `news-clipping` 골격 클론, header-pages 2링크는 `ai-hallucination.html`과 짝(동조 줄이기·환각 줄이기, 490px). 공개 연구 5건 인용(Anthropic 2310.13548 · DeepMind 2308.03958 · SycEval 2502.08177 · ELEPHANT 2505.13995 · OpenAI GPT-4o 2025.4 롤백). sub-menu 6섹션(한눈에·동조란·왜 생기나·줄이는 법·점검표·참고자료. STEP4 `Claude로` 크로스링크 섹션은 2026-06-18 삭제). 동조 두 유형(진보/퇴행·사회적), 원인(RLHF·스케일·단기 피드백), 줄이는 법 5(결론 숨기기·비판 허락·점수·"다시"·역할 분리), 점검표 5(키워드+한 줄·경어), 참고자료 ref-link 5(읽는 법 박스 삭제). SycEval 수치(58.19%·퇴행 14.66%·지속 78.5%)를 본문에 인용. 왼쪽 띠지(h2·tip-box border-left) 제거 [[no-left-color-bar-cliche]] |
+| `ai-hallucination.html` | 필요할 때 | 참고 | 위 `보안·법률` 표 참고. 페이지는 보안·법률 3링크 트랙에 그대로 남고, 인덱스 카드만 이 섹션에 둔다 |
 
 ### 디자인·시각화 갤러리 (header-pages: 3개)
 | 페이지 | 시간 | 난이도 | 특성 |
@@ -150,7 +159,7 @@
 
 ### 3.1 콘텐츠 영역 사이즈 (`.container`)
 
-모든 콘텐츠 페이지(31개)는 공통 규격을 따른다 (commit 97f4331에서 29개 통일, 이후 증가).
+모든 콘텐츠 페이지(33개)는 공통 규격을 따른다 (commit 97f4331에서 29개 통일, 이후 증가).
 
 ```css
 .container {
@@ -229,7 +238,7 @@
 원칙: 햄버거는 사이트 공통의 단일 패턴이다. 페이지별로 다르게 만들지 않는다.
 
 적용 범위:
-- 31개 콘텐츠 페이지 전부에 동일한 코드가 들어 있다.
+- 33개 콘텐츠 페이지 전부에 동일한 코드가 들어 있다.
 - 마커 주석으로 구역을 명확히 한다. `<!-- ## SM-HAMBURGER START ## -->`와 `<!-- ## SM-HAMBURGER END ## -->` 사이만 수정하거나 교체한다.
 
 브레이크포인트와 동작 전환:
