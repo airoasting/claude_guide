@@ -6,6 +6,18 @@
 
 ## 최근 세션 변경 로그
 
+### 2026-06-21 (내비게이션 통일)
+
+| # | 명령 | 범위 | 결과 |
+|---|---|---|---|
+| 7 | md 운영 문서 현행화 (이번 내비 작업 반영) | `AGENTS.md`, `MEMORY.md`, `README.md` | 사용자 "md 파일 모두 업데이트". AGENTS §2에 `상단 step-nav (전 콘텐츠 페이지 공통)` 소절 신설(7노드 인덱스 기준 매핑 표·단계별 소속·옛 변종 클래스 함정·모바일 패딩). 2단계 4페이지 `확장/코워크` 토글, 5단계 자동화 토글 `하네스/도구`(루프 제거)·루프 버튼만, 실전 예제 3탭 토글로 갱신. ai-writing 인벤토리 행의 `mode-tabs 제거` 문구를 3탭 토글로 교정. AGENTS 인벤토리 `단계` 제목이 인덱스 재구성 이전 옛 구분을 아직 쓴다는 드리프트를 명시(노드 번호는 인덱스 매핑 따름, 제목 정렬은 추후 과제). README는 변경 없음(커리큘럼 표는 내비 구조와 무관). 인벤토리 카운트 42개 불변(신규 페이지 없음) |
+| 6 | 4단계 상단 토글에서 `루프` 탭 제거 | 4단계 6개 페이지 | 사용자 "4단계 상단 토글에서 루프는 빼야 해". `하네스/도구/루프` 3탭 → `하네스/도구` 2탭. 각 페이지에서 `tab-loop` 버튼·`pages-loop` 묶음 삭제, `switchMode` 배열 `['harness','tool','loop']`→`['harness','tool']`. `claude-md-templates`만 header-pages에 `load-anim load-d6` 클래스가 붙어 정규식에 안 걸려 따로 처리. 검증: 6개 모두 탭 2개·tab-loop 0·pages-loop 0, harness-engineering 도구 클릭 전환·콘솔 0 |
+| 5 | step-nav 인덱스 기준 전면 정규화 + 4·5단계 토글 정리 + 2단계 토글 신설 | 32개 콘텐츠 페이지 전부, `AGENTS.md` | 사용자 4건(5단계 토글 제거→인덱스 기준 링크 정상화→2단계 토글→ai-sycophancy·ai-hallucination step-nav). 확정 질문 3개로 범위 합의(하네스/도구/루프 토글 4·5단계 8개서 제거→이후 4단계 복원 요청, step-nav 전 페이지 통일, 2단계=확장/코워크). ① step-nav 노드 링크를 인덱스 `guide-btn-row` 기준으로 정규화(진단→claude-orientation·1→ai-fluency·2→chrome-plugin·3→claude-code-101·4→harness-engineering·5→loop-engineering·예제→ai-writing). 옛 매핑(3=cowork-intro·4=claude-code-101·5=claude-md-templates) 교체. 각 페이지 소속 단계 노드 active 보정. ② step-nav 없던 9개 페이지에 추가(ai-sycophancy·ai-hallucination=1 active, github-guide=3, harness-engineering·claude-tools·harness-workflows·claude-md-templates=4, loop-engineering·routines=5). 옛 `step-nav header-animate-1`/`load-anim` 변종 중복 nav 7개 제거. ③ 4단계 6개 페이지 `하네스/도구/루프` 토글은 git 원본에서 그대로 복원(사용자 "4단계는 복원"). ④ 5단계 loop-engineering·routines는 토글 빼고 `pages-loop` 버튼 2개만. ⑤ 2단계 4페이지(chrome-plugin·claude-plugin·cowork-intro·cowork)에 `확장 프로그램/클로드 코워크` 토글 신설(mode-tabs CSS+`switchMode(['ext','cowork'])`+JS). 검증: 32개 모두 nav 1개·노드 7개·옛 링크 0, 단계별 스샷(1·2·4·5·예제)·토글 동작·콘솔 0. 함정: 이 페이지들은 결과 미리보기 showcase iframe 임베드라 preview_eval이 iframe으로 튐(top.location.href + 스샷으로 검증) |
+| 4 | 실전 예제 7개 페이지 상단에 step-nav(예제 노드 active) 추가 | 7개 예제 페이지 | 사용자 "예제 페이지들 상단에도 이거 똑같이". ai-writing·news-clipping·google-sheets-dashboard·harness-book·playmcp-kakao·korean-law-mcp·stock-messenger에 step-nav 추가. 데스크톱 base CSS 없던 6개는 `.mode-tabs` 앞에 삽입, harness-book만 이미 있어 active 색 갈색→흰색 정규화. 모바일 블록 없던 2개(playmcp·korean-law)는 메뉴버튼 직전 `</style>` 앞에 `@media` step 블록 추가, 나머지는 우측 패딩 fix. 검증: 7개 nav·예제 active, 모바일 메뉴버튼 안 겹침 |
+| 3 | MCP 3페이지 `기본 예제` 탭에 뉴스 클리핑 링크 통일 | playmcp-kakao·korean-law-mcp·stock-messenger | 사용자 "통일해서 넣어줘". 선존 불일치(pages-basic에 구글 시트·책 쓰기 2개만, 뉴스 클리핑 누락)를 3링크(뉴스 클리핑→구글 시트→책 쓰기)로 통일. 검증: 3개 모두 3링크 |
+| 2 | 콘텐츠 16개 페이지 step-nav에 7번째 `예제` 노드 추가 | step-nav 보유 16개 페이지 | 사용자 "5단계 오른쪽에 예제 추가". `sn-final` 노드(→ai-writing) 추가, 데스크톱 `.step-node.sn-final{font-size:12px}`·모바일 우측 패딩 fix. 클래스는 기존 모바일 CSS에 준비돼 있던 `sn-final` 사용. 검증: 16개 진단~예제 7노드, 모바일 메뉴버튼 겹침 padding 처리 |
+| 1 | 실전 예제 7개 페이지 상단에 `글 다듬기/기본 예제/MCP 연결` 3탭 토글 신설 | 7개 예제 페이지, `index.html`(복원) | 사용자 처음엔 index로 오해했다가 "인덱스는 복원, 실전 예제 각 페이지 상단에 토글"로 정정. index 변경은 되돌리고, 6개 페이지의 기존 `기본 예제/MCP 연결` 2탭에 `글 다듬기` 탭+`pages-writing`(ai-writing) 추가, ai-writing엔 토글 자체를 신설. `switchMode`는 명시형 5개 + 제너릭(배열 순회) harness-book 2변종. 검증: 7개 3탭·전환 동작·콘솔 0 |
+
 ### 2026-06-18
 
 | # | 명령 | 범위 | 결과 |

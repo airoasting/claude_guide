@@ -31,6 +31,25 @@
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 
+### 상단 step-nav (전 콘텐츠 페이지 공통)
+2026-06-21에 상단 `step-nav`를 32개 모든 콘텐츠 페이지에 통일했다. `진단 → 1 → 2 → 3 → 4 → 5 → 예제` 7노드이며, 인덱스 `guide-btn-row`의 단계 순서와 각 단계 대표(첫) 페이지로 링크한다.
+
+| 노드 | 링크 | 클래스 |
+|---|---|---|
+| 진단 | `claude-orientation.html` | `sn-diag` |
+| 1 | `ai-fluency.html` | |
+| 2 | `chrome-plugin.html` | |
+| 3 | `claude-code-101.html` | |
+| 4 | `harness-engineering.html` | |
+| 5 | `loop-engineering.html` | |
+| 예제 | `ai-writing.html` | `sn-final` |
+
+각 페이지는 자기가 속한 단계 노드를 `active`로 둔다(active 배경 흰색 `rgba(255,255,255,0.95)`, 글자 `#1A1917`). 단계별 소속은 인덱스 섹션 기준이다(1단계: ai-fluency·project-intro·multi-persona·ai-sycophancy·ai-hallucination / 2단계: chrome-plugin·claude-plugin·cowork-intro·cowork / 3단계: claude-code-101·claude-code-tasks·github-guide·checklist·cheatsheet·claude-code-best-practices / 4단계: harness-engineering·claude-tools·harness-workflows·claude-md-templates·skills·code-plugin / 5단계: loop-engineering·routines / 예제: ai-writing·news-clipping·google-sheets-dashboard·harness-book·playmcp-kakao·korean-law-mcp·stock-messenger).
+
+함정 두 가지. ① 옛 step-nav는 `<nav class="step-nav header-animate-1">`이나 `load-anim load-d1`처럼 클래스가 더 붙어 있어 `class="step-nav"` 정확 매칭에 안 걸린다. 일괄 수정 시 `class="step-nav[^"]*"`로 잡고 중복 nav를 막는다. ② 모바일에서 `.sm-menu-toggle`(우상단 `position:fixed`)과 7번째 노드가 겹치므로 `@media (max-width:768px) .step-nav`에 `padding: 0 50px 0 0 !important`로 우측 공간을 비운다.
+
+주의: 아래 인벤토리의 `단계` 섹션 제목은 인덱스 재구성 이전 옛 구분(2단계 디자인·플러그인, 3단계 코워크, 4단계 클로드 코드, 5단계 자동화)을 아직 쓴다. step-nav 노드 번호는 위 인덱스 기준 매핑을 따르므로 둘이 어긋난다(예: step-node `3`=인덱스 클로드 코드=`claude-code-101`, `4`=에이전트 설계=`harness-engineering`, `5`=루프 자동화=`loop-engineering`). 인벤토리 제목 정렬은 추후 과제.
+
 ### 진단 트랙 (header-pages: 2개)
 | 페이지 | 시간 | 난이도 | 특성 |
 |---|---|---|---|
@@ -60,6 +79,8 @@
 | `cowork-intro.html` | 10분 | 입문 | 로컬 파일과 Gmail, Calendar, Drive 연결. `.hero-inner` 없음. `.header-pages`에 직접 max-width 490px 적용 |
 | `cowork.html` | 과제별 | 중급 | 실전 과제 8가지. `.hero-inner` 없음 동일 처리 |
 
+2026-06-21에 이 4개 페이지(`chrome-plugin`·`claude-plugin`·`cowork-intro`·`cowork`)에 `확장 프로그램 | 클로드 코워크` 2탭 토글을 달았다(인덱스 2단계 `확장·연결`의 두 서브트랙 기준). `mode-tabs` + `switchMode(['ext','cowork'])`, `pages-ext` 2링크(`🌐 Chrome`=chrome-plugin · `📑 MS Office`=claude-plugin) / `pages-cowork` 2링크(`🤝 Cowork 소개`=cowork-intro · `🗂️ 실전 과제`=cowork). 확장 두 페이지는 `tab-ext` 기본 active, 코워크 두 페이지는 `tab-cowork` 기본 active. `.mode-tabs`/`.mode-tab` CSS는 1단계 `기본기/검증` 토글과 동일 스펙을 쓴다.
+
 ### 4단계 · 클로드 코드 (header-pages: 노코드 3 + CLI 2 + 비법 1, 3탭 토글)
 헤더는 `노코드`/`CLI`/`비법` 세 그룹을 `switchMode`로 토글한다(`pages-nocode` 3링크, `pages-cli` 2링크, `pages-tip` 1링크). `switchMode`는 `['nocode','cli','tip']` 3-way이고 표준 토글 5개 페이지(`claude-code-tasks`·`github-guide`·`checklist`·`cheatsheet`·`claude-code-best-practices`)가 공유한다. `claude-code-best-practices.html`만 `비법` 탭이 기본 active다. `claude-code-101.html`은 예외로, 표준 토글 헤더 대신 `track-toggle-btn` 방식의 커스텀 입구 헤더를 쓴다(`비법` 버튼 포함, `pages-*` 그룹 없음).
 
@@ -73,7 +94,7 @@
 | `claude-code-best-practices.html` | CLI | 15분 | 고급 | 클로드 코드 베스트 프랙티스 9원칙. `cheatsheet.html` 골격 클론. code.claude.com/docs best-practices 한국어판(예시는 개발 코드가 아니라 비즈니스 리더·지식 노동자 사례로 번안: 매출 분석·제안서·대시보드·뉴스 브리핑 등). **헤더 토글이 2탭(노코드·CLI)→3탭(노코드·CLI·비법)으로 확장됨**: 표준 토글 5개 페이지(claude-code-tasks·github·checklist·cheatsheet·이 페이지)에 `id="tab-tip"` `비법` 탭 + `id="pages-tip"` 그룹(이 페이지 링크 1개) 추가, `switchMode`는 `['nocode','cli','tip']` 3-way. claude-code-101은 track-toggle-btn에 `비법` 버튼 추가. 이 페이지는 비법 탭 기본 active. index에서는 4단계 CLI 트랙 **아래**에 `🎓 비법 · 노코드·CLI 공통 원칙` track-label + 풀폭 featured 카드(CLI 트랙은 checklist·cheatsheet 2장). 본문 sub-menu(스크롤스파이) 5섹션(컨텍스트 뿌리 + 3카테고리 + 체크리스트). 본문 9원칙을 3카테고리로 묶는다: `#basics` 기본기(원칙 1~3 검증·탐색계획·구체적지시), `#ops` 환경과 운영(4~6 환경설정·소통·세션관리), `#mastery` 숙련(7~9 자동화확장·실패패턴·직관). 각 카테고리는 `.content-section`(스크롤스파이 단위), 그 안에 `.cat-banner`(오렌지 그라데이션 배너)+`.principle` 9개. 원칙 한 줄은 `.tip`, 본문은 `.nm-card`(산문·Before/After 표 `td.ba-before/.ba-after`·`.code-example`). 끝에 `#checklist` 섹션(9원칙 한 줄 점검, `.bp-check` 체크박스 9개, 진행바, localStorage 키 `ccbp-checklist` 저장) + `.next-links`(하네스·루프 크로스링크). 키보드 `5`→`claude-tools.html` |
 
 ### 5단계 · 자동화 (8개)
-세 묶음(하네스·도구·루프)으로 나뉜다. 8개 페이지는 헤더에 공통 3단 토글을 달고, sub-menu는 모두 6섹션이다.
+세 묶음(하네스·도구·루프)으로 나뉜다. sub-menu는 모두 6섹션이다. 헤더 토글은 2026-06-21에 바뀌었다(아래 토글 규칙 참고): 하네스·도구 6개 페이지는 `하네스 | 도구` 2탭 토글을 달고, 루프 2개 페이지(`loop-engineering`·`routines`)는 토글 없이 `pages-loop` 서브메뉴 버튼 2개만 단독으로 둔다.
 
 | 페이지 | 묶음 | 시간 | 난이도 | 특성 |
 |---|---|---|---|---|
@@ -86,29 +107,29 @@
 | `loop-engineering.html` | 루프 | 14분 | 고급 | 루프 다섯 요소와 클로드 코드 `/loop`. 행동·관찰·조정을 목표에 닿을 때까지 반복 |
 | `routines.html` | 루프 | 12분 | 중급 | 정해진 시각에 클라우드에서 무인으로 도는 예약형 에이전트 |
 
-자동화 5단계 8개 페이지는 헤더에 공통 3단 토글(`하네스 · 도구 · 루프`)을 단다. 토글은 `index.html` 자동화 섹션의 3묶음과 1:1로 맞춘다. 묶음·그룹 id·구성은 다음과 같다.
+2026-06-21 이전에는 8개 페이지 공통 `하네스 · 도구 · 루프` 3단 토글이었으나, 4단계 토글에서 `루프` 탭과 `pages-loop` 그룹을 뺐다. 현재 하네스·도구 6개 페이지만 `하네스 | 도구` 2탭 토글을 달고, 루프 2개 페이지는 `pages-loop` 버튼 묶음(2링크)만 단독으로 보여 준다(토글 없음). 그룹 id·구성은 다음과 같다(참고).
 
-| 토글 탭 | 그룹 id | 링크 (순서 고정) |
-|---|---|---|
-| 하네스 | `pages-harness` | 하네스 엔지니어링(`harness-engineering.html`) · 도구(`claude-tools.html`) · 멀티 에이전트 소환(`harness-workflows.html`) |
-| 도구 | `pages-tool` | CLAUDE.md(`claude-md-templates.html`) · 나만의 Skill 만들기(`skills.html`) · 스킬·MCP 플러그인(`code-plugin.html`) |
-| 루프 | `pages-loop` | 루프 엔지니어링(`loop-engineering.html`) · Routines 예약 실행(`routines.html`) |
+| 묶음 | 그룹 id | 링크 (순서 고정) | 토글 |
+|---|---|---|---|
+| 하네스 | `pages-harness` | 하네스 엔지니어링(`harness-engineering.html`) · 도구(`claude-tools.html`) · 멀티 에이전트 소환(`harness-workflows.html`) | `하네스\|도구` 토글 |
+| 도구 | `pages-tool` | CLAUDE.md(`claude-md-templates.html`) · 나만의 Skill 만들기(`skills.html`) · 스킬·MCP 플러그인(`code-plugin.html`) | `하네스\|도구` 토글 |
+| 루프 | `pages-loop` | 루프 엔지니어링(`loop-engineering.html`) · Routines 예약 실행(`routines.html`) | 토글 없음, 버튼만 |
 
 규칙:
-- 토글 순서는 하네스 → 도구 → 루프로 고정한다(index 트랙 순서와 동일).
-- 각 페이지는 자기 묶음의 탭을 기본 active로 두고, 해당 그룹만 표시한다(나머지 두 그룹은 `style="display:none;"`).
-- 탭은 `<button class="mode-tab" id="tab-{harness|tool|loop}" role="tab">`, `switchMode(mode)`는 `['harness','tool','loop']`를 순회하며 `tab-`/`pages-` 접두사로 토글한다(8개 페이지 공통).
+- 토글 순서는 하네스 → 도구로 고정한다. 루프 그룹은 토글 탭에서 빠졌고, `loop-engineering`·`routines` 두 페이지에서 `pages-loop` 버튼 묶음만 단독 표시한다.
+- 하네스·도구 각 페이지는 자기 묶음의 탭을 기본 active로 두고, 해당 그룹만 표시한다(다른 한 그룹은 `style="display:none;"`).
+- 탭은 `<button class="mode-tab" id="tab-{harness|tool}" role="tab">`, `switchMode(mode)`는 `['harness','tool']`를 순회하며 `tab-`/`pages-` 접두사로 토글한다(하네스·도구 6개 페이지). 루프 2개 페이지는 `switchMode`/`mode-tabs` 없이 `pages-loop`만 둔다(주의: `claude-md-templates`의 header-pages에는 `load-anim` 클래스가 더 붙어 있다).
 - `.mode-tab`은 `<button>`이라 `border:none; background:none; font-family:inherit` 리셋이 반드시 들어가야 한다(누락 시 브라우저 기본 회색 배경이 보인다).
 - 페이지 제목과 내비 라벨은 `멀티 에이전트 소환`이고, 본문 안에서는 `다이내믹 워크플로우`를 하네스 한 벌을 가리키는 개념어로 계속 쓴다.
 
 `agent-design.html`(팀 설계)은 2026-06-08에 인덱스와 전 페이지 내비·링크·키보드 핸들러에서 제거했다. 파일은 `backups/agent-design.html`로 옮겨 git 추적에서 뺐다(`backups/`는 gitignore 대상 로컬 아카이브). 되살리려면 파일을 루트로 되돌린 뒤 `pages-design` 내비, index 자동화 카드, `ai-levels.html` 로드맵, 키보드 `5` 핸들러를 함께 복원한다. 그 자리는 `claude-tools.html`이 대신한다.
 
 ### 실전 예제 (골드 액센트, 좌측 보더 `#B8860B`)
-인덱스의 실전 예제 섹션은 세 묶음으로 나뉜다. `글 다듬기`(AI 티 없이 사람 글로 만들기, 맨 앞) → `기본 예제`(바로 써먹는 실무 자동화) → `MCP 연결`(외부 도구와 연동하는 워크플로우). `기본 예제`·`MCP 연결` 6개 페이지는 같은 6링크 header-pages 내비를 공유한다(`기본 예제` 3 + `MCP 연결` 3). `글 다듬기`는 인덱스에서 `ai-writing.html` 카드 1개만 둔다(2026-06-18 `ai-sycophancy.html`를 맨 하단 `AI 제대로 검증하기` 섹션으로 옮김). mode-tabs는 없다. 2026-06-18 `ai-sycophancy.html`의 header-pages 짝을 `ai-writing`에서 `ai-hallucination`으로 바꿨다(2링크 `동조 줄이기`·`환각 줄이기`, 490px). 그래서 `ai-writing`의 header-pages는 여전히 `동조 줄이기 → ai-sycophancy`를 갖지만 단방향이다(ai-sycophancy는 ai-writing으로 되돌아가지 않는다. 추후 정리 후보). 기본 예제 그룹은 뉴스 클리핑 → 구글 시트 대시보드 → 책 쓰기 순서로 고정한다.
+인덱스의 실전 예제 섹션은 세 묶음으로 나뉜다. `글 다듬기`(AI 티 없이 사람 글로 만들기, 맨 앞) → `기본 예제`(바로 써먹는 실무 자동화) → `MCP 연결`(외부 도구와 연동하는 워크플로우). 2026-06-21에 7개 실전 예제 페이지(`ai-writing` + `기본 예제` 3 + `MCP 연결` 3)에 `글 다듬기 | 기본 예제 | MCP 연결` 3탭 토글과 상단 step-nav(`예제` 노드 active)를 달았다. `mode-tabs` + `switchMode(['writing','basic','mcp'])`, `pages-writing` 1링크(`✍️ 쓴 티 지우기`=ai-writing) / `pages-basic` 3링크 / `pages-mcp` 3링크. `글 다듬기`(ai-writing)는 `tab-writing`, 기본 예제 3페이지는 `tab-basic`, MCP 3페이지는 `tab-mcp` 기본 active. `harness-book`는 제너릭 `switchMode`(배열 순회형)라 일괄 수정 시 명시형 5개 페이지와 패턴이 다르다. 인덱스 실전 예제 섹션은 `글 다듬기`(ai-writing 카드 1장) → `기본 예제` → `MCP 연결` 순서다. 기본 예제 그룹은 뉴스 클리핑 → 구글 시트 대시보드 → 책 쓰기, MCP 그룹은 PlayMCP → 법령 → 공시 순서로 고정한다(2026-06-21에 MCP 3페이지의 `pages-basic`에 빠져 있던 뉴스 클리핑 링크를 채워 3링크로 통일). 이전 `ai-writing`의 2링크 단방향 header-pages(`ai-sycophancy` 짝)는 3탭 토글로 대체됐다.
 
 | 페이지 | 묶음 | 시간 | 난이도 | 특성 |
 |---|---|---|---|---|
-| `ai-writing.html` | 글 다듬기 | 12분 | 중급 | AI가 쓴 티를 지우는 법. `news-clipping.html` 골격 클론(mode-tabs 제거, header-pages 2링크: 쓴 티 지우기·동조 줄이기 → `ai-sycophancy.html`). sub-menu 8섹션(한눈에·말버릇·교묘한 패턴·장면으로·버릇 차단·사람의 몫·참고자료·다음 행동). AI 한국어 말버릇 8개(번역투·형용사·접속사·문장길이 + 명언공장·보편위로·판단회피·부풀리기), Before/After 표 3개, 금지어 프롬프트 2개(2026-06-18 프롬프트 박스 빈 줄 제거·규칙을 한 줄씩 붙임), 8 대 2 원칙. 2026-06-18 공개 연구 4건 인용: INTRO에 Jones &amp; Bergen(2024, arXiv:2405.08007 튜링 테스트 GPT-4 54%·판단 근거는 문체/정서)·Doshi &amp; Hauser(2024, Science Advances 10.7% 더 비슷=균질화), STEP1에 GPTZero 버스티니스·Kobak 외(2025, Science Advances 과잉어휘 13.5%) tip-box, 끝 `#refs` 참고자료 섹션(ref-link 4개, 영어 연구지만 한국어에도 동일 원리 단서). 워크플로 step의 "당신"은 4.10 따라 "사람/자기"로 교체(예시 인용문 안 "당신"은 유지). 2026-06-19 스타일을 `ai-hallucination.html` idiom으로 정렬: 왼쪽 컬러 띠지 전면 제거(h2·tip-box border-left 삭제 [[no-left-color-bar-cliche]]), 색은 라벨 점(dot ::before 7px)으로 이동(tip-label·inset-label), 카드·박스에 hairline 테두리(`--hairline:#D4CEC4`) 추가, 그림자 토큰을 ai-hallucination 수준으로 약화(2px 소프트), step-badge shimmer 애니메이션 제거(정적 뱃지), h2는 weight 800·#2A2520. 강조색은 페이지 정체성 위해 테라코타(`#B35535`) 유지(ai-hallucination의 본문 주황 `#D97757`은 미적용, 헤더 그라데이션은 두 페이지 동일). [[korean]] 스킬·`multi-persona.html` 크로스링크. 글 다듬기 묶음의 단독 카드(인덱스) |
+| `ai-writing.html` | 글 다듬기 | 12분 | 중급 | AI가 쓴 티를 지우는 법. `news-clipping.html` 골격 클론. 2026-06-21에 헤더를 `글 다듬기 | 기본 예제 | MCP 연결` 3탭 토글로 교체(`tab-writing` 기본 active, `pages-writing` 1링크 `쓴 티 지우기`. 옛 2링크 단방향 header-pages는 폐기). sub-menu 8섹션(한눈에·말버릇·교묘한 패턴·장면으로·버릇 차단·사람의 몫·참고자료·다음 행동). AI 한국어 말버릇 8개(번역투·형용사·접속사·문장길이 + 명언공장·보편위로·판단회피·부풀리기), Before/After 표 3개, 금지어 프롬프트 2개(2026-06-18 프롬프트 박스 빈 줄 제거·규칙을 한 줄씩 붙임), 8 대 2 원칙. 2026-06-18 공개 연구 4건 인용: INTRO에 Jones &amp; Bergen(2024, arXiv:2405.08007 튜링 테스트 GPT-4 54%·판단 근거는 문체/정서)·Doshi &amp; Hauser(2024, Science Advances 10.7% 더 비슷=균질화), STEP1에 GPTZero 버스티니스·Kobak 외(2025, Science Advances 과잉어휘 13.5%) tip-box, 끝 `#refs` 참고자료 섹션(ref-link 4개, 영어 연구지만 한국어에도 동일 원리 단서). 워크플로 step의 "당신"은 4.10 따라 "사람/자기"로 교체(예시 인용문 안 "당신"은 유지). 2026-06-19 스타일을 `ai-hallucination.html` idiom으로 정렬: 왼쪽 컬러 띠지 전면 제거(h2·tip-box border-left 삭제 [[no-left-color-bar-cliche]]), 색은 라벨 점(dot ::before 7px)으로 이동(tip-label·inset-label), 카드·박스에 hairline 테두리(`--hairline:#D4CEC4`) 추가, 그림자 토큰을 ai-hallucination 수준으로 약화(2px 소프트), step-badge shimmer 애니메이션 제거(정적 뱃지), h2는 weight 800·#2A2520. 강조색은 페이지 정체성 위해 테라코타(`#B35535`) 유지(ai-hallucination의 본문 주황 `#D97757`은 미적용, 헤더 그라데이션은 두 페이지 동일). [[korean]] 스킬·`multi-persona.html` 크로스링크. 글 다듬기 묶음의 단독 카드(인덱스) |
 | `news-clipping.html` | 기본 예제 | 15분 | 중급 | 뉴스 클리핑 자동화. `google-sheets-dashboard.html` 골격 클론. 테마→Tier1 매체→주기→포맷→스킬→루틴 6단계. 철강(steel-brief) 예시로 끝까지 관통. sub-menu 8섹션, STEP5·6은 `skills.html`·`routines.html`로 연결. 기본 예제 그룹의 첫 카드 |
 | `google-sheets-dashboard.html` | 기본 예제 | 12분 | 중급 | 골드 액센트 카드 |
 | `harness-book.html` | 기본 예제 | 20분 | 고급 | 책쓰기 실전, 자체 sub-menu 최다 |
