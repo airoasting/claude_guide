@@ -344,6 +344,9 @@
                 <h2 class="license-title">업데이트 내역</h2>
                 <div class="changelog-list">
                     <div class="changelog-item">
+                        <div class="changelog-meta"><span class="changelog-ver">v1.8</span><span class="changelog-date">2026-06-21</span></div>
+                        <div class="changelog-body"><p class="changelog-title">내비게이션 통일과 새 페이지 보강</p><p class="changelog-desc">모든 콘텐츠 페이지의 상단 단계 내비게이션을 인덱스 커리큘럼 순서에 맞춰 하나로 통일하고, 2단계와 실전 예제 페이지에는 묶음을 오가는 토글을 달았습니다. 같은 기간에 클로드 코드 9원칙을 비즈니스 리더 사례로 옮긴 '고수처럼 쓰는 9가지 원칙', AI 글의 티를 지우는 글다듬기 페이지, 빅4 가짜 각주를 파헤친 'AI의 환각을 벗어나는 법'을 새로 깔았습니다. 전 세계 클로드 코드 해커톤 우승작 14선을 모은 '클로드 해커톤 쇼케이스'도 함께 열었습니다.</p></div></div>
+                    <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v1.6</span><span class="changelog-date">2026-06-14</span></div>
                         <div class="changelog-body"><p class="changelog-title">루프 엔지니어링 트랙 신설</p><p class="changelog-desc">행동하고 검증하고 다시 도는 피드백 루프를 시스템으로 설계하는 '루프 엔지니어링' 트랙을 새로 깔았습니다. 클로드 코드 /loop를 다루는 루프 엔지니어링 페이지와 정해진 시각에 무인으로 도는 Routines 예약 실행 페이지를 더하고, 프롬프트 작성법에 위임 4요소(목표·채점·검증·멈춤) 섹션과 최신 모델 Fable 5 표기를 반영했습니다.</p></div>
                     </div>
