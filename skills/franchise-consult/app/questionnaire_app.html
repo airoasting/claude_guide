@@ -1,0 +1,1185 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --ink: #1a1a1a;
+    --ink-2: #4a4a4a;
+    --ink-3: #8a8a87;
+    --line: #e8e6df;
+    --line-2: #f0eee7;
+    --accent: #9a7b3f;
+    --accent-soft: #f5efe0;
+    --warn: #b8442e;
+    --warn-soft: #f8ebe6;
+    --good: #4a6b3a;
+    --good-soft: #ecf0e6;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    max-width: 560px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+  }
+
+  /* === 헤더 === */
+  .topbar {
+    position: sticky; top: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    z-index: 10;
+    padding: 14px 20px;
+  }
+
+  .topbar-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+
+  .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .brand-sub {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-3);
+    margin-top: 2px;
+  }
+
+  .topbar-actions {
+    display: flex; gap: 8px;
+  }
+
+  .icon-btn {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-2);
+    width: 36px; height: 36px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .icon-btn:active { background: var(--accent-soft); }
+
+  /* === 진행도 바 === */
+  .progress-wrap {
+    margin-top: 12px;
+  }
+
+  .progress-meta {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 11px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 6px;
+  }
+
+  .progress-meta strong {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--line-2);
+    border-radius: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* === 뷰 === */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* === 목록 뷰 === */
+  .list-wrap { padding: 24px 20px 100px; }
+
+  .list-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+  }
+  .list-subtitle {
+    color: var(--ink-3);
+    font-size: 13px;
+    margin: 0 0 24px;
+  }
+
+  .new-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--ink);
+    color: var(--surface);
+    border: none;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .new-btn:active { opacity: 0.8; }
+
+  .list-divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 28px 0 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--ink-3);
+  }
+  .list-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .empty {
+    text-align: center;
+    padding: 32px 20px;
+    color: var(--ink-3);
+    font-size: 13px;
+    border: 1px dashed var(--line);
+    border-radius: 4px;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+  }
+
+  .record-card {
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface);
+  }
+  .record-card:active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+
+  .record-row1 {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .record-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-weight: 600;
+  }
+  .record-date {
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.05em;
+  }
+
+  .record-meta {
+    font-size: 12px;
+    color: var(--ink-2);
+    display: flex; gap: 10px;
+    align-items: center;
+  }
+  .record-meta-dot { width: 3px; height: 3px; background: var(--ink-3); border-radius: 50%; }
+
+  .record-completion {
+    margin-top: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .record-completion-bar {
+    flex: 1; height: 2px; background: var(--line-2);
+  }
+  .record-completion-fill {
+    height: 100%; background: var(--accent);
+  }
+  .record-completion-num {
+    font-size: 11px; color: var(--ink-3); letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* === 폼 뷰 === */
+  .form-wrap { padding: 0 0 140px; }
+
+  .section {
+    padding: 28px 20px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .section:last-of-type { border-bottom: none; }
+
+  .section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+  }
+
+  .section-desc {
+    color: var(--ink-3);
+    font-size: 13px;
+    margin: 0 0 20px;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+  }
+
+  .field {
+    margin-bottom: 18px;
+  }
+
+  .field-label {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  .field-id {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    color: var(--accent);
+    font-weight: 600;
+    flex-shrink: 0;
+    min-width: 22px;
+  }
+
+  .field-text { flex: 1; }
+
+  .field-hint {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 3px;
+    font-weight: 400;
+  }
+
+  input[type="text"], input[type="number"], textarea, select {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  textarea { resize: vertical; min-height: 70px; font-family: 'Inter', sans-serif; }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3e%3cpath fill='none' stroke='%238a8a87' stroke-width='1.4' d='M1 1l4 4 4-4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 32px;
+  }
+
+  .chip-row {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .chip {
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--surface);
+    font-size: 13px;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.12s;
+    font-family: inherit;
+  }
+  .chip:active { background: var(--accent-soft); }
+  .chip.active {
+    background: var(--ink);
+    color: var(--surface);
+    border-color: var(--ink);
+  }
+
+  .ratio-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .ratio-item {
+    text-align: center;
+  }
+  .ratio-item input {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .ratio-item label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-3);
+    margin-top: 4px;
+    display: block;
+  }
+  .ratio-sum {
+    text-align: right;
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+  }
+  .ratio-sum.bad { color: var(--warn); }
+  .ratio-sum.ok { color: var(--good); }
+
+  /* === 입력 완성도 표시 === */
+  .field-status {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--line);
+    margin-left: auto;
+    flex-shrink: 0;
+    margin-top: 6px;
+    transition: background 0.2s;
+  }
+  .field-status.filled { background: var(--good); }
+  .field-status.skipped { background: var(--ink-3); }
+
+  .section-completion {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 16px;
+    padding: 8px 10px;
+    background: var(--bg);
+    border-radius: 3px;
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.05em;
+  }
+  .section-completion-bar {
+    flex: 1; height: 2px; background: var(--line);
+  }
+  .section-completion-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s;
+  }
+
+  /* === 푸터 (저장/내보내기) === */
+  .footer-bar {
+    position: fixed; bottom: 0;
+    left: 0; right: 0;
+    max-width: 560px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-top: 1px solid var(--line);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    display: flex; gap: 8px;
+    z-index: 10;
+  }
+
+  .footer-btn {
+    flex: 1;
+    padding: 13px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .footer-btn:active { background: var(--accent-soft); }
+
+  .footer-btn.primary {
+    background: var(--ink);
+    color: var(--surface);
+    border-color: var(--ink);
+    flex: 1.5;
+  }
+  .footer-btn.primary:active { opacity: 0.85; }
+
+  /* === 결과 모달 === */
+  .modal {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(20,20,20,0.55);
+    z-index: 100;
+    align-items: flex-end;
+  }
+  .modal.active { display: flex; }
+
+  .modal-sheet {
+    background: var(--surface);
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    max-height: 85vh;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.25s ease-out;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+  .modal-header {
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    font-weight: 500;
+    margin: 0 0 4px;
+  }
+  .modal-sub {
+    font-size: 12px;
+    color: var(--ink-3);
+    letter-spacing: 0.05em;
+  }
+
+  .modal-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .modal-output {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 14px;
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--ink-2);
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  .modal-actions {
+    padding: 12px 20px 16px;
+    border-top: 1px solid var(--line);
+    display: flex; gap: 8px;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--surface);
+    padding: 10px 18px;
+    border-radius: 3px;
+    font-size: 13px;
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px);
+  }
+
+  /* 작은 화면 보정 */
+  @media (max-width: 380px) {
+    .ratio-row { gap: 6px; }
+    .ratio-item input { padding: 10px 6px; }
+    .section { padding: 24px 16px 6px; }
+    .topbar { padding: 12px 16px; }
+    .list-wrap { padding: 20px 16px 100px; }
+  }
+</style>
+
+<div class="app">
+
+  <!-- ============ 헤더 ============ -->
+  <div class="topbar">
+    <div class="topbar-row">
+      <div>
+        <div class="brand" id="topbar-title">가맹 상담 기록</div>
+        <div class="brand-sub" id="topbar-sub">PRE-FRANCHISEE INTAKE</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="back-btn" style="display:none" onclick="showList()">←</button>
+      </div>
+    </div>
+    <div class="progress-wrap" id="progress-wrap" style="display:none">
+      <div class="progress-meta">
+        <span>입력 완성도</span>
+        <strong id="progress-num">0%</strong>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 목록 뷰 ============ -->
+  <div class="view active" id="view-list">
+    <div class="list-wrap">
+      <h1 class="list-title">상담 기록</h1>
+      <p class="list-subtitle">예비 가맹점주 상담을 기록하고 분석팀에게 전달합니다.</p>
+
+      <button class="new-btn" onclick="newRecord()">＋ 새 상담 시작</button>
+
+      <div class="list-divider">저장된 상담</div>
+      <div id="record-list"></div>
+    </div>
+  </div>
+
+  <!-- ============ 폼 뷰 ============ -->
+  <div class="view" id="view-form">
+    <div class="form-wrap" id="form-content">
+      <!-- 동적 렌더링 -->
+    </div>
+  </div>
+
+  <!-- ============ 푸터 ============ -->
+  <div class="footer-bar" id="footer-bar" style="display:none">
+    <button class="footer-btn" onclick="saveRecord(false)">저장</button>
+    <button class="footer-btn primary" onclick="exportRecord()">분석용 출력</button>
+  </div>
+
+  <!-- ============ 결과 모달 ============ -->
+  <div class="modal" id="export-modal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 class="modal-title">분석팀 전달용</h2>
+        <div class="modal-sub">아래 내용을 복사해 클로드에게 붙여넣으세요</div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-output" id="export-output"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="footer-btn" onclick="closeModal()">닫기</button>
+        <button class="footer-btn primary" onclick="copyExport()">복사</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+// ============ 설문지 정의 ============
+const SCHEMA = [
+  {
+    id: 'A', title: '기본 정보', label: 'SECTION A',
+    desc: '상담자의 기초 인적 사항입니다.',
+    fields: [
+      { id: 'A1', label: '성명 (또는 식별 코드)', type: 'text', placeholder: '예: 홍길동 또는 #2024-08' },
+      { id: 'A2', label: '연령', type: 'number', placeholder: '40' },
+      { id: 'A3', label: '거주 지역', type: 'text', placeholder: '시/구 단위 — 예: 세종시' },
+      { id: 'A4', label: '가족 구성', type: 'text', placeholder: '예: 배우자, 1남 2녀' },
+      { id: 'A5', label: '배우자·가족이 가맹 창업에 동의했는가?', type: 'chip', options: ['예', '아니오', '미상담'] },
+    ]
+  },
+  {
+    id: 'B', title: '자금 계획', label: 'SECTION B',
+    desc: '레드(리스크 분석) 페르소나가 검토합니다.',
+    fields: [
+      { id: 'B1', label: '총 가용 자기자본', type: 'text', placeholder: '예: 1억', hint: '단위 포함해 자유 서술' },
+      { id: 'B2', label: '그중 즉시 투입 가능한 현금', type: 'text', placeholder: '예: 3천' },
+      { id: 'B3', label: '대출·차입 계획 (금액 및 출처)', type: 'text', placeholder: '없음 또는 금액·출처', hint: '은행 / 지인 / 없음' },
+      { id: 'B4', label: '본 가맹 외 보유 부채 규모', type: 'text', placeholder: '예: 5천 (주담대)' },
+      { id: 'B5', label: '6개월 무수입을 버틸 예비 자금', type: 'chip-text', options: ['예', '아니오'], placeholder: '있다면 금액' },
+      { id: 'B6', label: '기대하는 월 순수익', type: 'text', placeholder: '예: 500만' },
+      { id: 'B7', label: '투자금 회수 예상 기간', type: 'text', placeholder: '예: 12개월', hint: '업계 평균 24~36개월' },
+    ]
+  },
+  {
+    id: 'C', title: '경험과 운영 의지', label: 'SECTION C',
+    desc: '골드(현장 운영 전문가) 페르소나가 검토합니다.',
+    fields: [
+      { id: 'C1', label: '외식업·서비스업·자영업 경험', type: 'text', placeholder: '있음 - 기간·형태 / 없음' },
+      { id: 'C2', label: '직원 채용·관리 경험', type: 'text', placeholder: '있음 - 인원수 / 없음' },
+      { id: 'C3', label: '직접 매장 근무 의향', type: 'chip',
+        options: ['전일 직접운영', '일부 직접운영', '위탁운영', '미정'] },
+      { id: 'C4', label: '주당 매장 투입 가능 시간', type: 'text', placeholder: '예: 60시간' },
+      { id: 'C5', label: '본업·부업 병행 여부', type: 'chip', options: ['전업', '병행', '미정'] },
+      { id: 'C6', label: '체력·건강상 우려', type: 'text', placeholder: '있음 - 내용 / 없음' },
+      { id: 'C7', label: '자신 있는 업무 / 부담스러운 업무', type: 'text', placeholder: '예: 조리 / 고객응대' },
+    ]
+  },
+  {
+    id: 'D', title: '입지·상권 인식', label: 'SECTION D',
+    desc: '블루(상권 전략가) 페르소나가 검토합니다.',
+    fields: [
+      { id: 'D1', label: '희망 출점 지역', type: 'text', placeholder: '시/구/동 또는 상권명' },
+      { id: 'D2', label: '후보 점포', type: 'text', placeholder: '있음 - 주소 / 없음' },
+      { id: 'D3', label: '해당 상권의 유동인구·주요 고객층 파악 정도', type: 'textarea',
+        placeholder: '자유 서술 — 모르면 "모름"이라고 적어주세요' },
+      { id: 'D4', label: '경쟁 매장 인지 여부', type: 'text', placeholder: '있음 - 매장명 / 모름' },
+      { id: 'D5', label: '매출 비중 예상 (홀 / 포장 / 배달)', type: 'ratio' },
+      { id: 'D6', label: '임대료 협상 상황', type: 'chip',
+        options: ['계약 전', '가계약', '본계약', '미정'] },
+      { id: 'D7', label: '해당 입지를 선택한 가장 큰 이유', type: 'textarea',
+        placeholder: '자유 서술' },
+    ]
+  },
+  {
+    id: 'E', title: '브랜드 이해와 협업 태도', label: 'SECTION E',
+    desc: '화이트(브랜드 매니저) 페르소나가 검토합니다.',
+    fields: [
+      { id: 'E1', label: '본 브랜드를 알게 된 경로', type: 'text', placeholder: '예: 유튜브, 지인 추천' },
+      { id: 'E2', label: '본 브랜드를 선택한 이유', type: 'textarea', placeholder: '자유 서술' },
+      { id: 'E3', label: '경쟁 브랜드와 비교한 적 있는가?', type: 'text', placeholder: '있음 - 비교 결과 / 없음' },
+      { id: 'E4', label: '본사 매뉴얼·정책을 따를 의향', type: 'chip',
+        options: ['전적으로 따름', '협의하며 따름', '본인 방식 우선'] },
+      { id: 'E5', label: '고객 클레임 대응 스타일', type: 'textarea', placeholder: '경험이 없으면 가상의 상황에서 어떻게 대응할지' },
+      { id: 'E6', label: '본사 슈퍼바이저 방문·점검에 대한 생각', type: 'textarea', placeholder: '자유 서술' },
+      { id: 'E7', label: 'SNS·온라인 리뷰 관리 의향', type: 'chip', options: ['직접', '위임', '미정'] },
+    ]
+  },
+  {
+    id: 'F', title: '그 외 종합', label: 'SECTION F',
+    desc: '블랙(총괄 디렉터) 페르소나가 최종 합의용으로 참고합니다.',
+    fields: [
+      { id: 'F1', label: '향후 5년 내 가맹점 추가 출점 계획', type: 'chip', options: ['있음', '없음', '미정'] },
+      { id: 'F2', label: '본 사업 실패 시 대비책', type: 'textarea', placeholder: '있음 - 내용 / 없음' },
+      { id: 'F3', label: '상담 담당자에게 추가로 묻고 싶은 것', type: 'textarea', placeholder: '없으면 비워두세요' },
+      { id: 'F4', label: '자유 의견', type: 'textarea', placeholder: '없으면 비워두세요' },
+    ]
+  },
+];
+
+// 전체 필드 수
+const TOTAL_FIELDS = SCHEMA.reduce((acc, s) => acc + s.fields.length, 0);
+
+// ============ 상태 ============
+let currentRecord = null; // 편집 중인 레코드
+let currentId = null;
+
+// ============ 저장소 ============
+async function listRecords() {
+  try {
+    const result = await window.storage.list('rec:');
+    if (!result || !result.keys) return [];
+    const records = [];
+    for (const key of result.keys) {
+      try {
+        const r = await window.storage.get(key);
+        if (r && r.value) {
+          records.push({ key, ...JSON.parse(r.value) });
+        }
+      } catch (e) {}
+    }
+    records.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    return records;
+  } catch (e) {
+    return [];
+  }
+}
+
+async function saveRecordToStorage(record) {
+  try {
+    const key = `rec:${record.id}`;
+    await window.storage.set(key, JSON.stringify(record));
+    return true;
+  } catch (e) {
+    console.error('저장 실패', e);
+    return false;
+  }
+}
+
+async function deleteRecordFromStorage(id) {
+  try {
+    await window.storage.delete(`rec:${id}`);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// ============ 진행도 계산 ============
+function computeCompletion(data) {
+  let filled = 0;
+  for (const section of SCHEMA) {
+    for (const f of section.fields) {
+      const v = data[f.id];
+      if (isFieldFilled(f, v)) filled++;
+    }
+  }
+  return { filled, total: TOTAL_FIELDS, pct: Math.round((filled / TOTAL_FIELDS) * 100) };
+}
+
+function computeSectionCompletion(section, data) {
+  let filled = 0;
+  for (const f of section.fields) {
+    if (isFieldFilled(f, data[f.id])) filled++;
+  }
+  return { filled, total: section.fields.length };
+}
+
+function isFieldFilled(field, v) {
+  if (v === undefined || v === null) return false;
+  if (field.type === 'ratio') {
+    return v && (v.hall !== '' && v.hall !== undefined) &&
+           (v.pickup !== '' && v.pickup !== undefined) &&
+           (v.delivery !== '' && v.delivery !== undefined);
+  }
+  if (field.type === 'chip-text') {
+    return v && v.choice && v.choice !== '';
+  }
+  if (typeof v === 'string') return v.trim() !== '';
+  return false;
+}
+
+// ============ 목록 렌더링 ============
+async function renderList() {
+  const list = await listRecords();
+  const container = document.getElementById('record-list');
+
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty">저장된 상담이 없습니다</div>';
+    return;
+  }
+
+  container.innerHTML = list.map(r => {
+    const c = computeCompletion(r.data || {});
+    const name = (r.data && r.data.A1) || '이름 없음';
+    const region = (r.data && r.data.A3) || '';
+    const date = r.updatedAt ? new Date(r.updatedAt).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' }) : '';
+    return `
+      <div class="record-card" onclick="loadRecord('${r.id}')">
+        <div class="record-row1">
+          <div class="record-name">${escapeHtml(name)}</div>
+          <div class="record-date">${date}</div>
+        </div>
+        <div class="record-meta">
+          ${region ? `<span>${escapeHtml(region)}</span><span class="record-meta-dot"></span>` : ''}
+          <span>${c.filled}/${c.total} 항목</span>
+        </div>
+        <div class="record-completion">
+          <div class="record-completion-bar"><div class="record-completion-fill" style="width:${c.pct}%"></div></div>
+          <div class="record-completion-num">${c.pct}%</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============ 폼 렌더링 ============
+function renderForm() {
+  const data = currentRecord.data;
+  const container = document.getElementById('form-content');
+
+  container.innerHTML = SCHEMA.map(section => {
+    const sc = computeSectionCompletion(section, data);
+    return `
+      <div class="section">
+        <div class="section-label">${section.label}</div>
+        <h2 class="section-title">${section.title}</h2>
+        <p class="section-desc">${section.desc}</p>
+
+        <div class="section-completion">
+          <span>${sc.filled} / ${sc.total}</span>
+          <div class="section-completion-bar">
+            <div class="section-completion-fill" style="width:${(sc.filled/sc.total)*100}%"></div>
+          </div>
+        </div>
+
+        ${section.fields.map(f => renderField(f, data[f.id])).join('')}
+      </div>
+    `;
+  }).join('');
+
+  attachFieldListeners();
+  updateProgress();
+}
+
+function renderField(f, v) {
+  const isFilled = isFieldFilled(f, v);
+  const statusClass = isFilled ? 'filled' : '';
+  const hint = f.hint ? `<div class="field-hint">${f.hint}</div>` : '';
+
+  let input = '';
+  if (f.type === 'text' || f.type === 'number') {
+    input = `<input type="${f.type === 'number' ? 'number' : 'text'}"
+              data-fid="${f.id}"
+              inputmode="${f.type === 'number' ? 'numeric' : 'text'}"
+              placeholder="${f.placeholder || ''}"
+              value="${escapeAttr(v || '')}">`;
+  } else if (f.type === 'textarea') {
+    input = `<textarea data-fid="${f.id}" placeholder="${f.placeholder || ''}">${escapeHtml(v || '')}</textarea>`;
+  } else if (f.type === 'chip') {
+    input = `<div class="chip-row" data-fid="${f.id}">
+      ${f.options.map(opt => `
+        <button class="chip ${v === opt ? 'active' : ''}" data-val="${escapeAttr(opt)}">${escapeHtml(opt)}</button>
+      `).join('')}
+    </div>`;
+  } else if (f.type === 'chip-text') {
+    const cv = v || {};
+    input = `
+      <div class="chip-row" data-fid="${f.id}" data-type="chip-text">
+        ${f.options.map(opt => `
+          <button class="chip ${cv.choice === opt ? 'active' : ''}" data-val="${escapeAttr(opt)}">${escapeHtml(opt)}</button>
+        `).join('')}
+      </div>
+      <input type="text" style="margin-top:8px"
+        data-fid="${f.id}" data-type="chip-text-amount"
+        placeholder="${f.placeholder || ''}"
+        value="${escapeAttr(cv.amount || '')}">
+    `;
+  } else if (f.type === 'ratio') {
+    const rv = v || {};
+    input = `
+      <div class="ratio-row" data-fid="${f.id}" data-type="ratio">
+        <div class="ratio-item">
+          <input type="number" inputmode="numeric" data-ratio="hall" placeholder="60" value="${escapeAttr(rv.hall ?? '')}">
+          <label>홀</label>
+        </div>
+        <div class="ratio-item">
+          <input type="number" inputmode="numeric" data-ratio="pickup" placeholder="20" value="${escapeAttr(rv.pickup ?? '')}">
+          <label>포장</label>
+        </div>
+        <div class="ratio-item">
+          <input type="number" inputmode="numeric" data-ratio="delivery" placeholder="20" value="${escapeAttr(rv.delivery ?? '')}">
+          <label>배달</label>
+        </div>
+      </div>
+      <div class="ratio-sum" id="ratio-sum-${f.id}"></div>
+    `;
+  }
+
+  return `
+    <div class="field" data-field="${f.id}">
+      <div class="field-label">
+        <span class="field-id">${f.id}</span>
+        <span class="field-text">${escapeHtml(f.label)}${hint}</span>
+        <span class="field-status ${statusClass}"></span>
+      </div>
+      ${input}
+    </div>
+  `;
+}
+
+// ============ 이벤트 핸들러 ============
+function attachFieldListeners() {
+  // 텍스트·숫자·textarea
+  document.querySelectorAll('[data-fid]').forEach(el => {
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      if (el.dataset.type === 'chip-text-amount') {
+        el.addEventListener('input', () => {
+          const fid = el.dataset.fid;
+          const cur = currentRecord.data[fid] || {};
+          currentRecord.data[fid] = { ...cur, amount: el.value };
+          markFilled(fid);
+        });
+      } else if (!el.dataset.ratio) {
+        el.addEventListener('input', () => {
+          currentRecord.data[el.dataset.fid] = el.value;
+          markFilled(el.dataset.fid);
+        });
+      }
+    }
+  });
+
+  // chip
+  document.querySelectorAll('.chip-row').forEach(row => {
+    const fid = row.dataset.fid;
+    const isChipText = row.dataset.type === 'chip-text';
+    row.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const val = chip.dataset.val;
+        row.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        if (isChipText) {
+          const cur = currentRecord.data[fid] || {};
+          currentRecord.data[fid] = { ...cur, choice: val };
+        } else {
+          currentRecord.data[fid] = val;
+        }
+        markFilled(fid);
+      });
+    });
+  });
+
+  // ratio
+  document.querySelectorAll('[data-type="ratio"]').forEach(row => {
+    const fid = row.dataset.fid;
+    const inputs = row.querySelectorAll('input[data-ratio]');
+    inputs.forEach(inp => {
+      inp.addEventListener('input', () => {
+        const cur = currentRecord.data[fid] || {};
+        cur[inp.dataset.ratio] = inp.value;
+        currentRecord.data[fid] = cur;
+        updateRatioSum(fid);
+        markFilled(fid);
+      });
+    });
+    updateRatioSum(fid);
+  });
+}
+
+function updateRatioSum(fid) {
+  const v = currentRecord.data[fid] || {};
+  const h = parseInt(v.hall) || 0;
+  const p = parseInt(v.pickup) || 0;
+  const d = parseInt(v.delivery) || 0;
+  const sum = h + p + d;
+  const sumEl = document.getElementById(`ratio-sum-${fid}`);
+  if (sumEl) {
+    sumEl.textContent = `합계 ${sum}%`;
+    sumEl.classList.remove('bad', 'ok');
+    if (sum === 100) sumEl.classList.add('ok');
+    else if (sum > 0) sumEl.classList.add('bad');
+  }
+}
+
+function markFilled(fid) {
+  const fieldEl = document.querySelector(`[data-field="${fid}"]`);
+  if (!fieldEl) return;
+  const statusEl = fieldEl.querySelector('.field-status');
+  const field = findField(fid);
+  const isFilled = isFieldFilled(field, currentRecord.data[fid]);
+  statusEl.classList.toggle('filled', isFilled);
+  updateProgress();
+  updateSectionCompletion(field);
+}
+
+function findField(fid) {
+  for (const s of SCHEMA) {
+    for (const f of s.fields) if (f.id === fid) return f;
+  }
+  return null;
+}
+
+function updateSectionCompletion(field) {
+  const section = SCHEMA.find(s => s.fields.some(f => f.id === field.id));
+  if (!section) return;
+  const sc = computeSectionCompletion(section, currentRecord.data);
+  const sectionEl = document.querySelectorAll('.section')[SCHEMA.indexOf(section)];
+  if (sectionEl) {
+    const bar = sectionEl.querySelector('.section-completion-fill');
+    const txt = sectionEl.querySelector('.section-completion span');
+    if (bar) bar.style.width = `${(sc.filled / sc.total) * 100}%`;
+    if (txt) txt.textContent = `${sc.filled} / ${sc.total}`;
+  }
+}
+
+function updateProgress() {
+  const c = computeCompletion(currentRecord.data);
+  document.getElementById('progress-num').textContent = `${c.pct}%`;
+  document.getElementById('progress-fill').style.width = `${c.pct}%`;
+}
+
+// ============ 화면 전환 ============
+function showList() {
+  document.getElementById('view-list').classList.add('active');
+  document.getElementById('view-form').classList.remove('active');
+  document.getElementById('back-btn').style.display = 'none';
+  document.getElementById('footer-bar').style.display = 'none';
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('topbar-title').textContent = '가맹 상담 기록';
+  document.getElementById('topbar-sub').textContent = 'PRE-FRANCHISEE INTAKE';
+  currentRecord = null;
+  currentId = null;
+  renderList();
+}
+
+function showForm() {
+  document.getElementById('view-list').classList.remove('active');
+  document.getElementById('view-form').classList.add('active');
+  document.getElementById('back-btn').style.display = 'block';
+  document.getElementById('footer-bar').style.display = 'flex';
+  document.getElementById('progress-wrap').style.display = 'block';
+  document.getElementById('topbar-title').textContent = currentRecord.data.A1 || '신규 상담';
+  document.getElementById('topbar-sub').textContent = '편집 중';
+  window.scrollTo(0, 0);
+}
+
+function newRecord() {
+  const id = 'r_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  currentRecord = {
+    id,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    data: {}
+  };
+  currentId = id;
+  renderForm();
+  showForm();
+}
+
+async function loadRecord(id) {
+  try {
+    const r = await window.storage.get(`rec:${id}`);
+    if (!r || !r.value) {
+      toast('불러올 수 없습니다');
+      return;
+    }
+    currentRecord = JSON.parse(r.value);
+    currentRecord.id = id;
+    currentId = id;
+    renderForm();
+    showForm();
+  } catch (e) {
+    toast('불러오기 실패');
+  }
+}
+
+async function saveRecord(silent) {
+  if (!currentRecord) return;
+  currentRecord.updatedAt = Date.now();
+  const ok = await saveRecordToStorage(currentRecord);
+  if (!silent) {
+    toast(ok ? '저장되었습니다' : '저장 실패');
+  }
+  return ok;
+}
+
+// 자동 저장 (30초마다)
+setInterval(() => {
+  if (currentRecord) saveRecord(true);
+}, 30000);
+
+// ============ 내보내기 ============
+function buildExportText() {
+  const d = currentRecord.data;
+  const c = computeCompletion(d);
+  let out = '';
+  out += '# 예비 가맹점주 상담 설문지\n\n';
+  out += `> 입력 완성도: ${c.filled}/${c.total} (${c.pct}%)\n`;
+  out += `> 작성 일자: ${new Date(currentRecord.updatedAt).toLocaleString('ko-KR')}\n\n`;
+
+  for (const section of SCHEMA) {
+    out += `\n## ${section.id}. ${section.title}\n`;
+    for (const f of section.fields) {
+      const v = d[f.id];
+      const display = formatValue(f, v);
+      out += `- ${f.id}. ${f.label}: ${display}\n`;
+    }
+  }
+
+  out += '\n---\n위 응답을 5인 페르소나(블랙·레드·골드·블루·화이트) 분석으로 평가해 주세요.\n';
+  return out;
+}
+
+function formatValue(f, v) {
+  if (!isFieldFilled(f, v)) return '_(미입력)_';
+  if (f.type === 'ratio') return `홀 ${v.hall}% / 포장 ${v.pickup}% / 배달 ${v.delivery}%`;
+  if (f.type === 'chip-text') {
+    return v.amount ? `${v.choice} (${v.amount})` : v.choice;
+  }
+  return v;
+}
+
+async function exportRecord() {
+  await saveRecord(true);
+  const text = buildExportText();
+  document.getElementById('export-output').textContent = text;
+  document.getElementById('export-modal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('export-modal').classList.remove('active');
+}
+
+async function copyExport() {
+  const text = document.getElementById('export-output').textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('복사되었습니다');
+    setTimeout(closeModal, 600);
+  } catch (e) {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      toast('복사되었습니다');
+      setTimeout(closeModal, 600);
+    } catch {
+      toast('복사 실패 — 직접 선택해 주세요');
+    }
+    document.body.removeChild(ta);
+  }
+}
+
+// ============ 유틸 ============
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+function escapeAttr(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/"/g, '&quot;');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ============ 초기화 ============
+renderList();
+</script>

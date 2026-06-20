@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>월드컵 조별 분석 5인 페르소나 샘플</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e1a; --bg2:#111726; --card:#161d30; --card2:#1c2538;
+    --line:#27314a; --txt:#eef2fb; --muted:#94a0bd;
+    --pitch:#0f8a4a; --pitch2:#10b462;
+    --energy:#ff3d57; --energy2:#ff8a00; --gold:#ffd34e; --cyan:#22d3ee;
+    /* 페르소나 컬러 */
+    --p-critic:#5b8cff; --p-fan:#ff3d57; --p-hater:#a855f7;
+    --p-byst:#94a0bd; --p-caster:#ffb300;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Noto Sans KR',sans-serif; background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,61,87,.12), transparent 60%),
+      radial-gradient(1000px 500px at 0% 0%, rgba(91,140,255,.12), transparent 55%),
+      var(--bg);
+    color:var(--txt); line-height:1.6; padding:0 0 60px;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding:0 18px}
+  a{color:var(--cyan); text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* ===== Header ===== */
+  header.top{
+    background:linear-gradient(100deg,#0c1226,#16203a 60%,#241024);
+    border-bottom:3px solid var(--energy);
+    padding:22px 18px 20px;
+  }
+  .top-inner{max-width:1080px; margin:0 auto; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap}
+  .brand h1{font-family:'Black Han Sans',sans-serif; font-size:30px; letter-spacing:.5px; line-height:1.15}
+  .brand h1 .em{color:var(--energy)}
+  .brand p{color:var(--muted); font-size:14px; margin-top:6px; max-width:640px}
+  .back{
+    background:rgba(255,255,255,.06); border:1px solid var(--line);
+    padding:8px 14px; border-radius:999px; font-size:13px; color:var(--txt); white-space:nowrap
+  }
+  .back:hover{background:rgba(255,255,255,.12); text-decoration:none}
+
+  /* ===== Demo badge ===== */
+  .badge{
+    max-width:1080px; margin:16px auto 0; display:flex; align-items:center; gap:10px;
+    background:repeating-linear-gradient(45deg,#3a2a00,#3a2a00 12px,#332500 12px,#332500 24px);
+    border:1px solid var(--gold); color:var(--gold);
+    padding:11px 16px; border-radius:12px; font-weight:700; font-size:14px;
+  }
+  .badge .dot{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);flex:none;animation:pulse 1.4s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .badge span.sub{color:#e8cf86;font-weight:500}
+
+  /* ===== Match title bar ===== */
+  .titlebar{
+    margin-top:22px; background:linear-gradient(90deg,var(--pitch),var(--pitch2));
+    border-radius:14px 14px 0 0; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;
+    box-shadow:0 8px 24px rgba(16,180,98,.18);
+  }
+  .titlebar h2{font-family:'Black Han Sans',sans-serif; font-size:22px; color:#fff; letter-spacing:.3px}
+  .titlebar .meta{font-size:13px; color:#dffbe9; font-weight:600}
+
+  .section{background:var(--card); border:1px solid var(--line); border-top:none; border-radius:0 0 14px 14px; padding:22px 20px; margin-bottom:30px}
+  .section h3{font-family:'Black Han Sans',sans-serif; font-size:18px; margin-bottom:14px; display:flex; align-items:center; gap:9px}
+  .chip-no{margin-left:auto; font-family:'Noto Sans KR'; font-size:11px; font-weight:700; color:#ff9aab; background:rgba(255,61,87,.12); border:1px solid rgba(255,61,87,.4); padding:3px 9px; border-radius:999px}
+
+  /* ===== Standings table ===== */
+  table{width:100%; border-collapse:collapse; font-size:14px}
+  thead th{background:var(--bg2); color:var(--muted); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.5px; padding:11px 10px; text-align:center; border-bottom:2px solid var(--line)}
+  thead th:nth-child(2){text-align:left}
+  tbody td{padding:12px 10px; text-align:center; border-bottom:1px solid var(--line)}
+  tbody td:nth-child(2){text-align:left}
+  tbody tr:hover{background:var(--card2)}
+  .team{display:flex; align-items:center; gap:9px; font-weight:700}
+  .team .flag{font-size:20px}
+  .rk{display:inline-flex; width:24px; height:24px; align-items:center; justify-content:center; border-radius:7px; font-weight:900; font-size:13px}
+  .rk.q{background:linear-gradient(135deg,var(--pitch2),var(--pitch)); color:#fff}
+  .rk.wc{background:linear-gradient(135deg,var(--energy2),var(--gold)); color:#3a2300}
+  .rk.out{background:#2a3147; color:var(--muted)}
+  .kor td{background:rgba(91,140,255,.08)}
+  .kor .team{color:#bcd0ff}
+  .form{display:inline-flex; gap:3px}
+  .f{width:18px;height:18px;border-radius:4px;font-size:10px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;color:#fff}
+  .f.W{background:var(--pitch2)} .f.D{background:#7a839c} .f.L{background:var(--energy)}
+  .pos-note{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.7}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:8px}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+  /* ===== Probability bars ===== */
+  .prob-grid{display:flex;flex-direction:column;gap:14px;margin-top:4px}
+  .prow{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+  .prow .ph{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+  .prow .ph .flag{font-size:18px}
+  .prow .ph .nm{font-weight:800;font-size:15px}
+  .prow .ph .rkbadge{margin-left:auto;font-size:11px;color:var(--muted)}
+  .bar{position:relative;height:24px;background:#0c1120;border-radius:7px;overflow:hidden;margin-bottom:7px}
+  .bar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:12px;font-weight:800;color:#06121f;min-width:34px;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+  .fill.adv{background:linear-gradient(90deg,var(--cyan),#5b8cff)}
+  .fill.win{background:linear-gradient(90deg,var(--gold),var(--energy2))}
+  .blabel{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:3px}
+  .blabel b{color:var(--txt)}
+
+  /* ===== Persona cards ===== */
+  .persona{border-radius:14px;padding:18px 18px 16px;margin-bottom:16px;border:1px solid var(--line);background:var(--card2);position:relative;overflow:hidden}
+  .persona::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--pc)}
+  .persona .head{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+  .persona .av{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--pcbg);border:1.5px solid var(--pc);flex:none}
+  .persona .who{font-family:'Black Han Sans',sans-serif;font-size:17px;line-height:1.2}
+  .persona .role{font-size:11.5px;color:var(--muted);font-weight:500;font-family:'Noto Sans KR'}
+  .persona .tone{margin-left:auto;font-size:10.5px;font-weight:800;color:var(--pc);background:var(--pcbg);border:1px solid var(--pc);padding:3px 10px;border-radius:999px;white-space:nowrap}
+  .persona p{font-size:14.3px;color:#dfe6f7;margin-bottom:10px}
+  .persona p:last-child{margin-bottom:0}
+  .persona.short p{font-size:15px;color:#cdd6ec}
+  .crit{--pc:var(--p-critic);--pcbg:rgba(91,140,255,.14)}
+  .fan{--pc:var(--p-fan);--pcbg:rgba(255,61,87,.13)}
+  .hater{--pc:var(--p-hater);--pcbg:rgba(168,85,247,.15)}
+  .byst{--pc:var(--p-byst);--pcbg:rgba(148,160,189,.14)}
+  .caster{--pc:var(--p-caster);--pcbg:rgba(255,179,0,.14)}
+
+  /* ===== Score card (critic) ===== */
+  .scorecards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0 4px}
+  .scard{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:13px}
+  .scard .top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .scard .top .flag{font-size:18px}
+  .scard .top .nm{font-weight:800;font-size:14px}
+  .scard .big{font-family:'Black Han Sans',sans-serif;font-size:30px;line-height:1;background:linear-gradient(90deg,var(--cyan),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .scard .big small{font-size:13px;color:var(--muted);-webkit-text-fill-color:var(--muted);margin-left:3px}
+  .metricrow{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px}
+  .metricrow span:last-child{color:var(--txt);font-weight:700}
+
+  /* ===== Changelog ===== */
+  .changelog{background:var(--bg2);border:1px dashed var(--line);border-radius:12px;padding:16px 18px;font-size:13px}
+  .changelog h3{font-size:15px;margin-bottom:10px}
+  .changelog ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+  .changelog li{display:flex;gap:8px;color:var(--muted)}
+  .changelog li b{color:var(--txt)}
+  .changelog code{background:#0c1120;border:1px solid var(--line);padding:1px 7px;border-radius:6px;color:var(--cyan);font-size:12px}
+  .formula{margin-top:10px;font-size:12px;color:var(--muted)}
+  .formula code{color:var(--gold)}
+
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+  .src{font-size:11.5px;color:var(--muted);margin-top:12px;line-height:1.7;border-top:1px solid var(--line);padding-top:11px}
+
+  @media(max-width:560px){
+    .brand h1{font-size:23px}
+    table{font-size:12.5px}
+    thead th,tbody td{padding:9px 5px}
+    .team .flag{font-size:16px}
+    .titlebar h2{font-size:18px}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <h1>⚽ 월드컵 조별 분석 <span class="em">5인 페르소나</span> 크루</h1>
+      <p>한 국가를 입력하면 그 조의 4개 팀을 비평가·열혈팬·안티팬·일반인·캐스터 다섯 시선으로 분석하고, 우승·진출 확률을 한 화면에 정리합니다.</p>
+    </div>
+    <a class="back" href="../samples/index.html">← 전체 보기</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="badge">
+    <span class="dot"></span>
+    <span>샘플 데이터(데모용)</span>
+    <span class="sub">베팅 배당은 사용하지 않습니다.</span>
+  </div>
+
+  <!-- ===== Match title ===== -->
+  <div class="titlebar">
+    <h2>🇰🇷 F조 분석 · 입력국가: 한국</h2>
+    <div class="meta">기준일(데모) 2026-06-21 · 2차전 종료 시점 가정</div>
+  </div>
+  <div class="section">
+
+    <!-- ① 조 순위표 -->
+    <h3>📊 ① 조 순위·스탯
+      <span class="chip-no">데모 수치</span>
+    </h3>
+    <table>
+      <thead>
+        <tr><th>순위</th><th>국가</th><th>경기</th><th>승점</th><th>득실</th><th>FIFA랭킹</th><th>최근경기</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="rk q">1</span></td>
+          <td><div class="team"><span class="flag">🇧🇪</span>벨기에</div></td>
+          <td>2</td><td>6</td><td>+3</td><td>8위</td>
+          <td><span class="form"><i class="f W">W</i><i class="f W">W</i></span></td>
+        </tr>
+        <tr class="kor">
+          <td><span class="rk q">2</span></td>
+          <td><div class="team"><span class="flag">🇰🇷</span>한국</div></td>
+          <td>2</td><td>4</td><td>+1</td><td>23위</td>
+          <td><span class="form"><i class="f W">W</i><i class="f D">D</i></span></td>
+        </tr>
+        <tr>
+          <td><span class="rk wc">3</span></td>
+          <td><div class="team"><span class="flag">🇲🇦</span>모로코</div></td>
+          <td>2</td><td>3</td><td>0</td><td>14위</td>
+          <td><span class="form"><i class="f D">D</i><i class="f W">W</i></span></td>
+        </tr>
+        <tr>
+          <td><span class="rk out">4</span></td>
+          <td><div class="team"><span class="flag">🇶🇦</span>카타르</div></td>
+          <td>2</td><td>0</td><td>-4</td><td>41위</td>
+          <td><span class="form"><i class="f L">L</i><i class="f L">L</i></span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="legend">
+      <span><i style="background:var(--pitch2)"></i>조 1·2위 직행</span>
+      <span><i style="background:var(--gold)"></i>3위 와일드카드 경합권</span>
+      <span><i style="background:#2a3147"></i>탈락권</span>
+    </div>
+    <p class="pos-note">
+      ※ <b>데모 데이터</b>입니다.
+      2026 대회는 48개국·12개 조 구조라, 각 조 3위 중 상위 8팀이 32강에 추가 진출합니다. 모로코(승점 3)는 타 조 3위들과의 컷 경쟁(추정 컷 승점 3~4)에 걸려 있어 단정하지 않습니다.
+    </p>
+  </div>
+
+  <!-- ② 확률 표 -->
+  <div class="titlebar"><h2>🎯 ② 우승·진출 확률</h2><div class="meta">가중 점수 모델 기반 추정 (보장 아님)</div></div>
+  <div class="section">
+    <h3>📈 진출·우승 확률 <span class="chip-no">데모 수치</span></h3>
+    <div class="prob-grid">
+
+      <div class="prow">
+        <div class="ph"><span class="flag">🇧🇪</span><span class="nm">벨기에</span><span class="rkbadge">FIFA 8위 · 전력점수 82</span></div>
+        <div class="blabel"><span>조 1·2위 통과</span><b>94%</b></div>
+        <div class="bar"><div class="fill adv" style="width:94%">94%</div></div>
+        <div class="blabel"><span>우승 확률</span><b>7.4%</b></div>
+        <div class="bar"><div class="fill win" style="width:30%">7.4%</div></div>
+      </div>
+
+      <div class="prow" style="border-color:rgba(91,140,255,.5)">
+        <div class="ph"><span class="flag">🇰🇷</span><span class="nm">한국</span><span class="rkbadge">FIFA 23위 · 전력점수 64</span></div>
+        <div class="blabel"><span>조 1·2위 통과</span><b>71%</b></div>
+        <div class="bar"><div class="fill adv" style="width:71%">71%</div></div>
+        <div class="blabel"><span>우승 확률</span><b>1.6%</b></div>
+        <div class="bar"><div class="fill win" style="width:12%">1.6%</div></div>
+      </div>
+
+      <div class="prow">
+        <div class="ph"><span class="flag">🇲🇦</span><span class="nm">모로코</span><span class="rkbadge">FIFA 14위 · 전력점수 68</span></div>
+        <div class="blabel"><span>조 1·2위 통과 (+3위 경합)</span><b>58%</b></div>
+        <div class="bar"><div class="fill adv" style="width:58%">58%</div></div>
+        <div class="blabel"><span>우승 확률</span><b>2.3%</b></div>
+        <div class="bar"><div class="fill win" style="width:15%">2.3%</div></div>
+      </div>
+
+      <div class="prow">
+        <div class="ph"><span class="flag">🇶🇦</span><span class="nm">카타르</span><span class="rkbadge">FIFA 41위 · 전력점수 38</span></div>
+        <div class="blabel"><span>조 1·2위 통과</span><b>4%</b></div>
+        <div class="bar"><div class="fill adv" style="width:4%">4%</div></div>
+        <div class="blabel"><span>우승 확률</span><b>0.1%</b></div>
+        <div class="bar"><div class="fill win" style="width:3%">0.1%</div></div>
+      </div>
+
+    </div>
+    <p class="pos-note">※ 확률은 <b>가중 점수 모델 추정치</b>이며 베팅 배당이 아닙니다. 우승확률 = exp(k×점수) 정규화(k=0.08). 표본이 2경기라 변동성이 큽니다.</p>
+  </div>
+
+  <!-- 비평가 점수카드 -->
+  <div class="titlebar"><h2>🗣️ 다섯 개의 목소리</h2><div class="meta">같은 데이터, 완전히 다른 다섯 어조</div></div>
+  <div class="section">
+
+    <h3>🧊 비평가의 전력 점수표 <span class="chip-no">데모 수치</span></h3>
+    <div class="scorecards">
+      <div class="scard">
+        <div class="top"><span class="flag">🇧🇪</span><span class="nm">벨기에</span></div>
+        <div class="big">82<small>/100</small></div>
+        <div class="metricrow"><span>FIFA(35%)</span><span>33</span></div>
+        <div class="metricrow"><span>조성적(30%)</span><span>28</span></div>
+        <div class="metricrow"><span>최근폼(20%)</span><span>13</span></div>
+        <div class="metricrow"><span>스쿼드(15%)</span><span>8</span></div>
+      </div>
+      <div class="scard">
+        <div class="top"><span class="flag">🇰🇷</span><span class="nm">한국</span></div>
+        <div class="big">64<small>/100</small></div>
+        <div class="metricrow"><span>FIFA(35%)</span><span>24</span></div>
+        <div class="metricrow"><span>조성적(30%)</span><span>21</span></div>
+        <div class="metricrow"><span>최근폼(20%)</span><span>12</span></div>
+        <div class="metricrow"><span>스쿼드(15%)</span><span>7</span></div>
+      </div>
+      <div class="scard">
+        <div class="top"><span class="flag">🇲🇦</span><span class="nm">모로코</span></div>
+        <div class="big">68<small>/100</small></div>
+        <div class="metricrow"><span>FIFA(35%)</span><span>27</span></div>
+        <div class="metricrow"><span>조성적(30%)</span><span>18</span></div>
+        <div class="metricrow"><span>최근폼(20%)</span><span>14</span></div>
+        <div class="metricrow"><span>스쿼드(15%)</span><span>9</span></div>
+      </div>
+      <div class="scard">
+        <div class="top"><span class="flag">🇶🇦</span><span class="nm">카타르</span></div>
+        <div class="big">38<small>/100</small></div>
+        <div class="metricrow"><span>FIFA(35%)</span><span>14</span></div>
+        <div class="metricrow"><span>조성적(30%)</span><span>3</span></div>
+        <div class="metricrow"><span>최근폼(20%)</span><span>3</span></div>
+        <div class="metricrow"><span>스쿼드(15%)</span><span>5</span></div>
+      </div>
+    </div>
+
+    <!-- 🧊 비평가 -->
+    <div class="persona crit">
+      <div class="head">
+        <div class="av">🧊</div>
+        <div><div class="who">비평가</div><div class="role">프로 전술 분석가 · 감정 0, 데이터 100</div></div>
+        <span class="tone">건조한 격식체</span>
+      </div>
+      <p>한국의 조 통과 확률은 모델 기준 71%로 산출된다. 1차전 카타르전 2:0 완승의 xG는 1.9 대 0.5로 내용까지 우위였으나, 2차전 모로코전 1:1 무승부에서는 PPDA가 13.2로 전방 압박 강도가 평균 이하로 떨어졌고, 빌드업 시 풀백 오버랩 빈도가 줄며 측면 폭이 좁아진 점이 결정적이었다. 세트피스 효율은 양호하나(코너 xG 0.4), 트랜지션 국면에서 두 번째 라인의 복귀 속도가 느려 역습 피탐 빈도가 높았다.</p>
+      <p>벨기에(전력점수 82)와의 격차는 18점으로 조 1위 경쟁에서는 열위가 분명하다. 다만 3차전 카타르전(전력점수 38)을 남겨 둔 상황에서 승점 확보 시 2위 직행이 유력하며, 모로코의 3위 와일드카드 경로가 타 조 3차전 결과에 종속돼 있어 변동성이 존재한다. 표본이 2경기에 불과해 추정 구간이 넓다는 점, 즉 확률은 ±15%p 이상 흔들릴 수 있다는 통계적 한계를 함께 명시한다.</p>
+    </div>
+
+    <!-- ❤️‍🔥 열혈팬 -->
+    <div class="persona fan">
+      <div class="head">
+        <div class="av">❤️‍🔥</div>
+        <div><div class="who">열혈팬</div><div class="role">한국을 목숨처럼 응원하는 팬</div></div>
+        <span class="tone">애정 폭발 구어체</span>
+      </div>
+      <p>아니 카타르전 2:0 깔끔하게 잡고 모로코 상대로 1:1 비긴 게 어디예요 ㄹㅇ 모로코가 4년 전 4강 간 팀인데? 손흥민 컨디션 슬슬 올라오는 거 봤어요? 그 모로코전 후반 프리킥 각 잡고 감아 찬 거 진짜 소름이었음. 김민재도 뒤에서 헤더 클리어링 미쳤고 골키퍼 선방 두 개는 진짜 다시 봐도 심장 쫄깃해.</p>
+      <p>통과 확률 71%? 우리 분위기 한 번 타기 시작하면 그거 그냥 숫자야 진짜. 3차전 카타르 잡으면 2위 직행이고, 잘하면 조 1위까지 노려볼 수 있다니까? 16강 가면 또 무슨 일 벌어질지 모르는 게 우리잖아. 2002, 2022 다 봤으면서 왜 못 믿어 진짜. 가자 대한민국!!</p>
+    </div>
+
+    <!-- 😈 안티팬 -->
+    <div class="persona hater">
+      <div class="head">
+        <div class="av">😈</div>
+        <div><div class="who">안티팬</div><div class="role">냉소적으로 까는 안티팬</div></div>
+        <span class="tone">비꼬는 구어체</span>
+      </div>
+      <p>카타르(FIFA 41위) 잡은 거 가지고 또 잔치 분위기네~ 그건 이겨야 정상인 경기 아니었나? 정작 모로코 만나니까 바로 1:1로 막혔잖아. xG 1.9 찍고도 카타르전 2골밖에 못 넣은 건 결정력 얘기 또 나올 만한데, 그 결정력 문제 4년째 그대로인 거 아는 사람은 다 알지.</p>
+      <p>통과 확률 71%? 그거 카타르라는 동네북이 같은 조에 있어서 나온 숫자고, 실력으로 따낸 게 아니라는 거 본인들도 알 텐데. 모로코전 후반에 압박 강도 뚝 떨어지면서 역습 두세 번 내준 거 봤지? 강팀 만나면 딱 그 장면 나온다니까. "이번엔 다르다" 소리 4년마다 듣는데 그래서 8강은 언제 가는데~?</p>
+    </div>
+
+    <!-- 🍜 일반인 -->
+    <div class="persona byst short">
+      <div class="head">
+        <div class="av">🍜</div>
+        <div><div class="who">일반인</div><div class="role">별 관심 없는 평범한 사람</div></div>
+        <span class="tone">무심한 단문</span>
+      </div>
+      <p>어? 한국 2위라고? 잘하고 있네 뭐. 다음에 카타르랑 한다며, 그건 이기겠지 아마?</p>
+      <p>벨기에가 1등이구나~ 거기만 안 만나면 되는 거 아냐. 아무튼 16강은 갈 듯.</p>
+    </div>
+
+    <!-- 📢 캐스터 -->
+    <div class="persona caster">
+      <div class="head">
+        <div class="av">📢</div>
+        <div><div class="who">캐스터</div><div class="role">모든 순간을 인생 최대 드라마로</div></div>
+        <span class="tone">웅장한 실황 외침</span>
+      </div>
+      <p>아아, 운명의 F조!! 태극전사들이 카타르를 2:0으로 제압하며 대장정의 서막을 알렸고, 아프리카의 강호 모로코를 상대로 한 치도 물러서지 않는 혈투 끝에 값진 승점을 사수했습니다!! 손흥민의 저 프리킥, 골문을 스치는 그 순간 전 세계가 숨을 멈췄습니다!!</p>
+      <p>그리고 이제, 운명의 90분이 다가옵니다!! 마지막 한 경기, 16강으로 향하는 거대한 문 앞에 선 대한민국!! 이 한 판에 4년의 땀과 5천만의 심장이 걸려 있습니다!! 역사는 지금부터 다시 쓰여집니다!! 대한민국, 일어서라!!</p>
+    </div>
+
+  </div>
+
+  <!-- ③ 변경 로그 -->
+  <div class="changelog">
+    <h3>🛠️ ③ 변경 로그 (재현성)</h3>
+    <ul>
+      <li><b>스코어 모델</b> · 가중치 = FIFA랭킹 35% / 조성적 30% / 최근폼 20% / 스쿼드 15% <span style="color:var(--cyan)">(합계 100% ✓)</span></li>
+      <li><b>k값</b> · <code>k = 0.08</code> (기본값), 강팀 쏠림과 균등화의 중간값</li>
+      <li><b>적용 시나리오</b> · F조 2차전 종료 시점, 3차전(한국 vs 카타르) 미실시 가정</li>
+      <li><b>본 샘플은 데모 수치입니다</b></li>
+    </ul>
+    <div class="formula">우승확률 공식 · <code>P(team) = exp(k×score) / Σ exp(k×score)</code> · 진출확률은 조 1·2위 통과 + 3위 와일드카드 경합 반영</div>
+    <div class="src">
+      ⚠️ <b>샘플 안내</b> · 이 페이지의 FIFA 랭킹·승점·득실·확률은 스킬 동작 방식을 보여주기 위한 <b>가상의 대표값</b>입니다. 베팅 배당·도박 데이터는 사용하지 않습니다.
+    </div>
+  </div>
+
+  <footer>월드컵 조별 분석 5인 페르소나 크루 · 샘플 출력 · <a href="../samples/index.html">← 전체 스킬 보기</a></footer>
+
+</div>
+
+<script>
+  // 확률 바를 0에서 목표값으로 애니메이션
+  window.addEventListener('load',()=>{
+    document.querySelectorAll('.bar .fill').forEach(el=>{
+      const w=el.style.width; el.style.width='0%';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.width=w;}));
+    });
+  });
+</script>
+</body>
+</html>

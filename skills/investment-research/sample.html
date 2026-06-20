@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>investment-research · NovaCell 투자 리서치 (샘플)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gostatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14;
+    --bg-2:#0f1620;
+    --card:#121a26;
+    --card-2:#16202e;
+    --border:#1f2c3d;
+    --border-2:#2a3b52;
+    --txt:#e6edf3;
+    --txt-dim:#9fb0c3;
+    --txt-mute:#6b7d93;
+    --cyan:#22d3ee;
+    --cyan-dim:#0e7490;
+    --green:#34d399;
+    --red:#fb7185;
+    --amber:#fbbf24;
+    --violet:#a78bfa;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --sans:'Inter','Noto Sans KR',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(34,211,238,.07), transparent 60%),
+      radial-gradient(900px 500px at 0% 0%, rgba(167,139,250,.05), transparent 55%),
+      var(--bg);
+    color:var(--txt);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    padding:0 0 64px;
+  }
+  .num{font-family:var(--mono);font-feature-settings:"tnum";}
+  a{color:var(--cyan);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* Header */
+  header{
+    position:sticky;top:0;z-index:20;
+    background:rgba(10,14,20,.82);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .head-inner{
+    max-width:1080px;margin:0 auto;padding:18px 24px;
+    display:flex;align-items:flex-start;justify-content:space-between;gap:20px;
+  }
+  .brand h1{
+    font-size:20px;font-weight:700;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:10px;
+  }
+  .brand h1 .dot{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);}
+  .brand .tag{color:var(--txt-dim);font-size:13px;margin-top:4px;}
+  .brand .mono-name{font-family:var(--mono);color:var(--cyan);font-size:14px;}
+  .back{
+    flex-shrink:0;font-size:13px;color:var(--txt-dim);
+    border:1px solid var(--border-2);border-radius:8px;padding:7px 12px;white-space:nowrap;
+  }
+  .back:hover{border-color:var(--cyan);color:var(--cyan);text-decoration:none;}
+
+  /* Layout */
+  main{max-width:1080px;margin:0 auto;padding:24px;}
+  .badge-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:22px;}
+  .badge{
+    font-size:11.5px;font-weight:600;letter-spacing:.02em;
+    padding:5px 11px;border-radius:999px;border:1px solid var(--border-2);
+    color:var(--txt-dim);background:var(--card);
+  }
+  .badge.warn{color:var(--amber);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.07);}
+  .badge.mode{color:var(--cyan);border-color:rgba(34,211,238,.35);background:rgba(34,211,238,.07);}
+
+  /* Title block */
+  .title-block{
+    background:linear-gradient(135deg, var(--card) 0%, var(--bg-2) 100%);
+    border:1px solid var(--border);border-radius:16px;padding:26px 28px;margin-bottom:26px;
+    position:relative;overflow:hidden;
+  }
+  .title-block::after{
+    content:"";position:absolute;right:-40px;top:-40px;width:200px;height:200px;
+    background:radial-gradient(circle, rgba(34,211,238,.12), transparent 70%);
+  }
+  .ticker-line{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+  .ticker-line .name{font-size:28px;font-weight:700;letter-spacing:-.02em;}
+  .ticker-line .tk{font-family:var(--mono);color:var(--cyan);font-size:16px;border:1px solid var(--border-2);padding:2px 9px;border-radius:6px;}
+  .ticker-line .mkt{color:var(--txt-mute);font-size:13px;}
+  .subtitle{color:var(--txt-dim);margin-top:8px;font-size:14px;}
+
+  /* KPI cards */
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px;position:relative;z-index:1;}
+  .kpi{background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:15px 16px;}
+  .kpi .lbl{font-size:11.5px;color:var(--txt-mute);text-transform:uppercase;letter-spacing:.05em;}
+  .kpi .val{font-family:var(--mono);font-size:22px;font-weight:600;margin-top:6px;}
+  .kpi .sub{font-size:12px;margin-top:3px;color:var(--txt-dim);}
+  .up{color:var(--green);}
+  .down{color:var(--red);}
+  .neutral{color:var(--amber);}
+
+  /* Sections */
+  section{
+    background:var(--card);border:1px solid var(--border);border-radius:14px;
+    padding:24px 26px;margin-bottom:18px;
+  }
+  .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .sec-num{
+    font-family:var(--mono);font-size:13px;font-weight:600;color:var(--bg);
+    background:var(--cyan);border-radius:7px;width:30px;height:30px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .sec-head h2{font-size:18px;font-weight:700;letter-spacing:-.01em;}
+  .sec-head .en{color:var(--txt-mute);font-size:12.5px;font-weight:500;margin-left:auto;font-family:var(--mono);}
+  p{color:var(--txt-dim);margin-bottom:10px;}
+  p strong, li strong{color:var(--txt);font-weight:600;}
+  .lead{color:var(--txt);}
+
+  ul{list-style:none;margin:6px 0;}
+  ul li{position:relative;padding-left:18px;margin-bottom:8px;color:var(--txt-dim);}
+  ul li::before{content:"";position:absolute;left:2px;top:11px;width:5px;height:5px;border-radius:50%;background:var(--cyan-dim);}
+  ul li.pos::before{background:var(--green);}
+  ul li.neg::before{background:var(--red);}
+
+  .term{color:var(--txt-mute);font-size:.92em;}
+
+  /* Tables */
+  .tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin:8px 0;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:440px;}
+  thead th{
+    background:var(--bg-2);color:var(--txt-mute);font-weight:600;text-align:left;
+    padding:10px 14px;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;
+    border-bottom:1px solid var(--border);
+  }
+  tbody td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--txt-dim);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:rgba(34,211,238,.03);}
+  td.num, th.num{font-family:var(--mono);text-align:right;}
+  .src{font-size:11.5px;color:var(--txt-mute);font-family:var(--mono);}
+
+  /* Risk pill */
+  .pill{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:13px;padding:6px 13px;border-radius:999px;}
+  .pill.mid{background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.3);}
+  .pill.low{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.3);}
+  .pill.high{background:rgba(251,113,133,.1);color:var(--red);border:1px solid rgba(251,113,133,.3);}
+
+  /* Driver bars */
+  .drivers{display:grid;gap:12px;}
+  .driver{background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+  .driver .dh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px;}
+  .driver .dh b{color:var(--txt);font-size:14px;}
+  .driver .dh .pol{font-family:var(--mono);font-size:12px;color:var(--cyan);}
+  .driver p{margin:0;font-size:13px;}
+
+  /* Competitive axes */
+  .axes{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px;}
+  .axis{background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+  .axis .at{font-size:12px;color:var(--txt-mute);text-transform:uppercase;letter-spacing:.04em;}
+  .axis .av{font-family:var(--mono);font-size:15px;font-weight:600;margin-top:5px;color:var(--txt);}
+  .axis .ad{font-size:12.5px;color:var(--txt-dim);margin-top:4px;}
+
+  /* Star rating table */
+  .stars{display:grid;gap:0;}
+  .star-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border);}
+  .star-row:last-child{border-bottom:none;}
+  .star-row .sl{font-size:14px;color:var(--txt);font-weight:500;}
+  .star-vis{font-size:18px;letter-spacing:2px;}
+  .star-vis .full{color:var(--amber);}
+  .star-vis .empty{color:var(--border-2);}
+  .star-row .sv{display:flex;align-items:center;gap:12px;}
+  .star-row .snum{font-family:var(--mono);font-size:13px;color:var(--txt-mute);width:34px;text-align:right;}
+
+  /* Monitoring */
+  .monitor{list-style:none;counter-reset:m;margin-top:6px;}
+  .monitor li{position:relative;padding:12px 14px 12px 46px;background:var(--card-2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;color:var(--txt-dim);}
+  .monitor li::before{
+    counter-increment:m;content:counter(m);
+    position:absolute;left:13px;top:12px;width:22px;height:22px;border-radius:6px;
+    background:rgba(34,211,238,.12);color:var(--cyan);font-family:var(--mono);font-weight:600;font-size:12px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .monitor li::after{display:none;}
+
+  .disclaimer{
+    margin-top:6px;background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.25);
+    border-radius:12px;padding:18px 20px;color:var(--txt-dim);font-size:14px;
+    border-left:3px solid var(--violet);
+  }
+  .disclaimer b{color:var(--violet);}
+
+  .note{font-size:12.5px;color:var(--txt-mute);border-left:2px solid var(--border-2);padding:4px 0 4px 12px;margin:10px 0;}
+  .dnf{color:var(--amber);font-family:var(--mono);font-size:12.5px;}
+
+  footer{max-width:1080px;margin:30px auto 0;padding:0 24px;color:var(--txt-mute);font-size:12px;text-align:center;}
+
+  @media(max-width:760px){
+    .kpi-grid{grid-template-columns:repeat(2,1fr);}
+    .axes{grid-template-columns:1fr;}
+    .head-inner{flex-direction:column;}
+    .ticker-line .name{font-size:23px;}
+    section{padding:20px 18px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-inner">
+    <div class="brand">
+      <h1><span class="dot"></span><span class="mono-name">investment-research</span></h1>
+      <div class="tag">티커·회사·산업을 데이터로 검토해 채팅에 정리한다. 매수·매도 추천이 아니라 사실과 수치에 기반한 관점 정리다.</div>
+    </div>
+    <a class="back" href="../samples/index.html">← 전체 보기</a>
+  </div>
+</header>
+
+<main>
+
+  <div class="badge-row">
+    <span class="badge warn">샘플(가상 기업) · 숫자는 예시</span>
+    <span class="badge mode">회사 모드 · 전 섹션</span>
+    <span class="badge">CEO 섹션 포함 (명시 요청 가정)</span>
+    <span class="badge">출처 형식 시연용</span>
+  </div>
+
+  <!-- TITLE -->
+  <div class="title-block">
+    <div class="ticker-line">
+      <span class="name">NovaCell</span>
+      <span class="tk">NVCL</span>
+      <span class="mkt">NASDAQ (가상 상장) · 12월 결산</span>
+    </div>
+    <div class="subtitle">합성 DNA 장비·소모품 업체, 이른바 "연구소용 DNA 프린터". 요청: "NovaCell 투자 검토 중인데 분석해줘 + CEO도 봐줘"</div>
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="lbl">FY25Q4 매출</div>
+        <div class="val">$61M</div>
+        <div class="sub up">YoY +$16M (+36%)</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">총이익률</div>
+        <div class="val">47%</div>
+        <div class="sub up">FY24Q1 41% → +6%p</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">현금·단기투자</div>
+        <div class="val">$210M</div>
+        <div class="sub neutral">burn ~$9M/월</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">유상증자 리스크</div>
+        <div class="val neutral">중간</div>
+        <div class="sub">흑자 전 단계</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">1</span><h2>회사 개요</h2><span class="en">Overview</span></div>
+    <p class="lead">NovaCell은 합성 DNA를 만드는 장비와 소모품을 파는 회사다. 연구소가 직접 유전자 서열을 빠르고 싸게 찍어낼 수 있게 해주는 <strong>"DNA 프린터"</strong>라고 보면 된다.</p>
+    <ul>
+      <li>장비: 매출 약 <strong>60%</strong></li>
+      <li>소모품·구독: 약 <strong>35%</strong></li>
+      <li>서비스: 약 <strong>5%</strong></li>
+    </ul>
+    <p class="note">소모품 비중이 늘수록 반복 매출이 커진다. <span class="term">razor-and-blade 모델: 본체를 팔고 소모품으로 계속 버는 구조.</span></p>
+  </section>
+
+  <!-- 2 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">2</span><h2>TAM / 전방시장 규모·전망</h2><span class="en">Market Size</span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>항목</th><th class="num">값</th><th class="num">연도</th><th>출처</th></tr></thead>
+        <tbody>
+          <tr><td>현재 시장 규모</td><td class="num">$2.4B~$3.1B</td><td class="num">2025</td><td class="src">Grand View Research · MarketsandMarkets (정의 상이)</td></tr>
+          <tr><td>전방시장 규모·전망</td><td class="num">$7.5B</td><td class="num">2032</td><td class="src">Grand View Research, "Synthetic Biology Market", 2025</td></tr>
+          <tr><td>CAGR</td><td class="num">약 15%</td><td class="num">'25~'32</td><td class="src">Grand View Research (동일 보고서)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">출처별 편차($2.4B vs $3.1B)는 "합성생물학 전체"냐 "DNA 합성 한정"이냐에 따라 정의가 달라 생긴다. 그래서 단일 추정 대신 복수 출처를 교차 확인해 <strong>범위로 제시</strong>한다.</p>
+  </section>
+
+  <!-- 3 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">3</span><h2>성장 드라이버</h2><span class="en">Growth Drivers</span></div>
+    <div class="drivers">
+      <div class="driver">
+        <div class="dh"><b>AI 신약개발 수요</b><span class="pol up">FY24 ≈ $0 → FY25 $25M+</span></div>
+        <p>AI 모델이 후보 서열을 대량 설계하면서 합성 주문 급증. AI 고객 주문이 사실상 신규 수요로 발생.</p>
+      </div>
+      <div class="driver">
+        <div class="dh"><b>유전자 치료제 임상 확대</b><span class="pol">반복 수요 ↑</span></div>
+        <p>임상 단계 파이프라인 수 증가가 소모품 반복 수요로 연결.</p>
+      </div>
+      <div class="driver">
+        <div class="dh"><b>합성 단가 하락 → 시장 확대</b><span class="pol">고객층 확장</span></div>
+        <p>염기당 비용 하락으로 중소 연구소까지 고객층 확장.</p>
+      </div>
+      <div class="driver">
+        <div class="dh"><b>(규제·정책) 바이오 보안 규정 강화</b><span class="pol">진입장벽 겸 차별화</span></div>
+        <p>서열 스크리닝 기능이 진입장벽이자 차별화 요인으로 작동.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">4</span><h2>핵심 경쟁력</h2><span class="en">Moat</span></div>
+    <p>이 산업의 승부 축: <strong>단가 · 처리속도 · 오류율 · 특허</strong>. 일반 매출/점유율보다 이 4축이 신호가 강하다.</p>
+    <div class="axes">
+      <div class="axis"><div class="at">단가</div><div class="av up">경쟁사 대비 ~20% 저렴</div><div class="ad">자체 효소 공정 기반 염기당 비용 우위.</div></div>
+      <div class="axis"><div class="at">처리속도</div><div class="av up">배치 처리량 ~1.5×</div><div class="ad">경쟁사 X 대비 1회 배치 처리량.</div></div>
+      <div class="axis"><div class="at">오류율</div><div class="av neutral">데이터 확인 불가</div><div class="ad">공개 벤치마크 부재. IR 주장만 존재, 3자 검증 없음.</div></div>
+      <div class="axis"><div class="at">특허</div><div class="av down">2031년 만료</div><div class="ad">핵심 효소 특허 만료 후 경쟁 격화 리스크.</div></div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">5</span><h2>경쟁사 비교</h2><span class="en">Competitors</span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>경쟁사</th><th>강점</th><th>NovaCell 대비 약점</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Twist류 대형사</strong></td><td>규모 · 고객 기반 · 현금</td><td>장비 처리속도에서 열위</td></tr>
+          <tr><td><strong>신생 스타트업</strong></td><td>신기술(효소 합성) 속도</td><td>상업화·양산 검증 부족</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><strong>차세대 위협:</strong> 효소 기반 합성<span class="term">(enzymatic synthesis)</span>이 화학 합성을 대체하면 기존 장비 가치 하락 가능 → 모니터링 대상.</p>
+  </section>
+
+  <!-- 6 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">6</span><h2>최근 8분기 실적</h2><span class="en">8Q Trend</span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>분기</th><th class="num">매출</th><th class="num">YoY</th><th class="num">총이익률</th></tr></thead>
+        <tbody>
+          <tr><td>FY24Q1</td><td class="num">$38M</td><td class="num up">+12%</td><td class="num">41%</td></tr>
+          <tr><td>FY24Q2</td><td class="num">$41M</td><td class="num up">+15%</td><td class="num">42%</td></tr>
+          <tr><td>FY24Q3</td><td class="num">$40M</td><td class="num up">+9%</td><td class="num">40%</td></tr>
+          <tr><td>FY24Q4</td><td class="num">$45M</td><td class="num up">+18%</td><td class="num">43%</td></tr>
+          <tr><td>FY25Q1</td><td class="num">$47M</td><td class="num up">+24%</td><td class="num">44%</td></tr>
+          <tr><td>FY25Q2</td><td class="num">$52M</td><td class="num up">+27%</td><td class="num">45%</td></tr>
+          <tr><td>FY25Q3</td><td class="num">$55M</td><td class="num up">+38%</td><td class="num">46%</td></tr>
+          <tr><td>FY25Q4</td><td class="num">$61M</td><td class="num up">+36%</td><td class="num">47%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">회계연도: 12월 결산. <strong>연간 손익:</strong> FY24 순손실 약 -$70M → FY25 순손실 약 -$45M (손실 폭 <strong>$25M / 35% 축소</strong>, 흑자 전 단계).</p>
+  </section>
+
+  <!-- 7 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">7</span><h2>현금 보유·현금흐름</h2><span class="en">Cash</span></div>
+    <div class="kpi-grid" style="margin-top:0">
+      <div class="kpi"><div class="lbl">현금·단기투자</div><div class="val">$210M</div><div class="sub">FY25Q4 기준</div></div>
+      <div class="kpi"><div class="lbl">월 평균 cash burn</div><div class="val neutral">~$9M</div><div class="sub">현금흐름표 역산</div></div>
+      <div class="kpi"><div class="lbl">손익분기 목표</div><div class="val">FY27 중</div><div class="sub">회사 가이던스</div></div>
+      <div class="kpi"><div class="lbl">현금 소진까지</div><div class="val">~23개월</div><div class="sub">현 burn 유지 시</div></div>
+    </div>
+    <p class="src" style="margin-top:14px;">출처: NovaCell Inc., Form 10-K FY2025, p.51, SEC EDGAR · 손익분기 가이던스는 Q4 FY2025 earnings call (2026-02).</p>
+    <p class="note">한국 상장사였다면 동일 항목을 <span class="src">NovaCell, 사업보고서(2025.12), DART 접수번호 20260311000XXX</span> 형식으로 표기.</p>
+  </section>
+
+  <!-- 8 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">8</span><h2>유상증자 가능성</h2><span class="en">Dilution Risk</span></div>
+    <p style="margin-bottom:14px;"><span class="pill mid">● 위험도: 중간</span> &nbsp;현금은 충분하나 흑자 전이라 추가 조달 옵션 상존.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th class="num">현금잔고</th><th class="num">burn rate</th><th>손익분기 목표</th><th>기타 자금조달 이벤트</th></tr></thead>
+        <tbody>
+          <tr><td class="num">~$210M</td><td class="num">~$9M/월</td><td>FY27 중</td><td>최근 12개월 신규 조달 없음</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><strong>시나리오:</strong> 현 burn 유지 시 현금 소진까지 약 <strong>23개월</strong>. FY27 손익분기 달성이면 증자 없이 도달 가능. 단, burn이 <strong>$13M/월</strong>로 악화되면 약 <strong>16개월</strong>로 단축 → 손익분기 이전 조달 압력 발생.</p>
+  </section>
+
+  <!-- 9 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">9</span><h2>CEO 프로필</h2><span class="en">Leadership · 명시 요청 시</span></div>
+    <ul>
+      <li><strong>학력·배경:</strong> 분자생물학 박사, 학계 출신 창업자.</li>
+      <li class="pos"><strong>인센티브 정렬:</strong> 보유 지분 약 <strong>6%</strong>, 보상의 다수가 주가 연동 RSU → 주주 이익과 정렬도 높은 편.</li>
+      <li class="neg"><strong>유의점:</strong> 양산·상업 운영 경력은 상대적으로 짧음 (연구 중심 이력).</li>
+    </ul>
+    <p class="note">섹션 9는 기본 생략. 사용자가 CEO·대표이사·경영진·거버넌스를 명시 요청했을 때만 포함.</p>
+  </section>
+
+  <!-- 10 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">10</span><h2>최근 주요 이슈</h2><span class="en">Recent Events</span></div>
+    <ul>
+      <li class="pos"><strong>(+) FY25Q3:</strong> 대형 제약사와 다년 소모품 공급 계약 체결 (2025-08).</li>
+      <li class="pos"><strong>(+) FY25Q4:</strong> AI 신약개발사 신규 고객 다수 확보, 관련 주문 $25M 초과 (2025-11).</li>
+      <li class="neg"><strong>(−) FY25Q2:</strong> 핵심 효소 특허 무효심판 청구 제기 (2025-05), 진행 중이며 결과 미정.</li>
+      <li class="neg"><strong>(−) FY25Q3:</strong> 신제품 출하 1개 분기 지연 발표 (2025-09).</li>
+    </ul>
+  </section>
+
+  <!-- 11 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">11</span><h2>종합 판단 요약</h2><span class="en">Synthesis · not a recommendation</span></div>
+    <div class="stars">
+      <div class="star-row"><span class="sl">시장 성장성</span><span class="sv"><span class="star-vis"><span class="full">★★★★</span><span class="empty">★</span></span><span class="snum">4 / 5</span></span></div>
+      <div class="star-row"><span class="sl">기술/경쟁력</span><span class="sv"><span class="star-vis"><span class="full">★★★★</span><span class="empty">★</span></span><span class="snum">4 / 5</span></span></div>
+      <div class="star-row"><span class="sl">재무 추세</span><span class="sv"><span class="star-vis"><span class="full">★★★</span><span class="empty">★★</span></span><span class="snum">3 / 5</span></span></div>
+      <div class="star-row"><span class="sl">유상증자 리스크</span><span class="sv"><span class="star-vis"><span class="full">★★★</span><span class="empty">★★</span></span><span class="snum">3 / 5</span></span></div>
+      <div class="star-row"><span class="sl">경영진</span><span class="sv"><span class="star-vis"><span class="full">★★★★</span><span class="empty">★</span></span><span class="snum">4 / 5</span></span></div>
+    </div>
+
+    <h3 style="margin:22px 0 4px;font-size:14px;color:var(--txt);font-weight:600;">핵심 모니터링 포인트</h3>
+    <ul class="monitor">
+      <li><strong>특허 무효심판 결과:</strong> 패소 시 단가 우위(핵심 경쟁력) 훼손 가능.</li>
+      <li><strong>분기 cash burn 추세:</strong> $13M/월에 근접하면 FY27 이전 증자 가능성.</li>
+      <li><strong>효소 합성 등 차세대 기술 상업화 속도:</strong> 기존 장비 가치 잠식 여부.</li>
+    </ul>
+
+    <div class="disclaimer">
+      <b>관점 정리, 추천 아님.</b> 이는 매수/매도 추천이 아니다. 위 3개 포인트를 추적하며 스스로 판단할 수 있도록 사실과 수치를 정리한 것이다.
+    </div>
+  </section>
+
+  <footer>
+    investment-research skill 샘플 출력. 회사명 NovaCell 및 모든 수치는 형식 시연용 가상 데이터이며 실제 기업 사실이 아니다.
+  </footer>
+
+</main>
+</body>
+</html>

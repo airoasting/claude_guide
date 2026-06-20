@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>brand-launch · 샘플 브랜드 기획 데모</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16110d;
+    --paper:#f6f1e7;
+    --paper2:#efe7d6;
+    --line:#2a221b;
+    --fire:#ff3b1f;      /* 메인: 차르르 레드 */
+    --char:#1f1a16;      /* 메인: 숯불 차콜 */
+    --honey:#f5a623;     /* 서브: 허니 옐로 */
+    --cream:#fff7ec;
+    --muted:#7a6f60;
+    --good:#1f7a4d;
+    --bad:#c0392b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Noto Sans KR',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+
+  /* ===== Header ===== */
+  header.top{
+    background:var(--char);
+    color:var(--cream);
+    border-bottom:6px solid var(--fire);
+  }
+  .top-inner{max-width:1080px;margin:0 auto;padding:26px 20px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;justify-content:space-between}
+  .skill-tag{font-family:'Archivo Black',sans-serif;letter-spacing:1px;color:var(--honey);font-size:13px}
+  h1.skill{font-family:'Black Han Sans',sans-serif;font-size:clamp(30px,6vw,52px);line-height:1.02;letter-spacing:-.5px;margin:4px 0 8px}
+  h1.skill .accent{color:var(--fire)}
+  .skill-do{color:#d9cfbf;font-size:15px;max-width:640px}
+  .backlink{color:var(--cream);text-decoration:none;font-weight:700;font-size:14px;border:1.5px solid #5a5048;padding:8px 14px;border-radius:999px;white-space:nowrap;transition:.15s}
+  .backlink:hover{background:var(--fire);border-color:var(--fire);color:#fff}
+
+  .badge-row{max-width:1080px;margin:0 auto;padding:16px 20px 0;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .badge{display:inline-flex;align-items:center;gap:7px;background:var(--fire);color:#fff;font-weight:900;font-size:12.5px;letter-spacing:.3px;padding:7px 13px;border-radius:999px}
+  .badge.ghost{background:transparent;color:var(--char);border:1.5px dashed var(--line)}
+
+  /* ===== Hero / 룩북 표지 ===== */
+  .cover{
+    margin-top:22px;
+    background:linear-gradient(135deg,var(--char) 0%,#2c2520 60%,#3a2a1f 100%);
+    color:var(--cream);
+    border-radius:18px;
+    padding:40px 32px 34px;
+    position:relative;
+    overflow:hidden;
+    border:1px solid #000;
+  }
+  .cover::after{content:"🔥";position:absolute;right:-10px;bottom:-20px;font-size:160px;opacity:.10;transform:rotate(-8deg)}
+  .cover .kicker{font-family:'Archivo Black',sans-serif;color:var(--honey);letter-spacing:2px;font-size:13px}
+  .cover .brandname{font-family:'Black Han Sans',sans-serif;font-size:clamp(46px,12vw,108px);line-height:.9;margin:6px 0 4px;letter-spacing:-2px}
+  .cover .brandname .en{display:block;font-family:'Archivo Black',sans-serif;font-size:clamp(16px,3.5vw,26px);letter-spacing:6px;color:#cfc4b4;margin-top:8px}
+  .cover .slogan{font-size:clamp(18px,3.6vw,26px);font-weight:900;color:#fff;margin-top:14px}
+  .cover .slogan .hl{color:var(--fire);background:var(--honey);padding:0 6px;border-radius:4px;color:var(--char)}
+  .cover .palette-strip{display:flex;gap:0;margin-top:24px;border-radius:10px;overflow:hidden;border:2px solid rgba(255,255,255,.15)}
+  .cover .palette-strip span{flex:1;height:46px;display:flex;align-items:flex-end;justify-content:center;font-size:10.5px;font-weight:700;padding-bottom:5px;color:#000;font-family:'Archivo Black',sans-serif}
+
+  /* ===== Timeline ===== */
+  .timeline{margin:42px 0 10px}
+  .tl-title{font-family:'Black Han Sans',sans-serif;font-size:24px;margin-bottom:4px}
+  .tl-sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .tl-track{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+  .tl-step{background:var(--cream);border:2px solid var(--line);border-radius:10px;padding:10px 8px;text-align:center;position:relative}
+  .tl-step .n{font-family:'Archivo Black',sans-serif;font-size:18px;color:var(--fire)}
+  .tl-step .lbl{font-size:11px;font-weight:700;line-height:1.25;margin-top:3px}
+  @media(max-width:760px){.tl-track{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:420px){.tl-track{grid-template-columns:repeat(2,1fr)}}
+
+  /* ===== Stage sections ===== */
+  section.stage{
+    background:var(--cream);
+    border:2px solid var(--line);
+    border-radius:16px;
+    padding:26px 26px 24px;
+    margin-top:26px;
+    scroll-margin-top:14px;
+  }
+  .stage-head{display:flex;align-items:center;gap:14px;margin-bottom:6px;flex-wrap:wrap}
+  .stage-num{font-family:'Archivo Black',sans-serif;background:var(--char);color:var(--honey);width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 auto}
+  .stage-name{font-family:'Black Han Sans',sans-serif;font-size:23px;letter-spacing:-.5px}
+  .stage-gold{flex-basis:100%;font-size:12.5px;color:var(--muted);font-style:italic;padding-left:60px}
+  .stage-body{margin-top:14px}
+
+  .lead{font-weight:700;font-size:16px;border-left:5px solid var(--fire);padding:4px 0 4px 12px;margin:6px 0 16px;background:#fff}
+
+  /* generic cards grid */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:680px){.grid2,.grid3{grid-template-columns:1fr}}
+
+  .card{background:var(--paper);border:1.5px solid #d8ccba;border-radius:11px;padding:14px 15px}
+  .card h4{font-size:13px;letter-spacing:.4px;color:var(--fire);margin-bottom:6px;font-weight:900}
+  .card p{font-size:13.5px}
+  .card .big{font-family:'Black Han Sans',sans-serif;font-size:22px;line-height:1.1;color:var(--char)}
+  .card .sub{font-size:12px;color:var(--muted);margin-top:3px}
+
+  .tag{display:inline-block;background:var(--char);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;margin:2px 3px 2px 0}
+  .tag.honey{background:var(--honey);color:var(--char)}
+  .tag.fire{background:var(--fire)}
+
+  ul.tight{list-style:none;padding:0}
+  ul.tight li{padding:7px 0 7px 24px;position:relative;font-size:14px;border-bottom:1px dashed #ddd2bf}
+  ul.tight li:last-child{border-bottom:0}
+  ul.tight li::before{content:"";position:absolute;left:4px;top:13px;width:8px;height:8px;background:var(--fire);border-radius:2px;transform:rotate(45deg)}
+
+  /* assumption note */
+  .assume{background:#fff4dd;border:1.5px dashed var(--honey);border-radius:9px;padding:9px 13px;font-size:12.5px;margin-top:12px;color:#6a5320}
+  .assume b{color:#8a6710}
+
+  /* positioning 2x2 */
+  .map2{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line);border:2px solid var(--line);border-radius:10px;overflow:hidden;margin-top:8px}
+  .map2 .cell{background:var(--paper);padding:16px 12px;min-height:96px;font-size:12.5px;position:relative}
+  .map2 .cell.us{background:var(--fire);color:#fff}
+  .map2 .cell .who{font-weight:900;font-size:13px;display:block;margin-bottom:4px}
+  .axis-x,.axis-y{text-align:center;font-size:11.5px;font-weight:700;color:var(--muted);margin-top:6px}
+  .axis-y{writing-mode:vertical-rl}
+
+  /* naming table */
+  table.naming{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  table.naming th,table.naming td{border:1px solid #d8ccba;padding:8px 10px;text-align:left;vertical-align:top}
+  table.naming th{background:var(--char);color:var(--cream);font-size:12px}
+  table.naming tr.win td{background:#fff1c2;font-weight:700}
+  table.naming tr.win td:first-child{color:var(--fire)}
+
+  /* palette chips */
+  .palette{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+  @media(max-width:680px){.palette{grid-template-columns:1fr}}
+  .chip{border:2px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .chip .swatch{height:92px;display:flex;align-items:flex-end;padding:8px 10px;color:#fff;font-family:'Archivo Black',sans-serif;font-size:13px;letter-spacing:1px}
+  .chip .meta{padding:10px 12px}
+  .chip .meta .hex{font-family:'Archivo Black',sans-serif;font-size:16px}
+  .chip .meta .role{font-size:11px;color:var(--fire);font-weight:900;letter-spacing:.5px}
+  .chip .meta .why{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.45}
+
+  .tone-pair{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .tone-pair span{background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:700}
+
+  /* moodboard */
+  .mood{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  @media(max-width:680px){.mood{grid-template-columns:1fr}}
+  .mood .m{border-radius:11px;padding:16px 14px;color:#fff;min-height:104px;display:flex;flex-direction:column;justify-content:flex-end;font-size:12.5px;font-weight:600;line-height:1.4;border:1px solid rgba(0,0,0,.2)}
+  .mood .m b{font-size:14px;display:block;margin-bottom:3px;font-family:'Black Han Sans',sans-serif;font-weight:400}
+
+  /* checklist timeline */
+  .check{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+  @media(max-width:680px){.check{grid-template-columns:1fr}}
+  .dcol{border:2px solid var(--line);border-radius:12px;overflow:hidden}
+  .dcol .dh{background:var(--char);color:var(--honey);font-family:'Archivo Black',sans-serif;text-align:center;padding:9px;font-size:15px;letter-spacing:1px}
+  .dcol ul{list-style:none;padding:10px 12px}
+  .dcol li{font-size:12.8px;padding:6px 0 6px 22px;position:relative;border-bottom:1px dashed #e2d6c2}
+  .dcol li:last-child{border-bottom:0}
+  .dcol li::before{content:"☐";position:absolute;left:2px;top:5px;color:var(--fire);font-weight:900}
+  .dcol li .area{display:inline-block;background:var(--paper2);font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:4px;color:var(--muted)}
+
+  /* deliverable docs */
+  .deliver-head{display:flex;align-items:center;gap:12px;margin:54px 0 4px}
+  .deliver-head .dn{font-family:'Archivo Black',sans-serif;background:var(--fire);color:#fff;border-radius:8px;padding:4px 12px;font-size:14px}
+  .deliver-head h2{font-family:'Black Han Sans',sans-serif;font-size:26px;letter-spacing:-.5px}
+  .deliver-sub{color:var(--muted);font-size:13.5px;margin:2px 0 14px}
+
+  .doc{background:#fff;border:2px solid var(--line);border-radius:14px;padding:26px 26px 22px;position:relative}
+  .doc::before{content:"DELIVERABLE";position:absolute;top:14px;right:18px;font-family:'Archivo Black',sans-serif;font-size:10px;color:#d8ccba;letter-spacing:2px}
+  .doc h3{font-family:'Black Han Sans',sans-serif;font-size:22px;margin-bottom:4px;border-bottom:3px solid var(--fire);display:inline-block;padding-bottom:3px}
+  .doc h5{font-size:13px;color:var(--fire);font-weight:900;margin:18px 0 6px;letter-spacing:.3px}
+  .doc p,.doc li{font-size:13.8px}
+  .doc .row{display:flex;gap:10px;padding:6px 0;border-bottom:1px dashed #e6dbc7;font-size:13.8px}
+  .doc .row:last-child{border-bottom:0}
+  .doc .row .k{flex:0 0 116px;font-weight:900;color:var(--char)}
+  .doc .row .v{flex:1}
+  .doc ul{margin-left:18px}
+  .doc ul li{margin:4px 0}
+  .doc .summary-box{background:var(--paper);border-left:5px solid var(--fire);padding:12px 14px;border-radius:0 8px 8px 0;font-size:13.8px}
+
+  .miniswatch{display:inline-block;width:13px;height:13px;border-radius:3px;border:1px solid #00000030;vertical-align:-2px;margin-right:3px}
+
+  /* eval log */
+  .evalbox{background:#15100c;color:#e9e0d2;border-radius:14px;padding:22px 22px 20px;margin-top:26px;font-family:'Noto Sans KR',sans-serif;border:1px solid #000}
+  .evalbox .et{font-family:'Archivo Black',sans-serif;color:var(--honey);font-size:14px;letter-spacing:1px;margin-bottom:4px}
+  .evalbox .ed{color:#a99c87;font-size:12.5px;margin-bottom:16px}
+  .evalbox .round-tag{display:inline-block;background:var(--fire);color:#fff;font-size:11px;font-weight:900;padding:3px 10px;border-radius:6px;margin:14px 0 8px}
+  .evalbox .draft{background:#221b15;border-left:4px solid var(--honey);border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;line-height:1.7;color:#d9cdb8}
+  .evalbox .draft b{color:var(--honey)}
+  .er{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #2c241c;font-size:13px}
+  .er:last-child{border-bottom:0}
+  .er .dot{flex:0 0 84px;font-weight:900;font-size:12px}
+  .er .txt{flex:1;color:#c8bba6}
+  .er .sc{flex:0 0 44px;text-align:right;font-family:'Archivo Black',sans-serif;font-size:15px}
+  .er .sc.ok{color:#5bd38c}
+  .er .sc.no{color:#ff6b54}
+  .dot.red{color:#ff6b54}.dot.silver{color:#cfd3d8}.dot.blue{color:#6fb0ff}.dot.gold{color:#f5c542}
+  .verdict{margin-top:14px;font-weight:900;font-size:14px;padding:10px 14px;border-radius:8px}
+  .verdict.fail{background:#3a1714;color:#ff9c8a;border:1px solid #5a221c}
+  .verdict.pass{background:#13301f;color:#7ce8a6;border:1px solid #1f5234}
+  .rework{font-size:12.5px;color:#a99c87;margin-top:8px;padding-left:4px}
+
+  footer{margin-top:60px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.8}
+  footer .demo-note{display:inline-block;background:var(--paper2);border:1px solid #d8ccba;border-radius:8px;padding:8px 14px;margin-top:8px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div>
+      <div class="skill-tag">SKILL · BRAND-LAUNCH</div>
+      <h1 class="skill">브랜드 <span class="accent">런칭</span> 풀 프로세스</h1>
+      <div class="skill-do">카테고리 한 마디로 시장조사부터 마케팅 플랜까지 8단계를 설계하고, 단계마다 5-Color 평가로 9.0점까지 끌어올려 3종 문서를 만든다.</div>
+    </div>
+    <a class="backlink" href="../samples/index.html">← 전체 보기</a>
+  </div>
+</header>
+
+<div class="badge-row">
+  <span class="badge">🔥 샘플 브랜드 기획(데모)</span>
+  <span class="badge ghost">입력: "새 치킨 브랜드 런칭"</span>
+  <span class="badge ghost">목표 등급 9.5 · 합격선 9.0</span>
+</div>
+
+<div class="wrap">
+
+  <!-- COVER / LOOKBOOK -->
+  <div class="cover">
+    <div class="kicker">NEW CHICKEN BRAND · LOOKBOOK 2026</div>
+    <div class="brandname">차르르
+      <span class="en">CHARRR</span>
+    </div>
+    <div class="slogan">불맛 끝에 <span class="hl">꿀 한 방울</span></div>
+    <div class="palette-strip">
+      <span style="background:#FF3B1F">#FF3B1F</span>
+      <span style="background:#1F1A16;color:#fff">#1F1A16</span>
+      <span style="background:#F5A623">#F5A623</span>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="timeline">
+    <div class="tl-title">8단계 진행 타임라인</div>
+    <div class="tl-sub">각 단계는 BLACK 초안 → RED·SILVER·BLUE·GOLD 4인 평가(9.0 합격) 순서로 진행한다.</div>
+    <div class="tl-track">
+      <div class="tl-step"><div class="n">01</div><div class="lbl">시장조사<br>요약</div></div>
+      <div class="tl-step"><div class="n">02</div><div class="lbl">타겟·<br>포지셔닝</div></div>
+      <div class="tl-step"><div class="n">03</div><div class="lbl">컨셉·<br>유니크니스</div></div>
+      <div class="tl-step"><div class="n">04</div><div class="lbl">네이밍·<br>슬로건</div></div>
+      <div class="tl-step"><div class="n">05</div><div class="lbl">브랜드<br>아이덴티티</div></div>
+      <div class="tl-step"><div class="n">06</div><div class="lbl">기획서<br>요약</div></div>
+      <div class="tl-step"><div class="n">07</div><div class="lbl">런칭<br>체크리스트</div></div>
+      <div class="tl-step"><div class="n">08</div><div class="lbl">마케팅<br>플랜</div></div>
+    </div>
+  </div>
+
+  <!-- STAGE 1 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="stage-num">01</div>
+      <div class="stage-name">시장조사 요약</div>
+      <div class="stage-gold">GOLD 장면: 창업을 고민하는 사람이 카페에서 이 분석을 처음 읽는 순간.</div>
+    </div>
+    <div class="stage-body">
+      <div class="lead">치킨 시장은 포화이나, "단맛 일변도 양념"과 "획일적 BBQ 불맛 흉내" 사이에 진짜 직화 불맛 + 절제된 단맛의 공백이 있다.</div>
+      <div class="grid3">
+        <div class="card"><h4>성장 중</h4><p class="big">매운맛·달콤한맛 결합</p><p class="sub">단짠·단매 조합 신메뉴 출시가 최근 2년 프랜차이즈 신제품의 다수를 차지(추정).</p></div>
+        <div class="card"><h4>포화</h4><p class="big">기본 후라이드·양념</p><p class="sub">상위 브랜드 다수가 동일 SKU로 경쟁. 가격·배달앱 노출로만 차별화.</p></div>
+        <div class="card"><h4>블루오션</h4><p class="big">직화 '불맛'의 실체화</p><p class="sub">대부분 향·소스로 불맛을 흉내. 실제 화입 공정을 보여주는 브랜드는 드묾.</p></div>
+      </div>
+      <h5 style="font-size:13px;color:var(--fire);font-weight:900;margin:18px 0 8px;letter-spacing:.3px">주요 경쟁 5개 포지셔닝</h5>
+      <ul class="tight">
+        <li><b>A사</b>: 대형 프랜차이즈, 양념·바삭함 중심. 가성비와 접근성이 강점.</li>
+        <li><b>B사</b>: 프리미엄 오리지널 후라이드. 담백·정직 포지션.</li>
+        <li><b>C사</b>: 매운맛 특화. 자극·도전 콘셉트로 MZ 확보.</li>
+        <li><b>D사</b>: 숯불 직화 표방. 다만 매장 한정이라 배달 확장이 약함.</li>
+        <li><b>E사</b>: 달콤 양념·치즈. 가족·아이 타겟.</li>
+      </ul>
+      <h5 style="font-size:13px;color:var(--fire);font-weight:900;margin:18px 0 8px;letter-spacing:.3px">기회 포인트</h5>
+      <ul class="tight">
+        <li><b>① 불맛의 시각화</b>: '직화 화입' 공정을 영상과 매장에서 보여주면 향만 흉내 내는 브랜드와 분리된다.</li>
+        <li><b>② 단맛의 절제</b>: 설탕 양념 일변도 시장에서 "불맛 끝에 꿀 한 방울"의 단짠 균형은 빈 자리다(가정: 25~34세 단짠 선호 직장인 기준).</li>
+        <li><b>③ 배달 친화 직화</b>: 직화를 표방한 D사가 배달이 약한 점에서, 배달 품질을 유지하는 설계가 진입 포인트가 된다.</li>
+      </ul>
+      <div class="assume"><b>(가정)</b> 핵심 수요층을 25~34세 단짠 선호 직장인으로 좁혀 진행. 한 줄 정정으로 이 단계만 보정 가능.</div>
+    </div>
+  </section>
+
+  <!-- STAGE 2 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="stage-num">02</div>
+      <div class="stage-name">타겟 · 포지셔닝</div>
+      <div class="stage-gold">GOLD 장면: 타겟 본인이 이 포지셔닝 설명을 읽었을 때.</div>
+    </div>
+    <div class="stage-body">
+      <div class="grid2">
+        <div class="card">
+          <h4>핵심 타겟 페르소나</h4>
+          <p class="big" style="font-size:18px">서지원, 31세</p>
+          <p style="font-size:13.5px;margin-top:6px">판교 IT 회사 대리. 금요일 밤 동료 2명과 맥주 한 캔. 자극적 매운맛은 부담스럽고, 너무 단 양념도 물린다. 인스타에서 "불맛 진짜 나는 곳" 저장을 자주 한다.</p>
+          <div style="margin-top:8px">
+            <span class="tag">단짠 균형 선호</span><span class="tag honey">배달 주 1~2회</span><span class="tag">비주얼 저장러</span>
+          </div>
+        </div>
+        <div class="card">
+          <h4>차별화 방향 (1문장)</h4>
+          <p style="font-size:15px;font-weight:700;line-height:1.5">매운맛 자극(C사)도 단맛 일변도(E사)도 아닌, <span style="color:var(--fire)">불맛을 눈으로 확인하고 끝에 꿀로 마무리되는 균형</span>을 원하는 31세 직장인에게 제공한다.</p>
+        </div>
+      </div>
+      <h5 style="font-size:13px;color:var(--fire);font-weight:900;margin:18px 0 8px;letter-spacing:.3px">포지셔닝 맵 (X축: 단맛 강도 · Y축: 불맛 진정성)</h5>
+      <div class="map2">
+        <div class="cell us"><span class="who">차르르 (우리)</span>강한 직화 불맛 + 절제된 단맛. "불맛 끝에 꿀 한 방울".</div>
+        <div class="cell"><span class="who">E사</span>약한 불맛 + 강한 단맛. 달콤 양념·치즈, 가족 타겟.</div>
+        <div class="cell"><span class="who">D사 / B사</span>직화·담백 지향이나 단맛 약하고 배달 확장 한계.</div>
+        <div class="cell"><span class="who">A사 / C사</span>향으로 흉내 낸 불맛 + 단·매 강조. 자극·가성비.</div>
+      </div>
+      <div class="axis-x">↑ 단맛 약함 ← → 단맛 강함 / 위쪽 = 불맛 진정성 높음</div>
+    </div>
+  </section>
+
+  <!-- STAGE 3 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="stage-num">03</div>
+      <div class="stage-name">컨셉 · 유니크니스</div>
+      <div class="stage-gold">GOLD 장면: 처음 본 소비자가 SNS에서 3초 안에 스크롤을 멈추는 장면.</div>
+    </div>
+    <div class="stage-body">
+      <div class="lead">핵심 컨셉: "튀기지 않고 굽는다. 진짜 불맛 끝에 꿀 한 방울로 닫는다."</div>
+      <div class="grid3">
+        <div class="card"><h4>U1 · 제품/메뉴</h4><p style="font-size:13.5px">초벌 후 <b>800℃ 직화 30초 화입</b>. 마무리에 토종꿀 1회 브러싱. 경쟁사는 향·소스로 불맛, 우리는 실제 화입 공정.</p></div>
+        <div class="card"><h4>U2 · 경험/공간</h4><p style="font-size:13.5px">배달 박스 안 <b>화입 영상 QR + 데우는 30초 가이드</b>. 매장 불맛을 배달에서도 재현하도록 설계.</p></div>
+        <div class="card"><h4>U3 · 스토리/철학</h4><p style="font-size:13.5px">"단맛은 거들 뿐." <b>꿀 사용량을 메뉴판에 g 단위로 표기</b>. 단맛을 숨기지 않고 절제를 약속.</p></div>
+      </div>
+      <div class="assume"><b>(가정)</b> 화입 온도·시간(800℃/30초)과 꿀 1회 브러싱은 콘셉트 예시 수치. 실제 조리 R&D에서 조정.</div>
+    </div>
+  </section>
+
+  <!-- 5-COLOR EVAL LOG (STAGE 3) -->
+  <div class="evalbox">
+    <div class="et">5-COLOR 평가 로그 · STAGE 3 (데모 발췌)</div>
+    <div class="ed">BLACK이 초안을 혼자 작성한 뒤, RED·SILVER·BLUE·GOLD 4인이 평가한다. 최저점 1개의 핵심 지적만 반영해 재작업하며, 형제 요소는 직전 점수를 유지한다.</div>
+
+    <div class="round-tag">라운드 1 · 초안 평가</div>
+    <div class="draft">
+      <b>BLACK 초안 U2</b> : 배달 박스에 "불맛 그대로" 스티커 부착, 매장과 같은 맛을 약속.
+    </div>
+    <div style="margin-top:12px">
+      <div class="er"><div class="dot red">RED</div><div class="txt">U1·U3는 검증 가능한 수치(800℃·꿀 g 표기)로 정합. U2의 "스티커 약속"은 실체 없는 선언이다.</div><div class="sc no">8.6</div></div>
+      <div class="er"><div class="dot silver">SILVER</div><div class="txt">화입·꿀 표기는 차별점 명확. U2는 다른 브랜드도 쉽게 붙이는 문구라 유니크니스로 약하다.</div><div class="sc ok">9.0</div></div>
+      <div class="er"><div class="dot blue">BLUE</div><div class="txt">"단맛은 거들 뿐" 한 줄이 31세 타겟의 '물리는 단맛' 피로를 정확히 건드린다.</div><div class="sc ok">9.3</div></div>
+      <div class="er"><div class="dot gold">GOLD</div><div class="txt">화입 30초 영상에서 스크롤이 멈춤. 스티커 문구는 광고처럼 읽혀 안 믿긴다.</div><div class="sc ok">9.0</div></div>
+    </div>
+    <div class="verdict fail">판정: ❌ 불합격 (RED 8.6) → 재작업 (라운드 1/3)</div>
+    <div class="rework">재작업: 최저점 RED 지적 반영. U2를 "스티커 약속"에서 검증 가능한 경험 차별로 교체. U1·U3·컨셉은 직전 점수 유지(재평가 제외).</div>
+
+    <div class="round-tag">라운드 2 · U2만 수정</div>
+    <div class="draft">
+      <b>수정 U2</b> : 배달 박스 안 화입 영상 QR + 30초 데우기 가이드 동봉. 매장 불맛을 집에서 재현하도록 설계.
+    </div>
+    <div style="margin-top:12px">
+      <div class="er"><div class="dot red">RED</div><div class="txt">QR·가이드는 실행·검증 가능한 장치. 선언이 행동으로 바뀌어 정합성 확보.</div><div class="sc ok">9.2</div></div>
+      <div class="er"><div class="dot silver">SILVER</div><div class="txt">배달 경험을 설계한 점이 모방 난도를 높임. 유니크니스로 성립.</div><div class="sc ok">9.1</div></div>
+    </div>
+    <div class="verdict pass">판정: ✅ 합격. U2 재평가 RED 9.2 / SILVER 9.1, 형제(BLUE 9.3·GOLD 9.0) 유지. STAGE 4로 진행.</div>
+  </div>
+
+  <!-- STAGE 4 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="stage-num">04</div>
+      <div class="stage-name">네이밍 · 슬로건</div>
+      <div class="stage-gold">GOLD 장면: 지인에게 이 이름을 카카오톡으로 추천하는 순간.</div>
+    </div>
+    <div class="stage-body">
+      <table class="naming">
+        <tr><th>후보</th><th>의미</th><th>발음·기억</th><th>확장성</th></tr>
+        <tr class="win"><td>차르르 / CHARRR</td><td>직화 굽는 소리 의성어 + char(숯)</td><td>3음절, 입에 붙고 의성어라 각인 강함</td><td>굿즈·릴스 사운드로 확장 용이</td></tr>
+        <tr><td>불꿀</td><td>불맛 + 꿀, 콘셉트 직결</td><td>2음절 강하나 다소 직설적</td><td>메뉴 확장 시 단조로움</td></tr>
+        <tr><td>화입(火入)</td><td>화입 공정 그대로</td><td>전문 용어라 진입장벽</td><td>대중성 약함</td></tr>
+        <tr><td>꿀불당</td><td>단짠 + 한식당 어감</td><td>기억되나 올드한 인상</td><td>젊은 타겟과 거리</td></tr>
+        <tr><td>스모키허니</td><td>smoky+honey 직역</td><td>5음절, 길고 발음 불편</td><td>영문 의존도 높음</td></tr>
+      </table>
+      <div class="grid2" style="margin-top:14px">
+        <div class="card"><h4>최종 추천</h4><p class="big">차르르 (CHARRR)</p><p class="sub">굽는 소리 의성어라 불맛 콘셉트를 발음 자체로 전달. 릴스 사운드·효과음으로 자연 확장. 3음절로 반복하기 쉽다.</p></div>
+        <div class="card"><h4>슬로건 (10자 이내)</h4><p class="big" style="color:var(--fire)">불맛 끝에 꿀 한 방울</p><p class="sub">상표 간이 체크: 동일 표기 외식 브랜드 명백히 발견되지 않음(법적 확정 아님, 출원 전 변리사 검토 필요).</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGE 5 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="stage-num">05</div>
+      <div class="stage-name">브랜드 아이덴티티 (컬러 Hex · 톤)</div>
+      <div class="stage-gold">GOLD 장면: 타겟 소비자가 이 브랜드의 인스타그램 피드를 처음 봤을 때.</div>
+    </div>
+    <div class="stage-body">
+      <div class="palette">
+        <div class="chip">
+          <div class="swatch" style="background:#FF3B1F">차르르 레드</div>
+          <div class="meta"><div class="role">메인 01</div><div class="hex">#FF3B1F</div><div class="why">직화의 화염·열기. 식욕과 강렬함을 동시에 전달.</div></div>
+        </div>
+        <div class="chip">
+          <div class="swatch" style="background:#1F1A16">숯불 차콜</div>
+          <div class="meta"><div class="role">메인 02</div><div class="hex">#1F1A16</div><div class="why">숯·그을림. 레드를 받쳐 프리미엄·진정성을 준다.</div></div>
+        </div>
+        <div class="chip">
+          <div class="swatch" style="background:#F5A623;color:#1F1A16">허니 옐로</div>
+          <div class="meta"><div class="role">서브</div><div class="hex">#F5A623</div><div class="why">마무리 꿀 한 방울. 절제된 단맛의 시그니처 포인트.</div></div>
+        </div>
+      </div>
+      <h5 style="font-size:13px;color:var(--fire);font-weight:900;margin:18px 0 6px;letter-spacing:.3px">톤앤매너 (상반 키워드 쌍)</h5>
+      <div class="tone-pair">
+        <span>뜨겁되 자극적이지 않다</span>
+        <span>강렬하되 천박하지 않다</span>
+        <span>정직하되 딱딱하지 않다</span>
+      </div>
+      <div class="grid2" style="margin-top:16px">
+        <div class="card"><h4>폰트 방향</h4><p style="font-size:13.5px">한글: <b>산세리프 두꺼운 고딕 계열</b>(가독·임팩트). 영문: <b>Archivo Black 계열</b> 콘덴스드 대문자로 로고·헤드라인.</p></div>
+        <div class="card"><h4>한 줄 비주얼 정의</h4><p style="font-size:13.5px">검은 배경 위 붉은 화염과 떨어지는 꿀 한 방울. 클로즈업·매크로 중심의 식욕 자극형 피드.</p></div>
+      </div>
+      <h5 style="font-size:13px;color:var(--fire);font-weight:900;margin:18px 0 6px;letter-spacing:.3px">비주얼 레퍼런스 / 무드보드</h5>
+      <div class="mood">
+        <div class="m" style="background:linear-gradient(135deg,#FF3B1F,#1F1A16)"><b>화입 클로즈업</b>800℃ 불 위 닭다리, 튀는 불씨를 슬로모션 매크로로.</div>
+        <div class="m" style="background:linear-gradient(135deg,#1F1A16,#3a2a1f)"><b>숯 텍스처</b>검은 숯·그을린 배경에 제품만 떠오르는 다크 푸드샷.</div>
+        <div class="m" style="background:linear-gradient(135deg,#F5A623,#FF3B1F)"><b>꿀 한 방울</b>마지막 꿀이 떨어지는 0.5초. 단맛 절제를 한 컷으로.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGE 6 (compressed - links to deliverable) -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="stage-num">06</div>
+      <div class="stage-name">브랜드 기획서 요약</div>
+      <div class="stage-gold">GOLD 장면: 공동창업자 또는 투자자가 이 기획서를 처음 읽는 10분.</div>
+    </div>
+    <div class="stage-body">
+      <div class="lead">STAGE 1~5를 투자자 설득용 6장 구조로 통합한다. 전문은 아래 [산출물 ①]에 정리.</div>
+      <ul class="tight">
+        <li><b>① Executive Summary</b>: 결정 요청 1문장, 시장 공백, 유니크니스 3줄, D+90 목표.</li>
+        <li><b>② 시장 기회</b>: 직화 불맛의 실체화라는 빈 자리를 두괄식으로.</li>
+        <li><b>③ 타겟 & 포지셔닝</b>: 31세 서지원, 2x2 맵, 차별화 1문장.</li>
+        <li><b>④ 컨셉 & 유니크니스</b>: 화입, 배달 재현, 꿀 g 표기.</li>
+        <li><b>⑤ 아이덴티티</b>: 레드/차콜/허니, 톤 3쌍.</li>
+        <li><b>⑥ 런칭 전략 방향</b>: D-30/D-7/D-Day, 채널 목표, 안 할 것 1가지.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- STAGE 7 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="stage-num">07</div>
+      <div class="stage-name">런칭 체크리스트</div>
+      <div class="stage-gold">GOLD 장면: 오픈 D-7, 대표가 빠진 항목을 확인하는 새벽.</div>
+    </div>
+    <div class="stage-body">
+      <div class="check">
+        <div class="dcol">
+          <div class="dh">D-30</div>
+          <ul>
+            <li>상표 출원 변리사 검토<span class="area">법무</span></li>
+            <li>화입 조리 매뉴얼·배달 품질 테스트<span class="area">운영</span></li>
+            <li>꿀·닭 공급처 2곳 계약<span class="area">운영</span></li>
+            <li>인스타·네이버 플레이스 개설<span class="area">마케팅</span></li>
+          </ul>
+        </div>
+        <div class="dcol">
+          <div class="dh">D-7</div>
+          <ul>
+            <li>위생교육 이수·영업신고 완료<span class="area">법무</span></li>
+            <li>배달앱 입점·메뉴 사진 업로드<span class="area">운영</span></li>
+            <li>티저 영상 3편 예약 발행<span class="area">마케팅</span></li>
+            <li>마이크로 인플루언서 5명 식사 초대<span class="area">마케팅</span></li>
+          </ul>
+        </div>
+        <div class="dcol">
+          <div class="dh">D-DAY</div>
+          <ul>
+            <li>화입 영상 라이브 + 오픈 공지<span class="area">마케팅</span></li>
+            <li>첫 주문 QR 가이드 동봉 점검<span class="area">운영</span></li>
+            <li>오픈 3일 할인 + 저장 이벤트<span class="area">마케팅</span></li>
+            <li>리뷰·댓글 2시간 내 응답 체계<span class="area">운영</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="grid2" style="margin-top:16px">
+        <div class="card"><h4>런칭 후 유지 원칙 3가지</h4><p style="font-size:13.5px">① 화입 공정 비공개 금지(매주 1편 공개). ② 꿀 g 표기 일관 유지. ③ 리뷰 24시간 내 응답.</p></div>
+        <div class="card"><h4>안 할 것 (out of scope)</h4><p style="font-size:13.5px">런칭 초기 메뉴 확장 금지. 시그니처 직화 1~2종에 집중하고 사이드·세트는 정착 후로 미룬다.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGE 8 -->
+  <section class="stage">
+    <div class="stage-head">
+      <div class="stage-num">08</div>
+      <div class="stage-name">마케팅 플랜</div>
+      <div class="stage-gold">GOLD 장면: 런칭 다음 날 아침, 인스타그램 알림이 쏟아지는 순간.</div>
+    </div>
+    <div class="stage-body">
+      <div class="lead">"불맛은 글이 아니라 영상으로 증명한다." 화입 장면 콘텐츠를 축으로 인스타·배달앱에 집중한다. 전체 플랜은 [산출물 ③].</div>
+      <div class="grid3">
+        <div class="card"><h4>주력 채널</h4><p style="font-size:13.5px"><b>인스타그램</b>(화입 릴스·다크 푸드샷) + <b>배달앱</b>(첫 주문 전환). 비주얼이 곧 차별점이라 시각 채널 우선.</p></div>
+        <div class="card"><h4>보조 채널</h4><p style="font-size:13.5px"><b>네이버 플레이스</b>로 로컬 검색·후기 확보. 매장 신뢰 기반.</p></div>
+        <div class="card"><h4>런칭 캠페인</h4><p style="font-size:13.5px"><b>「불맛 인증샷」</b>: 화입 영상 공개 후 데우기 가이드대로 만든 인증샷 수집. D-7~D+14.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== DELIVERABLES ====================== -->
+
+  <!-- DELIVERABLE 1 -->
+  <div class="deliver-head"><span class="dn">산출물 ①</span><h2>브랜드 기획서 요약</h2></div>
+  <div class="deliver-sub">투자자·공동창업자·내부 팀 설득용 (STAGE 1~6 통합)</div>
+  <div class="doc">
+    <h3>차르르(CHARRR) 브랜드 기획서</h3>
+    <h5>1. EXECUTIVE SUMMARY</h5>
+    <div class="summary-box">
+      판교 상권 1호점 오픈을 위한 초기 자금 집행을 요청한다. 치킨 시장은 포화이나 "직화 불맛의 실체화 + 절제된 단맛"은 빈 자리다. 차르르는 ① 800℃ 직화 화입, ② 배달 박스 안 화입 재현 가이드, ③ 꿀 g 단위 표기로 단짠 균형을 약속한다. D+90 목표는 인스타 팔로워 8,000명·재주문율 25%다.
+    </div>
+    <h5>2. 시장 기회</h5>
+    <p>결론: 불맛을 향으로 흉내 내는 시장에 실제 화입을 보여주는 브랜드가 없다. 단짠 결합 메뉴는 늘지만 단맛 일변도이고, 직화를 표방한 D사는 배달이 약하다. 차르르는 "배달에서도 무너지지 않는 직화"로 진입한다.</p>
+    <h5>3. 타겟 & 포지셔닝</h5>
+    <p>금요일 밤, 자극적 매운맛도 물리는 단맛도 피하고 "불맛 진짜 나는 곳"을 저장하는 31세 직장인 서지원. 단맛 강도(X)·불맛 진정성(Y) 2x2에서 차르르는 좌상단(불맛 강·단맛 절제)을 단독 점유한다. 차별화: 매운맛 자극도 단맛 일변도도 아닌 균형을 원하는 31세에게 눈으로 확인되는 불맛을 제공한다.</p>
+    <h5>4. 컨셉 & 유니크니스</h5>
+    <ul>
+      <li><b>U1</b>: 경쟁사는 향·소스로 불맛을 내지만, 우리는 800℃ 직화 30초 화입으로 낸다.</li>
+      <li><b>U2</b>: 경쟁사는 배달 품질을 운에 맡기지만, 우리는 화입 영상 QR과 데우기 가이드를 동봉한다.</li>
+      <li><b>U3</b>: 경쟁사는 단맛을 숨기지만, 우리는 꿀 사용량을 g 단위로 표기한다.</li>
+    </ul>
+    <h5>5. 아이덴티티</h5>
+    <p>
+      <span class="miniswatch" style="background:#FF3B1F"></span><b>#FF3B1F</b> 차르르 레드 ·
+      <span class="miniswatch" style="background:#1F1A16"></span><b>#1F1A16</b> 숯불 차콜 ·
+      <span class="miniswatch" style="background:#F5A623"></span><b>#F5A623</b> 허니 옐로.
+      톤: 뜨겁되 자극적이지 않다 / 강렬하되 천박하지 않다 / 정직하되 딱딱하지 않다. 비주얼: 검은 배경 위 붉은 화염과 떨어지는 꿀 한 방울.
+    </p>
+    <h5>6. 런칭 전략 방향</h5>
+    <p>D-30 상표·조리매뉴얼·공급처, D-7 배달앱 입점·티저 발행, D-Day 화입 라이브. 첫 달 인스타 팔로워 8,000·배달앱 리뷰 200건 목표. 안 할 것: 초기 메뉴 확장(직화 1~2종 집중).</p>
+  </div>
+
+  <!-- DELIVERABLE 2 -->
+  <div class="deliver-head"><span class="dn">산출물 ②</span><h2>브랜드 가이드라인 요약</h2></div>
+  <div class="deliver-sub">디자이너·외부 업체 전달용 (1페이지)</div>
+  <div class="doc">
+    <h3>차르르 브랜드 가이드라인</h3>
+    <div class="row"><div class="k">한 줄 정의</div><div class="v">직화 불맛 치킨 · 25~34세 단짠 선호 직장인 · "불맛은 눈으로 확인하고 끝은 꿀로 마무리한다"</div></div>
+    <div class="row"><div class="k">슬로건</div><div class="v">불맛 끝에 꿀 한 방울</div></div>
+    <div class="row"><div class="k">핵심 컨셉</div><div class="v">튀기지 않고 굽는다. 진짜 불맛 끝에 꿀 한 방울로 닫는다.</div></div>
+    <div class="row"><div class="k">유니크니스</div><div class="v">U1 800℃ 직화 화입 / U2 배달 화입 재현 가이드 / U3 꿀 g 단위 표기</div></div>
+    <div class="row"><div class="k">컬러</div><div class="v">
+      <span class="miniswatch" style="background:#FF3B1F"></span>메인 #FF3B1F ·
+      <span class="miniswatch" style="background:#1F1A16"></span>#1F1A16 /
+      <span class="miniswatch" style="background:#F5A623"></span>서브 #F5A623
+    </div></div>
+    <div class="row"><div class="k">톤앤매너</div><div class="v">뜨겁되 자극적이지 않다 · 강렬하되 천박하지 않다 · 정직하되 딱딱하지 않다</div></div>
+    <div class="row"><div class="k">폰트</div><div class="v">한글: 두꺼운 고딕 계열 / 영문: Archivo Black 계열 콘덴스드 대문자</div></div>
+    <div class="row"><div class="k">비주얼 방향</div><div class="v">검은 배경 위 붉은 화염 + 떨어지는 꿀 한 방울. 매크로 클로즈업 다크 푸드샷.</div></div>
+  </div>
+
+  <!-- DELIVERABLE 3 -->
+  <div class="deliver-head"><span class="dn">산출물 ③</span><h2>마케팅 플랜</h2></div>
+  <div class="deliver-sub">실행팀 전달용 (채널·캠페인·콘텐츠·KPI)</div>
+  <div class="doc">
+    <h3>차르르 마케팅 플랜</h3>
+    <div class="row"><div class="k">채널 전략</div><div class="v">주력: 인스타그램(화입 릴스·다크 푸드샷) + 배달앱(첫 주문 전환). 보조: 네이버 플레이스(로컬 후기). 비주얼이 차별점이라 시각 채널 우선.</div></div>
+    <div class="row"><div class="k">런칭 캠페인</div><div class="v">「불맛 인증샷」 · 메시지 "불맛 끝에 꿀 한 방울" · 화입 영상 공개 후 데우기 가이드대로 만든 인증샷 수집 · D-7~D+14 · 인증샷 300건 목표</div></div>
+    <div class="row"><div class="k">콘텐츠 방향</div><div class="v">브랜드 스토리 20%(화입 공정·창업기) / 제품 50%(다크 푸드샷·릴스) / 참여 30%(인증샷·투표). 피드 주 3회, 릴스 주 2회, 스토리 매일.</div></div>
+    <div class="row"><div class="k">인플루언서</div><div class="v">음식 참여율 3%+ 마이크로(1~10만) 5명 동시. 식사 초대 + 솔직 후기(광고 표기 필수). 화입 영상 공동 제작.</div></div>
+    <div class="row"><div class="k">예산 배분</div><div class="v">콘텐츠 제작 40% / 인플루언서 30% / 유료광고 20% / 이벤트 10%. 스토리 정착 전 대규모 광고·"맛집/혜자" 키워드 금지.</div></div>
+    <div class="row"><div class="k">KPI (D+30)</div><div class="v">① 인스타 팔로워 8,000명(인사이트) ② 배달앱 재주문율 25%(POS) ③ 인증샷 태그 언급 300건(해시태그 집계)</div></div>
+  </div>
+
+  <footer>
+    <div>이 화면은 <b>brand-launch</b> 스킬의 출력을 데모용으로 압축·시각화한 것이다.</div>
+    <div class="demo-note">샘플 브랜드 <b>차르르(CHARRR)</b> · 팔레트 <b>#FF3B1F / #1F1A16 / #F5A623</b> · 가상의 기획 예시</div>
+  </footer>
+
+</div>
+</body>
+</html>

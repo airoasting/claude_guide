@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>skill-reviewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f172a; --bg2:#1e293b;
+    --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+    --paper:#ffffff; --paper2:#f8fafc;
+    --navy:#1e3a5f; --navy2:#2c4a6e;
+    --gold:#b88a2e; --gold-bg:#fdf6e6;
+    --good:#15803d; --good-bg:#ecfdf3;
+    --warn:#b45309; --warn-bg:#fef6e7;
+    --bar:#2563eb; --bartrack:#e8eef7;
+    --quote-bg:#f1f5f9; --quote-line:#1e3a5f;
+    --shadow:0 1px 3px rgba(15,23,42,.08),0 8px 24px rgba(15,23,42,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Noto Sans KR','Inter',sans-serif;
+    color:var(--ink); background:#eef2f7;
+    line-height:1.7; -webkit-font-smoothing:antialiased;
+    padding:0 16px 80px;
+  }
+  .wrap{max-width:880px;margin:0 auto}
+  code,.mono{font-family:'JetBrains Mono',monospace}
+
+  /* Header */
+  header{
+    background:linear-gradient(180deg,#1e3a5f 0%,#15294a 100%);
+    color:#fff; border-radius:0 0 20px 20px;
+    padding:28px 30px 30px; margin:0 -16px 26px;
+    box-shadow:var(--shadow); position:relative;
+  }
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .skill-name{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#9fc0e8}
+  .back{color:#cfe0f5;text-decoration:none;font-size:13px;font-weight:500;border:1px solid rgba(255,255,255,.25);padding:6px 13px;border-radius:8px;transition:.15s;white-space:nowrap}
+  .back:hover{background:rgba(255,255,255,.12)}
+  header h1{font-size:26px;font-weight:700;letter-spacing:-.01em;line-height:1.3;margin-bottom:8px}
+  header .tag{font-size:15px;color:#bcd2ee;font-weight:400;max-width:640px}
+  .badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .badge{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:999px}
+  .badge.live{background:#16a34a;color:#fff}
+  .badge.subj{background:rgba(255,255,255,.13);color:#dce8f7;font-family:'JetBrains Mono',monospace;font-weight:500}
+  .dot{width:7px;height:7px;border-radius:50%;background:#fff;animation:pulse 1.8s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* Score hero */
+  .hero{
+    background:var(--paper);border-radius:18px;box-shadow:var(--shadow);
+    padding:26px 28px;margin-bottom:24px;
+    display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:center;
+  }
+  .donut-wrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .donut{position:relative;width:160px;height:160px}
+  .donut svg{transform:rotate(-90deg)}
+  .donut .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .donut .big{font-family:'Inter',sans-serif;font-size:44px;font-weight:700;color:var(--navy);line-height:1}
+  .donut .out{font-size:13px;color:var(--muted);font-weight:500;margin-top:2px}
+  .stars{font-size:18px;letter-spacing:2px;color:var(--gold)}
+  .grade-pill{font-size:12.5px;font-weight:700;color:var(--gold);background:var(--gold-bg);border:1px solid #ecd9a8;padding:4px 12px;border-radius:999px}
+  .hero-right h2{font-size:15px;font-weight:700;margin-bottom:4px}
+  .hero-right .formula{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);background:var(--paper2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:10px 0 14px;line-height:1.6}
+  .verdict{font-size:14px;color:#334155}
+  .verdict b{color:var(--good)}
+
+  /* mini bars in hero */
+  .minibars{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+  .mb{display:grid;grid-template-columns:120px 1fr 30px;align-items:center;gap:10px;font-size:12.5px}
+  .mb .lbl{color:#475569;font-weight:500}
+  .mb .track{height:8px;background:var(--bartrack);border-radius:99px;overflow:hidden}
+  .mb .fill{height:100%;background:var(--bar);border-radius:99px;width:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .mb .val{font-family:'Inter',sans-serif;font-weight:700;color:var(--navy);text-align:right;font-size:13px}
+
+  section.crit{
+    background:var(--paper);border-radius:16px;box-shadow:var(--shadow);
+    padding:24px 26px;margin-bottom:18px;border-left:5px solid var(--navy);
+  }
+  .crit-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  .crit-title{display:flex;align-items:center;gap:11px}
+  .num{width:34px;height:34px;border-radius:9px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;font-family:'Inter',sans-serif;flex-shrink:0}
+  .crit-title h3{font-size:17px;font-weight:700}
+  .crit-title .sub{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:1px}
+  .score-chip{font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--navy)}
+  .score-chip span{font-size:14px;color:var(--muted);font-weight:500}
+  .bigbar{height:10px;background:var(--bartrack);border-radius:99px;overflow:hidden;margin-bottom:16px}
+  .bigbar .f{height:100%;width:0;background:linear-gradient(90deg,#1e3a5f,#2563eb);border-radius:99px;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+
+  .note{display:inline-flex;align-items:flex-start;gap:8px;font-size:13px;background:#eef4fb;border:1px solid #d6e4f5;color:#1e3a5f;border-radius:9px;padding:9px 12px;margin-bottom:14px}
+  .note b{font-weight:700}
+
+  blockquote{
+    background:var(--quote-bg);border-left:4px solid var(--quote-line);
+    border-radius:0 8px 8px 0;padding:12px 16px;margin:12px 0;
+    font-size:13.5px;color:#334155;
+  }
+  blockquote .src{display:block;font-size:11.5px;color:var(--muted);margin-top:6px;font-family:'JetBrains Mono',monospace}
+  .anchor{display:inline-block;font-size:11.5px;font-weight:700;color:var(--good);background:var(--good-bg);border:1px solid #bbf0cf;border-radius:6px;padding:2px 8px;margin-bottom:10px}
+  .body-txt{font-size:14px;color:#334155}
+  .body-txt + .body-txt{margin-top:8px}
+
+  /* persona table */
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;color:var(--muted);font-weight:600;background:var(--paper2)}
+  th:first-child,td:first-child{border-radius:0}
+  .fit{font-weight:700;font-size:15px}
+  .fit.dia{color:var(--good)}
+  .persona-tag{font-weight:600;color:var(--navy)}
+
+  /* improvement checklist */
+  .improve{
+    background:linear-gradient(180deg,#fffdf7,#fef9ee);
+    border:1px solid #efe2c2;border-radius:16px;box-shadow:var(--shadow);
+    padding:24px 26px;margin-bottom:18px;
+  }
+  .improve h2{font-size:18px;font-weight:700;color:#8a6418;display:flex;align-items:center;gap:9px;margin-bottom:6px}
+  .improve .lead{font-size:13px;color:#7a6a45;margin-bottom:16px}
+  .ck{display:flex;gap:13px;padding:14px 0;border-top:1px dashed #e6d6b0}
+  .ck:first-of-type{border-top:none}
+  .box{width:22px;height:22px;border-radius:6px;border:2px solid var(--gold);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:13px;font-weight:700}
+  .ck .c-body{flex:1}
+  .ck .c-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+  .ck .c-where{font-size:11.5px;font-weight:700;color:#8a6418;background:#fbefcf;border:1px solid #ecd9a8;border-radius:6px;padding:2px 8px}
+  .ck .c-title{font-size:14.5px;font-weight:700;color:#5c4711}
+  .ck .c-desc{font-size:13px;color:#6b5a33}
+  .ck .c-desc code{background:#f4ead0;padding:1px 5px;border-radius:4px;font-size:12px}
+
+  .good-sec{background:var(--paper);border-radius:16px;box-shadow:var(--shadow);padding:22px 26px;border-left:5px solid var(--good)}
+  .good-sec h2{font-size:17px;font-weight:700;color:var(--good);display:flex;align-items:center;gap:9px;margin-bottom:12px}
+  .good-sec ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+  .good-sec li{font-size:13.5px;color:#334155;display:flex;gap:9px;align-items:flex-start}
+  .good-sec li::before{content:"✓";color:var(--good);font-weight:700;flex-shrink:0}
+
+  footer{text-align:center;font-size:12px;color:var(--muted);margin-top:30px;line-height:1.8}
+  footer code{background:#e2e8f0;padding:1px 6px;border-radius:4px}
+
+  @media(max-width:680px){
+    .hero{grid-template-columns:1fr;gap:18px}
+    .donut-wrap{order:-1}
+    .mb{grid-template-columns:96px 1fr 28px}
+    header h1{font-size:22px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="topbar">
+      <span class="skill-name">skill-reviewer</span>
+      <a class="back" href="../samples/index.html">← 전체 보기</a>
+    </div>
+    <h1>SKILL.md / CLAUDE.md 채점 리포트</h1>
+    <p class="tag">이 스킬이 하는 일: SKILL.md·CLAUDE.md 한 파일을 <b style="color:#fff;font-weight:600">목적·오케스트레이션·역할배정·토큰효율</b> 4개 항목 × 10점으로 채점하고, 평균을 최종 점수로 보고한 뒤 개선된 새 파일을 만든다.</p>
+    <div class="badges">
+      <span class="badge subj">대상: quote-generator/quote-light/SKILL.md</span>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="donut-wrap">
+      <div class="donut">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="68" fill="none" stroke="#e8eef7" stroke-width="16"/>
+          <circle id="ring" cx="80" cy="80" r="68" fill="none" stroke="#1e3a5f" stroke-width="16"
+                  stroke-linecap="round" stroke-dasharray="427.3" stroke-dashoffset="427.3"/>
+        </svg>
+        <div class="center">
+          <span class="big">9.0</span>
+          <span class="out">/ 10</span>
+        </div>
+      </div>
+      <div class="stars">★★★★★</div>
+      <span class="grade-pill">즉시 사용 등급</span>
+    </div>
+
+    <div class="hero-right">
+      <h2>평균 점수 산출</h2>
+      <div class="formula">( 목적 9 &nbsp;+&nbsp; 오케스트레이션 9 &nbsp;+&nbsp; 역할배정 9 &nbsp;+&nbsp; 토큰효율 9 ) / 4 = <b style="color:#1e3a5f">9.0</b></div>
+      <div class="minibars">
+        <div class="mb"><span class="lbl">1. 목적</span><span class="track"><span class="fill" data-w="90"></span></span><span class="val">9</span></div>
+        <div class="mb"><span class="lbl">2. 오케스트레이션</span><span class="track"><span class="fill" data-w="90"></span></span><span class="val">9</span></div>
+        <div class="mb"><span class="lbl">3. 역할 배정</span><span class="track"><span class="fill" data-w="90"></span></span><span class="val">9</span></div>
+        <div class="mb"><span class="lbl">4. 토큰 효율</span><span class="track"><span class="fill" data-w="90"></span></span><span class="val">9</span></div>
+      </div>
+      <p class="verdict" style="margin-top:14px">네 항목 모두 9에서 10점 앵커 구간에 든다. 즉시 감점 신호는 0개. 다만 각 항목에 <b>사소한 흠이 1개씩</b> 남아 10점은 아니다. 평균 <b>9.0</b>으로 ★★★★★ 즉시 사용 등급.</p>
+    </div>
+  </div>
+
+  <!-- CRITERION 1 -->
+  <section class="crit">
+    <div class="crit-head">
+      <div class="crit-title">
+        <span class="num">1</span>
+        <div><h3>목적 파악 <span class="sub">왜 존재하는지 한 문장으로 잡히는가 · 스코프 경계</span></h3></div>
+      </div>
+      <div class="score-chip">9<span>/10</span></div>
+    </div>
+    <div class="bigbar"><span class="f" data-w="90"></span></div>
+    <span class="anchor">앵커 9에서 10점 · description만으로 한 문장에 즉시 잡힘, 경계 단단</span>
+    <div class="note"><b>한 문장 요약 →</b> &nbsp;채팅으로 받은 고객·제품 정보를 파싱해 번들 스크립트로 표준 견적서 .xlsx를 채워 만든다(세금계산서·인보이스·ERP 연동은 제외).</div>
+    <blockquote>
+      "…공유용 견적서 .xlsx 파일을 만드는 스킬. … 다음은 다루지 않는다(발동하지 않음). 세금계산서 발행, 거래명세서 발행, 인보이스(invoice) 발행, ERP·거래처 시스템 연동, 내부 가격 룰 자동계산."
+      <span class="src">출처: frontmatter description (L3~9)</span>
+    </blockquote>
+    <p class="body-txt">목적과 산출물(.xlsx)이 description 한 줄로 즉시 추출되고, 안티 트리거를 5개나 명시해 스코프 경계가 단단하다. <b>흠 1개:</b> description이 트리거 예시까지 한 문단에 몰려 있어 목적과 경계를 분리해 한 번 더 읽게 한다 → 10이 아닌 9.</p>
+  </section>
+
+  <!-- CRITERION 2 -->
+  <section class="crit">
+    <div class="crit-head">
+      <div class="crit-title">
+        <span class="num">2</span>
+        <div><h3>페르소나 오케스트레이션 <span class="sub">여러 역할을 단일 흐름으로 묶는 상위 구조</span></h3></div>
+      </div>
+      <div class="score-chip">9<span>/10</span></div>
+    </div>
+    <div class="bigbar"><span class="f" data-w="90"></span></div>
+    <span class="anchor">앵커 9에서 10점 · 모든 역할이 단일 워크플로우에 종속, 진입·종료 조건 명시</span>
+    <div class="note" style="display:block"><b>식별된 섹션 역할(CLAUDE.md식):</b><br>
+      (a) 입력 수집자 · (b) 파서 · (c) 스크립트 실행자 · (d) 자기검증자 · (e) 전달자 · (f) 엣지/중단 판정자</div>
+    <blockquote>
+      "### A) ‘자동 견적 생성!’처럼 빈손으로 시작한 경우 … ### B) 정보가 주어진 경우: 4단계로 실행. 1. 파싱 → 2. 스크립트 실행 → 3. 자기 검증 → 4. 전달"
+      <span class="src">출처: 워크플로우 A/B 분기 (L33~97)</span>
+    </blockquote>
+    <p class="body-txt">진입 조건(빈손 A / 정보 있음 B)이 분기로 명시되고, B의 4단계가 파싱→실행→검증→전달의 단일 흐름으로 종속된다. 종료 조건도 "중단 조건" 절에 별도로 있다. <b>흠 1개:</b> 엣지케이스 6종이 본 흐름과 살짝 분리된 평행 목록이라, 어느 단계에서 분기되는지 매핑이 한 단계 약하다 → 9.</p>
+  </section>
+
+  <!-- CRITERION 3 -->
+  <section class="crit">
+    <div class="crit-head">
+      <div class="crit-title">
+        <span class="num">3</span>
+        <div><h3>역할 배정 <span class="sub">각 역할이 목적의 어느 조각에 직접 기여하는가</span></h3></div>
+      </div>
+      <div class="score-chip">9<span>/10</span></div>
+    </div>
+    <div class="bigbar"><span class="f" data-w="90"></span></div>
+    <span class="anchor">앵커 9에서 10점 · 모든 섹션이 목적 조각에 직접 대응, 잉여 0 · 누락 0</span>
+    <table>
+      <thead><tr><th>섹션 역할</th><th>담당 목적 조각</th><th style="text-align:center">적합도</th></tr></thead>
+      <tbody>
+        <tr><td><span class="persona-tag">(a) 입력 수집자</span></td><td>빈손 시작 시 필요한 정보를 한 번에 양식으로 모음</td><td style="text-align:center"><span class="fit dia">◎</span></td></tr>
+        <tr><td><span class="persona-tag">(b) 파서</span></td><td>자연어 → 입력 JSON 변환 (스크립트가 먹을 형태)</td><td style="text-align:center"><span class="fit dia">◎</span></td></tr>
+        <tr><td><span class="persona-tag">(c) 스크립트 실행자</span></td><td>fill_quote.py 실행 + 템플릿 자동복구 → .xlsx 산출</td><td style="text-align:center"><span class="fit dia">◎</span></td></tr>
+        <tr><td><span class="persona-tag">(d) 자기검증자</span></td><td>xlsx 무결성·시트 존재 확인 (잘못 만들었다 말하지 않기)</td><td style="text-align:center"><span class="fit dia">◎</span></td></tr>
+        <tr><td><span class="persona-tag">(e) 전달자</span></td><td>파일 제시 + 공급가액·VAT 계산 안내</td><td style="text-align:center"><span class="fit dia">◎</span></td></tr>
+        <tr><td><span class="persona-tag">(f) 엣지/중단 판정자</span></td><td>부분항목·할인·VAT·스코프 밖 요청 처리</td><td style="text-align:center"><span class="fit dia">○</span></td></tr>
+      </tbody>
+    </table>
+    <p class="body-txt" style="margin-top:12px">6개 역할 모두 "견적서 .xlsx를 안전하게 채워 전달"이라는 목적 조각에 직접 대응한다. 잉여 0, 누락 0. <b>흠 1개:</b> (f)의 일부 엣지케이스(예: 부가세 포함 총액 안내)는 역할 수행보다 사용 안내에 가까워 목적 매핑이 한 단계 느슨 → 9.</p>
+  </section>
+
+  <!-- CRITERION 4 -->
+  <section class="crit">
+    <div class="crit-head">
+      <div class="crit-title">
+        <span class="num">4</span>
+        <div><h3>토큰 효율 &amp; 구체성 <span class="sub">들인 토큰만큼 실행 가능한가 · 즉시 감점 신호</span></h3></div>
+      </div>
+      <div class="score-chip">9<span>/10</span></div>
+    </div>
+    <div class="bigbar"><span class="f" data-w="90"></span></div>
+    <span class="anchor">앵커 9에서 10점 · 잉여 표현 0, 모든 지시가 실행 가능(명령·포맷·임계값·예시)</span>
+    <table style="margin-bottom:12px">
+      <thead><tr><th>즉시 감점 신호</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>200줄 초과 + 15% 이상 무손실 삭제 가능</td><td><b style="color:var(--good)">미적용</b> · 128줄 (≤200)</td></tr>
+        <tr><td>코드·명령·포맷 예시 0개</td><td><b style="color:var(--good)">미적용</b> · 5개 블록(JSON·bash·검증)</td></tr>
+        <tr><td>동일 규칙 복붙 수준 중복</td><td><b style="color:var(--good)">미적용</b> · 재진술 수준만</td></tr>
+      </tbody>
+    </table>
+    <div class="note"><b>즉시 감점 합계 = 0</b> &nbsp;→&nbsp; 앵커 점수 그대로 유지(타이브레이크: 신호 없으면 9에서 10점 가능).</div>
+    <p class="body-txt">JSON 예시·실행 명령·자기검증 명령(<code class="mono">openpyxl.load_workbook</code>)·임계값(항목 5개, +30일)까지 모두 실행 가능한 형태다. <b>흠 1개:</b> 엣지케이스의 VAT/할인 문단은 같은 "음/양수 항목 한 줄 추가" 아이디어를 두 번 풀어 써 한두 문단 압축 여지 → 감점 신호는 아니지만 흠 1개로 9.</p>
+  </section>
+
+  <!-- IMPROVEMENTS -->
+  <div class="improve">
+    <h2><i style="font-style:normal">✎</i> 깎인 항목별 개선 제안</h2>
+    <p class="lead">네 항목 모두 "흠 1개"로 1점씩 깎였다. 아래만 손대면 9.0 → 9.5+ 도달이 현실적이다.</p>
+
+    <div class="ck">
+      <div class="box">1</div>
+      <div class="c-body">
+        <div class="c-top"><span class="c-where">목적 −1</span><span class="c-title">description을 목적/경계/트리거 3덩이로 분리</span></div>
+        <p class="c-desc">현재 한 문단에 산출물·트리거 예시·안티트리거가 뭉쳐 있다. 첫 문장은 순수 목적, 둘째는 트리거 예시, 셋째는 "다루지 않음"으로 끊으면 한 번에 잡힌다.</p>
+      </div>
+    </div>
+
+    <div class="ck">
+      <div class="box">2</div>
+      <div class="c-body">
+        <div class="c-top"><span class="c-where">오케스트레이션 −1</span><span class="c-title">엣지케이스를 B 4단계 안에 앵커</span></div>
+        <p class="c-desc">평행 목록인 엣지케이스 6종에 각각 "<code>→ 단계 1/3에서 분기</code>" 식 표시를 달아, 어느 단계의 분기인지 본 흐름에 묶는다.</p>
+      </div>
+    </div>
+
+    <div class="ck">
+      <div class="box">3</div>
+      <div class="c-body">
+        <div class="c-top"><span class="c-where">역할배정 −1</span><span class="c-title">사용 안내성 엣지케이스를 행동 규칙으로 전환</span></div>
+        <p class="c-desc">"부가세 포함 총액 원하면 안내" 같은 항목을 "<code>VAT 행 1줄 추가</code>"라는 명확한 수행 동작으로 통일하면 (f)의 역할 적합도가 ○→◎가 된다.</p>
+      </div>
+    </div>
+
+    <div class="ck">
+      <div class="box">4</div>
+      <div class="c-body">
+        <div class="c-top"><span class="c-where">토큰효율 −1</span><span class="c-title">VAT·할인 문단 병합</span></div>
+        <p class="c-desc">두 곳에서 반복되는 "음/양수 항목 한 줄 추가" 패턴을 한 줄 공통 규칙으로 빼고, VAT·할인은 그 규칙을 참조만 하게 한다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOOD POINTS -->
+  <div class="good-sec">
+    <h2><i style="font-style:normal">✓</i> 잘된 점</h2>
+    <ul>
+      <li>안티 트리거 5종을 description에 명시해, 스코프 경계가 동급 스킬 중 최상위권이다.</li>
+      <li>자기검증 단계(3)에서 xlsx 무결성을 실제 명령으로 확인하고, "만들었다고 말하지 말라"는 실패 방지 규칙까지 포함한다.</li>
+      <li>템플릿 자동복구·부분항목 허용 등 실패 경로가 워크플로우에 내장돼 중단 없이 굴러간다.</li>
+      <li>128줄로 압축적이면서 JSON·bash·검증 예시를 모두 갖춰 토큰 대비 실행성이 높다.</li>
+    </ul>
+  </div>
+
+  <footer>
+    skill-reviewer 4-criteria rubric 적용 · 대상 <code>quote-generator/quote-light/SKILL.md</code> · 최종 평균 <b>9.0 / 10</b> ★★★★★<br>
+    원본 대비 좋으면 <code>mv SKILL.improved.md SKILL.md</code>로 교체 (원본은 절대 미수정)
+  </footer>
+
+</div>
+
+<script>
+  window.addEventListener('load',()=>{
+    requestAnimationFrame(()=>{
+      document.querySelectorAll('.fill,.f').forEach(el=>{
+        el.style.width=(el.dataset.w||90)+'%';
+      });
+      const ring=document.getElementById('ring');
+      const C=427.3, pct=0.90;
+      ring.style.transition='stroke-dashoffset 1.3s cubic-bezier(.2,.8,.2,1)';
+      ring.style.strokeDashoffset=(C*(1-pct)).toFixed(1);
+    });
+  });
+</script>
+</body>
+</html>
