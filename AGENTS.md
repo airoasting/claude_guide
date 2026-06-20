@@ -27,7 +27,7 @@
 
 ---
 
-## 2. 페이지 인벤토리 (42개)
+## 2. 페이지 인벤토리 (43개)
 
 `index.html`이 라우팅 허브다. 콘텐츠 페이지는 모두 동일한 구조 골격을 공유한다(header → step-nav → header-pages → sticky sub-menu → container → SM-HAMBURGER).
 
@@ -170,11 +170,14 @@
 | `component-gallery.html` | 참고 | 참고 | UI 컴포넌트 40종 |
 | `ui-design.html` | 참고 | 참고 | UI 디자인 트렌드 30종 |
 
-### 수강생 쇼케이스 (header-pages: 2개)
+### 수강생 쇼케이스 (header-pages: 3개, 700px)
+2026-06-20에 `hackathon.html`을 추가하면서 헤더 토글이 2개에서 3개로 늘었다(`시로 쓴 자화상`·`스탑워치 쇼케이스`·`해커톤 위너`, 아이콘 없는 텍스트 링크). 3개 페이지가 같은 토글을 공유하므로 `.header-pages` max-width를 560px→700px로 올렸다. 토글 링크 추가·폭 변경은 세 페이지(`showcase`·`showcase-poems`·`hackathon`)를 함께 고친다.
+
 | 페이지 | 시간 | 난이도 | 특성 |
 |---|---|---|---|
-| `showcase.html` | 참고 | 참고 | 수강생 결과물 모음. 9개 스탑워치 iframe 라이브 임베드, 3유형 분류. 헤더에 `시로 쓴 자화상`·`스탑워치 쇼케이스` 2개 토글(아이콘 없는 텍스트 링크) |
-| `showcase-poems.html` | 참고 | 참고 | 멀티 페르소나 실습으로 완성한 시 23편 모음(`AI 시대, 일하는 사람들의 하루`). `showcase.html`과 같은 2개 토글로 연동. CTA는 `multi-persona.html`로 크로스링크 |
+| `showcase.html` | 참고 | 참고 | 수강생 결과물 모음. 9개 스탑워치 iframe 라이브 임베드, 3유형 분류 |
+| `showcase-poems.html` | 참고 | 참고 | 멀티 페르소나 실습으로 완성한 시 23편 모음(`AI 시대, 일하는 사람들의 하루`). CTA는 `multi-persona.html`로 크로스링크 |
+| `hackathon.html` | 참고 | 참고 | 클로드 코드 해커톤 우승작 모음. `showcase.html` 골격 클론(iframe 무대 대신 `.hk-card` 텍스트 카드). Built with Opus 4.6(5선)·4.7(6선)·4.8 Build Day(3선) 세 시리즈를 sub-menu 3노드(s1·s2·s3) + 시리즈별 카드로 구성. 각 카드는 서비스명·인물·직업·설명 불릿, 수상 배지(`.hk-award`), 데모 영상 링크(`.hk-links` 안 `.hk-video`, 빨강 ▶ pill), 시리즈마다 공식 발표 원문 링크(`.series-meta`). 데이터·링크 출처는 claude.com/blog 해커톤 발표 3건. 수상 배지 5개: 4.6 TARA=Keep Thinking 상·Conductr=Creative Exploration 상, 4.7 Virtual Puppet Theater=Most Creative Use of Opus 4.7·MaestrIA=Keep Thinking 상·ARIA=Best Use of Claude Managed Agents(슬라이드엔 4.7만 있었지만 블로그 기준 4.6 특별상 2개 추가). 데모 영상은 14개 우승작 전부 연결(4.6 5 + 4.7 6 + 4.8 3). 사용자가 4.7·4.8 영상 URL을 제공, WebFetch로 영상 제목 확인해 서비스명에 매칭. 서비스명 자체는 프로젝트 URL을 안 걸고 텍스트로 둠. `.hk-award`는 모바일에서 `.hk-id { min-width:62% }`로 밀어내 자기 줄로 내림(긴 배지 우측 넘침 방지) |
 
 ---
 
