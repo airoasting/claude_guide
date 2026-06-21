@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>슬롯머신 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='8' width='72' height='84' rx='12' fill='%23c0182b'/><rect x='26' y='34' width='48' height='24' rx='4' fill='%23120a04'/><circle cx='50' cy='22' r='6' fill='%23ffd34d'/></svg>" />
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:"Trebuchet MS","Segoe UI",sans-serif;
+    background:radial-gradient(circle at 50% 28%,#3a0a12 0%,#220309 58%,#0c0103 100%);
+    display:flex;align-items:center;justify-content:center;padding:8px;color:#fff}
+
+  .machine{position:relative;width:288px;
+    background:linear-gradient(165deg,#e22436 0%,#c0182b 46%,#8c0f1d 100%);
+    border-radius:20px 20px 28px 28px;
+    padding:12px 14px 16px;
+    box-shadow:0 18px 40px rgba(0,0,0,.6),inset 0 2px 3px rgba(255,255,255,.3),inset 0 -6px 12px rgba(0,0,0,.4);
+    border:2px solid #ffce54}
+
+  /* 전구 테두리 */
+  .bulbs{position:absolute;inset:5px;border-radius:16px;pointer-events:none}
+  .bulb{position:absolute;width:7px;height:7px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff6cf,#ffd34d 55%,#b8860b);
+    box-shadow:0 0 5px 1px rgba(255,211,77,.55)}
+  .bulb.on{background:radial-gradient(circle at 35% 30%,#fffceb,#ffe26b 50%,#ffba2e);
+    box-shadow:0 0 9px 3px rgba(255,210,80,.9)}
+
+  /* 마퀴 */
+  .marquee{position:relative;text-align:center;padding:5px 18px 8px}
+  .marquee h1{font-size:16px;font-weight:900;letter-spacing:1px;color:#fff4cf;
+    text-shadow:0 1px 0 #7a0c18,0 0 10px rgba(255,210,90,.6)}
+  .marquee .sub{font-size:8px;font-weight:700;letter-spacing:3px;color:#ffd98a;margin-top:1px}
+
+  /* 본체 (릴 + 레버) */
+  .deck{display:flex;gap:9px;align-items:stretch}
+
+  .window{flex:1;position:relative;
+    background:linear-gradient(#1a1208,#0c0804);
+    border-radius:10px;padding:10px 8px;
+    border:3px solid #2a1c0a;
+    box-shadow:inset 0 4px 10px rgba(0,0,0,.8),0 0 0 2px #ffce54,0 2px 4px rgba(0,0,0,.5)}
+
+  .reels{display:flex;align-items:center;justify-content:center;gap:2px}
+  .reel{position:relative;width:24px;height:40px;overflow:hidden;border-radius:4px;
+    background:linear-gradient(#fbf6e8,#e7dcc2);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),inset 0 6px 8px rgba(0,0,0,.18),inset 0 -6px 8px rgba(0,0,0,.18)}
+  .reel.win{animation:reelWin .6s ease-out}
+  @keyframes reelWin{0%,100%{background:linear-gradient(#fbf6e8,#e7dcc2)}40%{background:linear-gradient(#fff4c2,#ffd76b)}}
+  .reel::before,.reel::after{content:"";position:absolute;left:0;right:0;height:11px;z-index:2;pointer-events:none}
+  .reel::before{top:0;background:linear-gradient(rgba(20,12,4,.55),transparent)}
+  .reel::after{bottom:0;background:linear-gradient(transparent,rgba(20,12,4,.55))}
+  .strip{position:absolute;left:0;right:0;top:0;will-change:transform}
+  .strip.settle{transition:transform .42s cubic-bezier(.2,.8,.3,1.32)}
+  .cell{height:40px;display:flex;align-items:center;justify-content:center;
+    font-size:28px;font-weight:800;color:#241a0c;
+    font-variant-numeric:tabular-nums;line-height:1}
+  /* 가운데 라인 */
+  .payline{position:absolute;left:6px;right:6px;top:50%;height:2px;transform:translateY(-1px);
+    background:linear-gradient(90deg,transparent,rgba(255,60,60,.85),transparent);z-index:3;pointer-events:none}
+  .sep{font-size:22px;font-weight:900;color:#ffce54;padding:0 1px;line-height:40px;
+    text-shadow:0 0 6px rgba(255,200,70,.6)}
+  .sep.dot{font-size:26px}
+
+  .jp{margin-top:8px;text-align:center;font-size:8px;letter-spacing:2px;font-weight:800;
+    color:#7a6f55;min-height:11px;transition:color .2s}
+  .jp.flash{color:#ffd34d;text-shadow:0 0 8px rgba(255,210,80,.9)}
+
+  /* 레버 */
+  .lever{position:relative;width:30px;cursor:pointer;flex:none}
+  .lever .track{position:absolute;left:50%;top:8px;bottom:8px;width:7px;transform:translateX(-50%);
+    background:linear-gradient(#7a0c18,#3c060c);border-radius:5px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.4)}
+  .lever .arm{position:absolute;left:50%;top:8px;width:6px;height:46px;transform:translateX(-50%);
+    background:linear-gradient(#d9d9e0,#9a9aa6);border-radius:4px;transform-origin:50% 100%;
+    transition:transform .18s cubic-bezier(.5,0,.3,1.4);z-index:2}
+  .lever .knob{position:absolute;left:50%;top:4px;width:20px;height:20px;transform:translateX(-50%);
+    border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff7a7a,#d11d2c 60%,#8c0f1d);
+    box-shadow:0 3px 6px rgba(0,0,0,.5),inset 0 2px 2px rgba(255,255,255,.5);
+    transition:transform .18s cubic-bezier(.5,0,.3,1.4);z-index:3}
+  .lever.pull .arm{transform:translateX(-50%) scaleY(.45)}
+  .lever.pull .knob{transform:translate(-50%,40px)}
+  .lever .hint{position:absolute;left:50%;bottom:-3px;transform:translateX(-50%);
+    font-size:7px;font-weight:800;letter-spacing:1px;color:#ffe2a0;white-space:nowrap}
+
+  /* 버튼 */
+  .controls{display:flex;gap:7px;margin-top:13px}
+  button{flex:1;font-family:inherit;font-weight:800;font-size:12px;letter-spacing:.5px;color:#fff;
+    padding:11px 4px;border:0;border-radius:9px;cursor:pointer;position:relative;
+    box-shadow:0 4px 0 rgba(0,0,0,.32),inset 0 1px 1px rgba(255,255,255,.4);
+    transition:transform .06s,box-shadow .06s,filter .15s}
+  button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.32),inset 0 1px 1px rgba(255,255,255,.3)}
+  button:disabled{filter:grayscale(.6) brightness(.78);cursor:default;
+    box-shadow:0 2px 0 rgba(0,0,0,.25);transform:translateY(1px)}
+  .b-spin{background:linear-gradient(#2fc060,#1a9c45)}
+  .b-spin.running{background:linear-gradient(#ff5d5d,#d11d2c)}
+  .b-lap{background:linear-gradient(#ffce54,#e0a312);color:#5a3c00;text-shadow:none}
+  .b-reset{background:linear-gradient(#7d8493,#565d6b)}
+
+  /* 영수증 (랩 기록) */
+  .receipt{margin-top:11px;background:#f6f1e4;border-radius:8px;color:#3a3326;
+    padding:8px 9px;min-height:34px;max-height:74px;overflow-y:auto;
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.22);
+    font-family:"Courier New",monospace}
+  .receipt .empty{font-size:9px;color:#9a9078;text-align:center;line-height:34px;letter-spacing:1px}
+  .lap-row{display:flex;justify-content:space-between;font-size:11px;font-weight:700;
+    padding:2px 1px;border-bottom:1px dashed #cfc6ad}
+  .lap-row:last-child{border-bottom:0}
+  .lap-row .n{color:#c0182b}
+  .lap-row .d{color:#7a7263;font-size:9px}
+  .lap-row .t{font-variant-numeric:tabular-nums;letter-spacing:.5px}
+  .lap-row.best .n::after{content:" ★";color:#e0a312}
+  .receipt::-webkit-scrollbar{width:5px}
+  .receipt::-webkit-scrollbar-thumb{background:#cfc6ad;border-radius:3px}
+</style>
+</head>
+<body>
+  <div class="machine" id="machine">
+    <div class="bulbs" id="bulbs"></div>
+
+    <div class="marquee">
+      <h1>JACKPOT TIMER</h1>
+      <div class="sub">S L O T &nbsp; S T O P W A T C H</div>
+    </div>
+
+    <div class="deck">
+      <div class="window">
+        <div class="payline"></div>
+        <div class="reels" id="reels">
+          <div class="reel" data-r="0"></div>
+          <div class="reel" data-r="1"></div>
+          <span class="sep">:</span>
+          <div class="reel" data-r="2"></div>
+          <div class="reel" data-r="3"></div>
+          <span class="sep dot">.</span>
+          <div class="reel" data-r="4"></div>
+          <div class="reel" data-r="5"></div>
+        </div>
+        <div class="jp" id="jp">READY</div>
+      </div>
+
+      <div class="lever" id="lever" title="레버를 당겨 시작">
+        <div class="track"></div>
+        <div class="arm"></div>
+        <div class="knob"></div>
+        <div class="hint">PULL</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="b-spin" id="spin">SPIN</button>
+      <button class="b-lap" id="lap" disabled>잭팟</button>
+      <button class="b-reset" id="reset" disabled>RESET</button>
+    </div>
+
+    <div class="receipt" id="receipt"><div class="empty">— NO RECORD —</div></div>
+  </div>
+
+<script>
+(function(){
+  var CELL=40;
+  // 릴 생성: 숫자 0~9 + 0 한 칸 더(끊김 없는 회전)
+  var reelEls=[].slice.call(document.querySelectorAll('.reel'));
+  var strips=reelEls.map(function(r){
+    var s=document.createElement('div'); s.className='strip';
+    var html='';
+    for(var i=0;i<=10;i++){ html+='<div class="cell">'+(i%10)+'</div>'; }
+    s.innerHTML=html; r.appendChild(s); return s;
+  });
+
+  // 전구 배치
+  var bulbs=document.getElementById('bulbs'); var bulbEls=[];
+  function placeBulbs(){
+    var W=288-10, H=0; // 동적 높이는 렌더 후 측정
+  }
+  // 사방 둘레에 전구 깔기
+  function buildBulbs(){
+    bulbs.innerHTML=''; bulbEls=[];
+    var rect=document.getElementById('machine').getBoundingClientRect();
+    var w=rect.width-10, h=rect.height-10;
+    var nx=Math.max(6,Math.round(w/26)), ny=Math.max(6,Math.round(h/26));
+    function add(x,y){ var b=document.createElement('div'); b.className='bulb';
+      b.style.left=x+'px'; b.style.top=y+'px'; bulbs.appendChild(b); bulbEls.push(b); }
+    for(var i=0;i<nx;i++){ add(i*(w-7)/(nx-1),0); add(i*(w-7)/(nx-1),h-7); }
+    for(var j=1;j<ny-1;j++){ add(0,j*(h-7)/(ny-1)); add(w-7,j*(h-7)/(ny-1)); }
+  }
+
+  var elapsed=0, running=false, startTs=0, raf=0, laps=[], lastLap=0, bestIdx=-1;
+  var spinBtn=document.getElementById('spin'),
+      lapBtn=document.getElementById('lap'),
+      resetBtn=document.getElementById('reset'),
+      lever=document.getElementById('lever'),
+      jp=document.getElementById('jp'),
+      receipt=document.getElementById('receipt');
+
+  function now(){ return performance.now(); }
+
+  // 각 자리의 연속 값(롤링 효과)
+  function placeValues(ms){
+    var cs=ms/10;            // 센티초
+    var c1=cs%10;
+    var c2=(cs/10)%10;
+    var s=cs/100;            // 초
+    var s1=s%10;
+    var s2=(s/10)%6;         // 십의 자리 초(0~5)
+    var m=s/60;             // 분
+    var m1=m%10;
+    var m2=(m/10)%10;
+    return [m2,m1,s2,s1,c2,c1];
+  }
+
+  function setReel(i,val,rolling){
+    // val: 0~10 연속. translateY=-val*CELL
+    var v=val;
+    if(!rolling){ v=Math.floor(val)%10; }
+    strips[i].style.transform='translateY('+(-v*CELL)+'px)';
+  }
+
+  function render(rolling){
+    var pv=placeValues(elapsed);
+    for(var i=0;i<6;i++){ setReel(i,pv[i],rolling); }
+  }
+
+  // 정지 시 릴을 오른쪽→왼쪽 순서로 하나씩 감속하며 멈춘다(슬롯머신 특유)
+  function settleStop(){
+    var pv=placeValues(elapsed);
+    for(var i=0;i<6;i++){
+      var order=5-i;                 // 오른쪽(빠른 자리)부터 먼저 멈춤
+      var d=Math.floor(pv[i])%10;
+      (function(idx,digit,delay){
+        var s=strips[idx];
+        s.classList.add('settle');
+        s.style.transitionDelay=delay+'ms';
+        s.style.transform='translateY('+(-digit*CELL)+'px)';
+        setTimeout(function(){ s.classList.remove('settle'); s.style.transitionDelay=''; }, delay+460);
+      })(i,d,order*70);
+    }
+  }
+
+  function tick(){
+    elapsed=now()-startTs;
+    render(true);
+    raf=requestAnimationFrame(tick);
+  }
+
+  function start(){
+    if(running) return;
+    running=true; startTs=now()-elapsed;
+    // 감속 트랜지션 잔여 제거(롤링이 부드럽도록)
+    strips.forEach(function(s){ s.classList.remove('settle'); s.style.transitionDelay=''; });
+    spinBtn.textContent='STOP'; spinBtn.classList.add('running');
+    lapBtn.disabled=false; resetBtn.disabled=false;
+    jp.textContent='SPINNING'; jp.classList.remove('flash');
+    lever.classList.add('pull');
+    setTimeout(function(){ lever.classList.remove('pull'); },230);
+    bulbsOn(true);
+    raf=requestAnimationFrame(tick);
+  }
+
+  function stop(){
+    if(!running) return;
+    running=false; cancelAnimationFrame(raf);
+    elapsed=now()-startTs;
+    // 오른쪽 자리부터 차례로 감속하며 멈춤
+    settleStop();
+    spinBtn.textContent='SPIN'; spinBtn.classList.remove('running');
+    jp.textContent='STOP'; bulbsOn(false);
+  }
+
+  function toggle(){ running?stop():start(); }
+
+  function reset(){
+    running=false; cancelAnimationFrame(raf);
+    elapsed=0; laps=[]; lastLap=0; bestIdx=-1;
+    strips.forEach(function(s){ s.classList.remove('settle'); s.style.transitionDelay=''; });
+    reelEls.forEach(function(r){ r.classList.remove('win'); });
+    render(false);
+    spinBtn.textContent='SPIN'; spinBtn.classList.remove('running');
+    lapBtn.disabled=true; resetBtn.disabled=true;
+    jp.textContent='READY'; jp.classList.remove('flash');
+    receipt.innerHTML='<div class="empty">— NO RECORD —</div>';
+    bulbsOn(false);
+  }
+
+  function fmt(ms){
+    var cs=Math.floor(ms/10);
+    var c=cs%100, s=Math.floor(cs/100)%60, m=Math.floor(cs/6000);
+    function p(n){ return (n<10?'0':'')+n; }
+    return p(m)+':'+p(s)+'.'+p(c);
+  }
+
+  function doLap(){
+    if(!running) return;
+    var split=elapsed-lastLap; lastLap=elapsed;
+    laps.push({total:elapsed,split:split});
+    // 베스트(최단 구간) 갱신
+    bestIdx=0; for(var i=1;i<laps.length;i++){ if(laps[i].split<laps[bestIdx].split) bestIdx=i; }
+    renderLaps();
+    jp.textContent='★ JACKPOT ★'; jp.classList.add('flash');
+    reelEls.forEach(function(r){ r.classList.remove('win'); void r.offsetWidth; r.classList.add('win');
+      setTimeout(function(){ r.classList.remove('win'); },650); });
+    flashBurst();
+    setTimeout(function(){ if(running){ jp.textContent='SPINNING'; jp.classList.remove('flash'); } },700);
+  }
+
+  function renderLaps(){
+    if(!laps.length){ receipt.innerHTML='<div class="empty">— NO RECORD —</div>'; return; }
+    var html='';
+    for(var i=laps.length-1;i>=0;i--){
+      var l=laps[i];
+      html+='<div class="lap-row'+(i===bestIdx&&laps.length>1?' best':'')+'">'+
+            '<span class="n">#'+(i+1)+'</span>'+
+            '<span class="d">+'+fmt(l.split)+'</span>'+
+            '<span class="t">'+fmt(l.total)+'</span></div>';
+    }
+    receipt.innerHTML=html;
+  }
+
+  // 전구 점멸
+  var blinkTimer=0, blinkOn=true;
+  function bulbsOn(on){
+    clearInterval(blinkTimer);
+    if(on){
+      blinkTimer=setInterval(function(){
+        blinkOn=!blinkOn;
+        bulbEls.forEach(function(b,i){
+          var lit=(i%2===0)?blinkOn:!blinkOn;
+          b.classList.toggle('on',lit);
+        });
+      },380);
+    }else{
+      bulbEls.forEach(function(b){ b.classList.remove('on'); });
+    }
+  }
+  function flashBurst(){
+    var n=0; var t=setInterval(function(){
+      bulbEls.forEach(function(b){ b.classList.toggle('on'); });
+      if(++n>6){ clearInterval(t); if(!running) bulbsOn(false); }
+    },70);
+  }
+
+  spinBtn.addEventListener('click',toggle);
+  lever.addEventListener('click',function(){ if(!running) start(); });
+  lapBtn.addEventListener('click',doLap);
+  resetBtn.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.code==='Space'){ e.preventDefault(); toggle(); }
+    else if(e.key==='l'||e.key==='L'){ doLap(); }
+    else if(e.key==='r'||e.key==='R'){ reset(); }
+  });
+
+  // 초기화
+  window.addEventListener('load',function(){ buildBulbs(); render(false); });
+  buildBulbs(); render(false);
+})();
+</script>
+</body>
+</html>
