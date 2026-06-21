@@ -290,9 +290,14 @@
             .about-cards-grid { grid-template-columns: 1fr; gap: 10px; }
             .about-card { padding: 16px 18px; border-radius: 14px; }
             .about-intro p { font-size: 14px; }
-            .about-cta-bar { padding: 10px 16px; justify-content: center; }
-            .about-cta-left { display: none; }
-            .about-cta-btn { justify-content: center; flex: 1; }
+            .about-cta-bar { padding: 10px 14px; justify-content: space-between; gap: 8px; }
+            .about-cta-left { display: flex; align-items: center; gap: 7px; min-width: 0; }
+            .about-cta-left .about-byline-logo { display: none; }
+            .about-byline-name { font-size: 12px; white-space: nowrap; }
+            .about-byline-icons { gap: 5px; }
+            .about-byline-icons a { width: 26px; height: 26px; }
+            .about-cta-btn { justify-content: center; flex-shrink: 0; padding: 0 16px; font-size: 13px; }
+            .about-cta-btn .cta-prefix { display: none; }
             .license-title { font-size: 19px; }
             .license-text { font-size: 13px; padding: 16px 18px; }
             .lic-author { display: block; }
@@ -317,7 +322,7 @@
             </div>
 
             <div class="about-cards-grid">
-                <section class="about-card">
+                <section class="about-card" id="aboutWhy">
                     <div class="about-card-head">
                         <span class="about-card-num">01</span>
                         <span class="about-card-title">왜 만들었나요</span>
@@ -339,75 +344,115 @@
                 </section>
             </div>
 
-            <div class="about-changelog-section">
+            <div id="aboutMaker" style="margin-top:24px;">
+                <p class="about-eyebrow" style="margin-top:0;">BUILDER</p>
+                <h2 class="license-title">만든 사람</h2>
+                <div class="license-text">
+                    <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
+                        <span class="about-byline-logo" style="width:46px;height:46px;flex-shrink:0;"><img src="assets/logos/logo1-transparent.png" alt="AI ROASTING 로고" style="width:46px;height:46px;"></span>
+                        <div style="flex:1; min-width:0;">
+                            <p class="about-byline-name" style="font-size:16px; margin:0 0 3px;">강정구 <span>·</span> Jayden Kang</p>
+                            <p style="margin:0; font-size:13px; color:#7A7570; line-height:1.5;">LINER AI 전략 총괄</p>
+                        </div>
+                        <div class="about-byline-icons" style="align-self:flex-start;">
+                            <a href="https://www.linkedin.com/in/jayden-kang/" target="_blank" rel="noopener" aria-label="LinkedIn">
+                                <svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                            </a>
+                            <a class="fb" href="https://www.facebook.com/jayden.kang" target="_blank" rel="noopener" aria-label="Facebook">
+                                <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <p style="margin:0 0 14px; font-size:13.5px; color:#4A433D; line-height:1.65;">전략 컨설팅과 글로벌 사업 현장을 거치며 쌓은 경험을 바탕으로, 비즈니스 리더가 AI를 실무에 바로 적용하도록 이 가이드를 직접 만들고 매주 업데이트합니다.</p>
+                    <ul style="list-style:none; margin:0; padding:14px 0 0; border-top:1px solid rgba(0,0,0,0.07);">
+                        <li style="position:relative; padding:5px 0 5px 16px; font-size:13.5px; line-height:1.55;"><span style="position:absolute; left:2px; top:5px; color:#A04828;">•</span><strong style="color:#2D2622; font-weight:700;">LINER</strong><span style="color:#6A645E;"> · AI 전략 총괄</span></li>
+                        <li style="position:relative; padding:5px 0 5px 16px; font-size:13.5px; line-height:1.55;"><span style="position:absolute; left:2px; top:5px; color:#A04828;">•</span><strong style="color:#2D2622; font-weight:700;">국민경제자문회의</strong><span style="color:#6A645E;"> · AI경제 정책자문단</span></li>
+                        <li style="position:relative; padding:5px 0 5px 16px; font-size:13.5px; line-height:1.55;"><span style="position:absolute; left:2px; top:5px; color:#A04828;">•</span><span style="color:#9A938C; font-weight:600;">전)</span> <strong style="color:#2D2622; font-weight:700;">카카오엔터테인먼트</strong><span style="color:#6A645E;"> · 글로벌사업 본부장</span></li>
+                        <li style="position:relative; padding:5px 0 5px 16px; font-size:13.5px; line-height:1.55;"><span style="position:absolute; left:2px; top:5px; color:#A04828;">•</span><span style="color:#9A938C; font-weight:600;">전)</span> <strong style="color:#2D2622; font-weight:700;">미국 타파스엔터테인먼트</strong><span style="color:#6A645E;"> · 최고운영책임(COO)</span></li>
+                        <li style="position:relative; padding:5px 0 5px 16px; font-size:13.5px; line-height:1.55;"><span style="position:absolute; left:2px; top:5px; color:#A04828;">•</span><span style="color:#9A938C; font-weight:600;">전)</span> <strong style="color:#2D2622; font-weight:700;">라인(LINE)</strong><span style="color:#6A645E;"> · 태국 사업 최고전략책임(CSO)</span></li>
+                        <li style="position:relative; padding:5px 0 5px 16px; font-size:13.5px; line-height:1.55;"><span style="position:absolute; left:2px; top:5px; color:#A04828;">•</span><span style="color:#9A938C; font-weight:600;">전)</span> <strong style="color:#2D2622; font-weight:700;">Bain &amp; Company</strong><span style="color:#6A645E;"> · 이사</span></li>
+                        <li style="position:relative; padding:5px 0 5px 16px; font-size:13.5px; line-height:1.55;"><span style="position:absolute; left:2px; top:5px; color:#A04828;">•</span><span style="color:#9A938C; font-weight:600;">전)</span> <strong style="color:#2D2622; font-weight:700;">Kearney</strong><span style="color:#6A645E;"> · 팀장</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="about-changelog-section" id="aboutChangelog">
                 <p class="about-eyebrow" style="margin-top:0;">CHANGELOG</p>
                 <h2 class="license-title">업데이트 내역</h2>
                 <div class="changelog-list">
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.8</span><span class="changelog-date">2026-06-21</span></div>
-                        <div class="changelog-body"><p class="changelog-title">내비게이션 통일과 새 페이지 보강</p><p class="changelog-desc">모든 콘텐츠 페이지의 상단 단계 내비게이션을 인덱스 커리큘럼 순서에 맞춰 하나로 통일하고, 2단계와 실전 예제 페이지에는 묶음을 오가는 토글을 달았습니다. 같은 기간에 클로드 코드 9원칙을 비즈니스 리더 사례로 옮긴 '고수처럼 쓰는 9가지 원칙', AI 글의 티를 지우는 글다듬기 페이지, 빅4 가짜 각주를 파헤친 'AI의 환각을 벗어나는 법'을 새로 깔았습니다. 전 세계 클로드 코드 해커톤 우승작 14선을 모은 '클로드 해커톤 쇼케이스'도 함께 열었습니다.</p></div></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v2.7</span><span class="changelog-date">2026-06-21</span></div>
+                        <div class="changelog-body"><p class="changelog-title">쇼케이스 보강</p><p class="changelog-desc">수강생들이 직접 만든 결과물을 모은 수강생 쇼케이스를 새로 정리했습니다. 전 세계 클로드 코드 해커톤 우승작 14선을 모은 쇼케이스도 함께 보강했습니다. 실제 사례로 무엇까지 가능한지 한눈에 보도록 구성했습니다.</p></div></div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.6</span><span class="changelog-date">2026-06-14</span></div>
-                        <div class="changelog-body"><p class="changelog-title">루프 엔지니어링 트랙 신설</p><p class="changelog-desc">행동하고 검증하고 다시 도는 피드백 루프를 시스템으로 설계하는 '루프 엔지니어링' 트랙을 새로 깔았습니다. 클로드 코드 /loop를 다루는 루프 엔지니어링 페이지와 정해진 시각에 무인으로 도는 Routines 예약 실행 페이지를 더하고, 프롬프트 작성법에 위임 4요소(목표·채점·검증·멈춤) 섹션과 최신 모델 Fable 5 표기를 반영했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v2.6</span><span class="changelog-date">2026-06-14</span></div>
+                        <div class="changelog-body"><p class="changelog-title">루프 엔지니어링 트랙 신설</p><p class="changelog-desc">행동하고 검증해 다시 도는 피드백 루프를 다루는 '루프 엔지니어링' 트랙을 새로 열었습니다. 클로드 코드 /loop 페이지와 정해진 시각에 무인으로 실행되는 Routines 예약 페이지를 더했습니다. 프롬프트 작성법에는 위임 4요소(목표·채점·검증·멈춤)를 보강했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.5</span><span class="changelog-date">2026-06-07</span></div>
-                        <div class="changelog-body"><p class="changelog-title">보안 가이드 · 하네스 엔지니어링 개념 설명 업데이트</p><p class="changelog-desc">비즈니스 리더용 AI 협업 보안 5가지 가이드라인을 추가했습니다. 하네스 엔지니어링 실전 트랙의 카드 3개(하네스 엔지니어링·Claude의 도구·다이내믹 워크플로우)도 새로 정비했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v2.5</span><span class="changelog-date">2026-06-07</span></div>
+                        <div class="changelog-body"><p class="changelog-title">보안 가이드와 하네스 엔지니어링 보강</p><p class="changelog-desc">비즈니스 리더를 위한 AI 협업 보안 다섯 가지 원칙을 새로 정리했습니다. 하네스 엔지니어링 실전 트랙의 세 카드(하네스 엔지니어링·Claude의 도구·다이내믹 워크플로우)도 다시 다듬었습니다. 개념과 실습이 한 흐름으로 이어지도록 구성을 손봤습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.4</span><span class="changelog-date">2026-05-31</span></div>
-                        <div class="changelog-body"><p class="changelog-title">한국 법령 MCP 예제 추가</p><p class="changelog-desc">Claude Desktop 커넥터로 법제처 Open API를 연결하는 실전 흐름을 더했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v2.4</span><span class="changelog-date">2026-05-31</span></div>
+                        <div class="changelog-body"><p class="changelog-title">한국 법령 MCP 예제 추가</p><p class="changelog-desc">Claude 데스크톱 커넥터로 법제처 Open API를 연결하는 한국 법령 MCP 예제를 더했습니다. 공공 데이터를 실무 흐름에 직접 붙이는 과정을 단계별로 담았습니다. 리더가 사례를 그대로 따라 할 수 있도록 구성했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.3</span><span class="changelog-date">2026-05-24</span></div>
-                        <div class="changelog-body"><p class="changelog-title">용어 사전 6막 재구성</p><p class="changelog-desc">AI 70년사를 6막 60선 흐름으로 풀어낸 용어 사전을 새로 짜고 외부 자산 연결을 정비했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v2.3</span><span class="changelog-date">2026-05-24</span></div>
+                        <div class="changelog-body"><p class="changelog-title">용어 사전 6막 재구성</p><p class="changelog-desc">AI 70년의 흐름을 6막 60선으로 풀어낸 용어 사전을 새로 짰습니다. 개념이 등장한 배경과 맥락을 이야기처럼 잇도록 구성했습니다. 관련 외부 자산과의 연결도 함께 정비했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.2</span><span class="changelog-date">2026-05-17</span></div>
-                        <div class="changelog-body"><p class="changelog-title">표준화</p><p class="changelog-desc">사이트 전반의 본문 폭과 헤더 메뉴를 통일하고 운영 문서 체계를 정착시켰습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v2.2</span><span class="changelog-date">2026-05-17</span></div>
+                        <div class="changelog-body"><p class="changelog-title">사이트 표준화</p><p class="changelog-desc">사이트 전반의 본문 폭과 헤더 메뉴를 하나의 기준으로 통일했습니다. 페이지마다 달랐던 레이아웃을 정돈해 읽기 흐름을 매끄럽게 했습니다. 이후 작업의 토대가 될 운영 문서 체계도 함께 자리 잡았습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.1</span><span class="changelog-date">2026-05-10</span></div>
-                        <div class="changelog-body"><p class="changelog-title">공유 미리보기 + 강의 자료 보강</p><p class="changelog-desc">링크를 공유할 때 보이는 미리보기 정보(메타 태그)를 정리하고, 강의에 바로 쓸 수 있도록 슬라이드 흐름과 예시 자료를 보강했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v2.1</span><span class="changelog-date">2026-05-10</span></div>
+                        <div class="changelog-body"><p class="changelog-title">공유 미리보기와 강의 자료 보강</p><p class="changelog-desc">링크를 공유할 때 표시되는 미리보기 정보(메타 태그)를 정리했습니다. 카카오톡이나 슬랙에서도 제목과 설명이 제대로 노출되도록 다듬었습니다. 강의에 바로 쓸 수 있게 슬라이드 흐름과 예시 자료도 보강했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v1.0</span><span class="changelog-date">2026-05-03</span></div>
-                        <div class="changelog-body"><p class="changelog-title">모바일 최적화 + 첫 화면 리뉴얼</p><p class="changelog-desc">모바일 사용성을 전면 보강하고 첫 화면과 안내 모달을 새로 짰습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v2.0</span><span class="changelog-date">2026-05-03</span></div>
+                        <div class="changelog-body"><p class="changelog-title">모바일 최적화와 첫 화면 개편</p><p class="changelog-desc">모바일 사용성을 전면적으로 손봤습니다. 작은 화면에서도 단계 학습이 끊기지 않도록 내비게이션과 카드 배치를 다시 짰습니다. 첫 화면과 안내 모달도 새로 구성해 진입 인상을 정돈했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.8</span><span class="changelog-date">2026-04-26</span></div>
-                        <div class="changelog-body"><p class="changelog-title">자동화 트랙 정비</p><p class="changelog-desc">자동화 트랙의 실습 흐름과 슬라이드 자료를 다듬었습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.9</span><span class="changelog-date">2026-04-26</span></div>
+                        <div class="changelog-body"><p class="changelog-title">자동화 트랙 정비</p><p class="changelog-desc">자동화 트랙의 실습 흐름을 처음부터 끝까지 다시 점검했습니다. 따라 하다 막히는 지점을 줄이도록 단계를 촘촘히 나눴습니다. 관련 슬라이드 자료도 같은 기준으로 손봤습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.7</span><span class="changelog-date">2026-04-19</span></div>
-                        <div class="changelog-body"><p class="changelog-title">진단 트랙 재설계</p><p class="changelog-desc">자율주행 비유 기반 5단계 진단 트랙으로 커리큘럼 입구를 다시 설계했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.8</span><span class="changelog-date">2026-04-19</span></div>
+                        <div class="changelog-body"><p class="changelog-title">진단 트랙 재설계</p><p class="changelog-desc">자율주행 1~5단계 비유를 바탕으로 진단 트랙을 다시 설계했습니다. 자신의 AI 활용 수준을 스스로 가늠하고 다음 단계를 찾도록 구성했습니다. 이 진단을 커리큘럼의 입구로 새로 잡았습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.6</span><span class="changelog-date">2026-04-12</span></div>
-                        <div class="changelog-body"><p class="changelog-title">자산 정리</p><p class="changelog-desc">실습 결과물과 부록 페이지를 한곳으로 정리했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.7</span><span class="changelog-date">2026-04-12</span></div>
+                        <div class="changelog-body"><p class="changelog-title">실습 자산 정리</p><p class="changelog-desc">흩어져 있던 실습 결과물과 부록 페이지를 한곳으로 모았습니다. 필요한 자료를 빠르게 찾도록 분류 기준을 정리했습니다. 앞으로 자산이 쌓일 구조를 미리 마련했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.5</span><span class="changelog-date">2026-04-05</span></div>
-                        <div class="changelog-body"><p class="changelog-title">백과사전 보강</p><p class="changelog-desc">백과사전 페이지를 늘리고 자동화·에이전트 트랙 연결을 정돈했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.6</span><span class="changelog-date">2026-04-05</span></div>
+                        <div class="changelog-body"><p class="changelog-title">백과사전 보강</p><p class="changelog-desc">용어와 개념을 다루는 백과사전 페이지를 큰 폭으로 늘렸습니다. 본문에서 모르는 말을 만나면 바로 확인하도록 연결했습니다. 자동화와 에이전트 트랙으로 이어지는 동선도 정돈했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.4</span><span class="changelog-date">2026-03-22</span></div>
-                        <div class="changelog-body"><p class="changelog-title">학습 동선 보강</p><p class="changelog-desc">진입 페이지의 학습 동선과 안내 문구를 보강했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.5</span><span class="changelog-date">2026-03-29</span></div>
+                        <div class="changelog-body"><p class="changelog-title">에이전트 설계 트랙 연결 강화</p><p class="changelog-desc">에이전트 설계 트랙을 Solo에서 Orchestra로 이어지는 성장 단계와 네 가지 도구에 맞춰 다시 연결했습니다. 각 도구 섹션에 다음 단계로 넘어가는 맥락을 더해 학습 흐름을 매끄럽게 다듬었습니다. 768·480px 모바일 반응형도 함께 보강했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.3</span><span class="changelog-date">2026-03-15</span></div>
-                        <div class="changelog-body"><p class="changelog-title">시각적 정체성 + 실습 연결</p><p class="changelog-desc">뉴모피즘 디자인 시스템을 도입하고 실전 과제 트랙을 본격 연결했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.4</span><span class="changelog-date">2026-03-22</span></div>
+                        <div class="changelog-body"><p class="changelog-title">표현 정리와 링크 점검</p><p class="changelog-desc">전체 페이지의 표현을 다듬고 깨진 링크를 점검해 정돈했습니다. 본문 톤을 통일하고 어색한 문구를 손봤습니다. 다음 트랙 확장을 위한 준비도 함께 진행했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.2</span><span class="changelog-date">2026-03-01</span></div>
-                        <div class="changelog-body"><p class="changelog-title">비개발자 동선 보강</p><p class="changelog-desc">비개발자 독자를 위한 진단 동선과 모바일 안내를 추가했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.3</span><span class="changelog-date">2026-03-15</span></div>
+                        <div class="changelog-body"><p class="changelog-title">학습 동선 보강</p><p class="changelog-desc">처음 들어온 독자가 어디서 시작할지 헤매지 않도록 학습 동선을 보강했습니다. 단계별 안내 문구를 다듬어 다음 행동을 분명히 했습니다. 진입 페이지의 흐름을 한결 매끄럽게 만들었습니다.</p></div>
                     </div>
                     <div class="changelog-item">
-                        <div class="changelog-meta"><span class="changelog-ver">v0.1</span><span class="changelog-date">2026-02-24</span></div>
-                        <div class="changelog-body"><p class="changelog-title">첫 공개</p><p class="changelog-desc">'Claude 완전 정복' 첫 골격을 GitHub에 공개했습니다.</p></div>
+                        <div class="changelog-meta"><span class="changelog-ver">v1.2</span><span class="changelog-date">2026-03-08</span></div>
+                        <div class="changelog-body"><p class="changelog-title">디자인 정체성 도입</p><p class="changelog-desc">뉴모피즘 기반의 시각 정체성을 도입해 사이트의 인상을 통일했습니다. 카드와 버튼의 질감을 일관되게 맞춰 가독성을 높였습니다. 실전 과제 트랙도 본격적으로 연결하기 시작했습니다.</p></div>
+                    </div>
+                    <div class="changelog-item">
+                        <div class="changelog-meta"><span class="changelog-ver">v1.1</span><span class="changelog-date">2026-03-01</span></div>
+                        <div class="changelog-body"><p class="changelog-title">비즈니스 리더 동선 보강</p><p class="changelog-desc">코드를 모르는 비즈니스 리더를 위한 진단 동선을 따로 마련했습니다. 전문 지식이 없어도 자신의 출발점을 찾도록 안내를 더했습니다. 모바일 환경을 위한 기본 안내도 함께 추가했습니다.</p></div>
+                    </div>
+                    <div class="changelog-item">
+                        <div class="changelog-meta"><span class="changelog-ver">v1.0</span><span class="changelog-date">2026-02-24</span></div>
+                        <div class="changelog-body"><p class="changelog-title">첫 공개</p><p class="changelog-desc">'Claude 완전 정복'의 첫 골격을 처음으로 공개했습니다. 비즈니스 리더를 위한 5단계 구성의 뼈대를 세웠습니다. 이후 매주 채워 나갈 출발점이 된 버전입니다.</p></div>
                     </div>
                 </div>
-                <p class="license-footnote">매주 업데이트한 내용을 정리해서 버전을 업그레이드 하고 있습니다. 메이저(전체 표준화·방향 전환), 마이너(새 페이지·기능·큰 디자인 변경), 패치(작은 수정·문구 정리) 순으로 자릿수를 올립니다.</p>
+                <p class="license-footnote">2026년 2월 첫 공개 이후 매주 일요일마다 업데이트하며 0.1씩 버전을 올리고 있습니다.</p>
             </div>
 
             <div class="about-license-section" id="aboutLicense">
@@ -453,7 +498,7 @@
                     </a>
                 </div>
             </div>
-            <a href="index.html#section-1" class="about-cta-btn" data-about-cta>가이드 시작하기 →</a>
+            <a href="index.html#section-1" class="about-cta-btn" data-about-cta><span class="cta-prefix">가이드</span>시작하기 →</a>
         </div>
     </article>
 </div>`;

@@ -48,6 +48,7 @@
             border-radius: 0 0 32px 32px;
             box-shadow: 0 12px 32px rgba(122,46,21,0.18);
             isolation: isolate;
+            z-index: 2;
         }
         /* 헤더 배경 루프 영상 — 끊김 없이 계속 반복 재생된다 */
         .hero-video {
@@ -128,6 +129,78 @@
         .hero-btn:hover { background: rgba(255,255,255,0.1); box-shadow: inset 4px 4px 12px rgba(0,0,0,0.4), inset -2px -2px 8px rgba(255,255,255,0.07); }
         .hero-btn-name { font-size: 14px; font-weight: 700; color: #fff; }
         .hero-btn-desc { font-size: 12px; color: rgba(255,255,255,0.55); }
+
+        /* ── 만든 사람 · 바이오 캐로우절 (헤더 바로 밑, 후기 캐로우절과 동일 형태) ── */
+        .bio-strip { background: linear-gradient(180deg, rgba(176,85,53,0.10) 0%, rgba(176,85,53,0.17) 100%); border-bottom: 1px solid rgba(176,85,53,0.14); padding: 70px 44px 32px; margin-top: -32px; position: relative; z-index: 0; }
+        .bio-wrap { position: relative; max-width: 1180px; margin: 0 auto; }
+        .bio-stage { display: flex; align-items: center; gap: 28px; }
+        .bio-track {
+            flex: 1; min-width: 0;
+            display: flex; gap: 24px;
+            overflow-x: auto; scroll-snap-type: none; scroll-behavior: auto;
+            padding: 18px 2px 18px;
+            -ms-overflow-style: none; scrollbar-width: none;
+        }
+        .bio-track::-webkit-scrollbar { display: none; }
+        .bio-card {
+            flex: 0 0 calc((100% - 48px) / 3);
+            background: #FBF8F1;
+            border-radius: 14px;
+            border: 1px solid rgba(58,53,48,0.07);
+            padding: 28px 26px 22px;
+            position: relative; overflow: hidden;
+            display: flex; flex-direction: column; min-height: 196px;
+            text-decoration: none; cursor: pointer;
+            transform: scale(0.86); opacity: 0.45; filter: saturate(0.85);
+            transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                        opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                        filter 0.7s ease, border-color 0.3s ease, box-shadow 0.5s ease;
+            transform-origin: center center;
+            will-change: transform, opacity;
+        }
+        .bio-card.is-active {
+            transform: scale(1.1); opacity: 1; filter: saturate(1);
+            border-color: rgba(217,119,87,0.7); z-index: 1;
+        }
+        .bio-card:not(.is-active) { pointer-events: none; }
+        .bio-card.is-active:hover { border-color: rgba(217,119,87,0.85); box-shadow: 0 10px 28px rgba(122,46,21,0.12); }
+        .bio-card::before {
+            content: '\201C';
+            position: absolute; top: 8px; left: 18px;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 56px; line-height: 1; color: var(--ant-orange); opacity: 0.26;
+            pointer-events: none;
+        }
+        .bio-card-tag {
+            align-self: flex-start; position: relative;
+            font-size: 12px; font-weight: 600; color: #A04828;
+            background: rgba(217,119,87,0.15); padding: 4px 11px;
+            border-radius: 20px; line-height: 1; margin: 14px 0 12px;
+        }
+        .bio-card-title { font-size: 17px; font-weight: 800; color: #2D2622; letter-spacing: -0.2px; margin: 0 0 8px; position: relative; }
+        .bio-card-desc { font-size: 13.5px; line-height: 1.62; color: #6A645E; margin: 0 0 16px; flex: 1; position: relative; }
+        .bio-card-more { font-size: 12.5px; font-weight: 700; color: #A04828; position: relative; }
+        .bio-nav {
+            flex-shrink: 0;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: #FBF8F1; border: 1px solid rgba(58,53,48,0.1);
+            box-shadow: 0 1px 3px rgba(58,53,48,0.06);
+            cursor: pointer; z-index: 2;
+            display: flex; align-items: center; justify-content: center;
+            color: #5A5046; transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+        }
+        .bio-nav:hover { background: #fff; color: var(--ant-orange); border-color: rgba(217,119,87,0.5); }
+        .bio-nav:active { transform: scale(0.94); }
+        .bio-nav svg { width: 16px; height: 16px; }
+        .bio-dots { display: flex; justify-content: center; gap: 7px; margin-top: 18px; }
+        .bio-dots button {
+            width: 7px; height: 7px; border-radius: 50%; border: none;
+            background: rgba(58,53,48,0.2); cursor: pointer; padding: 0;
+            transition: background 0.25s ease, width 0.25s ease;
+        }
+        .bio-dots button.active { background: var(--ant-orange); width: 22px; border-radius: 4px; }
+        .bio-progress { width: 100%; max-width: 280px; height: 2px; margin: 14px auto 0; background: rgba(58,53,48,0.12); border-radius: 2px; overflow: hidden; }
+        .bio-progress-fill { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #D97757 0%, #A04828 100%); border-radius: 2px; transform-origin: left center; }
 
         /* ── MOBILE NOTICE ── */
         .mobile-notice { display: none; background: var(--nm-bg); text-align: center; padding: 10px 20px; font-size: 13px; color: #888; box-shadow: inset 3px 3px 8px var(--nm-dark), inset -3px -3px 8px var(--nm-light); }
@@ -850,9 +923,14 @@
             .about-cards-grid { grid-template-columns: 1fr; gap: 10px; }
             .about-card { padding: 16px 18px; border-radius: 14px; }
             .about-intro p { font-size: 14px; }
-            .about-cta-bar { padding: 10px 16px; justify-content: center; }
-            .about-cta-left { display: none; }
-            .about-cta-btn { justify-content: center; flex: 1; }
+            .about-cta-bar { padding: 10px 14px; justify-content: space-between; gap: 8px; }
+            .about-cta-left { display: flex; align-items: center; gap: 7px; min-width: 0; }
+            .about-cta-left .about-byline-logo { display: none; }
+            .about-byline-name { font-size: 12px; white-space: nowrap; }
+            .about-byline-icons { gap: 5px; }
+            .about-byline-icons a { width: 26px; height: 26px; }
+            .about-cta-btn { justify-content: center; flex-shrink: 0; padding: 0 16px; font-size: 13px; }
+            .about-cta-btn .cta-prefix { display: none; }
             .license-title { font-size: 19px; }
             .license-text { font-size: 13px; padding: 16px 18px; }
             .lic-author { display: block; }
@@ -909,6 +987,27 @@
             .hero-btn { flex: unset; padding: 10px 14px; border-radius: 10px; }
             .hero-btn-name { font-size: 13px; }
             .hero-btn-desc { font-size: 11px; }
+
+            /* 만든 사람 바이오 캐로우절 */
+            .bio-strip { padding: 52px 0 18px; }
+            .bio-stage { gap: 0; }
+            .bio-track {
+                gap: 12px; padding: 14px 11% 14px;
+                scroll-snap-type: x mandatory;
+                -webkit-overflow-scrolling: touch;
+            }
+            .bio-card {
+                flex: 0 0 78%; min-height: 184px; padding: 22px 22px 20px; border-radius: 14px;
+                transform: scale(0.9); opacity: 0.5;
+                scroll-snap-align: center;
+            }
+            .bio-card.is-active { transform: scale(1); opacity: 1; }
+            .bio-card::before { font-size: 48px; top: 6px; left: 16px; }
+            .bio-card-tag { margin: 12px 0 10px; }
+            .bio-card-title { font-size: 16.5px; }
+            .bio-card-desc { font-size: 13.5px; line-height: 1.6; }
+            .bio-nav { display: none; }
+            .bio-dots { margin-top: 16px; }
 
             /* 메인 컨테이너 */
             .container { padding: 16px 16px 40px; }
@@ -1130,6 +1229,50 @@
         </div>
     </div>
 </header>
+
+<!-- 만든 사람 · 바이오 캐로우절 -->
+<section class="bio-strip" aria-label="가이드 소개">
+    <div class="bio-wrap" id="bioWrap">
+        <div class="bio-stage">
+            <button class="bio-nav prev" id="bioPrev" type="button" aria-label="이전">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="bio-track" id="bioTrack">
+                <a class="bio-card" href="?about=1">
+                    <span class="bio-card-tag">왜 만들었나</span>
+                    <h3 class="bio-card-title">개발자의 도구에서, 리더의 무기로</h3>
+                    <p class="bio-card-desc">시중 Claude 자료는 대부분 개발자를 위한 것입니다. 같은 도구를 의사결정·보고·자동화의 관점에서 다시 썼습니다.</p>
+                    <span class="bio-card-more">자세히 →</span>
+                </a>
+                <a class="bio-card" href="?about=1" data-about-target="aboutMaker">
+                    <span class="bio-card-tag">만든 사람</span>
+                    <h3 class="bio-card-title">강정구 · Jayden Kang</h3>
+                    <p class="bio-card-desc">Bain·Kearney와 라인·카카오엔터테인먼트를 거쳐, 현재 LINER에서 AI 전략을 총괄하며 국민경제자문회의 AI경제 정책자문단으로 활동하고 있습니다.</p>
+                    <span class="bio-card-more">자세히 →</span>
+                </a>
+                <a class="bio-card" href="?about=1" data-about-target="aboutChangelog">
+                    <span class="bio-card-tag">업데이트 내역</span>
+                    <h3 class="bio-card-title">지속적인 개정</h3>
+                    <p class="bio-card-desc">2026년 2월 처음 공개한 뒤로 매주 빠짐없이 업데이트하고 있습니다. 모델 업데이트와 새로운 기능을 즉시 반영합니다.</p>
+                    <span class="bio-card-more">자세히 →</span>
+                </a>
+                <a class="bio-card" href="?about=1" data-about-target="aboutLicense">
+                    <span class="bio-card-tag">라이선스</span>
+                    <h3 class="bio-card-title">이용 범위 안내</h3>
+                    <p class="bio-card-desc">개인 학습은 자유롭게 보실 수 있고, 강의·사내 교육 등 상업적 활용은 사전 협의가 필요합니다.</p>
+                    <span class="bio-card-more">자세히 →</span>
+                </a>
+            </div>
+            <button class="bio-nav next" id="bioNext" type="button" aria-label="다음">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+        </div>
+        <div class="bio-progress" aria-hidden="true">
+            <span class="bio-progress-fill" id="bioProgressFill"></span>
+        </div>
+        <div class="bio-dots" id="bioDots" role="tablist" aria-label="소개 페이지"></div>
+    </div>
+</section>
 
 <div class="mobile-notice">이 가이드는 데스크탑에 최적화되어 있습니다</div>
 
@@ -1669,7 +1812,7 @@
             <a class="card" href="security-guide.html">
                 <div class="card-title-row"><span class="card-icon">🛡️</span><h2>AI와 안전하게 일하는 법</h2></div>
                 <div class="card-meta"><span class="badge-level reference">참고</span></div>
-                <p>무엇을 넣지 말지, 무엇을 확인할지. 비개발자를 위한 AI 협업 보안 5가지 핵심입니다.</p>
+                <p>무엇을 넣지 말지, 무엇을 확인할지. 비즈니스 리더를 위한 AI 협업 보안 5가지 핵심입니다.</p>
             </a>
             <a class="card" href="ai-basic-law.html">
                 <div class="card-title-row"><span class="card-icon">📜</span><h2>인공지능기본법 한눈에</h2></div>
@@ -1700,7 +1843,7 @@
             <a class="card" href="glossary.html">
                 <div class="card-title-row"><span class="card-icon">📖</span><h2>모르는 용어, 바로 찾기</h2></div>
                 <div class="card-meta"><span class="badge-level reference">참고</span></div>
-                <p>터미널, 커밋, 브랜치… 낯선 단어가 나올 때마다 펼쳐보는 비개발자 전용 사전입니다.</p>
+                <p>터미널, 커밋, 브랜치… 낯선 단어가 나올 때마다 펼쳐보는 비즈니스 리더 전용 사전입니다.</p>
             </a>
         </section>
     </div>
@@ -1857,7 +2000,19 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[data-about-open]').forEach(function(el) {
         el.addEventListener('click', function(e) {
             e.preventDefault();
+            var tgt = el.getAttribute('data-about-target');
             setAboutOpen(true);
+            var body = aboutOverlay ? aboutOverlay.querySelector('.about-modal-body') : null;
+            if (!body) return;
+            if (!tgt) { body.scrollTop = 0; return; }
+            // 모달 진입 애니메이션(0.32s) 종료 후 해당 섹션으로 정확히 이동
+            function scrollToTarget() {
+                var node = document.getElementById(tgt);
+                if (!node) return;
+                var top = node.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop;
+                body.scrollTo({ top: top, behavior: 'auto' });
+            }
+            setTimeout(scrollToTarget, 360);
         });
     });
     if (aboutClose) aboutClose.addEventListener('click', function() { setAboutOpen(false); });
@@ -1883,6 +2038,182 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && document.body.classList.contains('about-open')) setAboutOpen(false);
     });
+
+    // ── 만든 사람 바이오 캐로우절 (후기 캐로우절과 동일한 무한 회전) ──
+    (function() {
+        var track = document.getElementById('bioTrack');
+        var dotsBox = document.getElementById('bioDots');
+        var prevBtn = document.getElementById('bioPrev');
+        var nextBtn = document.getElementById('bioNext');
+        var wrap = document.getElementById('bioWrap');
+        if (!track || !dotsBox || !prevBtn || !nextBtn || !wrap) return;
+
+        var originals = Array.prototype.slice.call(track.querySelectorAll('.bio-card'));
+        if (!originals.length) return;
+        var origCount = originals.length;
+
+        // 무한 회전을 위한 카드 한 세트 복제
+        originals.forEach(function(c) {
+            var clone = c.cloneNode(true);
+            clone.classList.add('is-clone');
+            clone.setAttribute('aria-hidden', 'true');
+            track.appendChild(clone);
+        });
+        var allCards = Array.prototype.slice.call(track.querySelectorAll('.bio-card'));
+
+        var physicalIdx = 0;
+        var animFrame = null;
+
+        function cardStep() {
+            if (allCards.length < 2) return track.clientWidth;
+            return allCards[1].offsetLeft - allCards[0].offsetLeft;
+        }
+        function centerOffset() {
+            if (window.matchMedia('(max-width: 768px)').matches) return 0;
+            if (!allCards.length) return 0;
+            var trackW = track.clientWidth;
+            var cardW = allCards[0].offsetWidth;
+            var gap = 24;
+            var threeCardsW = 3 * cardW + 2 * gap;
+            var overflow = threeCardsW - trackW;
+            return overflow > 0 ? overflow / 2 : 0;
+        }
+        function targetFor(idx) { return idx * cardStep() + centerOffset(); }
+        function logicalOf(idx) { var i = idx % origCount; return i < 0 ? i + origCount : i; }
+        function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+        function cancelAnim() { if (animFrame !== null) { cancelAnimationFrame(animFrame); animFrame = null; } }
+
+        function animateTo(target, duration, done) {
+            cancelAnim();
+            var start = track.scrollLeft;
+            var change = target - start;
+            if (Math.abs(change) < 0.5) { if (done) done(); return; }
+            var t0 = performance.now();
+            function stepFn(now) {
+                var p = Math.min(1, (now - t0) / duration);
+                track.scrollLeft = start + change * ease(p);
+                updateActive();
+                if (p < 1) { animFrame = requestAnimationFrame(stepFn); }
+                else { animFrame = null; if (done) done(); }
+            }
+            animFrame = requestAnimationFrame(stepFn);
+        }
+        function rebaseIfNeeded() {
+            if (physicalIdx >= origCount) {
+                physicalIdx -= origCount;
+                track.scrollLeft = targetFor(physicalIdx);
+                updateActive(); updateDots();
+            }
+        }
+        function go(delta) {
+            var nextIdx = physicalIdx + delta;
+            if (nextIdx < 0) {
+                physicalIdx = origCount;
+                track.scrollLeft = targetFor(physicalIdx);
+                nextIdx = physicalIdx - 1;
+            }
+            physicalIdx = nextIdx;
+            updateDots();
+            animateTo(targetFor(physicalIdx), 650, rebaseIfNeeded);
+        }
+        function goTo(logical) { physicalIdx = logical; updateDots(); animateTo(targetFor(physicalIdx), 650); }
+
+        function buildDots() {
+            dotsBox.innerHTML = '';
+            for (var i = 0; i < origCount; i++) {
+                (function(idx) {
+                    var b = document.createElement('button');
+                    b.type = 'button';
+                    b.setAttribute('aria-label', (idx + 1) + '번으로 이동');
+                    b.addEventListener('click', function() { goTo(idx); restartAuto(); });
+                    dotsBox.appendChild(b);
+                })(i);
+            }
+            updateDots();
+        }
+        function updateDots() {
+            var i = logicalOf(physicalIdx);
+            Array.prototype.forEach.call(dotsBox.children, function(d, k) { d.classList.toggle('active', k === i); });
+        }
+        function updateActive() {
+            var trackRect = track.getBoundingClientRect();
+            var center = trackRect.left + trackRect.width / 2;
+            var bestIdx = 0, bestDist = Infinity;
+            allCards.forEach(function(c, i) {
+                var r = c.getBoundingClientRect();
+                var cc = r.left + r.width / 2;
+                var d = Math.abs(cc - center);
+                if (d < bestDist) { bestDist = d; bestIdx = i; }
+            });
+            allCards.forEach(function(c, i) { c.classList.toggle('is-active', i === bestIdx); });
+        }
+
+        var manualTimer = null;
+        track.addEventListener('scroll', function() {
+            if (animFrame !== null) return;
+            updateActive();
+            clearTimeout(manualTimer);
+            manualTimer = setTimeout(function() {
+                var s = cardStep();
+                if (s <= 0) return;
+                physicalIdx = Math.round(track.scrollLeft / s);
+                rebaseIfNeeded(); updateDots();
+            }, 140);
+        });
+
+        prevBtn.addEventListener('click', function() { go(-1); restartAuto(); });
+        nextBtn.addEventListener('click', function() { go(1); restartAuto(); });
+
+        // 카드 클릭 → about 모달 해당 섹션 열기 (클론 포함, 활성 카드만)
+        track.addEventListener('click', function(e) {
+            var card = e.target.closest('.bio-card');
+            if (!card || !card.classList.contains('is-active')) { e.preventDefault(); return; }
+            e.preventDefault();
+            var tgt = card.getAttribute('data-about-target');
+            setAboutOpen(true);
+            var body = aboutOverlay ? aboutOverlay.querySelector('.about-modal-body') : null;
+            if (!body) return;
+            if (!tgt) { body.scrollTop = 0; return; }
+            setTimeout(function() {
+                var node = document.getElementById(tgt);
+                if (node) body.scrollTo({ top: node.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop, behavior: 'auto' });
+            }, 360);
+        });
+
+        var AUTO_MS = 4000;
+        var autoRaf = null, autoStartTs = 0, autoElapsedOnPause = 0;
+        var progressFill = document.getElementById('bioProgressFill');
+        function setProgress(pct) { if (progressFill) progressFill.style.width = pct + '%'; }
+        function autoTick(now) {
+            var elapsed = now - autoStartTs;
+            if (elapsed >= AUTO_MS) {
+                setProgress(100); autoElapsedOnPause = 0; autoRaf = null;
+                go(1); autoStartTs = performance.now(); setProgress(0);
+                autoRaf = requestAnimationFrame(autoTick);
+            } else { setProgress((elapsed / AUTO_MS) * 100); autoRaf = requestAnimationFrame(autoTick); }
+        }
+        function startAuto() {
+            if (document.body.classList.contains('about-open')) return;
+            stopAuto(); autoStartTs = performance.now() - autoElapsedOnPause; autoRaf = requestAnimationFrame(autoTick);
+        }
+        function stopAuto() { if (autoRaf !== null) { autoElapsedOnPause = performance.now() - autoStartTs; cancelAnimationFrame(autoRaf); autoRaf = null; } }
+        function restartAuto() { autoElapsedOnPause = 0; setProgress(0); startAuto(); }
+
+        wrap.addEventListener('mouseenter', stopAuto);
+        wrap.addEventListener('mouseleave', startAuto);
+        wrap.addEventListener('touchstart', stopAuto, { passive: true });
+        document.addEventListener('visibilitychange', function() { if (document.hidden) stopAuto(); else startAuto(); });
+        function recenter() { cancelAnim(); track.scrollLeft = targetFor(physicalIdx); updateActive(); }
+        window.addEventListener('resize', recenter);
+
+        buildDots();
+        recenter();
+        startAuto();
+        // 폰트·레이아웃 안착 후 한 번 더 보정(초기 좌측 정렬 깜빡임 방지)
+        setTimeout(recenter, 120);
+        window.addEventListener('load', recenter);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(recenter);
+    })();
 
     // ── Anthropic 엿보기 (iframe 모달) ──
     var peekOverlay = document.getElementById('peekOverlay');
