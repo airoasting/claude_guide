@@ -433,7 +433,7 @@
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v1.4</span><span class="changelog-date">2026-03-22</span></div>
-                        <div class="changelog-body"><p class="changelog-title">표현 정리와 링크 점검</p><p class="changelog-desc">전체 페이지의 표현을 다듬고 깨진 링크를 점검해 정돈했습니다. 본문 톤을 통일하고 어색한 문구를 손봤습니다. 다음 트랙 확장을 위한 준비도 함께 진행했습니다.</p></div>
+                        <div class="changelog-body"><p class="changelog-title">앤트로픽 소개 작성</p><p class="changelog-desc">Claude를 만든 앤트로픽이 어떤 회사인지 소개하는 글을 새로 작성했습니다. 회사의 방향과 안전 중심 철학을 비즈니스 리더의 눈높이로 정리했습니다. 도구를 쓰기 전에 만든 곳부터 이해하도록 안내했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v1.3</span><span class="changelog-date">2026-03-15</span></div>
