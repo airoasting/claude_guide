@@ -54,3 +54,9 @@ python3 scripts/validate_feature_list.py
 - 매뉴얼이 아닌 일반 문서 작성
 
 가맹점 배포 전 노무·세무·계약 챕터는 사람의 검토가 필요하다.
+
+---
+
+## 라이선스
+
+MIT License · © 2026 AI ROASTING (강정구)

@@ -30,3 +30,9 @@ SKILL.md나 CLAUDE.md 같은 스킬 문서를 네 기준으로 채점하고, 개
 - 원본 파일 수정
 - 새 스킬 작성 (skill-creator 영역)
 - 일반 마크다운 교정이나 오타 수정
+
+---
+
+## 라이선스
+
+MIT License · © 2026 AI ROASTING (강정구)

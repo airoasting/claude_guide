@@ -39,3 +39,9 @@ python scripts/pdf_report.py
 - 단순 평균·건수 같은 CSV 통계만 묻는 질의
 - 대시보드·웹 화면 같은 PDF가 아닌 결과물
 - 분당 외 지역 분석
+
+---
+
+## 라이선스
+
+MIT License · © 2026 AI ROASTING (강정구)
