@@ -19,7 +19,7 @@ def load_skill_doc() -> str:
     return SKILL_PATH.read_text(encoding="utf-8")
 
 
-WRITER_PROMPT = """당신은 링고브릿지 HRD 대표 Leona Kim입니다.
+WRITER_PROMPT = """당신은 링고브릿지 HRD 대표 한서영입니다.
 기업 HRD 담당자에게 보내는 주간 뉴스레터 콘텐츠를 작성해주세요.
 
 [스킬 문서]
@@ -35,7 +35,7 @@ WRITER_PROMPT = """당신은 링고브릿지 HRD 대표 Leona Kim입니다.
 {research_json}
 
 [작성 규칙]
-1. Leona Kim 대표 1인칭 시점, "동료 전문가" 톤
+1. 한서영 대표 1인칭 시점, "동료 전문가" 톤
 2. 전체 5분 이내, 섹션당 3~5문장
 3. 본문 100% 한국어 (영어 표현 섹션 제외)
 4. 링고브릿지 직접 언급은 고민 해결소 마지막 1문장에만

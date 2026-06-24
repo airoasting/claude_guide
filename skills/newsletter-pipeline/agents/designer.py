@@ -189,7 +189,7 @@ body {{ background: #ebe9e0; font-family: 'Pretendard Variable', Pretendard, 'No
     <div class="cover-title">{content["subject_candidates"][0]["title"].replace(", ", ",<br>").replace("왜 ", "왜<br>")}</div>
     <div class="cover-lead">{content["worry"]["quote"][:60]}...</div>
     <div class="cover-foot">
-      <div class="cover-foot-name">Leona Kim · 링고브릿지 HRD</div>
+      <div class="cover-foot-name">한서영 · 링고브릿지 HRD</div>
       <div class="cover-read-time">읽기 약 4분</div>
     </div>
   </div>
@@ -262,25 +262,24 @@ body {{ background: #ebe9e0; font-family: 'Pretendard Variable', Pretendard, 'No
   <div class="body-wrap" style="border-top:none">
     <div class="cta-section">
       <div class="cta-title">이 고민, 우리 회사 얘기 같으시다면<br><span class="accent">이 메일에 바로 답장 주세요.</span></div>
-      <div class="cta-sub">Leona가 직접 읽습니다.</div>
-      <a class="cta-btn" href="mailto:leona@lingobridge.co.kr?subject=뉴스레터 {issue_num:02d}호 관련 문의">leona@lingobridge.co.kr →</a>
+      <div class="cta-sub">한서영 대표가 직접 읽습니다.</div>
+      <a class="cta-btn" href="mailto:seoyoung@lingobridge.co.kr?subject=뉴스레터 {issue_num:02d}호 관련 문의">seoyoung@lingobridge.co.kr →</a>
     </div>
     <div class="footer">
       <div class="footer-top">
         <div>
-          <div class="footer-name">Leona Kim</div>
+          <div class="footer-name">한서영</div>
           <div class="footer-title">CEO · 링고브릿지 HRD</div>
         </div>
         <div class="footer-contacts">
-          <a href="mailto:leona@lingobridge.co.kr">leona@lingobridge.co.kr</a>
-          <a href="tel:0255414100">02-541-4100</a>
+          <a href="mailto:seoyoung@lingobridge.co.kr">seoyoung@lingobridge.co.kr</a>
+          <a href="tel:0212345678">02-1234-5678</a>
           <a href="https://www.lingobridge.co.kr">www.lingobridge.co.kr</a>
         </div>
       </div>
       <div class="footer-bottom">
-        서울시 강남구 테헤란로 87길 22 도심공항터미널 2층 205호<br>
         이 메일은 링고브릿지 HRD 뉴스레터를 구독하신 분들께 발송됩니다.
-        수신을 원하지 않으시면 <a href="mailto:leona@lingobridge.co.kr?subject=수신거부">여기</a>로 알려주세요.
+        수신을 원하지 않으시면 <a href="mailto:seoyoung@lingobridge.co.kr?subject=수신거부">여기</a>로 알려주세요.
       </div>
     </div>
   </div>
