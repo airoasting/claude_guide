@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인생아구찜 신메뉴 개발 사이클 · 명란아구버터구이</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tomato:#d9442e;       /* 토마토 레드 */
+    --tomato-deep:#b22f1e;
+    --mustard:#e8a317;      /* 머스타드 옐로 */
+    --mustard-soft:#f7d98a;
+    --olive:#5b7a3a;        /* 올리브 그린 */
+    --olive-soft:#e8efdc;
+    --cream:#fbf6ec;        /* 미식 크림 배경 */
+    --paper:#fffdf8;
+    --ink:#2c241c;
+    --ink-soft:#6b5f50;
+    --line:#e7ddca;
+    --danger:#c0392b;
+    --ok:#3f7d34;
+    --shadow:0 6px 22px rgba(120,80,30,.10);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--cream);color:var(--ink);
+    font-family:"Noto Sans KR",-apple-system,sans-serif;
+    line-height:1.7;word-break:keep-all;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:20px 18px 70px}
+  .topbar{max-width:920px;margin:0 auto;padding:16px 18px 0}
+  a.back{
+    display:inline-flex;align-items:center;gap:6px;
+    background:#fff;border:1px solid var(--line);color:var(--ink);
+    padding:8px 15px;border-radius:999px;font-size:13px;font-weight:700;
+    text-decoration:none;box-shadow:var(--shadow);
+  }
+  a.back:hover{background:var(--mustard-soft);border-color:var(--mustard)}
+
+  /* 헤더 */
+  header.hero{
+    margin-top:18px;background:linear-gradient(135deg,#fff 0%,var(--paper) 100%);
+    border:1px solid var(--line);border-radius:20px;padding:30px 30px 26px;
+    box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  header.hero:before{
+    content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;
+    background:radial-gradient(circle,var(--mustard-soft) 0%,transparent 70%);opacity:.6;
+  }
+  .eyebrow{font-size:13px;font-weight:700;color:var(--tomato);letter-spacing:.5px;margin:0 0 8px}
+  h1{font-size:31px;font-weight:900;margin:0 0 6px;letter-spacing:-.5px;position:relative}
+  h1 .accent{font-family:"Gaegu",cursive;color:var(--tomato);font-size:34px}
+  .sub{font-size:15px;color:var(--ink-soft);margin:0 0 18px;position:relative}
+  .meta{display:flex;gap:8px;flex-wrap:wrap;position:relative}
+  .badge{
+    display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;
+    padding:6px 12px;border-radius:999px;border:1px solid transparent;
+  }
+  .b-tomato{background:#fbe6e0;color:var(--tomato-deep)}
+  .b-mustard{background:#fbedc4;color:#9a6b08}
+  .b-olive{background:var(--olive-soft);color:var(--olive)}
+  .b-ghost{background:#fff;color:var(--ink-soft);border-color:var(--line)}
+
+  /* 입력 요약 한 줄 */
+  .input-line{
+    margin:18px 0 8px;background:#fff;border:1px dashed var(--mustard);
+    border-radius:14px;padding:14px 18px;font-size:14px;display:flex;gap:10px;align-items:flex-start;
+  }
+  .input-line .ico{font-size:18px;flex:none;line-height:1.4}
+  .input-line b{color:var(--tomato-deep)}
+
+  /* 진행 단계 표시 */
+  .stepper{display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 8px}
+  .step{
+    flex:1;min-width:150px;background:#fff;border:1px solid var(--line);border-radius:14px;
+    padding:13px 15px;position:relative;
+  }
+  .step.done{border-color:var(--olive);background:var(--olive-soft)}
+  .step.active{border-color:var(--tomato);box-shadow:0 0 0 3px #fbe6e0}
+  .step .tag{font-size:11px;font-weight:800;letter-spacing:.4px}
+  .step.done .tag{color:var(--olive)}
+  .step.active .tag{color:var(--tomato)}
+  .step .nm{font-size:14.5px;font-weight:800;margin:3px 0 2px}
+  .step .st{font-size:12px;color:var(--ink-soft)}
+
+  section{
+    margin-top:34px;background:var(--paper);border:1px solid var(--line);
+    border-radius:18px;padding:26px 26px 24px;box-shadow:var(--shadow);
+  }
+  .sec-head{display:flex;align-items:center;gap:11px;margin:0 0 4px}
+  .sec-num{
+    font-size:12px;font-weight:900;color:#fff;background:var(--tomato);
+    padding:4px 11px;border-radius:999px;flex:none;letter-spacing:.5px;
+  }
+  .sec-num.s2{background:var(--olive)}
+  h2{font-size:21px;font-weight:900;margin:0;letter-spacing:-.4px}
+  .sec-desc{font-size:13.5px;color:var(--ink-soft);margin:6px 0 20px}
+  h3{font-size:16px;font-weight:800;margin:24px 0 10px;display:flex;align-items:center;gap:8px}
+  h3 .dot{width:9px;height:9px;border-radius:50%;background:var(--mustard);flex:none}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0 4px;background:#fff;border-radius:10px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{background:#fff4e0;color:#8a5d08;font-weight:800;font-size:12.5px;border-bottom:2px solid var(--mustard)}
+  tbody tr:last-child td{border-bottom:none}
+  td .us{color:var(--olive);font-weight:700}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .ours{background:#fbe6e0}
+  .ours td{font-weight:700}
+
+  /* 기획 개요 카드 */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0}
+  @media(max-width:620px){.grid2{grid-template-columns:1fr}}
+  .info-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+  .info-card .h{font-size:12px;font-weight:800;color:var(--tomato);margin:0 0 6px;letter-spacing:.3px}
+  .info-card p{margin:0;font-size:13.5px;color:var(--ink)}
+
+  /* 레시피 카드 */
+  .recipe-card{
+    background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin:14px 0;position:relative;
+  }
+  .recipe-card.pick{border:2px solid var(--olive);box-shadow:0 0 0 3px var(--olive-soft)}
+  .rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .rc-title{font-size:17px;font-weight:900;margin:0}
+  .rc-sub{font-size:12.5px;color:var(--ink-soft);margin:2px 0 0}
+  .pick-tag{font-size:11px;font-weight:800;color:#fff;background:var(--olive);padding:4px 10px;border-radius:999px}
+  .cost-strip{display:flex;gap:0;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:14px}
+  .cost-cell{flex:1;min-width:90px;padding:12px 14px;border-right:1px solid var(--line)}
+  .cost-cell:last-child{border-right:none}
+  .cost-cell .k{font-size:11px;color:var(--ink-soft);font-weight:700}
+  .cost-cell .v{font-size:18px;font-weight:900;margin-top:2px}
+  .cost-cell .v.green{color:var(--ok)}
+  .cost-cell .v.red{color:var(--danger)}
+  .rate-pill{display:inline-block;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;margin-left:6px}
+  .rate-ok{background:var(--olive-soft);color:var(--olive)}
+  .rate-warn{background:#fbe6e0;color:var(--danger)}
+
+  /* 사용자 의견 안건 */
+  .user-voice{
+    background:#fff7e6;border:1px solid var(--mustard);border-radius:16px;
+    padding:20px 22px;margin-top:14px;
+  }
+  .user-voice .uv-head{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:900;color:#9a6b08;margin-bottom:10px}
+  .user-voice ul{margin:0;padding-left:20px}
+  .user-voice li{margin:7px 0;font-size:14px}
+  .uv-quote{background:#fff;border-radius:10px;padding:12px 15px;margin-top:12px;font-size:13.5px;color:var(--ink-soft);border:1px solid var(--mustard-soft)}
+
+  /* 점검표 */
+  .check-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  @media(max-width:620px){.check-list{grid-template-columns:1fr}}
+  .check-item{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:13.5px}
+  .check-item .ck{width:20px;height:20px;border-radius:50%;background:var(--ok);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:none;font-weight:900}
+
+  /* 게이트 박스 */
+  .gate{
+    background:linear-gradient(135deg,#fbe6e0,#fff7e6);border:1px solid var(--tomato);
+    border-radius:16px;padding:20px 22px;margin-top:18px;
+  }
+  .gate .g-head{font-size:15px;font-weight:900;color:var(--tomato-deep);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .gate p{margin:0 0 12px;font-size:14px}
+  .gate .opts{display:flex;gap:10px;flex-wrap:wrap}
+  .opt{background:#fff;border:1px solid var(--tomato);border-radius:10px;padding:9px 16px;font-size:13.5px;font-weight:700;color:var(--tomato-deep)}
+  .opt.sel{background:var(--tomato);color:#fff}
+
+  .persona-note{font-size:12.5px;color:var(--ink-soft);background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-top:12px}
+  .persona-note b{color:var(--olive)}
+  .tip{font-size:12px;color:var(--ink-soft);margin-top:8px}
+
+  footer{margin-top:42px;text-align:center;color:var(--ink-soft);font-size:13px}
+  footer .brand{font-weight:900;color:var(--tomato);font-size:15px;letter-spacing:.5px}
+  footer .tagline{margin-top:3px}
+  .hr-mini{height:1px;background:var(--line);margin:30px 0 0}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span style="display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;width:100%">
+    <a class="gh-link" href="https://github.com/airoasting/claude_guide/tree/main/skills/menu-development-cycle" target="_blank" rel="noopener" title="GitHub에서 이 스킬 보기" style="display:inline-flex;align-items:center;gap:6px;background:#1f2328;color:#fff;padding:8px 13px;border-radius:999px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;line-height:1"><svg width="15" height="15" viewBox="0 0 16 16" fill="#fff" aria-hidden="true" style="flex:none"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .271.53-1.04 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>GitHub<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+    <a class="back" href="../../showcase-skills.html">← 전체 보기</a>
+  </span>
+</div>
+
+<div class="wrap">
+
+  <!-- 헤더 -->
+  <header class="hero">
+    <p class="eyebrow">MENU DEVELOPMENT CYCLE · 사용자 주도형 신메뉴 개발</p>
+    <h1>인생아구찜 <span class="accent">명란아구버터구이</span> 개발 사이클</h1>
+    <p class="sub">기획부터 시제품까지, 매 단계 사용자 확인을 거쳐 진행한 신메뉴 개발 기록</p>
+    <div class="meta">
+      <span class="badge b-tomato">🍲 브랜드 · 인생아구찜</span>
+      <span class="badge b-mustard">📍 목표 판매가 18,000원</span>
+      <span class="badge b-olive">🎯 목표 원가율 33% 이하</span>
+      <span class="badge b-ghost">📅 2026-06-24 생성</span>
+    </div>
+  </header>
+
+  <!-- 입력 한 줄 -->
+  <div class="input-line">
+    <span class="ico">⌨️</span>
+    <div>스킬을 돌린 입력 한 줄. <b>"인생아구찜 신메뉴 개발해줘. 30대 직장인 점심 단품으로, 매운맛 말고 짭짤 고소한 방향. 매장에 살라만더랑 콤비오븐 있어."</b></div>
+  </div>
+
+  <!-- 단계 표시 -->
+  <div class="stepper">
+    <div class="step done"><span class="tag">✓ 완료 · 1-1</span><div class="nm">컨셉기획·시장조사</div><div class="st">기획서 + 경쟁사 분석표</div></div>
+    <div class="step active"><span class="tag">● 진행 중 · 2-1</span><div class="nm">시제품 개발</div><div class="st">원가 포함 레시피 설계 3안</div></div>
+    <div class="step"><span class="tag">2-2 ~ 6-1</span><div class="nm">원가검토 → 출시</div><div class="st">사용자 동의 시 진행</div></div>
+  </div>
+
+  <!-- ===================== 1-1 기획 ===================== -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">1-1</span>
+      <h2>신메뉴 기획서</h2>
+    </div>
+    <p class="sec-desc">웹 리서치로 후보 3종을 도출하고, 사용자 게이트에서 "명란아구버터구이"를 확정했다. 사용자 의견을 주요 안건으로 반영했다.</p>
+
+    <h3><span class="dot"></span>기획 개요</h3>
+    <div class="grid2">
+      <div class="info-card"><div class="h">기획 배경</div><p>아구찜 단일 메뉴 의존도가 높고 점심 단품 회전율이 낮다. 매운맛 외 선택지가 없어 비매운맛 고객 이탈이 관찰됨.</p></div>
+      <div class="info-card"><div class="h">핵심 전략</div><p>아구의 신선도와 살 식감을 매운양념 없이 살린다. 명란버터의 짭짤 고소함으로 점심 단품, 술안주 겸용 포지션.</p></div>
+      <div class="info-card"><div class="h">기획 범위</div><p>점심 단품(공깃밥 포함) + 저녁 안주 변형. 기존 아구 매입 동선·콤비오븐 활용으로 신규 설비 0.</p></div>
+      <div class="info-card"><div class="h">기획 핵심 원칙</div><p>① 기존 식재료 70% 이상 재사용 ② 매운맛 비의존 ③ 원가율 33% 이하 ④ 살라만더 마무리 3분 이내.</p></div>
+    </div>
+
+    <h3><span class="dot"></span>후보 도출 및 확정 (게이트 A 통과)</h3>
+    <table>
+      <thead><tr><th>후보</th><th>방향</th><th>예상 원가율</th><th>사용자 반응</th></tr></thead>
+      <tbody>
+        <tr class="ours"><td>① 명란아구버터구이 <span class="us">✓ 확정</span></td><td>비매운맛, 명란버터 그라탱풍</td><td class="num">31%</td><td>"바로 이거. 점심 단품 딱 좋다"</td></tr>
+        <tr><td>② 아구살 들깨탕</td><td>국물 단품</td><td class="num">29%</td><td>"기존 아구탕이랑 겹친다"</td></tr>
+        <tr><td>③ 아구 강정</td><td>튀김+소스</td><td class="num">37%</td><td>"튀김기 회전 부담"</td></tr>
+      </tbody>
+    </table>
+    <div class="persona-note">참고용 페르소나 토의 요약. <b>SILVER(주방장)</b> "콤비오븐 스팀 후 살라만더 마무리면 살 안 마른다". <b>RED(원가)</b> "명란은 시세 변동 크니 g단가 고정 협력사 필요". 최종 결정은 사용자 확인으로 확정함.</div>
+  </section>
+
+  <!-- 경쟁사 분석표 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">1-1</span>
+      <h2>경쟁사 분석표</h2>
+    </div>
+    <p class="sec-desc">배달앱·SNS·블로그에서 유사 메뉴 보유 매장 4곳을 조사했다. 가격·구성은 조사 시점 기준이며 미확인 항목은 표시했다.</p>
+    <table>
+      <thead><tr><th>경쟁사(가상)</th><th>유사 메뉴</th><th class="num">가격</th><th>구성</th><th>특징·출처</th></tr></thead>
+      <tbody>
+        <tr><td>바다곳간</td><td>명란버터연어구이</td><td class="num">19,000</td><td>연어+명란버터+밥</td><td>연어 기반, 짠맛 강함 · 배달앱</td></tr>
+        <tr><td>오대양수산</td><td>아구버터구이</td><td class="num">22,000</td><td>아구+마늘버터</td><td>명란 없음, 양 많음 · 블로그</td></tr>
+        <tr><td>미식포차 한끼</td><td>명란감자그라탱</td><td class="num">14,000</td><td>감자+명란+치즈</td><td>해산물 아님, 사이드 · SNS</td></tr>
+        <tr><td>해담식당</td><td>생선구이정식</td><td class="num">16,000</td><td>생선+반찬 5종</td><td>정식형, 단품 회전 약함 · 미확인(가격 추정)</td></tr>
+        <tr class="ours"><td>인생아구찜 (자사)</td><td>명란아구버터구이</td><td class="num">18,000</td><td>아구살+명란버터+공깃밥</td><td>비매운맛·점심 단품·살라만더 마무리</td></tr>
+      </tbody>
+    </table>
+    <h3><span class="dot"></span>STEP4 인사이트</h3>
+    <div class="grid2">
+      <div class="info-card"><div class="h">강점(자사)</div><p>아구살 식감 + 명란버터 조합은 인근에서 직접 경쟁 없음. 점심 단품 회전 설계 우위.</p></div>
+      <div class="info-card"><div class="h">약점</div><p>명란 시세 변동에 원가율 민감. 18,000원이 점심 단품 상단대.</p></div>
+      <div class="info-card"><div class="h">도입 가능 요소</div><p>오대양수산의 마늘버터 향 보강, 미식포차의 치즈 그라탱 비주얼 차용.</p></div>
+      <div class="info-card"><div class="h">전략</div><p>"점심 단품 18,000원, 비매운맛 아구"로 차별 포인트 단일화. 명란 g단가 고정 협력사 확보 선행.</p></div>
+    </div>
+
+    <div class="check-list">
+      <div class="check-item"><span class="ck">✓</span>기획 배경·전략·범위·원칙 작성</div>
+      <div class="check-item"><span class="ck">✓</span>경쟁사 3곳 이상 조사</div>
+      <div class="check-item"><span class="ck">✓</span>자사 차별점 명시</div>
+      <div class="check-item"><span class="ck">✓</span>사용자 의견 안건 반영</div>
+    </div>
+  </section>
+
+  <!-- ===================== 2-1 시제품 ===================== -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num s2">2-1</span>
+      <h2>레시피 설계서 (원가 포함 3안)</h2>
+    </div>
+    <p class="sec-desc">보유 식재료(아구살·명란·버터·대파·마늘)와 기물(콤비오븐·살라만더)을 먼저 확인한 뒤 3안을 설계했다. 판매가 18,000원 기준 원가율을 계산했다(단가는 시세 기반 추정값, 실매입가 확인 필요).</p>
+
+    <!-- A안 -->
+    <div class="recipe-card pick">
+      <div class="rc-top">
+        <div><p class="rc-title">A안. 명란버터 그라탱풍 <span class="rate-pill rate-ok">원가율 32.2%</span></p><p class="rc-sub">콤비오븐 스팀 8분, 명란버터 도포, 살라만더 2분 마무리</p></div>
+        <span class="pick-tag">★ 사용자 선택</span>
+      </div>
+      <table>
+        <thead><tr><th>재료</th><th class="num">사용량</th><th class="num">단가(원/100g)</th><th class="num">원가</th></tr></thead>
+        <tbody>
+          <tr><td>아구살(냉장)</td><td class="num">180 g</td><td class="num">1,950</td><td class="num">3,510</td></tr>
+          <tr><td>명란(저염)</td><td class="num">35 g</td><td class="num">3,800</td><td class="num">1,330</td></tr>
+          <tr><td>가염버터</td><td class="num">20 g</td><td class="num">1,400</td><td class="num">280</td></tr>
+          <tr><td>모짜렐라</td><td class="num">25 g</td><td class="num">1,100</td><td class="num">275</td></tr>
+          <tr><td>대파·마늘·소스류</td><td class="num">-</td><td class="num">-</td><td class="num">100</td></tr>
+          <tr><td>공깃밥·부재료</td><td class="num">-</td><td class="num">-</td><td class="num">300</td></tr>
+        </tbody>
+        <tfoot><tr class="rc-total"><td>합계 · 원가율 = 식재료 원가 ÷ 판매가</td><td class="num">-</td><td class="num">-</td><td class="num">5,795</td></tr></tfoot>
+      </table>
+      <div class="cost-strip">
+        <div class="cost-cell"><div class="k">식재료 원가</div><div class="v">5,795원</div></div>
+        <div class="cost-cell"><div class="k">판매가</div><div class="v">18,000원</div></div>
+        <div class="cost-cell"><div class="k">원가율</div><div class="v green">32.2%</div></div>
+        <div class="cost-cell"><div class="k">마진</div><div class="v green">12,205원</div></div>
+      </div>
+    </div>
+
+    <!-- B안 -->
+    <div class="recipe-card">
+      <div class="rc-top">
+        <div><p class="rc-title">B안. 마늘버터 강조형 <span class="rate-pill rate-ok">원가율 29.2%</span></p><p class="rc-sub">치즈 제외, 마늘버터·대파 향 강화, 콤비오븐 단독</p></div>
+      </div>
+      <table>
+        <thead><tr><th>재료</th><th class="num">사용량</th><th class="num">단가(원/100g)</th><th class="num">원가</th></tr></thead>
+        <tbody>
+          <tr><td>아구살(냉장)</td><td class="num">180 g</td><td class="num">1,950</td><td class="num">3,510</td></tr>
+          <tr><td>명란(저염)</td><td class="num">25 g</td><td class="num">3,800</td><td class="num">950</td></tr>
+          <tr><td>가염버터</td><td class="num">28 g</td><td class="num">1,400</td><td class="num">392</td></tr>
+          <tr><td>대파·마늘·소스류</td><td class="num">-</td><td class="num">-</td><td class="num">100</td></tr>
+          <tr><td>공깃밥·부재료</td><td class="num">-</td><td class="num">-</td><td class="num">300</td></tr>
+        </tbody>
+        <tfoot><tr class="rc-total"><td>합계 · 원가율 = 식재료 원가 ÷ 판매가</td><td class="num">-</td><td class="num">-</td><td class="num">5,252</td></tr></tfoot>
+      </table>
+      <div class="cost-strip">
+        <div class="cost-cell"><div class="k">식재료 원가</div><div class="v">5,252원</div></div>
+        <div class="cost-cell"><div class="k">판매가</div><div class="v">18,000원</div></div>
+        <div class="cost-cell"><div class="k">원가율</div><div class="v green">29.2%</div></div>
+        <div class="cost-cell"><div class="k">마진</div><div class="v green">12,748원</div></div>
+      </div>
+    </div>
+
+    <!-- C안 -->
+    <div class="recipe-card">
+      <div class="rc-top">
+        <div><p class="rc-title">C안. 프리미엄 명란 듬뿍 <span class="rate-pill rate-warn">원가율 41.6%</span></p><p class="rc-sub">명란 증량, 통명란 토핑, 원가율 40% 초과로 경고 표시</p></div>
+      </div>
+      <table>
+        <thead><tr><th>재료</th><th class="num">사용량</th><th class="num">단가(원/100g)</th><th class="num">원가</th></tr></thead>
+        <tbody>
+          <tr><td>아구살(냉장)</td><td class="num">200 g</td><td class="num">1,950</td><td class="num">3,900</td></tr>
+          <tr><td>명란(저염)</td><td class="num">70 g</td><td class="num">3,800</td><td class="num">2,660</td></tr>
+          <tr><td>가염버터</td><td class="num">22 g</td><td class="num">1,400</td><td class="num">308</td></tr>
+          <tr><td>모짜렐라</td><td class="num">25 g</td><td class="num">1,100</td><td class="num">275</td></tr>
+          <tr><td>부재료·공깃밥</td><td class="num">-</td><td class="num">-</td><td class="num">350</td></tr>
+        </tbody>
+        <tfoot><tr class="rc-total"><td>합계 · 원가율 = 식재료 원가 ÷ 판매가</td><td class="num">-</td><td class="num">-</td><td class="num">7,493</td></tr></tfoot>
+      </table>
+      <div class="cost-strip">
+        <div class="cost-cell"><div class="k">식재료 원가</div><div class="v">7,493원</div></div>
+        <div class="cost-cell"><div class="k">판매가</div><div class="v">18,000원</div></div>
+        <div class="cost-cell"><div class="k">원가율</div><div class="v red">41.6%</div></div>
+        <div class="cost-cell"><div class="k">마진</div><div class="v red">10,507원</div></div>
+      </div>
+      <p class="tip">⚠️ 원가율 40% 초과 자동 경고. 명란을 50g 이하로 낮추거나 판매가 21,000원 별도 라인으로 분리 검토 필요.</p>
+    </div>
+
+    <!-- 사용자 의견 안건 -->
+    <div class="user-voice">
+      <div class="uv-head"><span>🗣️</span>사용자 의견 안건 (주요 안건으로 반영)</div>
+      <ul>
+        <li>매운맛 없이 짭짤 고소한 방향 (전 단계부터 유지, A안 채택 근거)</li>
+        <li>점심 단품 회전 우선. 살라만더 마무리 3분 이내 가능해야 함</li>
+        <li>명란 시세 변동 우려. g단가 고정 협력사 확보를 2-2 안건으로 이월</li>
+        <li>치즈는 호불호 있으니 "치즈 빼기" 옵션 운영 검토</li>
+      </ul>
+      <div class="uv-quote">사용자 코멘트. "A안으로 가자. 대신 치즈 양은 살짝 줄여보고, 짠맛은 명란 저염으로 잡아줘. 점심에 빨리 나가는 게 제일 중요해."</div>
+    </div>
+
+    <div class="check-list">
+      <div class="check-item"><span class="ck">✓</span>보유 식재료·기물 확인</div>
+      <div class="check-item"><span class="ck">✓</span>레시피 3안 이상 설계</div>
+      <div class="check-item"><span class="ck">✓</span>안별 원가율·마진 산출</div>
+      <div class="check-item"><span class="ck">✓</span>40% 초과 안 경고 표시</div>
+    </div>
+
+    <!-- 게이트 -->
+    <div class="gate">
+      <div class="g-head"><span>🚦</span>사용자 확인 게이트 (2-1 → 2-2)</div>
+      <p>"어느 설계안으로 진행할까요? 재료·양을 조정하셔도 됩니다." 사용자는 A안을 선택하고 치즈를 25g에서 18g으로 조정 요청했습니다(모짜렐라 77원 절감, 식재료 원가 5,718원, 원가율 31.8%로 재계산됨).</p>
+      <div class="opts">
+        <span class="opt sel">① A안 + 치즈 18g 확정</span>
+        <span class="opt">② 다른 안 선택</span>
+        <span class="opt">③ 재료·양 추가 조정</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="hr-mini"></div>
+    <p style="margin-top:24px"><span class="brand">AI ROASTING</span></p>
+    <p class="tagline">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <p style="margin-top:10px;font-size:12px;color:#a99b86">이 문서는 menu-development-cycle 스킬의 1-1·2-1 단계 산출 예시입니다. 원가·시세는 추정값이며 실매입가 확인이 필요합니다.</p>
+  </footer>
+
+</div>
+</body>
+</html>

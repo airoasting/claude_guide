@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{브랜드명}}_{{메뉴명}}_원가수율검토</title>
+<style>
+:root{--ink:#1f2733;--muted:#6b7280;--line:#d8dee5;--brand:#b45309;--brand-soft:#fef3e2;--accent:#c8a24a;
+  --hl:#fff7ed;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;}
+*{box-sizing:border-box;}
+body{margin:0;background:#5a6470;color:var(--ink);
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.7;font-size:14px;}
+.doc-toolbar{position:sticky;top:0;z-index:50;background:#1f2733;display:flex;gap:8px;
+  justify-content:flex-end;padding:10px 18px;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.dt-btn{font-size:13px;font-weight:700;padding:8px 14px;border-radius:8px;border:1px solid #44505e;
+  background:#2b3543;color:#e5e9ef;cursor:pointer;}
+.dt-btn:hover{background:#36424f;} .dt-btn.primary{background:var(--accent);color:#1f2733;border-color:var(--accent);}
+
+.doc-body{max-width:21cm;margin:24px auto;}
+.doc-sheet{background:#fff;width:21cm;min-height:29.7cm;margin:0 auto 18px;padding:2cm;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);display:flex;flex-direction:column;}
+.sheet-content{flex:1;}
+.doc-head{border-bottom:3px solid var(--brand);padding-bottom:14px;margin-bottom:22px;}
+.doc-head .eyebrow{font-size:11px;letter-spacing:.14em;color:var(--accent);font-weight:800;text-transform:uppercase;}
+.doc-head h1{margin:6px 0 8px;font-size:24px;font-weight:900;color:var(--brand);letter-spacing:-.02em;}
+.doc-head .meta{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:12px;color:var(--muted);}
+.doc-head .meta b{color:var(--ink);}
+h2.sec{font-size:17px;font-weight:900;color:var(--brand);margin:24px 0 12px;
+  padding:8px 12px;background:var(--brand-soft);border-left:5px solid var(--brand);border-radius:0 6px 6px 0;}
+h3.sub{font-size:14px;font-weight:800;color:var(--ink);margin:16px 0 8px;display:flex;align-items:center;gap:7px;}
+h3.sub::before{content:"";width:7px;height:7px;background:var(--accent);border-radius:50%;}
+p{margin:8px 0;} .muted{color:var(--muted);font-size:12.5px;}
+ul.clean{margin:8px 0;padding-left:20px;} ul.clean li{margin-bottom:5px;}
+
+table.bom{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0;}
+table.bom th,table.bom td{border:1px solid var(--line);padding:6px 8px;}
+table.bom th{background:var(--brand-soft);font-weight:700;color:var(--brand);text-align:left;white-space:nowrap;}
+table.bom td.r{text-align:right;font-variant-numeric:tabular-nums;}
+table.bom input{border:1px solid var(--line);border-radius:5px;padding:3px 6px;font-size:12px;font-variant-numeric:tabular-nums;}
+table.bom input.qty,table.bom input.yield,table.bom input.price{width:62px;text-align:right;}
+table.bom input.nm{width:100%;border:none;}
+table.bom tfoot td{font-weight:800;background:#fffdf5;}
+.bom-del{background:#fee2e2;color:#b91c1c;border:none;border-radius:6px;width:22px;height:22px;cursor:pointer;font-weight:800;}
+.bom-add{background:var(--brand);color:#fff;border:none;border-radius:7px;padding:6px 13px;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:6px;}
+
+.price-set{display:flex;align-items:center;gap:10px;margin:14px 0;font-size:13.5px;flex-wrap:wrap;}
+.price-set input{width:110px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;text-align:right;font-weight:700;}
+
+table.tier{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0;}
+table.tier th,table.tier td{border:1px solid var(--line);padding:8px 10px;text-align:center;font-variant-numeric:tabular-nums;}
+table.tier th{background:var(--brand-soft);color:var(--brand);font-weight:700;}
+table.tier tr.center-row{background:#fff7ed;font-weight:800;}
+table.tier .rate-ok{color:var(--ok);font-weight:800;}
+table.tier .rate-warn{color:var(--warn);font-weight:800;}
+table.tier .rate-bad{color:var(--bad);font-weight:800;}
+.tier-pick{cursor:pointer;}
+.tier-pick:hover{background:#fde8cf;}
+table.tier tr.picked{outline:2px solid var(--brand);}
+
+.summary-kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0;}
+.skv{background:var(--brand-soft);border-radius:9px;padding:11px 13px;}
+.skv .k{font-size:10.5px;color:var(--muted);font-weight:700;margin-bottom:3px;}
+.skv .v{font-size:18px;font-weight:900;color:var(--brand);font-variant-numeric:tabular-nums;}
+.skv .v.ok{color:var(--ok);} .skv .v.bad{color:var(--bad);}
+.callout{background:var(--hl);border:1px solid #fed7aa;border-left:4px solid var(--accent);
+  border-radius:0 8px 8px 0;padding:11px 14px;margin:12px 0;font-size:13px;}
+.callout .lbl{font-size:11px;font-weight:800;color:var(--warn);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;}
+.confirm-box{background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid var(--ok);border-radius:0 8px 8px 0;
+  padding:13px 16px;margin:16px 0;}
+.confirm-box .lbl{font-size:11px;font-weight:800;color:var(--ok);text-transform:uppercase;margin-bottom:5px;}
+.confirm-btn{background:var(--ok);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;}
+.confirm-btn.done{background:#16a34a;}
+.pagefoot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);
+  font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;}
+
+@media print{
+  body{background:#fff;} .doc-toolbar{display:none!important;}
+  .doc-body{margin:0;max-width:none;}
+  .doc-sheet{box-shadow:none;margin:0;width:auto;min-height:auto;padding:0;page-break-after:always;}
+  .doc-sheet:last-child{page-break-after:auto;} @page{size:A4;margin:1.6cm;}
+}
+@media(max-width:22cm){.doc-sheet{width:auto;padding:1.2cm;}.summary-kv{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="docToolbar"></div>
+<div class="doc-body">
+
+<!-- PAGE 1: 개요 + 수율 포함 BOM -->
+<section class="doc-sheet">
+  <div class="sheet-content">
+    <div class="doc-head">
+      <div class="eyebrow">원가·수율 검토 · 인생푸드 메뉴개발팀</div>
+      <h1>{{메뉴명}} 원가·수율 검토</h1>
+      <div class="meta"><span><b>브랜드</b> {{브랜드명}}</span><span><b>작성일</b> {{작성일}}</span>
+        <span><b>작성</b> 메뉴개발팀장</span><span><b>문서</b> 1 / 3</span></div>
+    </div>
+
+    <h2 class="sec">1. 검토 개요</h2>
+    <div class="callout"><div class="lbl">검토 대상</div>
+      <div>{{2-1에서 1차완성된 시제품 레시피. 목표 판매가 {{목표판매가}}원 · 목표 원가율 {{목표원가율}}% 이하.}}</div></div>
+    <p class="muted">식재료 원가만 산정합니다(운영비 제외). 가식부 수율(loss)을 반영해 실제 사용량 기준으로 원가를 계산합니다.</p>
+
+    <h2 class="sec">2. 수율 포함 상세 원가 (BOM)</h2>
+    <p class="muted">수율(%)은 손질·조리 후 먹을 수 있는 비율입니다. 실사용 원가 = 구매량 단가 ÷ (수율/100). 값을 바꾸면 자동 재계산됩니다.</p>
+    <table class="bom" id="bomTable">
+      <thead><tr>
+        <th>재료명</th><th class="r">구매량</th><th>단위</th><th class="r">수율(%)</th>
+        <th class="r">단가(원/100g·개)</th><th class="r">실사용 원가(원)</th><th></th>
+      </tr></thead>
+      <tbody id="bomBody"></tbody>
+      <tfoot><tr><td colspan="5"><b>총 식재료 원가 (수율 반영)</b></td><td class="r" id="bomTotal">0원</td><td></td></tr></tfoot>
+    </table>
+    <button class="bom-add" id="bomAdd">＋ 재료 추가</button>
+  </div>
+  <div class="pagefoot"><span>{{브랜드명}} · {{메뉴명}} 원가·수율 검토</span><span>1 / 3</span></div>
+</section>
+
+<!-- PAGE 2: 판매가 ±1000 5단계 코스트 -->
+<section class="doc-sheet">
+  <div class="sheet-content">
+    <h2 class="sec">3. 판매가 시뮬레이션 (±1,000원 · 5단계)</h2>
+    <p class="muted">기준 판매가를 입력하면 ±1,000원씩 총 5단계의 원가율·마진이 자동 계산됩니다. (예: 10,000원 → 8,000~12,000원)</p>
+    <div class="price-set">
+      <label><b>기준 판매가</b></label>
+      <input type="number" id="basePrice" value="19000" step="500"> 원
+      <span class="muted">↑ 입력 시 아래 표가 자동 갱신됩니다.</span>
+    </div>
+    <table class="tier" id="tierTable">
+      <thead><tr><th>구분</th><th>판매가</th><th>식재료 원가</th><th>원가율</th><th>마진(원)</th></tr></thead>
+      <tbody id="tierBody"></tbody>
+    </table>
+    <p class="muted">원가율 색상: <span class="rate-ok">초록 ≤33%</span> · <span class="rate-warn">주황 33~40%</span> · <span class="rate-bad">빨강 &gt;40%</span>. 행을 클릭하면 확정 판매가로 선택됩니다.</p>
+
+    <div class="callout"><div class="lbl">수율·로스 가정</div>
+      <div>{{보관 조건·소비기한·예상 로스율 메모}}</div></div>
+  </div>
+  <div class="pagefoot"><span>{{브랜드명}} · {{메뉴명}} 원가·수율 검토</span><span>2 / 3</span></div>
+</section>
+
+<!-- PAGE 3: 확정 -->
+<section class="doc-sheet">
+  <div class="sheet-content">
+    <h2 class="sec">4. 판매가 확정 및 검토 완료</h2>
+    <div class="summary-kv">
+      <div class="skv"><div class="k">총 식재료 원가</div><div class="v" id="sumCost">0원</div></div>
+      <div class="skv"><div class="k">확정 판매가</div><div class="v" id="sumPrice">-</div></div>
+      <div class="skv"><div class="k">원가율</div><div class="v" id="sumRate">-</div></div>
+    </div>
+    <h3 class="sub">검토 결론</h3>
+    <ul class="clean">
+      <li>{{결론1 — 목표 원가율 충족 여부}}</li>
+      <li>{{결론2 — 수율·로스 리스크}}</li>
+      <li>{{결론3 — 판매가 확정 근거}}</li>
+    </ul>
+
+    <div class="confirm-box">
+      <div class="lbl">✅ 원가·수율 검토 완료</div>
+      <div>위 코스트 표에서 판매가를 선택(클릭)한 뒤 아래 버튼을 누르면, 시제품·원가 검토가 완료된 것으로 보고 <b>3-1 경영진 시연 평가</b>로 진행합니다.</div>
+      <button class="confirm-btn" id="confirmBtn">원가·수율 검토 완료 → 3-1 진행</button>
+      <div id="confirmMsg" style="margin-top:8px;font-weight:700;color:var(--ok)"></div>
+    </div>
+    <p class="muted">※ 본 검토 결과(BOM·확정 판매가·원가율)는 3-1 경영진 시연 평가 요약과 4-1 레시피 표준화의 입력값으로 연결됩니다.</p>
+  </div>
+  <div class="pagefoot"><span>{{브랜드명}} · {{메뉴명}} 원가·수율 검토</span><span>3 / 3</span></div>
+</section>
+
+</div><!-- /doc-body -->
+
+<script>
+/* ── BOM 데이터 (스킬이 채움). per100=원/100g 또는 개당 단가, isUnitItem=개당 여부, yield=가식부 수율% ── */
+var BOM=[
+  {name:"{{재료1}}", buyQty:150, unit:"g", yield:90, per100:1800, isUnitItem:false},
+  {name:"{{재료2}}", buyQty:40,  unit:"g", yield:100, per100:600, isUnitItem:false}
+];
+var CONFIRMED_PRICE=null;
+function won(n){return Math.round(n).toLocaleString("ko-KR");}
+function rowCost(it){
+  var base = it.isUnitItem ? it.buyQty*it.per100 : (it.buyQty/100)*it.per100;
+  var y = (parseFloat(it.yield)||100)/100;
+  return y>0 ? base/y : base; // 수율 반영(가식부 기준 실사용 원가)
+}
+function totalCost(){return BOM.reduce(function(s,i){return s+rowCost(i);},0);}
+
+function renderBom(){
+  var body=document.getElementById("bomBody"); if(!body)return; body.innerHTML="";
+  BOM.forEach(function(it,i){
+    body.insertAdjacentHTML("beforeend",'<tr>'
+      +'<td><input class="nm" value="'+it.name+'" data-i="'+i+'" data-f="name"></td>'
+      +'<td class="r"><input class="qty" type="number" min="0" step="any" value="'+it.buyQty+'" data-i="'+i+'" data-f="buyQty"></td>'
+      +'<td><input style="width:46px;border:none" value="'+it.unit+'" data-i="'+i+'" data-f="unit"></td>'
+      +'<td class="r"><input class="yield" type="number" min="1" max="100" value="'+it.yield+'" data-i="'+i+'" data-f="yield"></td>'
+      +'<td class="r"><input class="price" type="number" min="0" value="'+it.per100+'" data-i="'+i+'" data-f="per100"></td>'
+      +'<td class="r">'+won(rowCost(it))+'원</td>'
+      +'<td><button class="bom-del" data-del="'+i+'">×</button></td></tr>');
+  });
+  document.getElementById("bomTotal").textContent=won(totalCost())+"원";
+  bindBom(); renderTiers(); renderSummary();
+}
+function bindBom(){
+  document.querySelectorAll('#bomBody [data-f]').forEach(function(el){
+    el.addEventListener("input",function(e){
+      var i=+e.target.dataset.i,f=e.target.dataset.f,v=e.target.value;
+      BOM[i][f]=(f==="name"||f==="unit")?v:(parseFloat(v)||0);
+      if(f==="unit") BOM[i].isUnitItem=(v.trim()==="개");
+      renderBom();
+    });
+  });
+  document.querySelectorAll('#bomBody [data-del]').forEach(function(b){
+    b.addEventListener("click",function(e){BOM.splice(+e.target.dataset.del,1);renderBom();});
+  });
+}
+function rateClass(r){return r<=33?"rate-ok":(r<=40?"rate-warn":"rate-bad");}
+function renderTiers(){
+  var body=document.getElementById("tierBody"); if(!body)return; body.innerHTML="";
+  var base=parseFloat(document.getElementById("basePrice").value)||0;
+  var cost=totalCost();
+  var prices=[base-2000,base-1000,base,base+1000,base+2000];
+  prices.forEach(function(p,idx){
+    var rate=p>0?(cost/p*100):0; var margin=p-cost;
+    var center=idx===2?" center-row":"";
+    var picked=(CONFIRMED_PRICE===p)?" picked":"";
+    body.insertAdjacentHTML("beforeend",'<tr class="tier-pick'+center+picked+'" data-price="'+p+'">'
+      +'<td>'+(idx===2?"기준":(idx<2?"-"+((2-idx)*1000/1000)+"k":"+"+((idx-2)*1000/1000)+"k"))+'</td>'
+      +'<td>'+won(p)+'원</td><td>'+won(cost)+'원</td>'
+      +'<td class="'+rateClass(rate)+'">'+rate.toFixed(1)+'%</td>'
+      +'<td>'+won(margin)+'원</td></tr>');
+  });
+  document.querySelectorAll('.tier-pick').forEach(function(tr){
+    tr.addEventListener("click",function(){CONFIRMED_PRICE=+tr.dataset.price;renderTiers();renderSummary();});
+  });
+}
+function renderSummary(){
+  var cost=totalCost();
+  document.getElementById("sumCost").textContent=won(cost)+"원";
+  if(CONFIRMED_PRICE){
+    var rate=cost/CONFIRMED_PRICE*100;
+    document.getElementById("sumPrice").textContent=won(CONFIRMED_PRICE)+"원";
+    var rv=document.getElementById("sumRate");
+    rv.textContent=rate.toFixed(1)+"%"; rv.className="v "+(rate<=33?"ok":(rate>40?"bad":""));
+  }
+}
+document.addEventListener("DOMContentLoaded",function(){
+  renderBom();
+  document.getElementById("bomAdd").addEventListener("click",function(){
+    BOM.push({name:"",buyQty:0,unit:"g",yield:100,per100:0,isUnitItem:false});renderBom();});
+  document.getElementById("basePrice").addEventListener("input",renderTiers);
+  document.getElementById("confirmBtn").addEventListener("click",function(){
+    var msg=document.getElementById("confirmMsg");
+    if(!CONFIRMED_PRICE){msg.style.color="var(--bad)";msg.textContent="⚠ 먼저 코스트 표에서 판매가를 클릭해 선택하세요.";return;}
+    this.classList.add("done"); this.textContent="✅ 검토 완료됨";
+    msg.style.color="var(--ok)";
+    msg.textContent="확정 판매가 "+won(CONFIRMED_PRICE)+"원 · 원가율 "+(totalCost()/CONFIRMED_PRICE*100).toFixed(1)+"% → 3-1 경영진 시연 평가로 진행하세요.";
+  });
+});
+</script>
+<script>
+/*__DOC_TOOLBAR_JS__*/
+</script>
+</body>
+</html>

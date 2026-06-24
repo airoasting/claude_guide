@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{브랜드명}}_{{메뉴명}}_경쟁사분석표</title>
+<style>
+:root{--ink:#1f2733;--muted:#6b7280;--line:#d8dee5;--brand:#1a5c8a;--brand-soft:#e6f0f7;--accent:#c8a24a;--hl:#dbeafe;--ok:#15803d;--bad:#b91c1c;}
+*{box-sizing:border-box;}
+body{margin:0;background:#5a6470;color:var(--ink);
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.7;font-size:14px;}
+.doc-toolbar{position:sticky;top:0;z-index:50;background:#1f2733;display:flex;gap:8px;
+  justify-content:flex-end;padding:10px 18px;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.dt-btn{font-size:13px;font-weight:700;padding:8px 14px;border-radius:8px;border:1px solid #44505e;
+  background:#2b3543;color:#e5e9ef;cursor:pointer;}
+.dt-btn:hover{background:#36424f;}
+.dt-btn.primary{background:var(--accent);color:#1f2733;border-color:var(--accent);}
+
+.doc-body{max-width:21cm;margin:24px auto;}
+.doc-sheet{background:#fff;width:21cm;min-height:29.7cm;margin:0 auto 18px;padding:2cm;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);display:flex;flex-direction:column;}
+.sheet-content{flex:1;}
+.doc-head{border-bottom:3px solid var(--brand);padding-bottom:14px;margin-bottom:22px;}
+.doc-head .eyebrow{font-size:11px;letter-spacing:.14em;color:var(--accent);font-weight:800;text-transform:uppercase;}
+.doc-head h1{margin:6px 0 8px;font-size:25px;font-weight:900;color:var(--brand);letter-spacing:-.02em;}
+.doc-head .meta{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:12px;color:var(--muted);}
+.doc-head .meta b{color:var(--ink);}
+
+h2.sec{font-size:17px;font-weight:900;color:var(--brand);margin:26px 0 12px;
+  padding:8px 12px;background:var(--brand-soft);border-left:5px solid var(--brand);border-radius:0 6px 6px 0;}
+h2.sec .step{display:inline-block;background:var(--brand);color:#fff;font-size:12px;
+  padding:1px 9px;border-radius:999px;margin-right:8px;}
+h3.sub{font-size:14.5px;font-weight:800;color:var(--ink);margin:18px 0 8px;display:flex;align-items:center;gap:7px;}
+h3.sub::before{content:"";width:7px;height:7px;background:var(--accent);border-radius:50%;}
+p{margin:8px 0;}
+ul.clean{margin:8px 0;padding-left:20px;}
+ul.clean li{margin-bottom:5px;}
+
+table.doc{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0;}
+table.doc th,table.doc td{border:1px solid var(--line);padding:7px 8px;vertical-align:top;text-align:left;}
+table.doc th{background:var(--brand-soft);font-weight:700;color:var(--brand);}
+table.doc td.r{text-align:right;font-variant-numeric:tabular-nums;}
+table.doc .hl{background:var(--hl);font-weight:700;}
+table.doc a{color:var(--brand);word-break:break-all;}
+
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.ins-card{border:1px solid var(--line);border-radius:9px;padding:12px 14px;}
+.ins-card.s{background:#f0fdf4;border-color:#bbf7d0;}
+.ins-card.w{background:#fef2f2;border-color:#fecaca;}
+.ins-card.o{background:#eff6ff;border-color:#bfdbfe;}
+.ins-card.t{background:#fff7ed;border-color:#fed7aa;}
+.ins-card .ic-lbl{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;}
+.ins-card.s .ic-lbl{color:var(--ok);}
+.ins-card.w .ic-lbl{color:var(--bad);}
+.ins-card.o .ic-lbl{color:#1d4ed8;}
+.ins-card.t .ic-lbl{color:#b45309;}
+.ins-card ul{margin:0;padding-left:16px;font-size:12.5px;}
+
+.callout{background:var(--brand-soft);border:1px solid #bcd6ea;border-left:4px solid var(--brand);
+  border-radius:0 8px 8px 0;padding:12px 14px;margin:12px 0;font-size:13px;}
+.callout .lbl{font-size:11px;font-weight:800;color:var(--brand);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px;}
+.src-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;}
+.b-delivery{background:#fef3c7;color:#92400e;}
+.b-sns{background:#fce7f3;color:#9d174d;}
+.b-blog{background:#e0e7ff;color:#3730a3;}
+.pagefoot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);
+  font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;}
+
+@media print{
+  body{background:#fff;}
+  .doc-toolbar{display:none!important;}
+  .doc-body{margin:0;max-width:none;}
+  .doc-sheet{box-shadow:none;margin:0;width:auto;min-height:auto;padding:0;page-break-after:always;}
+  .doc-sheet:last-child{page-break-after:auto;}
+  @page{size:A4;margin:1.6cm;}
+}
+@media(max-width:22cm){.doc-sheet{width:auto;padding:1.2cm;}.insight-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div id="docToolbar"></div>
+
+<div class="doc-body">
+
+<!-- ───────── PAGE 1: 경쟁사 선정 + 정보수집 ───────── -->
+<section class="doc-sheet">
+  <div class="sheet-content">
+    <div class="doc-head">
+      <div class="eyebrow">경쟁사 분석표 · 인생푸드 메뉴개발팀</div>
+      <h1>{{메뉴명}} 경쟁사 분석표</h1>
+      <div class="meta">
+        <span><b>브랜드</b> {{브랜드명}}</span>
+        <span><b>작성일</b> {{작성일}}</span>
+        <span><b>작성</b> 메뉴개발팀장</span>
+        <span><b>문서</b> 1 / 3</span>
+      </div>
+    </div>
+
+    <h2 class="sec"><span class="step">STEP 1</span>경쟁사 선정</h2>
+    <p>{{선정 기준 — 동종/유사 컨셉, 가격대, 입지, 타깃이 겹치는 브랜드 3~5개를 선정한 근거.}}</p>
+    <table class="doc">
+      <thead><tr><th>No</th><th>경쟁사/브랜드</th><th>선정 사유 (동종/유사 컨셉)</th><th>유형</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>{{경쟁사1}}</td><td>{{사유}}</td><td>{{전문점/체인/인근}}</td></tr>
+        <tr><td>2</td><td>{{경쟁사2}}</td><td>{{사유}}</td><td>{{유형}}</td></tr>
+        <tr><td>3</td><td>{{경쟁사3}}</td><td>{{사유}}</td><td>{{유형}}</td></tr>
+        <tr><td>4</td><td>{{경쟁사4}}</td><td>{{사유}}</td><td>{{유형}}</td></tr>
+        <tr><td>5</td><td>{{경쟁사5}}</td><td>{{사유}}</td><td>{{유형}}</td></tr>
+      </tbody>
+    </table>
+
+    <h2 class="sec"><span class="step">STEP 2</span>정보 수집</h2>
+    <p>{{배달앱·SNS·블로그 등에서 확보한 리뷰·평점·가격 데이터 출처와 수집 범위.}}</p>
+    <table class="doc">
+      <thead><tr><th>경쟁사</th><th>수집 채널</th><th>핵심 데이터 (평점·리뷰수·언급)</th></tr></thead>
+      <tbody>
+        <tr><td>{{경쟁사1}}</td><td><span class="src-badge b-delivery">배달앱</span> <span class="src-badge b-sns">SNS</span></td><td>{{평점·리뷰수·주요 언급}}</td></tr>
+        <tr><td>{{경쟁사2}}</td><td><span class="src-badge b-blog">블로그</span> <span class="src-badge b-delivery">배달앱</span></td><td>{{데이터}}</td></tr>
+        <tr><td>{{경쟁사3}}</td><td><span class="src-badge b-sns">SNS</span></td><td>{{데이터}}</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      <div class="lbl">수집 메모</div>
+      <div>{{수집 과정에서의 주의점·데이터 신뢰도·기간 등}}</div>
+    </div>
+  </div>
+  <div class="pagefoot"><span>{{브랜드명}} · {{메뉴명}} 경쟁사 분석표</span><span>1 / 3</span></div>
+</section>
+
+<!-- ───────── PAGE 2: 분석표 ───────── -->
+<section class="doc-sheet">
+  <div class="sheet-content">
+    <h2 class="sec"><span class="step">STEP 3</span>경쟁사 분석표</h2>
+    <table class="doc">
+      <thead><tr><th>경쟁사/브랜드</th><th>유사 메뉴</th><th class="r">가격</th><th>구성(특징)</th><th>대표매장 링크</th></tr></thead>
+      <tbody>
+        <tr><td>{{경쟁사1}}</td><td>{{메뉴}}</td><td class="r">{{가격}}원</td><td>{{구성·특징}}</td><td><a href="{{링크1}}">{{링크1}}</a></td></tr>
+        <tr><td>{{경쟁사2}}</td><td>{{메뉴}}</td><td class="r">{{가격}}원</td><td>{{구성·특징}}</td><td><a href="{{링크2}}">{{링크2}}</a></td></tr>
+        <tr><td>{{경쟁사3}}</td><td>{{메뉴}}</td><td class="r">{{가격}}원</td><td>{{구성·특징}}</td><td><a href="{{링크3}}">{{링크3}}</a></td></tr>
+        <tr><td>{{경쟁사4}}</td><td>{{메뉴}}</td><td class="r">{{가격}}원</td><td>{{구성·특징}}</td><td><a href="{{링크4}}">{{링크4}}</a></td></tr>
+        <tr><td>{{경쟁사5}}</td><td>{{메뉴}}</td><td class="r">{{가격}}원</td><td>{{구성·특징}}</td><td><a href="{{링크5}}">{{링크5}}</a></td></tr>
+        <tr class="hl"><td><b>{{우리 메뉴}}</b></td><td>{{메뉴}}</td><td class="r">{{판매가}}원</td><td>{{구성}}</td><td>—</td></tr>
+      </tbody>
+    </table>
+    <h3 class="sub">가격·구성 비교 요약</h3>
+    <ul class="clean">
+      <li>{{가격 분포 요약 — 최저~최고, 우리 위치}}</li>
+      <li>{{구성 차이 요약}}</li>
+    </ul>
+  </div>
+  <div class="pagefoot"><span>{{브랜드명}} · {{메뉴명}} 경쟁사 분석표</span><span>2 / 3</span></div>
+</section>
+
+<!-- ───────── PAGE 3: 인사이트 도출 ───────── -->
+<section class="doc-sheet">
+  <div class="sheet-content">
+    <h2 class="sec"><span class="step">STEP 4</span>인사이트 도출</h2>
+    <div class="insight-grid">
+      <div class="ins-card s"><div class="ic-lbl">강점 (자사 우위)</div><ul><li>{{강점1}}</li><li>{{강점2}}</li></ul></div>
+      <div class="ins-card w"><div class="ic-lbl">약점 (자사 열위)</div><ul><li>{{약점1}}</li><li>{{약점2}}</li></ul></div>
+      <div class="ins-card o"><div class="ic-lbl">자사 도입 가능 요소</div><ul><li>{{도입요소1 — 경쟁사 장점 중 우리가 흡수 가능}}</li><li>{{도입요소2}}</li></ul></div>
+      <div class="ins-card t"><div class="ic-lbl">전략</div><ul><li>{{전략1 — 차별·가격·구성}}</li><li>{{전략2}}</li></ul></div>
+    </div>
+    <h3 class="sub">최종 전략 제언</h3>
+    <div class="callout">
+      <div class="lbl">실행 방향</div>
+      <ul class="clean" style="margin:4px 0 0">
+        <li>{{실행 제언 1}}</li>
+        <li>{{실행 제언 2}}</li>
+        <li>{{실행 제언 3}}</li>
+      </ul>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:14px">※ 상단 버튼으로 엑셀(.xls)·워드(.doc)로 저장하거나 PDF·인쇄할 수 있습니다.</p>
+  </div>
+  <div class="pagefoot"><span>{{브랜드명}} · {{메뉴명}} 경쟁사 분석표</span><span>3 / 3</span></div>
+</section>
+
+</div><!-- /doc-body -->
+
+<script>
+/*__DOC_TOOLBAR_JS__*/
+</script>
+</body>
+</html>

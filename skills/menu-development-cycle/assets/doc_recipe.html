@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{브랜드명}}_{{메뉴명}}_레시피설계서_테스트기록지</title>
+<style>
+:root{--ink:#1f2733;--muted:#6b7280;--line:#d8dee5;--brand:#1a5c8a;--brand-soft:#e6f0f7;--accent:#c8a24a;
+  --hl:#dbeafe;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--up:#15803d;--down:#b91c1c;}
+*{box-sizing:border-box;}
+body{margin:0;background:#5a6470;color:var(--ink);
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.7;font-size:14px;}
+.doc-toolbar{position:sticky;top:0;z-index:50;background:#1f2733;display:flex;gap:8px;
+  justify-content:flex-end;padding:10px 18px;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.dt-btn{font-size:13px;font-weight:700;padding:8px 14px;border-radius:8px;border:1px solid #44505e;
+  background:#2b3543;color:#e5e9ef;cursor:pointer;}
+.dt-btn:hover{background:#36424f;}
+.dt-btn.primary{background:var(--accent);color:#1f2733;border-color:var(--accent);}
+
+.doc-body{max-width:21cm;margin:24px auto;}
+.doc-sheet{background:#fff;width:21cm;min-height:29.7cm;margin:0 auto 18px;padding:2cm;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);display:flex;flex-direction:column;}
+.sheet-content{flex:1;}
+.doc-head{border-bottom:3px solid var(--brand);padding-bottom:14px;margin-bottom:22px;}
+.doc-head .eyebrow{font-size:11px;letter-spacing:.14em;color:var(--accent);font-weight:800;text-transform:uppercase;}
+.doc-head h1{margin:6px 0 8px;font-size:24px;font-weight:900;color:var(--brand);letter-spacing:-.02em;}
+.doc-head .meta{display:flex;flex-wrap:wrap;gap:4px 20px;font-size:12px;color:var(--muted);}
+.doc-head .meta b{color:var(--ink);}
+
+h2.sec{font-size:17px;font-weight:900;color:var(--brand);margin:24px 0 12px;
+  padding:8px 12px;background:var(--brand-soft);border-left:5px solid var(--brand);border-radius:0 6px 6px 0;}
+h3.sub{font-size:14px;font-weight:800;color:var(--ink);margin:16px 0 8px;display:flex;align-items:center;gap:7px;}
+h3.sub::before{content:"";width:7px;height:7px;background:var(--accent);border-radius:50%;}
+p{margin:8px 0;}
+ul.clean{margin:8px 0;padding-left:20px;}
+ul.clean li{margin-bottom:5px;}
+.muted{color:var(--muted);font-size:12.5px;}
+
+/* 보유 자원 */
+.callout{background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid var(--accent);
+  border-radius:0 8px 8px 0;padding:11px 14px;margin:12px 0;font-size:13px;}
+.callout .lbl{font-size:11px;font-weight:800;color:#b45309;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;}
+
+/* 설계 카드 (인터랙티브) */
+.recipe-cards{display:flex;flex-direction:column;gap:16px;}
+.rc-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.rc-card.selected{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-soft);}
+.rc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+  padding:12px 16px;background:var(--brand-soft);border-bottom:1px solid var(--line);}
+.rc-title{font-size:15px;font-weight:800;color:var(--brand);}
+.rc-tagline{font-size:12px;color:var(--muted);margin-top:2px;}
+.rc-select-btn{font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;
+  border:1.5px solid var(--brand);background:#fff;color:var(--brand);cursor:pointer;white-space:nowrap;}
+.rc-card.selected .rc-select-btn{background:var(--brand);color:#fff;}
+.rc-body{padding:14px 16px;}
+table.rc-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+table.rc-tbl th,table.rc-tbl td{border:1px solid var(--line);padding:6px 9px;}
+table.rc-tbl th{background:#f8faf8;font-weight:700;color:var(--brand);text-align:left;}
+table.rc-tbl td.r{text-align:right;font-variant-numeric:tabular-nums;}
+.rc-tbl input[type=number]{width:62px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;
+  font-size:12.5px;text-align:right;}
+.rc-tbl input.nm-edit{border:none;background:transparent;width:100%;font-size:12.5px;}
+.rc-del{background:#fee2e2;color:#b91c1c;border:none;border-radius:6px;width:22px;height:22px;cursor:pointer;font-weight:800;}
+.rc-add-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center;}
+.rc-add-row input{padding:4px 8px;border:1px solid var(--line);border-radius:6px;font-size:12.5px;}
+.rc-add-row input.nm{flex:1;min-width:110px;}
+.rc-add-btn{background:var(--brand);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:12.5px;font-weight:700;cursor:pointer;}
+.rc-cost{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
+.rc-cost .kv{background:var(--brand-soft);border-radius:8px;padding:9px 11px;}
+.rc-cost .k{font-size:10.5px;color:var(--muted);font-weight:700;margin-bottom:3px;}
+.rc-cost .v{font-size:17px;font-weight:900;color:var(--brand);font-variant-numeric:tabular-nums;}
+.rc-cost .v.warn{color:var(--warn);} .rc-cost .v.bad{color:var(--bad);}
+.rc-steps{margin-top:12px;} .rc-steps h6{margin:0 0 6px;font-size:11.5px;font-weight:800;color:var(--brand);}
+.rc-steps ol{margin:0;padding-left:18px;font-size:12.5px;line-height:1.7;}
+.rc-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:11.5px;color:var(--muted);}
+.rc-meta b{color:var(--ink);}
+.price-input{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:12.5px;}
+.price-input input{width:88px;padding:4px 8px;border:1px solid var(--line);border-radius:6px;text-align:right;}
+
+/* 테스트 기록(회차) */
+.round-block{border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+.round-head{background:#0b1f33;color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;}
+.round-head .rno{font-size:14px;font-weight:800;}
+.round-head .verdict{font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;}
+.v-pass{background:#dcfce7;color:#14532d;} .v-fail{background:#fee2e2;color:#7f1d1d;} .v-cond{background:#fef3c7;color:#92400e;}
+.round-body{padding:14px 16px;}
+.rb-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12.5px;margin-bottom:10px;}
+.rb-kv{background:#f8faf8;border:1px solid var(--line);border-radius:8px;padding:8px 11px;}
+.rb-kv .k{font-size:10.5px;color:var(--muted);font-weight:700;margin-bottom:2px;}
+table.eval{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;}
+table.eval th,table.eval td{border:1px solid var(--line);padding:6px 8px;text-align:center;}
+table.eval th{background:var(--brand-soft);color:var(--brand);font-weight:700;}
+table.eval td.lbl{text-align:left;font-weight:700;background:#fafbfc;}
+.delta-up{color:var(--up);font-weight:700;} .delta-down{color:var(--down);font-weight:700;}
+.imp-list{margin:6px 0;padding-left:18px;font-size:12.5px;}
+.imp-list li{margin-bottom:4px;}
+.change-tag{display:inline-block;background:var(--hl);color:#1e40af;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-right:6px;}
+
+/* 회차 상태 체크박스 */
+.status-checks{display:flex;gap:14px;align-items:center;}
+.status-checks label{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;cursor:pointer;color:#cbd5e1;}
+.status-checks input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;}
+.status-checks label.on-prog{color:#fdba74;}
+.status-checks label.on-hold{color:#fbbf24;}
+.status-checks label.on-done{color:#86efac;}
+.round-del{background:rgba(255,255,255,.12);color:#fca5a5;border:none;border-radius:6px;
+  padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer;margin-left:8px;}
+.round-del:hover{background:rgba(248,113,113,.25);}
+.rb-input{width:100%;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:12.5px;font-family:inherit;}
+textarea.rb-input{min-height:46px;resize:vertical;}
+.eval input.sc{width:46px;text-align:center;border:1px solid var(--line);border-radius:5px;padding:3px;font-size:12px;}
+.imp-row{display:flex;gap:6px;margin-bottom:5px;}
+.imp-row input{flex:1;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:12.5px;}
+.imp-row button{background:#fee2e2;color:#b91c1c;border:none;border-radius:6px;width:26px;cursor:pointer;font-weight:800;}
+.imp-add-btn{background:none;border:1px dashed var(--line);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;}
+
+.pagefoot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);
+  font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;}
+
+@media print{
+  body{background:#fff;} .doc-toolbar{display:none!important;}
+  .doc-body{margin:0;max-width:none;}
+  .doc-sheet{box-shadow:none;margin:0;width:auto;min-height:auto;padding:0;page-break-after:always;}
+  .doc-sheet:last-child{page-break-after:auto;}
+  @page{size:A4;margin:1.6cm;}
+}
+@media(max-width:22cm){.doc-sheet{width:auto;padding:1.2cm;}.rb-grid,.rc-cost{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="docToolbar"></div>
+<div class="doc-body">
+
+<!-- ───────── PAGE 1: 개요 + 보유 자원 ───────── -->
+<section class="doc-sheet">
+  <div class="sheet-content">
+    <div class="doc-head">
+      <div class="eyebrow">레시피 설계서 · 테스트 기록지 (겸용) · 인생푸드 메뉴개발팀</div>
+      <h1>{{메뉴명}} 레시피 설계서 · 테스트 기록지</h1>
+      <div class="meta">
+        <span><b>브랜드</b> {{브랜드명}}</span>
+        <span><b>작성일</b> {{작성일}}</span>
+        <span><b>작성</b> 메뉴개발팀장</span>
+        <span><b>문서</b> 1 / 4</span>
+      </div>
+    </div>
+
+    <h2 class="sec">1. 설계 개요</h2>
+    <dl class="callout" style="background:var(--brand-soft);border-color:#bcd6ea;border-left-color:var(--brand)">
+      <div class="lbl" style="color:var(--brand)">설계 전제</div>
+      <div>{{설계 전제 — 1-1 확정 메뉴·목표가·원가율·조리 제약 요약}}</div>
+    </dl>
+
+    <h3 class="sub">🧺 사용자 보유 자원 (먼저 확인)</h3>
+    <div class="callout">
+      <div class="lbl">보유 식재료 · 매장 기물류</div>
+      <div><b>보유 식재료:</b> {{보유 식재료 목록}}</div>
+      <div style="margin-top:4px"><b>매장 기물류:</b> {{기물류 — 살라만더·튀김기·콤비오븐·스팀기·인덕션 등}}</div>
+      <div style="margin-top:4px"><b>추가 제약·선호:</b> {{사용자 의견}}</div>
+    </div>
+
+    <h3 class="sub">설계 원칙</h3>
+    <ul class="clean">
+      <li>{{원칙1 — 보유 자원으로 조리 가능}}</li>
+      <li>{{원칙2 — 원가율 목표 충족}}</li>
+      <li>{{원칙3 — 신입 재현 용이}}</li>
+    </ul>
+    <p class="muted">※ 본 문서는 ‘레시피 설계안 비교(2~3p)’와 ‘회차별 테스트 기록(4p~)’을 겸합니다. 상단 버튼으로 엑셀·워드·PDF 저장이 가능합니다.</p>
+  </div>
+  <div class="pagefoot"><span>{{브랜드명}} · {{메뉴명}} 레시피 설계서·테스트 기록지</span><span>1 / 4</span></div>
+</section>
+
+<!-- ───────── PAGE 2~3: 레시피 설계안 3~5 (인터랙티브) ───────── -->
+<section class="doc-sheet">
+  <div class="sheet-content">
+    <h2 class="sec">2. 레시피 설계안 (3~5안 · 재료/양 조정 시 원가 자동 계산)</h2>
+    <p class="muted">아래 카드에서 재료를 추가·삭제하거나 사용량·판매가를 바꾸면 원가·원가율이 즉시 재계산됩니다. ‘이 안 선택’으로 진행안을 확정하세요.</p>
+    <div class="recipe-cards" id="recipeCards"></div>
+  </div>
+  <div class="pagefoot"><span>{{브랜드명}} · {{메뉴명}} 레시피 설계서·테스트 기록지</span><span>2 / 4</span></div>
+</section>
+
+<!-- ───────── PAGE 4: 회차별 테스트 기록지 (누적·인터랙티브) ───────── -->
+<section class="doc-sheet">
+  <div class="sheet-content">
+    <h2 class="sec">3. 회차별 테스트 기록 (누적 · 시제품 시식·관능평가)</h2>
+    <p class="muted">‘＋ 회차 추가’를 누르면 새 회차가 누적되고 자동으로 <b>진행중</b>에 체크됩니다. 회차별 상태(진행중·보류·1차완성)를 표시하고, 어느 회차든 <b>1차완성</b>에 체크하면 시제품이 대략 완성된 것으로 보고 <b>2-2 원가·수율 검토</b>로 넘어갑니다.</p>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0">
+      <button class="rc-add-btn" id="addRoundBtn">＋ 회차 추가</button>
+      <span class="muted" id="roundCountLabel">총 0회차</span>
+    </div>
+
+    <div id="roundList"></div>
+
+    <!-- 1차완성 시 안내 -->
+    <div class="callout" id="readyGate" style="display:none;background:#f0fdf4;border-color:#bbf7d0;border-left-color:var(--ok)">
+      <div class="lbl" style="color:var(--ok)">✅ 1차완성 체크됨 — 다음 단계 준비</div>
+      <div>시제품이 대략 개발되었습니다. <b>2-2 원가·수율 검토</b>로 진행하세요. (담당자에게 "원가·수율 검토 진행" 요청)</div>
+    </div>
+
+    <p class="muted">※ 회차는 1차완성까지 자유롭게 누적됩니다. 직전 회차 개선점이 다음 회차 ‘변경 의도’로 이어지도록 작성하세요.</p>
+  </div>
+  <div class="pagefoot"><span>{{브랜드명}} · {{메뉴명}} 레시피 설계서·테스트 기록지</span><span>3 / 4</span></div>
+</section>
+
+<!-- ───────── PAGE 5: 표준화 확정 ───────── -->
+<section class="doc-sheet">
+  <div class="sheet-content">
+    <h2 class="sec">4. 표준화 확정 (최종합격)</h2>
+    <p class="muted">최종합격한 회차의 레시피를 확정본으로 기록합니다. (원가는 식재료 원가만 포함, 운영비 제외)</p>
+    <dl class="callout" style="background:#f0fdf4;border-color:#bbf7d0;border-left-color:var(--ok)">
+      <div class="lbl" style="color:var(--ok)">확정 레시피 요약</div>
+      <div>{{확정 회차·설계안 + 핵심 변경 이력 요약}}</div>
+    </dl>
+    <div class="rb-grid">
+      <div class="rb-kv"><div class="k">예상 원가(식재료)</div>{{원가}}원</div>
+      <div class="rb-kv"><div class="k">판매가</div>{{판매가}}원</div>
+      <div class="rb-kv"><div class="k">원가율</div>{{원가율}}%</div>
+      <div class="rb-kv"><div class="k">표준 조리 시간</div>{{조리시간}}</div>
+    </div>
+    <h3 class="sub">확정 식재료 (BOM 초안)</h3>
+    <table class="rc-tbl">
+      <thead><tr><th>재료명</th><th class="r">사용량</th><th class="r">단가</th><th class="r">원가</th></tr></thead>
+      <tbody>
+        <tr><td>{{재료}}</td><td class="r">{{양}}</td><td class="r">{{단가}}</td><td class="r">{{원가}}</td></tr>
+      </tbody>
+    </table>
+    <h3 class="sub">확정 조리 순서</h3>
+    <ol style="padding-left:20px;font-size:13px;line-height:1.8">
+      <li>{{단계1}}</li><li>{{단계2}}</li><li>{{단계3}}</li>
+    </ol>
+    <p class="muted" style="margin-top:14px">※ 본 확정본은 2-2(원가·수율 검토)와 4-1(레시피 표준화)의 입력값으로 연결됩니다.</p>
+  </div>
+  <div class="pagefoot"><span>{{브랜드명}} · {{메뉴명}} 레시피 설계서·테스트 기록지</span><span>4 / 4</span></div>
+</section>
+
+</div><!-- /doc-body -->
+
+<script>
+/* ── 레시피 설계 데이터 (스킬이 실제 값으로 채움) ── */
+const RECIPE_DATA = [
+  { id:"A", title:"{{설계안 A 이름}}", tagline:"{{한 줄 설명}}", price:19000,
+    cookTime:"{{조리 N분}}", equipment:"{{기물}}", allergens:"{{알레르기}}",
+    ingredients:[ {name:"{{재료1}}",qty:120,unit:"g",per100:800,isUnitItem:false},
+                  {name:"{{재료2}}",qty:50,unit:"g",per100:1500,isUnitItem:false} ],
+    steps:["{{조리1}}","{{조리2}}","{{조리3}}"] },
+  { id:"B", title:"{{설계안 B 이름}}", tagline:"{{한 줄 설명}}", price:19000,
+    cookTime:"{{조리 N분}}", equipment:"{{기물}}", allergens:"{{알레르기}}",
+    ingredients:[ {name:"{{재료1}}",qty:100,unit:"g",per100:900,isUnitItem:false} ],
+    steps:["{{조리1}}","{{조리2}}"] },
+  { id:"C", title:"{{설계안 C 이름}}", tagline:"{{한 줄 설명}}", price:19000,
+    cookTime:"{{조리 N분}}", equipment:"{{기물}}", allergens:"{{알레르기}}",
+    ingredients:[ {name:"{{재료1}}",qty:150,unit:"g",per100:700,isUnitItem:false} ],
+    steps:["{{조리1}}","{{조리2}}"] }
+];
+function won(n){return Math.round(n).toLocaleString("ko-KR");}
+function ingredientCost(i){return i.isUnitItem?i.qty*i.per100:(i.qty/100)*i.per100;}
+function cardCost(c){return c.ingredients.reduce((s,i)=>s+ingredientCost(i),0);}
+function renderCards(){
+  var wrap=document.getElementById("recipeCards"); if(!wrap)return; wrap.innerHTML="";
+  RECIPE_DATA.forEach(function(card,ci){
+    var total=cardCost(card),rate=card.price>0?(total/card.price*100):0;
+    var rc=rate<=33?"":(rate<=40?"warn":"bad");
+    var rows=card.ingredients.map(function(ing,ii){return '<tr>'
+      +'<td><input class="nm-edit" value="'+ing.name+'" data-c="'+ci+'" data-i="'+ii+'" data-f="name"></td>'
+      +'<td class="r"><input type="number" value="'+ing.qty+'" min="0" step="any" data-c="'+ci+'" data-i="'+ii+'" data-f="qty"> '+ing.unit+'</td>'
+      +'<td class="r">'+won(ing.per100)+(ing.isUnitItem?"/개":"/100g")+'</td>'
+      +'<td class="r">'+won(ingredientCost(ing))+'원</td>'
+      +'<td><button class="rc-del" data-c="'+ci+'" data-i="'+ii+'">×</button></td></tr>';}).join("");
+    var steps=card.steps.map(function(s){return '<li>'+s+'</li>';}).join("");
+    wrap.insertAdjacentHTML("beforeend",'<div class="rc-card" id="rc-'+card.id+'">'
+      +'<div class="rc-head"><div><div class="rc-title">설계안 '+card.id+' · '+card.title+'</div>'
+      +'<div class="rc-tagline">'+card.tagline+'</div></div>'
+      +'<button class="rc-select-btn" data-c="'+ci+'">이 안 선택</button></div>'
+      +'<div class="rc-body"><table class="rc-tbl"><thead><tr><th>재료</th><th class="r">사용량</th><th class="r">단가</th><th class="r">원가</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'
+      +'<div class="rc-add-row"><input class="nm" placeholder="재료명" data-c="'+ci+'" data-add="name">'
+      +'<input type="number" placeholder="사용량" style="width:78px" data-c="'+ci+'" data-add="qty">'
+      +'<input placeholder="단위" style="width:64px" data-c="'+ci+'" data-add="unit">'
+      +'<input type="number" placeholder="단가" style="width:78px" data-c="'+ci+'" data-add="per100">'
+      +'<button class="rc-add-btn" data-c="'+ci+'" data-add="go">+ 재료 추가</button></div>'
+      +'<div class="price-input">판매가 <input type="number" value="'+card.price+'" data-c="'+ci+'" data-f="price"> 원</div>'
+      +'<div class="rc-cost"><div class="kv"><div class="k">식재료 원가</div><div class="v">'+won(total)+'원</div></div>'
+      +'<div class="kv"><div class="k">판매가</div><div class="v">'+won(card.price)+'원</div></div>'
+      +'<div class="kv"><div class="k">원가율</div><div class="v '+rc+'">'+rate.toFixed(1)+'%</div></div></div>'
+      +'<div class="rc-meta"><span><b>조리</b> '+card.cookTime+'</span><span><b>기물</b> '+card.equipment+'</span><span><b>알레르기</b> '+card.allergens+'</span></div>'
+      +'<div class="rc-steps"><h6>조리 순서</h6><ol>'+steps+'</ol></div></div></div>');
+  });
+  bind();
+}
+function bind(){
+  document.querySelectorAll('[data-f="qty"],[data-f="price"]').forEach(function(el){
+    el.addEventListener("input",function(e){var c=+e.target.dataset.c,f=e.target.dataset.f,v=parseFloat(e.target.value)||0;
+      if(f==="price")RECIPE_DATA[c].price=v; else RECIPE_DATA[c].ingredients[+e.target.dataset.i].qty=v; renderCards();});});
+  document.querySelectorAll('[data-f="name"]').forEach(function(el){
+    el.addEventListener("change",function(e){RECIPE_DATA[+e.target.dataset.c].ingredients[+e.target.dataset.i].name=e.target.value;});});
+  document.querySelectorAll(".rc-del").forEach(function(b){
+    b.addEventListener("click",function(e){RECIPE_DATA[+e.target.dataset.c].ingredients.splice(+e.target.dataset.i,1);renderCards();});});
+  document.querySelectorAll('[data-add="go"]').forEach(function(b){
+    b.addEventListener("click",function(e){var c=+e.target.dataset.c;var card=document.getElementById("rc-"+RECIPE_DATA[c].id);
+      var nm=card.querySelector('[data-add="name"]').value.trim();var qty=parseFloat(card.querySelector('[data-add="qty"]').value)||0;
+      var unit=card.querySelector('[data-add="unit"]').value.trim()||"g";var per=parseFloat(card.querySelector('[data-add="per100"]').value)||0;
+      if(!nm)return; RECIPE_DATA[c].ingredients.push({name:nm,qty:qty,unit:unit,per100:per,isUnitItem:(unit==="개")});renderCards();});});
+  document.querySelectorAll(".rc-select-btn").forEach(function(b){
+    b.addEventListener("click",function(e){document.querySelectorAll(".rc-card").forEach(function(x){x.classList.remove("selected");});
+      document.getElementById("rc-"+RECIPE_DATA[+e.target.dataset.c].id).classList.add("selected");});});
+}
+document.addEventListener("DOMContentLoaded",renderCards);
+
+/* ── 회차 누적 시스템 ── */
+var ROUNDS=[];
+var EVAL_ITEMS=["맛(간·감칠맛)","식감·텍스처","향","외관·플레이팅","전체 만족도"];
+function blankRound(no){
+  return {no:no, status:"prog", date:"", purpose:"", panel:"", plan:"",
+    intent:"", scores:EVAL_ITEMS.map(function(){return["","",""];}), imps:[""]};
+}
+function avg(arr){var v=arr.map(parseFloat).filter(function(x){return!isNaN(x);});return v.length?(v.reduce(function(a,b){return a+b;},0)/v.length):null;}
+function renderRounds(){
+  var list=document.getElementById("roundList"); if(!list)return; list.innerHTML="";
+  ROUNDS.forEach(function(r,ri){
+    var prev=ri>0?ROUNDS[ri-1]:null;
+    var verCls=r.status==="done"?"v-pass":(r.status==="hold"?"v-cond":"v-cond");
+    var verTxt=r.status==="done"?"1차완성":(r.status==="hold"?"보류":"진행중");
+    // 관능 표
+    var rows=EVAL_ITEMS.map(function(item,ii){
+      var a=avg(r.scores[ii]); var pa=prev?avg(prev.scores[ii]):null;
+      var delta="—";
+      if(a!=null&&pa!=null){var d=a-pa;var cls=d>0?"delta-up":(d<0?"delta-down":"");
+        delta='<span class="'+cls+'">'+(d>0?"▲ ":(d<0?"▼ ":""))+Math.abs(d).toFixed(1)+'</span>';}
+      var inputs=r.scores[ii].map(function(s,si){
+        return '<td><input class="sc" type="number" min="0" max="5" step="0.1" value="'+s+'" data-r="'+ri+'" data-it="'+ii+'" data-sc="'+si+'"></td>';
+      }).join("");
+      return '<tr><td class="lbl">'+item+'</td>'+inputs+'<td>'+(a!=null?a.toFixed(1):"-")+'</td><td>'+delta+'</td></tr>';
+    }).join("");
+    var imps=r.imps.map(function(t,ii){
+      return '<div class="imp-row"><input value="'+t.replace(/"/g,"&quot;")+'" placeholder="개선 필요 사항 / 다음 회차 액션" data-r="'+ri+'" data-imp="'+ii+'"><button data-r="'+ri+'" data-impdel="'+ii+'">×</button></div>';
+    }).join("");
+    var intentBlock = prev ? ('<div class="rb-kv" style="margin-bottom:10px"><div class="k">이번 회차 변경 의도 (직전 '+prev.no+'차 개선점 반영)</div><textarea class="rb-input" data-r="'+ri+'" data-f="intent" placeholder="예: 1차 짠맛 강해 간장 10% 감량">'+r.intent+'</textarea></div>') : "";
+    list.insertAdjacentHTML("beforeend",
+      '<div class="round-block">'
+      +'<div class="round-head">'
+        +'<span class="rno">🧪 '+r.no+'차 테스트</span>'
+        +'<div style="display:flex;align-items:center;gap:10px">'
+          +'<span class="verdict '+verCls+'">'+verTxt+'</span>'
+          +'<div class="status-checks">'
+            +'<label class="'+(r.status==="prog"?"on-prog":"")+'"><input type="radio" name="st'+ri+'" '+(r.status==="prog"?"checked":"")+' data-r="'+ri+'" data-st="prog">진행중</label>'
+            +'<label class="'+(r.status==="hold"?"on-hold":"")+'"><input type="radio" name="st'+ri+'" '+(r.status==="hold"?"checked":"")+' data-r="'+ri+'" data-st="hold">보류</label>'
+            +'<label class="'+(r.status==="done"?"on-done":"")+'"><input type="radio" name="st'+ri+'" '+(r.status==="done"?"checked":"")+' data-r="'+ri+'" data-st="done">1차완성</label>'
+          +'</div>'
+          +'<button class="round-del" data-rdel="'+ri+'">삭제</button>'
+        +'</div>'
+      +'</div>'
+      +'<div class="round-body">'
+        +intentBlock
+        +'<div class="rb-grid">'
+          +'<div class="rb-kv"><div class="k">테스트 일자</div><input class="rb-input" type="date" data-r="'+ri+'" data-f="date" value="'+r.date+'"></div>'
+          +'<div class="rb-kv"><div class="k">테스트 목적</div><input class="rb-input" data-r="'+ri+'" data-f="purpose" value="'+r.purpose.replace(/"/g,"&quot;")+'" placeholder="예: 양념 농도 검증"></div>'
+          +'<div class="rb-kv"><div class="k">참석자(평가자)</div><input class="rb-input" data-r="'+ri+'" data-f="panel" value="'+r.panel.replace(/"/g,"&quot;")+'" placeholder="예: 팀장·팀원·조리장"></div>'
+          +'<div class="rb-kv"><div class="k">적용 설계안</div><input class="rb-input" data-r="'+ri+'" data-f="plan" value="'+r.plan.replace(/"/g,"&quot;")+'" placeholder="예: 설계안 A"></div>'
+        +'</div>'
+        +'<h3 class="sub">관능 평가 (5점 척도 · 평가자별 · 직전 대비)</h3>'
+        +'<table class="eval"><thead><tr><th>항목</th><th>평가자1</th><th>평가자2</th><th>평가자3</th><th>평균</th><th>직전 대비</th></tr></thead><tbody>'+rows+'</tbody></table>'
+        +'<h3 class="sub">🔧 개선 필요 사항 → 다음 회차 액션</h3>'
+        +imps
+        +'<button class="imp-add-btn" data-impadd="'+ri+'">＋ 개선점 추가</button>'
+      +'</div>'
+      +'</div>');
+  });
+  document.getElementById("roundCountLabel").textContent="총 "+ROUNDS.length+"회차";
+  // 1차완성 여부 → 게이트 안내
+  var anyDone=ROUNDS.some(function(r){return r.status==="done";});
+  document.getElementById("readyGate").style.display=anyDone?"block":"none";
+  bindRounds();
+}
+function bindRounds(){
+  document.querySelectorAll('[data-st]').forEach(function(el){
+    el.addEventListener("change",function(e){
+      var ri=+e.target.dataset.r; ROUNDS[ri].status=e.target.dataset.st; renderRounds();
+    });
+  });
+  document.querySelectorAll('[data-f]').forEach(function(el){
+    if(!el.dataset.r) return;
+    el.addEventListener("input",function(e){ROUNDS[+e.target.dataset.r][e.target.dataset.f]=e.target.value;});
+  });
+  document.querySelectorAll('.sc').forEach(function(el){
+    el.addEventListener("input",function(e){
+      var ri=+e.target.dataset.r,it=+e.target.dataset.it,sc=+e.target.dataset.sc;
+      ROUNDS[ri].scores[it][sc]=e.target.value; renderRounds();
+    });
+  });
+  document.querySelectorAll('[data-imp]').forEach(function(el){
+    el.addEventListener("input",function(e){ROUNDS[+e.target.dataset.r].imps[+e.target.dataset.imp]=e.target.value;});
+  });
+  document.querySelectorAll('[data-impadd]').forEach(function(b){
+    b.addEventListener("click",function(e){ROUNDS[+e.target.dataset.impadd].imps.push("");renderRounds();});
+  });
+  document.querySelectorAll('[data-impdel]').forEach(function(b){
+    b.addEventListener("click",function(e){var ri=+e.target.dataset.r;ROUNDS[ri].imps.splice(+e.target.dataset.impdel,1);if(!ROUNDS[ri].imps.length)ROUNDS[ri].imps=[""];renderRounds();});
+  });
+  document.querySelectorAll('[data-rdel]').forEach(function(b){
+    b.addEventListener("click",function(e){ROUNDS.splice(+e.target.dataset.rdel,1);ROUNDS.forEach(function(r,i){r.no=i+1;});renderRounds();});
+  });
+}
+function addRound(){ var r=blankRound(ROUNDS.length+1); r.status="prog"; ROUNDS.push(r); renderRounds(); }
+document.addEventListener("DOMContentLoaded",function(){
+  var btn=document.getElementById("addRoundBtn"); if(btn) btn.addEventListener("click",addRound);
+  addRound(); // 시작 시 1차 자동 생성(진행중)
+});
+</script>
+<script>
+/*__DOC_TOOLBAR_JS__*/
+</script>
+</body>
+</html>
