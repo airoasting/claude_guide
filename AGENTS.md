@@ -330,6 +330,18 @@ JS 동작 (단일 IIFE, 외부 의존 없음):
 - 헤더 그라데이션: `linear-gradient(150deg, #B35535, #A04828, #7A2E15)`
 - 실전 예제 골드: `#B8860B` (좌측 보더 3px, index 카드 한정)
 
+### 3.6 박스 왼쪽 컬러 띠 금지 (no-left-color-bar)
+
+박스·카드·콜아웃의 **왼쪽 세로 컬러 띠**(`border-left: Npx solid <accent>` 또는 `::before`로 만든 좌측 스트라이프)는 쓰지 않는다. 한쪽만 색 테두리를 두르고 `border-radius:0 X X 0`로 모서리를 비대칭으로 깎는 패턴은 AI가 찍어낸 듯한 인상을 준다. 콘텐츠 페이지(`ai-hallucination`·`ai-sycophancy`·`ai-writing` 등)는 이미 이 규칙을 따르고, 2026-06-24에 `skills/` 폴더의 HTML도 전부 정렬했다.
+
+원칙:
+- **색은 라벨로 옮긴다.** 박스 정체성을 나타내는 색은 라벨 태그(`.tone`·`.qwho`·`.tag`), 라벨 점(`::before` 7px dot), 또는 본문 강조색(`b`/`h`)이 갖는다. 좌측 띠로 색을 표현하지 않는다.
+- **윤곽은 띠가 아닌 것으로 만든다.** 박스는 ① 은은한 full hairline 테두리(`border:1px solid var(--line)`), ② 배경 틴트, ③ 약한 그림자 중 하나로 구분한다. 셋 다 없을 때만 hairline을 새로 더한다.
+- **모서리는 대칭으로.** `border-radius:0 8px 8px 0` 같은 비대칭 값은 네 모서리 동일값(`border-radius:8px`)으로 되돌린다.
+- **예외(손대지 않음)**: 중립 회색의 얇은 인용 들여쓰기(`border-left:2px solid <gray>`)와 사이드 내비의 active 인디케이터(`transparent` ↔ 컬러 토글)는 기능성 패턴이라 유지한다. 금지 대상은 콘텐츠 박스의 **장식용 accent 컬러 띠**다.
+
+작은 라벨 점·태그·불릿(`::before`로 만든 4~8px dot/square)은 권장 패턴이므로 유지한다. [[no-left-color-bar-cliche]]
+
 ---
 
 ## 4. 한국어 작성 원칙
