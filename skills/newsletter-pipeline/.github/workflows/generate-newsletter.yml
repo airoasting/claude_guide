@@ -1,0 +1,58 @@
+name: 뉴스레터 자동 생성
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # 매주 월요일 00:00 UTC = 09:00 KST
+  workflow_dispatch:       # 수동 실행 가능
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 뉴스레터 생성
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python pipeline.py
+
+      - name: 결과물 커밋
+        run: |
+          git config user.name "LingoBridge Newsletter Bot"
+          git config user.email "leona@lingobridge.co.kr"
+          git add output/ data/issue-tracker.json
+          git diff --staged --quiet || git commit -m "newsletter: $(date +'%Y.%m.%d') 뉴스레터 초안 생성"
+
+      - name: Pull Request 생성
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="newsletter/$(date +'%Y-%m-%d')"
+          git checkout -b "$BRANCH"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "$(date +'%Y.%m.%d') 뉴스레터 초안 검수 요청" \
+            --body "## 이번 주 뉴스레터 초안입니다.
+
+          **검수 순서:**
+          1. \`output/review-*.md\` 파일에서 확인 필요 항목 검토
+          2. \`output/issue-*.html\` 파일을 브라우저에서 열어 디자인 확인
+          3. 수정 사항 있으면 직접 수정 후 PR 승인
+          4. 승인 후 이메일 발송
+
+          > Leona 대표 최종 확인 후 머지해주세요." \
+            --base main \
+            --head "$BRANCH"
