@@ -26,6 +26,31 @@
   .scene::after{content:"";position:absolute;inset:0;
     background:repeating-linear-gradient(transparent 0 3px,rgba(0,0,0,.05) 3px 4px);pointer-events:none}
 
+  /* 걸어가는 픽셀 캐릭터 */
+  .hero{position:absolute;left:0;bottom:31px;width:14px;height:18px;z-index:2;
+    image-rendering:pixelated;transform:translateX(-22px);
+    animation:walk 6.5s linear infinite;animation-play-state:paused}
+  .hero.go{animation-play-state:running}
+  .hpx{position:absolute;image-rendering:pixelated}
+  .h-crown{left:3px;top:0;width:8px;height:3px;background:#2e2a52}
+  .h-brim{left:1px;top:3px;width:12px;height:2px;background:#20203f}
+  .h-face{left:3px;top:5px;width:8px;height:4px;background:#f1c6a0}
+  .h-eye{left:8px;top:6px;width:2px;height:2px;background:#20203f}
+  .h-body{left:2px;top:9px;width:10px;height:5px;background:#c0392b;box-shadow:inset 0 -1px 0 rgba(0,0,0,.2)}
+  .h-arm{left:11px;top:9px;width:3px;height:4px;background:#f1c6a0;
+    animation:arm .32s linear infinite;animation-play-state:paused}
+  .h-legL{left:3px;top:14px;width:3px;height:4px;background:#2c2f5e;
+    animation:stepA .32s linear infinite;animation-play-state:paused}
+  .h-legR{left:8px;top:14px;width:3px;height:4px;background:#2c2f5e;
+    animation:stepB .32s linear infinite;animation-play-state:paused}
+  .h-shadow{left:1px;top:17px;width:12px;height:2px;background:rgba(0,0,0,.22);border-radius:50%}
+  .hero.go .h-arm,.hero.go .h-legL,.hero.go .h-legR{animation-play-state:running}
+  @keyframes walk{from{transform:translateX(-22px)}to{transform:translateX(236px)}}
+  @keyframes stepA{0%,49.9%{transform:translateY(0)}50%,100%{transform:translateY(-2px)}}
+  @keyframes stepB{0%,49.9%{transform:translateY(-2px)}50%,100%{transform:translateY(0)}}
+  @keyframes arm{0%,49.9%{transform:translateY(0)}50%,100%{transform:translateY(1px)}}
+  @media(prefers-reduced-motion:reduce){.hero,.h-arm,.h-legL,.h-legR{animation:none}}
+
   /* LCD 스탑워치 */
   .lcd{background:#efece2;padding:9px 12px 11px}
   .lcd-top{font-size:9px;font-weight:700;letter-spacing:2px;color:#6a6155;margin-bottom:2px}
@@ -77,6 +102,17 @@
         <span class="px trunk" style="left:158px;top:24px;width:4px;height:7px"></span>
         <span class="px tree" style="left:176px;top:4px;width:14px;height:14px"></span>
         <span class="px trunk" style="left:181px;top:18px;width:4px;height:8px"></span>
+        <span class="hero" id="hero">
+          <span class="hpx h-shadow"></span>
+          <span class="hpx h-crown"></span>
+          <span class="hpx h-brim"></span>
+          <span class="hpx h-face"></span>
+          <span class="hpx h-eye"></span>
+          <span class="hpx h-body"></span>
+          <span class="hpx h-arm"></span>
+          <span class="hpx h-legL"></span>
+          <span class="hpx h-legR"></span>
+        </span>
       </div>
       <div class="lcd">
         <div class="lcd-top">STOP WATCH</div>
@@ -97,7 +133,7 @@
   </div>
 <script>
 (function(){
-  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lapsEl=document.getElementById('laps');
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lapsEl=document.getElementById('laps'),hero=document.getElementById('hero');
   var run=false,st=0,acc=0,iv=null,laps=[];
   function el(){return acc+(run?performance.now()-st:0);}
   function parts(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);return [hh,mm,ss,cc];}
@@ -107,9 +143,9 @@
   function draw(){t.innerHTML=f(el());}
   function renderLaps(){if(!laps.length){lapsEl.innerHTML='아직 기록 없음...';return;}var h='';for(var i=laps.length-1;i>=Math.max(0,laps.length-2);i--){h+='<b>LAP '+(i+1)+'</b> '+plain(laps[i])+'<br>';}lapsEl.innerHTML=h;}
   function ui(){b1.textContent=run?'STOP':(el()>0?'GO':'START');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
-  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
-  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
-  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];draw();ui();renderLaps();}
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();hero.classList.add('go');}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();hero.classList.remove('go');}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];draw();ui();renderLaps();hero.classList.remove('go');}
   function lap(){if(!run)return;laps.push(el());renderLaps();}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
