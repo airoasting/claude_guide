@@ -52,4 +52,4 @@ docx 세 종.
 
 ## 라이선스
 
-MIT License · © 2026 AI ROASTING (강정구)
+MIT License · © 2026 AI ROASTING

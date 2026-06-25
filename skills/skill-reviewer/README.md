@@ -35,4 +35,4 @@ SKILL.md나 CLAUDE.md 같은 스킬 문서를 네 기준으로 채점하고, 개
 
 ## 라이선스
 
-MIT License · © 2026 AI ROASTING (강정구)
+MIT License · © 2026 AI ROASTING

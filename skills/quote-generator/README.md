@@ -44,4 +44,4 @@
 
 ## 라이선스
 
-MIT License · © 2026 AI ROASTING (강정구)
+MIT License · © 2026 AI ROASTING
