@@ -90,4 +90,4 @@ menu-development-cycle/
 
 ## 라이선스
 
-이 스킬은 MIT 라이선스로 배포됩니다. 자세한 내용은 [LICENSE](LICENSE)를 참고하세요. © 2026 고선욱.
+이 스킬은 MIT 라이선스로 배포됩니다. 자세한 내용은 [LICENSE](LICENSE)를 참고하세요. © 2026 정우진.
