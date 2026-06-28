@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>슈퍼 마리오 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23e39b1d'/><rect x='1' y='1' width='14' height='14' fill='%23f7b733'/><rect x='2' y='2' width='12' height='12' fill='%23e08a0e'/><rect x='3' y='3' width='10' height='10' fill='%23f7b733'/><text x='8' y='12' font-size='10' font-family='monospace' font-weight='700' text-anchor='middle' fill='%237a3b00'>?</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Press Start 2P',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    background:#1a1a2e;display:flex;align-items:center;justify-content:center;padding:8px;
+    color:#fff;image-rendering:pixelated}
+  :root{
+    --sky:#5c94fc; --sky2:#7aa9ff; --ground:#c8702c; --ground-d:#9c4a14;
+    --brick:#d07b2c; --coin:#fbd000; --coin-d:#e39b1d; --pipe:#27a544; --pipe-d:#16702a;
+    --red:#e52521; --green:#43b047; --ink:#1a1208; --muted:#b9c4e0;
+  }
+  .stage{position:relative;width:300px;height:344px;border-radius:14px;overflow:hidden;
+    background:linear-gradient(#5c94fc 0%,#6f9ffb 60%,#7aa9ff 100%);
+    box-shadow:0 18px 40px rgba(0,0,0,.55),inset 0 0 0 3px #1a1208,inset 0 0 0 6px #fff;
+    display:flex;flex-direction:column;font-size:10px}
+  /* ── HUD (NES 스코어보드) ── */
+  .hud{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;
+    gap:6px;padding:7px 12px 6px;background:var(--ink);color:#fff;
+    font-size:8px;letter-spacing:.5px;line-height:1;border-bottom:3px solid #000}
+  .hud .world b{color:#fff}
+  .hud .world span{color:#9fb4ff}
+  .coins{display:flex;align-items:center;gap:5px;color:#fff}
+  .coins .ci{width:11px;height:11px;border-radius:50%;background:var(--coin);
+    box-shadow:inset -2px -2px 0 var(--coin-d),inset 2px 2px 0 #fff6b0;
+    animation:spinCoin 1.4s steps(4) infinite}
+  @keyframes spinCoin{0%{transform:scaleX(1)}50%{transform:scaleX(.25)}100%{transform:scaleX(1)}}
+  .coins b{color:var(--coin)}
+  /* ── 타임 디스플레이 ── */
+  .disp{position:relative;z-index:5;text-align:center;padding:9px 0 6px}
+  .disp .lbl{font-size:7px;letter-spacing:2px;color:#fff;text-shadow:1.5px 1.5px 0 #1a1208;
+    transition:color .15s}
+  .disp .lbl.go{color:#bfffb0}.disp .lbl.pit{color:#ffe07a}
+  .clock{font-size:24px;line-height:1;color:#fff;letter-spacing:1px;margin-top:7px;
+    text-shadow:2.5px 2.5px 0 #1a1208,-1px 0 0 #c23a18}
+  .clock .cs{font-size:15px;color:var(--coin);text-shadow:2px 2px 0 #1a1208}
+  .sub{font-size:7px;letter-spacing:.5px;color:#eef3ff;margin-top:7px;
+    text-shadow:1.2px 1.2px 0 #1a1208;display:flex;gap:7px;justify-content:center;align-items:center}
+  .sub b{color:var(--coin)}
+  .sub .sep{width:4px;height:4px;background:#fff;display:inline-block;opacity:.5}
+  /* ── 레벨 씬 (카메라 추적: 마리오 고정, 배경 스크롤) ── */
+  .scene{position:relative;z-index:3;height:104px;margin-top:auto;overflow:hidden}
+  /* 구름 (느린 패럴랙스) */
+  .clouds{position:absolute;top:6px;left:0;width:200%;height:30px;z-index:1}
+  .clouds .cloud{position:absolute;top:0;width:46px;height:18px;background:#fff;border-radius:11px;
+    box-shadow:0 0 0 3px #e3ecff inset}
+  .clouds .cloud::before,.clouds .cloud::after{content:'';position:absolute;bottom:0;
+    width:20px;height:20px;background:#fff;border-radius:50%}
+  .clouds .cloud::before{left:6px}.clouds .cloud::after{right:6px}
+  .clouds .c1{left:18px}.clouds .c2{left:130px;transform:scale(.8)}.clouds .c3{left:250px}
+  .scene.run .clouds{animation:scroll 7s linear infinite}
+  /* 언덕 (중간 패럴랙스) */
+  .hills{position:absolute;bottom:26px;left:0;width:200%;height:34px;z-index:1}
+  .hills .hill{position:absolute;bottom:0;width:64px;height:30px;background:#3aa83e;
+    border-radius:50% 50% 0 0;box-shadow:inset -6px -2px 0 #2a8a30}
+  .hills .h1{left:6px}.hills .h2{left:120px;transform:scale(.78)}.hills .h3{left:230px}
+  .scene.run .hills{animation:scroll 3.4s linear infinite}
+  /* ? 블록 + 파이프 (지형) */
+  .props{position:absolute;bottom:26px;left:0;width:200%;height:54px;z-index:2}
+  .props .qblock{position:absolute;width:22px;height:22px;background:var(--coin);
+    box-shadow:inset -3px -3px 0 var(--coin-d),inset 3px 3px 0 #ffe98a,0 0 0 2px #1a1208;
+    display:flex;align-items:center;justify-content:center;color:#7a3b00;font-size:11px}
+  .props .qblock.b1{left:60px;bottom:30px}.props .qblock.b2{left:210px;bottom:30px}
+  .props .pipe{position:absolute;bottom:0;width:30px;height:38px;background:var(--pipe);
+    box-shadow:inset -5px 0 0 var(--pipe-d),inset 4px 0 0 #5fd06f,0 0 0 2px #1a1208}
+  .props .pipe::before{content:'';position:absolute;top:-9px;left:-4px;width:38px;height:11px;
+    background:var(--pipe);box-shadow:inset -5px 0 0 var(--pipe-d),inset 4px 0 0 #5fd06f,0 0 0 2px #1a1208}
+  .props .pipe.p1{left:150px}.props .pipe.p2{left:300px}
+  .scene.run .props{animation:scroll 1.9s linear infinite}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  /* 바닥 (벽돌) */
+  .ground{position:absolute;bottom:0;left:0;width:100%;height:26px;z-index:4;
+    background:var(--ground);
+    box-shadow:inset 0 3px 0 #e69a4e,inset 0 -4px 0 var(--ground-d)}
+  .ground::before{content:'';position:absolute;inset:0;
+    background-image:
+      linear-gradient(90deg,rgba(26,18,8,.45) 2px,transparent 2px),
+      linear-gradient(rgba(26,18,8,.45) 2px,transparent 2px);
+    background-size:22px 13px;background-position:0 3px}
+  .scene.run .ground::before{animation:scrollBg .42s linear infinite}
+  @keyframes scrollBg{to{background-position-x:-22px}}
+  /* ── 마리오 (중앙 고정 픽셀 스프라이트) ── */
+  .mario{position:absolute;left:36px;bottom:24px;width:46px;height:52px;z-index:5;
+    image-rendering:pixelated;transition:transform .12s}
+  .mario.run{animation:bob .18s steps(2) infinite}
+  @keyframes bob{0%{transform:translateY(0)}50%{transform:translateY(-1.5px)}100%{transform:translateY(0)}}
+  .mario.jump{animation:hop .55s cubic-bezier(.3,-0.4,.4,1) 1}
+  @keyframes hop{0%{transform:translateY(0)}38%{transform:translateY(-30px)}60%{transform:translateY(-30px)}100%{transform:translateY(0)}}
+  .mario svg{width:100%;height:100%;display:block}
+  #legB{opacity:0}
+  .mario.run #legA{animation:fA .18s steps(1) infinite}
+  .mario.run #legB{animation:fB .18s steps(1) infinite}
+  @keyframes fA{0%,49.9%{opacity:1}50%,100%{opacity:0}}
+  @keyframes fB{0%,49.9%{opacity:0}50%,100%{opacity:1}}
+  /* 점프 코인 팝 */
+  .pop{position:absolute;left:46px;bottom:74px;z-index:6;font-size:8px;color:var(--coin);
+    text-shadow:1.5px 1.5px 0 #1a1208;opacity:0;pointer-events:none;display:flex;
+    flex-direction:column;align-items:center;gap:3px}
+  .pop .pc{width:14px;height:14px;border-radius:50%;background:var(--coin);
+    box-shadow:inset -2px -2px 0 var(--coin-d),inset 2px 2px 0 #fff6b0}
+  .pop.show{animation:popUp .7s ease-out 1}
+  @keyframes popUp{0%{opacity:0;transform:translateY(6px) scale(.6)}
+    25%{opacity:1;transform:translateY(-4px) scale(1)}
+    100%{opacity:0;transform:translateY(-24px) scale(1)}}
+  /* ── 랩(코인) 리스트 ── */
+  .laps{position:relative;z-index:6;flex:1 1 auto;min-height:0;overflow-y:auto;
+    margin:6px 10px 0;display:flex;flex-direction:column;gap:4px;padding:1px;scrollbar-width:thin}
+  .laps::-webkit-scrollbar{width:4px}.laps::-webkit-scrollbar-thumb{background:#3a4a78;border-radius:4px}
+  .laps:empty::after{content:'COIN 으로 랩 기록';display:block;text-align:center;
+    font-size:7px;letter-spacing:1px;color:#3a2a14;padding:14px 0}
+  .lap{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:7px;
+    padding:5px 8px;background:rgba(26,18,8,.82);border-radius:5px;font-size:8px;
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.08);animation:lapIn .22s ease}
+  @keyframes lapIn{from{opacity:0;transform:translateX(-7px)}to{opacity:1;transform:none}}
+  .lap .ci{width:11px;height:11px;border-radius:50%;background:var(--coin);flex:none;
+    box-shadow:inset -2px -2px 0 var(--coin-d),inset 2px 2px 0 #fff6b0}
+  .lap .ln{color:#fff;letter-spacing:.5px}
+  .lap .lt{color:#fbe7a0;justify-self:end;letter-spacing:.5px}
+  .lap .ld{font-size:7px;color:#8fa3d6;justify-self:end;min-width:42px;text-align:right}
+  .lap.best{background:rgba(120,40,8,.9);box-shadow:inset 0 0 0 2px var(--coin)}
+  .lap.best .ln{color:var(--coin)}.lap.best .ld{color:var(--coin)}
+  .lap.flash{animation:lapIn .22s ease,bestFlash .8s ease-out}
+  @keyframes bestFlash{0%{background:rgba(67,176,71,.85)}100%{background:rgba(120,40,8,.9)}}
+  /* ── 컨트롤 (NES 블록 버튼) ── */
+  .row{position:relative;z-index:7;display:flex;gap:7px;padding:8px 10px 11px;background:var(--ink)}
+  button{flex:1;font-family:inherit;font-size:8px;letter-spacing:.5px;color:#fff;
+    padding:11px 0 10px;border:none;border-radius:4px;cursor:pointer;
+    box-shadow:inset -3px -3px 0 rgba(0,0,0,.32),inset 3px 3px 0 rgba(255,255,255,.32);
+    transition:transform .05s,filter .12s}
+  button:active{transform:translateY(2px);box-shadow:inset 3px 3px 0 rgba(0,0,0,.32)}
+  button:hover{filter:brightness(1.12)}
+  #b1{background:var(--green)}
+  #b1.run{background:var(--red)}
+  #b2{background:var(--coin);color:#7a3b00}
+  #b3{background:var(--brick)}
+  button:disabled{opacity:.32;cursor:default;filter:grayscale(.5);
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.12)}
+  button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  @media(max-width:330px){.stage{width:96vw}}
+  @media(prefers-reduced-motion:reduce){
+    .scene.run .clouds,.scene.run .hills,.scene.run .props,.scene.run .ground::before,
+    .mario.run,.mario.run #legA,.mario.run #legB,.coins .ci{animation:none}
+    #legB{opacity:0}
+  }
+</style>
+</head>
+<body>
+  <div class="stage" id="stage" role="application" aria-label="슈퍼 마리오 스탑워치">
+    <div class="hud">
+      <div class="world"><b>WORLD</b> <span>1-1</span></div>
+      <div class="coins"><span class="ci"></span>×<b id="coins">00</b></div>
+    </div>
+    <div class="disp">
+      <div class="lbl" id="lbl">READY!</div>
+      <div class="clock" id="clock" aria-live="off">0:00<span class="cs">.00</span></div>
+      <div class="sub"><span>LAP <b id="curlap">0:00.0</b></span><span class="sep"></span><span>BEST <b id="best">--:--</b></span></div>
+    </div>
+    <div class="scene" id="scene" aria-hidden="true">
+      <div class="clouds"><span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span></div>
+      <div class="hills"><span class="hill h1"></span><span class="hill h2"></span><span class="hill h3"></span></div>
+      <div class="props">
+        <span class="qblock b1">?</span><span class="qblock b2">?</span>
+        <span class="pipe p1"></span><span class="pipe p2"></span>
+      </div>
+      <div class="mario" id="mario" aria-hidden="true"></div>
+      <div class="pop" id="pop"><span class="pc"></span><span id="popn">+1</span></div>
+      <div class="ground"></div>
+    </div>
+    <div class="laps" id="laps" aria-live="polite" aria-label="랩 기록"></div>
+    <div class="row">
+      <button id="b1">START</button>
+      <button id="b2" disabled>COIN</button>
+      <button id="b3" disabled>RESET</button>
+    </div>
+  </div>
+<script>
+(function(){
+  var clock=document.getElementById('clock'),curlapEl=document.getElementById('curlap'),
+      bestEl=document.getElementById('best'),coinsEl=document.getElementById('coins'),
+      lbl=document.getElementById('lbl'),laps=document.getElementById('laps'),
+      scene=document.getElementById('scene'),mario=document.getElementById('mario'),
+      pop=document.getElementById('pop'),popn=document.getElementById('popn'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+
+  /* ── 마리오 픽셀 스프라이트 빌더 (15×17 도트맵 → SVG rect) ── */
+  (function buildMario(){
+    var PAL={R:'#e52521',B:'#7a4a12',K:'#2a1800',S:'#fcb074',O:'#2a52d6',Y:'#fbd000',W:'#fff',X:'#c2401a'};
+    // 몸통(머리~멜빵): R빨강 B갈색머리 K눈 S피부 O멜빵 Y단추 W장갑 X신발그늘
+    var BODY=[
+      '......RRRR.....',  // 0 캡 상단
+      '.....RRRRRRR...',  // 1 캡
+      '....RRRRRRRRR..',  // 2 캡
+      '....RRRRRRRRRRR',  // 3 캡 챙(앞으로 길게)
+      '....BBSSSSSSSSS',  // 4 머리카락+얼굴
+      '....BSSSSSKSSSS',  // 5 눈
+      '.....SSSSSSSSSS',  // 6 얼굴(코)
+      '.....SSBBBBBBSS',  // 7 콧수염+코
+      '.....SBBBBBBBS.',  // 8 콧수염 아래턱
+      '.....RRRRRRRR..',  // 9 셔츠 깃
+      '...RRRRRRRRRRR.',  // 10 어깨/팔
+      '..WRROOOOOORRW.',  // 11 장갑+멜빵 가슴
+      '...OOYOOOOYOOO.',  // 12 멜빵+단추
+      '...OOOOOOOOOOO.'   // 13 멜빵
+    ];
+    var LEGA=[             // 다리 프레임 A
+      '...OOO...OOO...', // 14
+      '..BBBB...BBBB..', // 15
+      '..XXXX...XXXX..'  // 16 신발 밑창
+    ];
+    var LEGB=[            // 다리 프레임 B (스트라이드)
+      '...OOO..OOO....', // 14
+      '.BBBB....BBBB..', // 15
+      '.XXXX....XXXX..'  // 16
+    ];
+    function rects(rows,y0){
+      var out='';
+      for(var r=0;r<rows.length;r++){
+        var row=rows[r],c=0;
+        while(c<row.length){
+          var ch=row[c];
+          if(ch==='.'){c++;continue;}
+          var len=1;while(c+len<row.length&&row[c+len]===ch)len++;
+          out+='<rect x="'+c+'" y="'+(y0+r)+'" width="'+len+'" height="1" fill="'+PAL[ch]+'"/>';
+          c+=len;
+        }
+      }
+      return out;
+    }
+    mario.innerHTML='<svg viewBox="0 0 15 17" shape-rendering="crispEdges" aria-hidden="true">'+
+      rects(BODY,0)+
+      '<g id="legA">'+rects(LEGA,14)+'</g>'+
+      '<g id="legB">'+rects(LEGB,14)+'</g>'+
+      '</svg>';
+  })();
+
+  var SHOW=2;                 // 화면엔 최근 2개, 기록은 무제한
+  var run=false, st=0, acc=0, iv=null;
+  var lapT=[];                // 각 랩 누적시각(T)
+  var lapStart=0;             // 현재 랩 시작 누적시각
+  var bestIdx=-1, bestVal=Infinity;
+  var jumpTO=null, popTO=null;
+
+  function el(){return acc+(run?performance.now()-st:0);}
+  function parts(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);return[mm,ss,cc];}
+  function p2(n){return String(n).padStart(2,'0');}
+  function fmt(ms){var p=parts(ms);return p[0]+':'+p2(p[1])+'.'+p2(p[2]);}
+  function fmt1(ms){var p=parts(ms);return p[0]+':'+p2(p[1])+'.'+Math.floor(p[2]/10);}
+  function fmtClock(ms){var p=parts(ms);return p[0]+':'+p2(p[1])+'<span class="cs">.'+p2(p[2])+'</span>';}
+
+  function draw(){
+    var t=el();
+    clock.innerHTML=fmtClock(t);
+    curlapEl.textContent=fmt1(t-lapStart);
+  }
+
+  function renderLaps(flashIdx){
+    laps.innerHTML='';
+    var stop=Math.max(0,lapT.length-SHOW);
+    for(var i=lapT.length-1;i>=stop;i--){
+      var dur=lapT[i]-(i>0?lapT[i-1]:0);
+      var div=document.createElement('div');
+      div.className='lap'+(i===bestIdx?' best':'')+(i===flashIdx?' flash':'');
+      var delta=(i===bestIdx)?'FASTEST':'+'+fmt(dur-bestVal);
+      div.innerHTML='<span class="ci"></span>'+
+                    '<span class="ln">LAP '+(i+1)+'</span>'+
+                    '<span class="lt">'+fmt(dur)+'</span>'+
+                    '<span class="ld">'+delta+'</span>';
+      laps.appendChild(div);
+    }
+  }
+
+  function ui(){
+    b1.textContent=run?'PAUSE':(acc>0?'GO':'START');
+    b1.classList.toggle('run',run);
+    scene.classList.toggle('run',run);
+    mario.classList.toggle('run',run);
+    b2.disabled=!run;
+    b3.disabled=run||acc===0;
+    if(run){lbl.textContent='GO!';lbl.className='lbl go';}
+    else if(acc>0){lbl.textContent='PAUSE';lbl.className='lbl pit';}
+    else{lbl.textContent='READY!';lbl.className='lbl';}
+  }
+
+  function start(){
+    run=true;st=performance.now();if(!iv)iv=setInterval(draw,30);
+    draw();ui();
+  }
+  function pause(){
+    if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();
+  }
+  function lap(){
+    if(!run)return;
+    var now=el();lapT.push(now);lapStart=now;
+    var newIdx=lapT.length-1, prevBest=bestVal;
+    bestVal=Infinity;bestIdx=-1;
+    for(var i=0;i<lapT.length;i++){
+      var dur=lapT[i]-(i>0?lapT[i-1]:0);
+      if(dur<bestVal){bestVal=dur;bestIdx=i;}
+    }
+    bestEl.textContent=fmt(bestVal);
+    coinsEl.textContent=p2(lapT.length);
+    var flashIdx=(bestIdx===newIdx&&newIdx>0&&bestVal<prevBest)?newIdx:-1;
+    renderLaps(flashIdx);draw();
+    // 마리오 점프 + 코인 팝
+    mario.classList.remove('jump');void mario.offsetWidth;mario.classList.add('jump');
+    popn.textContent='+'+lapT.length;
+    pop.classList.remove('show');void pop.offsetWidth;pop.classList.add('show');
+    if(jumpTO)clearTimeout(jumpTO);
+    jumpTO=setTimeout(function(){mario.classList.remove('jump');},560);
+  }
+  function reset(){
+    run=false;clearInterval(iv);iv=null;acc=0;st=0;
+    lapT=[];lapStart=0;bestIdx=-1;bestVal=Infinity;
+    coinsEl.textContent='00';bestEl.textContent='--:--';
+    mario.classList.remove('jump');pop.classList.remove('show');
+    laps.innerHTML='';draw();ui();
+  }
+
+  b1.onclick=function(){run?pause():start();};
+  b2.onclick=lap;
+  b3.onclick=reset;
+  document.addEventListener('keydown',function(e){
+    if(e.code==='Space'){e.preventDefault();run?pause():start();}
+    else if(e.key==='l'||e.key==='L'){if(run)lap();}
+    else if(e.key==='r'||e.key==='R'){if(!b3.disabled)reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)draw();});
+
+  draw();ui();
+})();
+</script>
+</body>
+</html>
