@@ -381,6 +381,9 @@
                 <h2 class="license-title">업데이트 내역</h2>
                 <div class="changelog-list">
                     <div class="changelog-item">
+                        <div class="changelog-meta"><span class="changelog-ver">v2.8</span><span class="changelog-date">2026-06-28</span></div>
+                        <div class="changelog-body"><p class="changelog-title">스킬 라이브러리 확장과 라이선스 정리</p><p class="changelog-desc">수강생이 직접 만든 스킬을 더해 스킬 쇼케이스를 21선으로 늘렸습니다. 전 스킬의 README와 라이선스를 MIT로 통일하고, 샘플에 노출된 실명과 연락처를 모두 익명화했습니다. 검증 트랙(동조·환각)에는 1차 출처로 교차검증한 실제 사례를 보강했고, 용어 사전에 PowerShell과 파이썬을 더해 73선으로 확장했습니다.</p></div></div>
+                    <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v2.7</span><span class="changelog-date">2026-06-21</span></div>
                         <div class="changelog-body"><p class="changelog-title">쇼케이스 보강</p><p class="changelog-desc">수강생들이 직접 만든 결과물을 모은 수강생 쇼케이스를 새로 정리했습니다. 전 세계 클로드 코드 해커톤 우승작 14선을 모은 쇼케이스도 함께 보강했습니다. 실제 사례로 무엇까지 가능한지 한눈에 보도록 구성했습니다.</p></div></div>
                     <div class="changelog-item">
