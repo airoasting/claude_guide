@@ -45,6 +45,15 @@
   button:disabled{opacity:.42;cursor:default}
   .lp{font-size:12px;color:#9A7A52;font-weight:700;min-height:16px}
   button:focus-visible{outline:3px solid #5A3A1C;outline-offset:2px}
+  /* 시작하면 옥수수가 바람에 흔들린다 */
+  .corn.go{transform-origin:bottom center;animation:cornSway .9s ease-in-out infinite}
+  @keyframes cornSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+  .corn.go .leaf.l{animation:leafL .9s ease-in-out infinite}
+  .corn.go .leaf.r{animation:leafR .9s ease-in-out infinite}
+  @keyframes leafL{0%,100%{transform:translateX(-50%) rotate(-26deg) scaleX(-1)}50%{transform:translateX(-50%) rotate(-37deg) scaleX(-1)}}
+  @keyframes leafR{0%,100%{transform:translateX(-50%) rotate(26deg)}50%{transform:translateX(-50%) rotate(37deg)}}
+  .corn.go .silk{transform-origin:bottom center;animation:silkWave .9s ease-in-out infinite}
+  @keyframes silkWave{0%,100%{transform:translateX(-50%) rotate(-7deg)}50%{transform:translateX(-50%) rotate(7deg)}}
 </style>
 </head>
 <body>
@@ -65,6 +74,7 @@
 <script>
 (function(){
   var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lp=document.getElementById('lp');
+  var fig=document.querySelector('.corn');
   var run=false,st=0,acc=0,iv=null,laps=[],last=0;
   function el(){return acc+(run?performance.now()-st:0);}
   function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
@@ -73,9 +83,9 @@
     return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
   function draw(){t.innerHTML=f(el());}
   function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
-  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
-  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
-  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);fig.classList.add('go');draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;fig.classList.remove('go');draw();ui();}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;fig.classList.remove('go');draw();ui();lp.textContent='';}
   function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);lp.textContent='랩 '+laps.length+'  +'+plain(sp);}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
