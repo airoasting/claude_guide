@@ -1,4 +1,17 @@
+<p align="center">
+  <a href="https://airoasting.github.io/claude_guide/">
+    <img src="assets/thumbnails/thumbnail.png" alt="AI ROASTING · 비즈니스 리더를 위한 Claude 완전 정복" width="100%">
+  </a>
+</p>
+
 # AI ROASTING · Claude 완전 정복
+
+![Version](https://img.shields.io/badge/Version-1.0.0-4CAF50)
+![License](https://img.shields.io/badge/License-MIT-2196F3)
+![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-8A4FE0)
+![Experts](https://img.shields.io/badge/Experts-25%20Verified-E07820)
+![Triads](https://img.shields.io/badge/Triads-13-E07820)
+![Native](https://img.shields.io/badge/Native-Claude%20Code-8A4FE0)
 
 비즈니스 리더를 위한 Claude 완전 정복. 진단부터 자동화까지, 5단계 실전 가이드.
 
