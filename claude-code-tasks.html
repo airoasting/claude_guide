@@ -15,7 +15,7 @@
     <meta name="twitter:title" content="AI ROASTING · Claude 완전 정복">
     <meta name="twitter:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
     <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
-    <title>CLAUDE | 클로드 코드 실전 과제 8가지 | AI ROASTING</title>
+    <title>클로드 코드 실전 과제 8가지 | AI ROASTING</title>
     <meta name="description" content="바이브코딩으로 직접 만들며 배우는 8가지 실전 과제. 스탑워치부터 마인크래프트 3D 월드까지.">
     <style>
         @font-face {
@@ -1105,7 +1105,44 @@ function switchMode(mode) {
     function toggleTask(header) {
         const card = header.closest('.task-card');
         card.classList.toggle('open');
+        if (card.id && card.classList.contains('open')) {
+            history.replaceState(null, '', '#' + card.id);
+        }
     }
+
+    // ── URL 해시로 특정 과제 열기 + 스크롤 (예: #3, #03, #task3) ──
+    (function initTaskAnchors() {
+        function ready(fn) {
+            if (document.readyState !== 'loading') fn();
+            else document.addEventListener('DOMContentLoaded', fn);
+        }
+        ready(function() {
+            // 각 카드에 번호 기반 id 부여 (task1 ~ task8)
+            document.querySelectorAll('.task-card').forEach(function(card) {
+                var numEl = card.querySelector('.task-number');
+                if (numEl) {
+                    var n = parseInt(numEl.textContent, 10);
+                    if (n) card.id = 'task' + n;
+                }
+            });
+
+            function openFromHash() {
+                var raw = decodeURIComponent((location.hash || '').replace('#', '')).trim();
+                var m = raw.match(/\d+/);
+                if (!m) return;
+                var n = parseInt(m[0], 10);
+                var target = document.getElementById('task' + n);
+                if (!target) return;
+                target.classList.add('open', 'reveal');
+                requestAnimationFrame(function() {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            }
+
+            openFromHash();
+            window.addEventListener('hashchange', openFromHash);
+        });
+    })();
 
     // ── 스크롤 진입 애니메이션 ──
     document.addEventListener('DOMContentLoaded', () => {
