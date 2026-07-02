@@ -6,6 +6,14 @@
 
 ## 최근 세션 변경 로그
 
+### 2026-07-02 (Git·GitHub 소개 부록 신설 + 가장자리 컬러 띠 금지 규칙 확장)
+
+| # | 명령 | 범위 | 결과 |
+|---|---|---|---|
+| 3 | 박스 왼쪽·위쪽 컬러 띠 전면 금지 + md 기록 | `git-guide.html`, `AGENTS.md`, `MEMORY.md`(auto) | 사용자 "박스 왼쪽·위쪽에 띠지처럼 있는 칼라 모두 없애줘, AI 스러워서 안 쓴다, md에 기록". AGENTS §3.6을 `박스 왼쪽 컬러 띠 금지(no-left-color-bar)`→`박스 왼쪽·위쪽 컬러 띠 금지(no-edge-color-bar)`로 확장(border-top accent 금지 추가, 섹션 구분용 중립 회색 가로선은 예외로 유지). `git-guide.html`에서 `.why-card` 상단 3px 컬러 띠(gh #6aab8e·vc #5a8fbf)와 `.step` 좌측 4px 띠 제거(둘 다 이미 미사용 CSS라 렌더 변화 없음, brace 450/450 확인). 잔여 accent 좌/상 테두리 0(border-left:none 리셋만 남음). 주의: github-guide.html 등 다른 페이지의 `.why-card border-top` 클리셰 잔존 가능, top-bar 전면 스윕은 별도 확인 필요 |
+| 2 | git-guide 내용 대폭 축약 | `git-guide.html` | 사용자 "내용이 너무 많아, 더 간결하게". 섹션 8→5(한눈에·Git·GitHub·무엇이 다른가·시작하기), 표 3→1(Git vs GitHub 비교표만), 용어 concept-card 8개 제거, 출처·안전을 각 한 문단 note-box로 압축, 설치·가입·참고를 한 섹션 통합. sub-menu 5노드·scroll-spy 배열·드로어 동기화. 전체 약 40% 축소, scrollHeight ~5000→3138px. 검증: DOM 5섹션·1표·body concept-card 0·드로어 5, 콘솔 0, em dash 0·당신 0 |
+| 1 | Git 부록 페이지 신설 후 Git·GitHub 둘 다 상세 소개로 재구성 | `git-guide.html`(신규) | 사용자 "부록에 넣을 Git이 무엇인가요 페이지"→"Git과 GitHub 상세 소개로 재구성". `github-guide.html` 골격 클론(헤더 영상·step-nav 노드3 active·SM-HAMBURGER·스크롤스파이), mode-tabs 제거·header-pages 2링크(Git&GitHub란?·GitHub 배포). 개념 소개(무엇·누가·안전) 담당, 실전 배포는 github-guide로 역할 분리. 사실 웹검증(토르발스 2005·하마노 유지·GPL v2·git-scm.com / GitHub 2008 창업·MS 2018 인수 75억 달러·무료 공개/비공개 무제한·1억+ 개발자). index 연결은 사용자 선택으로 보류(orphan) |
+
 ### 2026-06-25 (검증 트랙 실증 근거 보강)
 
 | # | 명령 | 범위 | 결과 |
