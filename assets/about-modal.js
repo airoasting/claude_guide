@@ -381,6 +381,9 @@
                 <h2 class="license-title">업데이트 내역</h2>
                 <div class="changelog-list">
                     <div class="changelog-item">
+                        <div class="changelog-meta"><span class="changelog-ver">v2.9</span><span class="changelog-date">2026-07-05</span></div>
+                        <div class="changelog-body"><p class="changelog-title">다른 콘텐츠 개편과 앤트로픽 소개 최신화</p><p class="changelog-desc">메인 '다른 콘텐츠' 링크를 10선으로 다시 골라 한국어 윤문 스킬과 GPT 이미지 프롬프트 랩을 더했습니다. 실전 예제의 기본 예제 세 과제는 구성을 가볍게 하려 백업으로 내렸습니다. 앤트로픽 소개(엿보기)에는 6월 말 소네트 5와 클로드 사이언스 공개, 페이블 5의 수출통제 해제와 재공개까지 최신 소식을 반영하고, 히어로의 최신 모델 표기를 Fable 5·Opus 4.8·Sonnet 5로 갱신했습니다.</p></div></div>
+                    <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v2.8</span><span class="changelog-date">2026-06-28</span></div>
                         <div class="changelog-body"><p class="changelog-title">스킬 라이브러리 확장과 라이선스 정리</p><p class="changelog-desc">수강생이 직접 만든 스킬을 더해 스킬 쇼케이스를 21선으로 늘렸습니다. 전 스킬의 README와 라이선스를 MIT로 통일하고, 샘플에 노출된 실명과 연락처를 모두 익명화했습니다. 검증 트랙(동조·환각)에는 1차 출처로 교차검증한 실제 사례를 보강했고, 용어 사전에 PowerShell과 파이썬을 더해 73선으로 확장했습니다.</p></div></div>
                     <div class="changelog-item">

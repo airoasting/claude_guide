@@ -6,9 +6,9 @@
 
 # AI ROASTING · Claude 완전 정복
 
-![Version](https://img.shields.io/badge/Version-2.8-4CAF50)
+![Version](https://img.shields.io/badge/Version-2.9-4CAF50)
 ![License](https://img.shields.io/badge/License-MIT-2196F3)
-![Pages](https://img.shields.io/badge/Pages-46-8A4FE0)
+![Pages](https://img.shields.io/badge/Pages-43-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
 ![Language](https://img.shields.io/badge/Language-%ED%95%9C%EA%B5%AD%EC%96%B4-2196F3)
 ![Deploy](https://img.shields.io/badge/Deploy-GitHub%20Pages-8A4FE0)
@@ -112,14 +112,6 @@
 
 ## 실전 예제
 
-**기본 예제**
-
-| 페이지 | 설명 |
-|--------|------|
-| [AI가 쓴 티를 지우는 법](ai-writing.html) | 번역투·과장어·기계적 병렬 등 AI 글의 흔적을 사람 글처럼 다듬는 윤문 흐름 |
-| [뉴스 클리핑 자동화 만들기](news-clipping.html) | 관심 테마와 Tier 1 매체를 정해, 매일 아침 경영진용 뉴스 브리핑을 자동으로 받는 스킬·루틴 만들기 |
-| [구글 시트 기반 대시보드 만들기](google-sheets-dashboard.html) | 구글 시트 데이터를 라이브로 받아 뉴모피즘 대시보드로 보여주는 흐름 |
-
 **MCP 연결**
 
 | 페이지 | 설명 |
@@ -191,6 +183,8 @@
 
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 매주 일요일마다 그 주 작업을 정리해 0.1씩 버전을 올리고 있습니다.
 
+- **v2.9 · 2026-07-05: 다른 콘텐츠 개편과 앤트로픽 소개 최신화**
+  메인 '다른 콘텐츠' 링크를 10선으로 다시 골라 한국어 윤문 스킬과 GPT 이미지 프롬프트 랩을 더했습니다. 실전 예제의 기본 예제 세 과제는 백업으로 내려 구성을 가볍게 했습니다. 앤트로픽 소개(엿보기)에 6월 말 소네트 5·클로드 사이언스 공개와 페이블 5 재공개까지 반영하고, 히어로의 최신 모델 표기를 Fable 5·Opus 4.8·Sonnet 5로 갱신했습니다.
 - **v2.8 · 2026-06-28: 스킬 라이브러리 확장과 라이선스 정리**
   수강생이 직접 만든 스킬을 더해 스킬 쇼케이스를 21선으로 늘리고, 전 스킬의 README와 라이선스를 MIT로 통일하며 샘플의 실명과 연락처를 익명화했습니다. 검증 트랙(동조·환각)에 1차 출처로 교차검증한 실제 사례를 보강하고, 용어 사전을 73선으로 확장했습니다.
 - **v2.7 · 2026-06-21: 쇼케이스 보강**
