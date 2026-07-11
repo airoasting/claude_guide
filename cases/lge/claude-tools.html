@@ -1,0 +1,2320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
+    <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/claude-tools.html">
+    <meta property="og:title" content="AI ROASTING · Claude 완전 정복">
+    <meta property="og:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/claude-tools.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI ROASTING · Claude 완전 정복">
+    <meta name="twitter:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>Claude의 도구: MCP·커넥터·스킬·플러그인 한눈에 | AI ROASTING</title>
+    <meta name="description" content="Claude에게 손발을 붙이는 다섯 가지 방법. 내장 도구, MCP, 커넥터, 스킬, 플러그인을 한 지도로 정리하고 가장 헷갈리는 MCP와 커넥터의 차이를 풀었습니다.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #A50034;
+            --ant-dark: #1A1917;
+            --skill-blue: #3B82F6;
+            --skill-green: #10B981;
+            --skill-amber: #F59E0B;
+            --skill-rose: #9C3A4F;
+            --skill-pink: #EC4899;
+            --skill-cyan: #06B6D4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { word-break: keep-all; font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #C8123E 0%, #A50034 35%, #7A0026 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(200,18,62,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+        /* ── Header Page Links ── */
+        .header-pages {
+            max-width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .header-page-link {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 9px 10px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1;
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .header-page-link .hpl-icon { font-size: 18px; }
+
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(165,0,52,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(165,0,52,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 100px; }
+        .step-divider { scroll-margin-top: 130px; }
+        #case1.step-divider, #case3.step-divider { scroll-margin-top: 160px; }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 클러스터 박스 (관련 블록 묶음) ── */
+        .cluster-box {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 22px 24px 24px;
+            margin: 16px 0 8px;
+        }
+        .cluster-box > .analogy-grid { margin-top: 0; margin-bottom: 16px; }
+        .cluster-box > .key-message { margin: 0; }
+
+        /* ── analogy 2열 그리드 ── */
+        .analogy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 8px 0; }
+        .analogy-grid .analogy-box {
+            margin-bottom: 0;
+            padding: 20px 22px;
+            flex-direction: column;
+            align-items: stretch;
+            text-align: left;
+            gap: 6px;
+        }
+        .analogy-grid .analogy-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .analogy-grid .analogy-head .analogy-titles strong {
+            display: block;
+            font-size: 16px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 4px;
+        }
+        .analogy-grid .analogy-head .analogy-titles strong:last-child { margin-bottom: 0; }
+        .analogy-grid .analogy-body p { font-size: 14px; color: #5C5650; line-height: 1.75; margin: 0; }
+        .analogy-grid .analogy-body strong {
+            display: inline;
+            font-size: inherit;
+            margin-bottom: 0;
+            font-weight: 700;
+            color: #3A3530;
+        }
+        @media (max-width: 768px) { .analogy-grid { grid-template-columns: 1fr; } }
+
+        /* ── 섹션 박스 (각 섹션의 외곽 컨테이너) ── */
+        .section-box {
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            margin-bottom: 32px;
+        }
+        .section-box > .nm-card {
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+            padding: 14px 4px;
+            margin-bottom: 0;
+        }
+        .section-box > .nm-card:last-child {
+            padding-bottom: 6px;
+        }
+        .section-box > .nm-card:first-child {
+            padding-top: 4px;
+        }
+        .section-box > .nm-card:first-child {
+            padding-top: 8px;
+        }
+        .section-box > .nm-card:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        .section-box > .analogy-box,
+        .section-box > .key-message {
+            box-shadow: var(--nm-shadow-sm);
+            margin: 16px 0;
+        }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; }
+
+        /* ── 스크롤 프로그레스 바 ── */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;
+            background: linear-gradient(90deg, var(--ant-orange), #C8123E);
+            width: 0%; transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(165,0,52,0.4);
+        }
+
+        /* ── 섹션 구분 ── */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 30px 0 28px; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 13px; font-weight: 800;
+            letter-spacing: 0.5px;
+            color: var(--ant-orange); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 8px 24px; border-radius: 20px; white-space: nowrap;
+        }
+
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--ant-orange); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { display: inline-block; font-size: 11px; font-weight: 700; background: var(--ant-orange); color: #fff; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 강조 박스 ── */
+        .highlight-box {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border: none;
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin: 12px 0 4px;
+        }
+
+        /* ── 섹션 인트로 (박스 최상단 한 줄) ── */
+        .section-intro {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            letter-spacing: 0.3px;
+            padding: 0 4px 14px;
+            margin-bottom: 4px;
+            border-bottom: 1px dashed rgba(165,0,52,0.25);
+        }
+        .section-intro .si-label {
+            display: inline-block;
+            background: rgba(165,0,52,0.12);
+            color: var(--ant-orange);
+            padding: 3px 10px;
+            border-radius: 6px;
+            margin-right: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+        .section-intro .si-text { color: #3A3530; font-weight: 700; vertical-align: middle; }
+
+        /* ── 출처 미니 카드 ── */
+        .source-mini {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin: 14px 0 18px;
+        }
+        .source-mini-icon {
+            width: 40px; height: 40px; flex-shrink: 0;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--ant-orange), #C8123E);
+            color: #fff; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(165,0,52,0.3);
+        }
+        .source-mini-body { flex: 1; min-width: 0; }
+        .source-mini-body .sm-title {
+            font-size: 13px; font-weight: 800; color: #3A3530;
+            display: block; margin-bottom: 2px;
+        }
+        .source-mini-body .sm-meta {
+            font-size: 11px; color: #888; margin-bottom: 6px;
+        }
+        .source-mini-body p { font-size: 13px; color: #5C5650; line-height: 1.7; margin: 0; }
+        .source-mini-body a { color: var(--ant-orange); font-weight: 700; text-decoration: none; }
+        .source-mini-body a:hover { text-decoration: underline; }
+
+        /* ── 문제 2-pack 그리드 ── */
+        .problem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 8px 0 18px;
+        }
+        .problem-card {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 22px 22px 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .problem-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .problem-card.pc-1::before { background: linear-gradient(90deg, #EF4444, #F87171); }
+        .problem-card.pc-2::before { background: linear-gradient(90deg, var(--skill-rose), #C76A81); }
+        .problem-head {
+            display: flex; align-items: flex-start; gap: 12px;
+        }
+        .problem-num {
+            font-size: 22px; font-weight: 900;
+            background: linear-gradient(135deg, #1A1917, #3A3530);
+            -webkit-background-clip: text; background-clip: text;
+            color: transparent;
+            line-height: 1; flex-shrink: 0;
+            padding-top: 2px;
+        }
+        .problem-card.pc-1 .problem-num {
+            background: linear-gradient(135deg, #EF4444, #F87171);
+            -webkit-background-clip: text; background-clip: text;
+        }
+        .problem-card.pc-2 .problem-num {
+            background: linear-gradient(135deg, var(--skill-rose), #C76A81);
+            -webkit-background-clip: text; background-clip: text;
+        }
+        .problem-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .problem-title strong {
+            font-size: 16px; font-weight: 800; color: #3A3530;
+        }
+        .problem-title .problem-en {
+            font-size: 11px; color: #999; letter-spacing: 0.5px;
+            text-transform: uppercase; font-weight: 700;
+        }
+        .problem-tagline {
+            font-size: 13px; color: #5C5650; line-height: 1.7;
+            font-weight: 600;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+            margin: 0;
+        }
+        .problem-card .quote-box {
+            margin: 0;
+            padding: 18px 20px 16px 38px;
+            font-size: 13px;
+        }
+        .problem-card .quote-box p { font-size: 13px; line-height: 1.75; padding-left: 0; }
+        .problem-card .quote-box .quote-author { padding-left: 0; }
+        .problem-card .quote-box::before { font-size: 48px; top: 0px; left: 12px; }
+        .problem-card.pc-1 .quote-box {
+            background: linear-gradient(135deg, rgba(239,68,68,0.05) 0%, rgba(239,68,68,0.01) 100%);
+        }
+        .problem-card.pc-1 .quote-box::before { color: rgba(239,68,68,0.18); }
+        .problem-card.pc-2 .quote-box {
+            background: linear-gradient(135deg, rgba(139,92,246,0.05) 0%, rgba(139,92,246,0.01) 100%);
+        }
+        .problem-card.pc-2 .quote-box::before { color: rgba(139,92,246,0.18); }
+        .problem-analogy {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 12px;
+            padding: 12px 16px;
+        }
+        .problem-analogy .pa-label {
+            display: inline-block;
+            font-size: 10px; font-weight: 800;
+            color: var(--ant-orange);
+            background: rgba(165,0,52,0.12);
+            padding: 2px 8px; border-radius: 5px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .problem-analogy p { font-size: 13px; color: #5C5650; line-height: 1.7; margin: 0; }
+
+        /* ── 문제 → 원칙 브릿지 ── */
+        .problem-bridge {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: -10px 0 6px;
+            padding: 0 8px;
+        }
+        .pb-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0 2px;
+            --pb-color: #999;
+            --pb-bg: rgba(0,0,0,0.04);
+        }
+        .pb-col.pb-1 { --pb-color: #EF4444; --pb-bg: rgba(239,68,68,0.12); }
+        .pb-col.pb-2 { --pb-color: #8B5CF6; --pb-bg: rgba(139,92,246,0.12); }
+        .pb-line {
+            width: 2px;
+            height: 18px;
+            background: linear-gradient(180deg, var(--pb-color), rgba(255,255,255,0));
+            border-radius: 1px;
+            opacity: 0.85;
+        }
+        .pb-pill {
+            font-size: 10.5px; font-weight: 800;
+            letter-spacing: 0.6px;
+            color: var(--pb-color);
+            background: var(--pb-bg);
+            padding: 4px 12px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .pb-tip {
+            width: 0; height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 7px solid var(--pb-color);
+            opacity: 0.9;
+        }
+
+        /* ── 처방 카드 ── */
+        .solution-card {
+            background: linear-gradient(140deg, #1F1B17 0%, #2A2420 100%);
+            border-radius: 20px;
+            padding: 26px 28px;
+            margin: 4px 0 18px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .solution-card::before {
+            content: '';
+            position: absolute; top: -60px; right: -40px;
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(165,0,52,0.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .solution-card .sc-badge {
+            display: inline-block;
+            font-size: 11px; font-weight: 800;
+            color: var(--ant-orange);
+            background: rgba(165,0,52,0.18);
+            padding: 4px 12px; border-radius: 6px;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 10px;
+        }
+        .solution-card .sc-title {
+            font-size: 20px; font-weight: 800;
+            color: #fff; margin-bottom: 4px;
+            position: relative; z-index: 1;
+        }
+        .solution-card .sc-sub {
+            font-size: 13px; color: rgba(255,255,255,0.65);
+            margin-bottom: 18px;
+            position: relative; z-index: 1;
+        }
+        .solution-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            position: relative; z-index: 1;
+        }
+        .solution-item {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 16px 18px;
+            transition: all 0.25s;
+        }
+        .solution-item:hover {
+            background: rgba(255,255,255,0.10);
+            transform: translateY(-2px);
+        }
+        .solution-item .si-arrow {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 800;
+            color: var(--ant-orange);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .solution-item .si-pill {
+            font-size: 11.5px; font-weight: 800;
+            color: var(--ant-orange);
+            background: rgba(165,0,52,0.18);
+            padding: 5px 12px;
+            border-radius: 999px;
+            letter-spacing: 0.4px;
+            margin-bottom: 12px;
+        }
+        .solution-item--standalone {
+            background: linear-gradient(140deg, #1F1B17 0%, #2A2420 100%);
+            border: none;
+            border-radius: 18px;
+            padding: 22px 22px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .solution-item--standalone::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .solution-item--standalone.si-1::before { background: linear-gradient(90deg, #EF4444, #F87171); }
+        .solution-item--standalone.si-2::before { background: linear-gradient(90deg, #8B5CF6, #C76A81); }
+        .solution-item--standalone:hover { background: linear-gradient(140deg, #221E19 0%, #2E2723 100%); }
+
+        /* ── 사례 1 원칙 적용 라벨 ── */
+        .principle-pill {
+            display: inline-block;
+            font-size: 11.5px; font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 999px;
+            letter-spacing: 0.4px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+        }
+        .principle-pill.pp-1 { background: rgba(239,68,68,0.12); color: #EF4444; }
+        .principle-pill.pp-2 { background: rgba(139,92,246,0.12); color: #8B5CF6; }
+        .nm-card.pc-applied-1 { border-top: 3px solid #EF4444; }
+        .nm-card.pc-applied-2 { border-top: 3px solid #8B5CF6; }
+        .nm-card .sub-section-title {
+            font-size: 16px; font-weight: 800; color: #3A3530;
+            margin: 28px 0 12px; padding-left: 0;
+        }
+
+        /* ── 사례 1 원칙 2-pack ── */
+        .applied-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 8px 0 0;
+        }
+        .applied-card {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 22px 22px 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .applied-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .applied-card.ac-1::before { background: linear-gradient(90deg, #EF4444, #F87171); }
+        .applied-card.ac-2::before { background: linear-gradient(90deg, #8B5CF6, #C76A81); }
+        .applied-card h3 {
+            font-size: 17px; font-weight: 800; color: #3A3530;
+            margin: 4px 0 0;
+        }
+        .applied-card .ac-tagline {
+            font-size: 13px; color: #5C5650; line-height: 1.7;
+            font-weight: 600;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+            margin: 0;
+        }
+        .applied-card ul {
+            font-size: 13px; color: #5C5650; line-height: 1.75;
+            padding-left: 18px; margin: 0;
+        }
+        .applied-card li { margin-bottom: 4px; }
+        .applied-card .principle-pill { margin-bottom: 0; }
+
+        @media (max-width: 768px) {
+            .applied-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── 역할 분담 카드 (3-col 지원 + 새 색상) ── */
+        .applied-grid.three-col { grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+        @media (max-width: 768px) {
+            .applied-grid.three-col { grid-template-columns: 1fr; }
+        }
+        .applied-card.ac-planner::before { background: linear-gradient(90deg, #6366F1, #818CF8); }
+        .applied-card.ac-generator::before { background: linear-gradient(90deg, #D97759, #F59E0B); }
+        .applied-card.ac-evaluator::before { background: linear-gradient(90deg, #14B8A6, #2DD4BF); }
+        .principle-pill.pp-planner   { background: rgba(99,102,241,0.12); color: #4F46E5; }
+        .principle-pill.pp-generator { background: rgba(217,119,89,0.16); color: #B45309; }
+        .principle-pill.pp-evaluator { background: rgba(20,184,166,0.14); color: #0F766E; }
+        .applied-card .role-io {
+            list-style: none; padding-left: 0; margin: 0;
+            display: flex; flex-direction: column;
+            font-size: 13px; color: #5C5650; line-height: 1.65;
+        }
+        .applied-card .role-io li {
+            display: grid; grid-template-columns: 64px 1fr; gap: 10px;
+            margin-bottom: 0; padding: 8px 0;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+        .applied-card .role-io li:first-child { border-top: none; padding-top: 2px; }
+        .applied-card .role-io strong {
+            font-size: 11px; font-weight: 800; color: #3A3530;
+            letter-spacing: 0.6px;
+            padding-top: 2px;
+        }
+        .applied-card .role-io span { display: block; }
+
+        /* ── 역할 카드 통합 pill (이름 + 역할 라벨 한 버튼) ── */
+        .applied-card .role-card-pill {
+            display: inline-flex; align-items: baseline; gap: 10px;
+            padding: 9px 16px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            border: 1px solid transparent;
+        }
+        .applied-card .role-card-pill strong {
+            font-size: 17px; font-weight: 800;
+        }
+        .applied-card .role-card-pill span {
+            font-size: 11px; font-weight: 800; opacity: 0.78;
+            letter-spacing: 0.5px;
+        }
+        .applied-card .role-card-pill.rcp-planner {
+            background: rgba(99,102,241,0.13);
+            color: #4F46E5;
+            border-color: rgba(99,102,241,0.22);
+        }
+        .applied-card .role-card-pill.rcp-generator {
+            background: rgba(217,119,89,0.16);
+            color: #B45309;
+            border-color: rgba(217,119,89,0.24);
+        }
+        .applied-card .role-card-pill.rcp-evaluator {
+            background: rgba(20,184,166,0.14);
+            color: #0F766E;
+            border-color: rgba(20,184,166,0.24);
+        }
+
+        /* ── 원칙 1 → 역할 섹션 내려오는 화살표 (인라인) ── */
+        .role-arrow-down {
+            position: relative;
+            height: 32px;
+            margin: 14px 0 6px;
+        }
+        .role-arrow-down::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 25%;
+            transform: translateX(-50%);
+            width: 2px; height: 22px;
+            background: linear-gradient(180deg, rgba(239,68,68,0.35), #EF4444);
+            border-radius: 2px;
+        }
+        .role-arrow-down::after {
+            content: "";
+            position: absolute;
+            top: 21px; left: 25%;
+            margin-left: -7px;
+            width: 0; height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 9px solid #EF4444;
+        }
+        @media (max-width: 768px) {
+            .role-arrow-down::before { left: 50%; }
+            .role-arrow-down::after { left: 50%; }
+        }
+
+        /* ── 원칙 1 풀어보기 (zoom-in callout) ── */
+        .zoom-in-section {
+            position: relative;
+            margin-top: 44px;
+        }
+        .zoom-in-section .zoom-arrow {
+            position: absolute;
+            top: -34px; left: 25%;
+            transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center;
+            pointer-events: none;
+        }
+        .zoom-in-section .zoom-arrow::before {
+            content: "";
+            width: 2px; height: 22px;
+            background: linear-gradient(180deg, rgba(239,68,68,0.35), #EF4444);
+            border-radius: 2px;
+        }
+        .zoom-in-section .zoom-arrow::after {
+            content: "";
+            width: 0; height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 9px solid #EF4444;
+            margin-top: -1px;
+        }
+        .zoom-in-card {
+            background: linear-gradient(180deg, rgba(239,68,68,0.07) 0%, rgba(239,68,68,0.015) 100%);
+            border: 1px solid rgba(239,68,68,0.22);
+            border-radius: 14px;
+            padding: 22px 22px 20px;
+            position: relative;
+        }
+        .zoom-in-pill {
+            display: inline-block;
+            background: rgba(239,68,68,0.14);
+            color: #DC2626;
+            font-size: 11.5px; font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 999px;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .zoom-in-title {
+            font-size: 17px; font-weight: 800; color: #3A3530;
+            margin: 4px 0 16px;
+            line-height: 1.5;
+        }
+        @media (max-width: 768px) {
+            .zoom-in-section .zoom-arrow { left: 50%; }
+        }
+
+        .solution-item strong {
+            display: block;
+            font-size: 15px; font-weight: 800; color: #fff;
+            margin-bottom: 6px;
+        }
+        .solution-item p {
+            font-size: 12.5px; color: rgba(255,255,255,0.7);
+            line-height: 1.65; margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .problem-grid { grid-template-columns: 1fr; }
+            .solution-grid { grid-template-columns: 1fr; }
+            .problem-bridge { grid-template-columns: 1fr; gap: 4px; }
+            .source-mini { padding: 14px 16px; gap: 12px; }
+            .solution-card { padding: 22px 20px; }
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* ── 비교 그리드 ── */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm { background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm); padding: 20px; position: relative; overflow: hidden; transition: transform 0.25s; }
+        .compare-nm:hover { transform: translateY(-2px); }
+        .compare-nm::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
+        .compare-nm:first-child::before { background: #EF4444; }
+        .compare-nm:last-child::before { background: var(--skill-green); }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+
+        /* ── 뉴모 테이블 ── */
+        .nm-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .nm-table-wrap table { width: 100%; border-collapse: collapse; }
+        .nm-table-wrap thead { background: var(--ant-dark); }
+        .nm-table-wrap th {
+            text-align: left; padding: 12px 16px;
+            font-size: 14px; font-weight: 600; color: #fff;
+        }
+        .nm-table-wrap td {
+            padding: 12px 16px; font-size: 14px; color: #5C5650;
+            border-bottom: 1px solid #E8E4DE;
+        }
+        .nm-table-wrap tbody tr:nth-child(even) { background: rgba(0,0,0,0.015); }
+        .nm-table-wrap tbody tr:last-child td { border-bottom: none; }
+        .nm-table-wrap tbody tr.build-row,
+        .nm-table-wrap tbody tr.build-row:nth-child(even) { background: rgba(165,0,52,0.14); }
+        .nm-table-wrap tbody tr:hover { background: rgba(165,0,52,0.06); }
+        .nm-table-wrap tbody tr.build-row:hover { background: rgba(165,0,52,0.20); }
+
+        /* ── 3열 역할 카드 ── */
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+        .role-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .role-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .role-card:nth-child(1)::before { background: linear-gradient(90deg, var(--skill-blue), #60A5FA); }
+        .role-card:nth-child(2)::before { background: linear-gradient(90deg, var(--ant-orange), #C8123E); }
+        .role-card:nth-child(3)::before { background: linear-gradient(90deg, var(--skill-rose), #C76A81); }
+        .role-card:hover { transform: translateY(-4px); box-shadow: 6px 6px 16px #CECAC3, -6px -6px 16px #FFFFFF; }
+        .role-icon { font-size: 32px; margin-bottom: 12px; }
+        .role-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 8px; }
+        .role-card p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .role-card .role-example {
+            margin-top: 12px; padding-top: 12px;
+            border-top: 1px solid #E8E4DE;
+            font-size: 12px; color: #888; line-height: 1.6;
+            text-align: left;
+        }
+
+        /* ── 6칸 구성요소 그리드 ── */
+        .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .comp-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .comp-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .comp-item:hover { transform: translateY(-2px); }
+        .comp-item .comp-icon { font-size: 24px; margin-bottom: 8px; }
+        .comp-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px; }
+        .comp-item .comp-q { font-size: 12px; color: var(--ant-orange); font-weight: 600; margin-bottom: 8px; }
+        .comp-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(150deg, #C8123E 0%, #A50034 35%, #7A0026 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* ── 참고 자료 ── */
+        .ref-section { margin-top: 36px; }
+        .ref-title { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 14px; }
+        .ref-links { display: flex; flex-direction: column; gap: 10px; }
+        .ref-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ref-link:hover { transform: translateY(-1px); color: var(--ant-orange); }
+        .ref-link .ref-icon { font-size: 18px; flex-shrink: 0; }
+        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
+
+        /* ── 푸터 ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* ── 스크롤 애니메이션 ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal.delay-1 { transition-delay: 0.1s; }
+        .reveal.delay-2 { transition-delay: 0.2s; }
+        .reveal.delay-3 { transition-delay: 0.3s; }
+
+        /* ── 헤더 로드 애니메이션 ── */
+        @keyframes headerFadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes headerFadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .header-animate-1 { animation: headerFadeDown 0.55s ease both; animation-delay: 0.05s; }
+        .header-animate-2 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.18s; }
+        .header-animate-3 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.32s; }
+        .header-animate-4 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.44s; }
+        .header-animate-5 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.56s; }
+
+        /* ── 부유 애니메이션 (analogy-icon) ── */
+        @keyframes floatBob {
+            0%, 100% { transform: translateY(0px); }
+            50%       { transform: translateY(-7px); }
+        }
+        .analogy-icon { animation: floatBob 3.2s ease-in-out infinite; }
+        .analogy-box:nth-of-type(2) .analogy-icon { animation-delay: -1s; }
+        .analogy-box:nth-of-type(3) .analogy-icon { animation-delay: -2.1s; }
+
+        /* ── step-badge shimmer ── */
+        @keyframes shimmerScan {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .step-badge {
+            background-image: linear-gradient(
+                105deg,
+                var(--nm-bg) 40%,
+                rgba(255,255,255,0.85) 50%,
+                var(--nm-bg) 60%
+            );
+            background-size: 200% auto;
+            animation: shimmerScan 2.8s linear infinite;
+        }
+
+        /* ── key-message 테두리 glow ── */
+        @keyframes borderGlow {
+            0%, 100% { border-color: rgba(165,0,52,0.25); box-shadow: none; }
+            50%       { border-color: rgba(165,0,52,0.55); box-shadow: 0 0 18px rgba(165,0,52,0.18); }
+        }
+        .key-message { animation: borderGlow 3s ease-in-out infinite; }
+
+        /* ── 그리드 stagger ── */
+        .stagger-child {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+        .stagger-child.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── nm-card 호버 리프트 ── */
+        .nm-card {
+            transition: transform 0.28s ease, box-shadow 0.28s ease;
+        }
+        .nm-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 8px 8px 20px #C5C1BA, -8px -8px 20px #FFFFFF;
+        }
+
+        /* ── flow-node 순차 하이라이트 ── */
+        @keyframes nodeFlash {
+            0%, 100% { box-shadow: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF; }
+            50%       { box-shadow: 0 0 0 3px rgba(165,0,52,0.35), 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF; }
+        }
+        .flow-node:nth-child(1)  { animation: nodeFlash 3s ease-in-out infinite; animation-delay: 0s; }
+        .flow-node:nth-child(3)  { animation: nodeFlash 3s ease-in-out infinite; animation-delay: 1s; }
+        .flow-node:nth-child(5)  { animation: nodeFlash 3s ease-in-out infinite; animation-delay: 2s; }
+
+        /* ── 비유 박스 ── */
+        .analogy-box {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 28px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .analogy-icon {
+            width: 64px; height: 64px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--ant-orange), #C8123E);
+            color: #fff;
+            font-size: 28px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(165,0,52,0.3);
+        }
+        .analogy-body { flex: 1; }
+        .analogy-body strong {
+            font-size: 16px; font-weight: 700; color: #3A3530;
+            display: block; margin-bottom: 6px;
+        }
+        .analogy-body p {
+            font-size: 14px; color: #5C5650; line-height: 1.75; margin: 0;
+        }
+
+        /* ── 핵심 메시지 배너 ── */
+        .key-message {
+            background: linear-gradient(135deg, rgba(165,0,52,0.12) 0%, rgba(165,0,52,0.04) 100%);
+            border: 2px solid rgba(165,0,52,0.3);
+            border-radius: 20px;
+            padding: 28px 32px;
+            text-align: center;
+            margin: 24px 0;
+        }
+        .key-message p {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            line-height: 1.7;
+        }
+        .key-message .km-highlight {
+            color: var(--ant-orange);
+            font-weight: 800;
+            background: linear-gradient(180deg, transparent 60%, rgba(165,0,52,0.15) 60%);
+            padding: 0 2px;
+        }
+
+        /* ── 미디어 박스 ── */
+        .media-box {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 20px 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .media-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 18px #C5C1BA, -6px -6px 18px #FFFFFF;
+        }
+        .media-box video, .media-box img {
+            width: 100%;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+        .media-box:hover img {
+            transform: scale(1.02);
+        }
+        .media-box .media-caption {
+            padding: 14px 20px;
+            font-size: 13px;
+            color: #888;
+            line-height: 1.6;
+            border-top: 1px solid #E8E4DE;
+            background: rgba(0,0,0,0.015);
+        }
+        .media-box .media-caption strong {
+            color: #3A3530;
+        }
+
+        /* ── 인용 박스 ── */
+        .quote-box {
+            background: linear-gradient(135deg, rgba(139,92,246,0.04) 0%, rgba(139,92,246,0.01) 100%);
+            border-radius: 16px;
+            box-shadow: var(--nm-inset);
+            padding: 28px 32px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .quote-box::before {
+            content: '\201C';
+            font-size: 64px;
+            color: rgba(139,92,246,0.15);
+            position: absolute;
+            top: 4px;
+            left: 18px;
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+        .quote-box p {
+            font-size: 15px;
+            color: #4A4540;
+            line-height: 1.85;
+            font-style: italic;
+            padding-left: 28px;
+        }
+        .quote-box .quote-author {
+            font-size: 12px;
+            color: #999;
+            font-style: normal;
+            margin-top: 12px;
+            padding-left: 28px;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── 플로우 다이어그램 ── */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 28px 0;
+            flex-wrap: nowrap;
+            padding: 24px 16px;
+            background: rgba(0,0,0,0.015);
+            border-radius: 20px;
+            overflow-x: auto;
+        }
+        .flow-node {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 22px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 160px;
+            transition: transform 0.25s;
+        }
+        .flow-node:hover { transform: translateY(-3px); }
+        .flow-node .fn-icon { font-size: 26px; margin-bottom: 8px; }
+        .flow-node h4 { font-size: 13px; font-weight: 700; color: #3A3530; }
+        .flow-node p { font-size: 11px; color: #888; margin-top: 4px; }
+        .flow-arrow {
+            font-size: 20px;
+            color: var(--ant-orange);
+            padding: 0 10px;
+            font-weight: 700;
+            animation: arrowPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(3px); }
+        }
+
+        /* ── 4칸 그리드 ── */
+        .grade-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .grade-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .grade-item:hover { transform: translateY(-3px); box-shadow: 6px 6px 16px #CECAC3, -6px -6px 16px #FFFFFF; }
+        .grade-item .grade-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            font-size: 13px; font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .grade-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .grade-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* ── 이미지 그리드 ── */
+        .img-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 20px 0;
+        }
+        .img-compare .media-box { margin: 0; }
+
+        /* ── 프롬프트 예시 블록 ── */
+        .prompt-block {
+            position: relative;
+            margin-top: 20px;
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .prompt-block-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px;
+            background: #2d2d2d;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .prompt-block-label {
+            font-size: 12px; font-weight: 700;
+            color: var(--ant-orange); letter-spacing: 0.5px;
+        }
+        .prompt-copy-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 600; color: #aaa;
+            background: #3a3a3a; border: none; border-radius: 6px;
+            padding: 5px 10px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .prompt-copy-btn:hover { background: #4a4a4a; color: #fff; }
+        .prompt-copy-btn.copied { color: #7EE8A2; background: rgba(126,232,162,0.15); }
+        .prompt-block pre {
+            margin: 0; padding: 20px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 13px; line-height: 1.7;
+            color: #d4d4d4;
+            white-space: pre-wrap; word-break: keep-all;
+            overflow-x: auto;
+        }
+        .prompt-block .kw { color: #f4a97a; font-weight: 700; }
+        .prompt-block .cm { color: #7a7a7a; }
+        .prompt-block .val { color: #7ee8a2; }
+
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 24px 16px 48px; }
+            .section-box { padding: 0; border-radius: 0; margin-bottom: 24px; }
+            .section-box > .nm-card { padding: 18px 0; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .role-grid { grid-template-columns: 1fr; }
+            .comp-grid, .comp-grid.cols-3 { grid-template-columns: 1fr; }
+            .grade-grid { grid-template-columns: 1fr; }
+            .img-compare { grid-template-columns: 1fr; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .header-pages { flex-wrap: wrap; gap: 8px; max-width: 100%; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            .analogy-box { flex-direction: column; text-align: center; }
+            .nm-table-wrap { font-size: 13px; }
+            .nm-table-wrap th, .nm-table-wrap td { padding: 10px 12px; font-size: 13px; }
+            .prompt-block pre { font-size: 12px; line-height: 1.6; }
+            .ref-link .ref-desc { display: none; }
+            .flow-diagram { flex-direction: column; gap: 8px; padding: 20px 12px; }
+            .flow-node { height: auto; min-height: 100px; }
+            .flow-arrow { transform: rotate(90deg); padding: 4px 0; animation-name: arrowPulseMobile; }
+            @keyframes arrowPulseMobile {
+                0%, 100% { opacity: 0.5; transform: rotate(90deg) translateX(0); }
+                50% { opacity: 1; transform: rotate(90deg) translateX(3px); }
+            }
+            /* Step navigator */
+            .step-nav { max-width: 100%; gap: 0; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+            .step-nav { max-width: 100%; margin: 16px 0 14px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 6px; max-width: 14px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+            .prompt-block pre { font-size: 11px; line-height: 1.55; padding: 14px; }
+        }
+    
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+        }
+        /* ── 도구 5갈래 가로 그리드 ── */
+        .tool-map-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin: 14px 0 0;
+        }
+        .tool-map-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px 16px 18px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .tool-map-card:hover { transform: translateY(-3px); box-shadow: var(--nm-shadow); }
+        .tool-map-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .tool-map-num {
+            flex-shrink: 0;
+            min-width: 30px; height: 30px;
+            padding: 0 11px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--ant-orange), #C8123E);
+            color: #fff;
+            font-size: 14px; font-weight: 800;
+            display: inline-flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 6px rgba(165,0,52,0.35);
+        }
+        .tool-map-icon { font-size: 23px; line-height: 1; }
+        .tool-map-card h4 {
+            font-size: 15px; font-weight: 800; color: #3A3530;
+            margin: 0 0 5px;
+        }
+        .tool-map-card .tmc-en {
+            font-size: 11px; font-weight: 700; color: var(--ant-orange);
+            margin-bottom: 10px; line-height: 1.4;
+        }
+        .tool-map-card p {
+            font-size: 12.5px; color: #5C5650; line-height: 1.65;
+            margin: 0 0 14px;
+            flex: 1;
+        }
+        .tool-map-card .tmc-link {
+            font-size: 12px; font-weight: 700; color: var(--ant-orange);
+            text-decoration: none;
+            margin-top: auto;
+        }
+        .tool-map-card .tmc-link:hover { text-decoration: underline; }
+        .kmcp-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 14px 0 0;
+        }
+        .kmcp-grid h4 { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13.5px; }
+        @media (max-width: 980px) {
+            .kmcp-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .tool-map-grid { grid-template-columns: repeat(2, 1fr); }
+            .kmcp-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 460px) {
+            .tool-map-grid { grid-template-columns: 1fr; }
+            .kmcp-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <nav class="step-nav">
+        <a class="step-node" href="claude-orientation.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="persona.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="harness-engineering.html">3</a>
+    </nav>
+    <a href="index.html" class="back-link header-animate-2">&larr; 목록으로</a>
+    <h1 class="header-animate-3">Claude의 도구란?</h1>
+    <p class="header-animate-4">같은 Claude라도 어떤 도구를 쥐여주느냐에 따라 할 수 있는 일이 달라집니다</p>
+    <div class="header-pages" id="pages-harness">
+        <a href="harness-engineering.html" class="header-page-link"><span class="hpl-icon">🐴</span> 하네스 엔지니어링</a>
+        <a href="claude-tools.html" class="header-page-link active"><span class="hpl-icon">🧰</span> 도구</a>
+        <a href="harness-workflows.html" class="header-page-link"><span class="hpl-icon">🤖</span> 멀티 에이전트 소환</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec1" data-sec="sec1">
+        <span class="sm-num">1</span>
+        <span class="sm-title">도구란</span>
+        <span class="sm-sub">What</span>
+    </a>
+    <a href="#sec2" data-sec="sec2">
+        <span class="sm-num">2</span>
+        <span class="sm-title">다섯 종류의 도구</span>
+        <span class="sm-sub">Map</span>
+    </a>
+    <a href="#sec3" data-sec="sec3">
+        <span class="sm-num">3</span>
+        <span class="sm-title">MCP와 커넥터</span>
+        <span class="sm-sub">Connect</span>
+    </a>
+    <a href="#sec4" data-sec="sec4">
+        <span class="sm-num">4</span>
+        <span class="sm-title">무엇을 고르나</span>
+        <span class="sm-sub">Pick</span>
+    </a>
+    <a href="#sec5" data-sec="sec5">
+        <span class="sm-num">5</span>
+        <span class="sm-title">연결하는 법</span>
+        <span class="sm-sub">How</span>
+    </a>
+    <a href="#sec6" data-sec="sec6">
+        <span class="sm-num">6</span>
+        <span class="sm-title">한국형 MCP</span>
+        <span class="sm-sub">Korea</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- ═══════ STEP 1: 도구란 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec1"><span class="step-badge">도구란</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>도구는 Claude의 손과 발입니다</h2>
+            <p>Claude에게 일을 시키면 보통 글로 답합니다. 도구를 쥐여주면 다릅니다. 파일을 직접 열어 고치고, 메일을 찾아 읽고, 코드를 실행하고, 회사 데이터와 최신 웹을 조회합니다. <strong>말로 설명하는 Claude와 실제로 행동하는 Claude의 차이가 바로 도구</strong>입니다.</p>
+            <div class="highlight-box reveal">
+                <div class="hl-title">한 문장으로</div>
+                <p>도구는 <strong>Claude가 말 대신 실제로 행동하게 해주는 모든 수단</strong>입니다.</p>
+            </div>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>도구가 있고 없고의 차이</h2>
+            <p class="card-subtitle">같은 부탁을 해도 도구 유무에 따라 결과가 달라집니다</p>
+            <div class="compare-grid">
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:#EF4444;"></span><h4>도구 없는 Claude</h4></div>
+                    <ul>
+                        <li>"엑셀 정리하는 법을 알려 드릴게요"라고 글로만 답함</li>
+                        <li>실제 파일은 사람이 직접 열어 작업</li>
+                        <li>사내 자료나 최신 정보에는 닿지 못함</li>
+                        <li>화면 속 대화창 안에 갇힘</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--skill-green);"></span><h4>도구 쥔 Claude</h4></div>
+                    <ul>
+                        <li>엑셀 파일을 직접 열어 정리해 저장</li>
+                        <li>메일함에서 필요한 메일을 찾아 읽음</li>
+                        <li>코드를 실행해 결과를 눈으로 확인</li>
+                        <li>회사 시스템과 최신 웹을 직접 조회</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="cluster-box reveal">
+        <div class="analogy-grid">
+            <div class="analogy-box delay-1">
+                <div class="analogy-head">
+                    <div class="analogy-icon">&#x1F91A;</div>
+                    <div class="analogy-titles"><strong>비유 1: 손과 발</strong></div>
+                </div>
+                <div class="analogy-body">
+                    <p>머리만 좋은 사람은 생각만 합니다. <strong>손발이 있어야 문서를 만들고, 전화를 걸고, 물건을 옮깁니다.</strong> 도구는 Claude에게 달아 주는 손과 발입니다.</p>
+                </div>
+            </div>
+            <div class="analogy-box delay-2">
+                <div class="analogy-head">
+                    <div class="analogy-icon" style="background: linear-gradient(135deg, var(--skill-blue), #2563EB);">&#x1F4F1;</div>
+                    <div class="analogy-titles"><strong>비유 2: 스마트폰 앱</strong></div>
+                </div>
+                <div class="analogy-body">
+                    <p>갓 산 폰은 전화와 문자만 됩니다. <strong>앱을 깔면 지도를 보고, 결제를 하고, 번역을 합니다.</strong> 도구를 붙이는 것은 Claude에 앱을 까는 일과 같습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="key-message reveal">
+            <p>하네스가 <span class="km-highlight">어떻게 일할지</span>를 정한다면,<br>
+            도구는 <span class="km-highlight">무엇으로 일할지</span>를 정합니다.</p>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 2: 다섯 종류의 도구 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec2"><span class="step-badge">다섯 종류의 도구</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="section-intro">
+            <span class="si-label">전체 지도</span>
+            <span class="si-text">Claude의 도구는 다섯 종류로 나뉩니다. 이름은 달라도 목적은 하나입니다</span>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>도구의 다섯 종류</h2>
+            <p class="card-subtitle">아래 다섯은 모두 "Claude에게 새 능력을 붙인다"는 같은 목적을 가집니다. 각 카드의 링크에서 자세히 볼 수 있습니다</p>
+            <div class="tool-map-grid reveal">
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">1</span>
+                        <span class="tool-map-icon">&#x1F6E0;&#xFE0F;</span>
+                    </div>
+                    <h4>내장 도구</h4>
+                    <div class="tmc-en">Built-in · 기본기</div>
+                    <p>Claude Code가 기본으로 가진 능력입니다. 파일 읽기와 쓰기, 터미널 실행, 웹 검색이 여기 듭니다.</p>
+                    <a href="cheatsheet.html" class="tmc-link">치트시트 &rarr;</a>
+                </div>
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">2</span>
+                        <span class="tool-map-icon">&#x1F50C;</span>
+                    </div>
+                    <h4>MCP</h4>
+                    <div class="tmc-en">Model Context Protocol</div>
+                    <p>외부 시스템을 Claude의 도구로 붙이는 표준 규약입니다. 카카오맵, 법제처 같은 외부 데이터를 끌어옵니다.</p>
+                    <a href="playmcp-kakao.html" class="tmc-link">PlayMCP 예제 &rarr;</a>
+                </div>
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">3</span>
+                        <span class="tool-map-icon">&#x1F517;</span>
+                    </div>
+                    <h4>커넥터</h4>
+                    <div class="tmc-en">Connectors · 클릭 연결</div>
+                    <p>MCP를 코드 없이 클릭으로 쓰게 만든 버전입니다. Gmail, 드라이브, 노션을 메뉴에서 골라 켭니다.</p>
+                </div>
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">4</span>
+                        <span class="tool-map-icon">&#x1F3A8;</span>
+                    </div>
+                    <h4>스킬</h4>
+                    <div class="tmc-en">Skills · 절차 도구</div>
+                    <p>자주 쓰는 절차를 한 번 가르쳐 두고 다시 부르는 도구입니다. "그 작업 해줘" 한마디면 같은 품질을 냅니다.</p>
+                    <a href="skills.html" class="tmc-link">나만의 Skill &rarr;</a>
+                </div>
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">5</span>
+                        <span class="tool-map-icon">&#x1F9E9;</span>
+                    </div>
+                    <h4>플러그인</h4>
+                    <div class="tmc-en">Plugins · 묶음 패키지</div>
+                    <p>스킬과 MCP를 한 묶음으로 포장해 한 번에 설치합니다. 앞의 네 종류를 담는 그릇이라고 보면 됩니다.</p>
+                    <a href="code-plugin.html" class="tmc-link">스킬·MCP 플러그인 &rarr;</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 3: MCP와 커넥터 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec3"><span class="step-badge">MCP와 커넥터</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="section-intro">
+            <span class="si-label">가장 헷갈리는 둘</span>
+            <span class="si-text">MCP와 커넥터는 같은 것의 두 얼굴입니다. 여기만 짚으면 나머지는 쉽습니다</span>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>MCP는 규약, 커넥터는 그 규약의 포장</h2>
+            <p>둘을 헷갈리는 사람이 많습니다. 정리는 간단합니다. <strong>MCP는 외부 시스템을 잇는 약속된 방식(규약)</strong>이고, <strong>커넥터는 그 규약을 클릭 한 번으로 쓰게 만든 포장</strong>입니다. 콘센트 규격과 멀티탭의 관계와 같습니다. 규격이 있어야 멀티탭이 나오고, 사용자는 멀티탭만 꽂으면 됩니다.</p>
+            <div class="compare-grid">
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:#6E8BA0;"></span><h4>MCP · 규약 (개발자 쪽)</h4></div>
+                    <ul>
+                        <li>외부 시스템을 도구로 잇는 약속된 방식</li>
+                        <li>터미널에서 <code style="font-family:'SF Mono',Consolas,monospace">claude mcp add</code>로 연결</li>
+                        <li>목록에 없는 서비스도 직접 붙임</li>
+                        <li>설정과 권한을 손으로 다룸</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--skill-green);"></span><h4>커넥터 · 포장 (누구나)</h4></div>
+                    <ul>
+                        <li>같은 MCP를 메뉴에서 클릭으로 연결</li>
+                        <li>Claude 데스크톱과 웹의 설정에서 켜고 끔</li>
+                        <li>Gmail, 드라이브, 노션처럼 준비된 것만</li>
+                        <li>코드나 터미널이 필요 없음</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>한 표로 비교</h2>
+            <div class="nm-table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>구분</th><th>MCP</th><th>커넥터</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>정체</strong></td><td>연결 규약(프로토콜)</td><td>규약을 입힌 클릭 버전</td></tr>
+                        <tr><td><strong>쓰는 사람</strong></td><td>개발자, 직접 연결</td><td>누구나, 준비된 목록에서</td></tr>
+                        <tr><td><strong>연결 방법</strong></td><td>터미널에 <code style="font-family:'SF Mono',Consolas,monospace">claude mcp add</code></td><td>설정에서 토글로 켜기</td></tr>
+                        <tr><td><strong>자유도</strong></td><td>어떤 서비스든 붙임</td><td>제공되는 것만</td></tr>
+                        <tr><td><strong>비유</strong></td><td>콘센트 규격</td><td>완제품 멀티탭</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="key-message reveal" style="margin-top:18px;">
+                <p>그래서 <span class="km-highlight">"MCP를 쓴다"</span>와 <span class="km-highlight">"커넥터를 붙인다"</span>는 대개 같은 일을 가리킵니다.<br>
+                <span style="font-size: 15px; font-weight: 500; color: #5C5650;">개발자는 MCP라 부르고, 일반 사용자는 커넥터라 부를 뿐입니다.</span></p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 4: 무엇을 고르나 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec4"><span class="step-badge">무엇을 고르나</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="section-intro">
+            <span class="si-label">상황별 선택</span>
+            <span class="si-text">하고 싶은 일부터 거꾸로 고르면 빠릅니다</span>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>내 상황엔 무엇이 맞을까</h2>
+            <div class="nm-table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>하고 싶은 일</th><th>고를 도구</th><th>이유</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>코드 없이 Gmail, 드라이브, 노션을 붙이고 싶다</td><td><strong style="color:var(--ant-orange);">커넥터</strong></td><td>클릭만으로 연결</td></tr>
+                        <tr><td>사내 시스템이나 특정 API를 직접 잇고 싶다</td><td><strong style="color:var(--ant-orange);">MCP</strong></td><td>원하는 서비스를 자유롭게 연결</td></tr>
+                        <tr><td>같은 작업 절차를 매번 똑같이 반복한다</td><td><strong style="color:var(--ant-orange);">스킬</strong></td><td>한 번 가르치면 재사용</td></tr>
+                        <tr><td>파일, 터미널, 웹 검색이면 충분하다</td><td><strong style="color:var(--ant-orange);">내장 도구</strong></td><td>설치 없이 바로 사용</td></tr>
+                        <tr><td>팀에 도구 한 벌을 한 번에 깔고 싶다</td><td><strong style="color:var(--ant-orange);">플러그인</strong></td><td>묶음으로 배포</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="highlight-box reveal" style="margin-top:18px;">
+                <div class="hl-title">비개발자라면</div>
+                <p>커넥터와 스킬만으로도 대부분 됩니다. <strong>MCP는 붙이고 싶은 외부 시스템이 커넥터 목록에 없을 때 꺼내는 카드</strong>입니다.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 5: 연결하는 법 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec5"><span class="step-badge">연결하는 법</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="section-intro">
+            <span class="si-label">직접 붙여보기</span>
+            <span class="si-text">도구를 붙이는 길은 크게 세 가지입니다</span>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>세 가지 연결 방법</h2>
+            <div class="comp-grid cols-3" style="margin-top: 4px;">
+                <div class="comp-item">
+                    <div class="comp-icon">&#x1F517;</div>
+                    <h4>커넥터 추가</h4>
+                    <div class="comp-q">클릭으로</div>
+                    <p>Claude 데스크톱이나 웹의 설정에서 커넥터 목록을 열고, 원하는 서비스를 켭니다. 로그인 한 번이면 끝납니다. 코드가 필요 없습니다.</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2328;&#xFE0F;</div>
+                    <h4>claude mcp add</h4>
+                    <div class="comp-q">터미널 한 줄</div>
+                    <p>Claude Code에서 한 줄로 외부 MCP 서버를 붙입니다. 커넥터 목록에 없는 서비스도 직접 연결합니다.</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x1F9E9;</div>
+                    <h4>플러그인 설치</h4>
+                    <div class="comp-q">묶음으로</div>
+                    <p>스킬과 MCP가 한 벌로 묶인 플러그인을 설치하면, 도구 여러 개가 한 번에 붙습니다. 팀 단위로 도구를 맞출 때 편합니다.</p>
+                </div>
+            </div>
+
+            <div class="prompt-block" style="margin-top: 18px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">터미널 예시</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'mcpAdd')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="mcpAdd"><span class="cm"># 외부 MCP 서버를 도구로 붙이기</span>
+claude mcp add <span class="val">카카오맵</span> -- npx -y @playmcp/kakao-map
+
+<span class="cm"># 지금 붙어 있는 도구 확인</span>
+claude mcp list</pre>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">실제로 따라해 보기</div>
+                <p>붙이는 전체 흐름은 실전 예제에서 단계별로 따라갈 수 있습니다. 카카오 도구 연결은 <a href="playmcp-kakao.html" style="color:var(--ant-orange);font-weight:700;">PlayMCP 카카오 예제</a>, 법제처 커넥터 추가는 <a href="korean-law-mcp.html" style="color:var(--ant-orange);font-weight:700;">법제처 MCP 예제</a>를 보세요.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 6: 한국형 MCP ═══════ -->
+    <div class="step-divider reveal content-section" id="sec6"><span class="step-badge">한국형 MCP</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="section-intro">
+            <span class="si-label">바로 쓰는 예시</span>
+            <span class="si-text">한국 업무에 바로 붙는 공공 데이터 MCP들이 이미 나와 있습니다</span>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>한국 공공 데이터를 붙이는 MCP</h2>
+            <p class="card-subtitle">법령, 통계, 공시, 학교 정보 같은 한국 공공 데이터를 Claude가 원문 기준으로 직접 조회하게 만드는 MCP입니다. 아래 일곱 가지는 그 대표 예시입니다</p>
+            <div class="kmcp-grid reveal">
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">1</span>
+                        <span class="tool-map-icon">&#x2696;&#xFE0F;</span>
+                    </div>
+                    <h4>korean-law-mcp</h4>
+                    <div class="tmc-en">법제처 · 법령</div>
+                    <p>법제처 API를 Claude가 직접 조회합니다. 법령, 판례, 조례, 조약을 원문 그대로 확인합니다.</p>
+                    <a href="https://github.com/chrisryugj/korean-law-mcp" class="tmc-link" target="_blank" rel="noopener">바로가기 &rarr;</a>
+                </div>
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">2</span>
+                        <span class="tool-map-icon">&#x1F4C4;</span>
+                    </div>
+                    <h4>kordoc</h4>
+                    <div class="tmc-en">문서 변환 · HWP</div>
+                    <p>한국 업무의 최종 보스인 HWP를 다룹니다. HWP, HWPX, PDF, XLSX, DOCX를 읽기 좋은 Markdown으로 바꿉니다.</p>
+                    <a href="https://github.com/chrisryugj/kordoc" class="tmc-link" target="_blank" rel="noopener">바로가기 &rarr;</a>
+                </div>
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">3</span>
+                        <span class="tool-map-icon">&#x1F4CA;</span>
+                    </div>
+                    <h4>korean-dart-mcp</h4>
+                    <div class="tmc-en">OpenDART · 공시</div>
+                    <p>OpenDART 공시를 Claude가 직접 분석합니다. 기업 공시, 재무제표, XBRL, 내부자 거래 신호까지 봅니다.</p>
+                    <a href="https://github.com/chrisryugj/korean-dart-mcp" class="tmc-link" target="_blank" rel="noopener">바로가기 &rarr;</a>
+                </div>
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">4</span>
+                        <span class="tool-map-icon">&#x1F4C8;</span>
+                    </div>
+                    <h4>korean-stats-mcp</h4>
+                    <div class="tmc-en">KOSIS · 공식 통계</div>
+                    <p>KOSIS 공식 통계를 Claude가 직접 조회합니다. 보고서나 답변에 쓸 숫자를 출처와 함께 확인합니다.</p>
+                    <a href="https://github.com/chrisryugj/korean-stats-mcp" class="tmc-link" target="_blank" rel="noopener">바로가기 &rarr;</a>
+                </div>
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">5</span>
+                        <span class="tool-map-icon">&#x1F3D7;&#xFE0F;</span>
+                    </div>
+                    <h4>archhub-mcp</h4>
+                    <div class="tmc-en">건축HUB · 건물 데이터</div>
+                    <p>국토교통부 건축HUB 데이터를 연결합니다. 건축물대장, 인허가, 노후건물, 공시가격, 철거 이력을 확인합니다.</p>
+                    <a href="https://github.com/chrisryugj/archhub-mcp" class="tmc-link" target="_blank" rel="noopener">바로가기 &rarr;</a>
+                </div>
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">6</span>
+                        <span class="tool-map-icon">&#x1F4A1;</span>
+                    </div>
+                    <h4>korean-patent-mcp</h4>
+                    <div class="tmc-en">KIPRIS · 특허</div>
+                    <p>KIPRIS 기반 지식재산 검색 MCP입니다. 특허, 실용신안, 상표, 디자인을 Claude가 직접 검색합니다.</p>
+                    <a href="https://github.com/chrisryugj/korean-patent-mcp" class="tmc-link" target="_blank" rel="noopener">바로가기 &rarr;</a>
+                </div>
+                <div class="tool-map-card">
+                    <div class="tool-map-head">
+                        <span class="tool-map-num">7</span>
+                        <span class="tool-map-icon">&#x1F3EB;</span>
+                    </div>
+                    <h4>schoolinfo-mcp</h4>
+                    <div class="tmc-en">학교알리미 · NEIS</div>
+                    <p>학교알리미와 NEIS 정보를 연결합니다. 급식, 학생수, 학사일정, 수행평가 계획을 학교명만으로 확인합니다.</p>
+                    <a href="https://github.com/chrisryugj/schoolinfo-mcp" class="tmc-link" target="_blank" rel="noopener">바로가기 &rarr;</a>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">붙이는 법은 똑같습니다</div>
+                <p>위 MCP들도 앞에서 본 세 가지 연결 방법 중 하나로 붙입니다. 대부분 <code>claude mcp add</code> 터미널 한 줄이면 됩니다. 각 링크의 안내를 따라 키 발급과 설치 과정을 확인하세요.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 출처 섹션 -->
+    <div class="ref-section reveal">
+        <div class="ref-title">참고 자료</div>
+        <div class="ref-links">
+            <a class="ref-link" href="https://modelcontextprotocol.io" target="_blank" rel="noopener">
+                <span class="ref-icon">&#x1F4D6;</span>
+                <span>
+                    Model Context Protocol 공식 문서<br>
+                    <span style="font-size: 12px; color: #999; font-weight: 400;">MCP 규약 소개와 연결 방법</span>
+                </span>
+                <span class="ref-desc">원문</span>
+            </a>
+            <a class="ref-link" href="https://docs.claude.com/en/docs/claude-code/mcp" target="_blank" rel="noopener">
+                <span class="ref-icon">&#x1F517;</span>
+                <span>
+                    Anthropic | Claude Code의 MCP 연결 안내<br>
+                    <span style="font-size: 12px; color: #999; font-weight: 400;">claude mcp add 사용법과 커넥터</span>
+                </span>
+                <span class="ref-desc">원문</span>
+            </a>
+        </div>
+        <p style="font-size: 12px; color: #999; margin-top: 14px; line-height: 1.7;">
+            이 페이지의 개념과 분류는 위 Anthropic 문서를 바탕으로 교육 및 강의 목적으로 정리한 것입니다.<br>
+원문의 저작권은 Anthropic에 있습니다.
+        </p>
+    </div>
+
+    <!-- CTA 섹션 -->
+    <div class="cta-section reveal">
+        <h3>이제 이 도구로 어떻게 일해야 할까?</h3>
+        <p>도구는 Claude에게 손발을 줍니다. 그 손발로 일하는 팀을 어떻게 불러 쓰는지는 멀티 에이전트 소환에서 이어집니다.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn secondary" href="harness-engineering.html">&larr; 하네스 엔지니어링이란?</a>
+            <a class="cta-btn primary" href="harness-workflows.html">멀티 에이전트 소환 &rarr;</a>
+        </div>
+    </div>
+</main>
+
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+// ── 스크롤 애니메이션 ──
+var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+// ── 그리드 stagger 애니메이션 ──
+var gridSelectors = '.role-grid, .comp-grid, .grade-grid, .compare-grid';
+document.querySelectorAll(gridSelectors).forEach(function(grid) {
+    var children = grid.children;
+    for (var i = 0; i < children.length; i++) {
+        children[i].classList.add('stagger-child');
+        children[i].style.transitionDelay = (i * 0.1) + 's';
+    }
+});
+var staggerObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            var children = entry.target.children;
+            for (var i = 0; i < children.length; i++) {
+                children[i].classList.add('visible');
+            }
+        }
+    });
+}, { threshold: 0.15 });
+document.querySelectorAll(gridSelectors).forEach(function(grid) {
+    staggerObserver.observe(grid);
+});
+
+// ── 서브메뉴 활성화 ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a');
+    var sections = [];
+    var scrollEndTimer = null;
+    var clickedLink = null;
+
+    links.forEach(function(l){
+        var id = l.getAttribute('data-sec');
+        var el = document.getElementById(id);
+        if(el) sections.push({el:el, link:l});
+
+        l.addEventListener('click', function(){
+            links.forEach(function(x){ x.classList.remove('active'); });
+            l.classList.add('active');
+            clickedLink = l;
+        });
+    });
+
+    function update(){
+        if(clickedLink) return;
+        var smEl = document.getElementById('subMenu');
+        var scrollY = window.scrollY + (smEl ? smEl.offsetHeight : 0) + 16;
+        var current = null;
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                // 가로 서브메뉴만 스크롤한다. sticky 컨테이너 안에서 scrollIntoView를 부르면
+                // 브라우저가 창을 서브메뉴의 원래(고정 전) 위치로 끌어올려 하단을 못 보게 만든다.
+                var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.clientWidth) / 2;
+                nav.scrollTo({left: target, behavior: 'smooth'});
+            }
+        }
+    }
+    window.addEventListener('scroll', function(){
+        if(scrollEndTimer) clearTimeout(scrollEndTimer);
+        scrollEndTimer = setTimeout(function(){
+            clickedLink = null;
+            update();
+        }, 150);
+        update();
+    }, {passive:true});
+    update();
+})();
+
+// ── 스크롤 프로그레스 바 ──
+(function(){
+    var bar = document.getElementById('scrollProgress');
+    if(!bar) return;
+    function updateProgress(){
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = progress + '%';
+    }
+    window.addEventListener('scroll', updateProgress, {passive:true});
+    updateProgress();
+})();
+
+function copyPrompt(btn, sourceId) {
+    var id = sourceId || btn.closest('.prompt-block').querySelector('pre').id;
+    var text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(function() {
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 복사됨';
+        setTimeout(function() {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> 복사하기';
+        }, 2000);
+    });
+}
+</script>
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(165,0,52,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #A50034; box-shadow: 0 2px 8px rgba(165,0,52,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #B0544A; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    /* 헤더 상단 여백 통일 */
+    header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 50px 0 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+
+<!-- 가이드 소개 모달: 단일 소스 assets/about-modal.js 에서 주입 -->
+<script src="assets/about-modal.js"></script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
+    <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/showcase-stopwatch.html">
+    <meta property="og:title" content="AI ROASTING · Claude 완전 정복">
+    <meta property="og:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/showcase-stopwatch.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI ROASTING · Claude 완전 정복">
+    <meta name="twitter:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>스탑워치 쇼케이스 | AI ROASTING</title>
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+            --c1: #3a7a5a;
+            --c2: #2a6a9a;
+            --c3: #8a5a2a;
+            --c4: #6a4a8a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { word-break: keep-all;
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, system-ui, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Header ── */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* ── Brand (로고) ── */
+        .hero-brand {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 19px; font-weight: 800; letter-spacing: 1px;
+            text-transform: uppercase; color: rgba(255,255,255,0.95);
+            margin-bottom: 14px; text-decoration: none;
+            position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            line-height: 1;
+        }
+        .hero-brand-logo {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 19px; height: 19px; border-radius: 50%;
+            background: rgba(253,246,240,0.96); box-shadow: 0 0 0 1px rgba(255,255,255,0.45);
+        }
+        .hero-brand-logo img {
+            width: 19px; height: 19px; display: block; border-radius: 50%;
+            transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .hero-brand:hover .hero-brand-logo img { transform: rotate(360deg) scale(1.1); }
+
+        /* ── 페이지 전환 (갤러리 ↔ 시) ── */
+        .header-pages {
+            max-width: 700px;
+            margin: 22px auto 0;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            position: relative; z-index: 1;
+        }
+        .header-page-link {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.72);
+            font-size: 14px; font-weight: 700;
+            padding: 12px 22px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.32), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1 1 0; min-width: 0; max-width: 280px;
+            white-space: nowrap;
+        }
+        .header-page-link:hover { background: rgba(255,255,255,0.13); color: #fff; transform: translateY(-1px); }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .hpl-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; flex-shrink: 0;
+        }
+        .hpl-icon svg { width: 16px; height: 16px; display: block; }
+        @media (max-width: 768px) {
+            .header-pages { gap: 8px; }
+            .header-page-link { font-size: 12px; padding: 9px 14px; border-radius: 12px; }
+            .hpl-icon svg { width: 14px; height: 14px; }
+        }
+
+        /* ── Container ── */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── Intro Card ── */
+        .intro-card {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-inset);
+            padding: 36px 40px;
+            margin-bottom: 44px;
+        }
+        .intro-eyebrow {
+            display: inline-block;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 2.5px; text-transform: uppercase;
+            color: var(--ant-orange);
+            margin-bottom: 14px;
+        }
+        .intro-card h2 {
+            font-size: 23px; font-weight: 800; color: #3A3530;
+            line-height: 1.4; letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+        .intro-card p {
+            font-size: 15px;
+            color: #7a756e;
+            line-height: 1.9;
+        }
+        .intro-card strong { color: #3A3530; font-weight: 700; }
+
+        /* ── Sub Menu (Sticky) ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 200px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange) !important;
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #C8C3BA;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700; color: #fff;
+            transition: all 0.2s;
+        }
+        .sm-title { font-size: 14px; font-weight: 600; color: #7A756E; transition: color 0.2s; white-space: nowrap; }
+        .sm-sub { font-size: 12px; color: #aaa; transition: color 0.2s; white-space: nowrap; }
+        .sm-count { font-weight: 700; }
+
+        /* ── Category Label ── */
+        .cat-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 52px 0 24px;
+            position: relative;
+        }
+        .cat-label:first-of-type { margin-top: 8px; }
+        .cat-label { scroll-margin-top: 160px; }
+        .cat-label::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0; right: 0;
+            height: 1px;
+            background: #D8D4CE;
+        }
+        .cat-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            padding: 12px 32px;
+            border-radius: 40px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            position: relative;
+            z-index: 1;
+        }
+        .cat-sub {
+            font-size: 14px; font-weight: 800;
+            letter-spacing: 0.3px;
+        }
+        .cat-count {
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: #fff;
+            width: 22px; height: 22px; border-radius: 50%;
+            margin-left: 10px;
+        }
+        #s1 .cat-sub { color: var(--c1); }
+        #s1 .cat-count { background: var(--c1); color: #fff; }
+        #s2 .cat-sub { color: var(--c2); }
+        #s2 .cat-count { background: var(--c2); color: #fff; }
+        #s3 .cat-sub { color: var(--c3); }
+        #s3 .cat-count { background: var(--c3); color: #fff; }
+        #s4 .cat-sub { color: var(--c4); }
+        #s4 .cat-count { background: var(--c4); color: #fff; }
+
+        /* ── Card Grid ── */
+        .work-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        /* ── Work Card ── */
+        .work-card {
+            display: flex;
+            flex-direction: column;
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            color: inherit;
+            text-decoration: none;
+            transition: transform 0.3s cubic-bezier(.22,.61,.36,1), box-shadow 0.3s ease;
+        }
+        .work-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--nm-shadow);
+        }
+
+        /* 라이브 스탑워치 무대 (실제 작동하는 iframe) */
+        .work-stage {
+            position: relative;
+            width: 100%;
+            height: 360px;
+            overflow: hidden;
+            background: #F4F1EB;
+            border-bottom: 1px solid #E3DFD8;
+        }
+        .work-stage iframe {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            border: 0; display: block;
+        }
+        .live-tag {
+            position: absolute; top: 10px; right: 10px; z-index: 2; pointer-events: none;
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 10px; font-weight: 800; letter-spacing: 0.4px; color: #fff;
+            padding: 4px 9px; border-radius: 20px;
+            background: rgba(26,25,23,0.62);
+            -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+        }
+        .live-tag::before {
+            content: ''; width: 6px; height: 6px; border-radius: 50%;
+            background: #5BD46A; box-shadow: 0 0 0 0 rgba(91,212,106,0.6);
+            animation: livePulse 1.8s ease-out infinite;
+        }
+        @keyframes livePulse { 0%{box-shadow:0 0 0 0 rgba(91,212,106,0.5)} 70%{box-shadow:0 0 0 7px rgba(91,212,106,0)} 100%{box-shadow:0 0 0 0 rgba(91,212,106,0)} }
+
+        .work-body { padding: 16px 20px 20px; flex: 1; display: flex; flex-direction: column; }
+        .work-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
+        .work-name { font-size: 16px; font-weight: 800; color: #3A3530; }
+        .work-en { font-size: 12px; font-weight: 500; color: #b3ada4; }
+        .work-style {
+            display: inline-block; margin-top: 8px; align-self: flex-start;
+            font-size: 11px; font-weight: 700;
+            padding: 4px 11px; border-radius: 20px;
+        }
+        [data-section="s1"] .work-style { color: var(--c1); background: rgba(58,122,90,0.10); }
+        [data-section="s2"] .work-style { color: var(--c2); background: rgba(42,106,154,0.10); }
+        [data-section="s3"] .work-style { color: var(--c3); background: rgba(138,90,42,0.12); }
+        [data-section="s4"] .work-style { color: var(--c4); background: rgba(106,74,138,0.12); }
+        .work-body .work-style { margin-bottom: 2px; }
+
+        /* ── CTA Card ── */
+        .cta-card {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            border-radius: 24px;
+            padding: 48px 32px;
+            text-align: center;
+            margin: 64px 0 48px;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-card::before {
+            content: '';
+            position: absolute; top: -60px; right: -40px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,180,120,0.12) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .cta-title { font-size: 24px; font-weight: 800; color: #ffffff; margin-bottom: 10px; position: relative; z-index: 1; }
+        .cta-desc { font-size: 15px; color: rgba(255,255,255,0.78); line-height: 1.75; margin-bottom: 28px; position: relative; z-index: 1; }
+        .cta-buttons {
+            display: flex; justify-content: center; gap: 12px;
+            flex-wrap: nowrap; max-width: 680px;
+            margin: 0 auto; position: relative; z-index: 1;
+        }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; font-family: inherit; font-size: 14px; font-weight: 700;
+            padding: 13px 28px; border-radius: 10px;
+            text-decoration: none; transition: all 0.25s;
+            white-space: nowrap; flex: 1; max-width: 320px;
+        }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.3); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.78); border: 1px solid rgba(255,255,255,0.18); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.15); color: #fff; transform: translateY(-2px); }
+
+        /* ── Footer ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* ── Scroll Reveal Animation ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s cubic-bezier(.22,.61,.36,1), transform 0.7s cubic-bezier(.22,.61,.36,1);
+            will-change: opacity, transform;
+        }
+        .reveal.is-visible { opacity: 1; transform: translateY(0); }
+        .work-card.reveal { transition-delay: calc(var(--i, 0) * 90ms); }
+
+        /* Header entrance */
+        header h1, header > p {
+            opacity: 0;
+            transform: translateY(-12px);
+            animation: headerFadeIn 0.8s cubic-bezier(.22,.61,.36,1) forwards;
+        }
+        header > p { animation-delay: 0.12s; }
+        @keyframes headerFadeIn { to { opacity: 1; transform: translateY(0); } }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal, header h1, header > p {
+                opacity: 1 !important; transform: none !important;
+                animation: none !important; transition: none !important;
+            }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) { .work-list { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 36px 16px 24px; }
+            .intro-card { padding: 22px 20px; }
+            .work-list { gap: 12px; }
+            .work-preview { height: 168px; }
+            .sub-menu { padding: 10px 0; gap: 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 130px; }
+            .sm-title { font-size: 12px; }
+            .sm-sub { font-size: 11px; }
+            .cat-label { scroll-margin-top: 130px; }
+        }
+        @media (max-width: 600px) { .work-list { grid-template-columns: 1fr; } }
+        @media (max-width: 480px) { header h1 { font-size: 24px; } }
+
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) { .hero-video { display: none; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <a href="index.html" class="back-link">&larr; 목록으로</a>
+    <h1>스탑워치 쇼케이스</h1>
+    <p>Claude로 직접 만든 스탑워치 18선 &middot; 같은 기능, 전혀 다른 상상력</p>
+    <div class="header-pages">
+        <a href="showcase-poems.html" class="header-page-link">시로 쓴 자화상</a>
+        <a href="showcase-stopwatch.html" class="header-page-link active">스탑워치 쇼케이스</a>
+        <a href="showcase-skills.html" class="header-page-link">스킬 쇼케이스</a>
+        <a href="hackathon.html" class="header-page-link">해커톤 수상작</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 (Sticky) -->
+<nav class="sub-menu" id="subMenu" aria-label="유형 바로가기">
+    <a href="#s1" data-sec="s1">
+        <span class="sm-num" style="background:var(--c1)">1</span>
+        <span class="sm-title">캐릭터 &amp; 귀여움</span>
+        <span class="sm-sub">Characters <span class="sm-count">(5)</span></span>
+    </a>
+    <a href="#s2" data-sec="s2">
+        <span class="sm-num" style="background:var(--c2)">2</span>
+        <span class="sm-title">예술 &amp; 그래픽</span>
+        <span class="sm-sub">Art &amp; Graphic <span class="sm-count">(4)</span></span>
+    </a>
+    <a href="#s3" data-sec="s3">
+        <span class="sm-num" style="background:var(--c3)">3</span>
+        <span class="sm-title">클래식 타임피스</span>
+        <span class="sm-sub">Classic Timepiece <span class="sm-count">(4)</span></span>
+    </a>
+    <a href="#s4" data-sec="s4">
+        <span class="sm-num" style="background:var(--c4)">4</span>
+        <span class="sm-title">테마 공간</span>
+        <span class="sm-sub">Themed Spaces <span class="sm-count">(5)</span></span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- 인트로 -->
+    <div class="intro-card reveal">
+        <span class="intro-eyebrow">Curation</span>
+        <h2>같은 스탑워치, 18개의 상상력</h2>
+        <p>시작은 모두 똑같았습니다. <strong>"스탑워치 하나 만들어줘."</strong> 시작하고 멈추고, 랩을 찍고, 처음으로 되돌리는 기능까지 다르지 않습니다. 그런데 수강생 한 분 한 분이 머릿속에 그린 모습은 이렇게나 달랐습니다. 귀여운 동물부터 피카소의 큐비즘, 호그와트의 마법 시계, 레트로 게임기, 로켓 발사대까지요.</p>
+    </div>
+
+    <!-- ── 유형 1 · 캐릭터 & 귀여움 ── -->
+    <div class="cat-label reveal" id="s1">
+        <span class="cat-pill"><span class="cat-sub">캐릭터 &amp; 귀여움</span><span class="cat-count">5</span></span>
+    </div>
+    <div class="work-list" data-section="s1">
+
+        <div class="work-card reveal" style="--i:0">
+            <div class="work-stage"><iframe src="assets/stopwatch/01-dog.html" title="강아지 스탑워치" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">강아지 스탑워치</span><span class="work-en">Dog</span></div>
+                <span class="work-style">캐릭터</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:1">
+            <div class="work-stage"><iframe src="assets/stopwatch/02-cat.html" title="고양이 스탑워치" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">고양이 스탑워치</span><span class="work-en">Cat</span></div>
+                <span class="work-style">캐릭터</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:2">
+            <div class="work-stage"><iframe src="assets/stopwatch/03-corn.html" title="옥수수 스탑워치" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">옥수수 스탑워치</span><span class="work-en">Corn</span></div>
+                <span class="work-style">캐릭터 &middot; 사물</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:3">
+            <div class="work-stage"><iframe src="assets/stopwatch/04-tiger.html" title="푸른 호랑이 스탑워치" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">푸른 호랑이</span><span class="work-en">Derpy Tiger</span></div>
+                <span class="work-style">데몬 헌터스 &middot; 푸른 호랑이</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:4">
+            <div class="work-stage"><iframe src="assets/stopwatch/05-mario.html" title="슈퍼 마리오 스탑워치" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">슈퍼 마리오</span><span class="work-en">Super Mario</span></div>
+                <span class="work-style">레트로 게임 &middot; 픽셀 캐릭터</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── 유형 2 · 예술 & 그래픽 ── -->
+    <div class="cat-label reveal" id="s2">
+        <span class="cat-pill"><span class="cat-sub">예술 &amp; 그래픽</span><span class="cat-count">4</span></span>
+    </div>
+    <div class="work-list" data-section="s2">
+
+        <div class="work-card reveal" style="--i:0">
+            <div class="work-stage"><iframe src="assets/stopwatch/06-picasso.html" title="피카소 타이머" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">피카소 타이머</span><span class="work-en">Picasso</span></div>
+                <span class="work-style">큐비즘</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:1">
+            <div class="work-stage"><iframe src="assets/stopwatch/07-mondrian.html" title="몬드리안 스탑워치" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">몬드리안 스탑워치</span><span class="work-en">Mondrian</span></div>
+                <span class="work-style">데스틸</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:2">
+            <div class="work-stage"><iframe src="assets/stopwatch/08-timemachine.html" title="타임머신" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">팝 스탑워치</span><span class="work-en">Pop</span></div>
+                <span class="work-style">멤피스</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:3">
+            <div class="work-stage"><iframe src="assets/stopwatch/09-bull.html" title="이중섭 황소" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">이중섭 황소</span><span class="work-en">Bull</span></div>
+                <span class="work-style">이중섭 &middot; 황소</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── 유형 3 · 클래식 타임피스 ── -->
+    <div class="cat-label reveal" id="s3">
+        <span class="cat-pill"><span class="cat-sub">클래식 타임피스</span><span class="cat-count">4</span></span>
+    </div>
+    <div class="work-list" data-section="s3">
+
+        <div class="work-card reveal" style="--i:0">
+            <div class="work-stage"><iframe src="assets/stopwatch/10-hogwarts.html" title="호그와트 마법 시계" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">호그와트 마법 시계</span><span class="work-en">Hogwarts</span></div>
+                <span class="work-style">해리포터 · 마법</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:1">
+            <div class="work-stage"><iframe src="assets/stopwatch/11-chronometer.html" title="크로노미터" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">크로노미터</span><span class="work-en">Chronometer</span></div>
+                <span class="work-style">고딕 럭셔리</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:2">
+            <div class="work-stage"><iframe src="assets/stopwatch/12-steelchrono.html" title="스틸 크로노" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">스틸 크로노</span><span class="work-en">Steel Chrono</span></div>
+                <span class="work-style">메탈 리얼리즘</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:3">
+            <div class="work-stage"><iframe src="assets/stopwatch/13-chronographe.html" title="스위스 크로노그래프" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">스위스 크로노그래프</span><span class="work-en">Chronographe</span></div>
+                <span class="work-style">스위스 럭셔리</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── 유형 4 · 테마 공간 ── -->
+    <div class="cat-label reveal" id="s4">
+        <span class="cat-pill"><span class="cat-sub">테마 공간</span><span class="cat-count">5</span></span>
+    </div>
+    <div class="work-list" data-section="s4">
+
+        <div class="work-card reveal" style="--i:0">
+            <div class="work-stage"><iframe src="assets/stopwatch/14-retro.html" title="레트로 게임기" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">레트로 게임기</span><span class="work-en">Retro</span></div>
+                <span class="work-style">픽셀 &middot; 8비트</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:1">
+            <div class="work-stage"><iframe src="assets/stopwatch/15-rocket.html" title="로켓 발사" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">로켓 발사</span><span class="work-en">Rocket</span></div>
+                <span class="work-style">우주 &middot; 발사 시퀀스</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:2">
+            <div class="work-stage"><iframe src="assets/stopwatch/16-worldcup.html" title="월드컵 응원석" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">월드컵 응원석</span><span class="work-en">World Cup</span></div>
+                <span class="work-style">응원석 &middot; 전광판</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:3">
+            <div class="work-stage"><iframe src="assets/stopwatch/17-slot.html" title="슬롯머신 스탑워치" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">슬롯머신</span><span class="work-en">Slot Machine</span></div>
+                <span class="work-style">카지노 &middot; 릴</span>
+            </div>
+        </div>
+
+        <div class="work-card reveal" style="--i:4">
+            <div class="work-stage"><iframe src="assets/stopwatch/18-f1.html" title="F1 레이싱 스탑워치" loading="lazy"></iframe></div>
+            <div class="work-body">
+                <div class="work-head"><span class="work-name">F1 레이싱</span><span class="work-en">Formula 1</span></div>
+                <span class="work-style">서킷 &middot; 피트월 타이밍</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-card reveal">
+        <div class="cta-title">여러분도 이렇게 만들 수 있습니다.</div>
+        <div class="cta-desc">여기 열여덟 개 모두 코드 한 줄 몰라도, Claude에게 말로 부탁해서 만든 것들입니다.<br>똑같이 한마디에서 시작해, 여러분만의 스탑워치를 만들어 보세요.</div>
+        <div class="cta-buttons">
+            <a href="claude-code-101.html" class="cta-btn primary">클로드 코드 시작하기</a>
+            <a href="showcase-poems.html" class="cta-btn secondary">시로 쓴 자화상 보기</a>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    // 스크롤 등장
+    (function() {
+        var els = document.querySelectorAll('.reveal');
+        if (!('IntersectionObserver' in window)) {
+            els.forEach(function(el){ el.classList.add('is-visible'); });
+            return;
+        }
+        var io = new IntersectionObserver(function(entries){
+            entries.forEach(function(e){
+                if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+        els.forEach(function(el){ io.observe(el); });
+    })();
+
+    // 서브메뉴 스크롤 동기화
+    (function() {
+        var links = document.querySelectorAll('.sub-menu a[data-sec]');
+        var navEl = document.getElementById('subMenu');
+        var targets = [];
+        links.forEach(function(l){
+            var el = document.getElementById(l.dataset.sec);
+            if(el) targets.push({id:l.dataset.sec, el:el, link:l});
+        });
+        function navHeight(){ return navEl ? navEl.getBoundingClientRect().height : 90; }
+        links.forEach(function(link){
+            link.addEventListener('click', function(e){
+                var sec = document.getElementById(link.dataset.sec);
+                if(!sec) return;
+                e.preventDefault();
+                var BUFFER = 28;
+                var top = sec.getBoundingClientRect().top + window.scrollY - navHeight() - BUFFER;
+                window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+                history.replaceState(null, '', '#' + link.dataset.sec);
+            });
+        });
+        function update(){
+            var scrollY = window.scrollY + navHeight() + 30;
+            var current = targets[0];
+            for(var i = 0; i < targets.length; i++){
+                if(targets[i].el.offsetTop <= scrollY) current = targets[i];
+            }
+            links.forEach(function(l){ l.classList.remove('active'); });
+            if(current) current.link.classList.add('active');
+            var activeLink = document.querySelector('.sub-menu a.active');
+            if(activeLink && navEl){
+                var linkRect = activeLink.getBoundingClientRect();
+                var navRect = navEl.getBoundingClientRect();
+                if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                    var target = activeLink.offsetLeft - (navEl.clientWidth - activeLink.clientWidth) / 2;
+                    navEl.scrollTo({left: target, behavior: 'smooth'});
+                }
+            }
+        }
+        window.addEventListener('scroll', update, {passive:true});
+        update();
+    })();
+</script>
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important; right: 14px !important; left: auto !important; bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important; height: 44px !important;
+    border-radius: 12px !important; border: none !important; cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important; padding: 0 !important; transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none; position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45); opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none; position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF; box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%); transition: transform 0.28s ease; box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17; line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px; margin: 0 0 12px; border-bottom: 1px solid rgba(0,0,0,0.08); word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px; margin: 0 0 16px; padding: 14px 16px;
+    background: #EDEAE4; border-radius: 12px; box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none; font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    background: #EDEAE4; border-radius: 12px; box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none; color: #3A3530; transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%; background: #B0544A; color: #fff;
+    font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    header { padding-top: 24px !important; }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="유형 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back"><span aria-hidden="true">←</span><span>목록으로</span></a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    if (heading) {
+        var pageTitle = '';
+        var h1 = document.querySelector('header h1');
+        if (h1) pageTitle = h1.textContent.trim();
+        if (!pageTitle && document.title) pageTitle = document.title.split('|')[0].trim();
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() { setOpen(!document.body.classList.contains('sm-menu-open')); });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+
+<script src="assets/about-modal.js"></script>
+
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+</body>
+</html>

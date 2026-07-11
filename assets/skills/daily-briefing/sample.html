@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>데일리 투자 브리핑 (샘플)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  @font-face{font-family:'Pretendard';src:url('../../assets/fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  :root{
+    --bg:#EDEAE4;
+    --panel:#FFFFFF;
+    --panel-2:#F4F1EB;
+    --line:#E3DFD8;
+    --line-2:#D8D4CE;
+    --txt:#3A3530;
+    --muted:#7a756e;
+    --dim:#9b958c;
+    --up:#e0394a;      /* 상승 빨강 (한국 관례) */
+    --down:#2563eb;    /* 하락 파랑 */
+    --accent:#c9952a;
+    --accent-2:#1f9e78;
+    --chip:#F4F1EB;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:'Pretendard',system-ui,sans-serif;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+    padding:0 0 80px;
+  }
+  .mono{font-family:'JetBrains Mono',monospace}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* ===== Header ===== */
+  header{
+    border-bottom:1px solid var(--line);
+    background:rgba(244,241,235,.85);
+    backdrop-filter:blur(10px);
+    position:sticky;top:0;z-index:20;
+  }
+  .head-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+  .brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .brand h1{font-size:18px;font-weight:900;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 0 4px rgba(31,158,120,.16);flex:none}
+  .brand p{font-size:12.5px;color:var(--muted);font-weight:400}
+  .back{
+    flex:none;color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;
+    border:1px solid var(--line);padding:7px 12px;border-radius:9px;transition:.18s;white-space:nowrap;
+  }
+  .back:hover{color:var(--txt);border-color:var(--accent);background:var(--panel)}
+
+  /* ===== Hero / meta ===== */
+  .hero{padding:30px 0 8px}
+  .badge{
+    display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;
+    color:#9a6f12;background:rgba(201,149,42,.12);border:1px solid rgba(201,149,42,.34);
+    padding:6px 12px;border-radius:999px;margin-bottom:16px;
+  }
+  .badge::before{content:"●";color:var(--accent);font-size:9px}
+  .title-line{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .hero h2{font-size:30px;font-weight:900;letter-spacing:-.6px;line-height:1.2}
+  .hero .when{color:var(--muted);font-size:14px;font-weight:500}
+  .session{
+    display:inline-block;margin-top:12px;font-size:12.5px;color:var(--accent-2);
+    background:rgba(31,158,120,.10);border:1px solid rgba(31,158,120,.28);
+    padding:4px 10px;border-radius:7px;font-weight:500;
+  }
+
+  /* ===== Section ===== */
+  section{margin-top:34px}
+  .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .sec-head .ic{font-size:18px}
+  .sec-head h3{font-size:16px;font-weight:800;letter-spacing:-.2px}
+  .sec-head .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+
+  /* Headline card */
+  .headline{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;padding:22px 24px;
+  }
+  .headline .lead{font-size:18px;font-weight:700;line-height:1.5;letter-spacing:-.3px}
+  .headline .lead b{color:var(--accent)}
+  .headline .sub{margin-top:10px;color:var(--muted);font-size:13.5px}
+
+  /* ===== Index cards ===== */
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px 15px 13px;
+    position:relative;overflow:hidden;transition:.18s;box-shadow:0 1px 2px rgba(58,53,48,.04);
+  }
+  .card:hover{border-color:var(--accent-2);transform:translateY(-2px)}
+  .card .nm{font-size:12.5px;color:var(--muted);font-weight:500}
+  .card .val{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:700;margin-top:8px;letter-spacing:-.5px}
+  .card .chg{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;margin-top:3px}
+  .card .spark{position:absolute;right:10px;top:12px;opacity:.85}
+  .up{color:var(--up)}
+  .down{color:var(--down)}
+  .flat{color:var(--muted)}
+  .region-tag{font-size:11px;color:var(--dim);font-weight:700;letter-spacing:1px;margin:4px 0 10px}
+
+  /* ===== Bar chart ===== */
+  .chartbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:0 1px 3px rgba(58,53,48,.05)}
+  .chart-title{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:4px}
+  .chart-asof{font-size:11.5px;color:var(--dim);margin-bottom:18px}
+  .bar-row{display:grid;grid-template-columns:130px 1fr 70px;align-items:center;gap:12px;margin-bottom:11px}
+  .bar-row .lbl{font-size:12.5px;color:var(--muted);text-align:right;font-weight:500}
+  .bar-track{position:relative;height:22px;background:var(--panel-2);border-radius:6px;overflow:hidden}
+  .bar-center{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line)}
+  .bar-fill{position:absolute;top:3px;bottom:3px;border-radius:4px;width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1)}
+  .bar-fill.pos{left:50%;background:linear-gradient(90deg,rgba(224,57,74,.55),var(--up))}
+  .bar-fill.neg{right:50%;background:linear-gradient(270deg,rgba(37,99,235,.55),var(--down))}
+  .bar-val{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700}
+  .legend{display:flex;gap:18px;margin-top:6px;font-size:11.5px;color:var(--dim)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+  /* macro mini grid */
+  .macro{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+  .macro .card .val{font-size:18px}
+
+  /* ===== News / 사실+시사점 2단 ===== */
+  .news{display:flex;flex-direction:column;gap:14px}
+  .item{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(58,53,48,.05)}
+  .item .top{padding:16px 20px 14px}
+  .item h4{font-size:15.5px;font-weight:700;letter-spacing:-.2px;line-height:1.45}
+  .item .fact{margin-top:8px;color:#4a443d;font-size:13.5px}
+  .src{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+  .src a,.src span{
+    font-size:11px;color:var(--muted);background:var(--chip);border:1px solid var(--line);
+    padding:3px 9px;border-radius:6px;text-decoration:none;font-weight:500;
+  }
+  .src a:hover{color:var(--txt);border-color:var(--line-2)}
+  .src .label{color:var(--dim);background:transparent;border:none;padding:3px 0}
+  .conf{font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px}
+  .conf.high{color:#157a5b;background:rgba(31,158,120,.12);border:1px solid rgba(31,158,120,.32)}
+  .conf.mid{color:#9a6f12;background:rgba(201,149,42,.12);border:1px solid rgba(201,149,42,.32)}
+
+  .sowhat{
+    background:var(--panel-2);
+    border-top:1px solid var(--line);padding:14px 20px;
+  }
+  .sowhat .tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--accent);margin-bottom:5px}
+  .sowhat p{font-size:13.5px;color:#46403a}
+  .split{margin-top:9px;font-size:12.5px;color:var(--muted);background:var(--panel-2);padding:8px 12px;border-radius:8px}
+  .split b{color:#1e4fa8;font-weight:700}
+
+  /* watchlist */
+  .watch .item .sowhat .tag{color:var(--accent-2)}
+  .timing{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--accent-2)}
+
+  /* checkpoints */
+  .checks{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .chk{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 1px 2px rgba(58,53,48,.04)}
+  .chk .day{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#fff;background:var(--accent);padding:3px 8px;border-radius:6px;flex:none;margin-top:1px}
+  .chk .day.kr{background:var(--accent-2)}
+  .chk .txt{font-size:13px;color:#4a443d}
+  .chk .txt b{color:var(--txt);font-weight:700}
+
+  /* disclaimer */
+  .disc{margin-top:34px;padding:16px 20px;background:var(--panel);border:1px dashed var(--line);border-radius:12px;color:var(--dim);font-size:12px;line-height:1.7}
+  .disc b{color:var(--muted)}
+  footer{text-align:center;color:var(--dim);font-size:11.5px;margin-top:26px}
+
+  @media(max-width:760px){
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .macro{grid-template-columns:1fr}
+    .checks{grid-template-columns:1fr}
+    .hero h2{font-size:24px}
+    .bar-row{grid-template-columns:92px 1fr 58px;gap:8px}
+    .head-row{padding:11px 0}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap head-row">
+    <div class="brand">
+      <h1><span class="dot"></span>데일리 투자 브리핑</h1>
+      <p>한국·미국 시장 뉴스를 검증해 "그래서 무슨 의미인가(시사점)" 중심으로 정리</p>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="page-topnav" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 22px"><a href="../../../showcase-skills.html" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#37352f;border:1px solid #e4e2dd;padding:9px 15px;border-radius:999px;font-size:13.5px;font-weight:600;text-decoration:none;white-space:nowrap;line-height:1">← 스킬 쇼케이스로 돌아가기</a><a href="https://github.com/airoasting/claude_guide/tree/main/skills/daily-briefing" target="_blank" rel="noopener" title="GitHub에서 이 스킬 보기" style="display:inline-flex;align-items:center;gap:6px;background:#1f2328;color:#fff;padding:9px 14px;border-radius:999px;font-size:13.5px;font-weight:600;text-decoration:none;white-space:nowrap;line-height:1"><svg width="15" height="15" viewBox="0 0 16 16" fill="#fff" aria-hidden="true" style="flex:none"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .271.53-1.04 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>GitHub<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="badge">샘플 데이터(데모용)</span>
+    <div class="title-line">
+      <h2>2026년 6월 19일 (금) 모닝 브리핑</h2>
+    </div>
+    <div class="when" style="margin-top:6px">작성 시각: 한국 6/19 07:40 · 간밤 미국 증시(6/18 종가) + 오늘 한국 증시 전망 구조</div>
+    <span class="session">오전 세션 · 미국 마감 → 한국 개장 전</span>
+  </div>
+
+  <!-- HEADLINE -->
+  <section id="headline">
+    <div class="sec-head"><span class="ic">📰</span><h3>오늘의 헤드라인</h3><span class="rule"></span></div>
+    <div class="headline">
+      <p class="lead">연준 <b>'매파적 동결'</b>에 미 증시 혼조 마감, 그러나 <b>엔비디아 신규 데이터센터 수주</b> 소식에 AI·전력 인프라가 지수를 떠받쳤다.</p>
+      <p class="sub">금리 인하 기대는 후퇴했지만 AI 설비투자 사이클은 견조하다. 매크로(긴축 장기화)와 마이크로(AI 자본지출)가 정면으로 갈린 하루였다.</p>
+    </div>
+  </section>
+
+  <!-- SNAPSHOT -->
+  <section id="snapshot">
+    <div class="sec-head"><span class="ic">📊</span><h3>시장 한눈에 보기</h3><span class="rule"></span></div>
+
+    <div class="region-tag">미국 증시 · 6/18 종가</div>
+    <div class="grid">
+      <div class="card">
+        <div class="nm">S&amp;P 500</div>
+        <div class="val">6,142.18</div>
+        <div class="chg down">−0.34% (−21.0)</div>
+        <svg class="spark" width="46" height="20" viewBox="0 0 46 20"><polyline fill="none" stroke="#2563eb" stroke-width="1.6" points="0,5 9,8 18,6 27,12 36,15 46,14"/></svg>
+      </div>
+      <div class="card">
+        <div class="nm">나스닥 종합</div>
+        <div class="val">20,418.7</div>
+        <div class="chg up">+0.41% (+83.2)</div>
+        <svg class="spark" width="46" height="20" viewBox="0 0 46 20"><polyline fill="none" stroke="#e0394a" stroke-width="1.6" points="0,15 9,13 18,14 27,9 36,7 46,4"/></svg>
+      </div>
+      <div class="card">
+        <div class="nm">다우 산업</div>
+        <div class="val">43,206.4</div>
+        <div class="chg down">−0.58% (−252)</div>
+        <svg class="spark" width="46" height="20" viewBox="0 0 46 20"><polyline fill="none" stroke="#2563eb" stroke-width="1.6" points="0,4 9,7 18,9 27,11 36,14 46,16"/></svg>
+      </div>
+      <div class="card">
+        <div class="nm">필라델피아 반도체</div>
+        <div class="val">5,488.9</div>
+        <div class="chg up">+1.12% (+60.7)</div>
+        <svg class="spark" width="46" height="20" viewBox="0 0 46 20"><polyline fill="none" stroke="#e0394a" stroke-width="1.6" points="0,16 9,12 18,13 27,8 36,6 46,3"/></svg>
+      </div>
+    </div>
+
+    <div class="region-tag" style="margin-top:18px">한국 증시 · 6/18 종가 (오늘 6/19 개장 전 참고)</div>
+    <div class="grid">
+      <div class="card">
+        <div class="nm">코스피</div>
+        <div class="val">2,918.4</div>
+        <div class="chg up">+0.72% (+20.9)</div>
+        <svg class="spark" width="46" height="20" viewBox="0 0 46 20"><polyline fill="none" stroke="#e0394a" stroke-width="1.6" points="0,14 9,12 18,9 27,10 36,6 46,5"/></svg>
+      </div>
+      <div class="card">
+        <div class="nm">코스닥</div>
+        <div class="val">847.6</div>
+        <div class="chg down">−0.21% (−1.8)</div>
+        <svg class="spark" width="46" height="20" viewBox="0 0 46 20"><polyline fill="none" stroke="#2563eb" stroke-width="1.6" points="0,7 9,6 18,9 27,8 36,11 46,12"/></svg>
+      </div>
+      <div class="card">
+        <div class="nm">코스피200</div>
+        <div class="val">392.1</div>
+        <div class="chg up">+0.81% (+3.1)</div>
+        <svg class="spark" width="46" height="20" viewBox="0 0 46 20"><polyline fill="none" stroke="#e0394a" stroke-width="1.6" points="0,15 9,11 18,10 27,7 36,6 46,4"/></svg>
+      </div>
+      <div class="card">
+        <div class="nm">외국인 순매수(코스피)</div>
+        <div class="val">+3,820억</div>
+        <div class="chg up">5거래일 연속 순매수</div>
+        <svg class="spark" width="46" height="20" viewBox="0 0 46 20"><polyline fill="none" stroke="#e0394a" stroke-width="1.6" points="0,16 9,14 18,11 27,9 36,6 46,5"/></svg>
+      </div>
+    </div>
+
+    <!-- BAR CHART -->
+    <div class="chartbox" style="margin-top:18px">
+      <div class="chart-title">주요 지수 등락률 비교</div>
+      <div class="chart-asof">6/18 종가 기준 · 상승 ▮ 빨강 / 하락 ▮ 파랑 (한국 관례)</div>
+
+      <div class="bar-row"><span class="lbl">필라델피아 반도체</span><div class="bar-track"><span class="bar-center"></span><span class="bar-fill pos" data-w="1.12"></span></div><span class="bar-val up">+1.12%</span></div>
+      <div class="bar-row"><span class="lbl">코스피200</span><div class="bar-track"><span class="bar-center"></span><span class="bar-fill pos" data-w="0.81"></span></div><span class="bar-val up">+0.81%</span></div>
+      <div class="bar-row"><span class="lbl">코스피</span><div class="bar-track"><span class="bar-center"></span><span class="bar-fill pos" data-w="0.72"></span></div><span class="bar-val up">+0.72%</span></div>
+      <div class="bar-row"><span class="lbl">나스닥</span><div class="bar-track"><span class="bar-center"></span><span class="bar-fill pos" data-w="0.41"></span></div><span class="bar-val up">+0.41%</span></div>
+      <div class="bar-row"><span class="lbl">코스닥</span><div class="bar-track"><span class="bar-center"></span><span class="bar-fill neg" data-w="0.21"></span></div><span class="bar-val down">−0.21%</span></div>
+      <div class="bar-row"><span class="lbl">S&amp;P 500</span><div class="bar-track"><span class="bar-center"></span><span class="bar-fill neg" data-w="0.34"></span></div><span class="bar-val down">−0.34%</span></div>
+      <div class="bar-row"><span class="lbl">다우</span><div class="bar-track"><span class="bar-center"></span><span class="bar-fill neg" data-w="0.58"></span></div><span class="bar-val down">−0.58%</span></div>
+
+      <div class="legend">
+        <span><i style="background:#e0394a"></i>상승</span>
+        <span><i style="background:#2563eb"></i>하락</span>
+        <span style="margin-left:auto">막대 길이는 시각 비교용(스케일 ×8)</span>
+      </div>
+    </div>
+
+    <!-- MACRO -->
+    <div class="region-tag" style="margin-top:18px">환율 · 금리 · 원자재 · 6/18 종가</div>
+    <div class="macro">
+      <div class="card">
+        <div class="nm">원/달러 환율</div>
+        <div class="val">1,367.5</div>
+        <div class="chg up">+4.2원 (원화 약세)</div>
+      </div>
+      <div class="card">
+        <div class="nm">美 10년물 국채금리</div>
+        <div class="val">4.38%</div>
+        <div class="chg up">+6bp</div>
+      </div>
+      <div class="card">
+        <div class="nm">美 2년물 국채금리</div>
+        <div class="val">4.07%</div>
+        <div class="chg up">+9bp</div>
+      </div>
+      <div class="card">
+        <div class="nm">WTI 유가</div>
+        <div class="val">$71.40</div>
+        <div class="chg down">−1.3%</div>
+      </div>
+      <div class="card">
+        <div class="nm">금 (현물)</div>
+        <div class="val">$2,684</div>
+        <div class="chg up">+0.5%</div>
+      </div>
+      <div class="card">
+        <div class="nm">비트코인</div>
+        <div class="val">$98,720</div>
+        <div class="chg down">−2.1%</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWS + 시사점 -->
+  <section id="news">
+    <div class="sec-head"><span class="ic">🔍</span><h3>주요 뉴스 &amp; 시사점</h3><span class="rule"></span></div>
+    <div class="news">
+
+      <div class="item">
+        <div class="top">
+          <h4>FOMC '매파적 동결', 점도표상 연내 인하 횟수 2회에서 1회로 축소</h4>
+          <p class="fact">연준은 기준금리를 4.25~4.50%로 동결. 새 점도표에서 위원들의 2026년 말 금리 중간값이 기존보다 25bp 상향됐고, 의장은 "인플레가 목표로 수렴한다는 추가 확신이 필요하다"고 발언. 발표 직후 2년물 금리가 급등했다.</p>
+          <div class="src">
+            <span class="label">출처:</span>
+            <a href="#">연준 성명(FOMC)</a><a href="#">CNBC</a><a href="#">Reuters</a>
+            <span class="conf high">교차검증 · 신뢰도 높음</span>
+          </div>
+        </div>
+        <div class="sowhat">
+          <span class="tag">💡 시사점</span>
+          <p>동결 자체는 단기 안도 재료지만, 점도표 상향은 "고금리 장기화"를 다시 가격에 반영하게 만든다. 원화 약세·장기금리 상승은 성장주 밸류에이션과 외국인 수급에 부담으로 작용할 수 있다.</p>
+          <div class="split"><b>관점이 갈리는 지점:</b> 하반기 유가·서비스 물가가 충분히 둔화돼 점도표가 다시 비둘기로 선회할지 vs. 끈적한 근원물가로 1회 인하마저 불발될지.</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="top">
+          <h4>엔비디아, 차세대 GPU 기반 대형 데이터센터 공급 계약 체결 보도</h4>
+          <p class="fact">복수 외신이 엔비디아와 대형 클라우드 사업자 간 차세대 가속기 다년 공급 계약을 보도. 회사 측 공식 확인은 아직 없으며, 계약 규모·납기는 보도마다 차이가 있다. 발표 추정 시점에 필라델피아 반도체 지수가 1% 넘게 올랐다.</p>
+          <div class="src">
+            <span class="label">출처:</span>
+            <a href="#">Bloomberg</a><a href="#">The Information</a>
+            <span class="conf mid">단일 보도단계 · 신뢰도 중간(미확정)</span>
+          </div>
+        </div>
+        <div class="sowhat">
+          <span class="tag">💡 시사점</span>
+          <p>사실로 확정되면 AI 자본지출 사이클이 2026년에도 이어진다는 신호로, 반도체·HBM·전력·냉각 밸류체인 전반에 온기가 번질 수 있다. 다만 현재는 <b>미확정 보도</b> 단계이므로, 공식 확인·실제 가이던스 상향 여부를 분리해서 봐야 한다.</p>
+          <div class="split"><b>관점이 갈리는 지점:</b> 추가 수주가 업종 전반의 모멘텀인지 vs. 특정 기업으로의 수요 집중(점유율 게임)인지.</div>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="top">
+          <h4>원/달러 1,367원, 1,370원 부근 저항 테스트</h4>
+          <p class="fact">매파적 FOMC 여파로 달러가 강세를 보이며 원화는 4.2원 약세 마감. 외국인은 코스피에서 5거래일 연속 순매수를 이어갔으나, 환율 부담이 추가 매수 강도를 제약했다는 분석이 나온다.</p>
+          <div class="src">
+            <span class="label">출처:</span>
+            <a href="#">서울외국환중개</a><a href="#">연합인포맥스</a>
+            <span class="conf high">교차검증 · 신뢰도 높음</span>
+          </div>
+        </div>
+        <div class="sowhat">
+          <span class="tag">💡 시사점</span>
+          <p>원화 약세는 수출주 실적엔 우호적이지만, 환차손 우려로 외국인 수급엔 양날의 칼이다. 1,370~1,380원 구간이 위로 뚫리는지 여부가 단기 외국인 매매의 방향타가 될 수 있어 주시할 만하다.</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="top">
+          <h4>WTI 유가 $71대로 하락, 공급 우려 완화에 수요 둔화 전망까지</h4>
+          <p class="fact">주요 산유국 증산 관측과 미국 원유 재고 증가로 유가가 1% 넘게 하락. 시장 일부에서는 유가 하락이 향후 헤드라인 인플레 압력을 낮춰 통화정책 부담을 덜어줄 수 있다는 해석이 나왔다.</p>
+          <div class="src">
+            <span class="label">출처:</span>
+            <a href="#">EIA</a><a href="#">Reuters</a>
+            <span class="conf high">교차검증 · 신뢰도 높음</span>
+          </div>
+        </div>
+        <div class="sowhat">
+          <span class="tag">💡 시사점</span>
+          <p>유가 안정은 인플레 경로엔 긍정적 변수다. 다만 "수요 둔화로 인한 하락"이라면 경기 신호로는 부담이 될 수 있어, 하락의 원인(공급 vs. 수요)을 구분해 해석하는 것이 중요하다.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- WATCHLIST -->
+  <section id="watch" class="watch">
+    <div class="sec-head"><span class="ic">🎯</span><h3>관심 종목 &amp; 테마 체크</h3><span class="rule"></span></div>
+    <div class="news">
+
+      <div class="item">
+        <div class="top">
+          <h4>SK하이닉스, HBM 수요 기대에 외국인 순매수 유입</h4>
+          <p class="fact">AI 데이터센터 수주 보도 영향으로 HBM 밸류체인 기대가 재부각되며 외국인 매수세가 들어왔다. 차기 분기 가이던스와 HBM 공급 계약 진척이 관전 포인트로 거론된다.</p>
+          <div class="src">
+            <span class="label">출처:</span>
+            <a href="#">한국거래소</a><a href="#">연합뉴스</a>
+            <span class="conf high">시세 교차검증 · 높음</span>
+          </div>
+        </div>
+        <div class="sowhat">
+          <span class="timing">🎯 타이밍 관점</span>
+          <p style="margin-top:5px">진입 판단 재료로는 ▲HBM 공급 계약 진척 ▲차기 분기 가이던스 ▲외국인·기관 수급 지속성 ▲환율 변수를 함께 보는 것이 유효하다. 이는 정보 제공일 뿐 매수·매도 신호가 아니다.</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="top">
+          <h4>전력망·전력 인프라 테마, AI 전력 수요로 변압기·송배전 부각</h4>
+          <p class="fact">데이터센터 전력 수요 확대 전망에 변압기·송배전·전선 관련 종목군이 강세를 보였다. 다만 일부 종목은 최근 가파른 상승으로 밸류에이션 부담 논쟁이 동시에 제기된다.</p>
+          <div class="src">
+            <span class="label">출처:</span>
+            <a href="#">한국거래소</a><a href="#">업종 리포트(증권사)</a>
+            <span class="conf mid">테마 동향 · 중간</span>
+          </div>
+        </div>
+        <div class="sowhat">
+          <span class="timing">🎯 타이밍 관점</span>
+          <p style="margin-top:5px">살펴볼 재료는 ▲수주 잔고·신규 수주 모멘텀 ▲현재 밸류에이션이 성장 기대를 어디까지 선반영했는지 ▲조정 시 지지 구간이다. 테마 전체보다 개별 수주 펀더멘털의 차별화를 보는 관점이 유효하다.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CHECKPOINTS -->
+  <section id="checks">
+    <div class="sec-head"><span class="ic">📅</span><h3>오늘/내일 체크포인트</h3><span class="rule"></span></div>
+    <div class="checks">
+      <div class="chk"><span class="day kr">6/19</span><span class="txt"><b>한국 6월 수출입(잠정):</b> 반도체 수출 회복세가 이어지는지 확인.</span></div>
+      <div class="chk"><span class="day">6/19</span><span class="txt"><b>美 주간 신규 실업수당 청구:</b> 고용 둔화 속도 점검(밤 시간대).</span></div>
+      <div class="chk"><span class="day">6/20</span><span class="txt"><b>美 6월 PMI(잠정):</b> 서비스 물가와 경기 모멘텀을 가늠할 단서.</span></div>
+      <div class="chk"><span class="day kr">6/20</span><span class="txt"><b>코스피 선물·옵션 만기 주간:</b> 수급 변동성이 커질 가능성.</span></div>
+    </div>
+  </section>
+
+  <!-- DISCLAIMER -->
+  <div class="disc">
+    <b>※ 데모 안내:</b> 이 페이지의 모든 수치·종목·뉴스는 스킬 출력 형식을 보여주기 위한 <b>샘플(가상) 데이터</b>입니다.<br><br>
+    <b>※ 본 브리핑은 정보 제공 목적이며 투자 자문이 아닙니다.</b> 특정 종목의 매수·매도를 추천하지 않으며, 투자 판단과 그 책임은 전적으로 본인에게 있습니다.
+  </div>
+
+  <footer style="border-top:1px solid var(--line);margin-top:40px;padding-top:24px;text-align:center">
+    <div style="font-size:17px;font-weight:900;letter-spacing:-.3px;color:var(--txt)">AI ROASTING</div>
+    <div style="font-size:13px;color:var(--muted);font-weight:500;margin-top:5px">비즈니스 리더를 위한 Claude 완전 정복</div>
+    <div style="font-size:11.5px;color:var(--dim);margin-top:14px">daily-briefing</div>
+  </footer>
+
+</div>
+
+<script>
+  // 막대 차트 애니메이션 (등락률 × 8 스케일, 최대 50%)
+  window.addEventListener('load', function(){
+    document.querySelectorAll('.bar-fill').forEach(function(el){
+      var w = Math.min(parseFloat(el.dataset.w) * 8, 50);
+      setTimeout(function(){ el.style.width = w + '%'; }, 180);
+    });
+  });
+</script>
+
+</body>
+</html>
