@@ -381,6 +381,9 @@
                 <h2 class="license-title">업데이트 내역</h2>
                 <div class="changelog-list">
                     <div class="changelog-item">
+                        <div class="changelog-meta"><span class="changelog-ver">v3.0</span><span class="changelog-date">2026-07-12</span></div>
+                        <div class="changelog-body"><p class="changelog-title">다른 콘텐츠에 Hound 추가와 카드 정리</p><p class="changelog-desc">메인 '다른 콘텐츠'에 답을 찾을 때까지 채널을 옮겨가며 끝까지 추적하는 검색 스킬 Hound를 더했습니다. 카드 배열을 첫 줄 6개, 둘째 줄 5개로 다시 잡고 잘리던 제목을 간결하게 정리했습니다(AI 뉴스레터·5 Color·25인 자문단·Korean).</p></div></div>
+                    <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v2.9</span><span class="changelog-date">2026-07-05</span></div>
                         <div class="changelog-body"><p class="changelog-title">다른 콘텐츠 개편과 앤트로픽 소개 최신화</p><p class="changelog-desc">메인 '다른 콘텐츠' 링크를 10선으로 다시 골라 한국어 윤문 스킬과 GPT 이미지 프롬프트 랩을 더했습니다. 실전 예제의 기본 예제 세 과제는 구성을 가볍게 하려 백업으로 내렸습니다. 앤트로픽 소개(엿보기)에는 6월 말 소네트 5와 클로드 사이언스 공개, 페이블 5의 수출통제 해제와 재공개까지 최신 소식을 반영하고, 히어로의 최신 모델 표기를 Fable 5·Opus 4.8·Sonnet 5로 갱신했습니다.</p></div></div>
                     <div class="changelog-item">
