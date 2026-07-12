@@ -1,21 +1,21 @@
 <p align="center">
-  <a href="https://airoasting.github.io/claude_guide/">
-    <img src="assets/thumbnails/thumbnail.png" alt="AI ROASTING · 비즈니스 리더를 위한 Claude 완전 정복" width="100%">
+  <a href="https://airoasting.vercel.app">
+    <img src="docs/assets/thumbnails/thumbnail.png" alt="AI ROASTING · 비즈니스 리더를 위한 Claude 완전 정복" width="100%">
   </a>
 </p>
 
 # AI ROASTING · Claude 완전 정복
 
-![Version](https://img.shields.io/badge/Version-2.9-4CAF50)
+![Version](https://img.shields.io/badge/Version-3.0-4CAF50)
 ![License](https://img.shields.io/badge/License-MIT-2196F3)
 ![Pages](https://img.shields.io/badge/Pages-43-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
 ![Language](https://img.shields.io/badge/Language-%ED%95%9C%EA%B5%AD%EC%96%B4-2196F3)
-![Deploy](https://img.shields.io/badge/Deploy-GitHub%20Pages-8A4FE0)
+![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000)
 
 비즈니스 리더를 위한 Claude 완전 정복. 진단부터 자동화까지, 5단계 실전 가이드.
 
-🔗 **Live Site:** [airoasting.github.io/claude_guide](https://airoasting.github.io/claude_guide/)
+🔗 **Live Site:** [airoasting.vercel.app](https://airoasting.vercel.app)
 
 ---
 
