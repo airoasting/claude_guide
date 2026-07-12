@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
+    <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/claude-code-tasks.html">
+    <meta property="og:title" content="AI ROASTING · Claude 완전 정복">
+    <meta property="og:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/claude-code-tasks.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI ROASTING · Claude 완전 정복">
+    <meta name="twitter:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>클로드 코드 실전 과제 8가지 | AI ROASTING</title>
+    <meta name="description" content="바이브코딩으로 직접 만들며 배우는 8가지 실전 과제. 스탑워치부터 마인크래프트 3D 월드까지.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+            --accent: #2A5F8A;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body { word-break: keep-all;
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
+            line-height: 1.6;
+        }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        .header-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node.sn-final { font-size: 12px; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Header Page Links ── */
+        .header-pages {
+            max-width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+        }
+        .header-page-link {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            justify-content: center;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 10px 18px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.35), -4px -4px 10px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .hpl-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; flex-shrink: 0;
+        }
+        .hpl-icon svg { width: 16px; height: 16px; display: block; }
+        /* ── Mode Tabs ── */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 난이도 범례 ── */
+        .legend {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
+            padding: 14px 20px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 12px;
+            font-size: 13px;
+            color: #666;
+            flex-wrap: wrap;
+        }
+        .legend-title { font-weight: 800; color: #3A3530; }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-stars { color: var(--ant-orange); font-size: 12px; }
+
+        /* ── 과제 카드 ── */
+        .task-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            margin-bottom: 14px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+        .task-card:hover {
+            box-shadow: 6px 6px 18px #CECAC3, -6px -6px 18px #FFFFFF;
+        }
+        .task-card.open {
+            box-shadow: var(--nm-inset);
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            padding: 20px 24px;
+            cursor: pointer;
+            gap: 16px;
+            user-select: none;
+        }
+
+        .task-number {
+            font-size: 13px;
+            font-weight: 800;
+            color: #ffffff;
+            background: var(--ant-orange);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 2px 2px 8px rgba(217,119,87,0.4);
+        }
+
+        .task-title-area { flex: 1; }
+        .task-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 3px;
+        }
+        .task-difficulty {
+            font-size: 13px;
+            color: var(--ant-orange);
+            letter-spacing: 1px;
+        }
+
+        .task-toggle {
+            font-size: 18px;
+            color: #999;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+        .task-card.open .task-toggle { transform: rotate(180deg); }
+
+        .task-body { word-break: keep-all;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        .task-card.open .task-body { word-break: keep-all; max-height: 700px; }
+
+        .task-content {
+            padding: 0 24px 24px;
+            padding-left: 76px;
+        }
+
+        .task-row { margin-bottom: 14px; }
+        .task-row:last-child { margin-bottom: 0; }
+        .task-row:has(.sample-btn), .task-row:has(.download-btn) { margin-top: 10px; }
+
+        .task-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #999;
+            margin-bottom: 6px;
+        }
+
+        .task-command-wrap { position: relative; }
+        .task-command {
+            font-size: 13px;
+            color: #ffffff;
+            background: #2d2d2d;
+            padding: 14px 18px;
+            padding-right: 70px;
+            border-radius: 10px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            line-height: 1.7;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+            white-space: pre-wrap;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.55);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Pretendard', sans-serif;
+            letter-spacing: 0.3px;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .copy-btn.copied { background: rgba(100,200,100,0.2); color: #7fce7f; border-color: rgba(100,200,100,0.3); }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 9px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .download-btn:hover { box-shadow: var(--nm-shadow); color: #C4623E; transform: translateY(-1px); }
+
+        .sample-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            background: var(--ant-orange);
+            box-shadow: 0 4px 14px rgba(217,119,87,0.45);
+            padding: 9px 22px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .sample-btn:hover { background: #C4623E; box-shadow: 0 6px 18px rgba(217,119,87,0.55); transform: translateY(-2px); }
+        .task-command .cmd-step {
+            display: block;
+            margin-bottom: 4px;
+            padding-bottom: 4px;
+        }
+        .task-command .cmd-step:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
+        .task-command .cmd-label {
+            font-size: 10px;
+            color: rgba(255,255,255,0.35);
+            display: block;
+            margin-bottom: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        .task-effect {
+            font-size: 14px;
+            color: #5C5650;
+            padding: 12px 16px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 10px;
+            border-left: 4px solid var(--ant-orange);
+        }
+
+        /* ── 스킬 태그 ── */
+        .task-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .meta-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+            margin-right: 2px;
+        }
+        .meta-tag {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 6px;
+        }
+        .meta-tag.new {
+            background: rgba(217,119,87,0.12);
+            color: var(--ant-orange);
+            box-shadow: 2px 2px 6px #CECAC3, -2px -2px 6px #FFFFFF;
+        }
+        .meta-tag.repeat {
+            background: var(--nm-bg);
+            color: #5C5650;
+            box-shadow: 2px 2px 6px #CECAC3, -2px -2px 6px #FFFFFF;
+        }
+
+        /* ── 실습 팁 ── */
+        .tips-section {
+            margin-top: 36px;
+            padding: 26px 28px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 16px;
+        }
+        .tips-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #3A3530;
+            margin-bottom: 14px;
+            padding-left: 14px;
+            border-left: 4px solid var(--ant-orange);
+        }
+        .tips-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .tips-list li {
+            font-size: 14px;
+            color: #5C5650;
+            padding-left: 22px;
+            position: relative;
+            line-height: 1.6;
+        }
+        .tips-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--ant-orange);
+            font-weight: 800;
+        }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 12px 28px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* ── 페이지 네비 ── */
+        .page-nav {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 32px 48px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .page-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: #3A3530;
+            font-size: 13px; font-weight: 600;
+            padding: 10px 18px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .page-nav-btn:hover { box-shadow: var(--nm-inset); color: var(--ant-orange); }
+
+        /* ── 푸터 ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* ── 애니메이션 ── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.5); }
+            60% { transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes shimmer {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.18; }
+            50% { transform: translate(20px, 10px) scale(1.1); opacity: 0.3; }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(-12px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        header::before { animation: shimmer 8s ease-in-out infinite; }
+        header h1 { animation: fadeInDown 0.7s ease-out both; }
+        header p { animation: fadeInDown 0.7s 0.15s ease-out both; }
+        header .mode-tabs { animation: fadeInUp 0.6s 0.3s ease-out both; }
+        header .header-pages { animation: fadeInUp 0.6s 0.45s ease-out both; }
+        header .step-nav { animation: fadeIn 0.8s ease-out both; }
+        header .back-link { animation: fadeIn 0.6s 0.2s ease-out both; }
+
+        .step-node { transition: all 0.25s ease, transform 0.2s ease; }
+        .step-node:hover { transform: scale(1.12); }
+        .step-node.active { animation: popIn 0.6s 0.4s ease-out both; }
+
+        .header-page-link:hover { transform: translateY(-2px) scale(1.03); }
+
+        .legend, .task-card, .tips-section, .cta-section {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow 0.25s ease;
+        }
+        .reveal {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+        }
+        .task-card.reveal:hover { transform: translateY(-2px); }
+        .task-number { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .task-card:hover .task-number {
+            transform: scale(1.1) rotate(-6deg);
+            box-shadow: 3px 3px 12px rgba(217,119,87,0.6);
+        }
+        .task-card.open .task-number {
+            animation: popIn 0.4s ease-out;
+        }
+
+        .task-body {
+            transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .task-card.open .task-row {
+            animation: slideInRight 0.4s ease-out both;
+        }
+        .task-card.open .task-row:nth-child(1) { animation-delay: 0.05s; }
+        .task-card.open .task-row:nth-child(2) { animation-delay: 0.12s; }
+        .task-card.open .task-row:nth-child(3) { animation-delay: 0.19s; }
+        .task-card.open .task-row:nth-child(4) { animation-delay: 0.26s; }
+        .task-card.open .task-row:nth-child(5) { animation-delay: 0.33s; }
+
+        .sample-btn, .download-btn { position: relative; overflow: hidden; }
+        .sample-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+            transition: left 0.5s ease;
+        }
+        .sample-btn:hover::after { left: 100%; }
+
+        .tips-list li {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .tips-section.reveal .tips-list li { opacity: 1; transform: translateX(0); }
+        .tips-section.reveal .tips-list li:nth-child(1) { transition-delay: 0.1s; }
+        .tips-section.reveal .tips-list li:nth-child(2) { transition-delay: 0.2s; }
+        .tips-section.reveal .tips-list li:nth-child(3) { transition-delay: 0.3s; }
+        .tips-section.reveal .tips-list li:nth-child(4) { transition-delay: 0.4s; }
+        .tips-section.reveal .tips-list li:nth-child(5) { transition-delay: 0.5s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ── 반응형 ── */
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            header p { font-size: 14px; }
+            .container { padding: 24px 16px 48px; }
+            .task-header { padding: 16px; gap: 12px; }
+            .task-content { padding: 0 16px 20px; padding-left: 56px; }
+            .task-title { font-size: 15px; }
+            /* 모바일에서는 긴 프롬프트가 더 많은 줄로 접혀 700px를 넘는다. 잘리지 않게 충분히 키운다 */
+            .task-card.open .task-body { max-height: 2600px; }
+            .task-command { font-size: 12.5px; padding: 13px 16px; padding-right: 56px; line-height: 1.65; }
+            .copy-btn { top: 7px; right: 7px; padding: 6px 11px; }
+            .task-effect { font-size: 13px; padding: 11px 14px; }
+            .legend { flex-wrap: wrap; gap: 10px; font-size: 12px; }
+            .header-pages { flex-wrap: wrap; gap: 8px; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            .tips-section { padding: 22px 18px; }
+            .tips-list li { font-size: 13px; }
+            .page-nav { flex-direction: column; gap: 10px; }
+            .cta-section { padding: 32px 20px; }
+            .cta-section h3 { font-size: 19px; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+            .cta-btn { width: 100%; max-width: 320px; }
+            .skillmap-grid { grid-template-columns: repeat(3, 1fr); }
+            /* Step navigator */
+            .step-nav { max-width: 100%; gap: 0; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+        }
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+            .step-nav { max-width: 100%; margin: 16px 0 14px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 6px; max-width: 14px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+            /* 좁은 화면에서는 들여쓰기를 줄여 코드 블록이 폭을 충분히 쓰게 한다 */
+            .task-header { padding: 14px; gap: 10px; }
+            .task-number { width: 30px; height: 30px; font-size: 12px; }
+            .task-content { padding: 0 14px 18px; padding-left: 16px; }
+            .task-title { font-size: 14px; }
+            .task-command { font-size: 12px; }
+            .task-row[style] { gap: 8px !important; }
+        }
+    
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="claude-orientation.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="ai-fluency.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="claude-code-101.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="harness-engineering.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="loop-engineering.html">5</a>
+        <div class="step-line"></div>
+        <a class="step-node sn-final" href="mcp-examples.html">예제</a>
+    </nav>
+    <a class="back-link" href="index.html">← 목록으로</a>
+    <h1>클로드 코드 실전 과제 8가지</h1>
+    <p>바이브코딩으로 직접 만들며 배우는 단계별 프로젝트</p>
+    <div class="mode-tabs">
+            <span class="mode-tab active" id="tab-nocode" onclick="switchMode('nocode')">노코드</span>
+            <span class="mode-tab" id="tab-cli" onclick="switchMode('cli')">CLI</span>
+        </div>
+    <div class="header-pages" id="pages-nocode">
+        <a href="claude-code-101.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="11.5" rx="1.8"/><path d="M9 20h6M12 16v4"/></svg></span> 클로드 코드 101</a>
+        <a href="claude-code-tasks.html" class="header-page-link active"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg></span> 실전 과제 8가지</a>
+        <a href="github-guide.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 1.5 4.5 5 4 9.5l-2 2h-4l-2-2c-.5-4.5 1-8 4-9.5z"/><circle cx="12" cy="10" r="1.4"/><path d="M9 14.5 7 19M15 14.5 17 19M10 19h4"/></svg></span> GitHub · Vercel · Netlify</a>
+    </div>
+    <div class="header-pages" id="pages-cli" style="display:none;">
+        <a href="checklist.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="m8.3 12.3 2.6 2.6 4.6-5.6"/></svg></span> 20단계 따라하기</a>
+        <a href="cheatsheet.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="11" rx="2"/><path d="M6.5 10.2h.01M10 10.2h.01M13.5 10.2h.01M17 10.2h.01M6.5 13.7h11"/></svg></span> 명령어 모음</a>
+    </div>
+</header>
+
+<main class="container">
+
+    <!-- 난이도 범례 -->
+    <div class="legend">
+        <span class="legend-title">난이도</span>
+        <span class="legend-item"><span class="legend-stars">★☆☆☆☆</span> 입문</span>
+        <span class="legend-item"><span class="legend-stars">★★☆☆☆</span> 기초</span>
+        <span class="legend-item"><span class="legend-stars">★★★☆☆</span> 중급</span>
+        <span class="legend-item"><span class="legend-stars">★★★★☆</span> 고급</span>
+        <span class="legend-item"><span class="legend-stars">★★★★★</span> 실전</span>
+    </div>
+
+    <!-- 01 스탑워치 -->
+    <div class="task-card">
+        <div class="task-header" onclick="toggleTask(this)">
+            <span class="task-number">01</span>
+            <div class="task-title-area">
+                <div class="task-title">스탑워치 만들기 / 디자인 변경</div>
+                <div class="task-difficulty">★☆☆☆☆</div>
+            </div>
+            <span class="task-toggle">▼</span>
+        </div>
+        <div class="task-body">
+            <div class="task-content">
+                <div class="task-row">
+                    <div class="task-label">1단계 · 만들기</div>
+                    <div class="task-command">스탑워치 웹페이지를 만들어줘.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-label">2단계 · 디자인 변경</div>
+                    <div class="task-command">피카소가 그린 얼굴이 시계 배경으로 나오도록 디자인 변경해줘.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-label">기대 효과</div>
+                    <div class="task-effect">프롬프트 한 줄로 앱 생성 → 디자인 요청으로 즉시 스타일 변경. Claude Code가 파일을 직접 편집하는 방식을 체험합니다.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-meta">
+                        <span class="meta-label">스킬</span>
+                        <span class="meta-tag new">★ 프롬프트 엔지니어링</span>
+                        <span class="meta-tag new">★ UI/UX 디자인</span>
+                    </div>
+                </div>
+                <div class="task-row" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a class="sample-btn" href="assets/claudecode/01_stopwatch/stopwatch.html" target="_blank">👀 완성 샘플 보기</a>
+                    <a class="download-btn" href="ui-design.html" target="_blank" rel="noopener">🎨 스탑워치 디자인 갤러리 보기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 02 반려동물 웹사이트 -->
+    <div class="task-card">
+        <div class="task-header" onclick="toggleTask(this)">
+            <span class="task-number">02</span>
+            <div class="task-title-area">
+                <div class="task-title">프리미엄 반려동물 웹사이트 제작</div>
+                <div class="task-difficulty">★★☆☆☆</div>
+            </div>
+            <span class="task-toggle">▼</span>
+        </div>
+        <div class="task-body">
+            <div class="task-content">
+                <div class="task-row">
+                    <div class="task-label">프롬프트</div>
+                    <div class="task-command">우리 회사는 프리미엄 반려동물 영양제를 만드는 스타트업이야. 회사명은 'PetVital', 슬로건은 '수의사가 설계한 맞춤 영양'.
+히어로 섹션, 제품 3개 소개, 고객 후기 2개, CTA 버튼이 있는 모던한 원페이지 랜딩을 만들어줘.
+색상은 딥오렌지 + 화이트 톤으로.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-label">기대 효과</div>
+                    <div class="task-effect">멀티 파일 프로젝트 구조를 Claude Code가 자동 생성. 실제 쇼핑몰 수준의 랜딩 페이지를 10분 안에 완성합니다.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-meta">
+                        <span class="meta-label">스킬</span>
+                        <span class="meta-tag repeat">♦ 프롬프트 엔지니어링</span>
+                        <span class="meta-tag repeat">♦ UI/UX 디자인</span>
+                    </div>
+                </div>
+                <div class="task-row">
+                    <a class="sample-btn" href="assets/claudecode/02_pet/petvital.html" target="_blank">👀 완성 샘플 보기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 03 멀티 페르소나 -->
+    <div class="task-card">
+        <div class="task-header" onclick="toggleTask(this)">
+            <span class="task-number">03</span>
+            <div class="task-title-area">
+                <div class="task-title">멀티 페르소나로 개선하기</div>
+                <div class="task-difficulty">★★☆☆☆</div>
+            </div>
+            <span class="task-toggle">▼</span>
+        </div>
+        <div class="task-body">
+            <div class="task-content">
+                <div class="task-row">
+                    <div class="task-label">프롬프트</div>
+                    <div class="task-command">블랙 = 프로덕트 오너 (팀장)
+화이트 = 메인 개발자
+핑크 = UI UX 디자이너
+골드 = 코드 아키텍트
+레드 = QA, 비판가
+
+10점 만점으로 평가하고, 10점 수준으로 개선해줘</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-label">기대 효과</div>
+                    <div class="task-effect">단일 AI 답변의 한계를 넘어 다각도 검토 후 자동 개선. 혼자선 보이지 않던 문제점이 드러납니다.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-meta">
+                        <span class="meta-label">스킬</span>
+                        <span class="meta-tag repeat">♦ 프롬프트 엔지니어링</span>
+                        <span class="meta-tag repeat">♦ UI/UX 디자인</span>
+                        <span class="meta-tag new">★ 멀티 페르소나/에이전트</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 04 GitHub 업로드 -->
+    <div class="task-card">
+        <div class="task-header" onclick="toggleTask(this)">
+            <span class="task-number">04</span>
+            <div class="task-title-area">
+                <div class="task-title">GitHub 업로드</div>
+                <div class="task-difficulty">★★★☆☆</div>
+            </div>
+            <span class="task-toggle">▼</span>
+        </div>
+        <div class="task-body">
+            <div class="task-content">
+                <div class="task-row">
+                    <div class="task-label">프롬프트</div>
+                    <div class="task-command">1. Github.com 아이디 생성
+2. New Repository 생성
+3. API Key 생성
+   (프로필 → Settings → Developer Settings → Personal Access Tokens → Tokens Classic)
+4. 해당 API Key를 클로드 코드에 주고 파일 업로드(Push)
+   : 절대로 메모리에 저장시키면 안됨, 보안 관리
+5. Github.com에서 해당 Repo 클릭 → Settings → Pages → Branch에서 main, /root 선택하고 Save
+6. 아이디.github.io/Repository명 으로 웹사이트로 접근</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-label">기대 효과</div>
+                    <div class="task-effect">git init → commit → push → Pages 배포까지 전 과정을 자연어 한 줄로 완료. 내 작품이 인터넷에 공개되는 순간을 경험합니다.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-meta">
+                        <span class="meta-label">스킬</span>
+                        <span class="meta-tag repeat">♦ 프롬프트 엔지니어링</span>
+                        <span class="meta-tag new">★ 버전관리 &amp; 배포</span>
+                    </div>
+                </div>
+                <div class="task-row">
+                    <a class="download-btn" href="github-guide.html" target="_blank" rel="noopener">📘 GitHub, Vercel &amp; Netlify 가이드 보기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 05 엑셀 실적 데이터로 컨설팅 PPT -->
+    <div class="task-card">
+        <div class="task-header" onclick="toggleTask(this)">
+            <span class="task-number">05</span>
+            <div class="task-title-area">
+                <div class="task-title">엑셀 실적 데이터로 컨설팅 PPT 만들기</div>
+                <div class="task-difficulty">★★★☆☆</div>
+            </div>
+            <span class="task-toggle">▼</span>
+        </div>
+        <div class="task-body">
+            <div class="task-content">
+                <div class="task-row">
+                    <div class="task-label">프롬프트</div>
+                    <div class="task-command">해당 폴더의 엑셀 파일("피자 매장별 실적 데이터.xlsx")을 탐색적으로 분석해줘.
+매출·성장·수익성에서 발견한 핵심 인사이트를 정리하고, 경영진 보고용 Bain/맥킨지 스타일 진단 PPT로 만들어줘.</div>
+                </div>
+                <div class="task-row">
+                    <a class="download-btn" href="assets/claudecode/06_dashboard/데이터/%ED%94%BC%EC%9E%90%20%EB%A7%A4%EC%9E%A5%EB%B3%84%20%EC%8B%A4%EC%A0%81%20%EB%8D%B0%EC%9D%B4%ED%84%B0.xlsx" download="피자 매장별 실적 데이터.xlsx">📥 샘플 엑셀 파일 다운로드</a>
+                </div>
+                <div class="task-row">
+                    <div class="task-label">기대 효과</div>
+                    <div class="task-effect">엑셀 원본 → 탐색적 분석 → 컨설팅 덱까지 한 번에. 데이터에서 인사이트를 뽑아 의사결정용 슬라이드로 정리하는 흐름을 경험합니다.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-meta">
+                        <span class="meta-label">스킬</span>
+                        <span class="meta-tag repeat">♦ 프롬프트 엔지니어링</span>
+                        <span class="meta-tag repeat">♦ 멀티 페르소나/에이전트</span>
+                        <span class="meta-tag new">★ 데이터 &amp; API 연동</span>
+                        <span class="meta-tag new">★ 문서·슬라이드 생성</span>
+                    </div>
+                </div>
+                <div class="task-row">
+                    <a class="sample-btn" href="assets/claudecode/05_ppt/%ED%94%BC%EC%9E%90_%ED%94%84%EB%9E%9C%EC%B0%A8%EC%9D%B4%EC%A6%88_%EC%8B%A4%EC%A0%81%EC%A7%84%EB%8B%A8_Bain%EC%8A%A4%ED%83%80%EC%9D%BC.pptx" target="_blank">📊 완성 PPT 샘플 보기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 06 구글 스프레드시트 대시보드 -->
+    <div class="task-card">
+        <div class="task-header" onclick="toggleTask(this)">
+            <span class="task-number">06</span>
+            <div class="task-title-area">
+                <div class="task-title">구글 스프레드시트 기반 대시보드 만들기</div>
+                <div class="task-difficulty">★★★☆☆</div>
+            </div>
+            <span class="task-toggle">▼</span>
+        </div>
+        <div class="task-body">
+            <div class="task-content">
+                <div class="task-row">
+                    <div class="task-label">프롬프트</div>
+                    <div class="task-command">아래 구글 스프레드시트("피자 매장별 실적 데이터")를 기반으로 경영자 대시보드를 만들어줘.
+https://docs.google.com/spreadsheets/d/1ZUOzgPdXKMp7mkyjTOhZ9wfaRRe9IuuGkekKNKG41ZQ/edit?gid=38840795
+탐색적 분석을 할수 있는 인터랙티브 차트를 포함해서. 데이터는 Google Sheets CSV에서 직접 읽어오게.
+뉴모피즘 스타일로.</div>
+                </div>
+                <div class="task-row">
+                    <a class="download-btn" href="https://docs.google.com/spreadsheets/d/1ZUOzgPdXKMp7mkyjTOhZ9wfaRRe9IuuGkekKNKG41ZQ/edit?gid=38840795" target="_blank" rel="noopener">📊 샘플 구글 스프레드시트 열기</a>
+                </div>
+                <div class="task-row">
+                    <div class="task-label">기대 효과</div>
+                    <div class="task-effect">구글 스프레드시트 → 인터랙티브 웹 대시보드 변환을 자동화. 시트를 수정하면 대시보드에 바로 반영되고, 데이터 시각화 도구 없이도 경영진 보고용 대시보드를 즉시 완성합니다.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-meta">
+                        <span class="meta-label">스킬</span>
+                        <span class="meta-tag repeat">♦ 프롬프트 엔지니어링</span>
+                        <span class="meta-tag repeat">♦ UI/UX 디자인</span>
+                        <span class="meta-tag repeat">♦ 멀티 페르소나/에이전트</span>
+                        <span class="meta-tag repeat">♦ 데이터 &amp; API 연동</span>
+                    </div>
+                </div>
+                <div class="task-row">
+                    <a class="sample-btn" href="assets/claudecode/09_pizza_dashboard/pizza-dashboard.html" target="_blank">👀 완성 샘플 보기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 07 CEO 대시보드 -->
+    <div class="task-card">
+        <div class="task-header" onclick="toggleTask(this)">
+            <span class="task-number">07</span>
+            <div class="task-title-area">
+                <div class="task-title">CEO 데일리 브리핑 대시보드</div>
+                <div class="task-difficulty">★★★★★</div>
+            </div>
+            <span class="task-toggle">▼</span>
+        </div>
+        <div class="task-body">
+            <div class="task-content">
+                <div class="task-row">
+                    <div class="task-label">프롬프트</div>
+                    <div class="task-command">CEO 아침 브리핑 대시보드를 만들어줘. 오늘의 날씨, 환율·마켓, AI 비서가 요약한 업계 뉴스, AI 명언, 오늘 일정을 한 화면에 모은 개인 대시보드야.
+중요: API 키 없이도 샘플(mock) 데이터로 완전히 작동하게 만들어줘. 그리고 설정 패널에서 본인 API 키(뉴스·날씨·환율)를 입력하면 실시간 데이터로 전환되도록 해줘.
+뉴모피즘 스타일로.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-label">기대 효과</div>
+                    <div class="task-effect">키 없이도 mock 데이터로 완성형 대시보드가 바로 작동하고, 본인 API 키를 연결하면 실시간으로 전환됩니다. "키 없이 완성, 키 있으면 실시간"이라는 실전 앱 설계 패턴을 익힙니다.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-meta">
+                        <span class="meta-label">스킬</span>
+                        <span class="meta-tag repeat">♦ 프롬프트 엔지니어링</span>
+                        <span class="meta-tag repeat">♦ UI/UX 디자인</span>
+                        <span class="meta-tag repeat">♦ 멀티 페르소나/에이전트</span>
+                        <span class="meta-tag repeat">♦ 데이터 &amp; API 연동</span>
+                        <span class="meta-tag new">★ AI 비서 만들기</span>
+                    </div>
+                </div>
+                <div class="task-row">
+                    <a class="sample-btn" href="assets/claudecode/07_ceo/index.html" target="_blank">👀 완성 샘플 보기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 08 마인크래프트 3D 월드 -->
+    <div class="task-card">
+        <div class="task-header" onclick="toggleTask(this)">
+            <span class="task-number">08</span>
+            <div class="task-title-area">
+                <div class="task-title">마인크래프트 같은 3D 블록 세계 만들기</div>
+                <div class="task-difficulty">★★★★★</div>
+            </div>
+            <span class="task-toggle">▼</span>
+        </div>
+        <div class="task-body">
+            <div class="task-content">
+                <div class="task-row">
+                    <div class="task-label">1단계 · Claude.ai 채팅에서 먼저</div>
+                    <div class="task-command">마인크래프트처럼 네모난 블록으로 이루어진 3D 세계를 브라우저에서 만들려고 해.
+사원·숲·연못이 있는 공간을 내가 직접 1인칭으로 걸어다니는 웹앱이야.
+아래 내용을 포함한 PLAN.md 파일을 작성해줘.
+
+- 구현 기능 목록 (WASD 이동, 마우스 시점, 점프/질주)
+- 사용할 기술 스택 (Three.js 등)
+- 파일/폴더 구조
+- 단계별 구현 순서</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-label">2단계 · 클로드 코드에서</div>
+                    <div class="task-command">마인크래프트처럼 네모난 블록으로 이루어진 3D 세계를 만들어줘.
+PLAN.md를 참고해서 구현해줘.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-label">기대 효과</div>
+                    <div class="task-effect">복잡한 프로젝트일수록 먼저 채팅에서 PLAN.md를 설계하고 클로드 코드로 실행. 코딩 전 설계 습관이 완성도를 결정합니다.</div>
+                </div>
+                <div class="task-row">
+                    <div class="task-meta">
+                        <span class="meta-label">스킬</span>
+                        <span class="meta-tag repeat">♦ 프롬프트 엔지니어링</span>
+                        <span class="meta-tag repeat">♦ UI/UX 디자인</span>
+                        <span class="meta-tag new">★ 3D &amp; 게임 그래픽</span>
+                        <span class="meta-tag new">★ PLAN.md 설계</span>
+                    </div>
+                </div>
+                <div class="task-row">
+                    <a class="sample-btn" href="assets/claudecode/08_minecraft/dist/index.html" target="_blank">👀 완성 샘플 보기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 실습 팁 -->
+    <div class="tips-section">
+        <div class="tips-title">바이브코딩 실습 팁</div>
+        <ul class="tips-list">
+            <li>01부터 순서대로 진행하세요. 앞 과제에서 만든 파일을 다음 과제에서 계속 활용합니다</li>
+            <li>프롬프트를 그대로 복사하지 말고, 내 상황에 맞게 제품명·색상·기능을 바꿔보세요</li>
+            <li>결과가 마음에 안 들면 "더 고급스럽게", "모바일 최적화", "애니메이션 추가" 등으로 이어서 요청하세요</li>
+            <li>오류가 나도 당황하지 마세요. 오류 메시지를 그대로 Claude에게 보내면 스스로 고칩니다</li>
+            <li>★ 표시 스킬은 해당 과제에서 처음 배우는 핵심 개념입니다. 특히 집중해서 실습하세요</li>
+        </ul>
+    </div>
+
+    <!-- CTA 섹션 -->
+    <div class="cta-section">
+        <h3>8가지를 모두 만들었나요?</h3>
+        <p>만든 프로젝트를 인터넷에 공개할 차례입니다.<br>GitHub에 올리면 내 작품이 전 세계에서 접속 가능한 URL로 바뀝니다.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn primary" href="github-guide.html">🚀 GitHub & Vercel →</a>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Mode Tabs ──
+function switchMode(mode) {
+    ['nocode','cli'].forEach(function(m){
+        var t=document.getElementById('tab-'+m); if(t) t.classList.toggle('active', mode===m);
+        var p=document.getElementById('pages-'+m); if(p) p.style.display = mode===m ? 'flex' : 'none';
+    });
+}
+
+    function toggleTask(header) {
+        const card = header.closest('.task-card');
+        card.classList.toggle('open');
+        if (card.id && card.classList.contains('open')) {
+            history.replaceState(null, '', '#' + card.id);
+        }
+    }
+
+    // ── URL 해시로 특정 과제 열기 + 스크롤 (예: #3, #03, #task3) ──
+    (function initTaskAnchors() {
+        function ready(fn) {
+            if (document.readyState !== 'loading') fn();
+            else document.addEventListener('DOMContentLoaded', fn);
+        }
+        ready(function() {
+            // 각 카드에 번호 기반 id 부여 (task1 ~ task8)
+            document.querySelectorAll('.task-card').forEach(function(card) {
+                var numEl = card.querySelector('.task-number');
+                if (numEl) {
+                    var n = parseInt(numEl.textContent, 10);
+                    if (n) card.id = 'task' + n;
+                }
+            });
+
+            function openFromHash() {
+                var raw = decodeURIComponent((location.hash || '').replace('#', '')).trim();
+                var m = raw.match(/\d+/);
+                if (!m) return;
+                var n = parseInt(m[0], 10);
+                var target = document.getElementById('task' + n);
+                if (!target) return;
+                target.classList.add('open', 'reveal');
+                requestAnimationFrame(function() {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            }
+
+            openFromHash();
+            window.addEventListener('hashchange', openFromHash);
+        });
+    })();
+
+    // ── 스크롤 진입 애니메이션 ──
+    document.addEventListener('DOMContentLoaded', () => {
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('reveal'), i * 60);
+                    io.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.legend, .task-card, .tips-section, .cta-section')
+            .forEach(el => io.observe(el));
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.task-command').forEach(cmd => {
+            const wrap = document.createElement('div');
+            wrap.className = 'task-command-wrap';
+            cmd.parentNode.insertBefore(wrap, cmd);
+            wrap.appendChild(cmd);
+
+            const btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = '복사';
+            btn.addEventListener('click', () => {
+                navigator.clipboard.writeText(cmd.textContent.trim()).then(() => {
+                    btn.textContent = '✓ 복사됨';
+                    btn.classList.add('copied');
+                    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+                });
+            });
+            wrap.appendChild(btn);
+        });
+    });
+</script>
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        window.location.href = 'claude-tools.html';
+    }
+});
+</script>
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #B0544A; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    /* 헤더 상단 여백 통일 */
+    header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 50px 0 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+
+<!-- 가이드 소개 모달: 단일 소스 assets/about-modal.js 에서 주입 -->
+<script src="assets/about-modal.js"></script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+</body>
+</html>

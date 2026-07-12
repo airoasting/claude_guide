@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
+    <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/harness-book.html">
+    <meta property="og:title" content="AI ROASTING · Claude 완전 정복">
+    <meta property="og:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/harness-book.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI ROASTING · Claude 완전 정복">
+    <meta name="twitter:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>하네스 엔지니어링으로 책 쓰기 | AI ROASTING</title>
+    <meta name="description" content="AI 에이전트 팀으로 책 한 권을 완성하는 하네스 엔지니어링 실전 가이드. SKILL.md, 스킬, 리뷰 파이프라인까지.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --gold: #A04828;
+            --gold-dark: #7A2E15;
+            --gold-light: #B35535;
+            --ant-dark: #1A1917;
+            --book-teal: #A04828;
+            --book-teal-dark: #7A2E15;
+            --book-teal-light: #B35535;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        .step-divider[id] { scroll-margin-top: 160px; }
+        body { word-break: keep-all; font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
+
+        /* -- HEADER -- */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* -- Step Navigator -- */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node.sn-final { font-size: 12px; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* -- Mode Tabs -- */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            text-decoration: none;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* -- Header Page Links -- */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin: 22px auto 0;
+            position: relative;
+            z-index: 1;
+            max-width: 940px;
+            flex-wrap: wrap;
+        }
+        .header-page-link {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 12px 22px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .hpl-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; flex-shrink: 0;
+        }
+        .hpl-icon svg { width: 16px; height: 16px; display: block; }
+        /* -- Sub Menu -- */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(160,72,40,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--gold);
+            box-shadow: 0 2px 8px rgba(160,72,40,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--gold); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #A04828;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* -- CONTAINER -- */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* -- 뉴모피즘 카드 -- */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; }
+
+        /* -- 섹션 구분 -- */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 28px 0; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--book-teal); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px; border-radius: 20px; white-space: nowrap;
+        }
+        /* ── step-badge shimmer ── */
+        @keyframes shimmerScan {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .step-badge {
+            background-image: linear-gradient(
+                105deg,
+                var(--nm-bg) 40%,
+                rgba(255,255,255,0.85) 50%,
+                var(--nm-bg) 60%
+            );
+            background-size: 200% auto;
+            animation: shimmerScan 2.8s linear infinite;
+        }
+
+        /* -- 인셋 박스 -- */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--book-teal); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* -- 팁 박스 -- */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { font-size: 11px; font-weight: 700; color: var(--book-teal); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* -- 강조 박스 -- */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(160,72,40,0.08) 0%, rgba(160,72,40,0.03) 100%);
+            border: 1.5px solid rgba(160,72,40,0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin: 20px 0;
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* -- 비교 그리드 -- */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm { background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm); padding: 20px; }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+
+        /* -- 뉴모 테이블 -- */
+        .nm-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .nm-table-wrap table { width: 100%; border-collapse: collapse; }
+        .nm-table-wrap thead { background: var(--ant-dark); }
+        .nm-table-wrap th {
+            text-align: left; padding: 12px 16px;
+            font-size: 14px; font-weight: 600; color: #fff;
+        }
+        .nm-table-wrap td {
+            padding: 12px 16px; font-size: 14px; color: #5C5650;
+            border-bottom: 1px solid #E8E4DE;
+        }
+        .nm-table-wrap tbody tr:last-child td { border-bottom: none; }
+        .nm-table-wrap tbody tr:hover { background: rgba(160,72,40,0.04); }
+
+        /* -- 3열 역할 카드 -- */
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+        .role-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .role-card:hover { transform: translateY(-3px); }
+        .role-icon { font-size: 32px; margin-bottom: 12px; }
+        .role-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 8px; }
+        .role-card p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .role-card .role-example {
+            margin-top: 12px; padding-top: 12px;
+            border-top: 1px solid #E8E4DE;
+            font-size: 12px; color: #888; line-height: 1.6;
+        }
+
+        /* -- 워크플로우 스텝 -- */
+        .wf-steps { display: flex; flex-direction: column; gap: 0; margin: 18px 0; }
+        .wf-step { display: flex; gap: 20px; align-items: flex-start; padding: 16px 0; }
+        .wf-step-num {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: 800; color: var(--book-teal);
+            flex-shrink: 0; position: relative; z-index: 1;
+        }
+        .wf-step-content { flex: 1; padding-top: 8px; }
+        .wf-step-label { font-size: 12px; font-weight: 700; color: var(--book-teal); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .wf-step-desc { font-size: 14px; color: #5C5650; line-height: 1.6; }
+        .wf-connector {
+            width: 2px; height: 20px;
+            background: linear-gradient(to bottom, var(--book-teal), rgba(160,72,40,0.3));
+            margin-left: 21px;
+        }
+
+        /* -- 프롬프트 박스 -- */
+        .prompt-box {
+            background: var(--ant-dark); color: #e0e0e0;
+            padding: 20px 24px; border-radius: 14px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px; line-height: 1.8;
+            white-space: pre-wrap; margin: 12px 0;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 14px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+        /* -- 파일 트리 -- */
+        .file-tree {
+            background: #1E1E1E; color: #D4D4D4;
+            padding: 24px 28px; border-radius: 14px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px; line-height: 2;
+            margin: 16px 0;
+            white-space: pre; overflow-x: auto;
+        }
+        .file-tree .ft-folder { color: var(--book-teal-light); font-weight: 700; }
+        .file-tree .ft-file { color: #D4D4D4; }
+        .file-tree .ft-star { color: #F59E0B; }
+        .file-tree .ft-comment { color: #6A9955; }
+
+        /* -- 프롬프트 모음 -- */
+        .prompt-collection {
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            border: 2px dashed rgba(160,72,40,0.3);
+            padding: 24px; margin-bottom: 16px;
+        }
+        .prompt-collection h4 {
+            font-size: 14px; font-weight: 700; color: var(--book-teal);
+            margin-bottom: 10px;
+        }
+
+        /* -- 6구성요소 그리드 -- */
+        .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .comp-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .comp-item:hover { transform: translateY(-2px); }
+        .comp-item .comp-icon { font-size: 24px; margin-bottom: 8px; }
+        .comp-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px; }
+        .comp-item .comp-q { font-size: 12px; color: var(--book-teal); font-weight: 600; margin-bottom: 8px; }
+        .comp-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* -- user-book-toc.md 6입력 그리드 -- */
+        .toc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+        .toc-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 20px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .toc-card:hover { transform: translateY(-2px); }
+        .toc-card .toc-num {
+            display: inline-block;
+            background: var(--book-teal);
+            color: #fff;
+            font-size: 11px; font-weight: 800;
+            padding: 3px 9px; border-radius: 999px;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .toc-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .toc-card p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .toc-card .toc-why {
+            margin-top: 10px;
+            font-size: 12px; color: #888;
+            border-top: 1px dashed rgba(0,0,0,0.08);
+            padding-top: 8px;
+            line-height: 1.55;
+        }
+        @media (max-width: 768px) { .toc-grid { grid-template-columns: 1fr; } }
+
+        /* -- 실제 예시 블록 (최종 PDF + user-book-toc.md) -- */
+        .example-block { margin-top: 28px; }
+        .example-block > h3 { font-size: 17px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .example-block .eb-lead { font-size: 14px; color: #5C5650; margin-bottom: 18px; line-height: 1.7; }
+        .eb-label {
+            display: inline-block;
+            font-size: 11px; font-weight: 800; letter-spacing: 0.6px;
+            color: var(--book-teal); text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .book-result {
+            background: var(--nm-bg); border-radius: 18px;
+            box-shadow: var(--nm-inset);
+            padding: 22px 24px; margin-bottom: 20px;
+        }
+        .book-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
+        .book-gallery figure { margin: 0; }
+        .book-gallery img {
+            width: 100%; height: auto; display: block;
+            border-radius: 6px; background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.14), 0 1px 3px rgba(0,0,0,0.10);
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+        }
+        /* 표지는 페이지가 쌓인 책의 물성으로, 내부 2장은 낱장으로 */
+        .book-gallery figure:first-child img {
+            box-shadow:
+                2px 2px 0 #f3f0e9, 4px 4px 0 #ece8e0, 6px 6px 0 #e4dfd5,
+                10px 14px 26px rgba(0,0,0,0.20);
+        }
+        .book-gallery figure:hover img { transform: translateY(-4px); }
+        .book-gallery figure:first-child:hover img {
+            transform: translateY(-4px);
+            box-shadow:
+                2px 2px 0 #f3f0e9, 4px 4px 0 #ece8e0, 6px 6px 0 #e4dfd5, 8px 8px 0 #dcd6cb,
+                14px 20px 34px rgba(0,0,0,0.24);
+        }
+        .book-gallery figcaption {
+            text-align: center; font-size: 12px; color: #888;
+            margin-top: 12px; font-weight: 600;
+        }
+        .book-result-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+        .book-result-meta span {
+            font-size: 12px; font-weight: 600; color: #5C5650;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            padding: 6px 14px; border-radius: 999px;
+        }
+        /* 결과물 → 기획서 연결 장치 */
+        .toc-flow { display: flex; flex-direction: column; align-items: center; margin: 8px 0 18px; }
+        .toc-flow .tf-badge {
+            font-size: 12.5px; font-weight: 700; color: var(--book-teal);
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            padding: 9px 18px; border-radius: 999px; text-align: center;
+        }
+        .toc-flow .tf-chevron { color: var(--book-teal); opacity: 0.45; font-size: 15px; line-height: 1; margin-top: 7px; }
+        @media (max-width: 768px) { .book-gallery { grid-template-columns: 1fr 1fr; } }
+
+        /* -- 12산출물 파이프라인 -- */
+        .pipeline-wrap { margin: 18px 0; }
+        .pipeline-rotation {
+            font-size: 12px; font-weight: 700;
+            color: var(--book-teal);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 16px 4px 8px;
+            border-bottom: 1px dashed rgba(160,72,40,0.3);
+            margin-bottom: 8px;
+            display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+        }
+        .pipeline-rotation .pr-time {
+            color: #888; font-weight: 600; font-size: 11px;
+            letter-spacing: 0;
+        }
+        .pipeline-row {
+            display: grid;
+            grid-template-columns: 36px minmax(0, 1fr) minmax(220px, max-content) 170px;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 8px;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+        .pipeline-row:hover { background: rgba(160,72,40,0.04); }
+        .pipeline-row .pr-num {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px; font-weight: 700;
+            color: #888;
+        }
+        .pipeline-row .pr-title { font-size: 14px; font-weight: 600; color: #3A3530; }
+        .pipeline-row .pr-file {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 11px; color: #5C5650;
+            background: rgba(0,0,0,0.05);
+            padding: 4px 8px; border-radius: 6px;
+            justify-self: start;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        .pipeline-row .pr-persona {
+            font-size: 11px; font-weight: 700;
+            padding: 4px 10px; border-radius: 999px;
+            justify-self: end;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .pipeline-row .pr-persona::before {
+            content: ''; width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+        }
+        .pr-p-human { background: rgba(160,72,40,0.12); color: #7A2E15; }
+        .pr-p-human::before { background: #B35535; }
+        .pr-p-black { background: rgba(58,53,48,0.1); color: #3A3530; }
+        .pr-p-black::before { background: #3A3530; }
+        .pr-p-red { background: rgba(239,68,68,0.1); color: #B91C1C; }
+        .pr-p-red::before { background: #EF4444; }
+        .pr-p-pink { background: rgba(236,72,153,0.1); color: #BE185D; }
+        .pr-p-pink::before { background: #EC4899; }
+        .pr-p-green { background: rgba(34,197,94,0.1); color: #15803D; }
+        .pr-p-green::before { background: #22C55E; }
+        .pr-p-silver { background: rgba(148,163,184,0.18); color: #475569; }
+        .pr-p-silver::before { background: #94A3B8; }
+        .pr-p-light { background: rgba(96,165,250,0.12); color: #1D4ED8; }
+        .pr-p-light::before { background: #60A5FA; }
+        .pr-p-five { background: rgba(168,85,247,0.1); color: #6B21A8; }
+        .pr-p-five::before { background: #A855F7; }
+        @media (max-width: 768px) {
+            .pipeline-row { grid-template-columns: 28px 1fr; gap: 8px; }
+            .pipeline-row .pr-file, .pipeline-row .pr-persona { grid-column: 2; justify-self: start; margin-top: 4px; }
+        }
+
+        /* -- 4단계 플로우 다이어그램 (INTRO 시각 요약) -- */
+        .flow-diagram {
+            display: grid;
+            grid-template-columns: 0.7fr repeat(4, minmax(0, 1fr));
+            grid-auto-rows: auto;
+            gap: 8px;
+            margin: 22px 0 8px;
+        }
+        .flow-group-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            text-align: center;
+            margin-bottom: 4px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 6px;
+        }
+        .flow-group-label.fgl-input {
+            grid-column: 1 / 2;
+            background: rgba(30,39,97,0.08);
+            color: #1E2761;
+            border: 1px dashed rgba(30,39,97,0.35);
+        }
+        .flow-group-label.fgl-agent {
+            grid-column: 2 / 6;
+            background: linear-gradient(90deg, rgba(21,128,61,0.08), rgba(160,72,40,0.08));
+            color: #3A3530;
+            border: 1px dashed rgba(160,72,40,0.4);
+        }
+        .flow-group-label .fgl-arrow { color: #888; font-weight: 600; }
+        .flow-step { position: relative; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .flow-num {
+            position: absolute;
+            top: -10px; left: -8px;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            color: #3A3530;
+            font-size: 11px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+            border: 2px solid currentColor;
+            z-index: 2;
+        }
+        .flow-box {
+            padding: 14px 10px;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 800;
+            font-size: 14px;
+            text-align: left;
+            line-height: 1.25;
+            min-height: 52px;
+            display: flex; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            font-family: 'SF Mono', 'Fira Code', 'Pretendard', monospace;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .flow-box.fb-input { background: #1E2761; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11.5px; }
+        .flow-box.fb-research { background: #15803D; }
+        .flow-box.fb-write { background: #028090; }
+        .flow-box.fb-review { background: #BE185D; }
+        .flow-box.fb-publish { background: #A04828; }
+        .flow-caption {
+            font-size: 12px;
+            color: #5C5650;
+            line-height: 1.5;
+            padding: 0 2px;
+        }
+        .flow-step.fs-input .flow-caption { color: #888; font-style: italic; }
+        @media (max-width: 1280px) {
+            .flow-diagram { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .flow-group-label.fgl-input { grid-column: 1 / 3; }
+            .flow-group-label.fgl-agent { grid-column: 1 / 3; margin-top: 14px; }
+            .flow-step.fs-input { grid-column: 1 / 3; }
+            .flow-step.fs-input .flow-box { min-height: 48px; }
+        }
+        @media (max-width: 520px) {
+            .flow-diagram { grid-template-columns: 1fr; }
+            .flow-group-label.fgl-input,
+            .flow-group-label.fgl-agent { grid-column: 1 / 2; }
+            .flow-step.fs-input { grid-column: 1 / 2; }
+        }
+
+        /* -- 스킬 미리보기 카드 (GitHub 링크) -- */
+        .skill-preview {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 22px;
+            background: linear-gradient(135deg, #1A1917 0%, #2A2520 100%);
+            border-radius: 16px;
+            text-decoration: none;
+            color: #fff;
+            box-shadow: var(--nm-shadow-sm);
+            border: 1px solid rgba(218,165,32,0.25);
+            transition: all 0.25s;
+            margin-bottom: 22px;
+        }
+        .skill-preview:hover {
+            transform: translateY(-2px);
+            border-color: rgba(218,165,32,0.6);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+        }
+        .skill-preview .sp-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: rgba(218,165,32,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .skill-preview .sp-body { flex: 1; min-width: 0; }
+        .skill-preview .sp-label {
+            font-size: 11px; font-weight: 700;
+            color: #B35535;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 2px;
+        }
+        .skill-preview .sp-title {
+            font-size: 16px; font-weight: 700;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .skill-preview .sp-url {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            color: rgba(255,255,255,0.55);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .skill-preview .sp-arrow {
+            font-size: 20px;
+            color: #B35535;
+            flex-shrink: 0;
+            transition: transform 0.25s;
+        }
+        .skill-preview:hover .sp-arrow { transform: translateX(3px); }
+        @media (max-width: 768px) {
+            .skill-preview { padding: 14px 16px; gap: 12px; }
+            .skill-preview .sp-icon { width: 36px; height: 36px; font-size: 18px; }
+            .skill-preview .sp-title { font-size: 14px; }
+            .skill-preview .sp-url { font-size: 11px; }
+        }
+
+        /* -- 시간 견적 요약 카드 -- */
+        .time-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 18px 0 10px;
+        }
+        .time-card {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 16px 18px;
+            text-align: center;
+        }
+        .time-card .tc-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .time-card .tc-value { font-size: 22px; font-weight: 800; color: var(--book-teal); }
+        .time-card.tc-total .tc-value { color: #3A3530; }
+        @media (max-width: 768px) { .time-summary { grid-template-columns: 1fr; } }
+
+        /* -- 핵심 메시지 배너 -- */
+        .key-message {
+            background: linear-gradient(135deg, rgba(160,72,40,0.12) 0%, rgba(160,72,40,0.04) 100%);
+            border: 2px solid rgba(160,72,40,0.3);
+            border-radius: 20px;
+            padding: 28px 32px;
+            text-align: center;
+            margin: 24px 0;
+        }
+        .key-message p {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            line-height: 1.7;
+        }
+        .key-message .km-highlight {
+            color: var(--book-teal);
+            font-weight: 800;
+        }
+
+        /* -- CTA 섹션 -- */
+        .cta-section {
+            background: linear-gradient(150deg, #7A2E15 0%, #7A2E15 40%, #4A1508 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A2E15; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* -- 참고 자료 -- */
+        .ref-section { margin-top: 36px; }
+        .ref-title { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 14px; }
+        .ref-links { display: flex; flex-direction: column; gap: 10px; }
+        .ref-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ref-link:hover { transform: translateY(-1px); color: var(--book-teal); }
+        .ref-link .ref-icon { font-size: 18px; flex-shrink: 0; }
+        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
+
+        /* -- 푸터 -- */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: #D97757; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* -- Keyframes -- */
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeInLeft { from { opacity:0; transform:translateX(-30px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes scaleIn { from { opacity:0; transform:scale(0.7); } to { opacity:1; transform:scale(1); } }
+        @keyframes pulse { 0%,100% { box-shadow:0 4px 16px rgba(160,72,40,0.3); } 50% { box-shadow:0 6px 28px rgba(160,72,40,0.55); } }
+        @keyframes shimmer { 0% { background-position:-200% center; } 100% { background-position:200% center; } }
+        @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+        @keyframes borderGlow { 0%,100% { border-color:rgba(160,72,40,0.25); } 50% { border-color:rgba(160,72,40,0.6); } }
+
+        /* -- Header entrance -- */
+        .step-nav { animation: slideDown 0.6s 0.05s ease-out both; }
+        .back-link { animation: fadeInLeft 0.6s 0.1s ease-out both; }
+        header h1 { animation: slideDown 0.8s ease-out both; }
+        header > p { animation: slideDown 0.8s 0.15s ease-out both; }
+        .mode-tabs { animation: scaleIn 0.5s 0.3s ease-out both; }
+        .header-pages { animation: fadeInUp 0.6s 0.4s ease-out both; }
+        .sub-menu { animation: slideDown 0.4s 0.1s ease-out both; }
+
+        /* -- 스크롤 애니메이션 -- */
+        .anim-fade-up { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease-out, transform 0.7s ease-out; }
+        .anim-fade-up.visible { opacity:1; transform:translateY(0); }
+        .anim-fade-left { opacity:0; transform:translateX(-30px); transition:opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .anim-fade-left.visible { opacity:1; transform:translateX(0); }
+        .anim-scale-in { opacity:0; transform:scale(0.8); transition:opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+        .anim-scale-in.visible { opacity:1; transform:scale(1); }
+
+        /* Stagger children */
+        .anim-stagger > * { opacity:0; transform:translateY(25px); transition:opacity 0.5s ease-out, transform 0.5s ease-out; }
+        .anim-stagger.visible > *:nth-child(1) { transition-delay:0s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(2) { transition-delay:0.1s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(3) { transition-delay:0.15s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(4) { transition-delay:0.2s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(5) { transition-delay:0.25s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(6) { transition-delay:0.3s; opacity:1; transform:translateY(0); }
+
+        /* Step badge pop */
+        .step-divider { opacity:0; transition:opacity 0.4s ease; }
+        .step-divider.visible { opacity:1; }
+        .step-divider.visible .step-badge { animation: scaleIn 0.5s 0.1s ease-out both; }
+
+        /* Highlight glow */
+        .highlight-box.anim-fade-up.visible { animation: borderGlow 3s ease-in-out infinite; }
+
+        /* CTA pulse */
+        .cta-btn.primary { animation: pulse 2.5s ease-in-out infinite; }
+        .cta-section.anim-fade-up .cta-btn.primary { position:relative; overflow:hidden; }
+        .cta-section.anim-fade-up .cta-btn.primary::after { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); animation:shimmer 3s ease-in-out infinite; }
+
+        /* Card hover float */
+        .role-card:hover .role-icon { animation: float 1.5s ease-in-out infinite; }
+        .comp-card:hover { transform: translateY(-4px); box-shadow: 8px 8px 20px #CECAC3, -8px -8px 20px #FFFFFF; }
+
+        /* Legacy reveal support */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.15s; }
+        .reveal-delay-2 { transition-delay: 0.3s; }
+        .reveal-delay-3 { transition-delay: 0.45s; }
+
+        /* -- 반응형 -- */
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 24px 16px 60px; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .role-grid { grid-template-columns: 1fr; }
+            .comp-grid { grid-template-columns: 1fr; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .header-pages {
+                flex-direction: column; gap: 8px;
+                margin: 18px auto 0; max-width: 100%;
+            }
+            .header-page-link {
+                width: 100%; max-width: none; flex: 0 0 auto;
+                padding: 11px 16px; font-size: 13px;
+                justify-content: flex-start; border-radius: 14px;
+            }
+            .hpl-icon svg { width: 14px; height: 14px; }
+            .nm-card { padding: 22px 18px; }
+            .nm-table-wrap th, .nm-table-wrap td { padding: 10px 12px; font-size: 13px; }
+            .ref-link .ref-desc { display: none; }
+            .file-tree { padding: 16px 18px; font-size: 12px; }
+            /* Step navigator */
+            .step-nav { max-width: 100%; gap: 0; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .step-nav { max-width: 100%; margin: 16px 0 14px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 6px; max-width: 14px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+        }
+    
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+            /* 모션 최소화 시 리빌을 즉시 노출 (콘텐츠가 숨는 것 방지) */
+            .anim-fade-up, .anim-fade-left, .anim-scale-in,
+            .anim-stagger > * { opacity: 1 !important; transform: none !important; transition: none !important; }
+            .highlight-box.anim-fade-up.visible,
+            .cta-section.anim-fade-up .cta-btn.primary::after { animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="claude-orientation.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="ai-fluency.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="harness-engineering.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="loop-engineering.html">5</a>
+        <div class="step-line"></div>
+        <a class="step-node sn-final active" href="mcp-examples.html">예제</a>
+    </nav>
+    <a href="index.html" class="back-link">&larr; 목록으로</a>
+    <h1>하네스 엔지니어링으로 책 쓰기</h1>
+    <p>AI 에이전트 팀으로 책 한 권을 완성하는 실전 가이드</p>
+    <div class="header-pages">
+        <a href="mcp-examples.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span> MCP 연결</a>
+        <a href="seven-steps.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="4.5" cy="6.5" r="1.4"/><line x1="9" y1="6.5" x2="20" y2="6.5"/><circle cx="4.5" cy="12" r="1.4"/><line x1="9" y1="12" x2="20" y2="12"/><circle cx="4.5" cy="17.5" r="1.4"/><line x1="9" y1="17.5" x2="20" y2="17.5"/></svg></span> 7단계</a>
+        <a href="harness-book.html" class="header-page-link active"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5.5A1.5 1.5 0 0 1 5.5 4H8v17H5.5A1.5 1.5 0 0 1 4 19.5z"/><path d="M9.5 4h4v17h-4z"/><path d="m15 4.3 3-.6a1.3 1.3 0 0 1 1.5 1l2.3 13.8"/></svg></span> 책 쓰기</a>
+        <a href="company-brain.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5a3 3 0 0 0-3 3v.3A2.8 2.8 0 0 0 4.5 10a2.8 2.8 0 0 0 1 4.3A3 3 0 0 0 8 18.5h1"/><path d="M15 4.5a3 3 0 0 1 3 3v.3a2.8 2.8 0 0 1 1.5 2.2 2.8 2.8 0 0 1-1 4.3 3 3 0 0 1-2.5 3.7h-1"/><path d="M9 4.5v14M15 4.5v14"/></svg></span> 컴퍼니 브레인</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#intro" class="active" data-sec="intro">
+        <span class="sm-num">1</span>
+        <span class="sm-title">소개</span>
+        <span class="sm-sub">이 스킬은?</span>
+    </a>
+    <a href="#step1" data-sec="step1">
+        <span class="sm-num">2</span>
+        <span class="sm-title">팀 구성</span>
+        <span class="sm-sub">스킬 속 9명</span>
+    </a>
+    <a href="#step2" data-sec="step2">
+        <span class="sm-num">3</span>
+        <span class="sm-title">작업 흐름</span>
+        <span class="sm-sub">4단계 순서</span>
+    </a>
+    <a href="#step3" data-sec="step3">
+        <span class="sm-num">4</span>
+        <span class="sm-title">파일 구조</span>
+        <span class="sm-sub">다운로드 폴더</span>
+    </a>
+    <a href="#step4" data-sec="step4">
+        <span class="sm-num">5</span>
+        <span class="sm-title">실행</span>
+        <span class="sm-sub">다운로드·실행</span>
+    </a>
+    <a href="#step5" data-sec="step5">
+        <span class="sm-num">6</span>
+        <span class="sm-title">검증</span>
+        <span class="sm-sub">결과 확인</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- ====== 소개 ====== -->
+    <div class="step-divider" id="intro"><span class="step-badge">STEP 1</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>1단계. 소개</h2>
+            <p class="card-subtitle">완성된 스킬을 내려받아 실행하면, AI 에이전트 팀이 자동으로 책 한 권을 완성합니다</p>
+
+            <!-- 리더를 위한 3줄 요약 -->
+            <div style="background: var(--nm-bg); border-radius: 18px; box-shadow: var(--nm-inset); padding: 22px 24px; margin-bottom: 20px;">
+                <div style="font-size: 12px; font-weight: 800; color: var(--book-teal); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;">리더를 위한 3줄 요약</div>
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <span style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: #fff; background: var(--book-teal); padding: 4px 10px; border-radius: 20px; margin-top: 2px;">얻는 것</span>
+                        <p style="font-size: 14.5px; color: #3A3530; margin: 0; line-height: 1.7;">코드 한 줄 쓰지 않고, 내 머릿속 전문 지식을 <strong>책 한 권 분량의 초안</strong>으로. 편집까지 끝난 Word 파일이 손에 들어옵니다.</p>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <span style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: #fff; background: #15803D; padding: 4px 10px; border-radius: 20px; margin-top: 2px;">내가 할 일</span>
+                        <p style="font-size: 14.5px; color: #3A3530; margin: 0; line-height: 1.7;"><strong>기획서 한 장</strong>(제목, 대상 독자, 목차)을 채우고, 준비된 명령 <strong>4개를 순서대로</strong> 누르는 것. 나머지는 AI 팀이 합니다.</p>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <span style="flex-shrink: 0; font-size: 11px; font-weight: 700; color: #fff; background: #1A1917; padding: 4px 10px; border-radius: 20px; margin-top: 2px;">왜 중요한가</span>
+                        <p style="font-size: 14.5px; color: #3A3530; margin: 0; line-height: 1.7;">한 번 잘 만든 이 <strong>생산 라인은 그대로 재사용</strong>됩니다. 다음 책은 기획서 한 파일만 갈아끼우면 됩니다. 사람이 아니라 시스템이 책을 찍어내는 셈입니다.</p>
+                    </div>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.06);">
+                    <span style="font-size: 12.5px; font-weight: 700; color: #5C5650; background: var(--nm-light); padding: 8px 14px; border-radius: 12px; box-shadow: var(--nm-shadow-sm);">&#x23F1;&#xFE0F; 약 8시간에 한 권</span>
+                    <span style="font-size: 12.5px; font-weight: 700; color: #5C5650; background: var(--nm-light); padding: 8px 14px; border-radius: 12px; box-shadow: var(--nm-shadow-sm);">&#x1F9D0; 리뷰어 9명 검수</span>
+                    <span style="font-size: 12.5px; font-weight: 700; color: #5C5650; background: var(--nm-light); padding: 8px 14px; border-radius: 12px; box-shadow: var(--nm-shadow-sm);">&#x2705; 합격선 10점 만점에 9점</span>
+                </div>
+            </div>
+
+            <!-- 스킬 GitHub 미리보기 링크 -->
+            <a class="skill-preview" href="https://github.com/airoasting/book_publishing" target="_blank" rel="noopener">
+                <span class="sp-icon">&#x1F4DA;</span>
+                <span class="sp-body">
+                    <span class="sp-label">SKILL &middot; 바로가기</span>
+                    <span class="sp-title">book_publishing &middot; AI 책쓰기 하네스 스킬</span>
+                    <span class="sp-url">github.com/airoasting/book_publishing</span>
+                </span>
+                <span class="sp-arrow">&rarr;</span>
+            </a>
+
+            <!-- 선수 지식 안내 -->
+            <div style="display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--nm-bg); border-radius: 14px; box-shadow: var(--nm-shadow-sm); margin-bottom: 20px;">
+                <span style="font-size: 18px;">&#x1F4D6;</span>
+                <p style="font-size: 14px; color: #888; margin: 0;">이 페이지는 <a href="harness-engineering.html" style="color: var(--book-teal); font-weight: 600; text-decoration: none;">하네스 엔지니어링이란?</a>과 <a href="claude-code-101.html" style="color: var(--book-teal); font-weight: 600; text-decoration: none;">Claude Code 101</a>을 먼저 읽으면 더 잘 이해됩니다.</p>
+            </div>
+
+            <p>출판사 조직을 한번 떠올려 보세요. 편집장이 큰 그림을 그리고, 리서처가 자료를 모으고, 작가가 글을 쓰고, 편집자가 다듬고, 교정자가 오탈자를 잡습니다. <code>book_publishing</code> 스킬 안에는 <strong>이 출판사가 통째로 들어 있습니다.</strong> 팀원 4명의 업무 매뉴얼(<code>research</code>·<code>write</code>·<code>review</code>·<code>publish</code>), 사장 역할의 <strong>규칙서(<code>SKILL.md</code>)</strong>, 이번 책의 <strong>기획서(<code>user-book-toc.md</code>)</strong>까지 다 짜여 있습니다. 여러분이 새로 설계할 것은 없습니다. <strong>레포를 내려받아 실행하면 됩니다.</strong></p>
+
+            <p style="margin-top: 12px;">사람이 약 3시간을 쓰고, AI가 약 5시간을 일하면, 합쳐서 약 8시간 만에 한 권이 나옵니다. 이 페이지는 <strong>그 스킬이 어떻게 짜여 있고, 어떻게 돌리는지</strong>를 지금부터 여섯 단계로 나눠 설명합니다.</p>
+
+            <!-- 5박스 플로우 다이어그램 (PPTX Slide 2 기준) -->
+            <div class="flow-diagram" aria-label="입력 1개 + 4단계 커맨드 흐름도">
+                <div class="flow-group-label fgl-input">&#x270F;&#xFE0F; 유저가 입력</div>
+                <div class="flow-group-label fgl-agent">&#x1F916; AI 에이전트 4역할 <span class="fgl-arrow">&middot;</span> 스킬 4개 (슬래시 커맨드)</div>
+                <div class="flow-step fs-input" style="color:#1E2761;">
+                    <span class="flow-num">0</span>
+                    <div class="flow-box fb-input">user-book-toc.md</div>
+                    <div class="flow-caption">기획서 한 파일</div>
+                </div>
+                <div class="flow-step" style="color:#15803D;">
+                    <span class="flow-num">1</span>
+                    <div class="flow-box fb-research">/research</div>
+                    <div class="flow-caption">웹 조사<br>(Tier 1·2·3 출처 분류)</div>
+                </div>
+                <div class="flow-step" style="color:#028090;">
+                    <span class="flow-num">2</span>
+                    <div class="flow-box fb-write">/write</div>
+                    <div class="flow-caption">구조 설계 + 초안<br>(첫 호출에 청크 단위 1회 질의)</div>
+                </div>
+                <div class="flow-step" style="color:#BE185D;">
+                    <span class="flow-num">3</span>
+                    <div class="flow-box fb-review">/review</div>
+                    <div class="flow-caption">내부 6단계 + 외부 3단계<br>+ 최종 수정</div>
+                </div>
+                <div class="flow-step" style="color:#A04828;">
+                    <span class="flow-num">4</span>
+                    <div class="flow-box fb-publish">/publish</div>
+                    <div class="flow-caption">자동 검증 + Word 변환<br>+ 출판 메타데이터</div>
+                </div>
+            </div>
+
+            <!-- ====== 실제 예시: 최종 PDF + user-book-toc.md ====== -->
+            <div class="example-block anim-fade-up">
+                <h3>실제 예시로 보기: 이 기획서 한 장이 이 책이 됩니다</h3>
+                <p class="eb-lead">아래는 이 하네스로 실제로 만든 책 <strong>『노트북LM으로 다 됨』</strong>의 결과물과, 그 결과를 만든 기획서(<code>user-book-toc.md</code>)입니다. <strong>같은 파일 형식에 내용만 바꾸면</strong> 전혀 다른 책이 나옵니다.</p>
+
+                <!-- 최종 산출물 (상단) -->
+                <span class="eb-label">최종 산출물 &middot; 262페이지 완성본 (.docx &rarr; PDF)</span>
+                <div class="book-result">
+                    <div class="book-gallery">
+                        <figure>
+                            <img src="assets/media/book-sample/cover.png" alt="완성된 책 표지 페이지" loading="lazy">
+                            <figcaption>표지</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="assets/media/book-sample/toc.png" alt="완성된 책 목차 페이지" loading="lazy">
+                            <figcaption>목차</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="assets/media/book-sample/body.png" alt="완성된 책 본문 페이지" loading="lazy">
+                            <figcaption>본문 (프롤로그)</figcaption>
+                        </figure>
+                    </div>
+                    <div class="book-result-meta">
+                        <span>262페이지</span>
+                        <span>7부 + 활용법 20</span>
+                        <span>프롤로그 &middot; 에필로그 &middot; 부록 A~D</span>
+                        <span>Word 서식 &middot; 시각 자료 자동 삽입</span>
+                    </div>
+                </div>
+
+                <div class="toc-flow" aria-hidden="true">
+                    <span class="tf-badge">&uarr; 이 책 한 권을 만든 건, 아래 파일 딱 한 장입니다</span>
+                    <span class="tf-chevron">&#x25BE;</span>
+                </div>
+
+                <!-- 기획서 원본 (아래) -->
+                <span class="eb-label">이 책을 만든 기획서 &middot; user-book-toc.md (발췌)</span>
+                <div class="prompt-box" id="promptTOC"># 책 설정 (이 파일만 교체하면 다른 책을 쓸 수 있다)
+
+## 기본 정보
+- 제목: 노트북LM으로 다 됨
+- 부제: 팀장이 바로 쓰는 실전 활용법 20
+- 필명: AI ROASTING
+- 대상 독자: AI 도구에 관심이 있지만 기술 배경이 없는 직장인
+- 판형: B5 (176mm x 250mm)
+- 목표 분량: 240~250페이지 (약 120,000~150,000자)
+- 기준 연도: 2026년
+
+## 페르소나
+노트북LM을 팀 50명과 직접 써본 직장인 선배다. AI 전문가가 아니라
+평범한 회사원이었는데, 노트북LM을 써보면서 업무가 달라진 경험이 있다.
+말투: "나도 처음엔 몰랐는데, 써보니까 이렇더라"는 톤. 옆자리 선배가
+커피 한 잔 들고 와서 알려주는 느낌으로, 독자를 동료로 대한다.
+
+## 목차
+### 프롤로그: 일하는 방식, 노트북LM 이전과 이후로 나뉩니다
+### 제1부: 고수는 이렇게 씁니다
+  - 제 1장. 200페이지 보고서를 5분 만에 읽는 팀장
+  - 제 2장. 임원 보고 전날 밤을 바꾼 기획자
+  ...
+### 제6부: 월요일 아침부터 바로 쓰는 실전 시나리오
+  - [활용법 12] 업무 보고서 30분 만에 초안 뽑기
+  - [활용법 13] 회의록에서 액션 아이템 자동 추출하기
+  ...
+### 에필로그 / 부록 A~D / 참고문헌
+
+## 활용법 세부 가이드
+각 활용법은 도입, 핵심 개념, 실전 워크플로우, 프롬프트 예시,
+실전 팁, 핵심 정리 박스 6요소를 반드시 포함한다.
+
+## 작성 스타일
+- 문체: 자연스러운 한국어, 어미는 해라체로 통일
+- em dash(—, –)는 절대 사용하지 않는다
+- 불릿 포인트는 • (middle dot)를 사용한다
+- 영어 표현 최소화: "Before/After" 대신 "사용 전/사용 후"
+
+## 퍼블리싱 사양
+- 본문 폰트: Pretendard 11pt, 줄간격 1.2
+- 부 제목: 22pt 볼드, 색상 #1F4E79, 새 페이지에서 시작
+- 각 활용법 끝에 "핵심 정리" 박스: 배경 #E8F0FE, 테두리 #1F4E79
+- 시각 자료: 각 장마다 최소 1개, matplotlib로 생성<button class="copy-btn" onclick="copyPrompt('promptTOC')">복사</button></div>
+                <p style="font-size: 13px; color: #888; margin-top: 8px;">* 실제 파일은 목차 전체와 활용법 20개, 검증 규칙까지 약 290줄입니다. 여기서는 6개 섹션이 어떻게 채워지는지 보이도록 발췌했습니다.</p>
+            </div>
+
+            <div class="compare-grid anim-stagger" style="margin-top: 18px;">
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: #EF4444;"></div>
+                        <h4>하네스 없이 AI로 책 쓰기</h4>
+                    </div>
+                    <ul>
+                        <li>매번 처음부터 지시를 다시 내려야 함</li>
+                        <li>장마다 문체가 달라짐</li>
+                        <li>사실 확인 없이 출판되는 위험</li>
+                        <li>다른 책 쓸 때 또 처음부터 시작</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--book-teal);"></div>
+                        <h4>하네스와 함께 AI로 책 쓰기</h4>
+                    </div>
+                    <ul>
+                        <li>규칙이 파일에 저장되어 일관성 유지</li>
+                        <li>9명의 리뷰어가 2라운드로 품질 검증</li>
+                        <li>출처를 Tier 1·2·3으로 분류해 인용</li>
+                        <li><code>user-book-toc.md</code>만 교체하면 다른 책 제작 가능</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight-box anim-fade-up" style="margin-top: 18px;">
+                <div class="hl-title">시작 전 준비물</div>
+                <ul>
+                    <li><strong>Claude Code</strong>가 설치되어 있어야 합니다 (<a href="claude-code-101.html" style="color: var(--book-teal); font-weight: 600; text-decoration: none;">Claude Code 101</a> 참고)</li>
+                    <li>터미널(맥) 또는 명령 프롬프트(윈도우)를 열 수 있어야 합니다</li>
+                    <li>책의 주제를 미리 정해 두면 좋습니다 (예: "비개발자를 위한 AI 활용법")</li>
+                </ul>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ====== 실습 1단계: 팀 설계 ====== -->
+    <div class="step-divider" id="step1"><span class="step-badge">STEP 2</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>2단계. 팀 구성</h2>
+            <p class="card-subtitle">다운로드하면 이 팀이 이미 꾸려져 있습니다</p>
+
+            <p>여러분이 출판사 사장이라고 상상해 보세요. 책을 한 권 만들려면 작가만 있어서는 안 됩니다. 자료를 모으는 리서처도, 글을 다듬는 편집자도, 오탈자를 잡는 교정자도 있어야 합니다. <strong>이 스킬은 그 팀을 이미 다 갖춰 두었습니다.</strong> 여러분이 사람을 뽑을 필요는 없고, 누가 무슨 일을 하는지만 알면 됩니다.</p>
+
+            <p style="margin-top: 12px;">크게 보면 팀은 <strong>3명의 핵심 멤버</strong>로 움직입니다. 각각 슬래시 커맨드 하나로 실행됩니다.</p>
+
+            <div class="role-grid anim-stagger" style="margin-top: 18px;">
+                <div class="role-card">
+                    <div class="role-icon">&#x1F50D;</div>
+                    <h4>리서처</h4>
+                    <p>웹에서 자료를 수집하고, 출처를 Tier 1·2·3으로 등급 매겨 정리합니다. 공식 문서가 1순위, 블로그·SNS는 신호 정도로만 사용합니다.</p>
+                    <div class="role-example">슬래시 커맨드: /research</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">&#x270D;&#xFE0F;</div>
+                    <h4>저자</h4>
+                    <p>리서처가 모은 자료를 바탕으로 세부 목차를 설계하고, Part 단위로 끊어서 초안을 작성합니다. 첫 호출 때 청크 단위로 한 번에 질의해 흐름이 끊기지 않게 합니다.</p>
+                    <div class="role-example">슬래시 커맨드: /write</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">&#x1F9D0;</div>
+                    <h4>합평단 (9명)</h4>
+                    <p>비평·독자·5인 합평·편집자·프루프리더가 순서대로 원고를 다듬습니다. 마케터 1명은 외부 자문으로 따로 의견을 더합니다(본문 미반영).</p>
+                    <div class="role-example">슬래시 커맨드: /review</div>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 14px;">
+                <div class="tip-label">왜 9명이나 필요한가?</div>
+                <p>한 사람이 자기 글을 검토하면 자기 실수가 잘 안 보입니다. 시각이 다른 9명이 단계별로 보면, 비평가가 못 잡은 걸 독자가 잡고, 독자가 못 본 걸 사실 검증가가 잡습니다. <strong>"역할이 다른 눈"</strong>을 여러 번 통과시키는 게 품질을 끌어올리는 가장 확실한 방법입니다.</p>
+            </div>
+
+            <!-- 합평단 상세 구성 -->
+            <h3 style="margin-top: 22px; font-size: 17px; font-weight: 700; color: #3A3530;">합평단 9명, 어떤 순서로 어디서 일하나</h3>
+            <p style="font-size: 14px; color: #5C5650; margin-top: 4px;">아래 표는 9명이 일하는 <strong>순서</strong>입니다. 위에서 아래로 한 줄씩 통과해야 다음 단계로 갑니다.</p>
+            <div class="nm-table-wrap" style="margin-top: 12px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>단계</th>
+                            <th>리뷰어</th>
+                            <th>이 사람이 잡는 것</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="2" style="vertical-align: middle;"><strong>내부 리뷰 1차<br><span style="color:#888; font-weight:400;">(초안 다듬기)</span></strong></td>
+                            <td>01 &#x1F534; 비평가</td>
+                            <td>근거 없는 주장과 논리 비약을 잡습니다</td>
+                        </tr>
+                        <tr>
+                            <td>02 &#x1F7E0; 독자</td>
+                            <td>어렵거나 흥미가 끊기는 부분을 지적합니다</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="5" style="vertical-align: middle;"><strong>합평 5인<br>2라운드<br><span style="color:#888; font-weight:400;">(품질 게이트)</span></strong></td>
+                            <td>03 사실 검증가</td>
+                            <td>통계와 인용의 출처를 확인합니다</td>
+                        </tr>
+                        <tr>
+                            <td>04 구조 검증가</td>
+                            <td>목차와 흐름의 일관성을 점검합니다</td>
+                        </tr>
+                        <tr>
+                            <td>05 논리 검증가</td>
+                            <td>전제와 결론의 연결을 확인합니다</td>
+                        </tr>
+                        <tr>
+                            <td>06 독자 검증가</td>
+                            <td>용어 설명과 이해도를 점검합니다</td>
+                        </tr>
+                        <tr>
+                            <td>07 서식 검증가</td>
+                            <td>표기 규칙과 부호 통일을 검사합니다</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2" style="vertical-align: middle;"><strong>외부 리뷰<br><span style="color:#888; font-weight:400;">(출판 직전)</span></strong></td>
+                            <td>08 &#x1F4D6; 편집자</td>
+                            <td>구성·서사·톤·완성도를 평가합니다</td>
+                        </tr>
+                        <tr>
+                            <td>09 &#x1F50D; 프루프리더</td>
+                            <td>맞춤법·비문·부호 오류를 교정합니다</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="compare-grid anim-stagger" style="margin-top: 18px;">
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--book-teal);"></div>
+                        <h4>추가 멤버</h4>
+                    </div>
+                    <ul>
+                        <li><strong>퍼블리셔(/publish):</strong> 최종 원고를 Word 문서로 변환하고, 메타데이터·검증 리포트까지 자동 생성합니다.</li>
+                        <li><strong>마케터(외부 자문):</strong> 제목 임팩트·타겟 명확성·시의성에 한해 의견을 줍니다. 본문에는 반영하지 않으니 9명 합평단과는 분리해서 봅니다.</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--gold);"></div>
+                        <h4>팀장 (사람 = 나)</h4>
+                    </div>
+                    <ul>
+                        <li>어떤 책을 쓸지 <strong>기획서(<code>user-book-toc.md</code>)</strong>를 작성합니다.</li>
+                        <li>각 단계를 <strong>슬래시 커맨드</strong>로 호출합니다.</li>
+                        <li>최종 결과물을 <strong>직접 열어 보고 판단</strong>합니다. 마지막 결정은 사람의 몫입니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">참고</div>
+                <p>이 9명은 <strong>"책 쓰기"에 특화된 팀</strong>입니다. 나중에 블로그나 사내 보고서 같은 다른 결과물에 이 방식을 응용하고 싶다면, 이 구성을 참고해 검증 단계를 줄이거나 도메인 전문가를 한 명 더 넣는 식으로 바꿀 수 있습니다. 핵심은 "그 결과물에 필요한 시각"을 빠짐없이 채우는 것입니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 실습 2단계: 워크플로우 ====== -->
+    <div class="step-divider" id="step2"><span class="step-badge">STEP 3</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>3단계. 작업 흐름</h2>
+            <p class="card-subtitle">3명의 팀이 4단계로 움직입니다</p>
+
+            <p>팀이 정해졌으니, 이번에는 <strong>그 팀이 언제 어떤 순서로 일하는지</strong>를 봅니다. AI에게 "알아서 잘 해줘"라고 던지면 매번 결과가 달라집니다. 그래서 이 스킬은 "리서치 먼저, 집필 다음, 리뷰는 그 다음, 출판은 마지막"이라고 순서를 못 박아 두었습니다. 같은 입력에 거의 같은 품질이 나오는 이유가 바로 이 고정된 순서, 곧 하네스에 있습니다.</p>
+
+            <p style="margin-top: 12px;">전체는 <strong>4단계</strong>입니다. 슬래시 커맨드 한 줄이 곧 한 단계입니다.</p>
+
+            <div class="wf-steps" style="margin-top: 18px;">
+                <div class="wf-step anim-fade-left">
+                    <div class="wf-step-num">1</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">/research &middot; 자료 수집 (10~20분)</div>
+                        <div class="wf-step-desc">웹에서 최신 자료를 수집하고, <strong>출처를 Tier 1·2·3으로 등급 매겨</strong> 정리합니다. Tier 1은 공식 문서·정부 발표, Tier 2는 검증된 언론·학술, Tier 3은 블로그·SNS입니다. 본문 인용은 Tier 1을 최우선으로 합니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step anim-fade-left">
+                    <div class="wf-step-num">2</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">/write &middot; 구조 설계 + 초안 (30~60분)</div>
+                        <div class="wf-step-desc">먼저 세부 목차(<code>02_outline.md</code>)를 짜고, 그 다음 Part 단위로 끊어서 초안을 작성합니다. 첫 호출 때 <strong>청크 단위 1회 질의</strong>로 한 번에 많이 받아 와야 흐름이 자연스럽게 이어집니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step anim-fade-left">
+                    <div class="wf-step-num">3</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">/review &middot; 9명이 9단계로 검수 (40~90분)</div>
+                        <div class="wf-step-desc">내부 6단계(비평 → 수정 → 독자 → 수정 → 5인 합평 1라운드 → 반영) → 합평 2라운드 → 외부 3단계(편집자 → 프루프리더 → 최종 수정)를 차례대로 통과합니다. 한 단계에서 막히면 <strong>거기서 멈추고 수정한 뒤 같은 단계를 다시</strong>합니다.</div>
+                    </div>
+                </div>
+                <div class="wf-connector"></div>
+                <div class="wf-step anim-fade-left">
+                    <div class="wf-step-num">4</div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">/publish &middot; 자동 검증 + Word 변환 (10~15분)</div>
+                        <div class="wf-step-desc">최종 원고에 <code>verify.py</code>를 돌려 자동 검사(분량·페르소나 일관성·금지 부호 등)를 통과시킨 뒤, <code>.docx</code>로 변환하고 메타데이터·마케팅 카피·검증 리포트까지 함께 생성합니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">핵심 포인트 &middot; 통과해야 다음으로 간다</div>
+                <p>3단계 안에는 <strong>"통과 못 하면 수정 후 재도전"</strong>하는 루프가 있습니다. 합평 1라운드에서 5명 중 한 명이라도 빨간불을 켜면, 본문을 고친 뒤 합평 2라운드로 다시 갑니다. 이 루프가 하네스의 가드레일입니다. AI가 한 번에 안 되면 사람이 봐야 한다는 뜻이 아니라, <strong>"AI가 같은 단계를 다시 하면서 스스로 고친다"</strong>는 뜻입니다. 마지막에는 원고를 <strong>10점 만점으로 자가 채점</strong>하고, <strong>9점에 못 미치면 출판을 보류하도록</strong> 설계되어 있습니다. 리더 입장에서는 "일정 품질 아래로는 내보내지 않는다"는 기준선이 파일에 박혀 있는 셈입니다.</p>
+            </div>
+
+            <div class="highlight-box anim-fade-up" style="margin-top: 18px;">
+                <div class="hl-title">잠깐 &middot; 표지는 왜 빠졌나?</div>
+                <p>표지는 이 하네스에서 다루지 않습니다. 표지는 디자이너가 책 내용을 본 뒤에 만드는 별개 작업이라, 본문 워크플로우와 분리되어 있습니다. 표지가 필요하면 외부 도구(예: Adobe Express 템플릿)나 디자이너에게 따로 맡기면 됩니다. <strong>"이 하네스의 책임 범위는 본문 원고와 Word 파일까지"</strong>라고 못 박아 두면 단계가 깔끔해집니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 실습 3단계: 계획서 + 파일 구조 ====== -->
+    <div class="step-divider" id="step3"><span class="step-badge">STEP 4</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>4단계. 파일 구조</h2>
+            <p class="card-subtitle">팀도 순서도, 이미 파일로 저장돼 있습니다</p>
+
+            <p>2단계에서 "누가", 3단계에서 "어떤 순서로" 일하는지 봤습니다. 그 팀 구성과 순서는 여러분이 만드는 것이 아니라, <strong>이미 파일로 저장돼 레포에 들어 있습니다.</strong> AI 에이전트는 사람과 달리 "구두로 알려준 규칙"을 기억하지 못합니다. 대신 <strong>매번 같은 파일을 읽고 시작</strong>합니다. 그래서 규칙·역할·기획이 전부 <strong>파일에 박혀 있는 것</strong>, 이것이 곧 하네스입니다.</p>
+
+            <p style="margin-top: 12px;">전체 폴더는 아래 GitHub 레포와 똑같습니다. 핵심은 <strong>규칙서(<code>SKILL.md</code>), 기획서, 매뉴얼 4개</strong>입니다.</p>
+
+            <div class="file-tree" style="margin-top: 16px;">
+<span class="ft-folder">book_publishing/</span>
+├── <span class="ft-file">SKILL.md</span>                  <span class="ft-comment"># 편집장: 전체 규칙과 품질 기준</span>
+├── <span class="ft-folder">book/</span>
+│   └── <span class="ft-file"><span class="ft-star">&#x2B50;</span> user-book-toc.md</span>   <span class="ft-comment"># 기획서: 이 파일만 교체하면 다른 책 제작 가능</span>
+├── <span class="ft-folder">references/</span>               <span class="ft-comment"># 팀원들의 업무 매뉴얼 (4개)</span>
+│   ├── <span class="ft-file">research.md</span>          <span class="ft-comment"># 리서처</span>
+│   ├── <span class="ft-file">write.md</span>             <span class="ft-comment"># 저자</span>
+│   ├── <span class="ft-file">review.md</span>            <span class="ft-comment"># 합평단 9명</span>
+│   └── <span class="ft-file">publish.md</span>           <span class="ft-comment"># 퍼블리셔</span>
+├── <span class="ft-folder">scripts/</span>
+│   └── <span class="ft-file">verify.py</span>            <span class="ft-comment"># 자동 품질 검증</span>
+└── <span class="ft-folder">output/</span>                  <span class="ft-comment"># 최종 결과물 (.docx 등)</span>
+            </div>
+            <p style="font-size: 13px; color: #888; margin-top: 8px;">* <code>/research</code>부터 실행하면 중간 산출물이 쌓이는 <code>draft/</code> 폴더가 자동으로 생기고, <code>output/</code>에 최종 파일이 채워집니다.</p>
+
+            <div class="nm-table-wrap" style="margin-top: 18px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>파일</th>
+                            <th>역할</th>
+                            <th>수정 가능 여부</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>SKILL.md</strong></td>
+                            <td>범용 규칙·품질 기준·작업 흐름을 정의합니다</td>
+                            <td style="color: #EF4444; font-weight: 700;">수정 불가 (고정)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>references/*.md</strong></td>
+                            <td>4명 에이전트(리서처·저자·합평단·퍼블리셔)의 업무 절차</td>
+                            <td style="color: #EF4444; font-weight: 700;">수정 불가 (고정)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>scripts/verify.py</strong></td>
+                            <td>분량·페르소나·금지 부호를 자동 검사하는 스크립트</td>
+                            <td style="color: #EF4444; font-weight: 700;">수정 불가 (고정)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>book/user-book-toc.md</strong></td>
+                            <td>이번에 쓸 책의 제목·페르소나·목차·문체·퍼블리싱 사양</td>
+                            <td style="color: var(--book-teal); font-weight: 700;">수정 가능 (교체)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>draft/</strong></td>
+                            <td>리서치 노트·초안·리뷰 결과 등 중간 산출물</td>
+                            <td style="color: var(--book-teal); font-weight: 700;">자동 생성</td>
+                        </tr>
+                        <tr>
+                            <td><strong>output/</strong></td>
+                            <td>최종 <code>.docx</code>·메타데이터·검증 리포트</td>
+                            <td style="color: var(--book-teal); font-weight: 700;">자동 생성</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">왜 "수정 불가"와 "수정 가능"을 나누는가?</div>
+                <p>시험을 떠올려 보세요. <strong>시험 규칙과 채점 기준은 고정</strong>이고, <strong>답안지만 사람마다 다릅니다</strong>. 만약 시험을 보는 사람이 채점 기준까지 바꿀 수 있다면 그 시험은 의미가 없습니다. 여기서도 똑같습니다. <code>SKILL.md</code>와 매뉴얼 4개는 <strong>채점 기준</strong>이라 그대로 두고, <code>user-book-toc.md</code>가 <strong>답안지</strong>라 매번 새로 씁니다. 그래서 같은 하네스로 다른 책을 찍어낼 수 있는 것입니다.</p>
+            </div>
+
+            <!-- 6개 입력 섹션 -->
+            <h3 style="margin-top: 26px; font-size: 17px; font-weight: 700; color: #3A3530;">기획서(<code>user-book-toc.md</code>)에는 정확히 6가지를 적습니다</h3>
+            <p style="font-size: 14px; color: #5C5650; margin-top: 4px;">조립식 가구 설명서를 떠올려 보세요. 부품이 6개 있는데 하나라도 빠지면 가구가 흔들립니다. 기획서도 같습니다. 6칸을 빠짐없이 채워야 AI가 책 한 권을 완성할 수 있습니다.</p>
+
+            <div class="toc-grid anim-stagger">
+                <div class="toc-card">
+                    <span class="toc-num">01</span>
+                    <h4>기본 정보</h4>
+                    <p>제목·부제·필명·대상 독자·판형·목표 분량·기준 연도·환율 표기 규칙 등 책의 메타데이터.</p>
+                    <div class="toc-why">없으면? 분량과 목표가 모호해져 AI가 멋대로 결정합니다.</div>
+                </div>
+                <div class="toc-card">
+                    <span class="toc-num">02</span>
+                    <h4>페르소나</h4>
+                    <p>책의 화자(캐릭터·말투·일관성 원칙). 프롤로그부터 부록까지 한 목소리를 유지하기 위한 설정.</p>
+                    <div class="toc-why">없으면? 장마다 화자가 바뀌어 책이 누더기가 됩니다.</div>
+                </div>
+                <div class="toc-card">
+                    <span class="toc-num">03</span>
+                    <h4>목차</h4>
+                    <p>프롤로그 → N부 → 에필로그 → 부록 → 참고문헌까지 전체 구조와 부별 의도.</p>
+                    <div class="toc-why">없으면? 저자가 어디로 가야 할지 몰라 길을 잃습니다.</div>
+                </div>
+                <div class="toc-card">
+                    <span class="toc-num">04</span>
+                    <h4>활용법 세부 가이드</h4>
+                    <p>챕터별 상세 작성 규칙 + 공통 6요소(도입·개념·워크플로우·프롬프트·팁·정리).</p>
+                    <div class="toc-why">없으면? 장마다 구성이 달라지고 독자가 혼란스러워합니다.</div>
+                </div>
+                <div class="toc-card">
+                    <span class="toc-num">05</span>
+                    <h4>작성 스타일</h4>
+                    <p>문체·어미·금지 부호·불릿 기호·영어 최소화 등. <code>verify.py</code>가 자동 검사하는 기준이 됩니다.</p>
+                    <div class="toc-why">없으면? 어디는 해라체, 어디는 합니다체로 섞여 출판 불가.</div>
+                </div>
+                <div class="toc-card">
+                    <span class="toc-num">06</span>
+                    <h4>퍼블리싱 사양</h4>
+                    <p>Word 서식(폰트·색·여백·표·이미지·정리 박스) + 이미지 생성 규칙(matplotlib 기준 등).</p>
+                    <div class="toc-why">없으면? .docx로 변환 후 손으로 다 다시 손봐야 합니다.</div>
+                </div>
+            </div>
+
+            <div class="highlight-box anim-fade-up" style="margin-top: 18px;">
+                <div class="hl-title">핵심 &middot; "교체 가능한 기획서"라는 발상</div>
+                <p>이 6칸이 잘 짜여 있으면, 새로운 책을 쓸 때 <strong><code>user-book-toc.md</code> 한 파일만 갈아끼우면 끝</strong>입니다. AI 모델을 바꾸는 게 아니라, <strong>AI가 일하는 환경을 통째로 재사용</strong>하는 것입니다. 이게 하네스 엔지니어링의 핵심입니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 실습 4단계: Claude Code 실행 ====== -->
+    <div class="step-divider" id="step4"><span class="step-badge">STEP 5</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>5단계. 실행</h2>
+            <p class="card-subtitle">스킬을 내려받아 AI 에이전트 팀을 돌립니다</p>
+
+            <!-- 4-A -->
+            <div class="inset-box" style="margin-top: 18px;">
+                <div class="inset-label">4-A. 프로젝트 가져오기</div>
+                <p>먼저 GitHub에서 프로젝트를 가져옵니다. 터미널에서 아래 명령어를 입력합니다.</p>
+            </div>
+            <div class="prompt-box" id="promptA">git clone https://github.com/airoasting/book_publishing.git
+cd book_publishing<button class="copy-btn" onclick="copyPrompt('promptA')">복사</button></div>
+
+            <!-- 4-B -->
+            <div class="inset-box" style="margin-top: 18px;">
+                <div class="inset-label">4-B. 기획서(user-book-toc.md) 작성하기</div>
+                <p>Claude Code를 열고, 아래 프롬프트를 입력합니다. <strong>이 파일 하나가 "이번에 쓸 책"을 결정합니다.</strong> 4단계에서 본 6칸을 빠짐없이 채우는 것이 핵심입니다.</p>
+            </div>
+            <div class="prompt-box" id="promptB">user-book-toc.md 파일을 새로 작성해줘.
+
+주제: [여기에 책 주제 입력]
+대상 독자: [여기에 대상 독자 입력]
+분량: 12~15만자
+기준 연도: 2026
+
+기존 user-book-toc.md의 6개 섹션(기본 정보·페르소나·목차·활용법 가이드·작성 스타일·퍼블리싱 사양) 형식을 그대로 유지하되,
+위 주제에 맞게 제목·페르소나·목차·스타일을 새로 만들어줘.<button class="copy-btn" onclick="copyPrompt('promptB')">복사</button></div>
+
+            <!-- 4-C -->
+            <div class="inset-box" style="margin-top: 18px;">
+                <div class="inset-label">4-C. 슬래시 커맨드를 순서대로 실행하기</div>
+                <p>기획서가 완성되면, 아래 커맨드를 <strong>순서대로 하나씩</strong> 실행합니다. 한 번에 다 누르지 말고, 단계마다 산출물을 열어서 눈으로 확인한 뒤 다음으로 갑니다.</p>
+            </div>
+
+            <div class="nm-table-wrap" style="margin-top: 14px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>순서</th>
+                            <th>커맨드</th>
+                            <th>하는 일</th>
+                            <th>예상 소요 시간</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1</strong></td>
+                            <td><code>/research</code></td>
+                            <td>웹에서 자료를 수집하고 Tier 1·2·3으로 분류해 정리합니다</td>
+                            <td>10~20분</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2</strong></td>
+                            <td><code>/write</code></td>
+                            <td>세부 목차를 설계한 뒤, Part 단위 청크로 초안을 작성합니다</td>
+                            <td>30~60분</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3</strong></td>
+                            <td><code>/review</code></td>
+                            <td>합평단 9명이 내부 6단계 → 합평 2라운드 → 외부 3단계로 검수합니다</td>
+                            <td>40~90분</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4</strong></td>
+                            <td><code>/publish</code></td>
+                            <td>verify.py로 자동 검증 후 .docx와 메타데이터를 생성합니다</td>
+                            <td>10~15분</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">중간에 멈춰도 괜찮습니다</div>
+                <p>각 스킬은 <code>draft/</code> 폴더의 파일 존재 여부를 자동으로 감지합니다. <code>/write</code> 도중 중단해도, 다시 <code>/write</code>를 실행하면 마지막 산출물부터 이어서 작업합니다. 게임의 <strong>자동 저장</strong>과 같은 원리입니다.</p>
+            </div>
+
+            <!-- 12개 산출물 타임라인 -->
+            <div class="inset-box" style="margin-top: 24px;">
+                <div class="inset-label">4-D. 4번의 커맨드 → 12개 산출물</div>
+                <p>위 4개 커맨드를 누르면 <code>draft/</code> 폴더에 <strong>총 12개의 산출물 파일</strong>이 자동으로 만들어집니다. 마치 공장 컨베이어 벨트처럼, 한 산출물이 다음 산출물의 입력이 됩니다. 누가 만드는지를 색깔로 표시했습니다.</p>
+            </div>
+
+            <div class="time-summary">
+                <div class="time-card">
+                    <div class="tc-label">사람이 쓰는 시간</div>
+                    <div class="tc-value">~3시간</div>
+                </div>
+                <div class="time-card">
+                    <div class="tc-label">AI 에이전트가 쓰는 시간</div>
+                    <div class="tc-value">~5시간</div>
+                </div>
+                <div class="time-card tc-total">
+                    <div class="tc-label">총 소요</div>
+                    <div class="tc-value">~8시간</div>
+                </div>
+            </div>
+
+            <div class="pipeline-wrap">
+                <!-- 0회전 · 기획서 작성 -->
+                <div class="pipeline-rotation">기획서 작성 <span class="pr-time">· 사람이 약 1시간</span></div>
+                <div class="pipeline-row">
+                    <span class="pr-num">00</span>
+                    <span class="pr-title">기획서 한 파일 채우기</span>
+                    <span class="pr-file">user-book-toc.md</span>
+                    <span class="pr-persona pr-p-human">사람</span>
+                </div>
+
+                <!-- 1회전 · 초안 -->
+                <div class="pipeline-rotation">1회전 &middot; 초안 만들기 <span class="pr-time">· 약 25분</span></div>
+                <div class="pipeline-row">
+                    <span class="pr-num">01</span>
+                    <span class="pr-title">리서치</span>
+                    <span class="pr-file">01_research-notes.md</span>
+                    <span class="pr-persona pr-p-green">그린 · 리서처</span>
+                </div>
+                <div class="pipeline-row">
+                    <span class="pr-num">02</span>
+                    <span class="pr-title">구조 설계 (세부 목차)</span>
+                    <span class="pr-file">02_outline.md</span>
+                    <span class="pr-persona pr-p-silver">실버 · 설계자</span>
+                </div>
+                <div class="pipeline-row">
+                    <span class="pr-num">03</span>
+                    <span class="pr-title">초안 작성</span>
+                    <span class="pr-file">03_draft-v1.md</span>
+                    <span class="pr-persona pr-p-black">블랙 · 저자</span>
+                </div>
+
+                <!-- 2회전 · 비평 + 독자 -->
+                <div class="pipeline-rotation">2회전 &middot; 비평 + 독자 검토 <span class="pr-time">· 약 150분</span></div>
+                <div class="pipeline-row">
+                    <span class="pr-num">04</span>
+                    <span class="pr-title">비평 리뷰</span>
+                    <span class="pr-file">04_review-red.md</span>
+                    <span class="pr-persona pr-p-red">레드 · 비평가</span>
+                </div>
+                <div class="pipeline-row">
+                    <span class="pr-num">05</span>
+                    <span class="pr-title">1차 수정</span>
+                    <span class="pr-file">05_draft-v2.md</span>
+                    <span class="pr-persona pr-p-black">블랙 · 저자</span>
+                </div>
+                <div class="pipeline-row">
+                    <span class="pr-num">06</span>
+                    <span class="pr-title">독자 리뷰</span>
+                    <span class="pr-file">06_review-pink.md</span>
+                    <span class="pr-persona pr-p-pink">핑크 · 독자</span>
+                </div>
+                <div class="pipeline-row">
+                    <span class="pr-num">07</span>
+                    <span class="pr-title">2차 수정</span>
+                    <span class="pr-file">07_draft-v3.md</span>
+                    <span class="pr-persona pr-p-black">블랙 · 저자</span>
+                </div>
+
+                <!-- 3회전 · 합평 2라운드 -->
+                <div class="pipeline-rotation">3회전 &middot; 합평 2라운드 <span class="pr-time">· 약 125분</span></div>
+                <div class="pipeline-row">
+                    <span class="pr-num">08</span>
+                    <span class="pr-title">1차 합평</span>
+                    <span class="pr-file">08_ensemble-review-1.md</span>
+                    <span class="pr-persona pr-p-five">5인 합평단</span>
+                </div>
+                <div class="pipeline-row">
+                    <span class="pr-num">09</span>
+                    <span class="pr-title">합평 1R 반영</span>
+                    <span class="pr-file">09_draft-v4.md</span>
+                    <span class="pr-persona pr-p-black">블랙 · 저자</span>
+                </div>
+                <div class="pipeline-row">
+                    <span class="pr-num">10</span>
+                    <span class="pr-title">2차 합평</span>
+                    <span class="pr-file">10_ensemble-review-2.md</span>
+                    <span class="pr-persona pr-p-five">5인 합평단</span>
+                </div>
+                <div class="pipeline-row">
+                    <span class="pr-num">11</span>
+                    <span class="pr-title">최종 반영</span>
+                    <span class="pr-file">11_draft-final.md</span>
+                    <span class="pr-persona pr-p-black">블랙 · 저자</span>
+                </div>
+
+                <!-- 4회전 · 퍼블리싱 -->
+                <div class="pipeline-rotation">퍼블리싱 <span class="pr-time">· 약 5분</span></div>
+                <div class="pipeline-row">
+                    <span class="pr-num">12</span>
+                    <span class="pr-title">Word 변환 + 검증 리포트</span>
+                    <span class="pr-file">final.docx</span>
+                    <span class="pr-persona pr-p-light">라이트 · 퍼블리셔</span>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">강의 포인트 &middot; 왜 블랙이 자꾸 등장하나?</div>
+                <p>위 12행을 보면 <strong>블랙(저자)이 4번</strong>(03 → 05 → 07 → 09 → 11) 등장합니다. 의도된 설계입니다. <strong>"본문을 고치는 사람은 끝까지 한 명"</strong>이어야 문체와 흐름이 흔들리지 않습니다. 다른 색깔(레드·핑크·5인 합평·라이트)은 <strong>지적</strong>만 하고 본문은 손대지 않습니다. 사람으로 치면 "감수는 여러 명이 하지만, 펜은 한 명이 잡는" 구조입니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 실습 5단계: 검증 ====== -->
+    <div class="step-divider" id="step5"><span class="step-badge">STEP 6</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>6단계. 검증</h2>
+            <p class="card-subtitle">"AI가 만든 거니까 알아서 잘 됐겠지"는 금물입니다. 결과물은 직접 눈으로 확인합니다</p>
+
+            <p>모든 커맨드 실행이 끝나면 <code>output/</code> 폴더에 최종 <code>.docx</code>·메타데이터·검증 리포트(<code>verify-report.md</code>)가 생성됩니다. <code>verify.py</code>가 자동으로 잡아 주는 항목도 있지만, <strong>마지막 결정은 사람의 몫</strong>입니다. 아래 6가지를 직접 확인합니다.</p>
+
+            <div class="comp-grid anim-stagger" style="margin-top: 18px;">
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>목차 일치</h4>
+                    <p><code>user-book-toc.md</code>의 목차와 실제 원고 구조가 일치하는가</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>분량 충족</h4>
+                    <p>목표 분량(예: 12~15만 자)을 달성했는가</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>페르소나 일관성</h4>
+                    <p>처음부터 끝까지 동일한 캐릭터와 말투를 유지하는가</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>내부 참조 정확성</h4>
+                    <p>"3장에서 다룬 내용" 같은 참조가 실제와 일치하는가</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>정보 일관성</h4>
+                    <p>동일 기능에 대한 설명이 장마다 모순되지 않는가</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>마크다운 기호 제거</h4>
+                    <p>최종 Word 문서에 <code>#</code>, <code>**</code>, <code>—</code>, <code>–</code> 같은 기호가 남아있지 않은가</p>
+                </div>
+            </div>
+
+            <div class="prompt-collection" style="margin-top: 16px;">
+                <h4>결과물에 문제가 있을 때 다시 던지는 프롬프트</h4>
+                <div class="prompt-box" id="promptC">draft/11_draft-final.md를 읽고,
+아래 항목을 기준으로 최종 점검해줘:
+
+1. user-book-toc.md의 목차와 실제 구조가 일치하는가
+2. 페르소나와 문체가 처음부터 끝까지 일관되는가
+3. 장 간 내부 참조("2장에서 다룬~")가 정확한가
+4. 사실 관계와 통계 인용에 오류가 없는가
+
+문제가 있으면 11_draft-final.md를 수정해줘.<button class="copy-btn" onclick="copyPrompt('promptC')">복사</button></div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 18px;">
+                <div class="hl-title">다음 책으로 넘어가는 법</div>
+                <p><code>SKILL.md</code>와 매뉴얼 4개는 <strong>그대로 두고</strong>, <code>user-book-toc.md</code> 한 파일만 새 기획서로 교체합니다. 그다음 <code>/research</code>부터 다시 누르면 끝입니다. 이 페이지가 결국 말하고 싶은 것은 한 가지입니다. <strong>AI 모델을 바꾸는 것이 아니라, 잘 만들어진 작업 환경을 한 번 내려받아 계속 재사용하는 것</strong>입니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-section anim-fade-up">
+        <h3>이제 직접 책을 써보세요</h3>
+        <p>레포를 클론하고, user-book-toc.md를 작성하고, /research부터 시작하세요.<br>하네스가 나머지를 해줍니다.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn secondary" href="harness-engineering.html">&larr; 하네스 엔지니어링 개념</a>
+            <a class="cta-btn primary" href="https://github.com/airoasting/book_publishing" target="_blank" rel="noopener">GitHub에서 시작하기 &rarr;</a>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Mode Tabs ──
+function switchMode(mode) {
+    document.querySelectorAll('.mode-tab').forEach(function(t){ t.classList.remove('active'); });
+    var tab = document.getElementById('tab-' + mode);
+    if (tab) tab.classList.add('active');
+    document.querySelectorAll('.header-pages').forEach(function(p){
+        p.style.display = (p.id === 'pages-' + mode) ? 'flex' : 'none';
+    });
+}
+
+// -- 스크롤 애니메이션 --
+(function(){
+    var animEls = document.querySelectorAll('.anim-fade-up, .anim-fade-left, .anim-scale-in, .anim-stagger, .step-divider');
+    var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+            if(e.isIntersecting){
+                e.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    animEls.forEach(function(el){ observer.observe(el); });
+})();
+
+// -- Sub Menu Click Scroll --
+document.querySelectorAll('.sub-menu a[data-sec]').forEach(function(link){
+    link.addEventListener('click', function(e){
+        e.preventDefault();
+        var target = document.getElementById(link.dataset.sec);
+        if(!target) return;
+        var html = document.documentElement;
+        html.style.scrollBehavior = 'auto';
+        target.scrollIntoView({ block: 'start' });
+        html.style.scrollBehavior = '';
+        history.pushState(null, '', '#' + link.dataset.sec);
+    });
+});
+
+// -- Sub Menu Scroll Spy --
+(function(){
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l){ var s = document.getElementById(l.dataset.sec); if(s) sections.push({id:l.dataset.sec, el:s, link:l}); });
+
+    function update(){
+        var smEl = document.getElementById('subMenu');
+        var scrollY = window.scrollY + (smEl ? smEl.offsetHeight : 0) + 16;
+        var current = sections[0];
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                // 가로 서브메뉴만 스크롤한다. sticky 컨테이너 안에서 scrollIntoView를 부르면
+                // 브라우저가 창을 서브메뉴의 원래(고정 전) 위치로 끌어올려 하단을 못 보게 만든다.
+                var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.clientWidth) / 2;
+                nav.scrollTo({left: target, behavior: 'smooth'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    update();
+})();
+
+// -- 프롬프트 복사 --
+function copyPrompt(id) {
+    var box = document.getElementById(id);
+    var text = box.textContent.replace('복사', '').trim();
+    navigator.clipboard.writeText(text).then(function(){
+        var btn = box.querySelector('.copy-btn');
+        btn.textContent = '완료!';
+        setTimeout(function(){ btn.textContent = '복사'; }, 2000);
+    });
+}
+</script>
+
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #B0544A; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    /* 헤더 상단 여백 통일 */
+    header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 50px 0 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+
+<!-- 가이드 소개 모달: 단일 소스 assets/about-modal.js 에서 주입 -->
+<script src="assets/about-modal.js"></script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
+    <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/harness-workflows.html">
+    <meta property="og:title" content="멀티 에이전트 소환 | AI ROASTING · Claude 완전 정복">
+    <meta property="og:description" content="/goal 한 줄을 선언하면 Claude가 에이전트 팀을 직접 설계해 조건이 달성될 때까지 갑니다. 비즈니스 리더를 위한 멀티 에이전트 소환법.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/harness-workflows.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="멀티 에이전트 소환 | AI ROASTING · Claude 완전 정복">
+    <meta name="twitter:description" content="/goal 한 줄을 선언하면 Claude가 에이전트 팀을 직접 설계해 조건이 달성될 때까지 갑니다. 비즈니스 리더를 위한 멀티 에이전트 소환법.">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>멀티 에이전트 소환: /goal 한 줄로 부르는 에이전트 팀 | AI ROASTING</title>
+    <meta name="description" content="지시 대신 목표를 선언하는 /goal. Claude가 작업을 분해해 에이전트 팀을 직접 설계하고, 조건이 달성될 때까지 멈추지 않습니다. 이 교재가 만들어진 실제 과정 포함.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+            --skill-green: #10B981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { word-break: keep-all; font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Mode Tabs (스킬 / 실전) ── */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            border: none;
+            background: none;
+            font-family: inherit;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* ── Header Page Links ── */
+        .header-pages {
+            width: 100%;
+            max-width: 940px;
+            margin: 22px auto 0;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        .header-page-link {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 9px 10px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1;
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .hpl-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; flex-shrink: 0;
+        }
+        .hpl-icon svg { width: 16px; height: 16px; display: block; }
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #A0532E;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 100px; }
+        .step-divider { scroll-margin-top: 130px; }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 섹션 박스 (각 섹션의 외곽 컨테이너) ── */
+        .section-box {
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            margin-bottom: 32px;
+        }
+        .section-box > .nm-card {
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+            padding: 14px 4px;
+            margin-bottom: 0;
+        }
+        .section-box > .nm-card:last-child {
+            padding-bottom: 6px;
+        }
+        .section-box > .nm-card:first-child {
+            padding-top: 8px;
+        }
+        .section-box > .nm-card:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        .section-box > .key-message {
+            box-shadow: var(--nm-shadow-sm);
+            margin: 16px 0;
+        }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; }
+
+        /* ── 스크롤 프로그레스 바 ── */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;
+            background: linear-gradient(90deg, var(--ant-orange), #E0997F);
+            width: 0%; transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(217,119,87,0.4);
+        }
+
+        /* ── 섹션 구분 ── */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 30px 0 28px; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 13px; font-weight: 800;
+            letter-spacing: 0.5px;
+            color: var(--ant-orange); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 8px 24px; border-radius: 20px; white-space: nowrap;
+        }
+
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--ant-orange); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { display: inline-block; font-size: 11px; font-weight: 700; background: var(--ant-orange); color: #fff; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 강조 박스 ── */
+        .highlight-box {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border: none;
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin: 12px 0 4px;
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* ── 섹션 인트로 (박스 최상단 한 줄) ── */
+        .section-intro {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            letter-spacing: 0.3px;
+            padding: 0 4px 14px;
+            margin-bottom: 4px;
+            border-bottom: 1px dashed rgba(217,119,87,0.25);
+        }
+        .section-intro .si-label {
+            display: inline-block;
+            background: rgba(217,119,87,0.12);
+            color: var(--ant-orange);
+            padding: 3px 10px;
+            border-radius: 6px;
+            margin-right: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+        .section-intro .si-text { color: #3A3530; font-weight: 700; vertical-align: middle; }
+
+        /* ── 비교 그리드 ── */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm { background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm); padding: 20px; position: relative; overflow: hidden; transition: transform 0.25s; }
+        .compare-nm:hover { transform: translateY(-2px); }
+        .compare-nm::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
+        .compare-nm:first-child::before { background: #7A2E15; }
+        .compare-nm:last-child::before { background: var(--skill-green); }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+        .compare-nm .cmp-quote {
+            font-size: 13.5px; font-weight: 700; color: #3A3530;
+            background: rgba(0,0,0,0.035);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            line-height: 1.65;
+        }
+
+        /* ── 3열 역할 카드 ── */
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+        .role-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .role-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .role-card:nth-child(1)::before { background: linear-gradient(90deg, #7A2E15, #D97757); }
+        .role-card:nth-child(2)::before { background: linear-gradient(90deg, #D97757, #C4623F); }
+        .role-card:nth-child(3)::before { background: linear-gradient(90deg, #A0532E, #D49479); }
+        .role-card:hover { transform: translateY(-4px); box-shadow: 6px 6px 16px #CECAC3, -6px -6px 16px #FFFFFF; }
+        .role-icon { font-size: 32px; margin-bottom: 12px; }
+        .role-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 8px; }
+        .role-card p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .role-card .role-example {
+            margin-top: 12px; padding-top: 12px;
+            border-top: 1px solid #E8E4DE;
+            font-size: 12px; color: #888; line-height: 1.6;
+            text-align: left;
+        }
+
+        /* ── 4칸 그리드 (실전 사례 수치) ── */
+        .grade-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .grade-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .grade-item:hover { transform: translateY(-3px); box-shadow: 6px 6px 16px #CECAC3, -6px -6px 16px #FFFFFF; }
+        .grade-item .grade-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            font-size: 13px; font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .grade-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .grade-item .grade-stat { font-size: 24px; font-weight: 800; color: var(--ant-orange); letter-spacing: -0.5px; margin-bottom: 4px; }
+        .grade-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* ── 렌즈 태그 ── */
+        .lens-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
+        .lens-tag {
+            font-size: 12px; font-weight: 800;
+            color: #7A2E15;
+            background: rgba(217,119,87,0.10);
+            padding: 5px 13px;
+            border-radius: 999px;
+            letter-spacing: 0.2px;
+        }
+
+        /* ── 직접 해보기 (do-step) ── */
+        .do-list { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+        .do-step {
+            display: grid; grid-template-columns: 40px 1fr; gap: 16px;
+            padding: 18px 20px;
+            background: rgba(255,255,255,0.62);
+            border: 1px solid #CCC6BC;
+            border-radius: 14px;
+            box-shadow: 1px 1px 6px rgba(206,202,195,0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+        .do-step:hover { transform: translateX(3px); border-color: var(--ant-orange); background: rgba(255,255,255,0.7); box-shadow: 0 6px 16px rgba(170,120,90,0.1); }
+        .do-num {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: var(--ant-orange); color: #fff;
+            font-size: 16px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(217,119,87,0.4);
+        }
+        .do-body { min-width: 0; }
+        .do-title { font-size: 15px; font-weight: 800; color: #2A2520; margin-bottom: 6px; letter-spacing: -0.2px; }
+        .do-text { font-size: 13.5px; color: #433E38; line-height: 1.78; }
+        .do-text strong { color: #3A3530; font-weight: 700; }
+
+        /* ── FAQ ── */
+        .qa-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+        .qa-item {
+            background: rgba(255,255,255,0.62);
+            border: 1px solid #CCC6BC;
+            border-radius: 14px;
+            padding: 18px 20px;
+            box-shadow: 1px 1px 6px rgba(206,202,195,0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .qa-item:hover { transform: translateY(-2px); border-color: #C6BEB2; box-shadow: 0 8px 18px rgba(170,120,90,0.1); }
+        .qa-q { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; font-weight: 800; color: #2A2520; line-height: 1.6; margin-bottom: 9px; }
+        .qa-q::before { content: 'Q'; flex: none; width: 22px; height: 22px; border-radius: 6px; background: var(--ant-orange); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+        .qa-a { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: #433E38; line-height: 1.78; }
+        .qa-a::before { content: 'A'; flex: none; width: 22px; height: 22px; border-radius: 6px; background: #8f8980; color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+        .qa-a strong { color: #3A3530; font-weight: 700; }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A2E15; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* ── 참고 자료 ── */
+        .ref-section { margin-top: 36px; }
+        .ref-title { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 14px; }
+        .ref-links { display: flex; flex-direction: column; gap: 10px; }
+        .ref-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ref-link:hover { transform: translateY(-1px); color: var(--ant-orange); }
+        .ref-link .ref-icon { font-size: 18px; flex-shrink: 0; }
+        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
+
+        /* ── 푸터 ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* ── 스크롤 애니메이션 ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal.delay-1 { transition-delay: 0.1s; }
+        .reveal.delay-2 { transition-delay: 0.2s; }
+        .reveal.delay-3 { transition-delay: 0.3s; }
+
+        /* ── 헤더 로드 애니메이션 ── */
+        @keyframes headerFadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes headerFadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .header-animate-1 { animation: headerFadeDown 0.55s ease both; animation-delay: 0.05s; }
+        .header-animate-2 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.18s; }
+        .header-animate-3 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.32s; }
+        .header-animate-4 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.44s; }
+        .header-animate-5 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.56s; }
+
+        /* ── step-badge shimmer ── */
+        @keyframes shimmerScan {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .step-badge {
+            background-image: linear-gradient(
+                105deg,
+                var(--nm-bg) 40%,
+                rgba(255,255,255,0.85) 50%,
+                var(--nm-bg) 60%
+            );
+            background-size: 200% auto;
+            animation: shimmerScan 2.8s linear infinite;
+        }
+
+        /* ── key-message 배너 ── */
+        .key-message {
+            background: linear-gradient(135deg, rgba(217,119,87,0.12) 0%, rgba(217,119,87,0.04) 100%);
+            border: 2px solid rgba(217,119,87,0.3);
+            border-radius: 20px;
+            padding: 28px 32px;
+            text-align: center;
+            margin: 24px 0;
+        }
+        .key-message p {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            line-height: 1.7;
+        }
+        .key-message .km-highlight {
+            color: var(--ant-orange);
+            font-weight: 800;
+            background: linear-gradient(180deg, transparent 60%, rgba(217,119,87,0.15) 60%);
+            padding: 0 2px;
+        }
+        @keyframes borderGlow {
+            0%, 100% { border-color: rgba(217,119,87,0.25); box-shadow: none; }
+            50%       { border-color: rgba(217,119,87,0.55); box-shadow: 0 0 18px rgba(217,119,87,0.18); }
+        }
+        .key-message { animation: borderGlow 3s ease-in-out infinite; }
+
+        /* ── 그리드 stagger ── */
+        .stagger-child {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+        .stagger-child.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── nm-card 호버 리프트 ── */
+        .nm-card {
+            transition: transform 0.28s ease, box-shadow 0.28s ease;
+        }
+        .nm-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 8px 8px 20px #C5C1BA, -8px -8px 20px #FFFFFF;
+        }
+
+        /* ── 플로우 다이어그램 ── */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 28px 0;
+            flex-wrap: nowrap;
+            padding: 24px 16px;
+            background: rgba(0,0,0,0.015);
+            border-radius: 20px;
+            overflow-x: auto;
+        }
+        .flow-node {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 22px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 160px;
+            transition: transform 0.25s;
+        }
+        .flow-node:hover { transform: translateY(-3px); }
+        .flow-node .fn-icon { font-size: 26px; margin-bottom: 8px; }
+        .flow-node h4 { font-size: 13px; font-weight: 700; color: #3A3530; }
+        .flow-node p { font-size: 11px; color: #888; margin-top: 4px; }
+        .flow-arrow {
+            font-size: 20px;
+            color: var(--ant-orange);
+            padding: 0 10px;
+            font-weight: 700;
+            animation: arrowPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(3px); }
+        }
+        @keyframes nodeFlash {
+            0%, 100% { box-shadow: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF; }
+            50%       { box-shadow: 0 0 0 3px rgba(217,119,87,0.35), 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF; }
+        }
+        .flow-node:nth-child(1)  { animation: nodeFlash 4s ease-in-out infinite; animation-delay: 0s; }
+        .flow-node:nth-child(3)  { animation: nodeFlash 4s ease-in-out infinite; animation-delay: 1s; }
+        .flow-node:nth-child(5)  { animation: nodeFlash 4s ease-in-out infinite; animation-delay: 2s; }
+        .flow-node:nth-child(7)  { animation: nodeFlash 4s ease-in-out infinite; animation-delay: 3s; }
+
+        /* ── 프롬프트 예시 블록 ── */
+        .prompt-block {
+            position: relative;
+            margin-top: 20px;
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .prompt-block-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px;
+            background: #2d2d2d;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .prompt-block-label {
+            font-size: 12px; font-weight: 700;
+            color: #E0997F; letter-spacing: 0.5px;
+        }
+        .prompt-copy-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 600; color: #aaa;
+            background: #3a3a3a; border: none; border-radius: 6px;
+            padding: 5px 10px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .prompt-copy-btn:hover { background: #4a4a4a; color: #fff; }
+        .prompt-copy-btn.copied { color: #7EE8A2; background: rgba(126,232,162,0.15); }
+        .prompt-block pre {
+            margin: 0; padding: 20px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 13px; line-height: 1.7;
+            color: #d4d4d4;
+            white-space: pre-wrap; word-break: keep-all;
+            overflow-x: auto;
+        }
+        .prompt-block .kw { color: #f4a97a; font-weight: 700; }
+        .prompt-block .cm { color: #7a7a7a; }
+        .prompt-block .val { color: #7ee8a2; }
+
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 24px 16px 48px; }
+            .section-box { padding: 0; border-radius: 0; margin-bottom: 24px; }
+            .section-box > .nm-card { padding: 18px 0; }
+            .nm-card h2 { font-size: 18px; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .role-grid { grid-template-columns: 1fr; }
+            .grade-grid { grid-template-columns: 1fr; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .header-pages { flex-wrap: wrap; gap: 8px; max-width: 100%; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            .prompt-block pre { font-size: 12px; line-height: 1.6; }
+            .ref-link .ref-desc { display: none; }
+            .flow-diagram { flex-direction: column; gap: 8px; padding: 20px 12px; }
+            .flow-node { height: auto; min-height: 100px; width: 100%; }
+            .flow-arrow { transform: rotate(90deg); padding: 4px 0; animation-name: arrowPulseMobile; }
+            @keyframes arrowPulseMobile {
+                0%, 100% { opacity: 0.5; transform: rotate(90deg) translateX(0); }
+                50% { opacity: 1; transform: rotate(90deg) translateX(3px); }
+            }
+            .do-step { grid-template-columns: 1fr; gap: 10px; padding: 16px; }
+            .do-num { width: 34px; height: 34px; font-size: 14px; }
+            /* Step navigator */
+            .step-nav { max-width: 100%; gap: 0; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+            .step-nav { max-width: 100%; margin: 16px 0 14px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 6px; max-width: 14px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+            .prompt-block pre { font-size: 11px; line-height: 1.55; padding: 14px; }
+        }
+
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="claude-orientation.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="ai-fluency.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="harness-engineering.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="loop-engineering.html">5</a>
+        <div class="step-line"></div>
+        <a class="step-node sn-final" href="mcp-examples.html">예제</a>
+    </nav>
+    <a href="index.html" class="back-link header-animate-2">&larr; 목록으로</a>
+    <h1 class="header-animate-3">멀티 에이전트 소환</h1>
+    <p class="header-animate-4">/goal 한 줄을 선언하면, Claude가 에이전트 팀을 꾸려 끝까지 갑니다</p>
+
+    <div class="mode-tabs header-animate-5" role="tablist">
+        <button class="mode-tab active" id="tab-harness" onclick="switchMode('harness')" role="tab" aria-selected="true">하네스</button>
+        <button class="mode-tab" id="tab-tool" onclick="switchMode('tool')" role="tab" aria-selected="false">도구</button>
+    </div>
+    <div class="header-pages" id="pages-harness">
+        <a href="harness-engineering.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 20v-6.5c0-4.2 2.7-7.5 6-7.5 2.2 0 4 1.5 4.3 3.4l2.7 1.6-.7 1.8-2.3-.4-1 7.6"/><circle cx="13.3" cy="8.6" r="0.7" fill="currentColor" stroke="none"/></svg></span> 하네스 엔지니어링</a>
+        <a href="claude-tools.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9.5" width="17" height="9.5" rx="1.8"/><path d="M8.5 9.5V7a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2.5"/><path d="M3.5 13.5h17"/></svg></span> 도구</a>
+        <a href="harness-workflows.html" class="header-page-link active"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="8" width="15" height="11" rx="3"/><path d="M12 8V4.5"/><circle cx="12" cy="3.3" r="1.1"/><circle cx="9" cy="13.5" r="1.3"/><circle cx="15" cy="13.5" r="1.3"/><path d="M9 17h6"/></svg></span> 멀티 에이전트 소환</a>
+    </div>
+    <div class="header-pages" id="pages-tool" style="display:none;">
+        <a href="claude-md-templates.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="4.5" width="13" height="16" rx="2"/><rect x="9" y="3" width="6" height="3" rx="1"/><path d="M8.5 10.5h7M8.5 14h7M8.5 17.5h4"/></svg></span> CLAUDE.md</a>
+        <a href="skills.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 18 6"/><path d="M15 3.3l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/></svg></span> 나만의 Skill 만들기</a>
+        <a href="code-plugin.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h4.2a1.7 1.7 0 1 1 0 3.3H12V5h4a2 2 0 0 1 2 2v3.5a1.7 1.7 0 1 0 0 3.3V17a2 2 0 0 1-2 2h-4v-3.3H8.8a1.7 1.7 0 1 1 0-3.4H5z"/></svg></span> 스킬·MCP 플러그인</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec1" data-sec="sec1">
+        <span class="sm-num">1</span>
+        <span class="sm-title">한 세션의 한계</span>
+        <span class="sm-sub">Why</span>
+    </a>
+    <a href="#sec2" data-sec="sec2">
+        <span class="sm-num">2</span>
+        <span class="sm-title">/goal 선언</span>
+        <span class="sm-sub">Declare</span>
+    </a>
+    <a href="#sec3" data-sec="sec3">
+        <span class="sm-num">3</span>
+        <span class="sm-title">팀 설계</span>
+        <span class="sm-sub">How</span>
+    </a>
+    <a href="#sec4" data-sec="sec4">
+        <span class="sm-num">4</span>
+        <span class="sm-title">실전 사례</span>
+        <span class="sm-sub">Case</span>
+    </a>
+    <a href="#sec5" data-sec="sec5">
+        <span class="sm-num">5</span>
+        <span class="sm-title">직접 해보기</span>
+        <span class="sm-sub">Do</span>
+    </a>
+    <a href="#sec6" data-sec="sec6">
+        <span class="sm-num">6</span>
+        <span class="sm-title">FAQ</span>
+        <span class="sm-sub">Q&amp;A</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- ═══════ STEP 1: 왜 대화 한 세션으로는 안 되는가 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec1"><span class="step-badge">한 세션의 한계</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>큰 일을 대화 한 세션에 다 넣으면, 세 가지 방식으로 무너집니다</h2>
+            <p>짧은 질문과 답은 대화 한 번으로 충분합니다. 그런데 "교재 전체를 검수해서 고쳐라" 같은 큰 일을 한 대화에 다 넣으면, 아무리 좋은 모델도 앞에서 한 약속을 잊고, 서로 다른 작업이 섞이고, 절반쯤에서 끝났다고 말합니다. 모델의 성능 문제가 아니라 <strong>혼자 끝까지 가려는 구조의 한계</strong>입니다.</p>
+            <div class="role-grid" style="margin-top:18px;">
+                <div class="role-card">
+                    <div class="role-icon">&#x1F634;</div>
+                    <h4>에이전트 게으름</h4>
+                    <p>일을 끝까지 하지 않고 절반쯤에서 "다 했다"며 멈춥니다.</p>
+                    <div class="role-example">Agentic laziness · 10개를 시켰는데 3개만 하고 마무리</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">&#x1FA9E;</div>
+                    <h4>자기 편향</h4>
+                    <p>다른 가능성보다 자기가 먼저 낸 결론을 계속 옳다고 여깁니다.</p>
+                    <div class="role-example">Self-preferential bias · 자기 답을 자기가 후하게 평가</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">&#x1F3AF;</div>
+                    <h4>목표 표류</h4>
+                    <p>대화가 길어지는 사이에 처음 받은 목표에서 조금씩 멀어집니다.</p>
+                    <div class="role-example">Goal drift · 긴 작업 끝에 다른 일을 하고 있음</div>
+                </div>
+            </div>
+            <div class="key-message reveal" style="margin-top:18px;">
+                <p>처방은 두 가지입니다. <span class="km-highlight">목표를 선언해 고정하고</span>, <span class="km-highlight">일을 팀으로 나눕니다</span>.<br>
+                <span style="font-size: 15px; font-weight: 500; color: #5C5650;">이 두 가지를 한 줄로 거는 명령이 /goal입니다.</span></p>
+            </div>
+            <p style="margin:14px 0 0; font-size:11.5px; color:#9a948c; line-height:1.6; text-align:center;">출처: Anthropic, "A harness for every task: dynamic workflows in Claude Code" · <a href="https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code" target="_blank" rel="noopener" style="color:var(--ant-orange);text-decoration:none;">원문</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 2: /goal 목표를 선언합니다 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec2"><span class="step-badge">/goal 선언</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>지시가 아니라 목표를 선언합니다</h2>
+            <p>보통의 지시는 "이것을 해 주세요"입니다. Claude가 답을 한 번 내놓으면 거기서 끝납니다. <strong>/goal은 종료 기준 자체를 바꿉니다.</strong> 목표를 선언하면 Claude는 "답을 다 했습니다"가 아니라 <strong>"조건이 달성됐습니다"</strong>를 끝으로 삼습니다. 멈추려 할 때마다 목표가 정말 달성됐는지 검사받기 때문에, 중간에 그만두지 못하고 끝까지 갑니다.</p>
+            <div class="compare-grid" style="margin-top:20px;">
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:#7A2E15;"></span><h4>지시: 한 번 답하면 끝</h4></div>
+                    <div class="cmp-quote">"보고서 초안 주세요"</div>
+                    <ul>
+                        <li>초안 하나를 내놓으면 임무 완료</li>
+                        <li>품질이 기준에 미치는지는 묻지 않음</li>
+                        <li>부족하면 사람이 다시 시켜야 함</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--skill-green);"></span><h4>목표 선언: 조건 달성까지</h4></div>
+                    <div class="cmp-quote">"이 교재를 임원 눈높이의 최고 수준으로 만들어라"</div>
+                    <ul>
+                        <li>멈추려 할 때마다 달성 여부를 검사받음</li>
+                        <li>미달이면 스스로 다음 작업을 이어감</li>
+                        <li>사람은 목표와 최종 판정만 맡음</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box reveal">
+                <div class="hl-title">한 문장으로</div>
+                <p>/goal은 "무엇을 해라"가 아니라 <strong>"어떤 상태가 되면 끝났다고 인정하겠다"</strong>를 거는 명령입니다. 일의 단위가 답변 한 개에서 목표 달성으로 바뀝니다.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 3: 다이내믹 워크플로우 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec3"><span class="step-badge">팀 설계</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="section-intro">
+            <span class="si-label">다이내믹 워크플로우</span>
+            <span class="si-text">목표를 받은 Claude가 작업을 분해해 에이전트 팀을 직접 짭니다</span>
+        </div>
+
+        <div class="nm-card reveal">
+            <h2>조직도는 AI가 그립니다</h2>
+            <p>목표를 선언하면 Claude는 일을 쪼개고, 단계마다 필요한 에이전트(또 다른 Claude)를 소환해 역할을 나눕니다. 사람이 팀 구성을 설계할 필요가 없습니다. 이렇게 작업마다 새로 짜는 일 처리 계획과 역할 분담을 <strong>하네스</strong>, 그 한 벌을 <strong>다이내믹 워크플로우</strong>라고 부릅니다. 검수 작업이라면 보통 이런 구조가 나옵니다.</p>
+            <div class="flow-diagram reveal">
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F50D;</div>
+                    <h4>검수</h4>
+                    <p>여러 관점이 병렬로<br>같은 대상을 살핌</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F9E9;</div>
+                    <h4>통합</h4>
+                    <p>발견을 모아 중복 제거<br>우선순위 확정</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x1F527;</div>
+                    <h4>수정</h4>
+                    <p>파일별 병렬 수정<br>+ 전역 일괄 수정</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-node">
+                    <div class="fn-icon">&#x2696;&#xFE0F;</div>
+                    <h4>검증</h4>
+                    <p>별도 에이전트가<br>적대적으로 재검</p>
+                </div>
+            </div>
+            <p>이 구조 안에서 여섯 가지 핵심 패턴이 반복해서 쓰입니다. 앞의 둘은 일을 배치하는 뼈대고, 뒤의 넷은 품질을 끌어올리는 장치입니다. Claude는 작업마다 이 중 필요한 것을 골라 조합합니다.</p>
+
+<style>
+  .pat-grid svg text { font-family:'Pretendard','Helvetica Neue',sans-serif; }
+  .wf-n{fill:#fff;stroke:#2E2A26;stroke-width:2}
+  .wf-no{fill:#fff;stroke:#D97757;stroke-width:2.5}
+  .wf-nb{fill:#fff;stroke:#6E8BA0;stroke-width:2}
+  .wf-e{fill:none;stroke:#2E2A26;stroke-width:2;marker-end:url(#wfA)}
+  .wf-eb{fill:none;stroke:#2E2A26;stroke-width:2;marker-start:url(#wfAs);marker-end:url(#wfA)}
+  .wf-lbl{font-size:13px;fill:#6B655D}
+  .wf-nt{font-size:12.5px;font-weight:600;fill:#2E2A26}
+  .pat-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:8px 0 4px}
+  .pat-card{background:var(--nm-bg);border-radius:18px;box-shadow:var(--nm-shadow-sm);padding:20px 22px 22px;display:flex;flex-direction:column}
+  .pat-head{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+  .pat-num{width:26px;height:26px;border-radius:7px;background:var(--ant-orange);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .pat-title{font-size:16px;font-weight:800;color:#3A3530;line-height:1.3}
+  .pat-title .en{font-size:12px;font-weight:600;color:#9a948c}
+  .pat-figure{background:#FBF9F5;border:1px solid #ECE7DE;border-radius:12px;margin:14px 0;padding:10px 8px}
+  .pat-figure svg{width:100%;height:auto;display:block}
+  .pat-when{font-size:12.5px;font-weight:700;color:var(--ant-orange);margin-bottom:6px}
+  .pat-desc{font-size:13.5px;color:#5C5650;line-height:1.7;margin:0}
+  @media(max-width:768px){.pat-grid{grid-template-columns:1fr}}
+</style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="wfA" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 z" fill="#2E2A26"/></marker>
+  <marker id="wfAs" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M0,0 L10,5 L0,10 z" fill="#2E2A26"/></marker>
+</defs></svg>
+
+            <div class="pat-grid reveal">
+              <div class="pat-card">
+                <div class="pat-head"><span class="pat-num">1</span><span class="pat-title">펼치고 합치기 <span class="en">(Fan-out)</span></span></div>
+                <div class="pat-figure">
+                  <svg viewBox="0 0 430 190" role="img" aria-label="펼치고 합치기 다이어그램">
+                    <rect class="wf-n" x="12" y="78" width="60" height="34" rx="5"/>
+                    <text x="42" y="99" text-anchor="middle" class="wf-nt">과제</text>
+                    <path class="wf-e" d="M72,92 L148,40"/>
+                    <path class="wf-e" d="M72,95 L148,82"/>
+                    <path class="wf-e" d="M72,98 L148,126"/>
+                    <path class="wf-e" d="M72,101 L148,168"/>
+                    <circle class="wf-n" cx="164" cy="38" r="14"/>
+                    <circle class="wf-n" cx="164" cy="82" r="14"/>
+                    <circle class="wf-n" cx="164" cy="126" r="14"/>
+                    <circle class="wf-n" cx="164" cy="168" r="14"/>
+                    <path class="wf-e" d="M178,38 L262,92"/>
+                    <path class="wf-e" d="M178,82 L262,100"/>
+                    <path class="wf-e" d="M178,126 L262,108"/>
+                    <path class="wf-e" d="M178,168 L262,116"/>
+                    <rect class="wf-no" x="266" y="30" width="9" height="140" rx="3" fill="#D97757" stroke="none"/>
+                    <circle class="wf-n" cx="350" cy="100" r="24"/>
+                    <path class="wf-e" d="M276,100 H324"/>
+                    <text x="350" y="150" text-anchor="middle" class="wf-lbl">종합 (Synthesize)</text>
+                  </svg>
+                </div>
+                <div class="pat-when">검수와 수정 단계가 이렇게 움직입니다</div>
+                <p class="pat-desc">일을 독립된 조각으로 펼쳐 여러 에이전트가 동시에 처리하고, 결과를 하나로 모읍니다. 여섯 관점의 검수도, 파일별 수정도 이 방식이라 사람이 순서대로 기다릴 필요가 없습니다.</p>
+              </div>
+              <div class="pat-card">
+                <div class="pat-head"><span class="pat-num">2</span><span class="pat-title">파이프라인 <span class="en">(Pipeline)</span></span></div>
+                <div class="pat-figure">
+                  <svg viewBox="0 0 430 190" role="img" aria-label="파이프라인 다이어그램">
+                    <text x="105" y="22" text-anchor="middle" class="wf-lbl">1단계</text>
+                    <text x="230" y="22" text-anchor="middle" class="wf-lbl">2단계</text>
+                    <text x="355" y="22" text-anchor="middle" class="wf-lbl">3단계</text>
+                    <text x="78" y="62" text-anchor="end" class="wf-lbl">조각 A</text>
+                    <circle class="wf-n" cx="105" cy="58" r="13"/>
+                    <path class="wf-e" d="M118,58 H214"/>
+                    <circle class="wf-n" cx="230" cy="58" r="13"/>
+                    <path class="wf-e" d="M243,58 H339"/>
+                    <circle class="wf-no" cx="355" cy="58" r="13"/>
+                    <text x="78" y="116" text-anchor="end" class="wf-lbl">조각 B</text>
+                    <circle class="wf-n" cx="105" cy="112" r="13"/>
+                    <path class="wf-e" d="M118,112 H214"/>
+                    <circle class="wf-no" cx="230" cy="112" r="13"/>
+                    <text x="78" y="170" text-anchor="end" class="wf-lbl">조각 C</text>
+                    <circle class="wf-no" cx="105" cy="166" r="13"/>
+                  </svg>
+                </div>
+                <div class="pat-when">여러 단계 작업이 이렇게 흐릅니다</div>
+                <p class="pat-desc">조각마다 단계를 독립적으로 통과합니다. 빠른 조각은 앞 단계가 끝나는 즉시 다음 단계로 넘어가므로, 가장 느린 조각을 전원이 기다리는 일이 없습니다.</p>
+              </div>
+              <div class="pat-card">
+                <div class="pat-head"><span class="pat-num">3</span><span class="pat-title">적대적 검증 <span class="en">(Adversarial verification)</span></span></div>
+                <div class="pat-figure">
+                  <svg viewBox="0 0 430 185" role="img" aria-label="적대적 검증 다이어그램">
+                    <text x="340" y="26" text-anchor="middle" class="wf-lbl">검증자 (Verifiers)</text>
+                    <circle class="wf-n" cx="95" cy="98" r="24"/>
+                    <text x="95" y="148" text-anchor="middle" class="wf-lbl">작업자 (Worker)</text>
+                    <circle class="wf-nb" cx="340" cy="58" r="16"/>
+                    <circle class="wf-nb" cx="340" cy="108" r="16"/>
+                    <circle class="wf-nb" cx="340" cy="158" r="16"/>
+                    <path class="wf-eb" d="M120,84 L322,62"/>
+                    <path class="wf-eb" d="M122,98 L322,108"/>
+                    <path class="wf-eb" d="M120,112 L322,154"/>
+                  </svg>
+                </div>
+                <div class="pat-when">검증 단계가 이렇게 움직입니다</div>
+                <p class="pat-desc">고친 에이전트와 별개의 에이전트가 결과를 깨뜨리려고 달려듭니다. 자기 답을 자기가 후하게 평가하는 자기 편향을 막는 장치입니다. 그래도 통과하면 신뢰도가 올라갑니다.</p>
+              </div>
+              <div class="pat-card">
+                <div class="pat-head"><span class="pat-num">4</span><span class="pat-title">심사위원단 <span class="en">(Judge panel)</span></span></div>
+                <div class="pat-figure">
+                  <svg viewBox="0 0 430 185" role="img" aria-label="심사위원단 다이어그램">
+                    <circle class="wf-n" cx="70" cy="40" r="16"/>
+                    <text x="70" y="45" text-anchor="middle" class="wf-nt">A</text>
+                    <circle class="wf-n" cx="70" cy="92" r="16"/>
+                    <text x="70" y="97" text-anchor="middle" class="wf-nt">B</text>
+                    <circle class="wf-n" cx="70" cy="144" r="16"/>
+                    <text x="70" y="149" text-anchor="middle" class="wf-nt">C</text>
+                    <text x="70" y="178" text-anchor="middle" class="wf-lbl">독립 초안 3개</text>
+                    <path class="wf-e" d="M88,44 L166,78"/>
+                    <path class="wf-e" d="M88,92 L166,92"/>
+                    <path class="wf-e" d="M88,140 L166,106"/>
+                    <rect class="wf-nb" x="170" y="66" width="92" height="52" rx="8"/>
+                    <text x="216" y="97" text-anchor="middle" class="wf-nt">심사위원단</text>
+                    <path class="wf-e" d="M262,92 H318"/>
+                    <circle class="wf-no" cx="346" cy="92" r="24"/>
+                    <text x="346" y="97" text-anchor="middle" class="wf-nt">채택</text>
+                    <text x="346" y="146" text-anchor="middle" class="wf-lbl">장점 통합 (Synthesize)</text>
+                  </svg>
+                </div>
+                <div class="pat-when">정답이 하나로 정해지지 않은 설계에 씁니다</div>
+                <p class="pat-desc">서로 다른 관점으로 초안 여러 개를 동시에 만들고, 별도 심사 에이전트들이 점수를 매깁니다. 1등안을 뼈대로 삼고 나머지 안의 좋은 점을 가져와 합칩니다.</p>
+              </div>
+              <div class="pat-card">
+                <div class="pat-head"><span class="pat-num">5</span><span class="pat-title">바닥까지 반복 <span class="en">(Loop-until-dry)</span></span></div>
+                <div class="pat-figure">
+                  <svg viewBox="0 0 430 185" role="img" aria-label="바닥까지 반복 다이어그램">
+                    <circle class="wf-n" cx="80" cy="100" r="24"/>
+                    <text x="80" y="105" text-anchor="middle" class="wf-nt">수색</text>
+                    <text x="80" y="152" text-anchor="middle" class="wf-lbl">찾기 (Find)</text>
+                    <path class="wf-e" d="M104,100 H174"/>
+                    <path class="wf-n" d="M232,62 L286,100 L232,138 L178,100 Z"/>
+                    <text x="232" y="105" text-anchor="middle" class="wf-nt">새 발견?</text>
+                    <path class="wf-e" d="M232,60 C232,16 100,16 84,70"/>
+                    <text x="158" y="26" text-anchor="middle" class="wf-lbl">있음 → 다시 수색</text>
+                    <path class="wf-e" d="M288,100 H340"/>
+                    <text x="316" y="86" text-anchor="middle" class="wf-lbl" font-size="12">없음 2회 연속</text>
+                    <circle class="wf-no" cx="366" cy="100" r="22"/>
+                    <text x="366" y="105" text-anchor="middle" class="wf-nt">종료</text>
+                  </svg>
+                </div>
+                <div class="pat-when">빠짐없이 찾아야 하는 일에 씁니다</div>
+                <p class="pat-desc">찾는 작업을 반복해서 돌리고, 새 발견이 두 차례 연속 나오지 않을 때 비로소 멈춥니다. "10개 찾으면 끝" 같은 고정 횟수로는 놓치는 꼬리까지 긁어냅니다.</p>
+              </div>
+              <div class="pat-card">
+                <div class="pat-head"><span class="pat-num">6</span><span class="pat-title">다각도 수색 <span class="en">(Multi-modal sweep)</span></span></div>
+                <div class="pat-figure">
+                  <svg viewBox="0 0 430 185" role="img" aria-label="다각도 수색 다이어그램">
+                    <rect class="wf-n" x="14" y="71" width="60" height="42" rx="5"/>
+                    <text x="44" y="97" text-anchor="middle" class="wf-nt">대상</text>
+                    <circle class="wf-nb" cx="190" cy="28" r="13"/>
+                    <circle class="wf-nb" cx="190" cy="75" r="13"/>
+                    <circle class="wf-nb" cx="190" cy="122" r="13"/>
+                    <circle class="wf-nb" cx="190" cy="169" r="13"/>
+                    <path class="wf-eb" d="M76,80 L175,32"/>
+                    <path class="wf-eb" d="M78,88 L175,76"/>
+                    <path class="wf-eb" d="M78,96 L175,119"/>
+                    <path class="wf-eb" d="M76,104 L175,164"/>
+                    <text x="212" y="33" text-anchor="start" class="wf-lbl">파일 구조로 수색</text>
+                    <text x="212" y="80" text-anchor="start" class="wf-lbl">본문 내용으로 수색</text>
+                    <text x="212" y="127" text-anchor="start" class="wf-lbl">고유명사로 수색</text>
+                    <text x="212" y="174" text-anchor="start" class="wf-lbl">시간 순서로 수색</text>
+                  </svg>
+                </div>
+                <div class="pat-when">한 가지 검색 방식으로 부족할 때 씁니다</div>
+                <p class="pat-desc">같은 대상을 서로 다른 방법으로 동시에 수색합니다. 각자는 다른 쪽이 뭘 찾았는지 모른 채 움직이고, 한 방식이 못 찾는 것을 다른 방식이 건져 올립니다.</p>
+              </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">용어 정리</div>
+                <p><strong>하네스</strong>는 일 처리 계획과 역할 분담, <strong>워크플로우</strong>는 그 작업용으로 새로 짠 하네스 한 벌입니다. /goal을 선언하면 Claude가 이 하네스를 그 자리에서 직접 짭니다. 코드를 쓰거나 설정할 일은 없습니다.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 4: 실전 사례 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec4"><span class="step-badge">실전 사례</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>이 교재가 그렇게 만들어졌습니다</h2>
+            <p class="card-subtitle">지금 보고 있는 페이지들이 거쳐 온 실제 기록입니다</p>
+            <div class="highlight-box" style="margin: 14px 0 18px;">
+                <p style="font-weight:700;color:#3A3530;">/goal "비즈니스 리더 대상 Claude 완전 정복 가이드를 최고 수준으로 끌어올려라"</p>
+            </div>
+            <p>Claude는 이 한 줄을 받아 검수 에이전트를 여섯 개의 렌즈로 병렬 소환했습니다.</p>
+            <div class="lens-row reveal">
+                <span class="lens-tag">임원 독자</span>
+                <span class="lens-tag">전략 컨설턴트</span>
+                <span class="lens-tag">강의 운영</span>
+                <span class="lens-tag">디자인 규약</span>
+                <span class="lens-tag">AI 사실 정확성</span>
+                <span class="lens-tag">한국어 문체</span>
+            </div>
+            <div class="grade-grid reveal">
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#7A2E15;">1</span>
+                    <div class="grade-stat">에이전트 22개</div>
+                    <p>검수부터 검증까지, 한 번의 목표 선언으로 소환된 에이전트 수입니다.</p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#D97757;">2</span>
+                    <div class="grade-stat">37분 · 발견 81건</div>
+                    <p>여섯 렌즈가 병렬로 교재 전체를 훑어 81건의 발견을 수집했습니다.</p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#C4623F;">3</span>
+                    <div class="grade-stat">통합 43건 수정</div>
+                    <p>중복을 제거하고 우선순위를 매겨 43건으로 통합한 뒤, 파일별 병렬 수정과 전역 일괄 수정으로 반영했습니다.</p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">4</span>
+                    <div class="grade-stat">3중 검증</div>
+                    <p>수정과 무관한 에이전트가 결과를 적대적으로 재검하는 검증을 세 차례 거쳤습니다.</p>
+                </div>
+            </div>
+            <p>이 과정에서 사람이 한 일은 두 가지입니다. <strong>목표 한 줄을 선언한 것</strong>, 그리고 <strong>최종 결과를 판정한 것</strong>. 검수 항목을 정하고, 팀을 짜고, 일을 배분하고, 끝났는지 확인하는 일은 전부 Claude가 했습니다.</p>
+            <div class="tip-box" style="margin-top: 14px;">
+                <div class="tip-label">이 페이지도 마찬가지</div>
+                <p>지금 읽고 있는 이 페이지의 재구성도 두 번째 /goal 선언으로 진행됐습니다. 한 번 통한 방식은 다음 작업에서 그대로 다시 통합니다.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 5: 직접 해보기 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec5"><span class="step-badge">직접 해보기</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>Claude Code에서 /goal을 걸어 봅니다</h2>
+            <p class="card-subtitle">목표 문장 하나를 다듬는 것이 이 실습의 전부입니다</p>
+            <div class="do-list reveal">
+                <div class="do-step">
+                    <span class="do-num">1</span>
+                    <div class="do-body">
+                        <div class="do-title">Claude Code를 열고 /goal을 입력합니다</div>
+                        <p class="do-text">슬래시 명령창에 <strong>/goal</strong>을 치고 목표 문장을 적습니다. 별도 설치나 설정은 없습니다.</p>
+                    </div>
+                </div>
+                <div class="do-step">
+                    <span class="do-num">2</span>
+                    <div class="do-body">
+                        <div class="do-title">목표 문장을 검증 가능하게 적습니다</div>
+                        <p class="do-text">좋은 목표 문장의 조건은 세 가지입니다. <strong>완료를 검증할 수 있게</strong>(끝났는지 기계적으로 판정 가능), <strong>품질 기준 명시</strong>(어느 수준이면 합격인지), <strong>범위 명시</strong>(어디까지 건드려도 되는지).</p>
+                    </div>
+                </div>
+                <div class="do-step">
+                    <span class="do-num">3</span>
+                    <div class="do-body">
+                        <div class="do-title">중간 보고를 받습니다</div>
+                        <p class="do-text">발견을 모은 시점, 수정 계획이 선 시점처럼 <strong>방향을 점검할 지점</strong>에서 보고하게 합니다. 진행 중에도 사람이 끼어들 자리를 미리 만들어 두는 것입니다.</p>
+                    </div>
+                </div>
+                <div class="do-step">
+                    <span class="do-num">4</span>
+                    <div class="do-body">
+                        <div class="do-title">최종 승인은 사람이 합니다</div>
+                        <p class="do-text">목표 달성 보고가 오면 결과를 직접 확인하고 판정합니다. <strong>실행은 맡기되 판단은 넘기지 않는 것</strong>이 /goal 사용의 기본 자세입니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="compare-grid" style="margin-top:20px;">
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:#7A2E15;"></span><h4>나쁜 목표 문장</h4></div>
+                    <div class="cmp-quote">"이 교재 좀 더 좋게 만들어줘"</div>
+                    <ul>
+                        <li>"좋게"가 무엇인지 판정할 수 없음</li>
+                        <li>품질 기준이 없어 어디서든 멈출 수 있음</li>
+                        <li>범위가 없어 엉뚱한 파일까지 손댈 수 있음</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--skill-green);"></span><h4>좋은 목표 문장</h4></div>
+                    <div class="cmp-quote">"교재 페이지 전부를 임원 눈높이로 끌어올려라. 수치마다 출처가 있고, 오탈자와 깨진 링크가 0건이면 완료다. 이 폴더 밖은 건드리지 마라"</div>
+                    <ul>
+                        <li>완료 조건을 기계적으로 판정 가능</li>
+                        <li>품질 기준이 숫자로 명시됨</li>
+                        <li>건드릴 범위가 분명함</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="prompt-block" style="margin-top: 16px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">실전 /goal 템플릿</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'goalPrompt')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="goalPrompt"><span class="kw">/goal</span> <span class="cm">(달성할 목표를 한 줄로 적는다)</span>
+  예) 이 폴더의 강의 자료 전체를 임원 보고 수준으로 끌어올려라
+
+<span class="kw"># 완료 조건</span> <span class="cm">(이게 전부 충족돼야 끝난 것이다)</span>
+  · 모든 수치에 출처가 달려 있다
+  · 오탈자와 깨진 링크가 <span class="val">0건</span>이다
+  · 페이지마다 핵심 메시지가 첫 화면에 보인다
+
+<span class="kw"># 범위</span>
+  · 이 폴더 안의 파일만. 다른 폴더는 건드리지 않는다
+
+<span class="kw"># 진행 방식</span>
+  · 발견을 모두 수집하면 <span class="val">통합 보고</span>를 먼저 하고, 수정은 승인 후 진행하라</pre>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 6: FAQ ═══════ -->
+    <div class="step-divider reveal content-section" id="sec6"><span class="step-badge">FAQ</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>자주 묻는 질문</h2>
+            <p class="card-subtitle">/goal을 처음 쓸 때 가장 많이 나오는 질문들</p>
+            <div class="qa-list">
+                <div class="qa-item reveal">
+                    <div class="qa-q">일반 대화와 무엇이 다릅니까?</div>
+                    <div class="qa-a"><span>일반 대화는 한 세션 안에서 묻고 답하면 거기서 끝납니다. /goal은 목표를 선언하는 순간 에이전트 팀이 꾸려지고, <strong>목표를 달성할 때까지 계획·실행·검증을 반복</strong>합니다. 짧은 질문은 대화로, 끝까지 완수해야 하는 큰 일은 /goal로 구분해 쓰는 것이 기본입니다.</span></div>
+                </div>
+                <div class="qa-item reveal">
+                    <div class="qa-q">진행 중에 멈추거나 방향을 바꿀 수 있습니까?</div>
+                    <div class="qa-a"><span>가능합니다. 목표 문장에 <strong>중간 보고 지점</strong>을 적어 두면 그 시점마다 사람이 진행 상황을 확인하고 방향을 조정할 수 있습니다. 보고 시점이 아니어도 언제든 직접 개입해 작업을 멈추거나 지시를 더할 수 있습니다.</span></div>
+                </div>
+                <div class="qa-item reveal">
+                    <div class="qa-q">비용은 얼마나 듭니까?</div>
+                    <div class="qa-a"><span>에이전트를 여럿 띄우는 만큼 일반 대화보다 토큰을 몇 배에서 수십 배까지 씁니다. 그래서 모든 일에 걸지 않고, <strong>결과의 가치가 비용을 넘어서는 작업</strong>에만 겁니다. 교재 전체 검수, 대규모 자료 정리, 여러 출처 검증 같은 일이 여기에 해당합니다.</span></div>
+                </div>
+                <div class="qa-item reveal">
+                    <div class="qa-q">틀리면 누가 책임집니까?</div>
+                    <div class="qa-a"><span>사람입니다. /goal은 실행을 맡기는 것이지 판단까지 넘기는 것이 아닙니다. 그래서 <strong>중간 보고 지점과 최종 승인 단계</strong>를 목표 문장에 미리 적어 둡니다. 사람의 최종 판정 없이는 결과를 내보내지 않는 것이 원칙입니다.</span></div>
+                </div>
+                <div class="qa-item reveal">
+                    <div class="qa-q">어디까지 맡겨도 됩니까?</div>
+                    <div class="qa-a"><span>되돌릴 수 있는 일은 넓게, 되돌릴 수 없는 일은 좁게 맡깁니다. 문서 작성, 코드 수정, 분석처럼 <strong>결과를 검토하고 되돌릴 수 있는 작업</strong>은 끝까지 맡겨도 됩니다. 발송, 배포, 결제처럼 되돌리기 어려운 동작은 반드시 사람 승인을 사이에 둡니다.</span></div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 출처 섹션 -->
+    <div class="ref-section reveal">
+        <div class="ref-title">출처</div>
+        <div class="ref-links">
+            <a class="ref-link" href="https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code" target="_blank" rel="noopener">
+                <span class="ref-icon">&#x1F4D6;</span>
+                <span>
+                    Anthropic | "A harness for every task: dynamic workflows in Claude Code"<br>
+                    <span style="font-size: 12px; color: #999; font-weight: 400;">Claude Code 다이내믹 워크플로우 소개 · 2026년 6월 2일</span>
+                </span>
+                <span class="ref-desc">원문</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- CTA 섹션 -->
+    <div class="cta-section reveal">
+        <h3>자동화 마무리</h3>
+        <p>/goal 한 줄이 멀티 에이전트 팀을 소환합니다. 실전 트랙을 모두 봤다면, 인덱스로 돌아가 오늘 실습에서 걸어 볼 목표 한 줄을 정하세요.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn secondary" href="claude-tools.html">&larr; 도구 가이드</a>
+            <a class="cta-btn primary" href="index.html">목록으로 &rarr;</a>
+        </div>
+    </div>
+</main>
+
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+// ── 헤더 모드 토글 (하네스 / 도구 / 루프) ──
+function switchMode(mode) {
+    document.querySelectorAll('.mode-tab').forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+    var active = document.getElementById('tab-' + mode);
+    active.classList.add('active');
+    active.setAttribute('aria-selected','true');
+    ['harness','tool'].forEach(function(m){
+        var el = document.getElementById('pages-' + m);
+        if(el) el.style.display = (m === mode) ? 'flex' : 'none';
+    });
+}
+
+// ── 스크롤 애니메이션 ──
+var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+// ── 그리드 stagger 애니메이션 ──
+var gridSelectors = '.role-grid, .grade-grid, .compare-grid, .pat-grid';
+document.querySelectorAll(gridSelectors).forEach(function(grid) {
+    var children = grid.children;
+    for (var i = 0; i < children.length; i++) {
+        children[i].classList.add('stagger-child');
+        children[i].style.transitionDelay = (i * 0.1) + 's';
+    }
+});
+var staggerObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            var children = entry.target.children;
+            for (var i = 0; i < children.length; i++) {
+                children[i].classList.add('visible');
+            }
+        }
+    });
+}, { threshold: 0.15 });
+document.querySelectorAll(gridSelectors).forEach(function(grid) {
+    staggerObserver.observe(grid);
+});
+
+// ── 서브메뉴 활성화 ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a');
+    var sections = [];
+    var scrollEndTimer = null;
+    var clickedLink = null;
+
+    links.forEach(function(l){
+        var id = l.getAttribute('data-sec');
+        var el = document.getElementById(id);
+        if(el) sections.push({el:el, link:l});
+
+        l.addEventListener('click', function(){
+            links.forEach(function(x){ x.classList.remove('active'); });
+            l.classList.add('active');
+            clickedLink = l;
+        });
+    });
+
+    function update(){
+        if(clickedLink) return;
+        var smEl = document.getElementById('subMenu');
+        var scrollY = window.scrollY + (smEl ? smEl.offsetHeight : 0) + 16;
+        var current = null;
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                // 가로 서브메뉴만 스크롤한다. sticky 컨테이너 안에서 scrollIntoView를 부르면
+                // 브라우저가 창을 서브메뉴의 원래(고정 전) 위치로 끌어올려 하단을 못 보게 만든다.
+                var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.clientWidth) / 2;
+                nav.scrollTo({left: target, behavior: 'smooth'});
+            }
+        }
+    }
+    window.addEventListener('scroll', function(){
+        if(scrollEndTimer) clearTimeout(scrollEndTimer);
+        scrollEndTimer = setTimeout(function(){
+            clickedLink = null;
+            update();
+        }, 150);
+        update();
+    }, {passive:true});
+    update();
+})();
+
+// ── 스크롤 프로그레스 바 ──
+(function(){
+    var bar = document.getElementById('scrollProgress');
+    if(!bar) return;
+    function updateProgress(){
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = progress + '%';
+    }
+    window.addEventListener('scroll', updateProgress, {passive:true});
+    updateProgress();
+})();
+
+function copyPrompt(btn, sourceId) {
+    var id = sourceId || btn.closest('.prompt-block').querySelector('pre').id;
+    var text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(function() {
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 복사됨';
+        setTimeout(function() {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> 복사하기';
+        }, 2000);
+    });
+}
+</script>
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #A0532E; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    /* 헤더 상단 여백 통일 */
+    header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 50px 0 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+
+<!-- 가이드 소개 모달: 단일 소스 assets/about-modal.js 에서 주입 -->
+<script src="assets/about-modal.js"></script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
+    <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/company-brain.html">
+    <meta property="og:title" content="AI ROASTING · Claude 완전 정복">
+    <meta property="og:description" content="회의록·정책·메일을 던지면 Claude가 위키로 정리하고 계속 갱신하는 컴퍼니 브레인 축적하기">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/company-brain.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI ROASTING · Claude 완전 정복">
+    <meta name="twitter:description" content="회의록·정책·메일을 던지면 Claude가 위키로 정리하고 계속 갱신하는 컴퍼니 브레인 축적하기">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>컴퍼니 브레인 축적하기 | AI ROASTING</title>
+    <meta name="description" content="흩어진 회의록·정책·결정을 한 폴더에 모으고, Claude가 위키로 정리하고 새 자료가 들어올 때마다 스스로 갱신하게 만드는 컴퍼니 브레인 하네스 실전 가이드.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --gold: #A04828;
+            --gold-dark: #7A2E15;
+            --gold-light: #B35535;
+            --ant-dark: #1A1917;
+            --book-teal: #A04828;
+            --book-teal-dark: #7A2E15;
+            --book-teal-light: #B35535;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        .step-divider[id] { scroll-margin-top: 160px; }
+        body { word-break: keep-all; font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
+
+        /* -- HEADER -- */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* -- Step Navigator -- */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node.sn-final { font-size: 12px; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* -- Mode Tabs -- */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            text-decoration: none;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* -- Header Page Links -- */
+        .header-pages {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin: 22px auto 0;
+            position: relative;
+            z-index: 1;
+            max-width: 940px;
+            flex-wrap: wrap;
+        }
+        .header-page-link {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 12px 22px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .hpl-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; flex-shrink: 0;
+        }
+        .hpl-icon svg { width: 16px; height: 16px; display: block; }
+        /* -- Sub Menu -- */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(160,72,40,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--gold);
+            box-shadow: 0 2px 8px rgba(160,72,40,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--gold); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #A04828;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 90px; }
+
+        /* -- CONTAINER -- */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* -- 뉴모피즘 카드 -- */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--book-teal);
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; padding-left: 20px; }
+
+        /* -- 섹션 구분 -- */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 28px 0; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--book-teal); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px; border-radius: 20px; white-space: nowrap;
+        }
+        /* ── step-badge shimmer ── */
+        @keyframes shimmerScan {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .step-badge {
+            background-image: linear-gradient(
+                105deg,
+                var(--nm-bg) 40%,
+                rgba(255,255,255,0.85) 50%,
+                var(--nm-bg) 60%
+            );
+            background-size: 200% auto;
+            animation: shimmerScan 2.8s linear infinite;
+        }
+
+        /* -- 인셋 박스 -- */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--book-teal); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* -- 팁 박스 -- */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        /* -- 박스 마우스 오버 애니메이션 -- */
+        .nm-card, .tip-box, .highlight-box, .inset-box, .compare-nm {
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+        .tip-box:hover, .compare-nm:hover, .inset-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 7px 7px 16px #CECAC3, -7px -7px 16px #FFFFFF;
+        }
+        .nm-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 8px 8px 20px #CECAC3, -8px -8px 20px #FFFFFF;
+        }
+        .highlight-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(160,72,40,0.14);
+        }
+        .tip-box .tip-label { font-size: 11px; font-weight: 700; color: var(--book-teal); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* -- 강조 박스 -- */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(160,72,40,0.08) 0%, rgba(160,72,40,0.03) 100%);
+            border: 1.5px solid rgba(160,72,40,0.25);
+            border-radius: 16px;
+            padding: 22px 26px;
+            margin: 20px 0;
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* -- 비교 그리드 -- */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm { background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm); padding: 20px; }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+
+        /* -- 뉴모 테이블 -- */
+        .nm-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .nm-table-wrap table { width: 100%; border-collapse: collapse; }
+        .nm-table-wrap thead { background: var(--ant-dark); }
+        .nm-table-wrap th {
+            text-align: left; padding: 12px 16px;
+            font-size: 14px; font-weight: 600; color: #fff;
+        }
+        .nm-table-wrap td {
+            padding: 12px 16px; font-size: 14px; color: #5C5650;
+            border-bottom: 1px solid #E8E4DE;
+        }
+        .nm-table-wrap tbody tr:last-child td { border-bottom: none; }
+        .nm-table-wrap tbody tr:hover { background: rgba(160,72,40,0.04); }
+
+        /* -- 3열 역할 카드 -- */
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+        .role-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .role-card:hover { transform: translateY(-3px); }
+        .role-icon { font-size: 32px; margin-bottom: 12px; }
+        .role-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 8px; }
+        .role-card p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .role-card .role-example {
+            margin-top: 12px; padding-top: 12px;
+            border-top: 1px solid #E8E4DE;
+            font-size: 12px; color: #888; line-height: 1.6;
+        }
+
+        /* -- 워크플로우 스텝 -- */
+        .wf-steps { display: flex; flex-direction: column; gap: 0; margin: 18px 0; }
+        .wf-step { display: flex; gap: 18px; align-items: stretch; }
+        .wf-rail { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 35px; }
+        .wf-step-num {
+            width: 35px; height: 35px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 800; color: var(--book-teal);
+            flex-shrink: 0; position: relative; z-index: 1;
+        }
+        .wf-rail-line {
+            flex: 1 0 auto; width: 2px; min-height: 16px;
+            background: linear-gradient(to bottom, var(--book-teal), rgba(160,72,40,0.4));
+        }
+        .wf-step:last-child .wf-rail-line { display: none; }
+        .wf-step-content { flex: 1; padding-top: 5px; padding-bottom: 22px; }
+        .wf-step-label { font-size: 12px; font-weight: 700; color: var(--book-teal); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .wf-step-desc { font-size: 14px; color: #5C5650; line-height: 1.6; }
+
+        /* -- 프롬프트 박스 -- */
+        .prompt-box {
+            background: var(--ant-dark); color: #e0e0e0;
+            padding: 20px 24px; border-radius: 14px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px; line-height: 1.8;
+            white-space: pre-wrap; margin: 12px 0;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 4px 14px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+        /* -- 파일 트리 -- */
+        .file-tree {
+            background: #1E1E1E; color: #D4D4D4;
+            padding: 22px 28px; border-radius: 14px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px; line-height: 1.5;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+        .file-tree .ft-row { display: flex; width: max-content; padding: 3px 0; }
+        .file-tree .ft-left { flex: 0 0 23ch; white-space: pre; }
+        .file-tree .ft-comment { white-space: nowrap; }
+        .file-tree .ft-folder { color: var(--book-teal-light); font-weight: 700; }
+        .file-tree .ft-file { color: #D4D4D4; }
+        .file-tree .ft-star { color: #F59E0B; }
+        .file-tree .ft-comment { color: #6A9955; }
+
+        /* -- 프롬프트 모음 -- */
+        .prompt-collection {
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            border: 2px dashed rgba(160,72,40,0.3);
+            padding: 24px; margin-bottom: 16px;
+        }
+        .prompt-collection h4 {
+            font-size: 14px; font-weight: 700; color: var(--book-teal);
+            margin-bottom: 10px;
+        }
+
+        /* -- 6구성요소 그리드 -- */
+        .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .comp-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .comp-item:hover { transform: translateY(-2px); }
+        .comp-item .comp-icon { font-size: 24px; margin-bottom: 8px; }
+        .comp-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px; }
+        .comp-item .comp-q { font-size: 12px; color: var(--book-teal); font-weight: 600; margin-bottom: 8px; }
+        .comp-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* -- user-book-toc.md 6입력 그리드 -- */
+        .toc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+        .toc-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 20px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .toc-card:hover { transform: translateY(-2px); }
+        .toc-card .toc-num {
+            display: inline-block;
+            background: var(--book-teal);
+            color: #fff;
+            font-size: 11px; font-weight: 800;
+            padding: 3px 9px; border-radius: 999px;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .toc-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .toc-card p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .toc-card .toc-why {
+            margin-top: 10px;
+            font-size: 12px; color: #888;
+            border-top: 1px dashed rgba(0,0,0,0.08);
+            padding-top: 8px;
+            line-height: 1.55;
+        }
+        @media (max-width: 768px) { .toc-grid { grid-template-columns: 1fr; } }
+
+        /* -- 12산출물 파이프라인 -- */
+        .pipeline-wrap { margin: 18px 0; }
+        .pipeline-rotation {
+            font-size: 12px; font-weight: 700;
+            color: var(--book-teal);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 16px 4px 8px;
+            border-bottom: 1px dashed rgba(160,72,40,0.3);
+            margin-bottom: 8px;
+            display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+        }
+        .pipeline-rotation .pr-time {
+            color: #888; font-weight: 600; font-size: 11px;
+            letter-spacing: 0;
+        }
+        .pipeline-row {
+            display: grid;
+            grid-template-columns: 36px minmax(0, 1fr) minmax(220px, max-content) 170px;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 8px;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+        .pipeline-row:hover { background: rgba(160,72,40,0.04); }
+        .pipeline-row .pr-num {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px; font-weight: 700;
+            color: #888;
+        }
+        .pipeline-row .pr-title { font-size: 14px; font-weight: 600; color: #3A3530; }
+        .pipeline-row .pr-file {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 11px; color: #5C5650;
+            background: rgba(0,0,0,0.05);
+            padding: 4px 8px; border-radius: 6px;
+            justify-self: start;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        .pipeline-row .pr-persona {
+            font-size: 11px; font-weight: 700;
+            padding: 4px 10px; border-radius: 999px;
+            justify-self: end;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .pipeline-row .pr-persona::before {
+            content: ''; width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+        }
+        .pr-p-human { background: rgba(160,72,40,0.12); color: #7A2E15; }
+        .pr-p-human::before { background: #B35535; }
+        .pr-p-black { background: rgba(58,53,48,0.1); color: #3A3530; }
+        .pr-p-black::before { background: #3A3530; }
+        .pr-p-red { background: rgba(239,68,68,0.1); color: #B91C1C; }
+        .pr-p-red::before { background: #EF4444; }
+        .pr-p-pink { background: rgba(236,72,153,0.1); color: #BE185D; }
+        .pr-p-pink::before { background: #EC4899; }
+        .pr-p-green { background: rgba(34,197,94,0.1); color: #15803D; }
+        .pr-p-green::before { background: #22C55E; }
+        .pr-p-silver { background: rgba(148,163,184,0.18); color: #475569; }
+        .pr-p-silver::before { background: #94A3B8; }
+        .pr-p-light { background: rgba(96,165,250,0.12); color: #1D4ED8; }
+        .pr-p-light::before { background: #60A5FA; }
+        .pr-p-five { background: rgba(168,85,247,0.1); color: #6B21A8; }
+        .pr-p-five::before { background: #A855F7; }
+        @media (max-width: 768px) {
+            .pipeline-row { grid-template-columns: 28px 1fr; gap: 8px; }
+            .pipeline-row .pr-file, .pipeline-row .pr-persona { grid-column: 2; justify-self: start; margin-top: 4px; }
+        }
+
+        /* -- 4단계 플로우 다이어그램 (INTRO 시각 요약) -- */
+        .flow-diagram {
+            display: grid;
+            grid-template-columns: 0.7fr repeat(4, minmax(0, 1fr));
+            grid-auto-rows: auto;
+            gap: 8px;
+            margin: 22px 0 8px;
+        }
+        .flow-group-label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            text-align: center;
+            margin-bottom: 4px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 6px;
+        }
+        .flow-group-label.fgl-input {
+            grid-column: 1 / 2;
+            background: rgba(30,39,97,0.08);
+            color: #1E2761;
+            border: 1px dashed rgba(30,39,97,0.35);
+        }
+        .flow-group-label.fgl-agent {
+            grid-column: 2 / 6;
+            background: linear-gradient(90deg, rgba(21,128,61,0.08), rgba(160,72,40,0.08));
+            color: #3A3530;
+            border: 1px dashed rgba(160,72,40,0.4);
+        }
+        .flow-group-label .fgl-arrow { color: #888; font-weight: 600; }
+        .flow-step { position: relative; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .flow-num {
+            position: absolute;
+            top: -10px; left: -8px;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            color: #3A3530;
+            font-size: 11px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+            border: 2px solid currentColor;
+            z-index: 2;
+        }
+        .flow-box {
+            padding: 14px 10px;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 800;
+            font-size: 14px;
+            text-align: left;
+            line-height: 1.25;
+            min-height: 52px;
+            display: flex; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            font-family: 'SF Mono', 'Fira Code', 'Pretendard', monospace;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .flow-box.fb-input { background: #1E2761; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11.5px; }
+        .flow-box.fb-research { background: #15803D; }
+        .flow-box.fb-write { background: #028090; }
+        .flow-box.fb-review { background: #BE185D; }
+        .flow-box.fb-publish { background: #A04828; }
+        .flow-caption {
+            font-size: 12px;
+            color: #5C5650;
+            line-height: 1.5;
+            padding: 0 2px;
+        }
+        .flow-step.fs-input .flow-caption { color: #888; font-style: italic; }
+        @media (max-width: 1280px) {
+            .flow-diagram { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .flow-group-label.fgl-input { grid-column: 1 / 3; }
+            .flow-group-label.fgl-agent { grid-column: 1 / 3; margin-top: 14px; }
+            .flow-step.fs-input { grid-column: 1 / 3; }
+            .flow-step.fs-input .flow-box { min-height: 48px; }
+        }
+        @media (max-width: 520px) {
+            .flow-diagram { grid-template-columns: 1fr; }
+            .flow-group-label.fgl-input,
+            .flow-group-label.fgl-agent { grid-column: 1 / 2; }
+            .flow-step.fs-input { grid-column: 1 / 2; }
+        }
+
+        /* -- 스킬 미리보기 카드 (GitHub 링크) -- */
+        .skill-preview {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 22px;
+            background: linear-gradient(135deg, #1A1917 0%, #2A2520 100%);
+            border-radius: 16px;
+            text-decoration: none;
+            color: #fff;
+            box-shadow: var(--nm-shadow-sm);
+            border: 1px solid rgba(218,165,32,0.25);
+            transition: all 0.25s;
+            margin-bottom: 22px;
+        }
+        .skill-preview:hover {
+            transform: translateY(-2px);
+            border-color: rgba(218,165,32,0.6);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+        }
+        /* 블루 변형 (블로그 그래프 샘플용) */
+        .skill-preview.sp-blue {
+            background: linear-gradient(135deg, #1B2A6B 0%, #2C4BA6 100%);
+            border-color: rgba(123,164,245,0.4);
+        }
+        .skill-preview.sp-blue:hover { border-color: rgba(123,164,245,0.75); }
+        .skill-preview.sp-blue .sp-icon { background: rgba(123,164,245,0.18); }
+        .skill-preview.sp-blue .sp-label,
+        .skill-preview.sp-blue .sp-arrow { color: #9BBBF7; }
+        .skill-preview .sp-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: rgba(218,165,32,0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .skill-preview .sp-body { flex: 1; min-width: 0; }
+        .skill-preview .sp-label {
+            font-size: 11px; font-weight: 700;
+            color: #B35535;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 2px;
+        }
+        .skill-preview .sp-title {
+            font-size: 16px; font-weight: 700;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .skill-preview .sp-url {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            color: rgba(255,255,255,0.55);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .skill-preview .sp-arrow {
+            font-size: 20px;
+            color: #B35535;
+            flex-shrink: 0;
+            transition: transform 0.25s;
+        }
+        .skill-preview:hover .sp-arrow { transform: translateX(3px); }
+        @media (max-width: 768px) {
+            .skill-preview { padding: 14px 16px; gap: 12px; }
+            .skill-preview .sp-icon { width: 36px; height: 36px; font-size: 18px; }
+            .skill-preview .sp-title { font-size: 14px; }
+            .skill-preview .sp-url { font-size: 11px; }
+        }
+
+        /* -- 시간 견적 요약 카드 -- */
+        .time-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 18px 0 10px;
+        }
+        .time-card {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 16px 18px;
+            text-align: center;
+        }
+        .time-card .tc-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .time-card .tc-value { font-size: 22px; font-weight: 800; color: var(--book-teal); }
+        .time-card.tc-total .tc-value { color: #3A3530; }
+        @media (max-width: 768px) { .time-summary { grid-template-columns: 1fr; } }
+
+        /* -- 핵심 메시지 배너 -- */
+        .key-message {
+            background: linear-gradient(135deg, rgba(160,72,40,0.12) 0%, rgba(160,72,40,0.04) 100%);
+            border: 2px solid rgba(160,72,40,0.3);
+            border-radius: 20px;
+            padding: 28px 32px;
+            text-align: center;
+            margin: 24px 0;
+        }
+        .key-message p {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            line-height: 1.7;
+        }
+        .key-message .km-highlight {
+            color: var(--book-teal);
+            font-weight: 800;
+        }
+
+        /* -- CTA 섹션 -- */
+        .cta-section {
+            background: linear-gradient(150deg, #7A2E15 0%, #7A2E15 40%, #4A1508 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+            flex: 0 1 260px; box-sizing: border-box; white-space: nowrap;
+        }
+        @media (max-width: 480px) { .cta-btn { flex-basis: 100%; } }
+        .cta-btn.primary { background: #fff; color: #7A2E15; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* -- 참고 자료 -- */
+        .ref-section { margin-top: 36px; }
+        .ref-title { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 14px; }
+        .ref-links { display: flex; flex-direction: column; gap: 10px; }
+        .ref-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ref-link:hover { transform: translateY(-1px); color: var(--book-teal); }
+        .ref-link .ref-icon { font-size: 18px; flex-shrink: 0; }
+        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
+
+        /* -- 푸터 -- */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: #D97757; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* -- Keyframes -- */
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeInLeft { from { opacity:0; transform:translateX(-30px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes scaleIn { from { opacity:0; transform:scale(0.7); } to { opacity:1; transform:scale(1); } }
+        @keyframes pulse { 0%,100% { box-shadow:0 4px 16px rgba(160,72,40,0.3); } 50% { box-shadow:0 6px 28px rgba(160,72,40,0.55); } }
+        @keyframes shimmer { 0% { background-position:-200% center; } 100% { background-position:200% center; } }
+        @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+        @keyframes borderGlow { 0%,100% { border-color:rgba(160,72,40,0.25); } 50% { border-color:rgba(160,72,40,0.6); } }
+
+        /* -- Header entrance -- */
+        .step-nav { animation: slideDown 0.6s 0.05s ease-out both; }
+        .back-link { animation: fadeInLeft 0.6s 0.1s ease-out both; }
+        header h1 { animation: slideDown 0.8s ease-out both; }
+        header > p { animation: slideDown 0.8s 0.15s ease-out both; }
+        .mode-tabs { animation: scaleIn 0.5s 0.3s ease-out both; }
+        .header-pages { animation: fadeInUp 0.6s 0.4s ease-out both; }
+        .sub-menu { animation: slideDown 0.4s 0.1s ease-out both; }
+
+        /* -- 스크롤 애니메이션 -- */
+        .anim-fade-up { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease-out, transform 0.7s ease-out; }
+        .anim-fade-up.visible { opacity:1; transform:translateY(0); }
+        .anim-fade-left { opacity:0; transform:translateX(-30px); transition:opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .anim-fade-left.visible { opacity:1; transform:translateX(0); }
+        .anim-scale-in { opacity:0; transform:scale(0.8); transition:opacity 0.5s ease-out, transform 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+        .anim-scale-in.visible { opacity:1; transform:scale(1); }
+
+        /* Stagger children */
+        .anim-stagger > * { opacity:0; transform:translateY(25px); transition:opacity 0.5s ease-out, transform 0.5s ease-out; }
+        .anim-stagger.visible > *:nth-child(1) { transition-delay:0s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(2) { transition-delay:0.1s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(3) { transition-delay:0.15s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(4) { transition-delay:0.2s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(5) { transition-delay:0.25s; opacity:1; transform:translateY(0); }
+        .anim-stagger.visible > *:nth-child(6) { transition-delay:0.3s; opacity:1; transform:translateY(0); }
+
+        /* Step badge pop */
+        .step-divider { opacity:0; transition:opacity 0.4s ease; }
+        .step-divider.visible { opacity:1; }
+        .step-divider.visible .step-badge { animation: scaleIn 0.5s 0.1s ease-out both; }
+
+        /* Highlight glow */
+        .highlight-box.anim-fade-up.visible { animation: borderGlow 3s ease-in-out infinite; }
+
+        /* CTA pulse */
+        .cta-btn.primary { animation: pulse 2.5s ease-in-out infinite; }
+        .cta-section.anim-fade-up .cta-btn.primary { position:relative; overflow:hidden; }
+        .cta-section.anim-fade-up .cta-btn.primary::after { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); animation:shimmer 3s ease-in-out infinite; }
+
+        /* Card hover float */
+        .role-card:hover .role-icon { animation: float 1.5s ease-in-out infinite; }
+        .comp-card:hover { transform: translateY(-4px); box-shadow: 8px 8px 20px #CECAC3, -8px -8px 20px #FFFFFF; }
+
+        /* Legacy reveal support */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.15s; }
+        .reveal-delay-2 { transition-delay: 0.3s; }
+        .reveal-delay-3 { transition-delay: 0.45s; }
+
+        /* -- 반응형 -- */
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 24px 16px 60px; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .role-grid { grid-template-columns: 1fr; }
+            .comp-grid { grid-template-columns: 1fr; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .header-pages {
+                flex-direction: column; gap: 8px;
+                margin: 18px auto 0; max-width: 100%;
+            }
+            .header-page-link {
+                width: 100%; max-width: none; flex: 0 0 auto;
+                padding: 11px 16px; font-size: 13px;
+                justify-content: flex-start; border-radius: 14px;
+            }
+            .hpl-icon svg { width: 14px; height: 14px; }
+            .nm-card { padding: 22px 18px; }
+            .nm-table-wrap th, .nm-table-wrap td { padding: 10px 12px; font-size: 13px; }
+            .ref-link .ref-desc { display: none; }
+            .file-tree { padding: 16px 18px; font-size: 12px; }
+            /* Step navigator */
+            .step-nav { max-width: 100%; gap: 0; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .step-nav { max-width: 100%; margin: 16px 0 14px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 6px; max-width: 14px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+        }
+    
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="claude-orientation.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="ai-fluency.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="harness-engineering.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="loop-engineering.html">5</a>
+        <div class="step-line"></div>
+        <a class="step-node sn-final active" href="mcp-examples.html">예제</a>
+    </nav>
+    <a href="index.html" class="back-link">&larr; 목록으로</a>
+    <h1>컴퍼니 브레인 축적하기</h1>
+    <p>회의록·정책·메일을 던지면 Claude가 위키로 정리하고 계속 갱신합니다</p>
+    <div class="header-pages">
+        <a href="mcp-examples.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span> MCP 연결</a>
+        <a href="seven-steps.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="4.5" cy="6.5" r="1.4"/><line x1="9" y1="6.5" x2="20" y2="6.5"/><circle cx="4.5" cy="12" r="1.4"/><line x1="9" y1="12" x2="20" y2="12"/><circle cx="4.5" cy="17.5" r="1.4"/><line x1="9" y1="17.5" x2="20" y2="17.5"/></svg></span> 7단계</a>
+        <a href="harness-book.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5.5A1.5 1.5 0 0 1 5.5 4H8v17H5.5A1.5 1.5 0 0 1 4 19.5z"/><path d="M9.5 4h4v17h-4z"/><path d="m15 4.3 3-.6a1.3 1.3 0 0 1 1.5 1l2.3 13.8"/></svg></span> 책 쓰기</a>
+        <a href="company-brain.html" class="header-page-link active"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5a3 3 0 0 0-3 3v.3A2.8 2.8 0 0 0 4.5 10a2.8 2.8 0 0 0 1 4.3A3 3 0 0 0 8 18.5h1"/><path d="M15 4.5a3 3 0 0 1 3 3v.3a2.8 2.8 0 0 1 1.5 2.2 2.8 2.8 0 0 1-1 4.3 3 3 0 0 1-2.5 3.7h-1"/><path d="M9 4.5v14M15 4.5v14"/></svg></span> 컴퍼니 브레인</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#intro" class="active" data-sec="intro">
+        <span class="sm-num">0</span>
+        <span class="sm-title">소개</span>
+        <span class="sm-sub">이 실습은?</span>
+    </a>
+    <a href="#step1" data-sec="step1">
+        <span class="sm-num">1</span>
+        <span class="sm-title">팀 설계</span>
+        <span class="sm-sub">역할 정하기</span>
+    </a>
+    <a href="#step2" data-sec="step2">
+        <span class="sm-num">2</span>
+        <span class="sm-title">갱신 루프</span>
+        <span class="sm-sub">순서 정하기</span>
+    </a>
+    <a href="#step3" data-sec="step3">
+        <span class="sm-num">3</span>
+        <span class="sm-title">파일 구조</span>
+        <span class="sm-sub">폴더 만들기</span>
+    </a>
+    <a href="#step4" data-sec="step4">
+        <span class="sm-num">4</span>
+        <span class="sm-title">실행</span>
+        <span class="sm-sub">Claude Code</span>
+    </a>
+    <a href="#step5" data-sec="step5">
+        <span class="sm-num">5</span>
+        <span class="sm-title">검증</span>
+        <span class="sm-sub">신뢰 점검</span>
+    </a>
+    <a href="#step6" data-sec="step6">
+        <span class="sm-num">+</span>
+        <span class="sm-title">그래프</span>
+        <span class="sm-sub">한 걸음 더</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- ====== 소개 ====== -->
+    <div class="step-divider" id="intro"><span class="step-badge">INTRO</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>이 실습에서 만들 것</h2>
+            <p class="card-subtitle">원 자료 폴더 하나를 던지면, Claude가 회사의 지식을 위키로 정리하고 새 자료가 들어올 때마다 스스로 갱신합니다</p>
+
+            <p>새 직원이 들어오면 "우리 회사가 어떻게 돌아가는지" 물어볼 곳이 필요합니다. 가격은 누가 정하는지, 작년에 그 결정은 왜 그렇게 났는지, 환불 규정은 무엇인지. 그런데 그 답은 보통 흩어져 있습니다. 회의록은 누군가의 노트북에, 정책은 메일 어딘가에, 결정의 맥락은 사람 머릿속에만 있습니다. 그래서 같은 질문이 매번 반복되고, 아는 사람이 나가면 지식도 함께 사라집니다.</p>
+
+            <p style="margin-top: 12px;">이 실습에서는 그 흩어진 자료를 <strong>한 폴더</strong>에 모으고, <strong>스킬 4개</strong>(<code>digest</code>·<code>update</code>·<code>catalog</code>·<code>ask</code>)로 Claude가 위키로 정리하게 만듭니다. 거기에 전체 규칙을 담은 <strong>규칙서(<code>AGENTS.md</code>)</strong>와 이 회사의 분류 체계를 담은 <strong>설정서(<code>wiki-config.md</code>)</strong>를 더하면, 한 세트가 완성됩니다. 핵심은 한 번 만들고 끝이 아니라, <strong>새 회의록을 폴더에 넣을 때마다 위키가 알아서 자라는 것</strong>입니다.</p>
+
+            <div class="highlight-box anim-fade-up" style="margin-top: 18px;">
+                <div class="hl-title">&#x1F441;&#xFE0F; 지금 보고 있는 이 사이트가 바로 그 예시입니다</div>
+                <p>이 강의 사이트도 <code>CLAUDE.md</code>(규칙), <code>AGENTS.md</code>(작업 지침), <code>MEMORY.md</code>(변경 이력), 그리고 메모리 파일들로 굴러갑니다. 페이지를 고칠 때마다 사람이 모든 규약을 다시 설명하지 않습니다. Claude가 그 파일들을 먼저 읽고 시작합니다. 여러분이 만들 컴퍼니 브레인은 이것을 <strong>회사 지식</strong>으로 옮긴 버전입니다.</p>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">유행어가 아니라 검증된 방법입니다</div>
+                <p>Anthropic은 이 방식을 <strong>구조적 노트 작성</strong>이라 부릅니다. 에이전트가 컨텍스트 밖 파일에 메모를 남겨, 시간이 지나며 지식 베이스를 쌓아 가는 기법입니다. Andrej Karpathy는 모델에 무엇을 읽히느냐가 곧 성능이라며, 컨텍스트를 모델이 그때그때 꺼내 쓰는 작업 기억, 곧 컴퓨터의 RAM에 빗댑니다. 컴퍼니 브레인은 그 원리를 회사 지식에 그대로 옮긴 것입니다. 근거가 된 자료는 페이지 맨 아래에 정리해 두었습니다.</p>
+            </div>
+
+            <!-- 입력 1개 + 4단계 커맨드 흐름도 -->
+            <div class="flow-diagram" aria-label="원 자료 투입 + 4단계 커맨드 흐름도">
+                <div class="flow-group-label fgl-input">&#x1F4E5; 유저가 투입</div>
+                <div class="flow-group-label fgl-agent">&#x1F916; AI 에이전트 4역할 <span class="fgl-arrow">&middot;</span> 스킬 4개 (슬래시 커맨드)</div>
+                <div class="flow-step fs-input" style="color:#1E2761;">
+                    <span class="flow-num">0</span>
+                    <div class="flow-box fb-input">inbox/ 원 자료</div>
+                    <div class="flow-caption">회의록·정책·메일</div>
+                </div>
+                <div class="flow-step" style="color:#15803D;">
+                    <span class="flow-num">1</span>
+                    <div class="flow-box fb-research">/digest</div>
+                    <div class="flow-caption">새 자료 읽고<br>핵심 추출·분류</div>
+                </div>
+                <div class="flow-step" style="color:#028090;">
+                    <span class="flow-num">2</span>
+                    <div class="flow-box fb-write">/update</div>
+                    <div class="flow-caption">위키 페이지에 병합<br>(중복·모순 정리)</div>
+                </div>
+                <div class="flow-step" style="color:#BE185D;">
+                    <span class="flow-num">3</span>
+                    <div class="flow-box fb-review">/catalog</div>
+                    <div class="flow-caption">목차·내부 링크<br>+ 변경 이력 갱신</div>
+                </div>
+                <div class="flow-step" style="color:#A04828;">
+                    <span class="flow-num">4</span>
+                    <div class="flow-box fb-publish">/ask</div>
+                    <div class="flow-caption">위키 기반 질의응답<br>(출처 표시)</div>
+                </div>
+            </div>
+
+            <div class="compare-grid anim-stagger" style="margin-top: 18px;">
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: #EF4444;"></div>
+                        <h4>그냥 폴더에 쌓기</h4>
+                    </div>
+                    <ul>
+                        <li>파일은 많은데 어디에 뭐가 있는지 모름</li>
+                        <li>같은 내용이 여러 문서에 중복</li>
+                        <li>옛 정보와 새 정보가 뒤섞여 무엇이 최신인지 불명</li>
+                        <li>아는 사람이 나가면 맥락도 함께 사라짐</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--book-teal);"></div>
+                        <h4>컴퍼니 브레인 하네스</h4>
+                    </div>
+                    <ul>
+                        <li>분류 체계가 파일에 고정되어 일관성 유지</li>
+                        <li>새 자료가 들어오면 중복·모순을 정리해 병합</li>
+                        <li>충돌하면 최신 우선, 옛 내용은 변경 이력으로 보존</li>
+                        <li>모든 문장에 출처가 붙어 "어디서 온 정보인지" 추적 가능</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight-box anim-fade-up" style="margin-top: 18px;">
+                <div class="hl-title">실습 전 준비물</div>
+                <ul>
+                    <li><strong>Claude Code</strong>가 설치되어 있어야 합니다 (<a href="claude-code-101.html" style="color: var(--book-teal); font-weight: 600; text-decoration: none;">Claude Code 101</a> 참고)</li>
+                    <li>정리하고 싶은 <strong>원 자료 몇 개</strong>를 미리 준비합니다 (회의록·정책 문서·메일 캡처 등 텍스트면 됩니다)</li>
+                    <li>민감 정보(인사·급여·개인정보)는 위키에 넣지 않을 기준을 미리 정해 둡니다</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 실습 1단계: 팀 설계 ====== -->
+    <div class="step-divider" id="step1"><span class="step-badge">STEP 1</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>실습 1단계. 에이전트 팀 구조를 설계한다</h2>
+            <p class="card-subtitle">"이 위키를 굴리는 데 누가 필요한가?"부터 시작합니다</p>
+
+            <p>도서관을 떠올려 보세요. 들어온 책을 분류하는 사람, 같은 주제 책을 한 서가에 정리하는 사람, 목록과 위치를 관리하는 사서, 그리고 방문자에게 "그 자료는 저쪽에 있어요"라고 안내하는 데스크 직원이 있습니다. 컴퍼니 브레인도 똑같이 <strong>네 가지 역할</strong>로 나눕니다. 각각 슬래시 커맨드 하나에 대응됩니다.</p>
+
+            <p style="margin-top: 12px;">정리·병합·목차 관리가 <strong>핵심 3역할</strong>이고, 질의응답이 그 결과를 쓰는 역할입니다.</p>
+
+            <div class="role-grid anim-stagger" style="margin-top: 18px;">
+                <div class="role-card">
+                    <div class="role-icon">&#x1F4E5;</div>
+                    <h4>정리가</h4>
+                    <p>inbox에 새로 들어온 원 자료를 읽고, 무엇이 핵심인지 뽑아 <strong>어느 위키 페이지로 갈지 분류</strong>합니다. 회의록인지 정책인지 결정 기록인지, 출처와 날짜까지 함께 표시합니다.</p>
+                    <div class="role-example">슬래시 커맨드: /digest</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">&#x270F;&#xFE0F;</div>
+                    <h4>편집자</h4>
+                    <p>정리가가 분류한 내용을 실제 위키 페이지에 <strong>병합</strong>합니다. 같은 내용이 있으면 합치고, 옛 정보와 충돌하면 최신을 살리되 옛것은 변경 이력으로 남깁니다.</p>
+                    <div class="role-example">슬래시 커맨드: /update</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">&#x1F5C2;&#xFE0F;</div>
+                    <h4>사서</h4>
+                    <p>전체 목차(<code>index.md</code>)와 내부 링크, 태그, 변경 이력을 관리합니다. 새 페이지가 생기면 목차에 등록하고, 깨진 링크가 없는지 점검합니다.</p>
+                    <div class="role-example">슬래시 커맨드: /catalog</div>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 14px;">
+                <div class="tip-label">왜 역할을 굳이 나누는가?</div>
+                <p>한 사람이 모으고, 합치고, 답까지 하면 <strong>자기가 정리한 걸 그대로 믿습니다</strong>. 분류가 틀려도 본인은 모릅니다. 모으는 눈(정리가), 합치는 눈(편집자), 찾아주는 눈(사서)을 나눠 두면, 정리가가 잘못 분류한 걸 편집자가 잡고, 편집자가 빠뜨린 링크를 사서가 잡습니다. <strong>"역할이 다른 눈"</strong>을 통과시키는 것이 중복과 모순을 막는 가장 확실한 방법입니다.</p>
+            </div>
+
+            <div class="compare-grid anim-stagger" style="margin-top: 18px;">
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--book-teal);"></div>
+                        <h4>추가 역할 &middot; 안내데스크</h4>
+                    </div>
+                    <ul>
+                        <li><strong>안내데스크(/ask):</strong> 완성된 위키를 근거로 질문에 답합니다. "지난 분기 가격 정책 누가 정했지?" 같은 질문에 <strong>출처 페이지를 달아</strong> 답하고, 위키에 없으면 "모름"이라고 말합니다.</li>
+                        <li>위키를 <strong>만드는</strong> 3역할과 분리해서 봅니다. 안내데스크는 위키를 고치지 않고 읽기만 합니다.</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background: var(--gold);"></div>
+                        <h4>관리자 (사람 = 나)</h4>
+                    </div>
+                    <ul>
+                        <li>이 회사의 <strong>분류 체계(<code>wiki-config.md</code>)</strong>를 정합니다.</li>
+                        <li>원 자료를 <strong>inbox에 넣고</strong> 슬래시 커맨드를 호출합니다.</li>
+                        <li>위키에 올라간 내용이 맞는지 <strong>직접 확인</strong>합니다. 무엇을 신뢰할지는 사람이 결정합니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">실습 포인트</div>
+                <p>우리 팀에는 위 4역할을 그대로 써도 될까? 종이에 한번 적어 보세요. 자료가 적은 팀이라면 정리가와 편집자를 한 커맨드로 합쳐도 됩니다. 반대로 부서가 여러 개라면 부서별 사서를 두는 식으로 늘릴 수 있습니다. 핵심은 <strong>"우리 지식을 굴리는 데 필요한 손"</strong>을 빠짐없이 채우는 것입니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 실습 2단계: 갱신 루프 ====== -->
+    <div class="step-divider" id="step2"><span class="step-badge">STEP 2</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>실습 2단계. 갱신 루프를 설계한다</h2>
+            <p class="card-subtitle">4역할이 어떤 순서로 일하는지, 그리고 "다시 읽지 않는 법"을 정합니다</p>
+
+            <p>1단계에서 누가 일할지 정했으니, 이번에는 <strong>언제 어떤 순서로 일할지</strong>를 설계합니다. 책 쓰기는 한 번 완성하면 끝이지만, 위키는 다릅니다. 새 회의록은 매주 들어옵니다. 그래서 컴퍼니 브레인의 핵심은 <strong>"증분 갱신"</strong>, 즉 들어온 것만 처리하고 나머지는 건드리지 않는 것입니다. 전체를 매번 다시 읽으면 느리고, 멀쩡한 페이지까지 흔들립니다.</p>
+
+            <p style="margin-top: 12px;">전체는 <strong>4단계</strong>입니다. 슬래시 커맨드 한 줄이 곧 한 단계입니다.</p>
+
+            <div class="wf-steps" style="margin-top: 18px;">
+                <div class="wf-step anim-fade-left">
+                    <div class="wf-rail"><div class="wf-step-num">1</div><div class="wf-rail-line"></div></div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">/digest &middot; 새 자료 읽고 분류 (5~10분)</div>
+                        <div class="wf-step-desc">inbox의 <strong>새 파일만</strong> 읽습니다. 이미 처리한 파일은 <code>memory/</code>의 처리 이력으로 걸러 건너뜁니다. 각 자료의 핵심을 뽑아 "이건 정책 페이지", "이건 의사결정 기록"처럼 분류하고, 출처와 날짜를 붙입니다.</div>
+                    </div>
+                </div>
+                <div class="wf-step anim-fade-left">
+                    <div class="wf-rail"><div class="wf-step-num">2</div><div class="wf-rail-line"></div></div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">/update &middot; 위키에 병합 (10~20분)</div>
+                        <div class="wf-step-desc">분류 결과를 실제 위키 페이지에 합칩니다. 같은 내용이면 합치고, <strong>기존 정보와 충돌하면 최신을 살리되 옛 내용은 페이지 하단 변경 이력으로 내립니다.</strong> 새 주제면 새 페이지를 만듭니다.</div>
+                    </div>
+                </div>
+                <div class="wf-step anim-fade-left">
+                    <div class="wf-rail"><div class="wf-step-num">3</div><div class="wf-rail-line"></div></div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">/catalog &middot; 목차·링크 갱신 (약 5분)</div>
+                        <div class="wf-step-desc">바뀐 페이지를 <code>index.md</code> 목차에 반영하고, 페이지 사이 내부 링크와 태그를 다시 잇습니다. 깨진 링크나 어디에도 연결되지 않은 외톨이 페이지가 없는지 점검합니다.</div>
+                    </div>
+                </div>
+                <div class="wf-step anim-fade-left">
+                    <div class="wf-rail"><div class="wf-step-num">4</div><div class="wf-rail-line"></div></div>
+                    <div class="wf-step-content">
+                        <div class="wf-step-label">/ask &middot; 위키 기반 질의응답 (수시)</div>
+                        <div class="wf-step-desc">정리된 위키를 근거로 질문에 답합니다. 답에는 <strong>반드시 출처 페이지를 답니다.</strong> 위키에 근거가 없으면 지어내지 않고 "위키에 없습니다"라고 말합니다. 이게 신뢰의 핵심입니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">핵심 포인트 &middot; 책 쓰기와 무엇이 다른가</div>
+                <p>책 쓰기 실습은 기획서 하나로 <strong>한 번에 완성</strong>하는 파이프라인입니다. 컴퍼니 브레인은 <strong>계속 도는 루프</strong>입니다. 그래서 가장 중요한 장치가 <code>memory/</code>의 <strong>처리 이력</strong>입니다. 이미 본 파일을 기억해 두지 않으면, 매주 같은 회의록을 또 읽고 위키에 중복으로 쌓입니다. "무엇을 이미 처리했는가"를 기억하는 것이 증분 갱신의 전부입니다.</p>
+            </div>
+
+            <div class="highlight-box anim-fade-up" style="margin-top: 18px;">
+                <div class="hl-title">잠깐 &middot; 정보가 서로 충돌하면?</div>
+                <p>3월 회의록에는 "환불 기한 7일", 5월 회의록에는 "환불 기한 14일"이라고 적혀 있다면? 편집자는 <strong>최신(5월) 정보를 본문에 살리고</strong>, 옛 정보는 페이지 하단의 변경 이력에 "2026-03 기준 7일 → 2026-05 14일로 변경"처럼 남깁니다. 옛 정보를 그냥 지우면 "왜 바뀌었나"라는 맥락이 사라집니다. <strong>위키의 가치는 결정의 역사까지 보존하는 데 있습니다.</strong></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 실습 3단계: 파일 구조 ====== -->
+    <div class="step-divider" id="step3"><span class="step-badge">STEP 3</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>실습 3단계. 폴더와 파일 구조를 만든다</h2>
+            <p class="card-subtitle">머릿속의 역할과 루프를 "실제 파일"로 옮깁니다</p>
+
+            <p>AI 에이전트는 사람과 달리 구두로 알려준 규칙을 기억하지 못합니다. 대신 <strong>매번 같은 파일을 읽고 시작</strong>합니다. 그러니 분류 체계·역할·갱신 원칙을 <strong>파일에 박아 두는 것</strong>이 곧 하네스입니다. 전체 폴더는 아래처럼 구성됩니다.</p>
+
+            <div class="file-tree" style="margin-top: 16px;">
+<div class="ft-row"><span class="ft-left"><span class="ft-folder">company-brain/</span></span></div>
+<div class="ft-row"><span class="ft-left">├── <span class="ft-file">CLAUDE.md</span></span><span class="ft-comment"># 진입점: AGENTS.md를 가리킴 (Claude Code용)</span></div>
+<div class="ft-row"><span class="ft-left">├── <span class="ft-file">AGENTS.md</span></span><span class="ft-comment"># 규칙 본체: 갱신 원칙·페이지 형식·금지 (Codex도 읽음)</span></div>
+<div class="ft-row"><span class="ft-left">├── <span class="ft-file"><span class="ft-star">&#x2B50;</span> wiki-config.md</span></span><span class="ft-comment"># 설정서: 이 회사의 분류 체계 (교체 가능)</span></div>
+<div class="ft-row"><span class="ft-left">├── <span class="ft-folder">.claude/skills/</span></span><span class="ft-comment"># 역할별 업무 매뉴얼 (4개)</span></div>
+<div class="ft-row"><span class="ft-left">│&nbsp;&nbsp;&nbsp;├── <span class="ft-file">digest.md</span></span><span class="ft-comment"># 정리가</span></div>
+<div class="ft-row"><span class="ft-left">│&nbsp;&nbsp;&nbsp;├── <span class="ft-file">update.md</span></span><span class="ft-comment"># 편집자</span></div>
+<div class="ft-row"><span class="ft-left">│&nbsp;&nbsp;&nbsp;├── <span class="ft-file">catalog.md</span></span><span class="ft-comment"># 사서</span></div>
+<div class="ft-row"><span class="ft-left">│&nbsp;&nbsp;&nbsp;└── <span class="ft-file">ask.md</span></span><span class="ft-comment"># 안내데스크</span></div>
+<div class="ft-row"><span class="ft-left">├── <span class="ft-folder">inbox/</span></span><span class="ft-comment"># 원 자료 투입 (회의록·정책·메일)</span></div>
+<div class="ft-row"><span class="ft-left">├── <span class="ft-folder">wiki/</span></span><span class="ft-comment"># 정리된 위키 (자동 생성·갱신)</span></div>
+<div class="ft-row"><span class="ft-left">│&nbsp;&nbsp;&nbsp;├── <span class="ft-file">index.md</span></span><span class="ft-comment"># 전체 목차</span></div>
+<div class="ft-row"><span class="ft-left">│&nbsp;&nbsp;&nbsp;├── <span class="ft-folder">정책/</span></span></div>
+<div class="ft-row"><span class="ft-left">│&nbsp;&nbsp;&nbsp;├── <span class="ft-folder">제품/</span></span></div>
+<div class="ft-row"><span class="ft-left">│&nbsp;&nbsp;&nbsp;└── <span class="ft-folder">의사결정/</span></span></div>
+<div class="ft-row"><span class="ft-left">└── <span class="ft-folder">memory/</span></span><span class="ft-comment"># 처리 이력 (중복 방지)</span></div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 14px;">
+                <div class="tip-label">규칙은 AGENTS.md에, CLAUDE.md는 그걸 가리키게</div>
+                <p>규칙 본체는 <code>AGENTS.md</code>에 적고, <code>CLAUDE.md</code>는 "규칙은 AGENTS.md를 봐"라고 한 줄로 가리키게 둡니다. <code>AGENTS.md</code>는 Claude뿐 아니라 <strong>Codex 같은 다른 AI 코딩 도구도 읽는 표준 파일</strong>이라, 규칙을 한 곳에 써 두면 도구를 바꿔도 같은 규칙이 그대로 적용됩니다. 슬래시 커맨드(<code>/digest</code> 등)는 Claude Code 전용 단축키지만, <strong>그 작업 절차까지 <code>AGENTS.md</code>에 적어 두면 Codex도 같은 순서로 따라 할 수 있습니다.</strong></p>
+            </div>
+
+            <div class="nm-table-wrap" style="margin-top: 18px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>파일</th>
+                            <th>역할</th>
+                            <th>수정 가능 여부</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>CLAUDE.md</strong></td>
+                            <td>AGENTS.md를 가리키는 진입점 (Claude Code가 먼저 읽음)</td>
+                            <td style="color: #EF4444; font-weight: 700;">수정 불가 (고정)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AGENTS.md</strong></td>
+                            <td>갱신 원칙·페이지 형식·금지 사항 + 4역할 작업 절차 등 규칙 본체 (Codex 등 다른 도구도 읽음)</td>
+                            <td style="color: #EF4444; font-weight: 700;">수정 불가 (고정)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>.claude/skills/*.md</strong></td>
+                            <td>4역할(정리가·편집자·사서·안내데스크)의 업무 절차</td>
+                            <td style="color: #EF4444; font-weight: 700;">수정 불가 (고정)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>wiki-config.md</strong></td>
+                            <td>이 회사의 분류 체계·페이지 형식·민감도 기준</td>
+                            <td style="color: var(--book-teal); font-weight: 700;">수정 가능 (교체)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>inbox/</strong></td>
+                            <td>아직 정리되지 않은 원 자료를 넣는 곳</td>
+                            <td style="color: var(--book-teal); font-weight: 700;">사람이 투입</td>
+                        </tr>
+                        <tr>
+                            <td><strong>wiki/ · memory/</strong></td>
+                            <td>정리된 위키 페이지와 처리 이력</td>
+                            <td style="color: var(--book-teal); font-weight: 700;">자동 생성</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">왜 "수정 불가"와 "수정 가능"을 나누는가?</div>
+                <p>회사를 떠올려 보세요. <strong>취업 규칙과 결재 절차는 고정</strong>이고, <strong>직원 명부와 프로젝트 현황은 계속 갱신</strong>됩니다. 만약 직원이 결재 절차까지 마음대로 바꾼다면 조직이 흔들립니다. 여기서도 같습니다. <code>AGENTS.md</code>와 스킬 파일은 <strong>운영 규칙</strong>이라 그대로 두고, <code>wiki-config.md</code>가 <strong>이 조직의 설정</strong>이라 회사마다 바꿔 씁니다. 그래서 같은 하네스를 다른 팀에 그대로 옮길 수 있습니다.</p>
+            </div>
+
+            <!-- wiki-config 6입력 -->
+            <h3 style="margin-top: 26px; font-size: 17px; font-weight: 700; color: #3A3530;">설정서(<code>wiki-config.md</code>)에는 정확히 6가지를 적습니다</h3>
+            <p style="font-size: 14px; color: #5C5650; margin-top: 4px;">이 6칸이 위키의 품질을 결정합니다. 하나라도 비면 Claude가 멋대로 판단합니다.</p>
+
+            <div class="toc-grid anim-stagger">
+                <div class="toc-card">
+                    <span class="toc-num">01</span>
+                    <h4>분류 체계</h4>
+                    <p>지식을 어떤 카테고리로 나눌지. 예: 정책·제품·고객·의사결정·회의. 새 자료가 어느 페이지로 갈지 판단하는 기준.</p>
+                    <div class="toc-why">없으면? 같은 주제가 여기저기 흩어집니다.</div>
+                </div>
+                <div class="toc-card">
+                    <span class="toc-num">02</span>
+                    <h4>페이지 형식</h4>
+                    <p>각 위키 페이지의 표준 틀. 예: 한 줄 요약 → 핵심 내용 → 근거·출처 → 갱신일 → 변경 이력.</p>
+                    <div class="toc-why">없으면? 페이지마다 구성이 달라 읽기 어렵습니다.</div>
+                </div>
+                <div class="toc-card">
+                    <span class="toc-num">03</span>
+                    <h4>출처 규칙</h4>
+                    <p>모든 내용에 출처를 붙이는 방식. 예: "(2026-05-12 주간회의록)". 어느 원 자료에서 왔는지 역추적할 수 있게.</p>
+                    <div class="toc-why">없으면? 맞는 정보인지 확인할 길이 없습니다.</div>
+                </div>
+                <div class="toc-card">
+                    <span class="toc-num">04</span>
+                    <h4>갱신 원칙</h4>
+                    <p>새 정보가 기존과 충돌할 때 처리법. 최신 우선 + 옛 내용은 변경 이력으로 보존하는 규칙.</p>
+                    <div class="toc-why">없으면? 옛 정보가 본문에 남아 잘못 안내합니다.</div>
+                </div>
+                <div class="toc-card">
+                    <span class="toc-num">05</span>
+                    <h4>민감도 기준</h4>
+                    <p>위키에 올리면 안 되는 내용. 예: 인사·급여·개인정보·미공개 계약. 정리가가 걸러야 할 선.</p>
+                    <div class="toc-why">없으면? 민감 정보가 위키에 새어 나갑니다.</div>
+                </div>
+                <div class="toc-card">
+                    <span class="toc-num">06</span>
+                    <h4>질문 응답 규칙</h4>
+                    <p>안내데스크의 답변 원칙. 출처 필수, 위키에 없으면 "모름", 추측 금지.</p>
+                    <div class="toc-why">없으면? AI가 그럴듯하게 지어내 답합니다.</div>
+                </div>
+            </div>
+
+            <div class="highlight-box anim-fade-up" style="margin-top: 18px;">
+                <div class="hl-title">실습 포인트 &middot; "교체 가능한 설정서"라는 발상</div>
+                <p>이 6칸이 잘 짜여 있으면, 다른 팀에 옮길 때 <strong><code>wiki-config.md</code> 한 파일만 갈아끼우면 끝</strong>입니다. 영업팀용, 개발팀용, 경영지원팀용 설정서를 각각 만들어 두면 같은 하네스로 부서별 컴퍼니 브레인을 찍어낼 수 있습니다. AI를 바꾸는 게 아니라, <strong>AI가 일하는 환경을 통째로 재사용</strong>하는 것입니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 실습 4단계: 실행 ====== -->
+    <div class="step-divider" id="step4"><span class="step-badge">STEP 4</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>실습 4단계. Claude Code에게 실행을 맡긴다</h2>
+            <p class="card-subtitle">설계가 끝났으면, 이제 AI 에이전트 팀이 위키를 굴리게 합니다</p>
+
+            <!-- 4-A -->
+            <div class="inset-box" style="margin-top: 18px;">
+                <div class="inset-label">4-A. 폴더 구조 만들기</div>
+                <p>레포를 받을 필요 없이, Claude Code에게 폴더와 규칙 파일을 직접 만들게 합니다. 빈 폴더에서 Claude Code를 열고 아래 프롬프트를 입력합니다.</p>
+            </div>
+            <div class="prompt-box" id="promptA">컴퍼니 브레인을 만들려고 해.
+아래 구조로 폴더와 파일을 만들어줘.
+
+- AGENTS.md: 위키 갱신 원칙, 페이지 형식, 금지 사항을 담은 규칙 본체
+- CLAUDE.md: "규칙은 AGENTS.md를 참고"라고 한 줄로 가리키는 진입점 (Codex 등 다른 도구와 호환되게)
+- wiki-config.md: 분류 체계·페이지 형식·출처 규칙·갱신 원칙·민감도 기준·질문 응답 규칙 6가지 섹션 (지금은 빈 틀만)
+- .claude/skills/ 안에 digest, update, catalog, ask 4개 스킬 파일
+- inbox/, wiki/, memory/ 폴더
+
+각 스킬이 무슨 일을 하는지는 내가 다음에 채울 테니, 먼저 뼈대부터 만들어줘.<button class="copy-btn" onclick="copyPrompt('promptA')">복사</button></div>
+
+            <!-- 4-B -->
+            <div class="inset-box" style="margin-top: 18px;">
+                <div class="inset-label">4-B. 설정서(wiki-config.md) 작성하기</div>
+                <p>이 파일 하나가 "우리 회사 위키"를 결정합니다. 3단계에서 본 6칸을 빠짐없이 채우는 것이 핵심입니다.</p>
+            </div>
+            <div class="prompt-box" id="promptB">wiki-config.md를 우리 팀에 맞게 채워줘.
+
+분류 체계: 정책 / 제품 / 고객 / 의사결정 / 회의
+페이지 형식: 한 줄 요약 → 핵심 내용 → 출처 → 갱신일 → 변경 이력
+출처 규칙: 모든 항목 끝에 (날짜 + 원 자료 이름) 표기
+갱신 원칙: 충돌 시 최신 우선, 옛 내용은 변경 이력으로 보존
+민감도: 인사·급여·개인정보·미공개 계약은 위키에 올리지 않음
+질문 응답: 출처 필수, 위키에 근거 없으면 "위키에 없음"이라고 답하고 추측 금지<button class="copy-btn" onclick="copyPrompt('promptB')">복사</button></div>
+
+            <!-- 4-C -->
+            <div class="inset-box" style="margin-top: 18px;">
+                <div class="inset-label">4-C. 원 자료를 넣고 커맨드를 순서대로 실행하기</div>
+                <p>준비한 회의록·정책 문서를 <code>inbox/</code> 폴더에 넣습니다. 그다음 아래 커맨드를 <strong>순서대로 하나씩</strong> 실행합니다. 단계마다 결과를 열어서 눈으로 확인한 뒤 다음으로 갑니다.</p>
+            </div>
+
+            <div class="nm-table-wrap" style="margin-top: 14px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>순서</th>
+                            <th>커맨드</th>
+                            <th>하는 일</th>
+                            <th>예상 소요 시간</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1</strong></td>
+                            <td><code>/digest</code></td>
+                            <td>inbox의 새 자료를 읽고 핵심을 추출해 분류합니다</td>
+                            <td>5~10분</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2</strong></td>
+                            <td><code>/update</code></td>
+                            <td>분류 결과를 위키 페이지에 병합하고 충돌을 정리합니다</td>
+                            <td>10~20분</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3</strong></td>
+                            <td><code>/catalog</code></td>
+                            <td>목차·내부 링크·변경 이력을 갱신합니다</td>
+                            <td>약 5분</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4</strong></td>
+                            <td><code>/ask</code></td>
+                            <td>완성된 위키를 근거로 질문에 출처와 함께 답합니다</td>
+                            <td>수시</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">중간에 멈춰도 괜찮습니다</div>
+                <p>각 스킬은 <code>memory/</code>의 처리 이력을 먼저 확인합니다. <code>/digest</code> 도중 멈춰도, 다시 실행하면 아직 처리 안 한 자료부터 이어서 작업합니다. 이미 본 파일을 또 읽지 않는다는 게 핵심입니다. 게임의 <strong>자동 저장</strong>과 같은 원리입니다.</p>
+            </div>
+
+            <!-- 한 번의 갱신 사이클 -->
+            <div class="inset-box" style="margin-top: 24px;">
+                <div class="inset-label">4-D. 한 번의 주간 갱신 사이클</div>
+                <p>월요일 아침, 지난주 회의록 3개를 <code>inbox/</code>에 넣고 커맨드를 돌리면 아래처럼 진행됩니다. 한 산출물이 다음 산출물의 입력이 됩니다. 누가 만드는지를 색깔로 표시했습니다.</p>
+            </div>
+
+            <div class="time-summary">
+                <div class="time-card">
+                    <div class="tc-label">첫 구축 (1회)</div>
+                    <div class="tc-value">~2시간</div>
+                </div>
+                <div class="time-card">
+                    <div class="tc-label">주간 갱신 (매주)</div>
+                    <div class="tc-value">~30분</div>
+                </div>
+                <div class="time-card tc-total">
+                    <div class="tc-label">갱신 중 사람 손</div>
+                    <div class="tc-value">~10분</div>
+                </div>
+            </div>
+
+            <div class="pipeline-wrap">
+                <!-- 설계 -->
+                <div class="pipeline-rotation">최초 1회 &middot; 설계 <span class="pr-time">· 사람이 약 2시간</span></div>
+                <div class="pipeline-row">
+                    <span class="pr-num">00</span>
+                    <span class="pr-title">규칙과 분류 체계 설계</span>
+                    <span class="pr-file">AGENTS.md / wiki-config.md</span>
+                    <span class="pr-persona pr-p-human">사람</span>
+                </div>
+
+                <!-- 투입 -->
+                <div class="pipeline-rotation">매주 월요일 &middot; 자료 투입 <span class="pr-time">· 약 2분</span></div>
+                <div class="pipeline-row">
+                    <span class="pr-num">01</span>
+                    <span class="pr-title">지난주 회의록 3개 넣기</span>
+                    <span class="pr-file">inbox/*.md</span>
+                    <span class="pr-persona pr-p-human">사람</span>
+                </div>
+
+                <!-- 정리 -->
+                <div class="pipeline-rotation">갱신 루프 &middot; 정리 + 병합 <span class="pr-time">· 약 20분</span></div>
+                <div class="pipeline-row">
+                    <span class="pr-num">02</span>
+                    <span class="pr-title">새 자료 분류</span>
+                    <span class="pr-file">memory/digest-log.md</span>
+                    <span class="pr-persona pr-p-green">그린 · 정리가</span>
+                </div>
+                <div class="pipeline-row">
+                    <span class="pr-num">03</span>
+                    <span class="pr-title">위키 페이지 병합</span>
+                    <span class="pr-file">wiki/정책/환불규정.md</span>
+                    <span class="pr-persona pr-p-black">블랙 · 편집자</span>
+                </div>
+                <div class="pipeline-row">
+                    <span class="pr-num">04</span>
+                    <span class="pr-title">충돌 정리 + 변경 이력</span>
+                    <span class="pr-file">wiki/의사결정/가격정책.md</span>
+                    <span class="pr-persona pr-p-black">블랙 · 편집자</span>
+                </div>
+
+                <!-- 목차 -->
+                <div class="pipeline-rotation">갱신 루프 &middot; 목차 정비 <span class="pr-time">· 약 5분</span></div>
+                <div class="pipeline-row">
+                    <span class="pr-num">05</span>
+                    <span class="pr-title">목차·링크·이력 갱신</span>
+                    <span class="pr-file">wiki/index.md</span>
+                    <span class="pr-persona pr-p-pink">핑크 · 사서</span>
+                </div>
+
+                <!-- 활용 -->
+                <div class="pipeline-rotation">완료 &middot; 이제 물어볼 수 있다 <span class="pr-time">· 수시</span></div>
+                <div class="pipeline-row">
+                    <span class="pr-num">06</span>
+                    <span class="pr-title">질의응답 (출처 표시)</span>
+                    <span class="pr-file">"환불 기한 언제 바뀌었지?"</span>
+                    <span class="pr-persona pr-p-light">라이트 · 안내데스크</span>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">강의 포인트 &middot; 왜 편집자만 위키를 고치나</div>
+                <p>위 표를 보면 <strong>위키 파일을 직접 고치는 건 편집자뿐</strong>입니다. 정리가는 분류만 하고, 사서는 목차만 잇고, 안내데스크는 읽기만 합니다. 본문을 손대는 손을 한 명으로 묶어야 형식과 톤이 흔들리지 않습니다. 사람으로 치면 "검토는 여러 명이 하지만, 위키에 글을 쓰는 사람은 한 명"인 구조입니다. 책 쓰기 실습에서 저자(블랙)만 본문을 고친 것과 같은 원리입니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 실습 5단계: 검증 ====== -->
+    <div class="step-divider" id="step5"><span class="step-badge">STEP 5</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>실습 5단계. 위키를 신뢰할 수 있는지 검증한다</h2>
+            <p class="card-subtitle">"AI가 정리했으니 맞겠지"는 금물입니다. 지식 베이스는 틀리면 조직 전체가 틀립니다</p>
+
+            <p>커맨드 실행이 끝나면 <code>wiki/</code> 폴더에 정리된 페이지들이 생깁니다. 컴퍼니 브레인은 책과 달리 <strong>여러 사람이 두고두고 참고</strong>합니다. 한 번 잘못 들어간 정보는 계속 잘못 안내하므로, 아래 6가지를 직접 확인합니다.</p>
+
+            <div class="comp-grid anim-stagger" style="margin-top: 18px;">
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>출처 추적</h4>
+                    <p>모든 위키 문장에 "어느 원 자료에서 왔는지" 출처가 붙어 있는가</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>중복 없음</h4>
+                    <p>같은 내용이 여러 페이지에 흩어져 있지 않은가</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>최신성</h4>
+                    <p>충돌하는 정보 중 최신이 본문에, 옛것은 변경 이력에 남았는가</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>민감 정보 제외</h4>
+                    <p>인사·급여·개인정보가 위키에 새어 들어가지 않았는가</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>링크 정합</h4>
+                    <p>목차와 내부 링크가 깨지지 않고 실제 페이지로 연결되는가</p>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-icon">&#x2705;</div>
+                    <h4>답변 신뢰</h4>
+                    <p>/ask가 위키에 없는 건 "모름"이라 답하고 지어내지 않는가</p>
+                </div>
+            </div>
+
+            <div class="prompt-collection" style="margin-top: 16px;">
+                <h4>위키가 믿을 만한지 점검하는 프롬프트</h4>
+                <div class="prompt-box" id="promptC">wiki/ 폴더 전체를 읽고, 아래 기준으로 점검해줘:
+
+1. 출처 없이 적힌 문장이 있는가 (있으면 목록으로)
+2. 같은 내용이 두 페이지 이상에 중복되어 있는가
+3. 서로 모순되는 정보가 정리되지 않은 채 남아 있는가
+4. wiki-config.md의 민감도 기준에 걸리는 내용이 올라가 있는가
+5. index.md 목차에서 깨진 링크가 있는가
+
+문제를 찾으면 어느 페이지의 몇 번째 항목인지 알려주고,
+어떻게 고치면 될지 제안해줘.<button class="copy-btn" onclick="copyPrompt('promptC')">복사</button></div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 18px;">
+                <div class="hl-title">다음 주로 넘어가는 법</div>
+                <p>다음 주가 되면 <code>AGENTS.md</code>·<code>CLAUDE.md</code>와 4개 스킬, <code>wiki-config.md</code>는 <strong>그대로 두고</strong>, 새 회의록을 <code>inbox/</code>에 넣은 뒤 <code>/digest</code>부터 다시 누릅니다. 이미 처리한 자료는 건너뛰고 새것만 정리됩니다. 이 실습이 결국 말하고 싶은 것은 한 가지입니다. <strong>지식을 한 번 정리하고 끝내는 게 아니라, 정리하는 방식을 한 번 설계해 두고 그 환경이 매주 스스로 자라게 하는 것</strong>입니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== 한 걸음 더: 지식 그래프 ====== -->
+    <div class="step-divider" id="step6"><span class="step-badge">한 걸음 더</span></div>
+    <section class="anim-fade-up">
+        <div class="nm-card">
+            <h2>한 걸음 더. 지식 그래프로 한눈에 보기</h2>
+            <p class="card-subtitle">위키가 쌓이면, 페이지 사이의 관계를 점과 선으로 펼쳐 봅니다</p>
+
+            <p>위키 페이지가 수십 개로 늘면 목록만으로는 전체가 안 보입니다. 어떤 정책이 어떤 제품에 걸려 있는지, 작년 결정이 지금 어디에 영향을 주는지 같은 <strong>관계</strong>는 표로는 드러나지 않습니다. 지식 그래프는 위키의 페이지·태그·결정을 <strong>노드(점)</strong>로, 그 사이 연결을 <strong>엣지(선)</strong>로 그려 전체 지형을 한눈에 보여줍니다. 연결이 많은 큰 노드가 곧 우리 조직이 가장 많이 다루는 핵심 주제입니다.</p>
+
+            <p style="margin-top: 12px;">코드를 몰라도 됩니다. Claude에게 <code>wiki/</code>의 내부 링크와 태그를 읽어 노드와 엣지로 정리한 뒤, 단일 HTML 파일로 인터랙티브 그래프를 그려 달라고 하면 됩니다. 아래 프롬프트를 그대로 써 보세요.</p>
+
+            <div class="prompt-box" id="promptGraph">wiki/ 폴더의 모든 페이지를 읽고, 페이지 사이의 내부 링크와 공통 태그를 분석해줘.
+
+그 관계를 노드(페이지)와 엣지(연결)로 정리한 뒤,
+단일 HTML 파일로 인터랙티브 지식 그래프를 만들어줘.
+
+- 노드: 위키 페이지. 카테고리(정책·제품·의사결정 등)별로 색을 다르게
+- 엣지: 페이지 사이의 링크나 공통 태그
+- 연결이 많은 노드는 더 크게 표시
+- 드래그로 이동, 스크롤로 확대·축소, 노드를 클릭하면 연결된 것만 강조, 더블클릭하면 그 페이지 열기
+
+결과는 graph.html 한 파일로 저장해줘.<button class="copy-btn" onclick="copyPrompt('promptGraph')">복사</button></div>
+
+            <a class="skill-preview sp-blue" href="https://airoasting-blog.vercel.app/insights/graph.html" target="_blank" rel="noopener">
+                <span class="sp-icon">&#x1F578;&#xFE0F;</span>
+                <span class="sp-body">
+                    <span class="sp-label">샘플 &middot; 이런 모습이 나옵니다</span>
+                    <span class="sp-title">AI Roasting 지식 그래프 (실제 예시)</span>
+                    <span class="sp-url">airoasting-blog.vercel.app/insights/graph.html</span>
+                </span>
+                <span class="sp-arrow">&rarr;</span>
+            </a>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">그래프에서 할 수 있는 것</div>
+                <p>노드를 드래그해 옮기고, 스크롤로 확대·축소합니다. 노드를 클릭하면 연결된 것만 남겨 관계를 좁혀 보고, 더블클릭하면 그 페이지로 바로 들어갑니다. 빈 곳을 클릭하면 전체 그래프로 돌아옵니다. 위 샘플은 블로그 글로 만든 것이지만, 회의록·정책·결정으로 채운 우리 위키에 그대로 적용됩니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 참고 자료 -->
+    <div class="ref-section anim-fade-up">
+        <div class="ref-title">근거 자료</div>
+        <p style="font-size: 13px; color: #888; margin: -6px 0 14px;">컴퍼니 브레인의 설계(파일 기반 메모리, 역할 분리, 영속 지식 베이스)는 다음 자료를 근거로 합니다.</p>
+        <div class="ref-links">
+            <a class="ref-link" href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener" style="align-items: flex-start;">
+                <span class="ref-icon">&#x1F3DB;&#xFE0F;</span>
+                <span style="display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0;">
+                    <span style="font-weight: 700;">Effective context engineering for AI agents</span>
+                    <span style="font-size: 12px; font-weight: 400; color: #999; line-height: 1.55;">Anthropic Engineering (2025) &middot; 에이전트가 컨텍스트 밖 파일에 메모를 남겨 "시간이 지나며 지식 베이스를 쌓는다"는 구조적 노트 작성 개념. 이 실습의 <code>memory/</code>·<code>CLAUDE.md</code> 설계가 여기서 나왔습니다.</span>
+                </span>
+                <span class="ref-desc">Anthropic</span>
+            </a>
+            <a class="ref-link" href="https://x.com/karpathy/status/1937902205765607626" target="_blank" rel="noopener" style="align-items: flex-start;">
+                <span class="ref-icon">&#x1F9E0;</span>
+                <span style="display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0;">
+                    <span style="font-weight: 700;">"Context engineering" (프롬프트 엔지니어링을 넘어서)</span>
+                    <span style="font-size: 12px; font-weight: 400; color: #999; line-height: 1.55;">Andrej Karpathy (前 Tesla AI 총괄, OpenAI 창립 멤버) &middot; 컨텍스트를 모델의 작업 기억, 곧 RAM에 비유하며, 무엇을 읽히느냐가 곧 성능이라고 짚습니다.</span>
+                </span>
+                <span class="ref-desc">Karpathy</span>
+            </a>
+            <a class="ref-link" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener" style="align-items: flex-start;">
+                <span class="ref-icon">&#x1F916;</span>
+                <span style="display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0;">
+                    <span style="font-weight: 700;">Building effective agents</span>
+                    <span style="font-size: 12px; font-weight: 400; color: #999; line-height: 1.55;">Anthropic (2024) &middot; 정해진 순서로 도는 "워크플로우"와 역할 분리의 효용. 정리가·편집자·사서로 나눈 4역할 설계의 근거입니다.</span>
+                </span>
+                <span class="ref-desc">Anthropic</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section anim-fade-up">
+        <h3>이제 직접 회사의 두뇌를 만들어 보세요</h3>
+        <p>빈 폴더에서 Claude Code를 열고, 폴더 구조를 만들고, 회의록 몇 개를 inbox에 넣어 /digest부터 시작하세요.<br>한 번 설계해 두면 매주 스스로 자랍니다.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn secondary" href="harness-engineering.html">&larr; 하네스 엔지니어링 개념</a>
+            <a class="cta-btn primary" href="index.html">다른 예제 보기 &rarr;</a>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Mode Tabs ──
+function switchMode(mode) {
+    document.querySelectorAll('.mode-tab').forEach(function(t){ t.classList.remove('active'); });
+    var tab = document.getElementById('tab-' + mode);
+    if (tab) tab.classList.add('active');
+    document.querySelectorAll('.header-pages').forEach(function(p){
+        p.style.display = (p.id === 'pages-' + mode) ? 'flex' : 'none';
+    });
+}
+
+// -- 스크롤 애니메이션 --
+(function(){
+    var animEls = document.querySelectorAll('.anim-fade-up, .anim-fade-left, .anim-scale-in, .anim-stagger, .step-divider');
+    var observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+            if(e.isIntersecting){
+                e.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    animEls.forEach(function(el){ observer.observe(el); });
+})();
+
+// -- Sub Menu Click Scroll (부드러운 스크롤 + 클릭 즉시 선택) --
+var smSpyLock = false;
+document.querySelectorAll('.sub-menu a[data-sec]').forEach(function(link){
+    link.addEventListener('click', function(e){
+        e.preventDefault();
+        var target = document.getElementById(link.dataset.sec);
+        if(!target) return;
+        // 클릭한 항목을 즉시 선택 상태로
+        document.querySelectorAll('.sub-menu a[data-sec]').forEach(function(l){ l.classList.remove('active'); });
+        link.classList.add('active');
+        // 부드럽게 스크롤하는 동안 스크롤 스파이가 선택을 덮어쓰지 않게 잠시 잠금
+        smSpyLock = true;
+        clearTimeout(window.__smSpyT);
+        window.__smSpyT = setTimeout(function(){ smSpyLock = false; }, 800);
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.pushState(null, '', '#' + link.dataset.sec);
+    });
+});
+
+// -- Sub Menu Scroll Spy --
+(function(){
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l){ var s = document.getElementById(l.dataset.sec); if(s) sections.push({id:l.dataset.sec, el:s, link:l}); });
+
+    function update(){
+        if(smSpyLock) return;
+        // 판정선을 step-divider의 scroll-margin-top(160px)에 맞춘다.
+        // 그래야 클릭으로 이동해 안착한 섹션이 그대로 선택 상태로 남는다.
+        var scrollY = window.scrollY + 175;
+        var current = sections[0];
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                // 가로 서브메뉴만 스크롤한다. sticky 컨테이너 안에서 scrollIntoView를 부르면
+                // 브라우저가 창을 서브메뉴의 원래(고정 전) 위치로 끌어올려 하단을 못 보게 만든다.
+                var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.clientWidth) / 2;
+                nav.scrollTo({left: target, behavior: 'smooth'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    update();
+})();
+
+// -- 프롬프트 복사 --
+function copyPrompt(id) {
+    var box = document.getElementById(id);
+    var text = box.textContent.replace('복사', '').trim();
+    navigator.clipboard.writeText(text).then(function(){
+        var btn = box.querySelector('.copy-btn');
+        btn.textContent = '완료!';
+        setTimeout(function(){ btn.textContent = '복사'; }, 2000);
+    });
+}
+</script>
+
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #B0544A; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    /* 헤더 상단 여백 통일 */
+    header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 50px 0 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+
+<!-- 가이드 소개 모달: 단일 소스 assets/about-modal.js 에서 주입 -->
+<script src="assets/about-modal.js"></script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+</body>
+</html>

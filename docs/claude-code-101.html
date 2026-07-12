@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
+    <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/claude-code-101.html">
+    <meta property="og:title" content="AI ROASTING · Claude 완전 정복">
+    <meta property="og:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/claude-code-101.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI ROASTING · Claude 완전 정복">
+    <meta name="twitter:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>클로드 코드 101 | AI ROASTING</title>
+    <meta name="description" content="클로드 코드가 무엇인지부터 윈도우·맥 설치, 첫 실행, 잘 쓰는 습관까지 한 페이지에서 끝내는 비개발자용 입문 가이드.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { word-break: keep-all; font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--ant-orange), #f5a88a);
+            z-index: 2000;
+            width: 0%;
+            transition: width 0.12s linear;
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* PAGE LOAD ANIMATIONS */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes badgePop {
+            0%   { opacity: 0; transform: scale(0.7); }
+            65%  { opacity: 1; transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 4px 16px rgba(217,119,87,0.35); }
+            50%       { box-shadow: 0 4px 28px rgba(217,119,87,0.65); }
+        }
+        @keyframes shimmerScan {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* SCROLL ANIMATIONS */
+        .anim {
+            opacity: 0;
+            transform: translateY(26px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+        .anim.visible { opacity: 1; transform: none; }
+        .anim.d1 { transition-delay: 0.07s; }
+        .anim.d2 { transition-delay: 0.14s; }
+        .anim.d3 { transition-delay: 0.21s; }
+        .anim.d4 { transition-delay: 0.28s; }
+        .anim.d5 { transition-delay: 0.35s; }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        header::after {
+            content: '';
+            position: absolute; bottom: -70px; left: -40px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(180,60,30,0.10) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+            animation: fadeIn 0.5s ease 0.15s both;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+            animation: fadeInDown 0.7s ease 0.05s both;
+        }
+        header > p {
+            font-size: 16px;
+            color: rgba(255,255,255,0.8);
+            position: relative; z-index: 1;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            animation: fadeInUp 0.6s ease 0.3s both;
+        }
+
+        /* Sub Menu */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 160px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #B0544A; color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title { font-size: 13px; font-weight: 700; color: #3A3530; white-space: nowrap; }
+        .sm-sub   { font-size: 11px; color: #999; white-space: nowrap; }
+        /* 클릭 시 섹션 배지가 sticky sub-menu 아래로 안 가리도록 여유 확보
+           sub-menu 실제 높이 ≈ 113px (패딩 28 + 링크 내부 85). 배지가 통째로 보이도록 더 여유 둠 */
+        .content-section { scroll-margin-top: 140px; }
+
+        /* Step Navigator */
+        .step-nav {
+            display: flex; align-items: center; justify-content: center;
+            margin: 26px 0 20px; gap: 0;
+            max-width: 80%; margin-left: auto; margin-right: auto;
+            animation: fadeIn 0.5s ease 0.1s both;
+        }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node.sn-final { font-size: 12px; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* Header Page Links */
+        .header-pages {
+            max-width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative; z-index: 1;
+            animation: fadeInUp 0.5s ease 0.65s both;
+        }
+        .header-page-link {
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px; font-weight: 700;
+            padding: 12px 22px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .header-page-link:hover { background: rgba(255,255,255,0.13); color: #fff; transform: translateY(-1px); }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .hpl-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; flex-shrink: 0;
+        }
+        .hpl-icon svg { width: 16px; height: 16px; display: block; }
+        /* 노코드 / CLI 트랙 토글 */
+        .track-toggle {
+            display: inline-flex; gap: 6px;
+            background: rgba(0,0,0,0.22);
+            border-radius: 26px; padding: 5px;
+            margin-top: 18px;
+            position: relative; z-index: 1;
+            box-shadow: inset 2px 2px 6px rgba(0,0,0,0.32), inset -2px -2px 6px rgba(255,255,255,0.05);
+            animation: fadeInUp 0.5s ease 0.55s both;
+        }
+        .track-toggle-btn {
+            font-size: 14px; font-weight: 800;
+            color: rgba(255,255,255,0.58);
+            padding: 8px 30px; border-radius: 22px;
+            text-decoration: none; cursor: pointer;
+            transition: all 0.2s; letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        .track-toggle-btn.active {
+            background: rgba(255,255,255,0.16); color: #fff;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.28), -2px -2px 6px rgba(255,255,255,0.08);
+        }
+        .track-toggle-btn:not(.active):hover { color: rgba(255,255,255,0.85); }
+
+        /* CONTAINER */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* 뉴모피즘 카드 */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .nm-card:hover {
+            box-shadow: 8px 8px 20px #C8C4BD, -8px -8px 20px #FFFFFF;
+            transform: translateY(-2px);
+        }
+        .nm-card h2 {
+            font-size: 18px; font-weight: 700; color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+        }
+        .nm-card p, .nm-card li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; padding-left: 20px; }
+
+        /* OS 배지 */
+        .os-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 12px; font-weight: 800;
+            padding: 5px 14px; border-radius: 20px;
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-left: 12px;
+            vertical-align: middle;
+        }
+        .os-badge.win { background: rgba(0, 120, 215, 0.12); color: #0064B0; }
+        .os-badge.mac { background: rgba(80, 80, 80, 0.10); color: #444; text-transform: none; letter-spacing: 0.2px; }
+
+        /* 섹션 구분 */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 4px 0 28px; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 11px; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--ant-orange); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 6px 20px; border-radius: 20px; white-space: nowrap;
+            background-image: linear-gradient(
+                105deg,
+                var(--nm-bg) 40%,
+                rgba(255,255,255,0.85) 50%,
+                var(--nm-bg) 60%
+            );
+            background-size: 200% auto;
+            animation: shimmerScan 2.8s linear infinite;
+        }
+        .step-divider.visible .step-badge { animation: badgePop 0.5s ease both; }
+        /* 섹션 첫 자식인 step-divider는 위 여백을 살짝 줄여 배지가 뷰포트 안에 잘 들어오게 함 */
+        .content-section > .step-divider:first-child { margin-top: 0; }
+
+        /* 인셋 박스 */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--ant-orange); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* 팁 박스 */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { font-size: 11px; font-weight: 700; color: var(--ant-orange); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tip-box p { font-size: 13px; color: #5C5650; line-height: 1.7; }
+
+        /* 강조 박스 */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(217,119,87,0.08) 0%, rgba(217,119,87,0.03) 100%);
+            border: 1.5px solid rgba(217,119,87,0.25);
+            border-radius: 16px;
+            padding: 22px 26px; margin: 20px 0;
+        }
+        .highlight-box .hl-title { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* intro 통계 */
+        .intro-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+        .intro-stat {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px;
+            background: var(--nm-bg);
+            border-radius: 12px;
+            box-shadow: var(--nm-shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .intro-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 16px #C8C4BD, -6px -6px 16px #FFFFFF;
+        }
+        .intro-stat .is-icon { font-size: 24px; line-height: 1; flex-shrink: 0; }
+        .intro-stat .is-label { font-size: 13px; font-weight: 700; color: #3A3530; line-height: 1.3; }
+        .intro-stat .is-sub { font-size: 11px; color: #999; margin-top: 2px; }
+        .intro-divider { height: 1px; background: linear-gradient(90deg, transparent, #D8D3CC 20%, #D8D3CC 80%, transparent); margin: 22px 0 18px; }
+        .intro-sub-label { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ant-orange); margin-top: 22px; }
+        @media (max-width: 640px) {
+            .intro-stats { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 420px) {
+            .intro-stats { grid-template-columns: 1fr; }
+        }
+
+        /* 비교 그리드 */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm {
+            background: var(--nm-bg); border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm); padding: 20px;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .compare-nm:hover {
+            transform: translateY(-3px);
+            box-shadow: 6px 6px 18px #C8C4BD, -6px -6px 18px #FFFFFF;
+        }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 13px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+
+        /* 단계 흐름 */
+        .flow-steps { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+        .flow-step {
+            display: flex; align-items: flex-start; gap: 16px;
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 16px 20px;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .flow-step:hover {
+            transform: translateX(5px);
+            box-shadow: 6px 6px 16px #C8C4BD, -6px -6px 16px #FFFFFF;
+        }
+        .flow-num {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--ant-orange); color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; margin-top: 1px;
+            transition: transform 0.2s ease;
+        }
+        .flow-step:hover .flow-num { transform: scale(1.15); }
+        .flow-content { flex: 1; min-width: 0; }
+        .flow-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 3px; }
+        .flow-desc { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .flow-desc code { background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px; font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #3A3530; }
+        .flow-desc a { color: var(--ant-orange); text-decoration: none; font-weight: 600; border-bottom: 1px dashed rgba(217,119,87,0.4); }
+        .flow-desc a:hover { border-bottom-style: solid; }
+
+        /* flow-step 오른쪽 액션 버튼 */
+        .flow-actions {
+            display: flex; gap: 8px; flex-shrink: 0;
+            align-self: center; margin-left: 12px;
+        }
+        .flow-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 6px;
+            padding: 9px 16px; border-radius: 10px;
+            font-size: 12.5px; font-weight: 700;
+            text-decoration: none;
+            background: var(--nm-bg);
+            box-shadow: 3px 3px 7px #CECAC3, -3px -3px 7px #FFFFFF;
+            color: #3A3530;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .flow-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 4px 4px 10px #C8C4BD, -4px -4px 10px #FFFFFF;
+            color: var(--ant-orange);
+        }
+        .flow-btn.primary {
+            background: var(--ant-orange);
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(217,119,87,0.35);
+        }
+        .flow-btn.primary:hover {
+            background: #c66848;
+            color: #fff;
+            box-shadow: 0 5px 16px rgba(217,119,87,0.45);
+        }
+        .flow-btn.win {
+            background: #0064B0;
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(0,100,176,0.30);
+        }
+        .flow-btn.win:hover {
+            background: #00528F;
+            color: #fff;
+            box-shadow: 0 5px 16px rgba(0,100,176,0.42);
+        }
+        .flow-btn.mac {
+            background: #2E2E2E;
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.28);
+        }
+        .flow-btn.mac:hover {
+            background: #1A1917;
+            color: #fff;
+            box-shadow: 0 5px 16px rgba(0,0,0,0.40);
+        }
+        @media (max-width: 640px) {
+            .flow-step { flex-wrap: wrap; }
+            .flow-actions {
+                width: 100%;
+                margin-left: 46px;
+                margin-top: 10px;
+                gap: 6px;
+            }
+            .flow-btn { padding: 7px 12px; font-size: 12px; flex: 1 1 0; }
+        }
+
+        /* 코드 박스 */
+        .cmd-box { background: #1A1917; border-radius: 12px; padding: 16px 20px; margin: 12px 0; }
+        .cmd-label {
+            font-size: 11px; font-weight: 700; color: #D97757;
+            letter-spacing: 1px; margin-bottom: 8px;
+            text-transform: uppercase;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .cmd-text {
+            font-size: 13px; color: #E8E4DC; line-height: 1.8;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            white-space: pre-wrap;
+        }
+        .cmd-copy-btn {
+            padding: 3px 10px; flex-shrink: 0; margin-left: 8px;
+            background: #333; border: 1px solid #555;
+            color: #ccc; font-size: 11px; font-weight: 600;
+            border-radius: 4px; cursor: pointer; transition: all 0.2s;
+            font-family: inherit;
+        }
+        .cmd-copy-btn:hover { background: #D97757; border-color: #D97757; color: #fff; }
+        .cmd-copy-btn.copied { background: #22c55e; border-color: #22c55e; color: #fff; }
+
+        /* 프롬프트 예시 */
+        .prompt-example { background: #1A1917; border-radius: 12px; padding: 18px 22px; margin: 14px 0; }
+        .prompt-label {
+            font-size: 11px; font-weight: 700; color: #D97757; letter-spacing: 1px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .prompt-text { font-size: 13px; color: #E8E4DC; line-height: 1.8; font-family: 'Pretendard', monospace; white-space: pre-line; }
+
+        /* 아코디언 */
+        .acc-header {
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; user-select: none;
+            padding: 6px 14px 6px 0;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+        .acc-header:hover { background: rgba(217,119,87,0.06); }
+        .acc-hint {
+            display: inline-block;
+            font-size: 10px; font-weight: 800;
+            letter-spacing: 1px; text-transform: uppercase;
+            color: var(--ant-orange);
+            background: rgba(217,119,87,0.12);
+            padding: 3px 9px; border-radius: 10px;
+            margin-right: 10px;
+        }
+        .acc-header.open .acc-hint { background: rgba(58,122,90,0.14); color: #3a7a5a; }
+        .acc-toggle {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 14px; transition: transform 0.3s;
+        }
+        .acc-header.open .acc-toggle { transform: rotate(180deg); }
+        .acc-body { word-break: keep-all; max-height: 0; overflow: hidden; transition: max-height 0.4s ease, opacity 0.3s ease; opacity: 0; }
+        .acc-body.open { max-height: 1400px; opacity: 1; }
+
+        /* 트러블슈팅 */
+        .trouble-item {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 22px; margin-bottom: 14px;
+        }
+        .trouble-item h4 {
+            font-size: 14px; font-weight: 700; color: #3A3530;
+            margin-bottom: 8px;
+        }
+        .trouble-item .trouble-os {
+            font-size: 10px; font-weight: 800;
+            padding: 2px 8px; border-radius: 8px;
+            margin-left: 8px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            vertical-align: middle;
+        }
+        .trouble-item .trouble-os.win { background: rgba(0, 120, 215, 0.12); color: #0064B0; }
+        .trouble-item .trouble-os.mac { background: rgba(80, 80, 80, 0.10); color: #444; text-transform: none; letter-spacing: 0.2px; }
+        .trouble-item .trouble-os.both { background: rgba(217, 119, 87, 0.12); color: var(--ant-orange); }
+        .trouble-item p { font-size: 13px; color: #5C5650; line-height: 1.7; }
+        .trouble-item code { background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px; font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #3A3530; }
+
+        /* CTA 섹션 */
+        .cta-section {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            border-radius: 20px; padding: 44px 32px;
+            text-align: center; margin-top: 36px;
+            position: relative; overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute; top: -60px; right: -40px;
+            width: 280px; height: 280px;
+            background: radial-gradient(circle, rgba(196,98,63,0.22) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; position: relative; z-index: 1; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.7; position: relative; z-index: 1; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; position: relative; z-index: 1; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 13px 28px; border-radius: 14px;
+            font-size: 14px; font-weight: 700;
+            text-decoration: none; transition: all 0.22s;
+        }
+        .cta-btn.primary {
+            background: #fff; color: #7A1E0C;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            animation: glowPulse 2.8s ease-in-out infinite;
+        }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-2px) scale(1.02); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* 다운로드 버튼 */
+        .dl-btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: var(--ant-orange); color: #fff;
+            text-decoration: none; font-size: 15px; font-weight: 700;
+            padding: 14px 32px; border-radius: 14px;
+            box-shadow: 0 4px 16px rgba(217,119,87,0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .dl-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(217,119,87,0.48); }
+        .dl-btn span { font-size: 18px; }
+
+        /* 푸터 */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        @media (max-width: 768px) {
+            .container { padding: 22px 14px 60px; }
+            header { padding: 24px 16px 28px; }
+            .header-pages { flex-wrap: wrap; gap: 8px; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            header h1 { font-size: 28px; }
+            header > p { font-size: 14px; }
+            .compare-grid { grid-template-columns: 1fr; gap: 10px; }
+            .sub-menu { padding: 10px 8px; justify-content: flex-start; }
+            .sub-menu a { padding: 6px 10px; max-width: 120px; }
+            .sm-title { font-size: 12px; }
+            .sm-sub { font-size: 10px; }
+            .sm-num { width: 24px; height: 24px; font-size: 11px; }
+            .step-nav { max-width: 100%; gap: 0; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+            .nm-card { padding: 22px 20px; border-radius: 16px; margin-bottom: 18px; }
+            .nm-card h2 { font-size: 17px; }
+            .nm-card p, .nm-card li { font-size: 13.5px; }
+            .compare-nm { padding: 16px; }
+            .compare-nm h4 { font-size: 13px; }
+            .compare-nm li { font-size: 12.5px; }
+            .flow-step { padding: 14px 16px; gap: 12px; }
+            .flow-title { font-size: 13.5px; }
+            .flow-desc { font-size: 12.5px; }
+            .cmd-box { padding: 12px 14px; }
+            .cmd-text { font-size: 12px; line-height: 1.7; }
+            .prompt-example { padding: 14px 16px; }
+            .prompt-text { font-size: 12px; line-height: 1.7; }
+            .tip-box, .highlight-box, .inset-box { padding: 16px 18px; }
+            .highlight-box li, .tip-box p { font-size: 13px; }
+            .step-divider { margin: 4px 0 22px; }
+            .step-badge { font-size: 10px; padding: 5px 14px; letter-spacing: 1.5px; }
+            .cta-section { padding: 32px 20px; }
+            .cta-section h3 { font-size: 18px; }
+            .cta-section p { font-size: 13px; }
+            .cta-btn { padding: 11px 22px; font-size: 13px; }
+            .os-badge { font-size: 10px; padding: 4px 10px; margin-left: 8px; }
+            .trouble-item { padding: 16px 18px; }
+            .acc-hint { font-size: 9px; padding: 2px 7px; }
+            .content-section { scroll-margin-top: 108px; }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+            .step-nav { max-width: 100%; margin: 16px 0 14px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 6px; max-width: 14px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+            .nm-card { padding: 20px 16px; }
+            .nm-card h2 { font-size: 16px; padding-left: 12px; }
+            .card-subtitle { font-size: 12px; padding-left: 16px; }
+            .flow-num { width: 26px; height: 26px; font-size: 12px; }
+            .flow-step { padding: 12px 14px; }
+            .nm-card h2 .os-badge { display: inline-flex; margin-left: 0; margin-top: 6px; }
+        }
+
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="claude-orientation.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="ai-fluency.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="claude-code-101.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="harness-engineering.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="loop-engineering.html">5</a>
+        <div class="step-line"></div>
+        <a class="step-node sn-final" href="mcp-examples.html">예제</a>
+    </nav>
+    <a href="index.html" class="back-link">← 목록으로</a>
+    <h1>클로드 코드 101</h1>
+    <p>클로드 코드가 무엇인지부터 설치, 첫 실행, 잘 쓰는 습관까지 한 페이지에서 끝냅니다</p>
+    <div class="track-toggle">
+        <a href="claude-code-101.html" class="track-toggle-btn active">노코드</a>
+        <a href="checklist.html" class="track-toggle-btn">CLI</a>
+    </div>
+    <div class="header-pages">
+        <a href="claude-code-101.html" class="header-page-link active"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="11.5" rx="1.8"/><path d="M9 20h6M12 16v4"/></svg></span> 클로드 코드 101</a>
+        <a href="claude-code-tasks.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg></span> 실전 과제 8가지</a>
+        <a href="github-guide.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 1.5 4.5 5 4 9.5l-2 2h-4l-2-2c-.5-4.5 1-8 4-9.5z"/><circle cx="12" cy="10" r="1.4"/><path d="M9 14.5 7 19M15 14.5 17 19M10 19h4"/></svg></span> GitHub · Vercel · Netlify</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#intro" class="active" data-sec="intro">
+        <span class="sm-num">1</span>
+        <span class="sm-title">클로드 코드란?</span>
+        <span class="sm-sub">개념</span>
+    </a>
+    <a href="#windows" data-sec="windows">
+        <span class="sm-num">2</span>
+        <span class="sm-title">Windows</span>
+        <span class="sm-sub">Git 설치</span>
+    </a>
+    <a href="#mac" data-sec="mac">
+        <span class="sm-num">3</span>
+        <span class="sm-title">Mac</span>
+        <span class="sm-sub">Git 설치</span>
+    </a>
+    <a href="#first-run" data-sec="first-run">
+        <span class="sm-num">4</span>
+        <span class="sm-title">첫 시작</span>
+        <span class="sm-sub">앱 열고 부탁</span>
+    </a>
+    <a href="#tips" data-sec="tips">
+        <span class="sm-num">5</span>
+        <span class="sm-title">잘 쓰는 법</span>
+        <span class="sm-sub">계획·습관</span>
+    </a>
+    <a href="#trouble" data-sec="trouble">
+        <span class="sm-num">6</span>
+        <span class="sm-title">트러블슈팅</span>
+        <span class="sm-sub">막혔을 때</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- 섹션 1: 클로드 코드란? -->
+    <section class="content-section" id="intro">
+        <div class="step-divider anim"><span class="step-badge">클로드 코드란?</span></div>
+
+        <div class="nm-card anim">
+            <h2>채팅 한 번으로 코드와 파일을 다루게 합니다</h2>
+            <p class="card-subtitle">코딩을 몰라도 한국어로 부탁만 하면 됩니다</p>
+
+            <p>클로드 코드는 채팅으로 부탁하면 <strong>실제 파일을 만들고 고치고 정리해 주는 도구</strong>입니다. 비개발자도 평소처럼 "이렇게 해줘"라고 한국어로 말하면, Claude가 알아서 폴더를 둘러보고 파일을 만들거나 바꿉니다.</p>
+
+            <div class="intro-sub-label">두 가지 사용 방식</div>
+            <div class="compare-grid">
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background:#3a7a5a;"></div>
+                        <h4>채팅 앱 방식 (이 가이드)</h4>
+                    </div>
+                    <ul>
+                        <li>Claude Desktop 앱 실행</li>
+                        <li>Code 모드 선택</li>
+                        <li>한국어로 자연어 요청</li>
+                        <li>진행 상황을 채팅에서 확인</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header">
+                        <div class="cmp-dot" style="background:#2a4a7a;"></div>
+                        <h4>터미널 방식 (개발자용)</h4>
+                    </div>
+                    <ul>
+                        <li>터미널(검은 창) 실행</li>
+                        <li><code style="background:rgba(0,0,0,0.07); padding:1px 6px; border-radius:4px;">claude</code> 명령어 입력</li>
+                        <li>슬래시 명령으로 세밀 제어</li>
+                        <li>자동화 워크플로우에 적합</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="intro-divider"></div>
+
+            <div class="intro-sub-label">설치는 두 가지만</div>
+            <div class="flow-steps" style="margin-top:8px;">
+                <div class="flow-step anim d1">
+                    <div class="flow-num">1</div>
+                    <div class="flow-content">
+                        <div class="flow-title">Claude Desktop</div>
+                        <div class="flow-desc">Claude를 쓰는 채팅 앱입니다. 이 안에서 모든 작업이 이뤄집니다.</div>
+                    </div>
+                    <div class="flow-actions">
+                        <a href="https://claude.com/download" target="_blank" rel="noopener" class="flow-btn primary">다운로드 →</a>
+                    </div>
+                </div>
+                <div class="flow-step anim d2">
+                    <div class="flow-num">2</div>
+                    <div class="flow-content">
+                        <div class="flow-title">Git</div>
+                        <div class="flow-desc">파일이 망가졌을 때 한 번에 되돌리는 안전망입니다. 깔아두기만 하면 됩니다. Claude가 알아서 호출합니다.</div>
+                    </div>
+                    <div class="flow-actions">
+                        <a href="#windows" class="flow-btn win">Windows</a>
+                        <a href="#mac" class="flow-btn mac">Mac</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="intro-divider"></div>
+
+            <div class="intro-stats">
+                <div class="intro-stat">
+                    <div class="is-icon">💻</div>
+                    <div class="is-text">
+                        <div class="is-label">코딩 지식 불필요</div>
+                        <div class="is-sub">자연어로 요청</div>
+                    </div>
+                </div>
+                <div class="intro-stat">
+                    <div class="is-icon">⚡</div>
+                    <div class="is-text">
+                        <div class="is-label">10분이면 첫 결과</div>
+                        <div class="is-sub">설치부터 첫 부탁까지</div>
+                    </div>
+                </div>
+                <div class="intro-stat">
+                    <div class="is-icon">🆓</div>
+                    <div class="is-text">
+                        <div class="is-label">무료로 시작</div>
+                        <div class="is-sub">Claude 계정만 있으면</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top:18px;">
+                <div class="hl-title">📋 시작 전 체크리스트</div>
+                <ul>
+                    <li>맥이나 윈도우 PC가 있으신가요 (모바일·태블릿은 아직 안 됩니다)</li>
+                    <li>Claude 계정이 있으신가요. 없으면 <a href="https://claude.com" target="_blank" rel="noopener" style="color:var(--ant-orange);">claude.com</a>에서 무료로 만드세요</li>
+                    <li>새 프로그램을 설치할 수 있는 계정인가요. 회사 PC면 사내 정책을 한 번 확인하세요</li>
+                </ul>
+            </div>
+
+            <div class="tip-box" style="margin-top:14px;">
+                <div class="tip-label">어디까지 맡길 수 있나</div>
+                <p>파일 정리, 엑셀·CSV 가공, 1~3페이지 사내 웹·대시보드, 단발성 데이터 요약처럼 <strong>반나절 안에 끝나는 작업</strong>에 잘 맞습니다. 결제·로그인이 들어가는 외부 서비스, 대용량 DB, 장기 유지보수 시스템은 개발자와 함께 가는 편이 안전합니다.</p>
+            </div>
+
+            <div style="text-align:center; margin-top:24px;">
+                <a href="https://claude.com/download" target="_blank" rel="noopener" class="dl-btn">
+                    Claude Desktop 다운로드 <span>→</span>
+                </a>
+                <p style="font-size:12px; color:#aaa; margin-top:8px;">무료 · Mac · Windows</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 섹션 2: Windows · Git 설치 -->
+    <section class="content-section" id="windows">
+        <div class="step-divider anim"><span class="step-badge">Windows · Git 설치</span></div>
+
+        <div class="nm-card anim">
+            <h2>Windows · Git 설치 <span class="os-badge win">Windows</span></h2>
+            <p class="card-subtitle">내 노트북에 맞는 파일을 고르고, 설치 마법사는 Next만 누르면 됩니다</p>
+
+            <div class="highlight-box" style="margin-top:8px;">
+                <div class="hl-title">🔍 받기 전, 내 윈도우 사양부터 확인하세요</div>
+                <p>Git 설치 파일은 노트북에 따라 <strong>32-bit, 64-bit, ARM64</strong> 세 가지로 나뉩니다. 맞지 않는 파일을 받으면 설치는 되어도 제대로 돌지 않거나 느려집니다. 받기 전에 한 번만 확인하세요.</p>
+                <ul style="margin-top:10px;">
+                    <li>키보드에서 <strong>Windows 키와 Pause/Break 키</strong>를 함께 누르세요. Pause 키가 없는 노트북이면 <strong>시작 → 설정 → 시스템 → 정보</strong> 순서로 들어가도 됩니다.</li>
+                    <li>열린 화면의 <strong>"장치 사양"</strong> 항목에서 <strong>"시스템 종류"</strong> 줄을 찾으세요.</li>
+                    <li>그 줄에 적힌 내용을 보고 받을 파일을 고르면 됩니다.</li>
+                </ul>
+                <div class="compare-grid" style="margin-top:14px;">
+                    <div class="compare-nm">
+                        <div class="cmp-header">
+                            <div class="cmp-dot" style="background:#0064B0;"></div>
+                            <h4>64-bit (대부분 여기)</h4>
+                        </div>
+                        <ul>
+                            <li>"64비트 운영 체제, x64 기반 프로세서"</li>
+                            <li>최근 5~10년 안에 산 노트북은 거의 다 여기에 해당합니다</li>
+                            <li>git-scm.com의 기본 다운로드 버튼을 누르면 이 파일이 받아집니다</li>
+                        </ul>
+                    </div>
+                    <div class="compare-nm">
+                        <div class="cmp-header">
+                            <div class="cmp-dot" style="background:#8a4a2a;"></div>
+                            <h4>32-bit 또는 ARM64</h4>
+                        </div>
+                        <ul>
+                            <li><strong>"32비트 운영 체제, x86 기반 프로세서"</strong>면 32-bit 설치 파일을 받으세요</li>
+                            <li><strong>"ARM 기반 프로세서"</strong>(예: Snapdragon 노트북)면 ARM64 설치 파일을 받으세요</li>
+                            <li>두 경우 모두 git-scm.com 페이지 아래의 <a href="https://git-scm.com/downloads/win" target="_blank" rel="noopener" style="color:var(--ant-orange); font-weight:600;">"Other Git for Windows downloads"</a>에서 직접 고르면 됩니다</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-steps" style="margin-top:18px;">
+                <div class="flow-step">
+                    <div class="flow-num">1</div>
+                    <div class="flow-content">
+                        <div class="flow-title">공식 사이트 접속</div>
+                        <div class="flow-desc"><a href="https://git-scm.com/download/win" target="_blank" rel="noopener">git-scm.com/download/win</a>에 접속하세요. 위에서 확인한 사양에 맞는 파일을 받으면 됩니다. 64-bit면 메인 버튼을 누르고, 32-bit나 ARM64면 페이지 아래 <strong>"Other Git for Windows downloads"</strong>에서 고르세요.</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">2</div>
+                    <div class="flow-content">
+                        <div class="flow-title">설치 파일 더블클릭</div>
+                        <div class="flow-desc">받은 Git 설치 파일을 더블클릭하세요. 옵션 화면이 여러 번 뜨는데, 모두 Next를 누르고 마지막에 Install을 누르면 됩니다. 기본값이 가장 무난합니다.</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">3</div>
+                    <div class="flow-content">
+                        <div class="flow-title">끝</div>
+                        <div class="flow-desc">"Finish" 화면이 뜨면 닫으세요. Git은 평소에 직접 쓸 일이 거의 없습니다. Claude가 알아서 호출해 줍니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">Git을 따로 열어 봐야 하나요</div>
+                <p>아니요. 설치만 해두면 됩니다. 작업 중 파일이 잘못됐을 때 Claude한테 <strong>"방금 작업 되돌려줘"</strong>라고 부탁하면, Claude가 Git을 대신 써줍니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 섹션 3: Mac · Git 설치 -->
+    <section class="content-section" id="mac">
+        <div class="step-divider anim"><span class="step-badge">Mac · Git 설치</span></div>
+
+        <div class="nm-card anim">
+            <h2>Mac · Git 설치 <span class="os-badge mac">macOS</span></h2>
+            <p class="card-subtitle">맥은 더 간단합니다. 자동으로 깔립니다</p>
+
+            <p>macOS는 Git이 시스템 안에 들어 있어서 별도 다운로드가 필요 없습니다. <strong>처음 한 번만 깔라는 안내를 받아주면</strong> 그걸로 끝입니다.</p>
+
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="flow-num">1</div>
+                    <div class="flow-content">
+                        <div class="flow-title">터미널 열기</div>
+                        <div class="flow-desc"><code>Cmd + Space</code>로 Spotlight를 열고 <strong>터미널</strong>이라고 치면 검은 창이 뜹니다.</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">2</div>
+                    <div class="flow-content">
+                        <div class="flow-title">한 줄만 치기</div>
+                        <div class="flow-desc">아래 한 줄을 복사해 붙여 넣고 엔터를 누르세요. Git이 없으면 맥이 자동으로 설치 창을 띄워줍니다. <strong>"설치"</strong>를 누르면 됩니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cmd-box">
+                <div class="cmd-label">Terminal (macOS)</div>
+                <div class="cmd-text">xcode-select --install</div>
+            </div>
+
+            <div class="tip-box">
+                <div class="tip-label">"이미 설치되어 있습니다" 메시지가 뜨면</div>
+                <p>이미 다 됐다는 뜻입니다. 그대로 터미널을 닫으셔도 됩니다. 다음 단계로 가세요.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 섹션 4: 첫 시작 -->
+    <section class="content-section" id="first-run">
+        <div class="step-divider anim"><span class="step-badge">첫 시작</span></div>
+
+        <div class="nm-card anim">
+            <h2>Claude Desktop 열고 첫 부탁 시키기</h2>
+            <p class="card-subtitle">Windows와 Mac 모두 같은 흐름입니다</p>
+
+            <p>이제부터는 모든 작업이 <strong>Claude Desktop 채팅창 안</strong>에서 이뤄집니다. 명령어를 외울 필요 없습니다. 한국어로 부탁만 하면 됩니다.</p>
+
+            <div class="flow-steps" style="margin-top:14px;">
+                <div class="flow-step">
+                    <div class="flow-num">1</div>
+                    <div class="flow-content">
+                        <div class="flow-title">작업 폴더 미리 만들어두기</div>
+                        <div class="flow-desc">바탕화면이나 문서 폴더에 빈 폴더를 하나 만드세요. 예를 들어 <strong>claude-test</strong>라는 이름이면 됩니다. 이 폴더가 Claude의 작업 공간이 됩니다.</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">2</div>
+                    <div class="flow-content">
+                        <div class="flow-title">Claude Desktop 실행</div>
+                        <div class="flow-desc">앱을 켭니다. 채팅 화면이 뜨면 됩니다.</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">3</div>
+                    <div class="flow-content">
+                        <div class="flow-title">Code 모드 켜기</div>
+                        <div class="flow-desc">채팅 입력창 <strong>왼쪽 하단의 + 버튼</strong> 또는 위쪽 <strong>모델 선택 드롭다운</strong>에서 <strong>"Claude Code"</strong>를 고르세요. 선택하면 입력창 위에 "Code" 표시가 뜹니다.</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">4</div>
+                    <div class="flow-content">
+                        <div class="flow-title">작업 폴더 알려주기</div>
+                        <div class="flow-desc">화면 안내에 따라 1단계에서 만든 폴더를 선택하세요. 폴더를 채팅창에 그냥 끌어 놓아도 됩니다.</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">5</div>
+                    <div class="flow-content">
+                        <div class="flow-title">자연어로 부탁하기</div>
+                        <div class="flow-desc">아래 예시를 그대로 복사해 넣어보세요. Claude가 폴더를 둘러보고 답을 줍니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cmd-box">
+                <div class="cmd-label">첫 부탁 예시</div>
+                <div class="cmd-text">이 폴더에 뭐가 들어 있는지 보고, 내가 여기서 어떤 일을 할 수 있을지 한 문장으로 말해줘.</div>
+            </div>
+
+            <div class="highlight-box" style="margin-top:18px;">
+                <div class="hl-title">✅ 답이 돌아오면 끝</div>
+                <p>Claude가 폴더 안을 둘러보고 답을 주면 설치와 첫 실행 모두 정상입니다. 이제 진짜 작업을 시작할 수 있습니다.</p>
+            </div>
+
+            <div class="tip-box" style="margin-top:14px;">
+                <div class="tip-label">"파일에 접근해도 될까요"</div>
+                <p>Claude는 파일을 만들거나 바꾸기 전에 매번 물어봅니다. 처음에는 <strong>꼼꼼히 읽고 허용</strong>하세요. 익숙해진 뒤에 자주 쓰는 동작만 자동 허용으로 바꾸셔도 됩니다.</p>
+            </div>
+
+            <div class="tip-box" style="margin-top:14px;">
+                <div class="tip-label">중요한 파일은 작업 폴더 밖에 두세요</div>
+                <p>Claude는 알려준 폴더 안에서만 작업합니다. 그래서 <strong>건드리면 안 되는 파일은 처음부터 작업 폴더에 넣지 않는 것</strong>이 가장 안전합니다. 회사 기밀 문서·계약서·미공개 재무 자료는 별도 폴더에 두세요.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 섹션 5: 잘 쓰는 법 -->
+    <section class="content-section" id="tips">
+        <div class="step-divider anim"><span class="step-badge">잘 쓰는 법</span></div>
+
+        <div class="nm-card anim">
+            <h2>잘 쓰는 5가지 습관</h2>
+            <p class="card-subtitle">알아두면 실패 확률을 크게 줄입니다</p>
+
+            <div class="flow-steps" style="margin-top:8px;">
+                <div class="flow-step">
+                    <div class="flow-num">1</div>
+                    <div class="flow-content">
+                        <div class="flow-title">실행 전, 무엇을 만들지부터 정리하기</div>
+                        <div class="flow-desc">바로 "만들어줘"라고 하면 안 됩니다. <strong>방향이 잘못된 채로 작업이 시작되면 중간에 되돌리기 어렵습니다.</strong> 한국어로 부탁하기 전에, 짧게라도 무엇을 만들지부터 채팅에서 정리하세요.</div>
+
+                        <div class="acc-header" onclick="toggleAcc(this)" style="margin-top:12px;">
+                            <div style="display:flex; align-items:center; flex:1;">
+                                <span class="acc-hint">자세히 보기</span>
+                                <span style="font-size:13px; font-weight:600; color:#3A3530;">멀티 페르소나 검토 + 프롬프트 예시</span>
+                            </div>
+                            <span class="acc-toggle">▾</span>
+                        </div>
+                        <div class="acc-body">
+                            <div class="highlight-box" style="margin-top:14px;">
+                                <div class="hl-title">💡 여러 시각으로 한 번 더 보기</div>
+                                <p>혼자 생각하면 놓치는 부분이 많습니다. Claude에게 <strong>기획자, 개발자, 실사용자 세 사람의 시각</strong>으로 같은 아이디어를 검토시키면, 빠진 곳이 잘 보입니다.</p>
+                                <ul>
+                                    <li><strong>기획자:</strong> 이 기능이 정말 필요한가, 더 간단한 방법은 없는가</li>
+                                    <li><strong>개발자:</strong> 구현할 때 막히는 부분은 없는가, 예상 복잡도는 어느 정도인가</li>
+                                    <li><strong>실사용자:</strong> 실제로 쓸 때 불편하지는 않은가, 빠진 것은 없는가</li>
+                                </ul>
+                                <p style="margin-top:10px;">이 방식을 더 깊게 쓰고 싶으면 <a href="multi-persona.html" style="color:var(--ant-orange); font-weight:600;">멀티 페르소나 가이드</a>를 참고하세요.</p>
+                            </div>
+
+                            <div class="prompt-example" style="margin-top:14px;">
+                                <div class="prompt-label">계획 토론 프롬프트</div>
+                                <div class="prompt-text">나는 [만들고 싶은 것]을 만들려고 해.
+
+세 사람의 시각으로 검토해줘:
+1. 기획자: 목적과 범위가 적절한지, 더 쉬운 접근법은 없는지
+2. 시니어 개발자: 기술적으로 무엇이 필요한지, 함정은 무엇인지
+3. 실사용자: 쓰다 보면 뭐가 불편할 것 같은지
+
+토론 후 합의된 최종 계획을 정리해줘.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">2</div>
+                    <div class="flow-content">
+                        <div class="flow-title">작게 쪼개서 부탁하기</div>
+                        <div class="flow-desc">한 번에 너무 많이 요청하면 방향이 틀어져도 되돌리기 어렵습니다. <strong>"1단계만 먼저 만들어줘, 확인하고 이어서 진행할게"</strong>가 훨씬 안전합니다.</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">3</div>
+                    <div class="flow-content">
+                        <div class="flow-title">시작 전과 잘 된 시점에 백업하기</div>
+                        <div class="flow-desc">Claude는 파일을 직접 수정하거나 삭제합니다. 작업 시작 전에 <strong>"git commit으로 현재 상태부터 저장해줘"</strong>를 부탁하고, 중간 결과가 마음에 들면 그때마다 한 번 더 같은 부탁을 하세요. 다음 작업이 잘못돼도 여기까지는 안전하게 돌아올 수 있습니다.</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">4</div>
+                    <div class="flow-content">
+                        <div class="flow-title">구체적으로 요청하기</div>
+                        <div class="flow-desc">"예쁘게 만들어줘"보다 <strong>"배경은 흰색, 텍스트는 16px 이상, 버튼은 파란색"</strong>이 훨씬 정확합니다. 색, 크기, 동작을 한 줄씩 풀어 적어주세요.</div>
+                    </div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-num">5</div>
+                    <div class="flow-content">
+                        <div class="flow-title">중간에 멈추고 개입하기</div>
+                        <div class="flow-desc">예상과 다른 방향으로 가면 끝까지 두지 말고 바로 <strong>"잠깐, 이 부분은 다시 생각해보자"</strong>라고 끊으세요. 빠르게 끊을수록 되돌릴 양이 줄어듭니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top:18px;">
+                <div class="hl-title">🚨 잘못됐을 때, 되돌리는 순서</div>
+                <ol style="padding-left:20px; margin-top:8px;">
+                    <li><strong>즉시 멈추고 상태 확인:</strong> "작업 중단. 지금까지 수정한 파일 목록을 알려줘"</li>
+                    <li><strong>Git이 있으면 한 줄로 복구:</strong> "git으로 마지막 커밋 상태로 되돌려줘"</li>
+                    <li><strong>Git이 없으면 백업에서 복구:</strong> 작업 전 백업 폴더에서 원본을 꺼내 덮어쓰세요</li>
+                    <li><strong>원인 반영 후 재시작:</strong> "이번엔 이렇게 하지 말아줘"라는 규칙을 다음 부탁에 미리 적어 다시 요청하세요</li>
+                </ol>
+            </div>
+
+            <div class="tip-box" style="margin-top:14px;">
+                <div class="tip-label">예방이 최선</div>
+                <p>작업 시작 전 <strong>"먼저 git commit으로 현재 상태 저장부터 해줘"</strong> 한 줄이면 돌이킬 수 없는 사고를 거의 막을 수 있습니다. Git을 몰라도 Claude가 알아서 처리합니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 섹션 6: 트러블슈팅 -->
+    <section class="content-section" id="trouble">
+        <div class="step-divider anim"><span class="step-badge">트러블슈팅</span></div>
+
+        <div class="nm-card anim">
+            <h2>자주 막히는 곳</h2>
+            <p class="card-subtitle">설치하거나 첫 실행하다가 멈추면 여기서 먼저 보세요</p>
+
+            <div class="trouble-item">
+                <h4>Claude Desktop이 안 열려요 <span class="trouble-os both">공통</span></h4>
+                <p>PC를 한 번 다시 켜보세요. 그래도 안 열리면 앱을 한 번 지우고 <a href="https://claude.com/download" target="_blank" rel="noopener">claude.com/download</a>에서 새로 받아 설치해 보세요.</p>
+            </div>
+
+            <div class="trouble-item">
+                <h4>"확인되지 않은 개발자"라며 실행이 안 됩니다 <span class="trouble-os mac">macOS</span></h4>
+                <p>맥의 보안 안내입니다. <strong>시스템 설정 → 개인정보 보호 및 보안</strong>으로 들어가면 아래쪽에 "Claude를 그래도 열기" 버튼이 있습니다. 그걸 누르면 됩니다.</p>
+            </div>
+
+            <div class="trouble-item">
+                <h4>채팅창에서 "Claude Code" 메뉴가 안 보입니다 <span class="trouble-os both">공통</span></h4>
+                <p>앱이 옛 버전일 수 있습니다. <strong>앱을 한 번 종료했다가 다시 열어보세요</strong>. 자동으로 최신 버전으로 올라옵니다. 그래도 없으면 <a href="https://claude.com/download" target="_blank" rel="noopener">claude.com/download</a>에서 최신 버전을 다시 받으세요.</p>
+            </div>
+
+            <div class="trouble-item">
+                <h4>로그인 화면에서 막힙니다 <span class="trouble-os both">공통</span></h4>
+                <p>브라우저에서 한 번 <a href="https://claude.com" target="_blank" rel="noopener">claude.com</a>으로 로그인이 되는지 먼저 확인하세요. 거기서 되면 앱을 껐다 켜시면 보통 풀립니다.</p>
+            </div>
+
+            <div class="trouble-item">
+                <h4>폴더 접근을 허용했는데 Claude가 못 본다고 합니다 <span class="trouble-os mac">macOS</span></h4>
+                <p><strong>시스템 설정 → 개인정보 보호 및 보안 → 파일 및 폴더</strong>에서 Claude 앱이 해당 폴더에 체크되어 있는지 확인하세요.</p>
+            </div>
+
+            <div class="trouble-item">
+                <h4>폴더 접근을 허용했는데 Claude가 못 본다고 합니다 <span class="trouble-os win">Windows</span></h4>
+                <p><strong>OneDrive 동기화 폴더</strong>처럼 클라우드와 묶인 폴더는 피하고 평범한 로컬 폴더를 골라보세요.</p>
+            </div>
+
+            <div class="trouble-item">
+                <h4>회사 PC라서 설치가 막힙니다 <span class="trouble-os both">공통</span></h4>
+                <p>회사 보안 정책이 외부 앱 설치를 막는 경우입니다. 사내 IT 담당자에게 <strong>Claude Desktop과 Git 설치를 요청</strong>하세요. 두 도구 모두 공식적으로 검증된 프로그램입니다.</p>
+            </div>
+
+            <div class="highlight-box" style="margin-top:18px;">
+                <div class="hl-title">💡 그래도 안 풀리면</div>
+                <p>가장 빠른 길은 <strong>화면에 뜬 메시지를 그대로 캡처해 Claude 채팅에 붙여 넣고 "이게 뭐예요"라고 묻는 것</strong>입니다. 윈도우인지 맥인지, 어느 단계에서 막혔는지만 같이 알려주세요. 거의 한 번에 답이 나옵니다.</p>
+            </div>
+        </div>
+
+        <!-- CTA 섹션 -->
+        <div class="cta-section anim">
+            <h3>이제 직접 만들어볼 차례입니다</h3>
+            <p>설치와 첫 실행이 끝났다면 다음 단계로 넘어가세요.<br>스탑워치, 반려동물 웹사이트, 엑셀 대시보드 등 8가지 실전 프로젝트가 기다립니다.</p>
+            <div class="cta-buttons">
+                <a class="cta-btn primary" href="claude-code-tasks.html">🎯 실전 과제 8가지 →</a>
+                <a class="cta-btn secondary" href="github-guide.html">🚀 GitHub &amp; Vercel 배포</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+// Accordion
+function toggleAcc(header) {
+    var body = header.nextElementSibling;
+    var isOpen = header.classList.contains('open');
+    header.classList.toggle('open', !isOpen);
+    body.classList.toggle('open', !isOpen);
+}
+
+// 커맨드/프롬프트 박스 복사 버튼
+document.querySelectorAll('.cmd-box, .prompt-example').forEach(function(box) {
+    var label = box.querySelector('.cmd-label') || box.querySelector('.prompt-label');
+    var textEl = box.querySelector('.cmd-text') || box.querySelector('.prompt-text');
+    if (!label || !textEl) return;
+    var btn = document.createElement('button');
+    btn.className = 'cmd-copy-btn';
+    btn.textContent = '복사';
+    btn.addEventListener('click', function() {
+        navigator.clipboard.writeText(textEl.textContent).then(function() {
+            btn.textContent = '복사됨!';
+            btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+    label.appendChild(btn);
+});
+
+// Scroll Progress Bar
+(function() {
+    var bar = document.getElementById('progressBar');
+    function update() {
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = (docHeight > 0 ? (scrollTop / docHeight) * 100 : 0) + '%';
+    }
+    window.addEventListener('scroll', update, { passive: true });
+})();
+
+// Scroll Animations
+(function() {
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.anim').forEach(function(el) { observer.observe(el); });
+})();
+
+// Sub Menu Scroll Spy
+(function() {
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l) {
+        var s = document.getElementById(l.dataset.sec);
+        if (s) sections.push({ id: l.dataset.sec, el: s, link: l });
+    });
+
+    function update() {
+        // CSS scroll-margin-top과 동일한 기준으로 활성 섹션 판정.
+        // 그래야 클릭 후 정확히 그 섹션이 active로 표시됨.
+        var sample = sections[0] ? sections[0].el : null;
+        var smt = sample ? (parseInt(window.getComputedStyle(sample).scrollMarginTop, 10) || 0) : 0;
+        var scrollY = window.scrollY + smt + 5;
+        var current = sections[0];
+        for (var i = 0; i < sections.length; i++) {
+            if (sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l) { l.classList.remove('active'); });
+        if (current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if (activeLink) {
+            var nav = document.getElementById('subMenu');
+            var lRect = activeLink.getBoundingClientRect();
+            var nRect = nav.getBoundingClientRect();
+            if (lRect.left < nRect.left || lRect.right > nRect.right) {
+                // 가로 서브메뉴만 스크롤한다. sticky 컨테이너 안에서 scrollIntoView를 부르면
+                // 브라우저가 창을 서브메뉴의 원래(고정 전) 위치로 끌어올려 하단을 못 보게 만든다.
+                var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.clientWidth) / 2;
+                nav.scrollTo({left: target, behavior: 'smooth'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+})();
+</script>
+
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #B0544A; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    header { padding-top: 24px !important; }
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 50px 0 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+
+<!-- 가이드 소개 모달: 단일 소스 assets/about-modal.js 에서 주입 -->
+<script src="assets/about-modal.js"></script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+</body>
+</html>

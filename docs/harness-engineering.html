@@ -1,0 +1,3227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
+    <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/harness-engineering.html">
+    <meta property="og:title" content="AI ROASTING · Claude 완전 정복">
+    <meta property="og:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/harness-engineering.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI ROASTING · Claude 완전 정복">
+    <meta name="twitter:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>하네스 엔지니어링 실전: Anthropic 사례 | AI ROASTING</title>
+    <meta name="description" content="Anthropic이 직접 공개한 장기 실행 앱 개발용 하네스 설계 사례. Generator-Evaluator 아키텍처부터 레트로 게임 메이커, DAW까지.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --page-bg: #E7E2D9;
+            --nm-bg: #FCFBF8;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 0 0 0 1px rgba(58,53,48,.06), 0 1px 2px rgba(58,53,48,.04), 0 14px 30px -12px rgba(58,53,48,.16);
+            --nm-shadow-sm: 0 0 0 1px rgba(58,53,48,.07), 0 1px 3px rgba(58,53,48,.06);
+            --nm-inset: inset 0 0 0 1px rgba(58,53,48,.09);
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+            --skill-blue: #3B82F6;
+            --skill-green: #10B981;
+            --skill-amber: #F59E0B;
+            --skill-purple: #8B5CF6;
+            --skill-pink: #EC4899;
+            --skill-cyan: #06B6D4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { word-break: keep-all; font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--page-bg); color: #3A3530; line-height: 1.6; }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+        /* ── Mode Tabs ── */
+        .mode-tabs {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 4px;
+            margin-top: 12px;
+            position: relative; z-index: 1;
+        }
+        .mode-tab {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.55);
+            padding: 5px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            border: none;
+            background: none;
+            font-family: inherit;
+        }
+        .mode-tab.active {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
+
+        /* ── Header Page Links ── */
+        .header-pages {
+            max-width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .header-page-link {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 9px 10px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1;
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .hpl-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; flex-shrink: 0;
+        }
+        .hpl-icon svg { width: 16px; height: 16px; display: block; }
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #B0544A;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 100px; }
+        .step-divider { scroll-margin-top: 130px; }
+        #case1.step-divider, #case3.step-divider { scroll-margin-top: 160px; }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 클러스터 박스 (관련 블록 묶음) ── */
+        .cluster-box {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 22px 24px 24px;
+            margin: 16px 0 8px;
+        }
+        .cluster-box > .analogy-grid { margin-top: 0; margin-bottom: 16px; }
+        .cluster-box > .key-message { margin: 0; }
+
+        /* ── analogy 2열 그리드 ── */
+        .analogy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 8px 0; }
+        .analogy-grid .analogy-box {
+            margin-bottom: 0;
+            padding: 20px 22px;
+            flex-direction: column;
+            align-items: stretch;
+            text-align: left;
+            gap: 6px;
+        }
+        .analogy-grid .analogy-head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .analogy-grid .analogy-head .analogy-titles strong {
+            display: block;
+            font-size: 16px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 4px;
+        }
+        .analogy-grid .analogy-head .analogy-titles strong:last-child { margin-bottom: 0; }
+        .analogy-grid .analogy-body p { font-size: 14px; color: #5C5650; line-height: 1.75; margin: 0; }
+        .analogy-grid .analogy-body strong {
+            display: inline;
+            font-size: inherit;
+            margin-bottom: 0;
+            font-weight: 700;
+            color: #3A3530;
+        }
+        @media (max-width: 768px) { .analogy-grid { grid-template-columns: 1fr; } }
+
+        /* ── 섹션 박스 (각 섹션의 외곽 컨테이너) ── */
+        .section-box {
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            margin-bottom: 32px;
+        }
+        .section-box > .nm-card {
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+            padding: 14px 4px;
+            margin-bottom: 0;
+        }
+        .section-box > .nm-card:last-child {
+            padding-bottom: 6px;
+        }
+        .section-box > .nm-card:first-child {
+            padding-top: 4px;
+        }
+        .section-box > .nm-card:first-child {
+            padding-top: 8px;
+        }
+        .section-box > .nm-card:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        .section-box > .analogy-box,
+        .section-box > .key-message {
+            box-shadow: var(--nm-shadow-sm);
+            margin: 16px 0;
+        }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            border-left: 4px solid var(--ant-orange);
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; padding-left: 20px; }
+
+        /* ── 스크롤 프로그레스 바 ── */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;
+            background: linear-gradient(90deg, var(--ant-orange), #E8956E);
+            width: 0%; transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(217,119,87,0.4);
+        }
+
+        /* ── 섹션 구분 ── */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 30px 0 28px; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: rgba(58,53,48,0.14); }
+        .step-badge {
+            font-size: 13px; font-weight: 800;
+            letter-spacing: 0.5px;
+            color: var(--ant-orange); background: #EDEAE4;
+            box-shadow: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            padding: 8px 24px; border-radius: 20px; white-space: nowrap;
+        }
+
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--ant-orange); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 팁 박스 ── */
+        .tip-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            border-left: 4px solid var(--ant-orange);
+            padding: 18px 22px; margin: 16px 0;
+        }
+        .tip-box .tip-label { font-size: 11px; font-weight: 700; color: var(--ant-orange); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .tip-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 강조 박스 ── */
+        .highlight-box {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border: none;
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin: 12px 0 4px;
+        }
+
+        /* ── 섹션 인트로 (박스 최상단 한 줄) ── */
+        .section-intro {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ant-orange);
+            letter-spacing: 0.3px;
+            padding: 0 4px 14px;
+            margin-bottom: 4px;
+            border-bottom: 1px dashed rgba(217,119,87,0.25);
+        }
+        .section-intro .si-label {
+            display: inline-block;
+            background: rgba(217,119,87,0.12);
+            color: var(--ant-orange);
+            padding: 3px 10px;
+            border-radius: 6px;
+            margin-right: 10px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+        .section-intro .si-text { color: #3A3530; font-weight: 700; vertical-align: middle; }
+
+        /* ── 출처 미니 카드 ── */
+        .source-mini {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin: 14px 0 18px;
+        }
+        .source-mini-icon {
+            width: 40px; height: 40px; flex-shrink: 0;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--ant-orange), #C56A4A);
+            color: #fff; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(217,119,87,0.3);
+        }
+        .source-mini-body { flex: 1; min-width: 0; }
+        .source-mini-body .sm-title {
+            font-size: 13px; font-weight: 800; color: #3A3530;
+            display: block; margin-bottom: 2px;
+        }
+        .source-mini-body .sm-meta {
+            font-size: 11px; color: #888; margin-bottom: 6px;
+        }
+        .source-mini-body p { font-size: 13px; color: #5C5650; line-height: 1.7; margin: 0; }
+        .source-mini-body a { color: var(--ant-orange); font-weight: 700; text-decoration: none; }
+        .source-mini-body a:hover { text-decoration: underline; }
+
+        /* ── 문제 2-pack 그리드 ── */
+        .problem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 8px 0 18px;
+        }
+        .problem-card {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 22px 22px 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .problem-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .problem-card.pc-1::before { background: linear-gradient(90deg, #EF4444, #F87171); }
+        .problem-card.pc-2::before { background: linear-gradient(90deg, var(--skill-purple), #A78BFA); }
+        .problem-head {
+            display: flex; align-items: flex-start; gap: 12px;
+        }
+        .problem-num {
+            font-size: 22px; font-weight: 900;
+            background: linear-gradient(135deg, #1A1917, #3A3530);
+            -webkit-background-clip: text; background-clip: text;
+            color: transparent;
+            line-height: 1; flex-shrink: 0;
+            padding-top: 2px;
+        }
+        .problem-card.pc-1 .problem-num {
+            background: linear-gradient(135deg, #EF4444, #F87171);
+            -webkit-background-clip: text; background-clip: text;
+        }
+        .problem-card.pc-2 .problem-num {
+            background: linear-gradient(135deg, var(--skill-purple), #A78BFA);
+            -webkit-background-clip: text; background-clip: text;
+        }
+        .problem-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .problem-title strong {
+            font-size: 16px; font-weight: 800; color: #3A3530;
+        }
+        .problem-title .problem-en {
+            font-size: 11px; color: #999; letter-spacing: 0.5px;
+            text-transform: uppercase; font-weight: 700;
+        }
+        .problem-tagline {
+            font-size: 13px; color: #5C5650; line-height: 1.7;
+            font-weight: 600;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+            margin: 0;
+        }
+        .problem-card .quote-box {
+            margin: 0;
+            padding: 18px 20px 16px 38px;
+            font-size: 13px;
+        }
+        .problem-card .quote-box p { font-size: 13px; line-height: 1.75; padding-left: 0; }
+        .problem-card .quote-box .quote-author { padding-left: 0; }
+        .problem-card .quote-box::before { font-size: 48px; top: 0px; left: 12px; }
+        .problem-card.pc-1 .quote-box {
+            background: linear-gradient(135deg, rgba(239,68,68,0.05) 0%, rgba(239,68,68,0.01) 100%);
+            border-left-color: #EF4444;
+        }
+        .problem-card.pc-1 .quote-box::before { color: rgba(239,68,68,0.18); }
+        .problem-card.pc-2 .quote-box {
+            background: linear-gradient(135deg, rgba(139,92,246,0.05) 0%, rgba(139,92,246,0.01) 100%);
+            border-left-color: #8B5CF6;
+        }
+        .problem-card.pc-2 .quote-box::before { color: rgba(139,92,246,0.18); }
+        .problem-analogy {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 12px;
+            padding: 12px 16px;
+        }
+        .problem-analogy .pa-label {
+            display: inline-block;
+            font-size: 10px; font-weight: 800;
+            color: var(--ant-orange);
+            background: rgba(217,119,87,0.12);
+            padding: 2px 8px; border-radius: 5px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .problem-analogy p { font-size: 13px; color: #5C5650; line-height: 1.7; margin: 0; }
+
+        /* ── 문제 → 원칙 브릿지 ── */
+        .problem-bridge {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: -10px 0 6px;
+            padding: 0 8px;
+        }
+        .pb-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0 2px;
+            --pb-color: #999;
+            --pb-bg: rgba(0,0,0,0.04);
+        }
+        .pb-col.pb-1 { --pb-color: #EF4444; --pb-bg: rgba(239,68,68,0.12); }
+        .pb-col.pb-2 { --pb-color: #8B5CF6; --pb-bg: rgba(139,92,246,0.12); }
+        .pb-line {
+            width: 2px;
+            height: 18px;
+            background: linear-gradient(180deg, var(--pb-color), rgba(255,255,255,0));
+            border-radius: 1px;
+            opacity: 0.85;
+        }
+        .pb-pill {
+            font-size: 10.5px; font-weight: 800;
+            letter-spacing: 0.6px;
+            color: var(--pb-color);
+            background: var(--pb-bg);
+            padding: 4px 12px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .pb-tip {
+            width: 0; height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 7px solid var(--pb-color);
+            opacity: 0.9;
+        }
+
+        /* ── 처방 카드 ── */
+        .solution-card {
+            background: linear-gradient(140deg, #1F1B17 0%, #2A2420 100%);
+            border-radius: 20px;
+            padding: 26px 28px;
+            margin: 4px 0 18px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .solution-card::before {
+            content: '';
+            position: absolute; top: -60px; right: -40px;
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(217,119,87,0.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .solution-card .sc-badge {
+            display: inline-block;
+            font-size: 11px; font-weight: 800;
+            color: var(--ant-orange);
+            background: rgba(217,119,87,0.18);
+            padding: 4px 12px; border-radius: 6px;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 10px;
+        }
+        .solution-card .sc-title {
+            font-size: 20px; font-weight: 800;
+            color: #fff; margin-bottom: 4px;
+            position: relative; z-index: 1;
+        }
+        .solution-card .sc-sub {
+            font-size: 13px; color: rgba(255,255,255,0.65);
+            margin-bottom: 18px;
+            position: relative; z-index: 1;
+        }
+        .solution-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            position: relative; z-index: 1;
+        }
+        .solution-item {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 16px 18px;
+            transition: all 0.25s;
+        }
+        .solution-item:hover {
+            background: rgba(255,255,255,0.10);
+            transform: translateY(-2px);
+        }
+        .solution-item .si-arrow {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 800;
+            color: var(--ant-orange);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .solution-item .si-pill {
+            font-size: 11.5px; font-weight: 800;
+            color: var(--ant-orange);
+            background: rgba(217,119,87,0.18);
+            padding: 5px 12px;
+            border-radius: 999px;
+            letter-spacing: 0.4px;
+            margin-bottom: 12px;
+        }
+        .solution-item--standalone {
+            background: linear-gradient(140deg, #1F1B17 0%, #2A2420 100%);
+            border: none;
+            border-radius: 18px;
+            padding: 22px 22px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .solution-item--standalone::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .solution-item--standalone.si-1::before { background: linear-gradient(90deg, #EF4444, #F87171); }
+        .solution-item--standalone.si-2::before { background: linear-gradient(90deg, #8B5CF6, #A78BFA); }
+        .solution-item--standalone:hover { background: linear-gradient(140deg, #221E19 0%, #2E2723 100%); }
+
+        /* ── 사례 1 원칙 적용 라벨 ── */
+        .principle-pill {
+            display: inline-block;
+            font-size: 11.5px; font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 999px;
+            letter-spacing: 0.4px;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+        }
+        .principle-pill.pp-1 { background: rgba(239,68,68,0.12); color: #EF4444; }
+        .principle-pill.pp-2 { background: rgba(139,92,246,0.12); color: #8B5CF6; }
+        .nm-card.pc-applied-1 { border-top: 3px solid #EF4444; }
+        .nm-card.pc-applied-2 { border-top: 3px solid #8B5CF6; }
+        .nm-card .sub-section-title {
+            font-size: 16px; font-weight: 800; color: #3A3530;
+            margin: 28px 0 12px; padding-left: 0;
+        }
+
+        /* ── 사례 1 원칙 2-pack ── */
+        .applied-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 8px 0 0;
+        }
+        .applied-card {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 22px 22px 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .applied-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+        .applied-card.ac-1::before { background: linear-gradient(90deg, #EF4444, #F87171); }
+        .applied-card.ac-2::before { background: linear-gradient(90deg, #8B5CF6, #A78BFA); }
+        .applied-card h3 {
+            font-size: 17px; font-weight: 800; color: #3A3530;
+            margin: 4px 0 0;
+        }
+        .applied-card .ac-tagline {
+            font-size: 13px; color: #5C5650; line-height: 1.7;
+            font-weight: 600;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+            margin: 0;
+        }
+        .applied-card ul {
+            font-size: 13px; color: #5C5650; line-height: 1.75;
+            padding-left: 18px; margin: 0;
+        }
+        .applied-card li { margin-bottom: 4px; }
+        .applied-card .principle-pill { margin-bottom: 0; }
+
+        @media (max-width: 768px) {
+            .applied-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── 역할 분담 카드 (3-col 지원 + 새 색상) ── */
+        .applied-grid.three-col { grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+        @media (max-width: 768px) {
+            .applied-grid.three-col { grid-template-columns: 1fr; }
+        }
+        .applied-card.ac-planner::before { background: linear-gradient(90deg, #6366F1, #818CF8); }
+        .applied-card.ac-generator::before { background: linear-gradient(90deg, #D97759, #F59E0B); }
+        .applied-card.ac-evaluator::before { background: linear-gradient(90deg, #14B8A6, #2DD4BF); }
+        .principle-pill.pp-planner   { background: rgba(99,102,241,0.12); color: #4F46E5; }
+        .principle-pill.pp-generator { background: rgba(217,119,89,0.16); color: #B45309; }
+        .principle-pill.pp-evaluator { background: rgba(20,184,166,0.14); color: #0F766E; }
+        .applied-card .role-io {
+            list-style: none; padding-left: 0; margin: 0;
+            display: flex; flex-direction: column;
+            font-size: 13px; color: #5C5650; line-height: 1.65;
+        }
+        .applied-card .role-io li {
+            display: grid; grid-template-columns: 64px 1fr; gap: 10px;
+            margin-bottom: 0; padding: 8px 0;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+        .applied-card .role-io li:first-child { border-top: none; padding-top: 2px; }
+        .applied-card .role-io strong {
+            font-size: 11px; font-weight: 800; color: #3A3530;
+            letter-spacing: 0.6px;
+            padding-top: 2px;
+        }
+        .applied-card .role-io span { display: block; }
+
+        /* ── 역할 카드 통합 pill (이름 + 역할 라벨 한 버튼) ── */
+        .applied-card .role-card-pill {
+            display: inline-flex; align-items: baseline; gap: 10px;
+            padding: 9px 16px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            border: 1px solid transparent;
+        }
+        .applied-card .role-card-pill strong {
+            font-size: 17px; font-weight: 800;
+        }
+        .applied-card .role-card-pill span {
+            font-size: 11px; font-weight: 800; opacity: 0.78;
+            letter-spacing: 0.5px;
+        }
+        .applied-card .role-card-pill.rcp-planner {
+            background: rgba(99,102,241,0.13);
+            color: #4F46E5;
+            border-color: rgba(99,102,241,0.22);
+        }
+        .applied-card .role-card-pill.rcp-generator {
+            background: rgba(217,119,89,0.16);
+            color: #B45309;
+            border-color: rgba(217,119,89,0.24);
+        }
+        .applied-card .role-card-pill.rcp-evaluator {
+            background: rgba(20,184,166,0.14);
+            color: #0F766E;
+            border-color: rgba(20,184,166,0.24);
+        }
+
+        /* ── 원칙 1 → 역할 섹션 내려오는 화살표 (인라인) ── */
+        .role-arrow-down {
+            position: relative;
+            height: 32px;
+            margin: 14px 0 6px;
+        }
+        .role-arrow-down::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 25%;
+            transform: translateX(-50%);
+            width: 2px; height: 22px;
+            background: linear-gradient(180deg, rgba(239,68,68,0.35), #EF4444);
+            border-radius: 2px;
+        }
+        .role-arrow-down::after {
+            content: "";
+            position: absolute;
+            top: 21px; left: 25%;
+            margin-left: -7px;
+            width: 0; height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 9px solid #EF4444;
+        }
+        @media (max-width: 768px) {
+            .role-arrow-down::before { left: 50%; }
+            .role-arrow-down::after { left: 50%; }
+        }
+
+        /* ── 원칙 1 풀어보기 (zoom-in callout) ── */
+        .zoom-in-section {
+            position: relative;
+            margin-top: 44px;
+        }
+        .zoom-in-section .zoom-arrow {
+            position: absolute;
+            top: -34px; left: 25%;
+            transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center;
+            pointer-events: none;
+        }
+        .zoom-in-section .zoom-arrow::before {
+            content: "";
+            width: 2px; height: 22px;
+            background: linear-gradient(180deg, rgba(239,68,68,0.35), #EF4444);
+            border-radius: 2px;
+        }
+        .zoom-in-section .zoom-arrow::after {
+            content: "";
+            width: 0; height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 9px solid #EF4444;
+            margin-top: -1px;
+        }
+        .zoom-in-card {
+            background: linear-gradient(180deg, rgba(239,68,68,0.07) 0%, rgba(239,68,68,0.015) 100%);
+            border: 1px solid rgba(239,68,68,0.22);
+            border-radius: 14px;
+            padding: 22px 22px 20px;
+            position: relative;
+        }
+        .zoom-in-pill {
+            display: inline-block;
+            background: rgba(239,68,68,0.14);
+            color: #DC2626;
+            font-size: 11.5px; font-weight: 800;
+            padding: 6px 14px;
+            border-radius: 999px;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .zoom-in-title {
+            font-size: 17px; font-weight: 800; color: #3A3530;
+            margin: 4px 0 16px;
+            line-height: 1.5;
+        }
+        @media (max-width: 768px) {
+            .zoom-in-section .zoom-arrow { left: 50%; }
+        }
+
+        .solution-item strong {
+            display: block;
+            font-size: 15px; font-weight: 800; color: #fff;
+            margin-bottom: 6px;
+        }
+        .solution-item p {
+            font-size: 12.5px; color: rgba(255,255,255,0.7);
+            line-height: 1.65; margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .problem-grid { grid-template-columns: 1fr; }
+            .solution-grid { grid-template-columns: 1fr; }
+            .problem-bridge { grid-template-columns: 1fr; gap: 4px; }
+            .source-mini { padding: 14px 16px; gap: 12px; }
+            .solution-card { padding: 22px 20px; }
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* ── 비교 그리드 ── */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm { background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm); padding: 20px; position: relative; overflow: hidden; transition: transform 0.25s; }
+        .compare-nm:hover { transform: translateY(-2px); }
+        .compare-nm::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
+        .compare-nm:first-child::before { background: #EF4444; }
+        .compare-nm:last-child::before { background: var(--skill-green); }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul { padding-left: 16px; }
+
+        /* ── 뉴모 테이블 ── */
+        .nm-table-wrap {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .nm-table-wrap table { width: 100%; border-collapse: collapse; }
+        .nm-table-wrap thead { background: var(--ant-dark); }
+        .nm-table-wrap th {
+            text-align: left; padding: 12px 16px;
+            font-size: 14px; font-weight: 600; color: #fff;
+        }
+        .nm-table-wrap td {
+            padding: 12px 16px; font-size: 14px; color: #5C5650;
+            border-bottom: 1px solid #E8E4DE;
+        }
+        .nm-table-wrap tbody tr:nth-child(even) { background: rgba(0,0,0,0.015); }
+        .nm-table-wrap tbody tr:last-child td { border-bottom: none; }
+        .nm-table-wrap tbody tr.build-row,
+        .nm-table-wrap tbody tr.build-row:nth-child(even) { background: rgba(217,119,87,0.14); }
+        .nm-table-wrap tbody tr:hover { background: rgba(217,119,87,0.06); }
+        .nm-table-wrap tbody tr.build-row:hover { background: rgba(217,119,87,0.20); }
+
+        /* ── 3열 역할 카드 ── */
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+        .role-card {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .role-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .role-card:nth-child(1)::before { background: linear-gradient(90deg, var(--skill-blue), #60A5FA); }
+        .role-card:nth-child(2)::before { background: linear-gradient(90deg, var(--ant-orange), #E8956E); }
+        .role-card:nth-child(3)::before { background: linear-gradient(90deg, var(--skill-purple), #A78BFA); }
+        .role-card:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 12px 26px -10px rgba(58,53,48,.20); }
+        .role-icon { font-size: 32px; margin-bottom: 12px; }
+        .role-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 8px; }
+        .role-card p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .role-card .role-example {
+            margin-top: 12px; padding-top: 12px;
+            border-top: 1px solid #E8E4DE;
+            font-size: 12px; color: #888; line-height: 1.6;
+            text-align: left;
+        }
+
+        /* ── 6칸 구성요소 그리드 ── */
+        .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .comp-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .comp-item:hover { transform: translateY(-2px); }
+        .comp-item .comp-icon { font-size: 24px; margin-bottom: 8px; }
+        .comp-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 4px; }
+        .comp-item .comp-q { font-size: 12px; color: var(--ant-orange); font-weight: 600; margin-bottom: 8px; }
+        .comp-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-1px); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+        /* ── 참고 자료 ── */
+        .ref-section { margin-top: 36px; }
+        .ref-title { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 14px; }
+        .ref-links { display: flex; flex-direction: column; gap: 10px; }
+        .ref-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ref-link:hover { transform: translateY(-1px); color: var(--ant-orange); }
+        .ref-link .ref-icon { font-size: 18px; flex-shrink: 0; }
+        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
+
+        /* ── 푸터 ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* ── 스크롤 애니메이션 ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal.delay-1 { transition-delay: 0.1s; }
+        .reveal.delay-2 { transition-delay: 0.2s; }
+        .reveal.delay-3 { transition-delay: 0.3s; }
+
+        /* ── 헤더 로드 애니메이션 ── */
+        @keyframes headerFadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes headerFadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .header-animate-1 { animation: headerFadeDown 0.55s ease both; animation-delay: 0.05s; }
+        .header-animate-2 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.18s; }
+        .header-animate-3 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.32s; }
+        .header-animate-4 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.44s; }
+        .header-animate-5 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.56s; }
+
+        /* ── 부유 애니메이션 (analogy-icon) ── */
+        @keyframes floatBob {
+            0%, 100% { transform: translateY(0px); }
+            50%       { transform: translateY(-7px); }
+        }
+        .analogy-icon { animation: floatBob 3.2s ease-in-out infinite; }
+        .analogy-box:nth-of-type(2) .analogy-icon { animation-delay: -1s; }
+        .analogy-box:nth-of-type(3) .analogy-icon { animation-delay: -2.1s; }
+
+        /* ── step-badge shimmer ── */
+        @keyframes shimmerScan {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .step-badge {
+            background-image: linear-gradient(
+                105deg,
+                #EDEAE4 40%,
+                rgba(255,255,255,0.85) 50%,
+                #EDEAE4 60%
+            );
+            background-size: 200% auto;
+            animation: shimmerScan 2.8s linear infinite;
+        }
+
+        /* ── key-message 테두리 glow ── */
+        @keyframes borderGlow {
+            0%, 100% { border-color: rgba(217,119,87,0.25); box-shadow: none; }
+            50%       { border-color: rgba(217,119,87,0.55); box-shadow: 0 0 18px rgba(217,119,87,0.18); }
+        }
+        .key-message { animation: borderGlow 3s ease-in-out infinite; }
+
+        /* ── 그리드 stagger ── */
+        .stagger-child {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+        .stagger-child.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── nm-card 호버 리프트 ── */
+        .nm-card {
+            transition: transform 0.28s ease, box-shadow 0.28s ease;
+        }
+        .nm-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 16px 34px -12px rgba(58,53,48,.22);
+        }
+
+        /* ── flow-node 순차 하이라이트 ── */
+        @keyframes nodeFlash {
+            0%, 100% { box-shadow: 0 0 0 1px rgba(58,53,48,.08), 0 2px 6px rgba(58,53,48,.08); }
+            50%       { box-shadow: 0 0 0 3px rgba(217,119,87,0.4), 0 2px 6px rgba(58,53,48,.08); }
+        }
+        .flow-node:nth-child(1)  { animation: nodeFlash 3s ease-in-out infinite; animation-delay: 0s; }
+        .flow-node:nth-child(3)  { animation: nodeFlash 3s ease-in-out infinite; animation-delay: 1s; }
+        .flow-node:nth-child(5)  { animation: nodeFlash 3s ease-in-out infinite; animation-delay: 2s; }
+
+        /* ── 비유 박스 ── */
+        .analogy-box {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 28px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .analogy-icon {
+            width: 64px; height: 64px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--ant-orange), #C56A4A);
+            color: #fff;
+            font-size: 28px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(217,119,87,0.3);
+        }
+        .analogy-body { flex: 1; }
+        .analogy-body strong {
+            font-size: 16px; font-weight: 700; color: #3A3530;
+            display: block; margin-bottom: 6px;
+        }
+        .analogy-body p {
+            font-size: 14px; color: #5C5650; line-height: 1.75; margin: 0;
+        }
+
+        /* ── 핵심 메시지 배너 ── */
+        .key-message {
+            background: linear-gradient(135deg, rgba(217,119,87,0.12) 0%, rgba(217,119,87,0.04) 100%);
+            border: 2px solid rgba(217,119,87,0.3);
+            border-radius: 20px;
+            padding: 28px 32px;
+            text-align: center;
+            margin: 24px 0;
+        }
+        .key-message p {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            line-height: 1.7;
+        }
+        .key-message .km-highlight {
+            color: var(--ant-orange);
+            font-weight: 800;
+            background: linear-gradient(180deg, transparent 60%, rgba(217,119,87,0.15) 60%);
+            padding: 0 2px;
+        }
+
+        /* ── 미디어 박스 ── */
+        .media-box {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            overflow: hidden;
+            margin: 20px 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .media-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 12px 26px -10px rgba(58,53,48,.20);
+        }
+        .media-box video, .media-box img {
+            width: 100%;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+        .media-box:hover img {
+            transform: scale(1.02);
+        }
+        .media-box .media-caption {
+            padding: 14px 20px;
+            font-size: 13px;
+            color: #888;
+            line-height: 1.6;
+            border-top: 1px solid #E8E4DE;
+            background: rgba(0,0,0,0.015);
+        }
+        .media-box .media-caption strong {
+            color: #3A3530;
+        }
+
+        /* ── 인용 박스 ── */
+        .quote-box {
+            background: linear-gradient(135deg, rgba(139,92,246,0.04) 0%, rgba(139,92,246,0.01) 100%);
+            border-radius: 16px;
+            box-shadow: var(--nm-inset);
+            padding: 28px 32px;
+            margin: 20px 0;
+            border-left: 4px solid var(--skill-purple);
+            position: relative;
+        }
+        .quote-box::before {
+            content: '\201C';
+            font-size: 64px;
+            color: rgba(139,92,246,0.15);
+            position: absolute;
+            top: 4px;
+            left: 18px;
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+        .quote-box p {
+            font-size: 15px;
+            color: #4A4540;
+            line-height: 1.85;
+            font-style: italic;
+            padding-left: 28px;
+        }
+        .quote-box .quote-author {
+            font-size: 12px;
+            color: #999;
+            font-style: normal;
+            margin-top: 12px;
+            padding-left: 28px;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── 플로우 다이어그램 ── */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 28px 0;
+            flex-wrap: nowrap;
+            padding: 24px 16px;
+            background: rgba(0,0,0,0.015);
+            border-radius: 20px;
+            overflow-x: auto;
+        }
+        .flow-node {
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 18px 22px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 160px;
+            transition: transform 0.25s;
+        }
+        .flow-node:hover { transform: translateY(-3px); }
+        .flow-node .fn-icon { font-size: 26px; margin-bottom: 8px; }
+        .flow-node h4 { font-size: 13px; font-weight: 700; color: #3A3530; }
+        .flow-node p { font-size: 11px; color: #888; margin-top: 4px; }
+        .flow-arrow {
+            font-size: 20px;
+            color: var(--ant-orange);
+            padding: 0 10px;
+            font-weight: 700;
+            animation: arrowPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(3px); }
+        }
+
+        /* ── 하네스 시스템 지도 ── */
+        .harness-map {
+            margin: 22px 0 4px;
+            padding: 30px 28px 28px;
+            background:
+                radial-gradient(circle at 50% 54%, rgba(217,119,87,0.075) 0 16%, transparent 36%),
+                radial-gradient(circle at 73% 30%, rgba(59,130,246,0.055) 0 14%, transparent 34%),
+                linear-gradient(180deg, #FBFAF7 0%, #F1EFE8 100%);
+            border: 1px solid rgba(58,53,48,0.11);
+            border-radius: 22px;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.78) inset, 0 22px 48px -30px rgba(58,53,48,0.30);
+            overflow: hidden;
+        }
+        .harness-map-head {
+            text-align: center;
+            max-width: 720px;
+            margin: 0 auto 20px;
+        }
+        .harness-map-kicker {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 11px;
+            margin-bottom: 9px;
+            border-radius: 999px;
+            background: rgba(217,119,87,0.10);
+            color: #B65E3E;
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        .harness-map-head h3 {
+            font-size: 25px;
+            font-weight: 900;
+            color: #141312;
+            margin-bottom: 8px;
+            letter-spacing: 0;
+        }
+        .harness-map-head p {
+            font-size: 14px;
+            color: #625B53;
+            line-height: 1.75;
+        }
+        .harness-orbit {
+            position: relative;
+            min-height: 560px;
+            max-width: 920px;
+            margin: 0 auto;
+        }
+        .harness-orbit::before,
+        .harness-orbit::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .harness-orbit::before {
+            width: 444px;
+            aspect-ratio: 1 / 1;
+            border: 1.5px dashed rgba(58,53,48,0.28);
+            background:
+                radial-gradient(circle, rgba(255,255,255,0.46) 0 33%, transparent 34%),
+                radial-gradient(circle, rgba(217,119,87,0.04) 0 54%, transparent 55%);
+        }
+        .harness-orbit::after {
+            display: none;
+        }
+        .harness-field {
+            display: none;
+        }
+        .harness-field span {
+            position: absolute;
+            left: 50%;
+            top: 18px;
+            transform: translateX(-50%);
+            color: var(--field-text);
+            font-size: 12px;
+            font-weight: 850;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .field-role {
+            --field-line: rgba(245,158,11,0.42);
+            --field-bg: rgba(245,158,11,0.10);
+            --field-text: #B87300;
+            width: 380px;
+            height: 330px;
+            left: 8px;
+            top: 110px;
+        }
+        .field-context {
+            --field-line: rgba(59,130,246,0.36);
+            --field-bg: rgba(59,130,246,0.10);
+            --field-text: #2563EB;
+            width: 370px;
+            height: 330px;
+            right: 18px;
+            top: 18px;
+        }
+        .field-workflow {
+            --field-line: rgba(139,92,246,0.34);
+            --field-bg: rgba(139,92,246,0.09);
+            --field-text: #7C3AED;
+            width: 330px;
+            height: 292px;
+            right: 76px;
+            bottom: 40px;
+        }
+        .field-tools {
+            --field-line: rgba(16,185,129,0.36);
+            --field-bg: rgba(16,185,129,0.10);
+            --field-text: #059669;
+            width: 300px;
+            height: 260px;
+            right: 4px;
+            top: 210px;
+        }
+        .field-guardrails {
+            --field-line: rgba(239,68,68,0.30);
+            --field-bg: rgba(239,68,68,0.08);
+            --field-text: #DC2626;
+            width: 300px;
+            height: 260px;
+            left: 76px;
+            bottom: 26px;
+        }
+        .field-guardrails span {
+            left: 72%;
+            top: 42px;
+        }
+        .harness-core {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 176px;
+            height: 176px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #FFFFFF 0%, #F7F5EF 100%);
+            box-shadow: 0 0 0 16px rgba(217,119,87,0.11), 0 0 0 1px rgba(58,53,48,0.11), 0 18px 38px -24px rgba(58,53,48,0.40);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 3;
+            padding: 18px;
+            transition: transform 0.24s ease, box-shadow 0.24s ease;
+            transform-origin: center;
+        }
+        .harness-core-ring {
+            width: 126px;
+            height: 126px;
+            border-radius: 50%;
+            border: 1px solid rgba(58,53,48,0.10);
+            background: rgba(255,255,255,0.94);
+            box-shadow: inset 0 0 0 1px rgba(58,53,48,0.05), 0 8px 18px rgba(58,53,48,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0;
+            transition: box-shadow 0.24s ease, border-color 0.24s ease;
+        }
+        .harness-core-ring strong {
+            font-size: 37px;
+            font-weight: 900;
+            color: #1A1917;
+            line-height: 1;
+            letter-spacing: 0;
+            transition: transform 0.24s ease;
+        }
+        .harness-core-ring span {
+            margin-top: 8px;
+            font-size: 11px;
+            font-weight: 850;
+            letter-spacing: 1px;
+            color: #21843C;
+        }
+        .harness-core p {
+            display: none;
+            font-size: 12px;
+            color: rgba(26,25,23,0.78);
+            line-height: 1.55;
+            margin: 0;
+            font-weight: 650;
+        }
+        .harness-core:hover {
+            transform: translate(-50%, -50%) scale(1.045);
+            box-shadow: 0 0 0 18px rgba(217,119,87,0.16), 0 0 0 1px rgba(58,53,48,0.14), 0 24px 44px -22px rgba(58,53,48,0.46);
+        }
+        .harness-core:hover .harness-core-ring {
+            border-color: rgba(217,119,87,0.22);
+            box-shadow: inset 0 0 0 1px rgba(217,119,87,0.12), 0 10px 22px rgba(58,53,48,0.10);
+        }
+        .harness-core:hover .harness-core-ring strong {
+            transform: scale(1.04);
+        }
+        .harness-node {
+            position: absolute;
+            width: 136px;
+            height: 136px;
+            padding: 18px 14px 16px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.94);
+            box-shadow: 0 0 0 1px rgba(58,53,48,0.09), 0 14px 28px -20px rgba(58,53,48,0.38);
+            border: 1px solid rgba(255,255,255,0.82);
+            z-index: 4;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+            transform-origin: center;
+        }
+        .harness-node::before {
+            content: '';
+            position: absolute;
+            inset: 9px;
+            border-radius: 999px;
+            border: 1.5px solid var(--node-color);
+            opacity: 0.22;
+            pointer-events: none;
+            transition: opacity 0.24s ease, inset 0.24s ease, border-width 0.24s ease;
+        }
+        .harness-node::after {
+            content: none;
+        }
+        .harness-node h4 {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-size: 13.5px;
+            font-weight: 900;
+            color: #2A2520;
+            margin-bottom: 7px;
+            line-height: 1.15;
+        }
+        .harness-node h4 .hn-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--node-color);
+            box-shadow: 0 0 0 4px var(--node-bg);
+            flex-shrink: 0;
+            transition: transform 0.24s ease, box-shadow 0.24s ease;
+        }
+        .harness-node p {
+            position: relative;
+            font-size: 10.5px;
+            color: #6A625A;
+            line-height: 1.5;
+            margin: 0;
+        }
+        .harness-node.roles { --node-color: #D18A16; --node-bg: rgba(209,138,22,0.14); left: calc(50% - 260px); top: 101px; }
+        .harness-node.eval { --node-color: #09A8B8; --node-bg: rgba(9,168,184,0.13); left: calc(50% - 68px); top: -10px; transform: none; }
+        .harness-node.context { --node-color: #3B82F6; --node-bg: rgba(59,130,246,0.13); left: calc(50% + 124px); top: 101px; transform: none; }
+        .harness-node.tools { --node-color: #10A979; --node-bg: rgba(16,169,121,0.13); left: calc(50% + 124px); top: 323px; }
+        .harness-node.workflow { --node-color: #7C5CE6; --node-bg: rgba(124,92,230,0.13); left: calc(50% - 68px); top: 434px; }
+        .harness-node.guardrail { --node-color: #D84A3A; --node-bg: rgba(216,74,58,0.12); left: calc(50% - 260px); top: 323px; transform: none; }
+        .harness-node:hover {
+            transform: translateY(-6px) scale(1.035);
+            border-color: rgba(255,255,255,0.95);
+            box-shadow: 0 0 0 1px rgba(58,53,48,0.10), 0 22px 38px -20px rgba(58,53,48,0.42);
+        }
+        .harness-node:hover::before {
+            inset: 7px;
+            border-width: 2px;
+            opacity: 0.42;
+        }
+        .harness-node:hover .hn-dot {
+            transform: scale(1.18);
+            box-shadow: 0 0 0 6px var(--node-bg), 0 0 18px var(--node-bg);
+        }
+        .harness-map-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            max-width: 720px;
+            margin: 18px auto 24px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.46);
+            border: 1px solid rgba(58,53,48,0.08);
+            box-shadow: none;
+            color: #4A4540;
+            font-size: 13px;
+            line-height: 1.65;
+            text-align: center;
+        }
+        .harness-map-note strong { color: var(--ant-orange); }
+
+        /* ── 4칸 그리드 ── */
+        .grade-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .grade-item {
+            background: var(--nm-bg);
+            border-radius: 16px;
+            box-shadow: var(--nm-shadow-sm);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .grade-item:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 12px 26px -10px rgba(58,53,48,.20); }
+        .grade-item .grade-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            font-size: 13px; font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .grade-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .grade-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* ── 이미지 그리드 ── */
+        .img-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 20px 0;
+        }
+        .img-compare .media-box { margin: 0; }
+
+        /* ── 프롬프트 예시 블록 ── */
+        .prompt-block {
+            position: relative;
+            margin-top: 20px;
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .prompt-block-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px;
+            background: #2d2d2d;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .prompt-block-label {
+            font-size: 12px; font-weight: 700;
+            color: var(--ant-orange); letter-spacing: 0.5px;
+        }
+        .prompt-copy-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 600; color: #aaa;
+            background: #3a3a3a; border: none; border-radius: 6px;
+            padding: 5px 10px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .prompt-copy-btn:hover { background: #4a4a4a; color: #fff; }
+        .prompt-copy-btn.copied { color: #7EE8A2; background: rgba(126,232,162,0.15); }
+        .prompt-block pre {
+            margin: 0; padding: 20px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 13px; line-height: 1.7;
+            color: #d4d4d4;
+            white-space: pre-wrap; word-break: keep-all;
+            overflow-x: auto;
+        }
+        .prompt-block .kw { color: #f4a97a; font-weight: 700; }
+        .prompt-block .cm { color: #7a7a7a; }
+        .prompt-block .val { color: #7ee8a2; }
+
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 24px 16px 48px; }
+            .section-box { padding: 0; border-radius: 0; margin-bottom: 24px; }
+            .section-box > .nm-card { padding: 18px 0; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .role-grid { grid-template-columns: 1fr; }
+            .comp-grid { grid-template-columns: 1fr; }
+            .grade-grid { grid-template-columns: 1fr; }
+            .img-compare { grid-template-columns: 1fr; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .header-pages { flex-wrap: wrap; gap: 8px; max-width: 100%; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            .analogy-box { flex-direction: column; text-align: center; }
+            .nm-table-wrap { font-size: 13px; }
+            .nm-table-wrap th, .nm-table-wrap td { padding: 10px 12px; font-size: 13px; }
+            .prompt-block pre { font-size: 12px; line-height: 1.6; }
+            .ref-link .ref-desc { display: none; }
+            .flow-diagram { flex-direction: column; gap: 8px; padding: 20px 12px; }
+            .flow-node { height: auto; min-height: 100px; }
+            .flow-arrow { transform: rotate(90deg); padding: 4px 0; animation-name: arrowPulseMobile; }
+            .harness-map { display: none; }
+            @keyframes arrowPulseMobile {
+                0%, 100% { opacity: 0.5; transform: rotate(90deg) translateX(0); }
+                50% { opacity: 1; transform: rotate(90deg) translateX(3px); }
+            }
+            /* Step navigator */
+            .step-nav { max-width: 100%; gap: 0; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+            .step-nav { max-width: 100%; margin: 16px 0 14px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 6px; max-width: 14px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+            .prompt-block pre { font-size: 11px; line-height: 1.55; padding: 14px; }
+        }
+    
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+        }
+
+        /* ── 히어로 컨셉 공식 ── */
+        .concept-hero { margin: 30px 0 6px; }
+        .concept-formula {
+            position: relative; overflow: hidden;
+            background: linear-gradient(180deg, #FFFFFF 0%, #FAF6F0 100%);
+            border-radius: 24px;
+            box-shadow: 0 0 0 1.5px rgba(217,119,87,.22), 0 22px 46px -18px rgba(58,53,48,.22);
+            padding: 26px 30px 24px; text-align: center;
+        }
+        .concept-formula::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, var(--ant-orange), #E8956E, var(--skill-amber));
+        }
+        /* eyebrow */
+        .cf-eyebrow { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+        .cf-eyebrow-pill {
+            font-size: 11px; font-weight: 800; letter-spacing: 1.2px; color: #fff; text-transform: uppercase;
+            background: linear-gradient(135deg, var(--ant-orange), #C56A4A);
+            padding: 5px 13px; border-radius: 999px; box-shadow: 0 4px 12px rgba(217,119,87,.3);
+        }
+        .cf-eyebrow-sub { font-size: 12.5px; font-weight: 600; color: #8A8178; }
+        .cf-eq {
+            display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: center;
+            gap: 6px 10px; font-size: 22px; font-weight: 800; color: #3A3530; letter-spacing: -0.3px;
+        }
+        .cf-lead { display: inline-flex; align-items: center; gap: 10px; flex-wrap: nowrap; padding-top: 5px; }
+        .cf-bracket { display: inline-flex; align-items: flex-start; gap: 9px; flex-wrap: nowrap; }
+        .cf-op { padding: 5px 0; line-height: 1.25; white-space: nowrap; }
+        .cf-op.cf-label { color: var(--ant-orange); }
+        .cf-op.cf-x { color: #A89F94; }
+        .cf-op.cf-paren { color: #C0B8AD; }
+        .cf-group { display: inline-flex; flex-direction: column; align-items: center; gap: 9px; }
+        .cf-grow {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 5px 9px; border-radius: 14px; background: var(--nm-bg); box-shadow: var(--nm-inset);
+        }
+        .cf-term {
+            display: inline-flex; align-items: center; font-size: 16px; font-weight: 800;
+            padding: 4px 11px; border-radius: 999px; background: var(--nm-light); box-shadow: var(--nm-shadow-sm);
+        }
+        .cf-term.t-role { color: var(--ant-orange); }
+        .cf-term.t-rubric { color: var(--skill-purple); }
+        .cf-term.t-ctx { color: var(--skill-blue); }
+        .cf-dot { color: #B5ADA2; font-weight: 700; font-size: 15px; }
+        .cf-glabel {
+            display: inline-flex; align-items: center; gap: 6px; color: #fff;
+            font-size: 12.5px; font-weight: 800; padding: 4px 13px; border-radius: 999px;
+        }
+        .cf-glabel .gl-num {
+            width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,.28);
+            font-size: 10px; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .cf-glabel.gl-role { background: var(--ant-orange); }
+        .cf-glabel.gl-ctx { background: var(--skill-blue); }
+        .cf-sub { margin-top: 18px; font-size: 12.5px; color: #6B645B; font-weight: 500; line-height: 1.65; }
+        .cf-sub b { color: #3A3530; font-weight: 700; }
+
+        .cf-map { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 0; }
+        /* 공식 → ①② 카드 연결선 */
+        .cf-connect { position: relative; width: 100%; height: 46px; margin-top: 4px; }
+        .cf-connect svg { display: block; width: 100%; height: 100%; overflow: visible; }
+        .cf-connect .cc-line { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+        .cf-connect .cc-1 { stroke: var(--ant-orange); }
+        .cf-connect .cc-2 { stroke: var(--skill-blue); }
+        .cf-connect .cc-arrow { position: absolute; bottom: -2px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid; transform: translateX(-50%); }
+        .cf-connect .cc-arrow.a1 { left: 24.7%; border-top-color: var(--ant-orange); }
+        .cf-connect .cc-arrow.a2 { left: 75.3%; border-top-color: var(--skill-blue); }
+        @media (max-width: 980px) { .cf-connect { display: none; } .cf-map { margin-top: 20px; } }
+        .cf-map-card {
+            background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm);
+            padding: 16px 16px 15px; text-align: left; text-decoration: none; display: flex; flex-direction: column;
+            border-top: 3px solid transparent; transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .cf-map-card:hover { transform: translateY(-3px); box-shadow: var(--nm-shadow); }
+        .cf-map-card .cmc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+        .cf-map-card .cmc-num {
+            width: 22px; height: 22px; border-radius: 50%; color: #fff; flex-shrink: 0;
+            font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .cf-map-card .cmc-en { font-size: 15px; font-weight: 800; color: #3A3530; }
+        .cf-map-card .cmc-ko { font-size: 12.5px; color: #6B645B; line-height: 1.55; margin-bottom: 11px; }
+        .cf-map-card .cmc-link {
+            font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 9px; border-radius: 999px; background: var(--nm-light); box-shadow: var(--nm-shadow-sm);
+            align-self: flex-start; margin-top: auto;
+        }
+        .cf-map-card.m-role { border-top-color: var(--ant-orange); } .cf-map-card.m-role .cmc-num { background: var(--ant-orange); } .cf-map-card.m-role .cmc-link { color: var(--ant-orange); }
+        .cf-map-card.m-ctx { border-top-color: var(--skill-blue); } .cf-map-card.m-ctx .cmc-num { background: var(--skill-blue); } .cf-map-card.m-ctx .cmc-link { color: var(--skill-blue); }
+
+        /* 5요소 공식 추가 항 */
+        .cf-row { display: inline-flex; align-items: center; gap: 6px; }
+        .cf-paren-sm { font-size: 18px; }
+        .cf-term.t-tools { color: var(--skill-green); }
+        .cf-term.t-flow { color: var(--skill-amber); }
+        .cf-group.is-ghost { opacity: 0.7; }
+        .cf-glabel.gl-ghost { background: transparent; border: 1.5px dashed; }
+        .cf-glabel.gl-ghost .gl-num { color: #fff; }
+        .cf-glabel.gl-tools { color: var(--skill-green); border-color: var(--skill-green); }
+        .cf-glabel.gl-tools .gl-num { background: var(--skill-green); }
+        .cf-glabel.gl-flow { color: var(--skill-amber); border-color: var(--skill-amber); }
+        .cf-glabel.gl-flow .gl-num { background: var(--skill-amber); }
+
+        /* ③④⑤ 포인터 줄 */
+        .cf-pointer {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px;
+            margin-top: 16px; padding-top: 15px; border-top: 1px dashed #D8D1C7;
+        }
+        .cf-pointer .cfp-label { font-size: 12px; font-weight: 800; color: #8A8178; }
+        .cf-pchip {
+            display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+            font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm); transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .cf-pchip:hover { box-shadow: var(--nm-shadow); transform: translateY(-2px); }
+        .cf-pchip .cfp-num { width: 18px; height: 18px; border-radius: 50%; color: #fff; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+        .cf-pchip.p-tools { color: var(--skill-green); } .cf-pchip.p-tools .cfp-num { background: var(--skill-green); }
+        .cf-pchip.p-flow { color: var(--skill-amber); } .cf-pchip.p-flow .cfp-num { background: var(--skill-amber); }
+        .cf-pchip.p-guard { color: #EF4444; } .cf-pchip.p-guard .cfp-num { background: #EF4444; }
+
+        /* ── 공식 카드형 (리디자인) ── */
+        .cf-eq2 {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px;
+        }
+        @media (min-width: 980px) { .cf-eq2 { flex-wrap: nowrap; } }
+        .cf-brand {
+            font-size: 18px; font-weight: 800; color: var(--ant-orange); letter-spacing: -0.3px;
+            display: inline-flex; align-items: center; gap: 8px; margin-right: 1px; white-space: nowrap;
+        }
+        .cf-brand .cf-eq-sign { color: #B0A89D; font-weight: 700; font-size: 19px; }
+        .fx-card {
+            position: relative;
+            border-radius: 13px; overflow: hidden; min-width: 94px;
+            background: var(--nm-bg); box-shadow: 0 0 0 1px rgba(58,53,48,.08), 0 3px 10px rgba(58,53,48,.12);
+            display: flex; flex-direction: column; text-align: center; flex-shrink: 0;
+            transition: transform .25s cubic-bezier(.34,1.45,.5,1), box-shadow .25s ease;
+        }
+        .fx-card:hover { transform: translateY(-6px) scale(1.05); z-index: 3; }
+        .fx-model:hover { box-shadow: 0 0 0 1px rgba(42,36,32,.32), 0 16px 30px -10px rgba(42,36,32,.5); }
+        .fx-1:hover { box-shadow: 0 0 0 1px rgba(217,119,87,.4), 0 16px 30px -10px rgba(217,119,87,.5); }
+        .fx-2:hover { box-shadow: 0 0 0 1px rgba(59,130,246,.4), 0 16px 30px -10px rgba(59,130,246,.5); }
+        .fx-3:hover { box-shadow: 0 0 0 1px rgba(16,185,129,.4), 0 16px 30px -10px rgba(16,185,129,.45); }
+        .fx-4:hover { box-shadow: 0 0 0 1px rgba(245,158,11,.4), 0 16px 30px -10px rgba(245,158,11,.45); }
+        .fx-5:hover { box-shadow: 0 0 0 1px rgba(239,68,68,.4), 0 16px 30px -10px rgba(239,68,68,.45); }
+        .fx-card:hover .fx-num { animation: fxNumPop .42s ease; }
+        @keyframes fxNumPop { 0%,100% { transform: scale(1); } 45% { transform: scale(1.4); } }
+        .fx-term {
+            padding: 11px 15px 9px; font-size: 14.5px; font-weight: 800; letter-spacing: -0.2px; white-space: nowrap;
+            display: flex; align-items: center; justify-content: center; gap: 5px; line-height: 1;
+        }
+        .fx-mid { color: #C2BAAF; font-weight: 700; }
+        .fx-label {
+            padding: 6px 12px 7px; font-size: 10.5px; font-weight: 800; color: #fff; white-space: nowrap;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .fx-num {
+            width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,.28);
+            font-size: 9px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        /* 엔진(모델) */
+        .fx-model .fx-term { color: #2A2420; background: rgba(42,36,32,.07); }
+        .fx-model .fx-label { background: linear-gradient(135deg, #3A3530, #1F1B17); letter-spacing: 1.5px; font-size: 10px; }
+        /* ① Role · Rubric */
+        .fx-1 .fx-term { background: rgba(217,119,87,.12); }
+        .fx-1 .fx-a { color: var(--ant-orange); }
+        .fx-1 .fx-b { color: var(--skill-purple); }
+        .fx-1 .fx-label { background: linear-gradient(135deg, var(--ant-orange), #C56A4A); }
+        /* ② Context */
+        .fx-2 .fx-term { color: var(--skill-blue); background: rgba(59,130,246,.11); }
+        .fx-2 .fx-label { background: linear-gradient(135deg, var(--skill-blue), #2563EB); }
+        /* ③④ 포인터(ghost) */
+        .fx-ghost { box-shadow: 0 0 0 1px rgba(58,53,48,.05), 0 1px 4px rgba(58,53,48,.07); }
+        .fx-ghost .fx-label { color: inherit; background: transparent; }
+        .fx-3 .fx-term, .fx-3 .fx-label { color: var(--skill-green); }
+        .fx-3 .fx-term { background: rgba(16,185,129,.10); }
+        .fx-3 .fx-label { border-top: 1.5px dashed rgba(16,185,129,.45); }
+        .fx-3 .fx-num { background: var(--skill-green); color: #fff; }
+        .fx-4 .fx-term, .fx-4 .fx-label { color: var(--skill-amber); }
+        .fx-4 .fx-term { background: rgba(245,158,11,.12); }
+        .fx-4 .fx-label { border-top: 1.5px dashed rgba(245,158,11,.45); }
+        .fx-4 .fx-num { background: var(--skill-amber); color: #fff; }
+        .fx-5 .fx-term, .fx-5 .fx-label { color: #EF4444; }
+        .fx-5 .fx-term { background: rgba(239,68,68,.10); }
+        .fx-5 .fx-label { border-top: 1.5px dashed rgba(239,68,68,.42); }
+        .fx-5 .fx-num { background: #EF4444; color: #fff; }
+        /* × 연결 뱃지 */
+        .fx-mul {
+            font-size: 11px; font-weight: 800; color: #A89F94; flex-shrink: 0;
+            width: 20px; height: 20px; border-radius: 50%; background: var(--page-bg);
+            box-shadow: inset 0 0 0 1px rgba(58,53,48,.12);
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        @media (max-width: 560px) {
+            .cf-brand { width: 100%; justify-content: center; margin-bottom: 2px; }
+        }
+
+        /* 개념 한 줄 정의 배지 */
+        .concept-def {
+            margin-top: 16px; padding: 15px 18px; border-radius: 14px;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            display: flex; align-items: flex-start; gap: 13px;
+        }
+        .concept-def .cd-tag {
+            flex-shrink: 0; font-size: 10.5px; font-weight: 800; color: #fff; background: var(--ant-orange);
+            padding: 5px 11px; border-radius: 999px; letter-spacing: .3px; margin-top: 2px; white-space: nowrap;
+        }
+        .concept-def p { font-size: 14px; color: #3A3530; line-height: 1.7; font-weight: 500; margin: 0; }
+        .concept-def b { color: var(--ant-orange); font-weight: 800; }
+        @media (max-width: 480px) { .concept-def { flex-direction: column; gap: 9px; } }
+
+        /* 비유 카드 → 공식 매핑 태그 */
+        .analogy-map { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+        .am-tag {
+            font-size: 11.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm); color: #5C5650;
+        }
+        .am-tag .am-k { font-weight: 800; }
+        .am-tag.am-model .am-k { color: #8A8178; }
+        .am-tag.am-harness .am-k { color: var(--ant-orange); }
+
+        /* 원칙 카드: 공식 항 pill + 해결 라벨 (어두운 배경) */
+        .solution-item .si-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+        .solution-item .si-head strong { margin-bottom: 0; }
+        .solution-item .si-terms { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; }
+        .solution-item .si-terms .cf-term {
+            font-size: 12.5px; padding: 3px 11px; border-radius: 8px;
+            background: rgba(255,255,255,0.05); box-shadow: none; border: 1px solid rgba(255,255,255,0.14);
+        }
+        .solution-item .si-terms .cf-term.t-role { color: #EA9C7E; }
+        .solution-item .si-terms .cf-term.t-rubric { color: #B79BF5; }
+        .solution-item .si-terms .cf-term.t-ctx { color: #7DA8F7; }
+        .solution-item .si-terms .si-dot { color: rgba(255,255,255,0.35); }
+        .solution-item .si-dot { color: rgba(255,255,255,0.4); font-weight: 700; }
+        .solution-item .si-solve {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 800; color: #fff; padding: 4px 11px; border-radius: 999px; margin-bottom: 11px;
+        }
+        .solution-item.si-1 .si-solve { background: var(--ant-orange); }
+        .solution-item.si-2 .si-solve { background: var(--skill-blue); }
+        .solution-item p b { color: #fff; font-weight: 700; }
+
+        @media (max-width: 768px) {
+            .cf-eq { font-size: 18px; gap: 8px; }
+            .cf-term { font-size: 14px; }
+        }
+        @media (max-width: 480px) {
+            .cf-map { grid-template-columns: 1fr; }
+            .concept-formula { padding: 20px 14px 18px; border-radius: 18px; }
+            .cf-brand { font-size: 16px; }
+            .fx-card { min-width: 80px; border-radius: 11px; }
+            .fx-term { font-size: 13.5px; padding: 8px 10px 6px; }
+            .fx-label { font-size: 10px; padding: 5px 8px 6px; }
+            .fx-num { width: 14px; height: 14px; font-size: 9px; }
+            .fx-mul { width: 18px; height: 18px; font-size: 11px; }
+            .cf-sub { font-size: 12px; margin-top: 14px; }
+            .cf-pointer { gap: 6px; padding-top: 12px; }
+            .cf-pchip { font-size: 11px; padding: 5px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="claude-orientation.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="ai-fluency.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="harness-engineering.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="loop-engineering.html">5</a>
+        <div class="step-line"></div>
+        <a class="step-node sn-final" href="mcp-examples.html">예제</a>
+    </nav>
+    <a href="index.html" class="back-link header-animate-2">&larr; 목록으로</a>
+    <h1 class="header-animate-3">하네스 엔지니어링이란?</h1>
+    <p class="header-animate-4">같은 AI 모델이라도, 어떤 하네스 위에서 돌리느냐에 따라 결과가 완전히 달라집니다</p>
+
+    <div class="mode-tabs header-animate-5" role="tablist">
+        <button class="mode-tab active" id="tab-harness" onclick="switchMode('harness')" role="tab" aria-selected="true">하네스</button>
+        <button class="mode-tab" id="tab-tool" onclick="switchMode('tool')" role="tab" aria-selected="false">도구</button>
+    </div>
+    <div class="header-pages" id="pages-harness">
+        <a href="harness-engineering.html" class="header-page-link active"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 20v-6.5c0-4.2 2.7-7.5 6-7.5 2.2 0 4 1.5 4.3 3.4l2.7 1.6-.7 1.8-2.3-.4-1 7.6"/><circle cx="13.3" cy="8.6" r="0.7" fill="currentColor" stroke="none"/></svg></span> 하네스 엔지니어링</a>
+        <a href="claude-tools.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9.5" width="17" height="9.5" rx="1.8"/><path d="M8.5 9.5V7a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2.5"/><path d="M3.5 13.5h17"/></svg></span> 도구</a>
+        <a href="harness-workflows.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="8" width="15" height="11" rx="3"/><path d="M12 8V4.5"/><circle cx="12" cy="3.3" r="1.1"/><circle cx="9" cy="13.5" r="1.3"/><circle cx="15" cy="13.5" r="1.3"/><path d="M9 17h6"/></svg></span> 멀티 에이전트 소환</a>
+    </div>
+    <div class="header-pages" id="pages-tool" style="display:none;">
+        <a href="claude-md-templates.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="4.5" width="13" height="16" rx="2"/><rect x="9" y="3" width="6" height="3" rx="1"/><path d="M8.5 10.5h7M8.5 14h7M8.5 17.5h4"/></svg></span> CLAUDE.md</a>
+        <a href="skills.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 18 6"/><path d="M15 3.3l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/></svg></span> 나만의 Skill 만들기</a>
+        <a href="code-plugin.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h4.2a1.7 1.7 0 1 1 0 3.3H12V5h4a2 2 0 0 1 2 2v3.5a1.7 1.7 0 1 0 0 3.3V17a2 2 0 0 1-2 2h-4v-3.3H8.8a1.7 1.7 0 1 1 0-3.4H5z"/></svg></span> 스킬·MCP 플러그인</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec1" data-sec="sec1">
+        <span class="sm-num">1</span>
+        <span class="sm-title">개념</span>
+        <span class="sm-sub">What</span>
+    </a>
+    <a href="#sec3" data-sec="sec3">
+        <span class="sm-num">2</span>
+        <span class="sm-title">중요성</span>
+        <span class="sm-sub">Why</span>
+    </a>
+    <a href="#case1" data-sec="case1">
+        <span class="sm-num">3</span>
+        <span class="sm-title">사례 1</span>
+        <span class="sm-sub">미술관</span>
+    </a>
+    <a href="#case3" data-sec="case3">
+        <span class="sm-num">4</span>
+        <span class="sm-title">사례 2</span>
+        <span class="sm-sub">DAW</span>
+    </a>
+</nav>
+
+<main class="container">
+
+    <!-- ═══════ STEP 1: 개념 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec1"><span class="step-badge">개념</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>하네스 엔지니어링이란 AI가 일하는 환경 전체를 설계하는 것</h2>
+            <div class="concept-def">
+                <span class="cd-tag">한 줄 정의</span>
+                <p><b>하네스</b>는 모델을 감싸 일을 시키는 <b>구조 전체</b>입니다. 무엇을 알려주고(맥락), 누가 만들고 채점하며(역할·기준), 어떤 도구를 쥐여줄지를 정해 둔 판. <b>모델은 그 안에서 돌아가는 엔진 하나</b>일 뿐입니다.</p>
+            </div>
+        </div>
+
+        <div class="cluster-box reveal">
+        <div class="analogy-grid">
+            <div class="analogy-box delay-1">
+                <div class="analogy-head">
+                    <div class="analogy-icon">&#x1F40E;</div>
+                    <div class="analogy-titles">
+                        <strong>비유 1: 말과 마구</strong>
+                    </div>
+                </div>
+                <div class="analogy-body">
+                    <p>말의 (근육, 속도)는 AI 모델에 해당합니다.<br>
+                    <strong>말에게 씌우는 마구, 달리는 길, 신호 체계</strong>는 하네스에 해당합니다.<br><br>
+                    아무리 좋은 말이라도 올바른 마구 없이는 원하는 방향으로 달리지 못합니다. AI도 마찬가지입니다.</p>
+                    <div class="analogy-map">
+                        <span class="am-tag am-model"><span class="am-k">모델</span> = 말의 근육·속도</span>
+                        <span class="am-tag am-harness"><span class="am-k">하네스</span> = 마구·길·신호 체계</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analogy-box delay-2">
+                <div class="analogy-head">
+                    <div class="analogy-icon" style="background: linear-gradient(135deg, var(--skill-blue), #2563EB);">&#x1F9D1;&#x200D;&#x1F4BC;</div>
+                    <div class="analogy-titles">
+                        <strong>비유 2: 신입사원과 온보딩</strong>
+                    </div>
+                </div>
+                <div class="analogy-body">
+                    <p>아무리 똑똑한 신입사원도 <strong>업무 매뉴얼 없이</strong> 첫날부터 혼자 일하면 실수투성이입니다.<br>
+                    업무 범위, 보고 체계, 사용 도구, 금지 사항을 정리해 둔<br>
+                    <strong>온보딩 시스템 전체</strong>가 바로 하네스입니다.<br>
+                    <span style="color: var(--ant-orange); font-weight: 600;">AI에게 "이렇게 일해"라고 알려주는 회사 시스템이 곧 하네스입니다.</span></p>
+                    <div class="analogy-map">
+                        <span class="am-tag am-model"><span class="am-k">모델</span> = 신입의 머리(지능)</span>
+                        <span class="am-tag am-harness"><span class="am-k">하네스</span> = 온보딩 시스템 전체</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="key-message reveal">
+            <p>경쟁력은 <span class="km-highlight">누가 더 좋은 모델을 쓰느냐</span>가 아니라,<br>
+            <span class="km-highlight">누가 더 좋은 하네스를 설계했느냐</span>에서 나옵니다.</p>
+        </div>
+
+        <div class="harness-map reveal" aria-labelledby="harness-map-title">
+            <div class="harness-map-head">
+                <span class="harness-map-kicker">SYSTEM MAP</span>
+                <h3 id="harness-map-title">LLM은 코어, 하네스는 코어를 감싸는 업무 환경</h3>
+            </div>
+
+            <p class="harness-map-note"><strong>핵심:</strong> LLM은 엔진이고, 하네스는 엔진을 업무에 투입하는 운전석·계기판·도로·안전장치입니다.</p>
+
+            <div class="harness-orbit" role="img" aria-label="중앙의 LLM을 하네스가 감싸고, 주변에 Role, Rubric, Context, Tools, Workflow, Guardrail이 배치된 도식">
+                <div class="harness-field field-role" aria-hidden="true"><span>Role · Rubric</span></div>
+                <div class="harness-field field-context" aria-hidden="true"><span>Context</span></div>
+                <div class="harness-field field-tools" aria-hidden="true"><span>Tools</span></div>
+                <div class="harness-field field-workflow" aria-hidden="true"><span>Workflow</span></div>
+                <div class="harness-field field-guardrails" aria-hidden="true"><span>Guardrails</span></div>
+
+                <div class="harness-core">
+                    <div class="harness-core-ring">
+                        <strong>LLM</strong>
+                    </div>
+                    <p>Claude, GPT, Gemini 같은 모델은 하네스 안에서 돌아가는 엔진입니다.</p>
+                </div>
+
+                <div class="harness-node roles">
+                    <h4><span class="hn-dot"></span>Role</h4>
+                    <p>기획자, 생성자, 평가자</p>
+                </div>
+                <div class="harness-node eval">
+                    <h4><span class="hn-dot"></span>Rubric</h4>
+                    <p>합격 기준, 테스트, 리뷰 루프</p>
+                </div>
+                <div class="harness-node context">
+                    <h4><span class="hn-dot"></span>Context</h4>
+                    <p>프로젝트 지식, 대화 기록, 참고 문서</p>
+                </div>
+                <div class="harness-node tools">
+                    <h4><span class="hn-dot"></span>Tools</h4>
+                    <p>MCP, 스킬, 플러그인, 파일 접근</p>
+                </div>
+                <div class="harness-node workflow">
+                    <h4><span class="hn-dot"></span>Workflow</h4>
+                    <p>계획, 실행, 관찰, 수정, 반복</p>
+                </div>
+                <div class="harness-node guardrail">
+                    <h4><span class="hn-dot"></span>Guardrail</h4>
+                    <p>권한, 보안, 승인, 금지 사항</p>
+                </div>
+            </div>
+
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ 히어로 컨셉 공식 (개념 → 중요성 브릿지) ═══════ -->
+    <div class="concept-hero reveal">
+      <div class="concept-formula">
+        <div class="cf-eq2">
+            <span class="cf-brand">하네스 엔지니어링 <span class="cf-eq-sign">=</span></span>
+
+            <div class="fx-card fx-model">
+                <div class="fx-term">LLM 모델</div>
+                <div class="fx-label">ENGINE</div>
+            </div>
+
+            <span class="fx-mul">&times;</span>
+
+            <div class="fx-card fx-1">
+                <div class="fx-term"><span class="fx-a">Role</span><span class="fx-mid">&middot;</span><span class="fx-b">Rubric</span></div>
+                <div class="fx-label"><span class="fx-num">1</span>역할 분리</div>
+            </div>
+
+            <span class="fx-mul">&times;</span>
+
+            <div class="fx-card fx-2">
+                <div class="fx-term">Context</div>
+                <div class="fx-label"><span class="fx-num">2</span>컨텍스트 인수인계</div>
+            </div>
+
+            <span class="fx-mul">&times;</span>
+
+            <div class="fx-card fx-3 fx-ghost">
+                <div class="fx-term">Tools</div>
+                <div class="fx-label"><span class="fx-num">3</span>도구</div>
+            </div>
+
+            <span class="fx-mul">&times;</span>
+
+            <div class="fx-card fx-4 fx-ghost">
+                <div class="fx-term">Workflow</div>
+                <div class="fx-label"><span class="fx-num">4</span>작업 흐름</div>
+            </div>
+
+            <span class="fx-mul">&times;</span>
+
+            <div class="fx-card fx-5 fx-ghost">
+                <div class="fx-term">Guardrail</div>
+                <div class="fx-label"><span class="fx-num">5</span>가드레일</div>
+            </div>
+        </div>
+        <p class="cf-sub">
+            하네스 엔지니어링을 <b>하나의 공식</b>으로 묶으면 이렇습니다. 모델은 <b>곱해지는 한 항</b>일 뿐, 다섯 요소 중 하나라도 0이면 결과도 0이 됩니다.<br>
+            이 페이지는 <b>① 역할 분리 · ② 컨텍스트 인수인계</b>를 깊게 다루고, <b>③ 도구 · ④ 작업 흐름 · ⑤ 가드레일</b>은 다음 장으로 다루어집니다.
+        </p>
+      </div>
+
+      <div class="cf-connect" aria-hidden="true">
+        <svg viewBox="0 0 1000 100" preserveAspectRatio="none" width="100%" height="100%">
+            <path class="cc-line cc-1" d="M 436 0 L 247 100"/>
+            <path class="cc-line cc-2" d="M 590 0 L 753 100"/>
+        </svg>
+        <span class="cc-arrow a1"></span>
+        <span class="cc-arrow a2"></span>
+      </div>
+
+      <div class="cf-map">
+            <a class="cf-map-card m-role" href="#sec3">
+                <div class="cmc-top"><span class="cmc-num">1</span><span class="cmc-en">Role &middot; Rubric</span></div>
+                <div class="cmc-ko">만드는 자(Generator)와 채점하는 자(Evaluator)를 나누고, 채점자는 합격 기준(Rubric)에 따라 결과를 평가한다</div>
+                <span class="cmc-link">↓ 원칙 1 · 역할 분리</span>
+            </a>
+            <a class="cf-map-card m-ctx" href="#sec3">
+                <div class="cmc-top"><span class="cmc-num">2</span><span class="cmc-en">Context</span></div>
+                <div class="cmc-ko">맥락을 비우고, 이전 상태를 문서(MD)로 이어받아 새 세션을 시작한다</div>
+                <span class="cmc-link">↓ 원칙 2 · 컨텍스트 리셋</span>
+            </a>
+        </div>
+
+        <div class="cf-pointer">
+            <span class="cfp-label">③④⑤ 는 다음 장에서 &rarr;</span>
+            <a class="cf-pchip p-tools" href="claude-tools.html"><span class="cfp-num">3</span>도구 · 「Claude의 도구」 장</a>
+            <a class="cf-pchip p-flow" href="harness-workflows.html"><span class="cfp-num">4</span>작업 흐름 · 「멀티 에이전트 소환」 장</a>
+            <a class="cf-pchip p-guard" href="security-guide.html"><span class="cfp-num">5</span>가드레일 · 「보안 가이드」 장</a>
+        </div>
+    </div>
+
+    <!-- ═══════ STEP 3: 하네스 설계가 중요한 이유 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec3"><span class="step-badge">하네스 설계가 중요한 이유</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="section-intro">
+            <span class="si-label">왜 중요한가</span>
+            <span class="si-text">혼자 일하는 AI는 두 가지 이유로 무너집니다</span>
+        </div>
+
+        <div class="source-mini reveal">
+            <div class="source-mini-icon">&#x1F4C4;</div>
+            <div class="source-mini-body">
+                <span class="sm-title">Anthropic이 직접 공개한 하네스 설계 보고서</span>
+                <div class="sm-meta">2026년 3월 24일, Anthropic Labs의 Prithvi Rajasekaran 발표</div>
+                <p>"<a href="https://www.anthropic.com/engineering/harness-design-long-running-apps" target="_blank" rel="noopener">장기 실행 앱 개발을 위한 하네스 설계</a>"에서 Anthropic은 하네스 없이 AI에게 긴 작업을 맡겼을 때 반복적으로 나타나는 <strong>두 가지 근본 문제</strong>를 짚었습니다.</p>
+            </div>
+        </div>
+
+        <div class="problem-grid reveal">
+            <div class="problem-card pc-1">
+                <div class="problem-head">
+                    <div class="problem-num">01</div>
+                    <div class="problem-title">
+                        <strong>자기 평가의 함정</strong>
+                        <span class="problem-en">Self-Evaluation Trap</span>
+                    </div>
+                </div>
+                <p class="problem-tagline">자기 결과물을 스스로 채점하면 항상 후하게 나옵니다</p>
+                <div class="quote-box">
+                    <p>자신이 생성한 작업물을 평가하라고 하면, 에이전트는 자신감 있게 칭찬하는 경향을 보입니다. 인간 관찰자에게는 품질이 명백히 평범한 수준인데도 말입니다.</p>
+                    <div class="quote-author">Prithvi Rajasekaran, Anthropic Labs</div>
+                </div>
+                <div class="problem-analogy">
+                    <span class="pa-label">일상 비유</span>
+                    <p>학생이 자기 시험지를 직접 채점하면 점수가 후하게 나오는 것과 같습니다.</p>
+                </div>
+            </div>
+
+            <div class="problem-card pc-2">
+                <div class="problem-head">
+                    <div class="problem-num">02</div>
+                    <div class="problem-title">
+                        <strong>컨텍스트 불안</strong>
+                        <span class="problem-en">Context Anxiety</span>
+                    </div>
+                </div>
+                <p class="problem-tagline">긴 작업 도중에 갑자기 대충 마무리합니다</p>
+                <div class="quote-box">
+                    <p>모델은 긴 작업에서 컨텍스트 윈도우가 차오르면 일관성을 잃습니다. 일부 모델은 "컨텍스트 불안"을 보이며, 한계에 가까워졌다고 인지하면 작업을 조기에 마무리해 버립니다.</p>
+                    <div class="quote-author">Prithvi Rajasekaran, Anthropic Labs</div>
+                </div>
+                <div class="problem-analogy">
+                    <span class="pa-label">일상 비유</span>
+                    <p>10페이지짜리 보고서를 시켰는데 7페이지에서 갑자기 "이상 마치겠습니다"라고 끝내버리는 셈입니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="problem-bridge reveal" aria-hidden="true">
+            <div class="pb-col pb-1">
+                <div class="pb-line"></div>
+                <div class="pb-tip"></div>
+            </div>
+            <div class="pb-col pb-2">
+                <div class="pb-line"></div>
+                <div class="pb-tip"></div>
+            </div>
+        </div>
+
+        <div class="solution-grid reveal">
+            <div class="solution-item solution-item--standalone si-1">
+                <span class="si-arrow si-pill">원칙 1</span>
+                <div class="si-head">
+                    <strong>역할 분리</strong>
+                    <span class="si-terms"><span class="cf-term t-role">Role</span><span class="si-dot">&middot;</span><span class="cf-term t-rubric">Rubric</span></span>
+                </div>
+                <span class="si-solve">↳ 자기 평가의 함정을 해결</span>
+                <p>"만드는 사람"과 "검토하는 사람"은 반드시 분리해야 합니다. 만드는 AI(<b>Generator</b>·생성자)와 평가하는 AI(<b>Evaluator</b>·채점자)를 따로 두고, 합격 기준(<b>Rubric</b>)을 채점자가 외부에서 쥔 채 냉정하게 채점하게 만듭니다.</p>
+            </div>
+            <div class="solution-item solution-item--standalone si-2">
+                <span class="si-arrow si-pill">원칙 2</span>
+                <div class="si-head">
+                    <strong>컨텍스트 리셋</strong>
+                    <span class="si-terms"><span class="cf-term t-ctx">Context</span></span>
+                </div>
+                <span class="si-solve">↳ 컨텍스트 불안을 해결</span>
+                <p>이전 상태를 "구조화된 MD 파일"로 인수인계해야 합니다. 작업 기억(<b>컨텍스트 윈도우</b>)을 완전히 비우고, 교대 근무자에게 인수인계서를 넘기듯 새 세션을 시작합니다.</p>
+            </div>
+        </div>
+
+        <div class="key-message reveal">
+            <p><span class="km-highlight">만드는 자와 검토하는 자를 분리하고, 이전 맥락은 문서로 넘깁니다.</span><br>
+            <span style="font-size: 15px; font-weight: 500; color: #5C5650;">이 두 원칙이 긴 작업을 끝까지 무너지지 않게 만듭니다.</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 4: 해결책 ═══════ -->
+    <div class="step-divider reveal content-section" id="case1"><span class="step-badge">사례 1: Generator-Evaluator 구조</span></div>
+    <section>
+      <div class="section-box reveal">
+
+        <!-- 결과: 네덜란드 미술관 (맨 위) -->
+        <div class="nm-card reveal">
+            <h2>네덜란드 미술관 웹사이트 디자인</h2>
+            <p class="card-subtitle">"이 디자인 괜찮아?"라는 주관적 질문을 점수로 바꾼 결과</p>
+
+            <p>Anthropic은 Generator-Evaluator 구조로 랜딩 페이지를 반복 개선했습니다. <strong>9회차</strong>까지 전형적인 다크 테마였던 페이지가, <strong>10회차</strong>에서 CSS perspective로 구현된 <strong>3D 공간 네비게이션</strong>으로 완전히 바뀌었습니다. 체크무늬 바닥, 벽에 걸린 작품, 문을 통한 페이지 이동까지 포함된 공간적 경험입니다.</p>
+
+            <div class="media-box" style="margin-top: 16px;">
+                <video controls muted playsinline style="width:100%;">
+                    <source src="https://cdn.sanity.io/files/4zrzovbb/website/9877febd34432f7f582aecd0023b951223605c6a.mp4#t=13.3" type="video/mp4">
+                </video>
+                <div class="media-caption">
+                    <strong>네덜란드 미술관 웹사이트, 반복 10회차 결과물.</strong> CSS perspective를 활용한 3D 공간 네비게이션이 구현되었습니다.<br>
+                    <span style="font-size: 11px; color: #aaa;">출처: Anthropic Engineering Blog</span>
+                </div>
+            </div>
+
+            <div class="inset-box" style="margin-top: 16px;">
+                <div class="inset-label">놀라운 발견</div>
+                <p>"첫 번째 반복에서도, 아무런 기준 없이 만든 결과물보다 <strong>눈에 띄게 나은 품질</strong>이 나왔습니다. 채점 기준의 문구 자체가 결과물의 성격을 직접 형성합니다."</p>
+            </div>
+        </div>
+
+        <!-- 두 원칙 적용 (2-pack 가로) -->
+        <div class="nm-card reveal">
+            <h2>어떻게 가능했는가: 두 원칙의 적용</h2>
+
+            <div class="applied-grid">
+                <div class="applied-card ac-1">
+                    <span class="principle-pill pp-1">원칙 1 적용</span>
+                    <h3>역할 분리</h3>
+                    <p class="ac-tagline">만드는 AI와 채점하는 AI를 완전히 분리한다</p>
+                    <ul>
+                        <li>Generator는 만들고, Evaluator는 실제 페이지를 보고 채점</li>
+                        <li>Evaluator는 <strong>4가지 채점 기준</strong>으로 분해 (시각적 계층, 색상 일관성, 여백, CTA 명확성)</li>
+                        <li>5~15회 반복하며 개선</li>
+                    </ul>
+                </div>
+                <div class="applied-card ac-2">
+                    <span class="principle-pill pp-2">원칙 2 적용</span>
+                    <h3>컨텍스트 리셋</h3>
+                    <p class="ac-tagline">에이전트끼리 직접 대화하지 않고 파일로만 주고받는다</p>
+                    <ul>
+                        <li>같은 메시지 창에서 대화하지 않음</li>
+                        <li>Generator는 코드를 <strong>page.html</strong>에, Evaluator는 채점 결과를 <strong>score.md</strong>에 기록</li>
+                        <li>매 반복마다 컨텍스트를 처음부터 새로 시작</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 원칙 1 풀어보기: 두 역할의 분담 (zoom-in) -->
+        <div class="zoom-in-section reveal">
+            <div class="zoom-arrow"></div>
+            <div class="zoom-in-card">
+                <span class="zoom-in-pill">원칙 1 풀어보기</span>
+                <div class="zoom-in-title">두 에이전트는 입력·출력·임무가 정확히 이렇게 다릅니다</div>
+                <div class="applied-grid">
+                    <div class="applied-card ac-generator">
+                        <div class="role-card-pill rcp-generator"><strong>Generator</strong><span>역할 1 · 제작자</span></div>
+                        <p class="ac-tagline">채점 기준에 맞춰 페이지를 만들고, 부족한 항목만 다시 고친다</p>
+                        <ul class="role-io">
+                            <li><strong>입력</strong><span>디자인 브리프 + 직전 회차의 <strong>score.md</strong></span></li>
+                            <li><strong>출력</strong><span><strong>page.html</strong> (단일 HTML 파일)</span></li>
+                            <li><strong>임무</strong><span>9.5점 미만 항목만 골라 다시 작성</span></li>
+                            <li><strong>안 함</strong><span>자기 결과물 채점, 점수 변경</span></li>
+                        </ul>
+                    </div>
+                    <div class="applied-card ac-evaluator">
+                        <div class="role-card-pill rcp-evaluator"><strong>Evaluator</strong><span>역할 2 · 채점자</span></div>
+                        <p class="ac-tagline">실제 페이지를 열어보고 4가지 기준으로 냉정하게 점수를 매긴다</p>
+                        <ul class="role-io">
+                            <li><strong>입력</strong><span><strong>page.html</strong> (Generator가 방금 만든 결과)</span></li>
+                            <li><strong>출력</strong><span><strong>score.md</strong> (점수표 + 개선 사항)</span></li>
+                            <li><strong>임무</strong><span>시각적 계층, 색상 일관성, 여백, CTA 명확성을 각 10점으로 평가</span></li>
+                            <li><strong>안 함</strong><span>코드 직접 수정, 다음 회차 만들기</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 프롬프트: 간략 + 상세 -->
+        <div class="nm-card reveal">
+            <h2>프롬프트 예시</h2>
+            <p class="card-subtitle">간략 버전으로 간단하게 실습을 하고, 상세 버전으로 설계하세요</p>
+
+            <div class="prompt-block" style="margin-top: 16px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">간략 버전 (한계점: 한 모델이 두 역할을 흉내내 진짜 분리는 아님)</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'generatorPromptShort')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="generatorPromptShort"><span class="kw"># 이 프롬프트가 하려는 일</span>
+랜딩 페이지 한 장을 자동으로 디자이너 수준까지 끌어올린다.
+같은 AI에게 만들기와 채점을 모두 맡기면 자기 결과에 후해지는 문제가 있다.
+그래서 두 역할을 나눈다. 만드는 <span class="val">Generator</span>, 채점하는 <span class="val">Evaluator</span>.
+
+<span class="kw"># 등장 인물</span>
+<span class="val">Generator</span> (제작자)
+  · 입력: 디자인 브리프 + (있으면) 직전 회차 채점표
+  · 출력: 단일 HTML 파일 한 페이지
+  · 임무: 4가지 채점 항목을 모두 9.5점 이상으로 끌어올리기
+  · 안 함: 자기 결과 채점, 점수 임의 변경
+
+<span class="val">Evaluator</span> (채점자)
+  · 입력: 방금 Generator가 만든 HTML
+  · 출력: 항목별 점수 + 개선 사항
+  · 임무: 냉정하게 채점하되 점수보다 개선 사항을 먼저 적기
+  · 안 함: 코드 직접 수정, 다음 회차 만들기
+
+<span class="kw"># 합격 기준 (각 10점 만점)</span>
+1. 시각적 계층: 제목·본문·소제목이 한눈에 구분되는가
+2. 색상 일관성: 주조색 1개·보조색 1개만 일관되게 쓰는가
+3. 여백 활용:   요소 간 간격이 충분한가
+4. CTA 명확성: "다음 행동" 버튼이 눈에 띄는가
+
+<span class="kw"># 입력</span>
+디자인 브리프: <span class="cm">(한두 문장)</span>
+
+<span class="kw"># 진행 순서</span>
+한 회차 = <span class="val">Generator</span> 출력 → <span class="val">Evaluator</span> 출력.
+2회차부터 Generator는 직전 채점표에서 9.5점 미만 항목만 손본다. 나머지는 절대 건드리지 않는다.
+
+<span class="kw"># 종료 조건</span>
+4개 항목 모두 9.5점 이상이면 종료. 아니면 다음 회차로. 최대 5회까지.</pre>
+            </div>
+
+            <div class="prompt-block" style="margin-top: 16px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">상세 버전</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'generatorPrompt')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="generatorPrompt"><span class="kw"># 이 프롬프트가 하려는 일</span>
+랜딩 페이지 한 장을 자동으로 디자이너 수준까지 끌어올린다.
+간략 버전과 달리, Claude Code의 Task 도구로 <span class="val">Generator</span>와 <span class="val">Evaluator</span>를 별도의 서브에이전트로 띄운다.
+두 에이전트는 매 회차 새 컨텍스트에서 시작하고, 같은 메시지 창에서 대화하지 않고 파일로만 주고받는다.
+
+<span class="kw"># 작업 디렉토리</span>
+<span class="val">./design-loop/</span>
+  ├─ <span class="val">page.html</span>   <span class="cm">(Generator의 출력)</span>
+  └─ <span class="val">score.md</span>    <span class="cm">(Evaluator의 출력)</span>
+
+<span class="kw"># 합격 기준 (각 10점 만점, 총 40점)</span>
+1. 시각적 계층:  제목·소제목·본문의 크기·굵기가 명확히 구분되는가
+2. 색상 일관성:  주조색 1개, 보조색 1개만 사용하는가
+3. 여백 활용:    요소 간 간격이 충분히 확보되어 있는가
+4. CTA 명확성:   행동 유도 버튼이 눈에 띄는 위치에 있는가
+
+<span class="kw"># 입력</span>
+디자인 브리프: <span class="cm">(한두 문장으로 무엇을 위한 페이지인지)</span>
+
+<span class="kw"># 메인 에이전트 절차 (최대 10회)</span>
+회차마다 다음 3단계를 순서대로 수행한다.
+
+<span class="cm">1.</span> Task 도구로 <span class="val">generator-agent</span>를 호출한다.
+   입력: 디자인 브리프 + (있으면) <span class="val">./design-loop/score.md</span>
+   산출물: <span class="val">./design-loop/page.html</span>
+
+<span class="cm">2.</span> Task 도구로 <span class="val">evaluator-agent</span>를 호출한다.
+   입력: <span class="val">./design-loop/page.html</span>
+   산출물: <span class="val">./design-loop/score.md</span>
+
+<span class="cm">3.</span> score.md를 읽는다.
+   모든 항목이 9.5점 이상이면 <span class="val">STATUS: COMPLETED</span>를 선언하고 종료.
+   아니면 다음 회차로 넘어간다.
+
+<span class="kw"># generator-agent 시스템 프롬프트</span>
+너는 랜딩 페이지를 만드는 Generator다.
+- 디자인 브리프를 읽는다. 직전 score.md가 있으면 함께 읽는다.
+- 4가지 합격 기준을 목표로 단일 HTML 파일을 <span class="val">./design-loop/page.html</span>에 저장한다.
+- 직전 score.md가 있으면 9.5점 미만 항목만 수정한다. 나머지는 절대 건드리지 않는다.
+- 수정한 영역에는 다음 주석을 단다.
+  <span class="cm">/* 수정 (N회차): [항목명] - [변경 내용] */</span>
+
+<span class="kw"># evaluator-agent 시스템 프롬프트</span>
+너는 랜딩 페이지를 채점하는 Evaluator다.
+- <span class="val">./design-loop/page.html</span>을 실제 브라우저로 열어서 본다.
+- 4가지 항목을 각 10점 만점으로 채점하고, 결과를 <span class="val">./design-loop/score.md</span>에 다음 형식으로 기록한다.
+
+  <span class="val">| 회차 | 시각적 계층 | 색상 일관성 | 여백 활용 | CTA 명확성 | 총점 |</span>
+  <span class="val">|  N   |    X점      |    X점      |   X점     |    X점     | XX점 |</span>
+
+  표 다음에 9.5점 미만 항목별로 "무엇이 부족한가, 무엇을 바꿔야 하는가"를 구체적으로 적는다.
+- 9점 이상은 거의 완벽할 때만 준다. 점수보다 개선 사항을 먼저 적는다.
+- 코드를 직접 수정하지 않는다.</pre>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ 사례 2: DAW ═══════ -->
+    <div class="step-divider reveal content-section" id="case3"><span class="step-badge">사례 2: Planner-Generator-Evaluator 구조</span></div>
+    <section>
+      <div class="section-box reveal">
+
+        <!-- 결과: DAW (맨 위) -->
+        <div class="nm-card reveal">
+            <h2>브라우저 기반 DAW (디지털 오디오 워크스테이션)</h2>
+            <p class="card-subtitle">"이 앱이 실제로 작동하는가"라는 질문을 PASS/FAIL로 바꾼 결과</p>
+
+            <p>단순화된 <strong>3-Agent 하네스</strong> (Planner, Generator & Evaluator)로 <strong>브라우저에서 돌아가는 DAW</strong>를 만들었습니다. 어레인지먼트 뷰, 믹서, 트랜스포트가 모두 포함되어 있고, AI가 프롬프트로 간단한 곡을 자동 작곡하는 기능까지 들어 있습니다.</p>
+
+            <div class="media-box" style="margin-top: 16px;">
+                <video controls muted playsinline style="width:100%;">
+                    <source src="https://cdn.sanity.io/files/4zrzovbb/website/555910f9adb3938734940224e7a6f4c7cbbbd8f2.mp4" type="video/mp4">
+                </video>
+                <div class="media-caption">
+                    <strong>브라우저 기반 DAW 데모 영상.</strong> 단순화된 3-Agent 하네스로 만든 결과물입니다. AI가 프롬프트로 간단한 곡을 자동 작곡하는 기능이 포함됩니다.<br>
+                    <span style="font-size: 11px; color: #aaa;">출처: Anthropic Engineering Blog</span>
+                </div>
+            </div>
+
+            <div class="sub-section-title">어떻게 가능했는가: 두 원칙의 적용 (3-Agent로 확장)</div>
+            <p style="font-size: 13.5px; color: #5C5650; margin: 0 0 12px;">풀스택 앱은 디자인보다 한 단계 더 복잡합니다. Anthropic은 사례 1의 2-Agent 구조에 <strong>Planner(기획자)</strong>를 추가해 3-Agent로 확장했고, 구현 전에 "무엇이 성공인지"를 먼저 합의하는 <strong>스프린트 계약</strong>을 도입했습니다.</p>
+
+            <div class="applied-grid">
+                <div class="applied-card ac-1">
+                    <span class="principle-pill pp-1">원칙 1 적용</span>
+                    <h3>역할 분리</h3>
+                    <p class="ac-tagline">Planner를 더해 만들기·검증·기획을 모두 분리한다</p>
+                    <ul>
+                        <li><strong>Planner</strong>가 1~4문장 브리프를 완전한 기획서로 확장</li>
+                        <li><strong>Generator</strong>가 기획서대로 코드 작성, <strong>Evaluator</strong>가 실제 사용자처럼 앱을 테스트</li>
+                        <li>Evaluator는 합격/불합격을 판정만 한다 (구현은 안 함)</li>
+                    </ul>
+                </div>
+                <div class="applied-card ac-2">
+                    <span class="principle-pill pp-2">원칙 2 적용</span>
+                    <h3>컨텍스트 리셋</h3>
+                    <p class="ac-tagline">합격 기준을 먼저 합의하고 모든 소통은 파일로 한다</p>
+                    <ul>
+                        <li><strong>스프린트 계약</strong>: 시작 전에 합격 기준을 plan.md로 합의 ("좋아 보인다" 대신 측정 가능한 조건)</li>
+                        <li>Generator는 코드를, Evaluator는 판정 결과를 feedback.md로 남김</li>
+                        <li>매 회차 컨텍스트를 새로 시작</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="role-arrow-down"></div>
+            <div class="zoom-in-card" style="margin-top: 4px;">
+                <span class="zoom-in-pill">원칙 1 풀어보기</span>
+                <div class="zoom-in-title">세 역할의 분담: 누가 무엇을 하나</div>
+                <p style="font-size: 13.5px; color: #5C5650; margin: 0 0 14px;">사례 1의 2-Agent 구조에 <strong>Planner</strong>를 더해, 기획·제작·검증을 모두 다른 에이전트로 띄웁니다. 셋은 같은 메시지 창에서 대화하지 않고 파일로만 주고받습니다.</p>
+
+                <div class="applied-grid three-col">
+                    <div class="applied-card ac-planner">
+                        <div class="role-card-pill rcp-planner"><strong>Planner</strong><span>역할 1 · 기획자</span></div>
+                        <p class="ac-tagline">시작 전에 "무엇이 성공인지" 합격 기준을 먼저 합의한다</p>
+                        <ul class="role-io">
+                            <li><strong>입력</strong><span>1~4문장의 짧은 브리프</span></li>
+                            <li><strong>출력</strong><span><strong>plan.md</strong> (기획서 + 합격 기준)</span></li>
+                            <li><strong>임무</strong><span>"좋아 보인다" 대신 PASS/FAIL로 판정 가능한 기준 설계</span></li>
+                            <li><strong>안 함</strong><span>코드 작성, 합격 판정</span></li>
+                        </ul>
+                    </div>
+                    <div class="applied-card ac-generator">
+                        <div class="role-card-pill rcp-generator"><strong>Generator</strong><span>역할 2 · 제작자</span></div>
+                        <p class="ac-tagline">기획서대로 앱을 짜고, 직전 피드백에서 FAIL인 항목만 고친다</p>
+                        <ul class="role-io">
+                            <li><strong>입력</strong><span><strong>plan.md</strong> + 직전 회차의 <strong>feedback.md</strong></span></li>
+                            <li><strong>출력</strong><span>동작하는 앱 코드</span></li>
+                            <li><strong>임무</strong><span>합격 기준 항목을 PASS로 바꾸는 데 집중</span></li>
+                            <li><strong>안 함</strong><span>합격 기준 변경, 자기 코드 판정</span></li>
+                        </ul>
+                    </div>
+                    <div class="applied-card ac-evaluator">
+                        <div class="role-card-pill rcp-evaluator"><strong>Evaluator</strong><span>역할 3 · 채점자</span></div>
+                        <p class="ac-tagline">실제 사용자처럼 앱을 써보고 PASS/FAIL을 판정한다</p>
+                        <ul class="role-io">
+                            <li><strong>입력</strong><span>Generator가 방금 만든 동작하는 앱</span></li>
+                            <li><strong>출력</strong><span><strong>feedback.md</strong> (기준별 PASS/FAIL + 근거)</span></li>
+                            <li><strong>임무</strong><span>합격 기준대로 사용자처럼 동작 검증</span></li>
+                            <li><strong>안 함</strong><span>코드 수정, 합격 기준 변경</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nm-table-wrap" style="margin-top: 16px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>단계</th>
+                            <th>소요 시간</th>
+                            <th>비용</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>기획 (Planner)</strong></td><td>4.7분</td><td>$0.46</td></tr>
+                        <tr class="build-row"><td><strong>1차 Build (Generator)</strong></td><td>2시간 7분</td><td>$71.08</td></tr>
+                        <tr><td><strong>1차 QA (Evaluator)</strong></td><td>8.8분</td><td>$3.24</td></tr>
+                        <tr class="build-row"><td><strong>2차 Build (Generator)</strong></td><td>1시간 2분</td><td>$36.89</td></tr>
+                        <tr><td><strong>2차 QA (Evaluator)</strong></td><td>6.8분</td><td>$3.09</td></tr>
+                        <tr class="build-row"><td><strong>3차 Build (Generator)</strong></td><td>10.9분</td><td>$5.88</td></tr>
+                        <tr><td><strong>3차 QA (Evaluator)</strong></td><td>9.6분</td><td>$4.06</td></tr>
+                        <tr style="background: rgba(217,119,87,0.06);">
+                            <td><strong style="color: var(--ant-orange);">합계</strong></td>
+                            <td><strong style="color: var(--ant-orange);">약 3시간 50분</strong></td>
+                            <td><strong style="color: var(--ant-orange);">$124.70</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tip-box" style="margin-top: 16px;">
+                <div class="tip-label">주목할 패턴</div>
+                <p>Build 횟수가 거듭될수록 소요 시간과 비용이 급격히 줄어들었습니다. 3차 Build는 1차와 비교하면 <strong>시간은 1/12, 비용도 1/12 수준</strong>으로 끝났습니다. Evaluator가 남은 문제만 정확히 짚어주었기 때문입니다.</p>
+            </div>
+        </div>
+
+        <!-- 프롬프트: 간략 + 상세 -->
+        <div class="nm-card reveal">
+            <h2>프롬프트 예시</h2>
+            <p class="card-subtitle">간략 버전으로 간단하게 실습을 하고, 상세 버전으로 설계하세요</p>
+
+            <div class="prompt-block" style="margin-top: 16px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">간략 버전 (한계점: 한 모델이 세 역할을 흉내내 진짜 분리는 아님)</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'dawPromptShort')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="dawPromptShort"><span class="kw"># 이 프롬프트가 하려는 일</span>
+브라우저에서 동작하는 풀스택 앱을 자동으로 만든다.
+"좋아 보인다"라는 주관에서 벗어나 PASS/FAIL로 판정 가능한 합격 기준을 먼저 합의하고,
+그다음에 만들기와 검증을 반복한다.
+
+<span class="kw"># 등장 인물</span>
+<span class="val">Planner</span> (기획자)
+  · 입력: 1~4문장의 짧은 앱 브리프
+  · 출력: 측정 가능한 합격 기준 5개 이상이 적힌 기획서
+  · 임무: "좋아 보인다" 대신 PASS/FAIL로 판정 가능한 기준 설계
+  · 안 함: 코드 작성, 합격 판정
+
+<span class="val">Generator</span> (제작자)
+  · 입력: 기획서 + (있으면) 직전 회차 피드백
+  · 출력: 동작하는 단일 HTML 앱
+  · 임무: 합격 기준 항목을 PASS로 바꾸기
+  · 안 함: 합격 기준 변경, 자기 코드 판정
+
+<span class="val">Evaluator</span> (채점자)
+  · 입력: 방금 Generator가 만든 앱
+  · 출력: 기준별 PASS/FAIL + 근거
+  · 임무: 실제 사용자처럼 앱을 써보고 기준대로 판정
+  · 안 함: 코드 수정, 합격 기준 변경
+
+<span class="kw"># 입력</span>
+앱 브리프: <span class="cm">(한두 문장)</span>
+
+<span class="kw"># 진행 순서 (최대 3회차)</span>
+1회차에만 <span class="val">Planner</span>를 호출한다.
+  · Planner: 측정 가능한 합격 기준 5개 이상을 작성. 주관적 표현 금지.
+  · Generator: 합격 기준을 만족하는 단일 HTML 앱을 출력.
+  · Evaluator: 기준별 결과를 <span class="val">| 기준 | 판정 | 근거 |</span> 표로 출력. 점수보다 근거를 먼저 적는다.
+
+2회차부터:
+  · Generator: 직전 회차에서 FAIL인 기준만 손본다. 나머지는 그대로 둔다.
+  · Evaluator: 다시 판정한다.
+
+<span class="kw"># 종료 조건</span>
+모든 기준 PASS면 종료. 아니면 다음 회차로. 최대 3회까지.</pre>
+            </div>
+
+            <div class="prompt-block" style="margin-top: 16px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">상세 버전</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'dawPrompt')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="dawPrompt"><span class="kw"># 이 프롬프트가 하려는 일</span>
+브라우저에서 동작하는 풀스택 앱을 PASS/FAIL 기반으로 자동 구축한다.
+"이게 정말 작동하는가"를 측정 가능한 합격 기준으로 바꾼 뒤,
+Claude Code의 Task 도구로 <span class="val">Planner</span> / <span class="val">Generator</span> / <span class="val">Evaluator</span>를 별도 서브에이전트로 띄운다.
+세 에이전트는 매 단계 새 컨텍스트에서 시작하고, 같은 메시지 창에서 대화하지 않고 파일로만 주고받는다.
+
+<span class="kw"># 작업 디렉토리</span>
+<span class="val">./app-build/</span>
+  ├─ <span class="val">plan.md</span>       <span class="cm">(Planner의 기획서 + 합격 기준)</span>
+  ├─ <span class="val">code/</span>         <span class="cm">(Generator의 앱 코드)</span>
+  └─ <span class="val">feedback.md</span>   <span class="cm">(Evaluator의 PASS/FAIL + 근거)</span>
+
+<span class="kw"># 입력</span>
+앱 브리프: <span class="cm">(한두 문장)</span>
+
+<span class="kw"># Phase 1. 기획·합의 (최대 3회)</span>
+구현을 시작하기 전에 합격 기준을 먼저 굳힌다.
+
+<span class="cm">1.</span> Task 도구로 <span class="val">planner-agent</span>를 호출한다.
+   입력: 앱 브리프
+   산출물: <span class="val">./app-build/plan.md</span>
+
+<span class="cm">2.</span> Task 도구로 <span class="val">evaluator-agent</span>를 호출해 plan.md를 검토한다.
+   합격 기준이 측정 가능하면 plan.md 하단에 <span class="val">STATUS: APPROVED</span> 추가.
+   아니면 1번으로 돌아가서 기준을 다시 작성한다.
+
+<span class="kw"># Phase 2. 구현·검증 (최대 N회차)</span>
+기준이 굳어지면 그제서야 코드를 만들기 시작한다.
+
+회차마다 다음 3단계를 순서대로 수행한다.
+
+<span class="cm">1.</span> Task 도구로 <span class="val">generator-agent</span>를 호출한다.
+   입력: <span class="val">plan.md</span> + (있으면) <span class="val">feedback.md</span>
+   산출물: <span class="val">./app-build/code/</span>
+
+<span class="cm">2.</span> Task 도구로 <span class="val">evaluator-agent</span>를 호출한다.
+   입력: <span class="val">plan.md</span> + <span class="val">./app-build/code/</span>
+   산출물: <span class="val">./app-build/feedback.md</span>
+
+<span class="cm">3.</span> feedback.md를 읽는다.
+   모든 기준이 PASS면 <span class="val">STATUS: COMPLETED</span>를 추가하고 종료.
+   아니면 다음 회차로.
+
+<span class="kw"># planner-agent 시스템 프롬프트</span>
+너는 앱 기획자다. 1~4문장 브리프를 받아 plan.md를 작성한다.
+- 합격 기준은 번호가 매겨진 측정 가능한 조건 5개 이상.
+- 주관적 표현 금지. <span class="cm">("좋아 보인다" X, "버튼 클릭 시 X 발생" O)</span>
+- 기술 제약과 우선순위도 함께 명시한다.
+
+<span class="kw"># generator-agent 시스템 프롬프트</span>
+너는 코드 작성자다. plan.md만을 진실의 원천으로 보고 <span class="val">./app-build/code/</span>에 앱을 작성한다.
+- (있으면) 직전 feedback.md에서 FAIL인 기준 번호만 수정한다. 나머지는 절대 건드리지 않는다.
+- 수정한 영역에는 변경 내용을 코드 상단 주석으로 명시한다.
+
+<span class="kw"># evaluator-agent 시스템 프롬프트</span>
+너는 검증자다. plan.md의 합격 기준만을 근거로 <span class="val">./app-build/code/</span>를 판정한다.
+- 실제 코드를 실행하거나 브라우저로 열어서 확인한다.
+- 결과를 feedback.md에 다음 형식으로 기록한다.
+
+  <span class="val">| 기준 번호 | 판정 (PASS/FAIL) | 근거 |</span>
+
+- 근거는 재현 가능하게 구체적으로 적는다.
+- 코드를 직접 수정하지 않는다.</pre>
+            </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 출처 섹션 -->
+    <div class="ref-section reveal">
+        <div class="ref-title">출처</div>
+        <div class="ref-links">
+            <a class="ref-link" href="https://www.anthropic.com/engineering/harness-design-long-running-apps" target="_blank" rel="noopener">
+                <span class="ref-icon">&#x1F4D6;</span>
+                <span>
+                    Anthropic Engineering | "Harness design for long-running application development"<br>
+                    <span style="font-size: 12px; color: #999; font-weight: 400;">저자: Prithvi Rajasekaran (Anthropic Labs) / 2026년 3월 24일 게시</span>
+                </span>
+                <span class="ref-desc">원문</span>
+            </a>
+        </div>
+        <p style="font-size: 12px; color: #999; margin-top: 14px; line-height: 1.7;">
+            이 페이지의 모든 인용문, 이미지, 동영상, 데이터 테이블은 위 Anthropic 엔지니어링 블로그 원문에서 발췌한 것입니다.<br>
+본 자료는 교육 및 강의 목적으로 정리되었으며, 원문의 저작권은 Anthropic에 있습니다.
+        </p>
+    </div>
+
+    <!-- CTA 섹션 -->
+    <div class="cta-section reveal">
+        <h3>하네스 설계, 직접 해보세요</h3>
+        <p>Anthropic이 증명한 핵심은 이것입니다. 같은 모델이라도 하네스가 다르면 결과가 완전히 달라집니다.<br>CLAUDE.md, 스킬, 훅, MCP로 여러분만의 하네스를 만들어 보세요.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn secondary" href="index.html">&larr; 목록으로</a>
+            <a class="cta-btn primary" href="claude-tools.html">Claude의 도구 살펴보기 &rarr;</a>
+        </div>
+    </div>
+</main>
+
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+// ── Mode Tabs ──
+function switchMode(mode) {
+    document.querySelectorAll('.mode-tab').forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+    var active = document.getElementById('tab-' + mode);
+    active.classList.add('active');
+    active.setAttribute('aria-selected','true');
+    ['harness','tool'].forEach(function(m){
+        var el = document.getElementById('pages-' + m);
+        if(el) el.style.display = (m === mode) ? 'flex' : 'none';
+    });
+}
+
+// ── 스크롤 애니메이션 ──
+var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+// ── 그리드 stagger 애니메이션 ──
+var gridSelectors = '.role-grid, .comp-grid, .grade-grid, .compare-grid';
+document.querySelectorAll(gridSelectors).forEach(function(grid) {
+    var children = grid.children;
+    for (var i = 0; i < children.length; i++) {
+        children[i].classList.add('stagger-child');
+        children[i].style.transitionDelay = (i * 0.1) + 's';
+    }
+});
+var staggerObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            var children = entry.target.children;
+            for (var i = 0; i < children.length; i++) {
+                children[i].classList.add('visible');
+            }
+        }
+    });
+}, { threshold: 0.15 });
+document.querySelectorAll(gridSelectors).forEach(function(grid) {
+    staggerObserver.observe(grid);
+});
+
+// ── 서브메뉴 활성화 ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a');
+    var sections = [];
+    var scrollEndTimer = null;
+    var clickedLink = null;
+
+    links.forEach(function(l){
+        var id = l.getAttribute('data-sec');
+        var el = document.getElementById(id);
+        if(el) sections.push({el:el, link:l});
+
+        l.addEventListener('click', function(){
+            links.forEach(function(x){ x.classList.remove('active'); });
+            l.classList.add('active');
+            clickedLink = l;
+        });
+    });
+
+    function update(){
+        if(clickedLink) return;
+        var smEl = document.getElementById('subMenu');
+        var scrollY = window.scrollY + (smEl ? smEl.offsetHeight : 0) + 16;
+        var current = null;
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                // 가로 서브메뉴만 스크롤한다. sticky 컨테이너 안에서 scrollIntoView를 부르면
+                // 브라우저가 창을 서브메뉴의 원래(고정 전) 위치로 끌어올려 하단을 못 보게 만든다.
+                var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.clientWidth) / 2;
+                nav.scrollTo({left: target, behavior: 'smooth'});
+            }
+        }
+    }
+    window.addEventListener('scroll', function(){
+        if(scrollEndTimer) clearTimeout(scrollEndTimer);
+        scrollEndTimer = setTimeout(function(){
+            clickedLink = null;
+            update();
+        }, 150);
+        update();
+    }, {passive:true});
+    update();
+})();
+
+// ── 스크롤 프로그레스 바 ──
+(function(){
+    var bar = document.getElementById('scrollProgress');
+    if(!bar) return;
+    function updateProgress(){
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = progress + '%';
+    }
+    window.addEventListener('scroll', updateProgress, {passive:true});
+    updateProgress();
+})();
+
+function copyPrompt(btn, sourceId) {
+    var id = sourceId || btn.closest('.prompt-block').querySelector('pre').id;
+    var text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(function() {
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 복사됨';
+        setTimeout(function() {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> 복사하기';
+        }, 2000);
+    });
+}
+</script>
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 6px 16px -6px rgba(58,53,48,.18);
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 0 0 0 1px rgba(58,53,48,.07), 0 6px 16px -6px rgba(58,53,48,.18);
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 0 0 0 1px rgba(58,53,48,.10); background: rgba(58,53,48,.04); }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #B0544A; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    /* 헤더 상단 여백 통일 */
+    header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 50px 0 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+
+<!-- 가이드 소개 모달: 단일 소스 assets/about-modal.js 에서 주입 -->
+<script src="assets/about-modal.js"></script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+</body>
+</html>
