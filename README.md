@@ -24,8 +24,8 @@
 ### 진단
 | 페이지 | 설명 |
 |--------|------|
-| [Claude 완전 정복, 5분 오리엔테이션](claude-orientation.html) | 왜 Claude인가, 무엇을 배우는가, 어떻게 따라가는가 |
-| [나는 지금 몇 단계일까?](ai-levels.html) | 자율주행 1~5단계 비유로 내 AI 활용 수준을 진단 |
+| [Claude 완전 정복, 5분 오리엔테이션](https://airoasting.vercel.app/claude-orientation.html) | 왜 Claude인가, 무엇을 배우는가, 어떻게 따라가는가 |
+| [나는 지금 몇 단계일까?](https://airoasting.vercel.app/ai-levels.html) | 자율주행 1~5단계 비유로 내 AI 활용 수준을 진단 |
 
 ### 1단계. 기본기부터
 
@@ -33,23 +33,23 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [프롬프트 잘 쓰는 사람들의 11가지 습관](ai-fluency.html) | Anthropic이 9,830건 대화를 분석해 정리한 작성법 |
-| [프로젝트 만들기](project-intro.html) | Claude 프로젝트 셋업과 시스템 프롬프트 구성 |
-| [멀티 페르소나 토론](multi-persona.html) | 5인 전문가 팀으로 답변을 다각적으로 검증 |
+| [프롬프트 잘 쓰는 사람들의 11가지 습관](https://airoasting.vercel.app/ai-fluency.html) | Anthropic이 9,830건 대화를 분석해 정리한 작성법 |
+| [프로젝트 만들기](https://airoasting.vercel.app/project-intro.html) | Claude 프로젝트 셋업과 시스템 프롬프트 구성 |
+| [멀티 페르소나 토론](https://airoasting.vercel.app/multi-persona.html) | 5인 전문가 팀으로 답변을 다각적으로 검증 |
 
 **검증**
 
 | 페이지 | 설명 |
 |--------|------|
-| [AI의 동조를 줄이는 법](ai-sycophancy.html) | 무조건 맞장구치는 AI의 아첨(sycophancy)을 걸러내는 법 |
-| [AI의 환각을 벗어나는 법](ai-hallucination.html) | 빅4 컨설팅사도 가짜 각주에 걸렸습니다. AI가 지어내는 것을 막는 실전 검증 습관 |
+| [AI의 동조를 줄이는 법](https://airoasting.vercel.app/ai-sycophancy.html) | 무조건 맞장구치는 AI의 아첨(sycophancy)을 걸러내는 법 |
+| [AI의 환각을 벗어나는 법](https://airoasting.vercel.app/ai-hallucination.html) | 빅4 컨설팅사도 가짜 각주에 걸렸습니다. AI가 지어내는 것을 막는 실전 검증 습관 |
 
 ### 2단계. 확장 프로그램
 
 | 페이지 | 설명 |
 |--------|------|
-| [크롬에서 Claude 사용](chrome-plugin.html) | 브라우저를 떠나지 않고 요약, 작성, 검색 보조 |
-| [MS Office에서 Claude 사용](claude-plugin.html) | 엑셀, 파워포인트, 워드 3종 플러그인 실전 가이드 |
+| [크롬에서 Claude 사용](https://airoasting.vercel.app/chrome-plugin.html) | 브라우저를 떠나지 않고 요약, 작성, 검색 보조 |
+| [MS Office에서 Claude 사용](https://airoasting.vercel.app/claude-plugin.html) | 엑셀, 파워포인트, 워드 3종 플러그인 실전 가이드 |
 
 ### 3단계. 클로드 코드
 
@@ -57,22 +57,22 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [클로드 코드 101](claude-code-101.html) | 터미널 없이 Claude Desktop으로 시작하는 가장 쉬운 방법 |
-| [실전 과제 7가지](claude-code-tasks.html) | 스탑워치부터 CEO 대시보드까지 바이브코딩 7단계 |
-| [GitHub & Vercel](github-guide.html) | 코드를 저장하고 웹 주소로 접속하기까지 한 번에 |
+| [클로드 코드 101](https://airoasting.vercel.app/claude-code-101.html) | 터미널 없이 Claude Desktop으로 시작하는 가장 쉬운 방법 |
+| [실전 과제 7가지](https://airoasting.vercel.app/claude-code-tasks.html) | 스탑워치부터 CEO 대시보드까지 바이브코딩 7단계 |
+| [GitHub & Vercel](https://airoasting.vercel.app/github-guide.html) | 코드를 저장하고 웹 주소로 접속하기까지 한 번에 |
 
 **CLI 트랙**
 
 | 페이지 | 설명 |
 |--------|------|
-| [클로드 코드 20단계 따라하기](checklist.html) | 기초부터 고급까지 단계별 체크리스트 |
-| [명령어 모음](cheatsheet.html) | 자주 쓰는 슬래시 명령어와 단축키 한 곳에 |
+| [클로드 코드 20단계 따라하기](https://airoasting.vercel.app/checklist.html) | 기초부터 고급까지 단계별 체크리스트 |
+| [명령어 모음](https://airoasting.vercel.app/cheatsheet.html) | 자주 쓰는 슬래시 명령어와 단축키 한 곳에 |
 
 **비법 트랙**
 
 | 페이지 | 설명 |
 |--------|------|
-| [고수처럼 쓰는 9가지 원칙](claude-code-best-practices.html) | 노코드든 CLI든 공통으로 통하는, Anthropic 베스트 프랙티스 9원칙 한국어판 |
+| [고수처럼 쓰는 9가지 원칙](https://airoasting.vercel.app/claude-code-best-practices.html) | 노코드든 CLI든 공통으로 통하는, Anthropic 베스트 프랙티스 9원칙 한국어판 |
 
 ### 4단계. 에이전트 설계
 
@@ -80,43 +80,35 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [하네스 엔지니어링이란?](harness-engineering.html) | 같은 모델도 하네스에 따라 결과가 달라집니다. 역할 분리·컨텍스트 리셋 두 원칙 |
-| [Claude의 도구란?](claude-tools.html) | 내장 도구·MCP·커넥터·스킬·플러그인. 도구 다섯 종류를 한 지도로 정리 |
-| [멀티 에이전트 소환](harness-workflows.html) | `/goal` 한 줄로 목표를 선언하면 Claude가 에이전트 팀을 직접 짜서 끝까지 실행 |
+| [하네스 엔지니어링이란?](https://airoasting.vercel.app/harness-engineering.html) | 같은 모델도 하네스에 따라 결과가 달라집니다. 역할 분리·컨텍스트 리셋 두 원칙 |
+| [Claude의 도구란?](https://airoasting.vercel.app/claude-tools.html) | 내장 도구·MCP·커넥터·스킬·플러그인. 도구 다섯 종류를 한 지도로 정리 |
+| [멀티 에이전트 소환](https://airoasting.vercel.app/harness-workflows.html) | `/goal` 한 줄로 목표를 선언하면 Claude가 에이전트 팀을 직접 짜서 끝까지 실행 |
 
 **스킬**
 
 | 페이지 | 설명 |
 |--------|------|
-| [CLAUDE.md로 내 규칙 알려주기](claude-md-templates.html) | 프로젝트별 규칙을 저장하는 설정 파일 작성법 |
-| [나만의 Skill 만들기](skills.html) | 내 스타일을 등록해 한 마디로 결과물 받기 |
-| [스킬·MCP를 플러그인으로 묶기](code-plugin.html) | 스킬과 MCP를 한 패키지로 묶어 팀에 한 줄 명령으로 배포하기 |
+| [CLAUDE.md로 내 규칙 알려주기](https://airoasting.vercel.app/claude-md-templates.html) | 프로젝트별 규칙을 저장하는 설정 파일 작성법 |
+| [나만의 Skill 만들기](https://airoasting.vercel.app/skills.html) | 내 스타일을 등록해 한 마디로 결과물 받기 |
+| [스킬·MCP를 플러그인으로 묶기](https://airoasting.vercel.app/code-plugin.html) | 스킬과 MCP를 한 패키지로 묶어 팀에 한 줄 명령으로 배포하기 |
 
 ### 5단계. 루프 자동화
 
 | 페이지 | 설명 |
 |--------|------|
-| [루프 엔지니어링](loop-engineering.html) | 행동하고 결과를 관찰해 조정하기를 목표에 닿을 때까지 반복하는 작업 구조 설계 |
-| [Routines 예약 실행](routines.html) | 정해진 시각에 클라우드에서 무인으로 도는 예약형 에이전트 |
+| [루프 엔지니어링](https://airoasting.vercel.app/loop-engineering.html) | 행동하고 결과를 관찰해 조정하기를 목표에 닿을 때까지 반복하는 작업 구조 설계 |
+| [Routines 예약 실행](https://airoasting.vercel.app/routines.html) | 정해진 시각에 클라우드에서 무인으로 도는 예약형 에이전트 |
 
 ---
 
 ## 실전 예제
 
-**MCP 연결**
-
 | 페이지 | 설명 |
 |--------|------|
-| [Kakao PlayMCP 연결하기](playmcp-kakao.html) | Claude Desktop 커넥터로 카카오 PlayMCP를 붙여 나와의 채팅방으로 결과 보내기 |
-| [한국 법령 검색 MCP](korean-law-mcp.html) | Claude Desktop 커넥터로 법제처 Open API를 물려 실제 법령 끌어오기 |
-| [종목 분석 후 텔레그램으로 보고 받기](stock-messenger.html) | DART 공시 데이터를 분석해 텔레그램 봇으로 받아 보는 자동화 |
-
-**심화 예제**
-
-| 페이지 | 설명 |
-|--------|------|
-| [하네스 엔지니어링으로 책 쓰기](harness-book.html) | AI 에이전트 팀으로 책 한 권을 완성하는 실전 가이드 |
-| [컴퍼니 브레인 축적하기](company-brain.html) | 회의록·정책·메일을 던지면 Claude가 위키로 정리하고, 새 자료가 들어올 때마다 스스로 갱신하는 회사 지식 베이스 만들기 |
+| [MCP 연결 실전](https://airoasting.vercel.app/mcp-examples.html) | 카카오톡·법령·구글 드라이브·DART 공시·텔레그램을 Claude에 연결하는 다섯 가지 MCP 예제 |
+| [AI와 함께 일하는 7단계](https://airoasting.vercel.app/seven-steps.html) | slide_library·casting·5color·korean·council 다섯 스킬을 하나의 워크플로우로 잇는 7단계 방법론 |
+| [하네스 엔지니어링으로 책 쓰기](https://airoasting.vercel.app/harness-book.html) | AI 에이전트 팀으로 책 한 권을 완성하는 실전 가이드 |
+| [컴퍼니 브레인 축적하기](https://airoasting.vercel.app/company-brain.html) | 회의록·정책·메일을 던지면 위키로 정리하고 새 자료마다 스스로 갱신하는 컴퍼니 브레인 |
 
 ---
 
@@ -124,9 +116,9 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [파일 유형 한눈에 보기](file-types.html) | .md부터 .py까지 자주 만나는 파일 8종을 AI가 읽고 쓰는 관점으로 비교 |
-| [라이선스 가이드](license-compare.html) | MIT, Apache, GPL 등 오픈소스 라이선스를 신호등(초록·노랑·빨강)으로 정리 |
-| [모르는 용어, 바로 찾기](glossary.html) | AI 70년사를 6막 71선으로 풀어낸 비즈니스 리더용 용어 사전 |
+| [파일 유형 한눈에 보기](https://airoasting.vercel.app/file-types.html) | .md부터 .py까지 자주 만나는 파일 8종을 AI가 읽고 쓰는 관점으로 비교 |
+| [라이선스 가이드](https://airoasting.vercel.app/license-compare.html) | MIT, Apache, GPL 등 오픈소스 라이선스를 신호등(초록·노랑·빨강)으로 정리 |
+| [모르는 용어, 바로 찾기](https://airoasting.vercel.app/glossary.html) | AI 70년사를 6막 71선으로 풀어낸 비즈니스 리더용 용어 사전 |
 
 ---
 
@@ -134,9 +126,9 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [EDA 차트 갤러리 21](eda-gallery.html) | 데이터 탐색과 분석에 자주 쓰는 차트 유형 정리 |
-| [UI 컴포넌트 갤러리 40](component-gallery.html) | 바이브 코딩에 바로 쓰는 UI 부품 모음 |
-| [UI 디자인 트렌드 30](ui-design.html) | 머터리얼, 뉴모피즘, 글라스모피즘 등 스타일 정리 |
+| [EDA 차트 갤러리 21](https://airoasting.vercel.app/eda-gallery.html) | 데이터 탐색과 분석에 자주 쓰는 차트 유형 정리 |
+| [UI 컴포넌트 갤러리 40](https://airoasting.vercel.app/component-gallery.html) | 바이브 코딩에 바로 쓰는 UI 부품 모음 |
+| [UI 디자인 트렌드 30](https://airoasting.vercel.app/ui-design.html) | 머터리얼, 뉴모피즘, 글라스모피즘 등 스타일 정리 |
 
 ---
 
@@ -144,8 +136,8 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [AI와 안전하게 일하는 법](security-guide.html) | 무엇을 넣지 말지, 무엇을 확인할지. 비즈니스 리더를 위한 AI 협업 보안 5가지 핵심 |
-| [인공지능기본법 한눈에](ai-basic-law.html) | 2026년 1월 시행된 AI 기본법. 우리 회사가 무엇을 지켜야 하는지 히스토리와 FAQ로 정리 |
+| [AI와 안전하게 일하는 법](https://airoasting.vercel.app/security-guide.html) | 무엇을 넣지 말지, 무엇을 확인할지. 비즈니스 리더를 위한 AI 협업 보안 5가지 핵심 |
+| [인공지능기본법 한눈에](https://airoasting.vercel.app/ai-basic-law.html) | 2026년 1월 시행된 AI 기본법. 우리 회사가 무엇을 지켜야 하는지 히스토리와 FAQ로 정리 |
 
 ---
 
@@ -153,10 +145,10 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [스탑워치 쇼케이스](showcase-stopwatch.html) | 강의 수강생이 직접 만든 스탑워치 18선을 라이브로 임베드한 모음 |
-| [시로 쓴 자화상](showcase-poems.html) | 멀티 페르소나 실습으로 완성한 시 32편, AI 시대 일하는 사람들의 하루 |
-| [클로드 코드 해커톤 수상작](hackathon.html) | 전 세계 클로드 코드 해커톤 우승작 14선을 데모 영상과 함께 정리 |
-| [스킬 쇼케이스](showcase-skills.html) | 수강생들이 자기 업무를 Claude 스킬로 만든 실전 자동화 11선 |
+| [스탑워치 쇼케이스](https://airoasting.vercel.app/showcase-stopwatch.html) | 강의 수강생이 직접 만든 스탑워치 18선을 라이브로 임베드한 모음 |
+| [시로 쓴 자화상](https://airoasting.vercel.app/showcase-poems.html) | 멀티 페르소나 실습으로 완성한 시 32편, AI 시대 일하는 사람들의 하루 |
+| [클로드 코드 해커톤 수상작](https://airoasting.vercel.app/hackathon.html) | 전 세계 클로드 코드 해커톤 우승작 14선을 데모 영상과 함께 정리 |
+| [스킬 쇼케이스](https://airoasting.vercel.app/showcase-skills.html) | 수강생들이 자기 업무를 Claude 스킬로 만든 실전 자동화 11선 |
 
 ---
 
@@ -166,7 +158,7 @@
 - **폰트:** Pretendard Variable
 - **프론트엔드:** HTML5, CSS3, Vanilla JavaScript
 - **CEO 대시보드:** React, Vite, Tailwind CSS
-- **호스팅:** GitHub Pages
+- **호스팅:** Vercel
 
 ---
 
@@ -175,7 +167,7 @@
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 매주 일요일마다 그 주 작업을 정리해 0.1씩 버전을 올리고 있습니다.
 
 - **v3.0 · 2026-07-12: AI와 함께 일하는 7단계 신설과 사이트 개편**
-  스킬 다섯 개(slide_library·casting·5color·korean·council)를 목표부터 검증까지 하나의 흐름으로 잇는 'AI와 함께 일하는 7단계' 실전 예제를 새로 만들었습니다. 실전 예제 카드를 2+2로 정리하고 예제 네 페이지(MCP 연결·7단계·책 쓰기·컴퍼니 브레인)의 상단 메뉴를 하나로 통일했으며, 일곱 단계는 키보드로도 펼치는 접근성 아코디언으로 담았습니다. 사이트 전반의 폴더 구조와 내비게이션을 정돈하고, 카드와 헤더 아이콘을 이모지에서 흰 타일 위 오렌지 라인 SVG로 전면 교체했습니다. 메인 '다른 콘텐츠'에는 답을 찾을 때까지 채널을 옮겨가며 끝까지 추적하는 검색 스킬 Hound를 더하고, 하네스·루프 엔지니어링 트랙의 도식과 인용 출처 표기, 모션 최소화 접근성도 함께 보강했습니다.
+  스킬 다섯 개를 목표부터 검증까지 하나의 흐름으로 잇는 'AI와 함께 일하는 7단계' 실전 예제를 새로 만들고, 예제 네 페이지의 상단 메뉴를 하나로 통일했습니다. 사이트 파일을 docs/로 정리하고 카드·헤더 아이콘을 라인 SVG로 교체했으며, 끝까지 추적하는 검색 스킬 Hound를 더했습니다.
 - **v2.9 · 2026-07-05: 다른 콘텐츠 개편과 앤트로픽 소개 최신화**
   메인 '다른 콘텐츠' 링크를 10선으로 다시 골라 한국어 윤문 스킬과 GPT 이미지 프롬프트 랩을 더했습니다. 실전 예제의 기본 예제 세 과제는 백업으로 내려 구성을 가볍게 했습니다. 앤트로픽 소개(엿보기)에 6월 말 소네트 5·클로드 사이언스 공개와 페이블 5 재공개까지 반영하고, 히어로의 최신 모델 표기를 Fable 5·Opus 4.8·Sonnet 5로 갱신했습니다.
 - **v2.8 · 2026-06-28: 스킬 라이브러리 확장과 라이선스 정리**
