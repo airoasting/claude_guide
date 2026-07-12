@@ -7,7 +7,7 @@
 # AI ROASTING · Claude 완전 정복
 
 ![Version](https://img.shields.io/badge/Version-3.0-4CAF50)
-![License](https://img.shields.io/badge/License-MIT-2196F3)
+![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
 ![Pages](https://img.shields.io/badge/Pages-43-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
 ![Language](https://img.shields.io/badge/Language-%ED%95%9C%EA%B5%AD%EC%96%B4-2196F3)
