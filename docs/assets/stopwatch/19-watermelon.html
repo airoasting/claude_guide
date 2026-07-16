@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>수박 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍉</text></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background:linear-gradient(180deg,#A7DDF2 0%,#BCE7F6 100%);
+    display:flex;align-items:center;justify-content:center;color:#4a4a4a;padding:14px}
+  .card{position:relative;width:100%;max-width:300px;background:#FDF6EC;
+    border:5px solid #EF6A8A;border-radius:26px;
+    box-shadow:0 10px 24px rgba(120,60,80,.18);
+    padding:34px 18px 18px;display:flex;flex-direction:column;align-items:center;gap:13px}
+  /* 카드 위에 걸친 수박 조각 */
+  .slice{position:absolute;top:-25px;left:50%;transform:translateX(-50%) rotate(-8deg);width:78px;height:47px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.14))}
+  /* 디스플레이: 줄무늬 + 점선 테두리 + 새싹 */
+  .disp{position:relative;width:100%;padding:20px 8px 18px;text-align:center;
+    background:repeating-linear-gradient(45deg,#EAF7DA 0 12px,#DFF2CB 12px 24px);
+    border:3px dashed #63B054;border-radius:14px}
+  .disp .sprout{position:absolute;top:-13px;font-size:16px;line-height:1}
+  .disp .sprout.l{left:8px}.disp .sprout.r{right:8px}
+  .time{font-variant-numeric:tabular-nums;font-weight:800;font-size:34px;letter-spacing:.5px;color:#3d3d3d}
+  .time .cs{font-size:19px;color:#63B054}
+  .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  button{font-family:inherit;font-weight:800;font-size:13px;border:none;cursor:pointer;
+    padding:11px 15px;border-radius:24px;transition:transform .07s,opacity .15s,background .15s;
+    box-shadow:0 4px 8px rgba(150,110,120,.22)}
+  button:active{transform:translateY(2px);box-shadow:0 1px 3px rgba(150,110,120,.22)}
+  button:disabled{opacity:.45;cursor:default}
+  button:focus-visible{outline:3px solid #EF6A8A;outline-offset:2px}
+  #b1{background:#F2607E;color:#fff}
+  #b2{background:#D7E6C6;color:#6a8a52}
+  #b3{background:#D3E7F2;color:#5a8aa8}
+  /* 하단 핑크 랩 바 */
+  .bar{width:100%;min-height:30px;border:2px solid #F5C4D0;border-radius:20px;background:#FFF9F5;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;color:#E0708C;padding:4px 12px;text-align:center}
+  /* 실행 중: 수박이 통통 튄다 */
+  .card.go .slice{animation:melonBounce .8s ease-in-out infinite}
+  @keyframes melonBounce{0%,100%{transform:translateX(-50%) rotate(-8deg) translateY(0)}50%{transform:translateX(-50%) rotate(-4deg) translateY(-6px)}}
+  @media (prefers-reduced-motion: reduce){.card.go .slice{animation:none}}
+</style>
+</head>
+<body>
+  <div class="card" id="card">
+    <svg class="slice" viewBox="0 0 80 48" aria-hidden="true">
+      <path d="M2 8 A38 38 0 0 0 78 8 Z" fill="#4E9B44"/>
+      <path d="M7 8 A33 33 0 0 0 73 8 Z" fill="#D9EFC8"/>
+      <path d="M12 8 A28 28 0 0 0 68 8 Z" fill="#F25A6B"/>
+      <ellipse cx="27" cy="17" rx="2.4" ry="3.4" fill="#3B2A33" transform="rotate(-16 27 17)"/>
+      <ellipse cx="53" cy="17" rx="2.4" ry="3.4" fill="#3B2A33" transform="rotate(16 53 17)"/>
+      <ellipse cx="40" cy="27" rx="2.4" ry="3.4" fill="#3B2A33"/>
+      <ellipse cx="34" cy="14" rx="1.8" ry="2.6" fill="#3B2A33" transform="rotate(-8 34 14)"/>
+      <ellipse cx="46" cy="14" rx="1.8" ry="2.6" fill="#3B2A33" transform="rotate(8 46 14)"/>
+    </svg>
+    <div class="disp">
+      <span class="sprout l" aria-hidden="true">🌱</span>
+      <span class="sprout r" aria-hidden="true">🌱</span>
+      <div class="time"><span id="t">00:00:00<span class="cs">.00</span></span></div>
+    </div>
+    <div class="row">
+      <button id="b1">시작 🍉</button>
+      <button id="b2" disabled>랩 🌾</button>
+      <button id="b3" disabled>리셋 💦</button>
+    </div>
+    <div class="bar" id="lp"></div>
+  </div>
+<script>
+(function(){
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),
+      b3=document.getElementById('b3'),lp=document.getElementById('lp');
+  var card=document.getElementById('card');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(cc).padStart(2,'0')+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
+  function draw(){t.innerHTML=f(el());}
+  function ui(){b1.textContent=run?'정지 🧊':(el()>0?'재개 🍉':'시작 🍉');
+    b2.disabled=!run;b3.disabled=run||el()===0;
+    card.classList.toggle('go',run);}
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
+    lp.textContent='랩 '+laps.length+' 🍉 +'+plain(sp);}
+  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

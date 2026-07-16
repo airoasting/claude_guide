@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>레드 네온 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚨</text></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background:radial-gradient(circle at 50% 42%, #200404 0%, #0c0101 55%, #050000 100%);
+    display:flex;align-items:center;justify-content:center;color:#ff4b3a;padding:34px 14px 14px;position:relative;overflow:hidden}
+  /* 상단 경고 스트라이프 */
+  .hazard{position:absolute;top:0;left:0;right:0;height:16px;
+    background:repeating-linear-gradient(-45deg,#F5B60A 0 16px,#141414 16px 32px);
+    box-shadow:0 2px 10px rgba(0,0,0,.6)}
+  body.go .hazard{animation:hazardMove 1.2s linear infinite}
+  @keyframes hazardMove{to{background-position:45px 0}}
+  .panel{position:relative;width:100%;max-width:302px;padding:20px 18px 16px;border-radius:16px;
+    background:#150404;border:1px solid rgba(255,60,40,.28);
+    box-shadow:0 0 34px rgba(255,30,20,.30),0 0 90px rgba(255,30,20,.14),inset 0 0 22px rgba(255,40,30,.07);
+    display:flex;flex-direction:column;align-items:center;gap:14px}
+  .status{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:6px;color:#ff5a48;text-shadow:0 0 8px rgba(255,60,40,.6)}
+  .led{width:8px;height:8px;border-radius:50%;background:#5a5a5a;box-shadow:none;letter-spacing:0}
+  body.go .led{background:#ff2d1e;box-shadow:0 0 8px #ff2d1e;animation:ledBlink 1s steps(1) infinite}
+  body.paused .led{background:#f5a60a;box-shadow:0 0 8px #f5a60a}
+  @keyframes ledBlink{50%{opacity:.25}}
+  .time{font-family:'Courier New',ui-monospace,monospace;font-variant-numeric:tabular-nums;
+    font-weight:700;font-size:41px;letter-spacing:2px;color:#ff2b1c;
+    text-shadow:0 0 6px rgba(255,45,25,.9),0 0 18px rgba(255,45,25,.55),0 0 40px rgba(255,45,25,.3)}
+  .time .cs{font-size:24px;color:#ff7a60}
+  body.go .time{animation:neonPulse 2.2s ease-in-out infinite}
+  @keyframes neonPulse{50%{text-shadow:0 0 8px rgba(255,45,25,1),0 0 26px rgba(255,45,25,.75),0 0 56px rgba(255,45,25,.4)}}
+  .row{display:flex;gap:13px}
+  button{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .07s,opacity .15s,box-shadow .15s}
+  button svg{width:19px;height:19px;fill:#fff;display:block}
+  button:active{transform:scale(.93)}
+  button:disabled{opacity:.32;cursor:default;box-shadow:none}
+  button:focus-visible{outline:3px solid #ff5a48;outline-offset:2px}
+  #b1{background:#E01B0E;box-shadow:0 0 16px rgba(255,40,25,.55)}
+  #b2{background:#8a6206;box-shadow:0 0 12px rgba(245,182,10,.35)}
+  #b3{background:#1e3f8a;box-shadow:0 0 12px rgba(60,110,255,.35)}
+  #b4{background:#4a4a4a;box-shadow:0 0 10px rgba(200,200,200,.18)}
+  .rule{width:100%;border-top:2px dotted rgba(255,90,70,.35)}
+  .laps{width:100%;min-height:17px;font-family:'Courier New',ui-monospace,monospace;
+    font-size:12px;color:#ff8a70;text-shadow:0 0 6px rgba(255,60,40,.4);text-align:center;line-height:1.5}
+  /* 깃발(랩) 누르면 경고등이 도는 듯한 레드 플래시 */
+  .flashfx{position:fixed;inset:0;z-index:10;pointer-events:none;opacity:0;mix-blend-mode:screen;
+    background:radial-gradient(circle at 50% 42%,rgba(255,80,40,.95) 0%,rgba(255,30,10,.55) 40%,rgba(150,0,0,.25) 70%,transparent 92%)}
+  body.alert .flashfx{animation:alarmFlash .75s ease-out}
+  @keyframes alarmFlash{0%{opacity:0}12%{opacity:1}32%{opacity:.15}48%{opacity:.85}70%{opacity:.2}100%{opacity:0}}
+  body.alert .panel{animation:panelFlare .75s ease-out}
+  @keyframes panelFlare{
+    12%{box-shadow:0 0 60px rgba(255,30,20,.85),0 0 140px rgba(255,30,20,.4),inset 0 0 40px rgba(255,40,30,.22)}
+    48%{box-shadow:0 0 52px rgba(255,30,20,.7),0 0 120px rgba(255,30,20,.32),inset 0 0 34px rgba(255,40,30,.18)}
+    100%{box-shadow:0 0 34px rgba(255,30,20,.30),0 0 90px rgba(255,30,20,.14),inset 0 0 22px rgba(255,40,30,.07)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    body.go .hazard,body.go .led,body.go .time{animation:none}
+    body.alert .flashfx,body.alert .panel{animation:none}
+  }
+</style>
+</head>
+<body>
+  <div class="hazard" aria-hidden="true"></div>
+  <div class="flashfx" aria-hidden="true"></div>
+  <div class="panel">
+    <div class="status"><span class="led" id="led" aria-hidden="true"></span><span id="stTxt">대기중</span></div>
+    <div class="time"><span id="t">00:00:00<span class="cs">.00</span></span></div>
+    <div class="row">
+      <button id="b1" aria-label="시작"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></button>
+      <button id="b2" aria-label="일시정지" disabled><svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
+      <button id="b3" aria-label="랩" disabled><svg viewBox="0 0 24 24"><path d="M6 2h2v20H6zM8 3h11l-2.6 4L19 11H8z"/></svg></button>
+      <button id="b4" aria-label="리셋" disabled><svg viewBox="0 0 24 24"><path d="M12 5V1L6.5 6.5 12 12V7c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z"/></svg></button>
+    </div>
+    <div class="rule" aria-hidden="true"></div>
+    <div class="laps" id="lp"></div>
+  </div>
+<script>
+(function(){
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),
+      b3=document.getElementById('b3'),b4=document.getElementById('b4'),lp=document.getElementById('lp'),
+      stTxt=document.getElementById('stTxt');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(cc).padStart(2,'0')+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
+  function draw(){t.innerHTML=f(el());}
+  function ui(){
+    document.body.classList.toggle('go',run);
+    document.body.classList.toggle('paused',!run&&el()>0);
+    stTxt.textContent=run?'기록중':(el()>0?'일시정지':'대기중');
+    b1.disabled=run;b2.disabled=!run;b3.disabled=!run;b4.disabled=run||el()===0;
+  }
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.innerHTML='';}
+  var alertTm=null;
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
+    lp.textContent='LAP '+laps.length+'  +'+plain(sp);
+    document.body.classList.remove('alert');void document.body.offsetWidth;
+    document.body.classList.add('alert');
+    clearTimeout(alertTm);alertTm=setTimeout(function(){document.body.classList.remove('alert');},800);}
+  b1.onclick=start;b2.onclick=stop;b3.onclick=lap;b4.onclick=reset;
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>
