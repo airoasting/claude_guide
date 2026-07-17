@@ -6,9 +6,9 @@
 
 # AI ROASTING · Claude 완전 정복
 
-![Version](https://img.shields.io/badge/Version-3.0-4CAF50)
+![Version](https://img.shields.io/badge/Version-3.1-4CAF50)
 ![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
-![Pages](https://img.shields.io/badge/Pages-43-8A4FE0)
+![Pages](https://img.shields.io/badge/Pages-44-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
 ![Language](https://img.shields.io/badge/Language-%ED%95%9C%EA%B5%AD%EC%96%B4-2196F3)
 ![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000)
@@ -125,9 +125,10 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [EDA 차트 갤러리 21](https://airoasting.vercel.app/eda-gallery.html) | 데이터 탐색과 분석에 자주 쓰는 차트 유형 정리 |
-| [UI 컴포넌트 갤러리 40](https://airoasting.vercel.app/component-gallery.html) | 바이브 코딩에 바로 쓰는 UI 부품 모음 |
+| [EDA 차트 갤러리 28](https://airoasting.vercel.app/eda-gallery.html) | 데이터 탐색과 분석에 자주 쓰는 차트 유형 정리 |
 | [UI 디자인 트렌드 30](https://airoasting.vercel.app/ui-design.html) | 머터리얼, 뉴모피즘, 글라스모피즘 등 스타일 정리 |
+| [UI 컴포넌트 갤러리 40](https://airoasting.vercel.app/component-gallery.html) | 바이브 코딩에 바로 쓰는 UI 부품 모음 |
+| [SVG 아이콘 갤러리 300](https://airoasting.vercel.app/icon-gallery.html) | 버튼·카드에 바로 붙여 쓰는 라인 아이콘 모음 |
 
 ---
 
@@ -165,7 +166,9 @@
 
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 매주 일요일마다 그 주 작업을 정리해 0.1씩 버전을 올리고 있습니다.
 
-- **v3.0 · 2026-07-12: AI와 함께 일하는 7단계 신설과 사이트 개편**
+- **v3.1 · 2026-07-19: 디자인·시각화 갤러리 4종 재편**
+  디자인·시각화 갤러리를 EDA 차트, UI 디자인, UI 컴포넌트, SVG 아이콘 네 갈래로 정리했습니다. 버튼·카드에 바로 붙여 쓰는 라인 아이콘 300개를 모은 SVG 아이콘 갤러리를 새로 더하고, 네 페이지 상단에 서로 오가는 서브 메뉴를 같은 구성으로 통일해 넣었습니다. 메인 갤러리 카드도 네 장으로 맞추고, EDA 차트 개수를 28종으로 갱신했습니다.
+- **v3.0 · 2026-07-12: AI와 함께 일하는 7단계 신설**
   스킬 다섯 개를 목표부터 검증까지 하나의 흐름으로 잇는 'AI와 함께 일하는 7단계' 실전 예제를 새로 만들고, 예제 세 페이지의 상단 메뉴를 하나로 통일했습니다. 사이트 파일을 docs/로 정리하고 카드·헤더 아이콘을 라인 SVG로 교체했으며, 끝까지 추적하는 검색 스킬 Hound를 더했습니다.
 - **v2.9 · 2026-07-05: 다른 콘텐츠 개편과 앤트로픽 소개 최신화**
   메인 '다른 콘텐츠' 링크를 10선으로 다시 골라 한국어 윤문 스킬과 GPT 이미지 프롬프트 랩을 더했습니다. 실전 예제의 기본 예제 세 과제는 백업으로 내려 구성을 가볍게 했습니다. 앤트로픽 소개(엿보기)에 6월 말 소네트 5·클로드 사이언스 공개와 페이블 5 재공개까지 반영하고, 히어로의 최신 모델 표기를 Fable 5·Opus 4.8·Sonnet 5로 갱신했습니다.
