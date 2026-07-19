@@ -5,9 +5,9 @@
  * 이 한 파일을 고치면 이 스크립트를 include 한 모든 페이지에 반영된다.
  *
  * 사용법:
- *   <script src="assets/about-modal.js"></script>
+ *   <script src="assets/js/about-modal.js"></script>
  *       → CSS + 모달 HTML + 동작을 모두 주입 (콘텐츠 페이지용)
- *   <script src="assets/about-modal.js" data-mode="markup"></script>
+ *   <script src="assets/js/about-modal.js" data-mode="markup"></script>
  *       → 모달 HTML 마크업만 주입. CSS·동작은 그 페이지가 자체적으로 보유 (index.html 용)
  */
 (function () {
