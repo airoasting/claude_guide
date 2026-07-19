@@ -382,7 +382,7 @@
                 <div class="changelog-list">
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v3.1</span><span class="changelog-date">2026-07-19</span></div>
-                        <div class="changelog-body"><p class="changelog-title">디자인·시각화 갤러리 4종 재편</p><p class="changelog-desc">디자인·시각화 갤러리를 EDA 차트, UI 디자인, UI 컴포넌트, SVG 아이콘 네 갈래로 정리했습니다. 버튼·카드에 바로 붙여 쓰는 라인 아이콘 300개를 모은 SVG 아이콘 갤러리를 새로 더하고, 네 페이지 상단에 서로 오가는 서브 메뉴를 같은 구성으로 통일해 넣었습니다. 메인 갤러리 카드도 네 장으로 맞추고, EDA 차트 개수를 28종으로 갱신했습니다.</p></div></div>
+                        <div class="changelog-body"><p class="changelog-title">디자인·시각화 갤러리 4종 재편</p><p class="changelog-desc">디자인·시각화 갤러리를 EDA 차트, UI 디자인, UI 컴포넌트, SVG 아이콘 네 개로 정리했습니다. 버튼·카드에 바로 붙여 쓰는 라인 아이콘 300개를 모은 SVG 아이콘 갤러리를 새로 더하고, 네 페이지 상단에 서로 오가는 서브 메뉴를 같은 구성으로 통일해 넣었습니다. 메인 갤러리 카드도 네 장으로 맞추고, EDA 차트 개수를 28종으로 갱신했습니다.</p></div></div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v3.0</span><span class="changelog-date">2026-07-12</span></div>
                         <div class="changelog-body"><p class="changelog-title">AI와 함께 일하는 7단계 신설</p><p class="changelog-desc">스킬 다섯 개(slide_library·casting·5color·korean·council)를 목표부터 검증까지 하나로 잇는 'AI와 함께 일하는 7단계' 실전 예제를 새로 만들었습니다. 예제 세 페이지(MCP 연결·7단계·책 쓰기)의 상단 메뉴를 통일하고, 일곱 단계는 키보드로도 펼치는 접근성 아코디언으로 담았습니다. 사이트 폴더 구조와 내비게이션을 정돈했고, 카드와 헤더 아이콘은 이모지에서 흰 타일 위 오렌지 라인 SVG로 전면 교체했습니다. 메인 '다른 콘텐츠'에 검색 스킬 Hound를 더하고, 하네스·루프 트랙의 도식과 인용 출처 표기도 보강했습니다.</p></div></div>
