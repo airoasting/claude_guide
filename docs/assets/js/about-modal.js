@@ -381,11 +381,14 @@
                 <h2 class="license-title">업데이트 내역</h2>
                 <div class="changelog-list">
                     <div class="changelog-item">
+                        <div class="changelog-meta"><span class="changelog-ver">v3.2</span><span class="changelog-date">2026-07-26</span></div>
+                        <div class="changelog-body"><p class="changelog-title">Opus 5 최신화와 헤르메스 에이전트 신설</p><p class="changelog-desc">7월 24일 나온 Claude Opus 5를 기준으로 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 업데이트하고, 체크리스트의 모델 선택과 생각 깊이 항목도 함께 업데이트했습니다. 5단계에는 늘 켜 둔 컴퓨터나 빌린 서버에 오픈소스 에이전트를 올려 텔레그램으로 부르는 '헤르메스 에이전트' 페이지를 추가했습니다.</p></div></div>
+                    <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v3.1</span><span class="changelog-date">2026-07-19</span></div>
                         <div class="changelog-body"><p class="changelog-title">디자인·시각화 갤러리 4종 재편</p><p class="changelog-desc">디자인·시각화 갤러리를 EDA 차트, UI 디자인, UI 컴포넌트, SVG 아이콘 네 개로 정리했습니다. 버튼·카드에 바로 붙여 쓰는 라인 아이콘 300개를 모은 SVG 아이콘 갤러리를 새로 더하고, 네 페이지 상단에 서로 오가는 서브 메뉴를 같은 구성으로 통일해 넣었습니다. 메인 갤러리 카드도 네 장으로 맞추고, EDA 차트 개수를 28종으로 갱신했습니다.</p></div></div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v3.0</span><span class="changelog-date">2026-07-12</span></div>
-                        <div class="changelog-body"><p class="changelog-title">AI와 함께 일하는 7단계 신설</p><p class="changelog-desc">스킬 다섯 개(slide_library·casting·5color·korean·council)를 목표부터 검증까지 하나로 잇는 'AI와 함께 일하는 7단계' 실전 예제를 새로 만들었습니다. 예제 세 페이지(MCP 연결·7단계·책 쓰기)의 상단 메뉴를 통일하고, 일곱 단계는 키보드로도 펼치는 접근성 아코디언으로 담았습니다. 사이트 폴더 구조와 내비게이션을 정돈했고, 카드와 헤더 아이콘은 이모지에서 흰 타일 위 오렌지 라인 SVG로 전면 교체했습니다. 메인 '다른 콘텐츠'에 검색 스킬 Hound를 더하고, 하네스·루프 트랙의 도식과 인용 출처 표기도 보강했습니다.</p></div></div>
+                        <div class="changelog-body"><p class="changelog-title">AI와 함께 일하는 7단계 신설</p><p class="changelog-desc">스킬 다섯 개(slide_library·casting·5color·korean·council)를 목표부터 검증까지 하나로 잇는 'AI와 함께 일하는 7단계' 실전 예제를 새로 만들었습니다. 예제 세 페이지(MCP 연결·7단계·책 쓰기)의 상단 메뉴를 통일하고, 일곱 단계는 키보드로도 펼치는 접근성 아코디언으로 담았습니다. 사이트 폴더 구조와 내비게이션을 정돈했으며, 카드와 헤더 아이콘은 이모지에서 흰 타일 위 오렌지 라인 SVG로 전면 교체하고 메인 '다른 콘텐츠'에 검색 스킬 Hound를 더했습니다.</p></div></div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v2.9</span><span class="changelog-date">2026-07-05</span></div>
                         <div class="changelog-body"><p class="changelog-title">다른 콘텐츠 개편과 앤트로픽 소개 최신화</p><p class="changelog-desc">메인 '다른 콘텐츠' 링크를 10선으로 다시 골라 한국어 윤문 스킬과 GPT 이미지 프롬프트 랩을 더했습니다. 실전 예제의 기본 예제 세 과제는 구성을 가볍게 하려 백업으로 내렸습니다. 앤트로픽 소개(엿보기)에는 6월 말 소네트 5와 클로드 사이언스 공개, 페이블 5의 수출통제 해제와 재공개까지 최신 소식을 반영하고, 히어로의 최신 모델 표기를 Fable 5·Opus 4.8·Sonnet 5로 갱신했습니다.</p></div></div>
@@ -401,31 +404,31 @@
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v2.5</span><span class="changelog-date">2026-06-07</span></div>
-                        <div class="changelog-body"><p class="changelog-title">보안 가이드와 하네스 엔지니어링 보강</p><p class="changelog-desc">비즈니스 리더를 위한 AI 협업 보안 다섯 가지 원칙을 새로 정리했습니다. 하네스 엔지니어링 실전 트랙의 세 카드(하네스 엔지니어링·Claude의 도구·다이내믹 워크플로우)도 다시 다듬었습니다. 개념과 실습이 한 흐름으로 이어지도록 구성을 손봤습니다.</p></div>
+                        <div class="changelog-body"><p class="changelog-title">보안 가이드와 하네스 엔지니어링 보강</p><p class="changelog-desc">비즈니스 리더를 위한 AI 협업 보안 다섯 가지 원칙을 새로 정리했습니다. 하네스 엔지니어링 실전 트랙의 세 카드(하네스 엔지니어링·Claude의 도구·다이내믹 워크플로우)도 다시 다듬었습니다. 개념을 읽고 바로 실습으로 넘어가도록 구성을 손봤습니다.</p></div>
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v2.4</span><span class="changelog-date">2026-05-31</span></div>
-                        <div class="changelog-body"><p class="changelog-title">한국 법령 MCP 예제 추가</p><p class="changelog-desc">Claude 데스크톱 커넥터로 법제처 Open API를 연결하는 한국 법령 MCP 예제를 더했습니다. 공공 데이터를 실무 흐름에 직접 붙이는 과정을 단계별로 담았습니다. 리더가 사례를 그대로 따라 할 수 있도록 구성했습니다.</p></div>
+                        <div class="changelog-body"><p class="changelog-title">한국 법령 MCP 예제 추가</p><p class="changelog-desc">Claude 데스크톱 커넥터로 법제처 Open API를 연결하는 한국 법령 MCP 예제를 더했습니다. 공공 데이터를 실무에 직접 붙이는 과정을 단계별로 담았습니다. 리더가 사례를 그대로 따라 할 수 있도록 구성했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v2.3</span><span class="changelog-date">2026-05-24</span></div>
-                        <div class="changelog-body"><p class="changelog-title">용어 사전 6막 재구성</p><p class="changelog-desc">AI 70년의 흐름을 6막 60선으로 풀어낸 용어 사전을 새로 짰습니다. 개념이 등장한 배경과 맥락을 이야기처럼 잇도록 구성했습니다. 관련 외부 자산과의 연결도 함께 정비했습니다.</p></div>
+                        <div class="changelog-body"><p class="changelog-title">용어 사전 6막 재구성</p><p class="changelog-desc">AI 70년을 6막 60선으로 풀어낸 용어 사전을 새로 정리했습니다. 개념이 등장한 배경과 맥락을 이야기처럼 잇도록 구성했습니다. 관련 외부 자산과의 연결도 함께 정비했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v2.2</span><span class="changelog-date">2026-05-17</span></div>
-                        <div class="changelog-body"><p class="changelog-title">사이트 표준화</p><p class="changelog-desc">사이트 전반의 본문 폭과 헤더 메뉴를 하나의 기준으로 통일했습니다. 페이지마다 달랐던 레이아웃을 정돈해 읽기 흐름을 매끄럽게 했습니다. 이후 작업의 토대가 될 운영 문서 체계도 함께 자리 잡았습니다.</p></div>
+                        <div class="changelog-body"><p class="changelog-title">사이트 표준화</p><p class="changelog-desc">사이트 전반의 본문 폭과 헤더 메뉴를 하나의 기준으로 통일했습니다. 페이지마다 달랐던 레이아웃을 정돈해 어디서나 읽기 편하게 만들었습니다. 이후 작업의 토대가 될 운영 문서 체계도 함께 자리 잡았습니다.</p></div>
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v2.1</span><span class="changelog-date">2026-05-10</span></div>
-                        <div class="changelog-body"><p class="changelog-title">공유 미리보기와 강의 자료 보강</p><p class="changelog-desc">링크를 공유할 때 표시되는 미리보기 정보(메타 태그)를 정리했습니다. 카카오톡이나 슬랙에서도 제목과 설명이 제대로 노출되도록 다듬었습니다. 강의에 바로 쓸 수 있게 슬라이드 흐름과 예시 자료도 보강했습니다.</p></div>
+                        <div class="changelog-body"><p class="changelog-title">공유 미리보기와 강의 자료 보강</p><p class="changelog-desc">링크를 공유할 때 표시되는 미리보기 정보(메타 태그)를 정리했습니다. 카카오톡이나 슬랙에서도 제목과 설명이 제대로 노출되도록 다듬었습니다. 강의에 바로 쓸 수 있게 슬라이드 순서와 예시 자료도 보강했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v2.0</span><span class="changelog-date">2026-05-03</span></div>
-                        <div class="changelog-body"><p class="changelog-title">모바일 최적화와 첫 화면 개편</p><p class="changelog-desc">모바일 사용성을 전면적으로 손봤습니다. 작은 화면에서도 단계 학습이 끊기지 않도록 내비게이션과 카드 배치를 다시 짰습니다. 첫 화면과 안내 모달도 새로 구성해 진입 인상을 정돈했습니다.</p></div>
+                        <div class="changelog-body"><p class="changelog-title">모바일 최적화와 첫 화면 개편</p><p class="changelog-desc">모바일 사용성을 전면적으로 손봤습니다. 작은 화면에서도 단계 학습이 끊기지 않도록 내비게이션과 카드 배치를 전면 업데이트했습니다. 첫 화면과 안내 모달도 새로 구성해 진입 인상을 정돈했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v1.9</span><span class="changelog-date">2026-04-26</span></div>
-                        <div class="changelog-body"><p class="changelog-title">자동화 트랙 정비</p><p class="changelog-desc">자동화 트랙의 실습 흐름을 처음부터 끝까지 다시 점검했습니다. 따라 하다 막히는 지점을 줄이도록 단계를 촘촘히 나눴습니다. 관련 슬라이드 자료도 같은 기준으로 손봤습니다.</p></div>
+                        <div class="changelog-body"><p class="changelog-title">자동화 트랙 정비</p><p class="changelog-desc">자동화 트랙의 실습 단계를 처음부터 끝까지 다시 점검했습니다. 따라 하다 막히는 지점을 줄이도록 단계를 촘촘히 나눴습니다. 관련 슬라이드 자료도 같은 기준으로 손봤습니다.</p></div>
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v1.8</span><span class="changelog-date">2026-04-19</span></div>
@@ -441,7 +444,7 @@
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v1.5</span><span class="changelog-date">2026-03-29</span></div>
-                        <div class="changelog-body"><p class="changelog-title">에이전트 설계 트랙 연결 강화</p><p class="changelog-desc">에이전트 설계 트랙을 Solo에서 Orchestra로 이어지는 성장 단계와 네 가지 도구에 맞춰 다시 연결했습니다. 각 도구 섹션에 다음 단계로 넘어가는 맥락을 더해 학습 흐름을 매끄럽게 다듬었습니다. 768·480px 모바일 반응형도 함께 보강했습니다.</p></div>
+                        <div class="changelog-body"><p class="changelog-title">에이전트 설계 트랙 연결 강화</p><p class="changelog-desc">에이전트 설계 트랙을 Solo에서 Orchestra로 이어지는 성장 단계와 네 가지 도구에 맞춰 다시 연결했습니다. 각 도구 섹션에 다음 단계로 넘어가는 맥락을 더해 무엇을 먼저 볼지 분명하게 했습니다. 768·480px 모바일 반응형도 함께 보강했습니다.</p></div>
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v1.4</span><span class="changelog-date">2026-03-22</span></div>
@@ -449,7 +452,7 @@
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v1.3</span><span class="changelog-date">2026-03-15</span></div>
-                        <div class="changelog-body"><p class="changelog-title">학습 동선 보강</p><p class="changelog-desc">처음 들어온 독자가 어디서 시작할지 헤매지 않도록 학습 동선을 보강했습니다. 단계별 안내 문구를 다듬어 다음 행동을 분명히 했습니다. 진입 페이지의 흐름을 한결 매끄럽게 만들었습니다.</p></div>
+                        <div class="changelog-body"><p class="changelog-title">학습 동선 보강</p><p class="changelog-desc">처음 들어온 독자가 어디서 시작할지 헤매지 않도록 학습 동선을 보강했습니다. 단계별 안내 문구를 다듬어 다음 행동을 분명히 했습니다. 진입 페이지를 한결 읽기 쉽게 만들었습니다.</p></div>
                     </div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v1.2</span><span class="changelog-date">2026-03-08</span></div>
