@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
+    <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/hermes-agent.html">
+    <meta property="og:title" content="헤르메스 에이전트 | AI ROASTING · Claude 완전 정복">
+    <meta property="og:description" content="오픈소스 에이전트 헤르메스를 맥과 윈도우에 설치하고 클로드나 ChatGPT를 붙입니다. 늘 켜 둔 맥미니에 두는 법부터 서버에 도커로 올리는 법까지.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/hermes-agent.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="헤르메스 에이전트 | AI ROASTING · Claude 완전 정복">
+    <meta name="twitter:description" content="오픈소스 에이전트 헤르메스를 맥과 윈도우에 설치하고 클로드나 ChatGPT를 붙입니다. 늘 켜 둔 맥미니에 두는 법부터 서버에 도커로 올리는 법까지.">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>헤르메스 에이전트: 설치부터 클로드·ChatGPT 연결까지 | AI ROASTING</title>
+    <meta name="description" content="Nous Research의 오픈소스 에이전트 헤르메스(Hermes Agent)를 맥과 윈도우에 설치하고 클로드나 ChatGPT를 연결하는 법. 맥미니처럼 늘 켜 둔 기기에 두는 방법과 VPS에 도커로 올리는 방법을 나란히 다룹니다.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-dark: #1A1917;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { word-break: keep-all; font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif; background: var(--nm-bg); color: #3A3530; line-height: 1.6; }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .back-link:hover { color: #fff; }
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            position: relative; z-index: 1;
+        }
+        header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* ── Step Navigator ── */
+        .step-nav { display: flex; align-items: center; justify-content: center; margin: 26px 0 20px; gap: 0; max-width: 80%; margin-left: auto; margin-right: auto; }
+        .step-node {
+            width: 37px; height: 37px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.2);
+            text-decoration: none; flex-shrink: 0; transition: all 0.2s;
+        }
+        .step-node.sn-diag { font-size: 11px; letter-spacing: 0; }
+        .step-node:hover { border-color: rgba(255,255,255,0.7); color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); }
+        .step-node.active { background: rgba(255,255,255,0.95); border-color: rgba(255,255,255,0.95); color: #1A1917; }
+        .step-line { flex: 1; height: 2px; background: rgba(255,255,255,0.5); min-width: 13px; max-width: 34px; border-radius: 2px; }
+
+
+        /* ── Header Page Links ── */
+        .header-pages { max-width: 700px; gap: 14px;
+            width: 100%;
+
+            margin: 22px auto 0;
+            display: flex;
+            justify-content: center;
+
+            position: relative;
+            z-index: 1;
+        }
+        .header-page-link { flex: 1 1 0; min-width: 0; max-width: 280px; gap: 8px; font-size: 14px; padding: 12px 22px; border-radius: 16px;
+
+
+
+            justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+
+            font-weight: 700;
+
+
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .hpl-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; flex-shrink: 0;
+        }
+        .hpl-icon svg { width: 16px; height: 16px; display: block; }
+        /* ── Sub Menu ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 14px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 130px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #A0532E;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #3A3530;
+            white-space: nowrap;
+        }
+        .sm-sub {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .content-section { scroll-margin-top: 158px; }
+        .step-divider { scroll-margin-top: 158px; }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 섹션 박스 (각 섹션을 하나의 카드로 묶는다) ── */
+        .section-box {
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            margin-bottom: 32px;
+        }
+        .section-box > .nm-card {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-shadow);
+            border-radius: 22px;
+            padding: 30px 32px;
+            margin-bottom: 0;
+        }
+        .section-box > .nm-card:hover {
+            transform: none;
+            box-shadow: var(--nm-shadow);
+        }
+
+        /* ── 뉴모피즘 카드 ── */
+        .nm-card {
+            background: var(--nm-bg);
+            border-radius: 20px;
+            box-shadow: var(--nm-shadow);
+            padding: 30px 32px;
+            margin-bottom: 24px;
+        }
+        .nm-card h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3A3530;
+            margin-bottom: 6px;
+        }
+        .nm-card p, .nm-card li {
+            font-size: 14px;
+            color: #5C5650;
+            line-height: 1.75;
+        }
+        .nm-card ul, .nm-card ol { padding-left: 20px; margin-top: 10px; }
+        .nm-card li { margin-bottom: 8px; }
+        .card-subtitle { font-size: 13px; color: #888; margin-bottom: 18px; }
+
+        /* ── 스크롤 프로그레스 바 ── */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;
+            background: linear-gradient(90deg, var(--ant-orange), #E0997F);
+            width: 0%; transition: width 0.1s linear;
+            box-shadow: 0 0 8px rgba(217,119,87,0.4);
+        }
+
+        /* ── 섹션 구분 ── */
+        .step-divider { display: flex; align-items: center; gap: 16px; margin: 30px 0 28px; }
+        .step-divider::before, .step-divider::after { content: ''; flex: 1; height: 1px; background: #E8E4DE; }
+        .step-badge {
+            font-size: 13px; font-weight: 800;
+            letter-spacing: 0.5px;
+            color: var(--ant-orange); background: var(--nm-bg);
+            box-shadow: var(--nm-shadow-sm);
+            padding: 8px 24px; border-radius: 20px; white-space: nowrap;
+        }
+
+        /* ── 인셋 박스 ── */
+        .inset-box {
+            background: var(--nm-bg); border-radius: 14px;
+            box-shadow: var(--nm-inset);
+            padding: 20px 24px; margin: 16px 0;
+        }
+        .inset-box .inset-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--ant-orange); margin-bottom: 10px;
+        }
+        .inset-box p { font-size: 14px; color: #5C5650; line-height: 1.75; }
+
+        /* ── 강조 박스 ── */
+        .highlight-box {
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border: none;
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin: 12px 0 4px;
+        }
+        .highlight-box .hl-title { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 10px; }
+        .highlight-box p, .highlight-box li { font-size: 14px; color: #5C5650; line-height: 1.75; }
+        .highlight-box ul { padding-left: 20px; margin-top: 8px; }
+        .highlight-box li { margin-bottom: 6px; }
+
+        /* ── 비교 그리드 ── */
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+        .compare-nm { background: rgba(255,255,255,0.5); border: 1px solid #D8D2C8; border-radius: 14px; padding: 20px 22px; transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease; }
+        .compare-nm:hover { transform: translateY(-5px); border-color: rgba(217,119,87,0.5); background: rgba(255,255,255,0.72); box-shadow: 0 16px 32px rgba(170,120,90,0.18); }
+        .compare-nm .cmp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .compare-nm .cmp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .compare-nm h4 { font-size: 14px; font-weight: 700; color: #3A3530; }
+        .compare-nm li { font-size: 14px; color: #5C5650; line-height: 1.65; margin-bottom: 6px; }
+        .compare-nm ul, .compare-nm ol { padding-left: 18px; }
+        .compare-nm ol li { padding-left: 2px; }
+        .compare-nm ol li::marker { color: var(--ant-orange); font-weight: 800; }
+        .compare-nm .cmp-quote {
+            font-size: 13.5px; font-weight: 800; color: #7A2E15;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+            line-height: 1.6;
+            border-bottom: 1px solid #E2DCD2;
+        }
+
+        /* ── 3열 역할 카드 ── */
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+        .role-card {
+            background: rgba(255,255,255,0.5);
+            border: 1px solid #D8D2C8;
+            border-radius: 14px;
+            box-shadow: none;
+            padding: 22px 18px;
+            text-align: center;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .role-card:hover { transform: translateY(-6px); border-color: rgba(217,119,87,0.5); background: rgba(255,255,255,0.74); box-shadow: 0 16px 32px rgba(170,120,90,0.18); }
+        /* 카드 높이가 달라도 하단 예시 줄은 같은 높이에 정렬한다 */
+        .role-card { display: flex; flex-direction: column; }
+        .role-card .role-icon { align-self: center; }
+        .role-card:hover .role-icon { transform: scale(1.14) translateY(-2px); }
+        .role-icon { margin-bottom: 12px; display: inline-flex; color: var(--ant-orange); transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1); }
+        .role-icon svg { width: 30px; height: 30px; display: block; }
+        .role-card h4 { font-size: 15px; font-weight: 700; color: #3A3530; margin-bottom: 8px; }
+        .role-card p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .role-card .role-example {
+            margin-top: auto; padding-top: 12px;
+            border-top: 1px solid #E8E4DE;
+            font-size: 12px; color: #888; line-height: 1.6;
+            text-align: left;
+        }
+
+        /* ── 4칸 그리드 (실전 사례 수치) ── */
+        .grade-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+        .grade-item {
+            background: rgba(255,255,255,0.5);
+            border: 1px solid #D8D2C8;
+            border-radius: 14px;
+            box-shadow: none;
+            padding: 20px;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .grade-item:hover { transform: translateY(-6px); border-color: rgba(217,119,87,0.5); background: rgba(255,255,255,0.74); box-shadow: 0 16px 32px rgba(170,120,90,0.18); }
+        .grade-item .grade-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            font-size: 13px; font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .grade-item h4 { font-size: 14px; font-weight: 700; color: #3A3530; margin-bottom: 6px; }
+        .grade-item .grade-stat { font-size: 24px; font-weight: 800; color: var(--ant-orange); letter-spacing: -0.5px; margin-bottom: 4px; }
+        .grade-item p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+
+        /* ── FAQ ── */
+        .qa-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+        .qa-item {
+            background: rgba(255,255,255,0.5);
+            border: 1px solid #D8D2C8;
+            border-radius: 14px;
+            padding: 18px 20px;
+            box-shadow: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .qa-item:hover { transform: translateY(-4px); border-color: rgba(217,119,87,0.45); background: rgba(255,255,255,0.7); box-shadow: 0 14px 28px rgba(170,120,90,0.16); }
+        .qa-q { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; font-weight: 800; color: #2A2520; line-height: 1.6; margin-bottom: 9px; }
+        .qa-q::before { content: 'Q'; flex: none; width: 22px; height: 22px; border-radius: 6px; background: var(--ant-orange); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+        .qa-a { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: #433E38; line-height: 1.78; }
+        .qa-a::before { content: 'A'; flex: none; width: 22px; height: 22px; border-radius: 6px; background: #8f8980; color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+        .qa-a strong { color: #3A3530; font-weight: 700; }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: #0000F2;
+            background-image: radial-gradient(circle at 82% 110%, rgba(255,255,255,0.18), transparent 60%);
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            margin-top: 36px;
+        }
+        .cta-section h3 { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: rgba(255,255,255,0.82); margin-bottom: 24px; line-height: 1.6; }
+        .cta-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 13px 24px; border-radius: 14px;
+            min-width: 230px;
+            font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn.primary { background: #fff; color: #0000C4; box-shadow: 0 4px 16px rgba(0,0,0,0.28); }
+        .cta-btn.primary:hover { background: #fff; transform: translateY(-4px); box-shadow: 0 12px 26px rgba(0,0,0,0.38); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.15); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.2); color: #fff; transform: translateY(-4px); box-shadow: 0 12px 26px rgba(0,0,0,0.22); }
+
+        /* ── 참고 자료 ── */
+        .ref-section { margin-top: 36px; }
+        .ref-title { font-size: 16px; font-weight: 700; color: #3A3530; margin-bottom: 14px; }
+        .ref-links { display: flex; flex-direction: column; gap: 10px; }
+        .ref-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            background: var(--nm-bg);
+            border-radius: 14px;
+            box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .ref-link:hover { transform: translateY(-3px); color: var(--ant-orange); box-shadow: 6px 6px 16px #C5C1BA, -6px -6px 16px #FFFFFF; }
+        .ref-link .ref-icon { display: inline-flex; flex-shrink: 0; color: var(--ant-orange); }
+        .ref-link .ref-icon svg { width: 19px; height: 19px; display: block; }
+        .ref-link .ref-desc { font-size: 12px; font-weight: 400; color: #999; margin-left: auto; flex-shrink: 0; }
+
+        /* ── 푸터 ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* ── 스크롤 애니메이션 ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal.delay-1 { transition-delay: 0.1s; }
+        .reveal.delay-2 { transition-delay: 0.2s; }
+        .reveal.delay-3 { transition-delay: 0.3s; }
+
+        /* ── 헤더 로드 애니메이션 ── */
+        @keyframes headerFadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes headerFadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .header-animate-1 { animation: headerFadeDown 0.55s ease both; animation-delay: 0.05s; }
+        .header-animate-2 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.18s; }
+        .header-animate-3 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.32s; }
+        .header-animate-4 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.44s; }
+        .header-animate-5 { animation: headerFadeUp 0.6s ease both; animation-delay: 0.56s; }
+
+        /* ── key-message 배너 ── */
+        .key-message {
+            background: rgba(217,119,87,0.06);
+            box-shadow: none;
+            border: 1px solid rgba(217,119,87,0.18);
+            border-radius: 14px;
+            padding: 24px 28px;
+            text-align: center;
+            margin: 22px 0 4px;
+        }
+        .key-message p {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3A3530;
+            line-height: 1.7;
+        }
+        .key-message .km-highlight {
+            color: var(--ant-orange);
+            font-weight: 800;
+            background: linear-gradient(180deg, transparent 60%, rgba(217,119,87,0.15) 60%);
+            padding: 0 2px;
+        }
+
+        /* ── 그리드 stagger ── */
+        .stagger-child {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+        .stagger-child.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── nm-card 호버 리프트 ── */
+        .nm-card {
+            transition: transform 0.28s ease, box-shadow 0.28s ease;
+        }
+        .nm-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 8px 8px 20px #C5C1BA, -8px -8px 20px #FFFFFF;
+        }
+
+        /* ── 프롬프트 예시 블록 ── */
+        .prompt-block {
+            position: relative;
+            margin-top: 20px;
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .prompt-block-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px;
+            background: #2d2d2d;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .prompt-block-label {
+            font-size: 12px; font-weight: 700;
+            color: #E0997F; letter-spacing: 0.5px;
+        }
+        .prompt-copy-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 600; color: #aaa;
+            background: #3a3a3a; border: none; border-radius: 6px;
+            padding: 5px 10px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .prompt-copy-btn:hover { background: #4a4a4a; color: #fff; }
+        .prompt-copy-btn.copied { color: #7EE8A2; background: rgba(126,232,162,0.15); }
+        .prompt-block pre {
+            margin: 0; padding: 20px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 13px; line-height: 1.7;
+            color: #d4d4d4;
+            white-space: pre-wrap; word-break: keep-all;
+            overflow-x: auto;
+        }
+        .prompt-block .kw { color: #f4a97a; font-weight: 700; }
+        .prompt-block .cm { color: #7a7a7a; }
+        .prompt-block .val { color: #7ee8a2; }
+
+        @media (max-width: 768px) {
+            /* 모바일은 sticky 서브메뉴가 없어 여백을 줄인다 */
+            .content-section, .step-divider { scroll-margin-top: 20px; }
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 24px 16px 48px; }
+            .section-box { padding: 0; border-radius: 0; margin-bottom: 24px; }
+            .section-box > .nm-card { padding: 22px 18px; border-radius: 18px; }
+            .cta-btn { min-width: 0; width: 100%; }
+            .nm-card h2 { font-size: 18px; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .role-grid { grid-template-columns: 1fr; }
+            .grade-grid { grid-template-columns: 1fr; }
+            .sub-menu { gap: 0; padding: 10px 0; }
+            .sub-menu a { padding: 6px 10px; max-width: 100px; }
+            .header-pages { flex-wrap: wrap; gap: 8px; max-width: 100%; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            .prompt-block pre { font-size: 12px; line-height: 1.6; }
+            .ref-link .ref-desc { display: none; }
+            /* Step navigator */
+            .step-nav { max-width: 100%; gap: 0; }
+            .step-node { width: 32px; height: 32px; font-size: 11px; }
+            .step-line { min-width: 8px; max-width: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+            .step-nav { max-width: 100%; margin: 16px 0 14px; }
+            .step-node { width: 28px; height: 28px; font-size: 10px; }
+            .step-line { min-width: 6px; max-width: 14px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+            .prompt-block pre { font-size: 11px; line-height: 1.55; padding: 14px; }
+        }
+
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+        }
+
+        /* ── 인라인 코드 ── */
+        .nm-card code, .compare-nm code, .highlight-box code,
+        .inset-box code, .role-card code, .grade-item code, .qa-a code {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--ant-orange);
+            display: inline-block;
+            word-break: break-all;
+        }
+        .cta-section code {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            background: rgba(255,255,255,0.14);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        /* ── 브랜드 히어로 (공식 워드마크 + 팩트 칩) ── */
+        .brand-hero {
+            background: #0000F2;
+            background-image: radial-gradient(circle at 18% -10%, rgba(255,255,255,0.16), transparent 58%);
+            border-radius: 18px;
+            padding: 26px 28px 22px;
+            margin: -4px 0 24px;
+            text-align: center;
+        }
+        .brand-eyebrow {
+            font-size: 11px; font-weight: 700; letter-spacing: 3px;
+            color: rgba(255,255,255,0.7); margin-bottom: 16px;
+        }
+        .brand-hero img { display: block; width: 100%; max-width: 320px; margin: 0 auto; border-radius: 8px; }
+
+        /* ── 기억 흐름 도식 ── */
+        .mem-flow { margin: 18px 0 4px; }
+        .mem-flow svg { display: block; width: 100%; height: auto; }
+        .mem-flow .mf-box { fill: #F6F3ED; stroke: #DDD6CB; stroke-width: 1.4; }
+        .mem-flow .mf-pill { fill: var(--ant-orange); }
+        .mem-flow .mf-pill-t { fill: #fff; font-size: 12px; font-weight: 800; letter-spacing: 1px; }
+        .mem-flow .mf-title { fill: #2A2520; font-size: 17px; font-weight: 800; }
+        .mem-flow .mf-body { fill: #5C5650; font-size: 13.5px; }
+        .mem-flow .mf-rule { stroke: #E2DCD2; stroke-width: 1.2; }
+        .mem-flow .mf-arrow { stroke: var(--ant-orange); stroke-width: 2.2; fill: none; }
+        .mem-flow .mf-loop { stroke: #C3BAAE; stroke-width: 1.8; fill: none; stroke-dasharray: 7 6; }
+        .mem-flow .mf-loop-t { fill: #8d867d; font-size: 13px; font-style: italic; }
+        .mem-flow figcaption { font-size: 12.5px; color: #8d867d; text-align: center; margin-top: 12px; line-height: 1.6; }
+        .mem-flow figcaption a { color: var(--ant-orange); text-decoration: none; }
+
+        /* ── OS 선택 카드 ── */
+        .os-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 20px auto 0; max-width: 620px; }
+        .os-card {
+            display: block; text-decoration: none;
+            background: rgba(255,255,255,0.55);
+            border: 1px solid #D8D2C8; border-radius: 16px;
+            padding: 22px 20px 18px; text-align: center;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .os-card:hover { transform: translateY(-5px); border-color: rgba(217,119,87,0.55); box-shadow: 0 16px 32px rgba(170,120,90,0.18); }
+        .os-req { font-size: 10.5px; font-weight: 800; letter-spacing: 1.4px; color: #A39A8E; margin-bottom: 8px; }
+        .os-name { font-size: 24px; font-weight: 800; color: #2A2520; letter-spacing: -0.5px; margin-bottom: 12px; }
+        .os-cta {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 700; color: var(--ant-orange);
+        }
+
+        /* ── 카드 안 소제목 ── */
+        .sub-head {
+            display: flex; align-items: center; gap: 10px;
+            margin: 34px 0 6px; padding-top: 22px;
+            border-top: 1px solid #E4DFD7;
+            font-size: 17px; font-weight: 800; color: #2A2520;
+        }
+        .sub-head .sh-num {
+            width: 24px; height: 24px; border-radius: 8px; flex-shrink: 0;
+            background: rgba(217,119,87,0.14); color: var(--ant-orange);
+            font-size: 12px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ── 파일 목록 ── */
+        .file-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px 24px; margin: 14px 0 4px; }
+        .file-row {
+            display: flex; align-items: baseline; gap: 10px;
+            padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .file-row .fr-name {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 12.5px; font-weight: 700; color: var(--ant-orange);
+            flex: 0 0 108px; word-break: break-all;
+        }
+        .file-row .fr-desc { font-size: 13.5px; color: #5C5650; line-height: 1.6; }
+
+        /* ── 공식 화면 캡처 ── */
+        .shot { margin: 20px 0 4px; }
+        .shot img, .shot video {
+            display: block; width: 100%;
+            border-radius: 14px;
+            box-shadow: 0 14px 30px rgba(60,45,35,0.22);
+        }
+        .shot video { background: #0d0d0d; }
+        .shot figcaption {
+            font-size: 12.5px; color: #8d867d; line-height: 1.6;
+            text-align: center; margin-top: 10px;
+        }
+        .shot figcaption a { color: var(--ant-orange); text-decoration: none; }
+        .brand-chips { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+        .brand-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 700; letter-spacing: 0.2px;
+            color: rgba(255,255,255,0.72);
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.13);
+            padding: 6px 13px; border-radius: 20px;
+            text-decoration: none; transition: all 0.2s;
+        }
+        .brand-chip svg { width: 13px; height: 13px; }
+        a.brand-chip:hover { background: rgba(255,255,255,0.17); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+        /* ── 한눈에 보는 팩트 4칸 ── */
+        .fact-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0 0 24px; }
+        .fact-item {
+            background: rgba(255,255,255,0.55);
+            border: 1px solid #D8D2C8;
+            border-radius: 14px; padding: 16px 14px; text-align: center;
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+        .fact-item:hover { transform: translateY(-3px); border-color: rgba(217,119,87,0.45); }
+        a.fact-item { display: block; text-decoration: none; color: inherit; }
+        a.fact-item:hover { border-color: rgba(217,119,87,0.6); }
+        a.fact-item:hover .fact-value { color: var(--ant-orange); }
+        .fact-ext { width: 12px; height: 12px; vertical-align: -1px; margin-left: 3px; color: var(--ant-orange); }
+        .fact-label { font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; color: #A39A8E; margin-bottom: 8px; }
+        .fact-value { font-size: 15px; font-weight: 800; color: #3A3530; line-height: 1.4; }
+        .fact-note { font-size: 12px; color: #8d867d; margin-top: 5px; line-height: 1.5; }
+
+        /* ── 용어 카드 ── */
+        .term-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+        .term-card {
+            background: rgba(255,255,255,0.55);
+            border: 1px solid #D8D2C8;
+            border-radius: 14px; padding: 18px 20px;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .term-card:hover { transform: translateY(-4px); border-color: rgba(217,119,87,0.5); box-shadow: 0 14px 28px rgba(170,120,90,0.16); }
+        .term-head { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 9px; }
+        .term-head svg { width: 18px; height: 18px; color: var(--ant-orange); flex-shrink: 0; margin-top: 2px; }
+        .term-name { font-size: 15px; font-weight: 800; color: #2A2520; }
+        .term-card p { font-size: 13.5px; color: #5C5650; line-height: 1.7; }
+
+        /* ── 회사 소개 줄 ── */
+        .org-row {
+            display: flex; align-items: center; gap: 16px;
+            margin: 20px 0 22px; padding: 16px 18px;
+            background: rgba(255,255,255,0.55);
+            border: 1px solid #D8D2C8; border-radius: 14px;
+        }
+        .org-logo { width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0; background: #fff; }
+        .org-name { font-size: 15px; font-weight: 800; color: #2A2520; }
+        .org-meta { font-size: 12.5px; color: #8d867d; margin-top: 3px; }
+
+        /* ── 정보 박스 위계: 기본 / 주의 / 도움말 ── */
+        .highlight-box .hl-title { display: flex; align-items: center; gap: 8px; }
+        .highlight-box .hl-title::before {
+            content: ''; width: 7px; height: 7px; border-radius: 50%;
+            background: #A39A8E; flex-shrink: 0;
+        }
+        .highlight-box.is-warn { background: rgba(179,85,53,0.05); }
+        .highlight-box.is-warn .hl-title { color: #8E3B1F; }
+        .highlight-box.is-warn .hl-title::before { background: #C0542F; }
+        .highlight-box.is-tip .hl-title::before { background: #3a7a5a; }
+
+        /* ── 제목 위계 ── */
+        .nm-card h2 { font-size: 22px; letter-spacing: -0.3px; margin-bottom: 10px; }
+        .nm-card .lead { font-size: 15px; color: #4A443E; }
+
+        @media (max-width: 768px) {
+            .file-list { grid-template-columns: 1fr; }
+            .os-cards { grid-template-columns: 1fr; }
+            .fact-strip { grid-template-columns: repeat(2, 1fr); }
+            .term-grid { grid-template-columns: 1fr; }
+            .brand-hero { padding: 20px 16px 16px; }
+            .org-row { flex-direction: column; text-align: center; gap: 10px; }
+            .nm-card h2 { font-size: 19px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <nav class="step-nav">
+        <a class="step-node sn-diag" href="claude-orientation.html">진단</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="ai-fluency.html">1</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="chrome-plugin.html">2</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="claude-code-101.html">3</a>
+        <div class="step-line"></div>
+        <a class="step-node" href="harness-engineering.html">4</a>
+        <div class="step-line"></div>
+        <a class="step-node active" href="loop-engineering.html">5</a>
+        <div class="step-line"></div>
+        <a class="step-node sn-final" href="mcp-examples.html">예제</a>
+    </nav>
+    <a href="index.html" class="back-link header-animate-2">&larr; 목록으로</a>
+    <h1 class="header-animate-3">헤르메스 에이전트</h1>
+    <p class="header-animate-4">내 컴퓨터나 빌린 서버에 직접 올려서 24시간 돌아가는 에이전트를 만듭니다</p>
+
+    <div class="header-pages" id="pages-loop">
+        <a href="loop-engineering.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.5-5.8"/><path d="M20 12a8 8 0 0 1-13.5 5.8"/><path d="M17.5 3.7v3h-3"/><path d="M6.5 20.3v-3h3"/></svg></span> 루프 엔지니어링</a>
+        <a href="routines.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l3 2"/><path d="M8 3.5 5 6M16 3.5l3 2.5"/></svg></span> Routines 예약 실행</a>
+        <a href="hermes-agent.html" class="header-page-link active"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/><path d="M11 7.5h5M11 16.5h5"/></svg></span> 헤르메스 에이전트</a>
+    </div>
+</header>
+
+<!-- 서브 메뉴 -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#sec1" data-sec="sec1">
+        <span class="sm-num">1</span>
+        <span class="sm-title">헤르메스란</span>
+        <span class="sm-sub">What</span>
+    </a>
+    <a href="#sec2" data-sec="sec2">
+        <span class="sm-num">2</span>
+        <span class="sm-title">만든 곳</span>
+        <span class="sm-sub">Who</span>
+    </a>
+    <a href="#sec3" data-sec="sec3">
+        <span class="sm-num">3</span>
+        <span class="sm-title">설치하기</span>
+        <span class="sm-sub">Install</span>
+    </a>
+    <a href="#sec4" data-sec="sec4">
+        <span class="sm-num">4</span>
+        <span class="sm-title">모델 연결</span>
+        <span class="sm-sub">Model</span>
+    </a>
+    <a href="#sec5" data-sec="sec5">
+        <span class="sm-num">5</span>
+        <span class="sm-title">메신저 연결</span>
+        <span class="sm-sub">Chat</span>
+    </a>
+    <a href="#sec6" data-sec="sec6">
+        <span class="sm-num">6</span>
+        <span class="sm-title">늘 켜 두기</span>
+        <span class="sm-sub">Always-on</span>
+    </a>
+    <a href="#sec7" data-sec="sec7">
+        <span class="sm-num">7</span>
+        <span class="sm-title">서버 호스팅</span>
+        <span class="sm-sub">Hosting</span>
+    </a>
+    <a href="#sec8" data-sec="sec8">
+        <span class="sm-num">8</span>
+        <span class="sm-title">고르는 기준</span>
+        <span class="sm-sub">Choose</span>
+    </a>
+</nav>
+
+<main class="container">
+    <!-- ═══════ STEP 1: 헤르메스란 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec1"><span class="step-badge">헤르메스란</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <div class="brand-hero">
+                <div class="brand-eyebrow">OPEN SOURCE · MIT LICENSE</div>
+                <img src="assets/img/brand/hermes-agent-banner.png" alt="Hermes Agent 공식 워드마크">
+                <div class="brand-chips">
+                    <span class="brand-chip">Nous Research</span>
+                    <span class="brand-chip">MIT 라이선스</span>
+                    <a class="brand-chip" href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.3-4.3-2.2-6-2.6m12 5.1v-3.4c0-1 .1-1.4-.5-1.9 2.8-.3 5.5-1.4 5.5-6a4.7 4.7 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.3s-1-.3-3.4 1.3a11.6 11.6 0 0 0-6.1 0C6.7 3.4 5.7 3.7 5.7 3.7a4.3 4.3 0 0 0-.1 3.3A4.7 4.7 0 0 0 4.3 10.2c0 4.6 2.7 5.7 5.5 6-.4.4-.5.9-.5 1.5v3.8"/></svg>공개 저장소</a>
+                </div>
+            </div>
+            <div class="fact-strip">
+                <a class="fact-item" href="https://hermes-agent.nousresearch.com/" target="_blank" rel="noopener">
+                    <div class="fact-label">만든 곳</div>
+                    <div class="fact-value">Nous Research<svg class="fact-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v5.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H11"/><path d="M15 4h5v5"/><path d="M10.5 13.5 20 4"/></svg></div>
+                    <div class="fact-note">2026년 3월 첫 공개</div>
+                </a>
+                <div class="fact-item">
+                    <div class="fact-label">프로그램 비용</div>
+                    <div class="fact-value">무료</div>
+                    <div class="fact-note">MIT 라이선스</div>
+                </div>
+                <div class="fact-item">
+                    <div class="fact-label">매달 드는 돈</div>
+                    <div class="fact-value">모델 사용료</div>
+                    <div class="fact-note">서버를 빌리면 월 10달러대부터</div>
+                </div>
+                <div class="fact-item">
+                    <div class="fact-label">미리 챙길 것</div>
+                    <div class="fact-value">Git 하나</div>
+                    <div class="fact-note">나머지는 설치 스크립트가 처리</div>
+                </div>
+            </div>
+            <h2>컴퓨터 한 대를 24시간 일하는 에이전트로 만듭니다</h2>
+            <p>헤르메스(Hermes Agent)는 Nous Research가 공개한 오픈소스 자율 에이전트입니다. 내 맥이나 윈도우, 빌려 둔 서버에 직접 설치해 두고 그 안에서 <strong>클로드나 ChatGPT 같은 모델을 골라 붙여</strong> 씁니다. 터미널에서 부를 수도 있고 텔레그램이나 슬랙에서 말을 걸 수도 있습니다. 라이선스가 MIT라 프로그램 자체는 무료입니다. 돈은 붙여 쓴 모델 사용료에만 듭니다.</p>
+            <div class="role-grid" style="margin-top:18px;">
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/><path d="M11 7.5h5M11 16.5h5"/></svg></div>
+                    <h4>꺼지지 않습니다</h4>
+                    <p>게이트웨이라는 창구 프로그램 하나만 떠 있으면 메신저로 말을 걸 수 있습니다. 예약해 둔 일도 그 시각이 되면 알아서 돕니다.</p>
+                    <div class="role-example">텔레그램·슬랙·디스코드 등 30여 곳</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5h11.5"/><path d="M12.5 5.5 15.5 8.5 12.5 11.5"/><path d="M20 15.5H8.5"/><path d="M11.5 12.5 8.5 15.5l3 3"/></svg></div>
+                    <h4>모델을 갈아 끼웁니다</h4>
+                    <p>명령 한 줄이면 클로드에서 ChatGPT로, 제미나이나 내 컴퓨터에 깔아 둔 로컬 모델로 바꿉니다.</p>
+                    <div class="role-example">코드를 고치지 않고 교체</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5c0-1.4 3.6-2.5 8-2.5s8 1.1 8 2.5-3.6 2.5-8 2.5-8-1.1-8-2.5Z"/><path d="M4 6.5v11c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-11"/><path d="M4 12c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5"/></svg></div>
+                    <h4>쓸수록 쌓입니다</h4>
+                    <p>대화와 기억, 스스로 만들어 둔 스킬이 한 폴더에 남아 세션이 바뀌어도 그대로 이어집니다.</p>
+                    <div class="role-example">기억·스킬·예약이 한 곳에</div>
+                </div>
+            </div>
+            <div class="highlight-box reveal">
+                <div class="hl-title">헤르메스 에이전트의 차별점, 기억력</div>
+                <p>다른 도구와 가장 다른 점이 여기 있습니다. <strong>무엇을 기억하라고 따로 일러 주지 않아도</strong> 대화가 한 번 오갈 때마다 아래 셋이 저절로 돕니다. 찾는 일은 뒤에서 미리 돌아가니 답을 기다리는 시간이 늘지 않습니다.</p>
+                <figure class="mem-flow reveal">
+                    <svg viewBox="0 0 940 344" role="img" aria-label="헤르메스 기억 흐름 도식. 말을 걸기 전 미리 찾아 두고, 답하는 동안 그 기억을 쓰고, 답한 뒤 새 사실을 저장한다. 대화가 오갈 때마다 반복된다.">
+                        <defs>
+                            <marker id="mfArrow" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" refX="9.5" refY="6.5" orient="auto">
+                                <path d="M1,1 L12,6.5 L1,12 Z" fill="#D97757"/>
+                            </marker>
+                            <marker id="mfArrowLoop" markerUnits="userSpaceOnUse" markerWidth="13" markerHeight="13" refX="9.5" refY="6.5" orient="auto">
+                                <path d="M1,1 L12,6.5 L1,12 Z" fill="#C3BAAE"/>
+                            </marker>
+                        </defs>
+
+                        <rect class="mf-box" x="40" y="44" width="260" height="176" rx="18"/>
+                        <rect class="mf-pill" x="144" y="30" width="52" height="26" rx="13"/>
+                        <text class="mf-pill-t" x="170" y="47" text-anchor="middle">01</text>
+                        <text class="mf-title" x="170" y="102" text-anchor="middle">말을 걸기 전</text>
+                        <line class="mf-rule" x1="82" y1="122" x2="258" y2="122"/>
+                        <text class="mf-body" x="170" y="150" text-anchor="middle">다음 대화에 쓸 기억을</text>
+                        <text class="mf-body" x="170" y="172" text-anchor="middle">백그라운드로 미리</text>
+                        <text class="mf-body" x="170" y="194" text-anchor="middle">찾아 둡니다</text>
+
+                        <rect class="mf-box" x="340" y="44" width="260" height="176" rx="18"/>
+                        <rect class="mf-pill" x="444" y="30" width="52" height="26" rx="13"/>
+                        <text class="mf-pill-t" x="470" y="47" text-anchor="middle">02</text>
+                        <text class="mf-title" x="470" y="102" text-anchor="middle">답하는 동안</text>
+                        <line class="mf-rule" x1="382" y1="122" x2="558" y2="122"/>
+                        <text class="mf-body" x="470" y="150" text-anchor="middle">미리 찾아 둔 기억을</text>
+                        <text class="mf-body" x="470" y="172" text-anchor="middle">그대로 참고해서</text>
+                        <text class="mf-body" x="470" y="194" text-anchor="middle">답을 만듭니다</text>
+
+                        <rect class="mf-box" x="640" y="44" width="260" height="176" rx="18"/>
+                        <rect class="mf-pill" x="744" y="30" width="52" height="26" rx="13"/>
+                        <text class="mf-pill-t" x="770" y="47" text-anchor="middle">03</text>
+                        <text class="mf-title" x="770" y="102" text-anchor="middle">답한 뒤</text>
+                        <line class="mf-rule" x1="682" y1="122" x2="858" y2="122"/>
+                        <text class="mf-body" x="770" y="150" text-anchor="middle">오간 대화를 저장소로</text>
+                        <text class="mf-body" x="770" y="172" text-anchor="middle">보내고, 남길 사실을</text>
+                        <text class="mf-body" x="770" y="194" text-anchor="middle">스스로 골라 적습니다</text>
+
+                        <path class="mf-arrow" d="M300,132 L334,132" marker-end="url(#mfArrow)"/>
+                        <path class="mf-arrow" d="M600,132 L634,132" marker-end="url(#mfArrow)"/>
+                        <path class="mf-loop" d="M770,220 C770,300 170,300 170,226" marker-end="url(#mfArrowLoop)"/>
+                        <text class="mf-loop-t" x="470" y="330" text-anchor="middle">대화가 한 번 오갈 때마다 되풀이됩니다</text>
+                    </svg>
+                    <figcaption>출처: <a href="https://hermes-agent.nousresearch.com/docs/" target="_blank" rel="noopener">Hermes Agent 공식 문서</a></figcaption>
+                </figure>
+            </div>
+            <div class="key-message reveal" style="margin-top:18px;">
+                <p>에이전트를 돌릴 컴퓨터도 <span class="km-highlight">AI 모델도</span> 내가 고릅니다.<br>
+                <span style="font-size: 15px; font-weight: 500; color: #5C5650;">그 대신 기기를 켜 두고 관리하는 일도 내가 해야 합니다.</span></p>
+            </div>
+            <div class="highlight-box reveal">
+                <div class="hl-title">Routines와 무엇이 다른가</div>
+                <p><a href="routines.html" style="color:var(--ant-orange);text-decoration:none;">Routines</a>는 Anthropic 클라우드가 대신 실행해 주는 예약입니다. 따로 준비할 것이 없는 대신 정해진 틀 안에서만 쓸 수 있습니다. 헤르메스는 <strong>실행할 컴퓨터를 내가 준비하고 거기에 모델을 붙입니다.</strong> 어떤 모델을 쓸지, 어느 메신저로 받을지, 무엇을 기억시킬지 전부 직접 정합니다. 그만큼 기기 관리와 장애 대응도 직접 해야 합니다.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 2: 만든 곳 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec2"><span class="step-badge">만든 곳</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>Nous Research가 만들었고 이름은 이 회사 모델에서 왔습니다</h2>
+            <div class="org-row">
+                <img class="org-logo" src="assets/img/brand/nous-research-logo.png" alt="Nous Research 로고">
+                <div>
+                    <div class="org-name">Nous Research</div>
+                    <div class="org-meta">2023년 설립 · 뉴욕 · 오픈소스 AI 연구소</div>
+                </div>
+            </div>
+            <p>Nous Research는 2023년 제프리 퀘스넬을 비롯한 연구자들이 만든 뉴욕의 오픈소스 AI 연구소입니다. 모델 가중치를 공개하는 회사로 이름을 알렸습니다. 허깅페이스에 올린 <strong>Hermes 모델 계열</strong>이 대표작입니다. 헤르메스 에이전트는 이 회사가 2026년 3월에 처음 내놓은 MIT 라이선스 오픈소스 프로그램입니다.</p>
+            <div class="inset-box reveal">
+                <div class="inset-label">왜 헤르메스인가</div>
+                <p>Hermes는 이 회사가 2023년부터 공개해 온 모델 계열의 이름입니다. 에이전트가 그 이름을 그대로 물려받았습니다. 헤르메스는 그리스 신화에서 신들의 말을 사람에게 옮기는 전령입니다. 저장소 제목에도 헤르메스의 지팡이 기호 <span style="font-family:'Apple Symbols','Segoe UI Symbol','Noto Sans Symbols 2',sans-serif;">☤</span>가 붙어 있습니다. 다만 회사가 작명 이유를 따로 밝힌 적은 없습니다.</p>
+            </div>
+
+            <p style="margin-top:24px;"><strong>오픈클로(OpenClaw)와는 무엇이 다른가.</strong> 메신저로 부르고 내 기기에 상주하는 개인 에이전트라는 발상을 먼저 크게 퍼뜨린 쪽은 오픈클로입니다. 두 프로그램은 하는 일이 상당히 겹칩니다.</p>
+            <div class="compare-grid" style="margin-top:18px;">
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:#8f8980;"></span><h4>오픈클로</h4></div>
+                    <div class="cmp-quote">개인 개발자가 시작</div>
+                    <ul>
+                        <li>오스트리아 개발자 페터 슈타인베르거가 2025년 11월 24일 <strong>Warelay</strong>라는 이름으로 처음 공개했습니다</li>
+                        <li>두 달 사이 이름이 네 번 바뀌었습니다. CLAWDIS와 Clawdbot을 거쳐, 2026년 1월 27일 Anthropic이 상표를 문제 삼자 Moltbot으로, 사흘 뒤인 30일 지금의 OpenClaw가 됐습니다.</li>
+                        <li>몇 주 만에 깃허브 별 10만 개를 넘겼습니다</li>
+                        <li>메일과 캘린더까지 권한을 주다 보니 프롬프트 주입 같은 보안 문제가 실제로 나왔습니다. 보안 업체 시스코는 제3자 스킬 하나가 사용자 모르게 자료를 빼돌리는 것을 찾아냈습니다</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--ant-orange);"></span><h4>헤르메스</h4></div>
+                    <div class="cmp-quote">모델을 만드는 회사가 직접</div>
+                    <ul>
+                        <li>Nous Research가 제공하는 에이전트입니다</li>
+                        <li>쓰면서 스킬을 스스로 만들고 고치는 학습 루프를 앞세웁니다</li>
+                        <li>처음부터 모델을 명령 하나로 갈아 끼울 수 있게 설계했습니다</li>
+                        <li>오픈클로 설정을 그대로 가져오는 <code>hermes claw migrate</code> 명령과 안내 문서가 있습니다</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 2: 설치하기 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec3"><span class="step-badge">설치하기</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>데스크톱 앱을 설치하는 것이 가장 쉽습니다</h2>
+            <p class="lead">공식 사이트에서 설치 프로그램을 받아 실행하면 <strong>데스크톱 앱과 터미널 명령이 한꺼번에 깔립니다.</strong> 터미널을 열 일이 없다면 여기서 끝내도 됩니다.</p>
+            <div class="sub-head" style="margin-top:22px;padding-top:0;border-top:none;"><span class="sh-num">1</span>설치 프로그램 내려받기</div>
+            <div class="os-cards">
+                <a class="os-card" href="https://hermes-agent.nousresearch.com/" target="_blank" rel="noopener">
+                    <div class="os-req">MACOS 12 이상</div>
+                    <div class="os-name">Mac OS</div>
+                    <div class="os-cta">내려받기 &rarr;</div>
+                </a>
+                <a class="os-card" href="https://hermes-agent.nousresearch.com/" target="_blank" rel="noopener">
+                    <div class="os-req">WINDOWS 10 / 11</div>
+                    <div class="os-name">Windows</div>
+                    <div class="os-cta">내려받기 &rarr;</div>
+                </a>
+            </div>
+            <div class="highlight-box is-tip reveal">
+                <div class="hl-title">데스크톱 앱으로 무엇을 하나</div>
+                <p>Hermes Desktop은 터미널 버전과 <strong>같은 설정, 같은 API 키, 같은 세션과 기억</strong>을 씁니다. 한쪽에서 바꾸면 다른 쪽에도 그대로 반영됩니다. 설정 파일을 직접 열지 않고 화면에서 모델과 키를 고를 수 있어, AI 모델 연결도 여기서 처리할 수 있습니다. 이미 터미널로 설치했다면 <code>hermes desktop</code>으로 띄웁니다.</p>
+                <figure class="shot reveal">
+                    <video autoplay muted loop playsinline preload="metadata" poster="assets/media/hermes-desktop-poster.webp" aria-label="Hermes Desktop 앱 화면. 왼쪽에 에이전트 목록이 있고 오른쪽에서 대화가 오간다.">
+                        <source src="assets/media/hermes-desktop.mp4" type="video/mp4">
+                    </video>
+                    <figcaption>Hermes Desktop 실제 화면. 왼쪽에 돌고 있는 에이전트 목록이 쌓이고, 오른쪽에서 지시하고 결과를 받습니다.<br>출처: <a href="https://hermes-agent.nousresearch.com/" target="_blank" rel="noopener">Hermes Agent 공식 사이트</a></figcaption>
+                </figure>
+            </div>
+
+            <div class="sub-head"><span class="sh-num">2</span>터미널로 설치하기</div>
+            <p>명령줄이 편하거나 리눅스와 서버에 올릴 때는 설치 스크립트를 씁니다. 스크립트가 파이썬 3.11, Node.js, ripgrep, ffmpeg 같은 준비물을 알아서 깔고 저장소를 받아 옵니다. 미리 챙길 것은 <strong>Git</strong> 하나입니다. 리눅스라면 curl과 xz-utils도 함께 있어야 합니다.</p>
+            <div class="compare-grid" style="margin-top:20px;">
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--ant-orange);"></span><h4>맥 · macOS</h4></div>
+                    <div class="cmp-quote">터미널에 한 줄</div>
+                    <ul>
+                        <li>터미널을 열고 아래 명령을 붙여넣습니다</li>
+                        <li>끝나면 <code>source ~/.zshrc</code>로 셸 설정을 다시 불러옵니다</li>
+                        <li><code>hermes</code>를 치면 곧바로 대화가 시작됩니다</li>
+                        <li>설정과 데이터는 <code>~/.hermes/</code>에 모입니다</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--ant-orange);"></span><h4>윈도우 · Windows</h4></div>
+                    <div class="cmp-quote">관리자 권한 없이 파워셸에서</div>
+                    <ul>
+                        <li>파워셸을 열고 아래 명령을 붙여넣습니다</li>
+                        <li>설치 위치는 <code>%LOCALAPPDATA%\hermes\</code>입니다. <code>hermes</code> 명령은 사용자 PATH에 등록됩니다</li>
+                        <li>설치가 끝난 뒤 <strong>파워셸 창을 새로 열지 않으면</strong> <code>hermes</code> 명령을 찾지 못합니다</li>
+                        <li>WSL2 (Windows Subsystem for Linux, 윈도우 안에서 리눅스를 돌리는 기능)를 쓰고 있다면 위의 맥·리눅스 명령을 그대로 써도 됩니다</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="prompt-block" style="margin-top: 18px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">맥 · 리눅스 · WSL2 설치</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'installMac')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="installMac">curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash</pre>
+            </div>
+            <div class="prompt-block" style="margin-top: 14px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">윈도우 파워셸 설치</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'installWin')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="installWin">iex (irm https://hermes-agent.nousresearch.com/install.ps1)</pre>
+            </div>
+            <div class="highlight-box is-warn reveal">
+                <div class="hl-title">설치 전후로 챙길 것</div>
+                <ul>
+                    <li>위 명령은 인터넷에서 받은 스크립트를 그대로 실행합니다. 회사 장비라면 <strong>보안 정책부터 확인하십시오.</strong> 스크립트 원문은 공개 저장소의 <code>scripts/install.sh</code>와 <code>scripts/install.ps1</code>에서 열어 볼 수 있습니다.</li>
+                    <li>설치가 막히면 <code>hermes doctor</code>가 무엇이 빠졌는지 짚어 줍니다. 명령을 못 찾는다고 나오면 셸을 새로 열거나 PATH를 확인합니다. 윈도우 백신이 <code>uv.exe</code>를 격리하기도 하는데, 공식 문서는 이를 오탐으로 보고 진짜 파일이 맞는지 확인하는 방법을 함께 실어 두었습니다.</li>
+                </ul>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 3: 모델 연결 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec4"><span class="step-badge">모델 연결</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>클로드나 ChatGPT 등을 연결합니다</h2>
+            <p class="lead">붙이는 방법은 두 가지입니다. <strong>이미 내고 있는 구독 계정으로 로그인</strong>하거나, <strong>API 키를 발급받아</strong> 넣습니다. 어느 쪽이든 <code>hermes model</code>을 실행하면 화면이 순서대로 물어봅니다.</p>
+            <div class="prompt-block" style="margin-top: 16px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">모델 붙이기</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'modelSetup')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="modelSetup">hermes setup              <span class="cm"># 처음 한 번, 전체 설정 안내</span>
+hermes model              <span class="cm"># 제공사와 모델 고르기</span>
+hermes config get model   <span class="cm"># 지금 무엇이 붙어 있는지 확인</span>
+hermes tools              <span class="cm"># 쓸 도구 켜고 끄기</span></pre>
+            </div>
+            <div class="compare-grid" style="margin-top:20px;">
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:#3a7a5a;"></span><h4>방법 1. 구독 계정으로 로그인</h4></div>
+                    <div class="cmp-quote">이미 내고 있는 구독을 그대로</div>
+                    <ul>
+                        <li>따로 결제할 것이 없습니다. 키를 만들고 보관할 일도 없습니다</li>
+                        <li><code>hermes model</code>에서 제공사를 고르면 브라우저가 열리거나 화면에 코드가 뜹니다. ChatGPT는 그 코드를 브라우저에 넣어 로그인합니다</li>
+                        <li>클로드는 조건이 있습니다. 공식 문서는 <strong>Claude Max 플랜에 추가 사용량 크레딧을 사 둔 계정</strong>이어야 한다고 안내합니다</li>
+                        <li>구독 사용량 안에서 도는 만큼, 많이 쓰면 한도에 먼저 걸립니다</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--ant-orange);"></span><h4>방법 2. API 키 발급</h4></div>
+                    <div class="cmp-quote">쓴 만큼 따로 결제</div>
+                    <ul>
+                        <li>구독료와 별개로 사용량만큼 냅니다. 대신 한도에 걸릴 일이 없습니다</li>
+                        <li>서버에 올려 두고 사람 없이 오래 돌릴 때는 이쪽이 안정적입니다</li>
+                        <li>OpenRouter로 여러 회사 모델을 한 키로 쓰면서 저렴한 모델을 고르는 것도 이 방법입니다</li>
+                        <li>발급 절차는 아래에 정리했습니다</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="margin-top:26px;"><strong>API 키를 발급받는 순서.</strong> 처음이라면 <code>hermes setup</code>이 순서대로 안내합니다. 모델만 바꾸고 싶으면 <code>hermes model</code>을 씁니다. 목록에서 제공사를 고르면 구독 로그인은 브라우저를 열고 API 키 방식은 키를 물어봅니다. 입력한 키는 <code>~/.hermes/.env</code>에, 나머지 설정은 <code>~/.hermes/config.yaml</code>에 알아서 나뉘어 저장됩니다.</p>
+            <div class="compare-grid" style="margin-top:20px;">
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--ant-orange);"></span><h4>클로드 · Anthropic</h4></div>
+                    <div class="cmp-quote">API 키 발급받기</div>
+                    <ol>
+                        <li><a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--ant-orange);text-decoration:none;font-weight:700;">console.anthropic.com &rarr;</a> 에 접속해 로그인합니다. 평소 클로드를 쓰던 계정과 같은 계정입니다</li>
+                        <li>API 키 화면에서 새 키를 만듭니다. <strong>키 전체는 만든 직후 한 번만 보이니</strong> 그 자리에서 복사해 둡니다</li>
+                        <li>결제 수단을 등록하고 크레딧을 채워 둬야 실제로 호출됩니다. 구독료와는 별개로 나갑니다</li>
+                        <li>복사한 키를 <code>hermes model</code>이 물어볼 때 붙여넣거나, <code>~/.hermes/.env</code>에 <code>ANTHROPIC_API_KEY=</code>로 적습니다</li>
+                    </ol>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--ant-orange);"></span><h4>ChatGPT · OpenAI</h4></div>
+                    <div class="cmp-quote">API 키 발급받기</div>
+                    <ol>
+                        <li><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color:var(--ant-orange);text-decoration:none;font-weight:700;">platform.openai.com/api-keys &rarr;</a> 에 접속해 로그인합니다. ChatGPT를 쓰던 계정 그대로면 됩니다</li>
+                        <li>새 키를 만듭니다. <strong>여기서도 키 전체는 그때 한 번만 보입니다.</strong> 놓치면 지우고 다시 만들면 됩니다</li>
+                        <li>결제 수단을 등록하고 금액을 충전해 둬야 호출됩니다. ChatGPT 구독료와는 별개입니다</li>
+                        <li>복사한 키를 <code>hermes model</code>이 물어볼 때 붙여넣거나, <code>~/.hermes/.env</code>에 <code>OPENAI_API_KEY=</code>로 적습니다</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="highlight-box is-tip reveal">
+                <div class="hl-title">키 하나로 여러 모델을 쓰려면</div>
+                <p>OpenRouter를 쓰면 <code>OPENROUTER_API_KEY</code> 하나로 여러 회사 모델을 부릅니다. 키는 <a href="https://openrouter.ai/keys" target="_blank" rel="noopener" style="color:var(--ant-orange);text-decoration:none;font-weight:700;">openrouter.ai/keys &rarr;</a> 에서 받습니다. 모델 이름은 <code>anthropic/claude-opus-5</code>처럼 제공사를 앞에 붙여 적습니다. 제미나이는 <code>GOOGLE_API_KEY</code>를 넣고, 키는 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--ant-orange);text-decoration:none;font-weight:700;">aistudio.google.com &rarr;</a> 에서 받습니다. 로컬 모델은 Ollama나 vLLM 주소를 직접 등록해 붙입니다.</p>
+            </div>
+            <div class="inset-box reveal">
+                <div class="inset-label">설정이 저장되는 곳</div>
+                <p>설치하면 <code>~/.hermes/</code> 폴더 하나가 생기고, 그 안에 모든 것이 들어갑니다.</p>
+                <div class="file-list">
+                    <div class="file-row"><span class="fr-name">config.yaml</span><span class="fr-desc">모델과 실행 환경 설정</span></div>
+                    <div class="file-row"><span class="fr-name">.env</span><span class="fr-desc">API 키와 비밀값</span></div>
+                    <div class="file-row"><span class="fr-name">auth.json</span><span class="fr-desc">구독 로그인 자격</span></div>
+                    <div class="file-row"><span class="fr-name">SOUL.md</span><span class="fr-desc">에이전트의 정체성</span></div>
+                    <div class="file-row"><span class="fr-name">memories/</span><span class="fr-desc">세션을 넘어가는 기억</span></div>
+                    <div class="file-row"><span class="fr-name">skills/</span><span class="fr-desc">스스로 만든 스킬</span></div>
+                    <div class="file-row"><span class="fr-name">cron/</span><span class="fr-desc">예약해 둔 일</span></div>
+                    <div class="file-row"><span class="fr-name">logs/</span><span class="fr-desc">실행 기록</span></div>
+                </div>
+                <p style="margin-top:14px;">같은 값이 여러 곳에 있으면 명령줄 인자가 가장 우선하고, 그다음이 <code>config.yaml</code>, <code>.env</code>, 기본값 순입니다.</p>
+            </div>
+            <figure class="shot reveal">
+                <img src="assets/img/brand/hermes-dashboard-models.png" alt="헤르메스 대시보드의 Models 화면. 붙인 모델과 사용 토큰, 예상 비용이 함께 보인다.">
+                <figcaption>대시보드 Models 화면. 지금 붙어 있는 모델, 그동안 쓴 토큰, 예상 비용이 한자리에 보입니다.<br>출처: <a href="https://hermes-agent.nousresearch.com/docs/" target="_blank" rel="noopener">Hermes Agent 공식 문서</a></figcaption>
+            </figure>
+            <div class="highlight-box is-warn reveal">
+                <div class="hl-title">모델을 고를 때 유의사항</div>
+                <p>헤르메스는 <strong>컨텍스트 창이 64,000 토큰 이상</strong>인 모델을 요구합니다. 대화 요약용 모델을 따로 지정한다면 그 창이 본 모델보다 작아서는 안 됩니다. 더 작으면 대화 압축이 에러 하나 없이 실패하고 맥락만 사라집니다.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 5: 메신저 연결 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec5"><span class="step-badge">메신저 연결</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>텔레그램이나 슬랙에서 말을 걸게 만듭니다</h2>
+            <p class="lead">게이트웨이를 한 번 설정해 두면 메신저에서 부르는 즉시 답이 옵니다. 공식 대시보드 기준 <strong>스물일곱 개 채널</strong>을 붙일 수 있고, 그중 손이 가장 덜 가는 쪽이 텔레그램입니다.</p>
+
+            <div class="sub-head" style="margin-top:22px;padding-top:0;border-top:none;"><span class="sh-num">1</span>텔레그램 붙이기</div>
+            <div class="grade-grid" style="margin-top:16px;">
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">1</span>
+                    <h4>봇 만들기</h4>
+                    <p>텔레그램에서 <strong>@BotFather</strong>를 찾아 <code>/newbot</code>을 보냅니다. 이름과 아이디를 정하면 봇 토큰을 줍니다. 이 토큰을 가진 사람은 누구나 봇을 조종할 수 있으니 밖으로 내보내지 않습니다.</p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">2</span>
+                    <h4>내 번호 확인</h4>
+                    <p><strong>@userinfobot</strong>에게 아무 말이나 보내면 숫자로 된 내 아이디를 알려 줍니다. 이 에이전트에게 말을 걸 수 있는 사람을 정하는 값입니다.</p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">3</span>
+                    <h4>게이트웨이 설정</h4>
+                    <p><code>hermes gateway setup</code>을 실행해 텔레그램을 고르고, 받은 토큰과 내 아이디를 넣습니다. 설정 파일은 알아서 만들어집니다.</p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">4</span>
+                    <h4>말 걸어 보기</h4>
+                    <p>게이트웨이를 켠 뒤 봇에게 아무 말이나 보냅니다. 몇 초 안에 답이 오면 끝입니다. 답이 없으면 게이트웨이가 꺼져 있는지부터 봅니다.</p>
+                </div>
+            </div>
+            <div class="prompt-block" style="margin-top: 18px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">직접 적을 때 (~/.hermes/.env)</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'telegramEnv')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="telegramEnv">TELEGRAM_BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrSTUvwxYZ
+TELEGRAM_ALLOWED_USERS=123456789
+
+<span class="cm"># 여러 명이 쓰려면 쉼표로 이어 적습니다</span></pre>
+            </div>
+            <div class="highlight-box is-warn reveal">
+                <div class="hl-title">허용 목록을 비워 두지 않습니다</div>
+                <p>허용 목록에 없는 사람은 전부 막힙니다. 반대로 말하면 <strong>여기에 넣은 사람은 내 컴퓨터에서 도는 에이전트를 그대로 부릴 수 있습니다.</strong> 봇 토큰이 새어 나가도 마찬가지입니다. 토큰과 목록은 <code>~/.hermes/.env</code> 밖으로 옮기지 마십시오.</p>
+            </div>
+
+            <div class="sub-head"><span class="sh-num">2</span>다른 메신저</div>
+            <p>같은 <code>hermes gateway setup</code> 화면에서 고르기만 하면 됩니다. 회사에서 슬랙이나 팀즈를 쓴다면 그쪽이 자연스럽습니다.</p>
+            <div class="role-grid" style="margin-top:16px;">
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v10.5H9.5L5.5 19.5V16H4z"/><path d="M8 9.2h8M8 12.2h5"/></svg></div>
+                    <h4>일할 때</h4>
+                    <p>슬랙, 마이크로소프트 팀즈, 구글 챗, 매터모스트를 붙입니다. 팀 채널에 두고 함께 쓸 수도 있습니다.</p>
+                    <div class="role-example">회사에서 쓰던 곳 그대로</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 1 1-4.2-7.3"/><path d="M20.5 4.5v4.2h-4.2"/><path d="M12 7.5V12l3 1.8"/></svg></div>
+                    <h4>개인으로 쓸 때</h4>
+                    <p>텔레그램, 디스코드, 왓츠앱, 시그널, 문자, iMessage, 라인까지 있습니다.</p>
+                    <div class="role-example">텔레그램이 가장 간단</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/></svg></div>
+                    <h4>자동으로</h4>
+                    <p>이메일과 웹훅도 창구가 됩니다. 다른 시스템이 보낸 신호를 받아 에이전트가 처리하게 만들 수 있습니다.</p>
+                    <div class="role-example">받은 메일에 따라 자동 실행</div>
+                </div>
+            </div>
+            <figure class="shot reveal">
+                <img src="assets/img/brand/hermes-dashboard-channels.png" alt="헤르메스 대시보드의 Channels 화면. 텔레그램, 디스코드, 슬랙 같은 메신저를 켜고 끈다.">
+                <figcaption>대시보드 Channels 화면. 터미널 대신 여기서 메신저를 켜고 끌 수도 있습니다. 화면 위쪽에 게이트웨이가 꺼져 있다는 안내가 떠 있습니다.<br>출처: <a href="https://hermes-agent.nousresearch.com/docs/" target="_blank" rel="noopener">Hermes Agent 공식 문서</a></figcaption>
+            </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 4: 늘 켜 두기 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec6"><span class="step-badge">늘 켜 두기</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>늘 켜 두는 컴퓨터 한 대를 상주 서버로 씁니다</h2>
+            <p>에이전트에게 메신저로 말을 걸거나 예약한 일을 돌리려면 <strong>게이트웨이 프로세스가 떠 있어야</strong> 합니다. 맥미니든 데스크톱이든, 책상 밑에 늘 켜 두는 컴퓨터가 한 대 있다면 거기에 올리는 편이 가장 간단합니다. 네 단계면 끝납니다.</p>
+            <div class="grade-grid" style="margin-top:18px;">
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">1</span>
+                    <h4>설치와 모델 연결</h4>
+                    <p>앞에서 한 설치와 모델 연결을 그 컴퓨터에서 똑같이 합니다. 떨어진 곳에서 작업한다면 SSH로 들어가 진행합니다.</p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">2</span>
+                    <h4>메신저 연결</h4>
+                    <p>앞의 5단계에서 한 텔레그램 연결을 이 컴퓨터에서 그대로 합니다. 이미 해 뒀다면 넘어갑니다.</p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">3</span>
+                    <h4>자동 시작 등록</h4>
+                    <p><code>hermes gateway install</code>을 한 번 실행하면 게이트웨이가 macOS의 launchd에 등록됩니다. 그다음부터는 로그인할 때마다 알아서 뜹니다. 등록 파일은 <code>~/Library/LaunchAgents/ai.hermes.gateway.plist</code>입니다.</p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">4</span>
+                    <h4>잠들지 않게</h4>
+                    <p>시스템 설정에서 잠자기를 끄고 화면만 꺼지게 둡니다. 정전 뒤 자동으로 다시 부팅되는 설정까지 함께 걸어 두면, 전원이 나갔다 들어와도 알아서 돌아옵니다.</p>
+                </div>
+            </div>
+            <div class="prompt-block" style="margin-top: 18px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">잘 도는지 확인하기</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'gatewayMac')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="gatewayMac">hermes gateway start     <span class="cm"># 지금 켜기</span>
+hermes gateway status    <span class="cm"># 잘 떠 있는지 확인</span>
+
+tail -f ~/.hermes/logs/gateway.log   <span class="cm"># 기록 들여다보기</span></pre>
+            </div>
+            <div class="highlight-box is-warn reveal">
+                <div class="hl-title">예약할 때 지킬 두 가지</div>
+                <ul>
+                    <li>에이전트에게 <strong>"매일 아침 9시에 해 줘"라고 말로 부탁하면 알아듣고</strong> 대신 예약을 걸어 줍니다. 다만 <code>hermes cron</code> 명령의 일정 칸에 직접 적을 때는 <code>0 9 * * 1</code> 같은 크론 문법이나 <code>every 6h</code> 같은 간격만 받습니다.</li>
+                    <li>예약된 일은 <strong>지금 대화의 기억이 없는 새 세션</strong>에서 돕니다. 필요한 파일 경로, 주소, 판단 기준을 프롬프트 안에 전부 적어 두어야 합니다.</li>
+                </ul>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 5: 서버 호스팅 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec7"><span class="step-badge">서버 호스팅</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>서버를 빌려 도커로 올립니다</h2>
+            <p>집이나 사무실에 늘 켜 둘 기기가 없거나 정전과 인터넷 사정에 휘둘리기 싫다면, 서버를 빌려 도커로 띄웁니다. 공식 이미지는 <code>nousresearch/hermes-agent</code>입니다.</p>
+            <div class="role-grid" style="margin-top:18px;">
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="6" rx="1.8"/><rect x="3" y="14" width="18" height="5" rx="1.8"/><path d="M6.8 8h.01M6.8 16.5h.01"/></svg></div>
+                    <h4>서버 준비</h4>
+                    <p>메모리 2GB에 CPU 2코어면 넉넉합니다. 최소는 메모리 1GB, CPU 1코어, 디스크 500MB입니다.</p>
+                    <div class="role-example">브라우저 도구를 쓰면 메모리 2GB 이상</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 14.5a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1v.3a2 2 0 1 1-4 0v-.2a1.6 1.6 0 0 0-2.8-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 1 1 0-4h.2A1.6 1.6 0 0 0 4.3 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 2.7-1.1V3a2 2 0 1 1 4 0v.2a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7h.3a2 2 0 1 1 0 4h-.2a1.6 1.6 0 0 0-1.1.7Z"/></svg></div>
+                    <h4>설정 한 번</h4>
+                    <p>컨테이너를 한 번 띄워 놓고 화면이 묻는 대로 모델과 키를 넣습니다. 넣은 값은 서버의 <code>~/.hermes/</code>에 남습니다.</p>
+                    <div class="role-example">컨테이너를 지워도 설정은 유지</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 11.8-5.1"/><path d="M19 12a7 7 0 0 1-11.8 5.1"/><path d="M16.5 4.2v3h-3"/><path d="M7.5 19.8v-3h3"/></svg></div>
+                    <h4>상주 실행</h4>
+                    <p>게이트웨이를 백그라운드로 띄우고 재시작 옵션을 걸어 둡니다. 서버가 재부팅돼도 알아서 다시 뜹니다.</p>
+                    <div class="role-example">restart: unless-stopped</div>
+                </div>
+            </div>
+            <p style="margin-top:24px;"><strong>어디서 빌리나.</strong> 한국에서 많이 쓰는 곳 네 군데입니다. 아래는 모두 메모리 2GB 기준 요금입니다. 서울에 데이터센터가 있으면 응답이 조금 더 빠릅니다.</p>
+            <div class="grade-grid" style="margin-top:16px;">
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">1</span>
+                    <h4>AWS Lightsail</h4>
+                    <div class="grade-stat">월 12달러</div>
+                    <p>서울 리전이 있습니다. 2 vCPU, 2GB 메모리, 60GB SSD. AWS 계정을 이미 쓰고 있다면 가장 손이 덜 갑니다.<br><a href="https://aws.amazon.com/lightsail/pricing/" target="_blank" rel="noopener" style="color:var(--ant-orange);text-decoration:none;font-size:12px;">공식 요금표 &rarr;</a></p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">2</span>
+                    <h4>Vultr</h4>
+                    <div class="grade-stat">월 10달러 안팎</div>
+                    <p>서울 리전이 있고 요금제 폭이 넓습니다. 리전마다 값이 조금씩 달라 결제 화면에서 확인해야 합니다.<br><a href="https://www.vultr.com/pricing/" target="_blank" rel="noopener" style="color:var(--ant-orange);text-decoration:none;font-size:12px;">공식 요금표 &rarr;</a></p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">3</span>
+                    <h4>DigitalOcean</h4>
+                    <div class="grade-stat">월 12달러</div>
+                    <p>가장 가까운 데이터센터가 싱가포르입니다. 1 vCPU, 2GB 메모리, 50GB SSD. 영문 설치 문서가 잘 갖춰져 있습니다.<br><a href="https://www.digitalocean.com/pricing/droplets" target="_blank" rel="noopener" style="color:var(--ant-orange);text-decoration:none;font-size:12px;">공식 요금표 &rarr;</a></p>
+                </div>
+                <div class="grade-item">
+                    <span class="grade-num" style="background:#A0532E;">4</span>
+                    <h4>Hetzner</h4>
+                    <div class="grade-stat">가장 저렴</div>
+                    <p>같은 사양에서 값이 제일 저렴합니다. 대신 데이터센터가 독일, 핀란드, 싱가포르, 미국뿐이라 한국에서는 응답이 한 박자 느립니다.<br><a href="https://www.hetzner.com/cloud/" target="_blank" rel="noopener" style="color:var(--ant-orange);text-decoration:none;font-size:12px;">공식 요금표 &rarr;</a></p>
+                </div>
+            </div>
+            <div class="inset-box reveal">
+                <div class="inset-label">요금을 볼 때</div>
+                <p>AWS Lightsail과 DigitalOcean 요금은 2026년 7월에 각 사 공식 요금 페이지에서 확인했습니다. Vultr는 리전마다 값이 달라 대략적인 수준만 적었고, Hetzner는 요금표가 상품 페이지 안쪽에 있어 금액 대신 위치만 적었습니다. 요금제는 자주 바뀌니 결제 전에 다시 보십시오. 메신저로 부르고 예약 업무를 돌리는 정도라면 데이터센터가 멀어도 체감 차이는 크지 않습니다. 여기에 모델 사용료가 따로 붙는다는 점만 기억하십시오.</p>
+            </div>
+
+            <div class="prompt-block" style="margin-top: 18px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">1. 설정 한 번 돌리기</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'dockerSetup')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="dockerSetup">mkdir -p ~/.hermes
+
+docker run -it --rm \
+  -v ~/.hermes:/opt/data \
+  nousresearch/hermes-agent setup</pre>
+            </div>
+            <div class="prompt-block" style="margin-top: 14px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">2. docker-compose.yml 만들기</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'dockerRun')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="dockerRun">services:
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes
+    restart: unless-stopped
+    command: gateway run
+    ports:
+      - "8642:8642"
+    volumes:
+      - ~/.hermes:/opt/data</pre>
+            </div>
+            <div class="prompt-block" style="margin-top: 14px;">
+                <div class="prompt-block-header">
+                    <span class="prompt-block-label">3. 띄우고 기록 보기</span>
+                    <button class="prompt-copy-btn" onclick="copyPrompt(this,'dockerUp')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        복사하기
+                    </button>
+                </div>
+                <pre id="dockerUp">docker compose up -d
+docker compose logs -f</pre>
+            </div>
+            <div class="highlight-box reveal">
+                <div class="hl-title">데이터와 업그레이드</div>
+                <p>설정과 키, 세션, 기억, 스킬, 기록이 전부 <code>/opt/data</code> 볼륨에 있습니다. 서버에서는 <code>~/.hermes/</code> 폴더에 해당합니다. 이미지 자체에는 아무것도 저장되지 않아서, <code>docker pull</code>로 새 이미지를 받고 컨테이너를 다시 만들어도 쓰던 내용이 그대로 이어집니다.</p>
+            </div>
+            <div class="highlight-box is-warn reveal">
+                <div class="hl-title">포트를 함부로 열지 않습니다</div>
+                <p>8642는 다른 프로그램이 이 에이전트를 불러 쓰는 창구입니다. 인터넷에 그대로 열어 두면 <strong>누구나 내 에이전트를 부를 수 있습니다.</strong> 방화벽으로 막거나 SSH 터널로만 접속하고, 웹 대시보드를 켠다면 인증을 반드시 겁니다. 공식 문서도 위험을 모른 채 포트를 여는 일은 말립니다.</p>
+            </div>
+            <div class="inset-box reveal">
+                <div class="inset-label">키를 넣다 실패한다면</div>
+                <p>서버 업체가 주는 브라우저 콘솔에서는 특수문자가 종종 빠집니다. API 키를 붙여넣다 값이 깨지는 일이 생깁니다. SSH로 접속해 작업하는 편이 안전합니다. 콘솔을 써야 한다면 콜론, at, 등호, 슬래시가 제대로 들어갔는지 확인한 뒤 실행합니다.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════ STEP 6: 고르는 기준 ═══════ -->
+    <div class="step-divider reveal content-section" id="sec8"><span class="step-badge">고르는 기준</span></div>
+    <section>
+      <div class="section-box reveal">
+        <div class="nm-card reveal">
+            <h2>내 컴퓨터와 빌린 서버, 무엇을 고를지</h2>
+            <p>두 방식의 차이는 성능이 아니라 <strong>무엇까지 내가 책임지느냐</strong>입니다. 다뤄야 할 자료가 어디에 있는지부터 보십시오.</p>
+            <div class="compare-grid" style="margin-top:20px;">
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--ant-orange);"></span><h4>늘 켜 둔 내 기기</h4></div>
+                    <div class="cmp-quote">맥미니·데스크톱·미니PC</div>
+                    <ul>
+                        <li>기기값 말고 매달 나가는 돈이 없습니다</li>
+                        <li>집이나 사무실 네트워크 안의 파일과 장비에 바로 닿습니다</li>
+                        <li>정전, 자동 업데이트 재부팅, 인터넷 끊김을 내가 감당합니다</li>
+                        <li>밖에서 접속하려면 연결 방법을 따로 찾아야 합니다</li>
+                    </ul>
+                </div>
+                <div class="compare-nm">
+                    <div class="cmp-header"><span class="cmp-dot" style="background:var(--ant-orange);"></span><h4>빌린 서버</h4></div>
+                    <div class="cmp-quote">VPS·클라우드</div>
+                    <ul>
+                        <li>매달 사용료가 나갑니다</li>
+                        <li>전원과 회선이 안정적이라 어디서 접속해도 조건이 같습니다</li>
+                        <li>내 로컬 파일과 사내망에는 닿지 않습니다</li>
+                        <li>방화벽, 키 관리, 업데이트 같은 서버 관리가 내 몫입니다</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box is-tip reveal">
+                <div class="hl-title">권하는 순서</div>
+                <p>처음이라면 쓰던 맥에 설치해 하루 이틀 돌려 보십시오. 계속 켜 둘 필요가 생겼을 때 늘 켜 두는 컴퓨터나 서버로 옮기면 됩니다. 설정과 기억이 <code>~/.hermes/</code> 한 폴더에 모여 있어 옮기는 일은 어렵지 않습니다. 다만 구독 로그인으로 붙인 계정은 새 기기에서 다시 인증해야 할 수 있습니다.</p>
+            </div>
+
+            <p style="margin-top:24px;"><strong>붙이기 전에 걸어 둘 안전장치</strong>는 세 가지입니다. 세 가지를 걸어 둔 뒤에는 에이전트에게 직접 "지금 이 설정이 안전한지, 그렇게 보는 이유가 무엇인지 알려 줘"라고 물어보십시오. 키가 그대로 드러나 있는지, 방화벽이 잘못 열려 있는지 스스로 짚어 줍니다.</p>
+            <div class="role-grid" style="margin-top:14px;">
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 5 6.3v5c0 4.2 2.9 7.7 7 9.2 4.1-1.5 7-5 7-9.2v-5Z"/><path d="M9.3 12.1l1.9 1.9 3.6-3.9"/></svg></div>
+                    <h4>권한을 좁힙니다</h4>
+                    <p>헤르메스는 파일을 읽고 명령을 실행하는 자율 에이전트입니다. 중요한 자료가 있는 계정에 바로 붙이기 전에 시험용 계정이나 따로 만든 폴더에서 먼저 돌려 봅니다.</p>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9" rx="2.2"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/><path d="M12 14v2"/></svg></div>
+                    <h4>대화할 사람을 정합니다</h4>
+                    <p>텔레그램은 허용 목록에 없는 사람을 전부 막습니다. 봇 토큰이 새면 남이 내 에이전트를 부를 수 있으니 토큰은 <code>.env</code> 밖으로 내보내지 않습니다.</p>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 3.5 19h17Z"/><path d="M12 10v4"/><path d="M12 16.6h.01"/></svg></div>
+                    <h4>마지막은 사람이 결정합니다</h4>
+                    <p>발송, 결제, 삭제처럼 되돌릴 수 없는 일은 초안까지만 맡깁니다. 사람이 지켜보지 않는 사이에 돌아가는 만큼, 이 선은 지켜야 합니다.</p>
+                </div>
+            </div>
+
+            <div class="qa-list" style="margin-top:24px;">
+                <div class="qa-item reveal">
+                    <div class="qa-q">모델 비용을 줄이는 방법이 있나요?</div>
+                    <div class="qa-a"><span>두 가지 방법을 추천 드립니다. 첫째, OpenRouter로 저렴한 모델을 골라 붙입니다. 어려운 판단만 비싼 모델에 맡기고 나머지는 저렴한 모델로 돌리는 식입니다. 둘째, <strong>매일 되풀이하는 일은 에이전트에게 매번 시키지 말고 한 번만 코드로 짜게 한 뒤 그 코드를 돌립니다.</strong> 그러면 그 일에 드는 토큰 비용이 사실상 없어집니다.</span></div>
+                </div>
+                <div class="qa-item reveal">
+                    <div class="qa-q">에이전트를 몇 개나 만들어야 하나요?</div>
+                    <div class="qa-a"><span>하나나 둘이면 충분합니다. 둘로 나눈다면 <strong>업무용과 개인용으로 나누는</strong> 쪽을 권합니다. 집안 일정과 가족 이야기까지 기억한 에이전트를 회사 장비에 올려 두기는 곤란하고, 반대로 개인 기기에 사내 자료를 물려 두는 것도 마찬가지입니다. 처음부터 여러 개를 만들면 어느 쪽이 무엇을 아는지 헷갈립니다.</span></div>
+                </div>
+                <div class="qa-item reveal">
+                    <div class="qa-q">얼마나 자주 업데이트해야 하나요?</div>
+                    <div class="qa-a"><span>자주 해야 합니다. 아직 손보는 속도가 빠른 소프트웨어라, 며칠만 두어도 바뀐 내용이 많이 쌓입니다. 대시보드의 <strong>Update Hermes</strong> 버튼이나 명령으로 업데이트하는 일을 습관으로 두십시오. 회사 업무를 맡길 생각이라면 이 점을 감안해야 합니다.</span></div>
+                </div>
+                <div class="qa-item reveal">
+                    <div class="qa-q">늘 켜 둘 컴퓨터가 마땅치 않은데요?</div>
+                    <div class="qa-a"><span>먼저 쓰던 노트북에 설치해 보십시오. 며칠 돌려 보고 계속 쓸 만하면 그때 옮기면 됩니다. 늘 켜 둘 기기를 새로 사기 어렵다면 <strong>안드로이드 폰</strong>에 올려도 됩니다. 폰은 전기를 적게 먹고 늘 켜져 있습니다. 공식 문서에도 Termux라는 터미널 앱으로 설치하는 안내가 따로 있습니다. 다만 손이 더 갑니다. 7단계의 서버 빌리기와 견주어 보고 고르십시오.</span></div>
+                </div>
+                <div class="qa-item reveal">
+                    <div class="qa-q">클로드 코드가 있는데 헤르메스가 왜 필요한가요?</div>
+                    <div class="qa-a"><span>클로드 코드는 내가 앞에 앉아 있는 동안 함께 일하는 도구입니다. 헤르메스는 내가 없는 동안에도 떠 있으면서 <strong>메신저로 부르면 답하고 예약한 일을 스스로 처리합니다.</strong> 둘은 대체 관계가 아니라 쓰임이 다릅니다. 아직 계속 켜 둘 일이 없다면 클로드 코드의 <a href="routines.html" style="color:var(--ant-orange);text-decoration:none;">Routines</a> 기능으로 충분합니다.</span></div>
+                </div>
+                <div class="qa-item reveal">
+                    <div class="qa-q">비용은 어느 정도인가요?</div>
+                    <div class="qa-a"><span>헤르메스 자체는 MIT 라이선스 오픈소스라 무료입니다. AI 모델 사용료는 별도로 들어갑니다. 만약 별도 서버에 설치한다면 서버 요금을 지불해야 합니다. 내 컴퓨터에 로컬 모델을 설치해 쓰면 모델 비용마저 들지 않습니다.</span></div>
+                </div>
+                <div class="qa-item reveal">
+                    <div class="qa-q">대화 기록과 자료는 어디에 저장되나요?</div>
+                    <div class="qa-a"><span>API 호출은 <strong>내가 지정한 모델 제공사로만</strong> 갑니다. 공식 문서에 따르면 헤르메스는 사용 기록이나 분석 데이터를 따로 수집하지 않습니다. 대화와 기억, 스킬은 설치한 컴퓨터의 <code>~/.hermes/</code> 폴더 안에 남습니다. 사내 자료를 다룬다면 어떤 제공사에 붙였는지부터 확인하십시오.</span></div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 용어 정리 -->
+    <section>
+      <div class="section-box reveal" style="margin-top:8px;">
+        <div class="nm-card reveal">
+            <h2>용어 설명</h2>
+            <div class="term-grid">
+            <div class="term-card">
+            <div class="term-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M8.5 7.5 4 12l4.5 4.5"/><path d="M15.5 7.5 20 12l-4.5 4.5"/></svg><span class="term-name">게이트웨이 (Gateway, 메신저 연결 창구)</span></div>
+            <p>텔레그램이나 슬랙으로 들어온 말을 받아 에이전트에게 넘긴 뒤, 그 답을 다시 메신저로 돌려보내는 창구 프로그램입니다. 이게 꺼져 있으면 메신저로 불러도 답이 오지 않습니다.</p>
+            </div>
+            <div class="term-card">
+            <div class="term-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12.5" r="7.5"/><path d="M12 8.5v4l2.8 1.8"/><path d="M5.5 3.5 3 6M18.5 3.5 21 6"/></svg><span class="term-name">크론 (Cron, 시간 예약 실행기)</span></div>
+            <p>정한 시각에 정한 일을 자동으로 시키는 예약 장치입니다. "매주 월요일 아침 9시"를 <code>0 9 * * 1</code> 같은 기호로 적습니다.</p>
+            </div>
+            <div class="term-card">
+            <div class="term-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 12 4l9 4.5-9 4.5z"/><path d="M3 8.5V16l9 4.5 9-4.5V8.5"/><path d="M12 13v7.5"/></svg><span class="term-name">도커 (Docker, 프로그램 포장 도구)</span></div>
+            <p>프로그램과 필요한 준비물을 상자 하나에 통째로 담아 옮기는 방식입니다. 서버마다 환경을 새로 맞출 필요 없이 상자만 내려받아 실행합니다.</p>
+            </div>
+            <div class="term-card">
+            <div class="term-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="6.5" rx="1.8"/><rect x="3" y="13" width="18" height="6.5" rx="1.8"/><path d="M6.8 7.7h.01M6.8 16.2h.01"/></svg><span class="term-name">VPS (Virtual Private Server, 가상 사설 서버)</span></div>
+            <p>남의 데이터센터에 있는 컴퓨터 한 대를 매달 얼마씩 내고 빌려 쓰는 서비스입니다. 전원과 인터넷은 업체가 책임집니다.</p>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 참고 섹션 -->
+    <div class="ref-section reveal">
+        <div class="ref-title">참고</div>
+        <div class="ref-links">
+            <a class="ref-link" href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener">
+                <span class="ref-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.3-4.3-2.2-6-2.6m12 5.1v-3.4c0-1 .1-1.4-.5-1.9 2.8-.3 5.5-1.4 5.5-6a4.7 4.7 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.3s-1-.3-3.4 1.3a11.6 11.6 0 0 0-6.1 0C6.7 3.4 5.7 3.7 5.7 3.7a4.3 4.3 0 0 0-.1 3.3A4.7 4.7 0 0 0 4.3 10.2c0 4.6 2.7 5.7 5.5 6-.4.4-.5.9-.5 1.5v3.8"/></svg></span>
+                <span>NousResearch / hermes-agent<br><span style="font-size: 12px; color: #999; font-weight: 400;">공개 저장소 · MIT 라이선스</span></span>
+                <span class="ref-desc">저장소</span>
+            </a>
+            <a class="ref-link" href="https://hermes-agent.nousresearch.com/docs/" target="_blank" rel="noopener">
+                <span class="ref-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.8C10.4 5.3 7.8 4.8 5 5.4v11.8c2.8-.6 5.4-.1 7 1.4"/><path d="M12 6.8c1.6-1.5 4.2-2 7-1.4v11.8c-2.8-.6-5.4-.1-7 1.4"/><path d="M12 6.8V18.6"/></svg></span>
+                <span>Hermes Agent 공식 문서<br><span style="font-size: 12px; color: #999; font-weight: 400;">설치, 모델 연결, 게이트웨이, 도커 운영</span></span>
+                <span class="ref-desc">문서</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- CTA 섹션 -->
+    <div class="cta-section reveal">
+        <h3>오늘 할 일</h3>
+        <p>먼저 쓰던 노트북에 설치해 <code style="color:#fff;">hermes</code>를 한 번 띄우고 모델을 붙여 보세요. 며칠 써 보고 계속 쓸 만하다 싶으면, 그때 늘 켜 둘 기기나 서버에 게이트웨이를 등록하면 됩니다.</p>
+        <div class="cta-buttons">
+            <a class="cta-btn secondary" href="routines.html">&larr; Routines 예약 실행</a>
+            <a class="cta-btn primary" href="index.html">목록으로 &rarr;</a>
+        </div>
+    </div>
+
+</main>
+
+
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+// ── 스크롤 애니메이션 ──
+var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+
+// ── 그리드 stagger 애니메이션 ──
+var gridSelectors = '.role-grid, .grade-grid, .compare-grid, .pat-grid';
+document.querySelectorAll(gridSelectors).forEach(function(grid) {
+    var children = grid.children;
+    for (var i = 0; i < children.length; i++) {
+        children[i].classList.add('stagger-child');
+        children[i].style.transitionDelay = (i * 0.1) + 's';
+    }
+});
+var staggerObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            var children = entry.target.children;
+            for (var i = 0; i < children.length; i++) {
+                children[i].classList.add('visible');
+            }
+        }
+    });
+}, { threshold: 0.15 });
+document.querySelectorAll(gridSelectors).forEach(function(grid) {
+    staggerObserver.observe(grid);
+});
+
+// ── 서브메뉴 활성화 ──
+(function(){
+    var links = document.querySelectorAll('.sub-menu a');
+    var sections = [];
+    var scrollEndTimer = null;
+    var clickedLink = null;
+
+    links.forEach(function(l){
+        var id = l.getAttribute('data-sec');
+        var el = document.getElementById(id);
+        if(el) sections.push({el:el, link:l});
+
+        l.addEventListener('click', function(){
+            links.forEach(function(x){ x.classList.remove('active'); });
+            l.classList.add('active');
+            clickedLink = l;
+        });
+    });
+
+    function update(){
+        if(clickedLink) return;
+        var smEl = document.getElementById('subMenu');
+        var scrollY = window.scrollY + (smEl ? smEl.offsetHeight : 0) + 16;
+        var current = null;
+        for(var i = 0; i < sections.length; i++){
+            if(sections[i].el.offsetTop <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                // 가로 서브메뉴만 스크롤한다. sticky 컨테이너 안에서 scrollIntoView를 부르면
+                // 브라우저가 창을 서브메뉴의 원래(고정 전) 위치로 끌어올려 하단을 못 보게 만든다.
+                var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.clientWidth) / 2;
+                nav.scrollTo({left: target, behavior: 'smooth'});
+            }
+        }
+    }
+    window.addEventListener('scroll', function(){
+        if(scrollEndTimer) clearTimeout(scrollEndTimer);
+        scrollEndTimer = setTimeout(function(){
+            clickedLink = null;
+            update();
+        }, 150);
+        update();
+    }, {passive:true});
+    update();
+})();
+
+// ── 스크롤 프로그레스 바 ──
+(function(){
+    var bar = document.getElementById('scrollProgress');
+    if(!bar) return;
+    function updateProgress(){
+        var scrollTop = window.scrollY;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = progress + '%';
+    }
+    window.addEventListener('scroll', updateProgress, {passive:true});
+    updateProgress();
+})();
+
+function copyPrompt(btn, sourceId) {
+    var id = sourceId || btn.closest('.prompt-block').querySelector('pre').id;
+    // 설명용 주석(.cm)은 빼고 실제로 실행할 줄만 복사한다
+    var clone = document.getElementById(id).cloneNode(true);
+    Array.prototype.forEach.call(clone.querySelectorAll('.cm'), function (el) { el.remove(); });
+    var text = clone.innerText
+        .split('\n')
+        .map(function (line) { return line.replace(/\s+$/, ''); })
+        .filter(function (line, i, arr) { return !(line === '' && (i === 0 || arr[i - 1] === '')); })
+        .join('\n')
+        .trim();
+    navigator.clipboard.writeText(text).then(function() {
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 복사됨';
+        setTimeout(function() {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> 복사하기';
+        }, 2000);
+    });
+}
+</script>
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #A0532E; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    /* 헤더 상단 여백 통일 */
+    header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 50px 0 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+
+<!-- 가이드 소개 모달: 단일 소스 assets/js/about-modal.js 에서 주입 -->
+<script src="assets/js/about-modal.js"></script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+</body>
+</html>
