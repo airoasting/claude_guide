@@ -716,6 +716,7 @@
     border:1px solid var(--ink);
     box-shadow: 6px 6px 0 var(--ink);
     padding:18px 20px 18px;
+    overflow:hidden;
   }
   .tl-card.on{ opacity:1; transform:translateY(0); }
   .tl-card-date{
@@ -2296,6 +2297,28 @@
     initTimeline(wrap, grid, card);
   });
 
+  // 요소를 잘라내는 조상들을 거슬러 올라가 실제로 보이는 세로 범위를 계산한다
+  function visibleRange(el){
+    let top = 0, bottom = window.innerHeight;
+    let p = el.parentElement;
+    while (p && p !== document.body && p !== document.documentElement){
+      const cs = getComputedStyle(p);
+      if (cs.overflowY !== 'visible' || cs.overflowX !== 'visible'){
+        const r = p.getBoundingClientRect();
+        top = Math.max(top, r.top);
+        bottom = Math.min(bottom, r.bottom);
+      }
+      p = p.parentElement;
+    }
+    // 슬라이드 하단 고정 바(deck-ui)는 카드 위를 덮으므로 그 위까지만 쓴다
+    const bar = document.querySelector('.deck-ui');
+    if (bar){
+      const br = bar.getBoundingClientRect();
+      if (br.height > 0 && br.top > top) bottom = Math.min(bottom, br.top);
+    }
+    return { top: top, bottom: bottom };
+  }
+
   function initTimeline(wrap, grid, card){
   const dateEl = card.querySelector('.tl-card-date');
   const famEl  = card.querySelector('.tl-card-family');
@@ -2313,14 +2336,24 @@
     const margin = 18;
     let left = (dotRect.left - wrapRect.left) + dotRect.width/2 - cardW/2;
     left = Math.max(8, Math.min(left, wrapRect.width - cardW - 8));
+    // 카드를 잘라내는 조상(슬라이드 frame 등)의 보이는 범위를 구한다.
+    // 이 범위 안에 카드가 통째로 들어오도록 위·아래를 고르고, 그래도 넘치면 위치를 당겨 붙인다.
+    const clip = visibleRange(card);
+    const room = clip.bottom - clip.top - 16;
+    card.style.maxHeight = room + 'px';
     card.style.visibility = 'hidden';
     card.classList.add('on');
-    const cardH = card.offsetHeight;
+    const cardH = Math.min(card.offsetHeight, room);
     card.style.visibility = '';
-    let top = (dotRect.top - wrapRect.top) - cardH - margin;
-    if (top < 4) top = (dotRect.top - wrapRect.top) + dotRect.height + margin;
+    let topView = dotRect.top - cardH - margin;
+    if (topView < clip.top + 8) {
+      const below = dotRect.bottom + margin;
+      topView = (below + cardH <= clip.bottom - 8)
+        ? below
+        : Math.max(clip.top + 8, clip.bottom - 8 - cardH);
+    }
     card.style.left = left + 'px';
-    card.style.top  = top + 'px';
+    card.style.top  = (topView - wrapRect.top) + 'px';
   }
   function hideCard(){ card.classList.remove('on'); }
   dots.forEach(d => {
