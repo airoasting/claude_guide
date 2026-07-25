@@ -203,7 +203,7 @@
         }
         .about-cta-btn:hover { background: #A04828; transform: translateY(-1px); }
         /* ── 라이선스 (About 모달 내장) ── */
-        .license-title {
+        .about-overlay .license-title {
             font-size: 22px; font-weight: 800; color: #2D2622;
             line-height: 1.3; margin: 0 0 18px; letter-spacing: -0.3px;
         }
@@ -298,7 +298,7 @@
             .about-byline-icons a { width: 26px; height: 26px; }
             .about-cta-btn { justify-content: center; flex-shrink: 0; padding: 0 16px; font-size: 13px; }
             .about-cta-btn .cta-prefix { display: none; }
-            .license-title { font-size: 19px; }
+            .about-overlay .license-title { font-size: 19px; }
             .license-text { font-size: 13px; padding: 16px 18px; }
             .lic-author { display: block; }
         }`;
