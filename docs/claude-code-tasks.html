@@ -864,13 +864,13 @@
             <div class="task-content">
                 <div class="task-row">
                     <div class="task-label">프롬프트</div>
-                    <div class="task-command">1. Github.com 아이디 생성
+                    <div class="task-command">1. GitHub.com 아이디 생성
 2. New Repository 생성
 3. API Key 생성
    (프로필 → Settings → Developer Settings → Personal Access Tokens → Tokens Classic)
 4. 해당 API Key를 클로드 코드에 주고 파일 업로드(Push)
    : 절대로 메모리에 저장시키면 안됨, 보안 관리
-5. Github.com에서 해당 Repo 클릭 → Settings → Pages → Branch에서 main, /root 선택하고 Save
+5. GitHub.com에서 해당 Repo 클릭 → Settings → Pages → Branch에서 main, /root 선택하고 Save
 6. 아이디.github.io/Repository명 으로 웹사이트로 접근</div>
                 </div>
                 <div class="task-row">
@@ -1145,9 +1145,17 @@ function switchMode(mode) {
                 var target = document.getElementById('task' + n);
                 if (!target) return;
                 target.classList.add('open', 'reveal');
-                requestAnimationFrame(function() {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                });
+                // 로드 직후 한 번만 부르면 브라우저의 스크롤 복원에 밀린다.
+                // sticky 헤더 높이만큼 빼서 직접 이동하고, 레이아웃이 늦게 잡히는 경우까지 두 번 더 보정한다.
+                function goToCard(smooth) {
+                    var sticky = document.querySelector('nav.sub-menu');
+                    var off = (sticky ? sticky.getBoundingClientRect().height : 0) + 16;
+                    var y = target.getBoundingClientRect().top + window.scrollY - off;
+                    window.scrollTo({ top: Math.max(0, y), behavior: smooth ? 'smooth' : 'auto' });
+                }
+                requestAnimationFrame(function() { goToCard(true); });
+                setTimeout(function() { goToCard(true); }, 220);
+                window.addEventListener('load', function() { goToCard(false); }, { once: true });
             }
 
             openFromHash();

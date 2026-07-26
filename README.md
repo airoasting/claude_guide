@@ -8,7 +8,7 @@
 
 ![Version](https://img.shields.io/badge/Version-3.2-4CAF50)
 ![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
-![Pages](https://img.shields.io/badge/Pages-42-8A4FE0)
+![Pages](https://img.shields.io/badge/Pages-43-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
 ![Language](https://img.shields.io/badge/Language-%ED%95%9C%EA%B5%AD%EC%96%B4-2196F3)
 ![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000)
@@ -50,6 +50,7 @@
 |--------|------|
 | [크롬에서 Claude 사용](https://airoasting.vercel.app/chrome-plugin.html) | 브라우저를 떠나지 않고 요약, 작성, 검색 보조 |
 | [MS Office에서 Claude 사용](https://airoasting.vercel.app/claude-plugin.html) | 엑셀, 파워포인트, 워드 3종 플러그인 실전 가이드 |
+| [스마트폰에서 Claude 쓰기](https://airoasting.vercel.app/claude-mobile.html) | 앱 메뉴 여섯 개(채팅·프로젝트·아티팩트·코드·Dispatch·코워크) 지도와 폰에서 일 맡기는 법 |
 
 ### 3단계. 클로드 코드
 
@@ -188,7 +189,7 @@ GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 
 - **v3.2 · 2026-07-26: Opus 5 최신화와 헤르메스 에이전트 신설**
   7월 24일 나온 Claude Opus 5를 기준으로 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 업데이트했습니다. 5단계에는 '헤르메스 에이전트' 페이지를 추가했습니다.
 - **v3.1 · 2026-07-19: 디자인·시각화 갤러리 4종 재편**
-  디자인·시각화 갤러리를 EDA 차트, UI 디자인, UI 컴포넌트, SVG 아이콘 네 갈래로 정리했습니다. 버튼·카드에 바로 붙여 쓰는 라인 아이콘 300개를 모은 SVG 아이콘 갤러리를 새로 더하고, 네 페이지 상단에 서로 오가는 서브 메뉴를 같은 구성으로 통일해 넣었습니다. 메인 갤러리 카드도 네 장으로 맞추고, EDA 차트 개수를 28종으로 갱신했습니다.
+  디자인·시각화 갤러리를 EDA 차트, UI 디자인, UI 컴포넌트, SVG 아이콘 네 가지로 정리했습니다. 버튼·카드에 바로 붙여 쓰는 라인 아이콘 300개를 모은 SVG 아이콘 갤러리를 새로 더하고, 네 페이지 상단에 서로 오가는 서브 메뉴를 같은 구성으로 통일해 넣었습니다. 메인 갤러리 카드도 네 장으로 맞추고, EDA 차트 개수를 28종으로 갱신했습니다.
 - **v3.0 · 2026-07-12: AI와 함께 일하는 7단계 신설**
   스킬 다섯 개를 목표부터 검증까지 하나로 잇는 'AI와 함께 일하는 7단계' 실전 예제를 새로 만들고, 예제 세 페이지의 상단 메뉴를 하나로 통일했습니다. 사이트 파일을 docs/로 정리하고 카드·헤더 아이콘을 라인 SVG로 교체했으며, 끝까지 추적하는 검색 스킬 Hound를 더했습니다.
 - **v2.9 · 2026-07-05: 다른 콘텐츠 개편과 앤트로픽 소개 최신화**
