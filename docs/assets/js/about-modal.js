@@ -382,7 +382,7 @@
                 <div class="changelog-list">
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v3.2</span><span class="changelog-date">2026-07-26</span></div>
-                        <div class="changelog-body"><p class="changelog-title">Opus 5 최신화와 섹션명 규격 통일</p><p class="changelog-desc">7월 24일 나온 Claude Opus 5를 기준으로 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 업데이트하고 5단계에 '헤르메스 에이전트' 페이지를 추가했습니다. 2단계에는 '스마트폰에서 Claude 쓰기'를 새로 만들어 앱 메뉴 여섯 개 지도와 폰에서 일을 맡기는 법을 정리했습니다. 페이지마다 제각각이던 섹션명을 전 페이지 같은 규격(13px 오렌지 알약, 높이 36px)으로 맞추고, 섹션 제목에 남아 있던 이모지 아이콘을 라인 SVG로 교체했습니다.</p></div></div>
+                        <div class="changelog-body"><p class="changelog-title">Opus 5 최신화와 스마트폰 페이지 신설</p><p class="changelog-desc">7월 24일 나온 Claude Opus 5를 기준으로 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 업데이트하고 5단계에 '헤르메스 에이전트' 페이지를 추가했습니다. 2단계에는 '스마트폰에서 Claude 쓰기'를 새로 만들어 앱 메뉴 여섯 개 지도와 폰에서 일을 맡기는 법을 정리했습니다.</p></div></div>
                     <div class="changelog-item">
                         <div class="changelog-meta"><span class="changelog-ver">v3.1</span><span class="changelog-date">2026-07-19</span></div>
                         <div class="changelog-body"><p class="changelog-title">디자인·시각화 갤러리 4종 재편</p><p class="changelog-desc">디자인·시각화 갤러리를 EDA 차트, UI 디자인, UI 컴포넌트, SVG 아이콘 네 개로 정리했습니다. 버튼·카드에 바로 붙여 쓰는 라인 아이콘 300개를 모은 SVG 아이콘 갤러리를 새로 더하고, 네 페이지 상단에 서로 오가는 서브 메뉴를 같은 구성으로 통일해 넣었습니다. 메인 갤러리 카드도 네 장으로 맞추고, EDA 차트 개수를 28종으로 갱신했습니다.</p></div></div>
