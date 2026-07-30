@@ -467,7 +467,7 @@
                         <div class="changelog-body"><p class="changelog-title">첫 공개</p><p class="changelog-desc">'Claude 완전 정복'의 첫 골격을 처음으로 공개했습니다. 비즈니스 리더를 위한 5단계 구성의 뼈대를 세웠습니다. 이후 매주 채워 나갈 출발점이 된 버전입니다.</p></div>
                     </div>
                 </div>
-                <p class="license-footnote">2026년 2월 첫 공개 이후 매주 일요일마다 업데이트하며 0.1씩 버전을 올리고 있습니다.</p>
+                <p class="license-footnote">2026년 2월 첫 공개 이후 매주 업데이트하고 있습니다.</p>
             </div>
 
             <div class="about-license-section" id="aboutLicense">
