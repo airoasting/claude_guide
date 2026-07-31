@@ -34,15 +34,36 @@
       radial-gradient(ellipse 8px 10px at 8px 9px,#FFE06A 0 42%,#F6C338 55%,#E0982A 78%,transparent 82%);
     background-size:20px 24px,20px 24px;background-position:0 0,10px 12px;
     box-shadow:inset -8px -10px 22px rgba(150,90,10,.3),inset 8px 8px 18px rgba(255,240,170,.5),0 8px 16px rgba(120,80,20,.18)}
+  /* ── 옥수수 얼굴 ── */
+  .face{position:absolute;left:50%;top:56px;transform:translateX(-50%);width:92px;height:56px;z-index:3}
+  .eye{position:absolute;top:0;width:13px;height:16px;border-radius:50%;background:#4A2E12;
+    box-shadow:0 1px 0 rgba(255,240,190,.5)}
+  .eye.l{left:21px}.eye.r{right:21px}
+  .eye::after{content:'';position:absolute;top:3px;left:3px;width:5px;height:5px;border-radius:50%;background:#fff}
+  .cheek{position:absolute;top:20px;width:15px;height:9px;border-radius:50%;background:rgba(233,118,104,.5);filter:blur(.5px)}
+  .cheek.l{left:9px}.cheek.r{right:9px}
+  .mouth{position:absolute;top:21px;left:50%;width:22px;height:11px;transform:translateX(-50%);
+    border:3px solid #4A2E12;border-top:none;border-radius:0 0 22px 22px;transition:all .18s}
+  /* 재는 동안엔 신이 나서 입을 벌리고 눈을 깜빡인다 */
+  .corn.go .mouth{width:19px;height:18px;border-top:3px solid #4A2E12;border-radius:9px 9px 11px 11px;background:#A8442F}
+  .corn.go .eye{animation:blink 3.1s ease-in-out infinite}
+  @keyframes blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.12)}}
+  /* 랩을 찍으면 폴짝 뛴다. 흔들림(.corn.go)과 겹치지 않게 알맹이와 얼굴만 움직인다 */
+  .corn.pop .cob,.corn.pop .face{animation:hop .42s cubic-bezier(.3,1.5,.5,1) 1}
+  @keyframes hop{
+    0%,100%{transform:translateX(-50%) translateY(0) scale(1)}
+    38%{transform:translateX(-50%) translateY(-12px) scale(1.05,.95)}
+  }
+
   .time{font-variant-numeric:tabular-nums;font-weight:800;font-size:42px;letter-spacing:1px;color:#5A3A1C}
   .time .cs{font-size:22px;color:#B07A3E}
   .row{display:flex;gap:9px}
   button{font-family:inherit;font-weight:800;font-size:14px;color:#fff;border:none;cursor:pointer;
     padding:13px 0;width:80px;border-radius:22px;box-shadow:0 4px 0 rgba(0,0,0,.13),0 6px 10px rgba(0,0,0,.10);transition:transform .07s,opacity .15s}
   button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.13)}
-  #b1{background:#57B84A}#b1.run{background:#E0705C}
-  #b2{background:#E0982A}#b3{background:#B6ADA0}
-  button:disabled{opacity:.42;cursor:default}
+  #b1{background:#57B84A;color:#0E2A08}#b1.run{background:#E0705C;color:#3E1208}
+  #b2{background:#E0982A;color:#3A2405}#b3{background:#B6ADA0;color:#33302A}
+  button:disabled{opacity:.6;cursor:default}
   .lp{font-size:12px;color:#9A7A52;font-weight:700;min-height:16px}
   button:focus-visible{outline:3px solid #5A3A1C;outline-offset:2px}
   /* 시작하면 옥수수가 바람에 흔들린다 */
@@ -54,6 +75,11 @@
   @keyframes leafR{0%,100%{transform:translateX(-50%) rotate(26deg)}50%{transform:translateX(-50%) rotate(37deg)}}
   .corn.go .silk{transform-origin:bottom center;animation:silkWave .9s ease-in-out infinite}
   @keyframes silkWave{0%,100%{transform:translateX(-50%) rotate(-7deg)}50%{transform:translateX(-50%) rotate(7deg)}}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+  button:hover:not(:disabled){filter:brightness(1.1)}
 </style>
 </head>
 <body>
@@ -62,20 +88,25 @@
       <div class="silk"><span></span><span></span><span></span><span></span></div>
       <span class="leaf l"></span><span class="leaf r"></span>
       <span class="cob"></span>
+      <div class="face">
+        <span class="eye l"></span><span class="eye r"></span>
+        <span class="cheek l"></span><span class="cheek r"></span>
+        <span class="mouth"></span>
+      </div>
     </div>
     <div class="time"><span id="t">00:00<span class="cs">.00</span></span></div>
     <div class="row">
       <button id="b1">시작</button>
       <button id="b2" disabled>랩</button>
-      <button id="b3" disabled>초기화</button>
+      <button id="b3" disabled>리셋</button>
     </div>
-    <div class="lp" id="lp"></div>
+    <div class="lp" id="lp" aria-live="polite"></div>
   </div>
 <script>
 (function(){
   var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lp=document.getElementById('lp');
   var fig=document.querySelector('.corn');
-  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0,popT=null;
   function el(){return acc+(run?performance.now()-st:0);}
   function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
     return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(cc).padStart(2,'0')+'</span>';}
@@ -85,9 +116,19 @@
   function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);fig.classList.add('go');draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;fig.classList.remove('go');draw();ui();}
-  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;fig.classList.remove('go');draw();ui();lp.textContent='';}
-  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);lp.textContent='랩 '+laps.length+'  +'+plain(sp);}
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;fig.classList.remove('go');draw();ui();lp.textContent='';}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);lp.textContent='랩 '+laps.length+'  +'+plain(sp)+(laps.length>1&&sp===best?'  ★ 최단':'');
+    fig.classList.remove('pop'); void fig.offsetWidth; fig.classList.add('pop');
+    clearTimeout(popT); popT=setTimeout(function(){fig.classList.remove('pop');},420);}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;clearTimeout(popT);});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
   draw();ui();
 })();

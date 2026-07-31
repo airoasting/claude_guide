@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>레이싱 로드 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏎️</text></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    color:#fff;position:relative;--rd:2.6s;
+    background:linear-gradient(180deg,#2E7CC4 0%,#6FB3E4 18%,#C6E4F7 34%)}
+
+  /* ── 하늘 · 구름 ── */
+  .cloud{position:absolute;background:rgba(255,255,255,.92);border-radius:50%;filter:blur(.4px);
+    animation:drift 26s linear infinite}
+  .cloud::before{content:'';position:absolute;background:inherit;border-radius:50%}
+  .c1{top:15%;left:11%;width:32px;height:12px}
+  .c1::before{width:18px;height:18px;top:-8px;left:6px}
+  .c2{top:10%;left:56%;width:25px;height:10px;animation-duration:34s;animation-delay:-8s;opacity:.85}
+  .c2::before{width:14px;height:14px;top:-6px;left:5px}
+  .c3{top:22%;left:82%;width:28px;height:11px;animation-duration:30s;animation-delay:-16s;opacity:.72}
+  .c3::before{width:16px;height:16px;top:-7px;left:6px}
+  @keyframes drift{from{transform:translateX(-46px)}to{transform:translateX(346px)}}
+
+  /* ── 잔디 · 도로 ── */
+  .ground{position:absolute;left:0;right:0;top:34%;bottom:0;
+    background:linear-gradient(180deg,#5CB553 0%,#2E7C32 100%)}
+  .road{position:absolute;left:0;right:0;top:34%;bottom:0;
+    background:linear-gradient(180deg,#4C5058 0%,#2C3035 100%);
+    clip-path:polygon(45.4% 0,54.6% 0,124% 100%,-24% 100%)}
+  .horizon{position:absolute;left:0;right:0;top:34%;height:2px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent)}
+
+  /* 중앙 점선 · 커브 — 속도가 붙을수록 빨라진다 */
+  .dash,.kerb{position:absolute;pointer-events:none;animation-play-state:paused;
+    animation-duration:var(--rd)}
+  .dash{background:#F5C838;border-radius:2px;animation-name:dashRun;animation-timing-function:linear;animation-iteration-count:infinite}
+  @keyframes dashRun{
+    0%{top:34.4%;width:3px;height:6px;margin-left:-1.5px;left:50%;opacity:.3}
+    100%{top:101%;width:16px;height:46px;margin-left:-8px;left:50%;opacity:1}
+  }
+  .kerb{border-radius:1px;transform:translateX(-50%);
+    animation-name:kerbL;animation-timing-function:linear;animation-iteration-count:infinite}
+  .kerb.r{animation-name:kerbR}
+  .kerb.w{background:#F4F4F4}
+  .kerb.d{background:#DE3B3B}
+  @keyframes kerbL{
+    0%{top:34.4%;left:44.5%;width:4px;height:5px;opacity:.3}
+    100%{top:101%;left:-23%;width:26px;height:40px;opacity:1}
+  }
+  @keyframes kerbR{
+    0%{top:34.4%;left:54.7%;width:4px;height:5px;opacity:.3}
+    100%{top:101%;left:101%;width:26px;height:40px;opacity:1}
+  }
+  body.go .dash,body.go .kerb{animation-play-state:running}
+
+  /* ── 머신 ── */
+  .car-wrap{position:absolute;left:50%;bottom:104px;width:112px;margin-left:-56px;z-index:3}
+  body.go .car-wrap{animation:weave 3s ease-in-out infinite}
+  @keyframes weave{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-6px) rotate(-1.2deg)}75%{transform:translateX(6px) rotate(1.2deg)}}
+  /* START 순간 앞으로 튀어나가듯 솟는다 */
+  .car-lift{transform:scale(.94) translateY(8px);transition:transform .6s cubic-bezier(.3,1.5,.5,1)}
+  body.go .car-lift{transform:scale(1.04) translateY(-4px)}
+  .car{width:100%;display:block;filter:drop-shadow(0 8px 10px rgba(0,0,0,.34))}
+  body.go .car{animation:shake .11s linear infinite}
+  @keyframes shake{0%,100%{transform:translateY(0)}50%{transform:translateY(1.4px)}}
+  .blur{opacity:0}
+  body.go .blur{opacity:1;animation:spinBlur .09s steps(2) infinite}
+  @keyframes spinBlur{0%{opacity:.85}100%{opacity:.25}}
+
+  .speedline{position:absolute;left:0;right:0;bottom:104px;height:76px;z-index:2;opacity:0;transition:opacity .3s}
+  body.go .speedline{opacity:1}
+  .speedline i{position:absolute;height:2px;border-radius:2px;background:rgba(255,255,255,.65);
+    animation:zip .5s linear infinite}
+  @keyframes zip{0%{transform:translateY(0) scaleX(.3);opacity:0}30%{opacity:.9}100%{transform:translateY(72px) scaleX(1.7);opacity:0}}
+
+  /* ── 상단 HUD ── */
+  .hud{position:absolute;left:0;right:0;top:0;z-index:6;padding:10px 14px 20px;
+    text-align:center;pointer-events:none;
+    background:linear-gradient(180deg,rgba(8,12,20,.62) 0%,rgba(8,12,20,.32) 52%,transparent 100%)}
+  .time{font-size:31px;font-weight:800;letter-spacing:.4px;white-space:nowrap;line-height:1.08;
+    font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.55)}
+  .time .cs{font-size:18px;font-weight:700;color:#FFD98A}
+  .meta{margin-top:3px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .lamp{width:7px;height:7px;border-radius:50%;background:#7E8798;transition:all .25s;flex-shrink:0}
+  body.go .lamp{background:#4BE07A;box-shadow:0 0 9px rgba(75,224,122,.9);animation:blink 1.1s ease-in-out infinite}
+  @keyframes blink{50%{opacity:.45}}
+  .spd{font-size:12.5px;font-weight:800;letter-spacing:.4px;color:#FFD98A;
+    font-variant-numeric:tabular-nums;text-shadow:0 1px 4px rgba(0,0,0,.55)}
+  .spd i{font-style:normal;font-size:8px;font-weight:700;color:rgba(255,255,255,.6);margin-left:2px}
+  .laps{margin-top:2px;min-height:13px;font-size:10.5px;font-weight:700;letter-spacing:.3px;
+    color:rgba(255,255,255,.9);font-variant-numeric:tabular-nums;text-shadow:0 1px 3px rgba(0,0,0,.55)}
+
+  /* ── 페달 (왼쪽 액셀 · 가운데 클러치 · 오른쪽 브레이크) ── */
+  .pedals{position:absolute;left:0;right:0;bottom:0;z-index:6;
+    padding:22px 12px 11px;display:flex;justify-content:center;align-items:flex-end;gap:12px;
+    background:linear-gradient(0deg,rgba(8,12,20,.72) 0%,rgba(8,12,20,.3) 62%,transparent 100%)}
+  .pedal{width:62px;border:none;background:none;padding:0;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:6px}
+  .pedal:disabled{opacity:.6;cursor:default}
+  .pedal:focus-visible{outline:2px solid #F5C838;outline-offset:4px;border-radius:10px}
+  .pad{width:100%;height:40px;border-radius:8px;
+    background:
+      repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 3px,transparent 3px 9px),
+      linear-gradient(180deg,#4C505A,#212429);
+    box-shadow:0 5px 0 #131519,0 8px 13px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.16);
+    transition:transform .1s ease,box-shadow .1s ease}
+  .pedal:hover:not(:disabled) .pad{filter:brightness(1.15)}
+  .pedal:active:not(:disabled) .pad,.pedal.on .pad{
+    transform:translateY(4px);
+    box-shadow:0 1px 0 #131519,0 3px 8px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1)}
+  .pname{font-size:10px;font-weight:800;letter-spacing:.2px;line-height:1;
+    text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .pstate{font-size:8.5px;font-weight:700;line-height:1;margin-top:-3px;
+    color:rgba(255,255,255,.72);text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  #b1 .pname{color:#6BE08F}
+  #b2 .pname{color:#9FB6DC}
+  #b3 .pname{color:#FF7264}
+
+  @media (prefers-reduced-motion: reduce){
+    .cloud,.dash,.kerb,.car,.car-wrap,.speedline i,.lamp,.blur{animation:none !important}
+    .speedline{display:none}
+    .car-lift{transition:none}
+  }
+</style>
+</head>
+<body>
+  <div class="cloud c1" aria-hidden="true"></div>
+  <div class="cloud c2" aria-hidden="true"></div>
+  <div class="cloud c3" aria-hidden="true"></div>
+  <div class="ground" aria-hidden="true"></div>
+  <div class="road" aria-hidden="true"></div>
+  <div class="horizon" aria-hidden="true"></div>
+  <div class="scene" id="scene" aria-hidden="true"></div>
+  <div class="speedline" id="sl" aria-hidden="true"></div>
+
+  <div class="car-wrap"><div class="car-lift">
+    <svg class="car" viewBox="0 0 140 112" aria-hidden="true">
+      <defs>
+        <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity=".4"/>
+          <stop offset=".55" stop-color="#fff" stop-opacity="0"/>
+          <stop offset="1" stop-color="#000" stop-opacity=".3"/>
+        </linearGradient>
+        <linearGradient id="tyre" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2A2C30"/><stop offset="1" stop-color="#0E0F11"/>
+        </linearGradient>
+      </defs>
+
+      <ellipse cx="70" cy="102" rx="56" ry="8" fill="rgba(0,0,0,.32)"/>
+
+      <!-- 앞바퀴 (멀리 있어 작고 안쪽으로) -->
+      <rect x="23" y="34" width="21" height="34" rx="9" fill="#0F1013"/>
+      <rect x="96" y="34" width="21" height="34" rx="9" fill="#0F1013"/>
+      <rect x="26" y="41" width="15" height="6" rx="3" fill="#34373C"/>
+      <rect x="99" y="41" width="15" height="6" rx="3" fill="#34373C"/>
+      <g class="blur">
+        <rect x="26" y="50" width="15" height="2" rx="1" fill="rgba(255,255,255,.28)"/>
+        <rect x="99" y="50" width="15" height="2" rx="1" fill="rgba(255,255,255,.28)"/>
+      </g>
+
+      <!-- 리어윙 -->
+      <rect x="32" y="20" width="9" height="20" rx="2" fill="#98211F"/>
+      <rect x="99" y="20" width="9" height="20" rx="2" fill="#98211F"/>
+      <rect x="16" y="10" width="108" height="11" rx="5.5" fill="#CE2E2E"/>
+      <rect x="16" y="10" width="108" height="4" rx="2" fill="rgba(255,255,255,.22)"/>
+      <rect x="64" y="13" width="12" height="5" rx="2.5" fill="#FF7A5E"/>
+
+      <!-- 차체 -->
+      <path d="M31 44 Q70 31 109 44 L114 78 Q114 88 104 88 L36 88 Q26 88 26 78 Z" fill="#E23C3C"/>
+      <path d="M31 44 Q70 31 109 44 L114 78 Q114 88 104 88 L36 88 Q26 88 26 78 Z" fill="url(#sheen)"/>
+
+      <!-- 리어 윈도 -->
+      <path d="M39 50 Q70 40 101 50 L104 70 L36 70 Z" fill="#1D2F4E"/>
+      <path d="M39 50 Q70 40 101 50 L100 55 L40 55 Z" fill="rgba(255,255,255,.13)"/>
+
+      <!-- 리어 범퍼 · 디퓨저 -->
+      <path d="M28 76 L112 76 L112 82 Q112 90 102 90 L38 90 Q28 90 28 82 Z" fill="#1B1D21"/>
+      <rect x="50" y="78" width="4.5" height="11" rx="1.5" fill="#3A3D43"/>
+      <rect x="68" y="78" width="4.5" height="11" rx="1.5" fill="#3A3D43"/>
+      <rect x="86" y="78" width="4.5" height="11" rx="1.5" fill="#3A3D43"/>
+
+      <!-- 브레이크등 -->
+      <rect x="32" y="63" width="17" height="7" rx="3.5" fill="#FF8A6A"/>
+      <rect x="91" y="63" width="17" height="7" rx="3.5" fill="#FF8A6A"/>
+
+      <!-- 뒷바퀴 (가장 가까워 크고 바깥으로) -->
+      <rect x="2" y="48" width="29" height="50" rx="12" fill="url(#tyre)"/>
+      <rect x="109" y="48" width="29" height="50" rx="12" fill="url(#tyre)"/>
+      <rect x="6" y="58" width="21" height="8" rx="4" fill="#43464B"/>
+      <rect x="113" y="58" width="21" height="8" rx="4" fill="#43464B"/>
+      <g class="blur">
+        <rect x="6" y="72" width="21" height="3" rx="1.5" fill="rgba(255,255,255,.3)"/>
+        <rect x="6" y="82" width="21" height="3" rx="1.5" fill="rgba(255,255,255,.2)"/>
+        <rect x="113" y="72" width="21" height="3" rx="1.5" fill="rgba(255,255,255,.3)"/>
+        <rect x="113" y="82" width="21" height="3" rx="1.5" fill="rgba(255,255,255,.2)"/>
+      </g>
+    </svg>
+  </div></div>
+
+  <div class="hud">
+    <div class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></div>
+    <div class="meta">
+      <span class="lamp" aria-hidden="true"></span>
+      <span class="spd" id="spd">0<i>KM/H</i></span>
+    </div>
+    <div class="laps" id="lp" aria-live="polite"></div>
+  </div>
+
+  <div class="pedals">
+    <button class="pedal" id="b1" type="button" aria-label="액셀, 시작 또는 정지">
+      <span class="pad" aria-hidden="true"></span><span class="pname">액셀</span><span class="pstate" id="ps"></span>
+    </button>
+    <button class="pedal" id="b2" type="button" aria-label="클러치, 랩 기록" disabled>
+      <span class="pad" aria-hidden="true"></span><span class="pname">클러치</span>
+    </button>
+    <button class="pedal" id="b3" type="button" aria-label="브레이크, 리셋" disabled>
+      <span class="pad" aria-hidden="true"></span><span class="pname">브레이크</span>
+    </button>
+  </div>
+
+<script>
+(function(){
+  /* 원근 도로 요소 생성 */
+  var scene=document.getElementById('scene'),i,e;
+  for(i=0;i<6;i++){
+    e=document.createElement('span'); e.className='dash';
+    e.style.setProperty('animation-delay','calc(var(--rd) * '+(-i/6).toFixed(4)+')'); scene.appendChild(e);
+  }
+  for(i=0;i<11;i++){
+    e=document.createElement('span'); e.className='kerb '+(i%2?'w':'d');
+    e.style.setProperty('animation-delay','calc(var(--rd) * '+(-i/11).toFixed(4)+')'); scene.appendChild(e);
+    e=document.createElement('span'); e.className='kerb r '+(i%2?'w':'d');
+    e.style.setProperty('animation-delay','calc(var(--rd) * '+(-i/11).toFixed(4)+')'); scene.appendChild(e);
+  }
+  var sl=document.getElementById('sl'),lanes=[5,17,29,71,83,95];
+  for(i=0;i<lanes.length;i++){
+    e=document.createElement('i');
+    e.style.left=lanes[i]+'%'; e.style.width=(10+(i%3)*6)+'px';
+    e.style.animationDelay=(-i*0.083)+'s'; sl.appendChild(e);
+  }
+
+  var t=document.getElementById('t'),spd=document.getElementById('spd'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),
+      b3=document.getElementById('b3'),lp=document.getElementById('lp'),ps=document.getElementById('ps');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0,gtick=0,shownSpd=-1,shownDur=null;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return pad(hh,2)+':'+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+
+  /* 출발하면 0에서부터 속도가 붙고, 노면도 같이 빨라진다 */
+  function speedAt(e){
+    if(!run)return 0;
+    var ramp=1-Math.exp(-e/2600);                 /* 0 → 1 로 부드럽게 */
+    return Math.round(48+186*ramp+9*Math.sin(e/900));
+  }
+  function applySpeed(e){
+    var v=speedAt(e);
+    if(v!==shownSpd){ spd.innerHTML=v+'<i>KM/H</i>'; shownSpd=v; }
+    /* 시속이 붙을수록 노면 주기가 짧아진다.
+       주기를 매 프레임 바꾸면 진행 중인 CSS 애니메이션이 순간 이동하므로
+       0.15초 계단으로 양자화해 실제로 값이 달라질 때만 한 번 갱신한다. */
+    var dur=run?Math.max(0.6,2.55-1.95*(1-Math.exp(-e/2600))):2.55;
+    var q=(Math.round(dur/0.15)*0.15).toFixed(2);
+    if(q!==shownDur){ document.body.style.setProperty('--rd',q+'s'); shownDur=q; }
+  }
+  function draw(){
+    var e=el();
+    t.innerHTML=f(e);
+    if(++gtick%9===0)applySpeed(e);
+  }
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b1.classList.toggle('on',run);
+    var lbl=run?'정지':(el()>0?'재개':'시작');
+    ps.textContent=lbl; b1.setAttribute('aria-label','액셀, '+lbl);
+    b2.disabled=!run; b3.disabled=run||el()===0;
+    applySpeed(el());
+  }
+  function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;shownDur=null;lp.textContent='';draw();ui();}
+  function lap(){if(!run)return;var e2=el(),sp=e2-last;last=e2;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    lp.textContent='LAP '+laps.length+'  +'+plain(sp)+(laps.length>1&&sp===best?'  ★ FASTEST':'');}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(ev){
+    if(ev.target&&ev.target.tagName==='BUTTON'&&ev.key===' ')return;
+    if(ev.key===' '){ev.preventDefault();run?stop():start();}
+    else if(ev.key==='l'||ev.key==='L'){lap();}
+    else if(ev.key==='r'||ev.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

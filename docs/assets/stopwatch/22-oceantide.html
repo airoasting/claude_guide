@@ -8,67 +8,99 @@
 <style>
   @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
+  html,body{height:100%;overflow:hidden}
   body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-    position:relative;overflow:hidden;color:#EAF7F7;
+    position:relative;overflow:hidden;color:#064450;
     display:flex;align-items:center;justify-content:center;padding:14px;
-    background:linear-gradient(180deg,#032B33 0%,#0B5B63 46%,#2BA3A8 100%)}
+    background:
+      radial-gradient(110% 54% at 50% -12%,rgba(255,252,214,.45) 0%,rgba(160,248,238,.24) 38%,transparent 68%),
+      linear-gradient(180deg,#7FF0E4 0%,#35CFD0 18%,#12A8BC 42%,#0B7E9C 68%,#075A78 100%)}
+  /* 수면에서 내려오는 빛기둥 */
+  .rays{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .rays i{position:absolute;top:-24%;width:46px;height:150%;transform-origin:50% 0;
+    background:linear-gradient(180deg,rgba(255,253,220,.34),rgba(190,250,240,.10) 48%,transparent 80%);
+    filter:blur(5px);animation:raySway 9s ease-in-out infinite}
+  .rays i:nth-child(1){left:8%;transform:rotate(8deg)}
+  .rays i:nth-child(2){left:38%;width:64px;opacity:.8;animation-duration:11s;animation-delay:-3s;transform:rotate(-5deg)}
+  .rays i:nth-child(3){left:72%;width:38px;opacity:.7;animation-duration:13s;animation-delay:-6s;transform:rotate(11deg)}
+  @keyframes raySway{0%,100%{opacity:.55}50%{opacity:1}}
+  .bubbles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
   /* ── 기포 ── */
   .bub{position:absolute;bottom:-40px;border-radius:50%;
-    background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.5),rgba(255,255,255,.08) 62%);
-    animation:rise linear infinite;opacity:.55}
-  @keyframes rise{to{transform:translateY(-120vh)}}
-  .bub:nth-child(1){left:6%;width:18px;height:18px;animation-duration:13s;animation-delay:-3s}
-  .bub:nth-child(2){left:16%;width:9px;height:9px;animation-duration:10s;animation-delay:-7s;filter:blur(1px)}
-  .bub:nth-child(3){left:30%;width:13px;height:13px;animation-duration:15s;animation-delay:-11s}
-  .bub:nth-child(4){left:52%;width:8px;height:8px;animation-duration:9s;animation-delay:-2s;filter:blur(1.5px)}
-  .bub:nth-child(5){left:66%;width:16px;height:16px;animation-duration:14s;animation-delay:-9s}
-  .bub:nth-child(6){left:80%;width:11px;height:11px;animation-duration:11s;animation-delay:-5s;filter:blur(1px)}
-  .bub:nth-child(7){left:90%;width:20px;height:20px;animation-duration:16s;animation-delay:-13s;filter:blur(2px)}
-  body.go .bub{animation-duration:7s}
-  body.go .bub:nth-child(2){animation-duration:5.5s}
-  body.go .bub:nth-child(4){animation-duration:5s}
-  body.go .bub:nth-child(7){animation-duration:8s}
+    background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.62),rgba(190,246,244,.10) 62%);
+    box-shadow:inset 0 0 3px rgba(255,255,255,.5);
+    animation:rise linear infinite;opacity:.6}
+  @keyframes rise{
+    0%{transform:translateY(0) translateX(0);opacity:0}
+    8%{opacity:.7}
+    50%{transform:translateY(-60vh) translateX(9px)}
+    92%{opacity:.55}
+    100%{transform:translateY(-125vh) translateX(-6px);opacity:0}
+  }
+  /* 여름 바다 식구들 */
+  /* 물고기 떼: 좌→우, 우→좌가 섞여 헤엄친다 */
+  .fish{position:absolute;line-height:1;pointer-events:none;
+    filter:drop-shadow(0 2px 4px rgba(0,50,70,.25));
+    animation:swimR linear infinite}
+  .fish.rev{animation-name:swimL}
+  @keyframes swimR{
+    0%{transform:translateX(-70px) scaleX(1)}
+    100%{transform:translateX(400px) scaleX(1)}
+  }
+  @keyframes swimL{
+    0%{transform:translateX(400px) scaleX(-1)}
+    100%{transform:translateX(-70px) scaleX(-1)}
+  }
+  /* 헤엄치며 위아래로 살짝 일렁인다 */
+  .fish i{display:block;animation:bobFish ease-in-out infinite}
+  @keyframes bobFish{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-7px) rotate(3deg)}}
+  .shell{position:absolute;bottom:5%;right:9%;font-size:18px;opacity:.75;pointer-events:none;
+    filter:drop-shadow(0 2px 4px rgba(0,50,70,.25))}
+
   /* ── 글래스 카드 ── */
   .panel{position:relative;z-index:2;width:100%;max-width:300px;padding:26px 20px 20px;border-radius:26px;
-    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.22);
+    background:rgba(255,255,255,.34);border:1px solid rgba(255,255,255,.7);
     -webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
-    box-shadow:0 16px 44px rgba(0,20,26,.35);
+    box-shadow:0 16px 44px rgba(4,60,80,.28);
     display:flex;flex-direction:column;align-items:center;gap:15px}
-  .title{font-size:15px;font-weight:700;letter-spacing:7px;color:#F2FBFB;text-indent:7px}
-  .subtitle{font-size:9px;font-weight:600;letter-spacing:3.5px;color:rgba(220,245,245,.55);margin-top:-11px;text-indent:3.5px}
-  .time{font-variant-numeric:tabular-nums;font-weight:200;font-size:36px;letter-spacing:1px;color:#F4FDFD;margin-top:4px}
-  .time .cs{font-size:19px;color:rgba(210,240,240,.6)}
+  .time{font-variant-numeric:tabular-nums;font-weight:600;font-size:36px;letter-spacing:.5px;color:#053B47;margin-top:4px}
+  .time .cs{font-size:19px;font-weight:500;color:rgba(5,59,71,.6)}
   .glowline{width:64px;height:3px;border-radius:3px;margin-top:-4px;
-    background:linear-gradient(90deg,transparent,#9FE8E4,transparent);
-    box-shadow:0 0 10px rgba(140,230,225,.7)}
+    background:linear-gradient(90deg,transparent,#FFE58A,transparent);
+    box-shadow:0 0 10px rgba(255,220,120,.75)}
   body.go .glowline{animation:tideGlow 2.4s ease-in-out infinite}
   @keyframes tideGlow{50%{box-shadow:0 0 18px rgba(140,230,225,1);width:88px}}
-  .row{display:flex;gap:11px;margin-top:5px}
+  .row{display:flex;gap:6px;margin-top:5px}
   button{font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;
-    padding:12px 0;width:74px;border-radius:26px;transition:all .18s;color:#EAF7F7}
-  button:disabled{opacity:.38;cursor:default}
+    padding:12px 0 12px 14px;width:82px;transition:all .18s;color:#064450;
+    /* 물고기 실루엣: 오른쪽이 머리, 왼쪽이 갈라진 꼬리 */
+    clip-path:polygon(100% 50%, 84% 14%, 48% 4%, 26% 24%, 2% 8%, 16% 50%, 2% 92%, 26% 76%, 48% 96%, 84% 86%);
+    border-radius:0}
+  button:disabled{opacity:.6;cursor:default}
   button:focus-visible{outline:2px solid #9FE8E4;outline-offset:2px}
-  #b1{border:none;background:linear-gradient(135deg,#2FA9A4,#127A7C);
-    box-shadow:0 4px 16px rgba(30,150,145,.45)}
-  #b1:hover{box-shadow:0 4px 22px rgba(40,180,170,.6)}
-  #b2,#b3{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.30)}
-  #b2:hover:not(:disabled),#b3:hover:not(:disabled){background:rgba(255,255,255,.13)}
-  .rule{width:100%;border-top:1px solid rgba(255,255,255,.18);margin-top:6px}
-  .laps{width:100%;min-height:16px;font-size:11.5px;font-weight:500;letter-spacing:.5px;
-    color:rgba(220,245,245,.72);text-align:center;font-variant-numeric:tabular-nums}
-  @media (prefers-reduced-motion: reduce){.bub{animation:none;display:none}.glowline{animation:none !important}}
+  #b1{border:none;background:linear-gradient(135deg,#FFCE52,#F09420);color:#3A2506;font-weight:800;
+    box-shadow:0 4px 16px rgba(220,150,40,.42)}
+  #b1:hover{box-shadow:0 4px 22px rgba(255,190,80,.62)}
+  #b2,#b3{background:rgba(255,255,255,.62);border:none;font-weight:800}
+  /* 눈 */
+  .row{position:relative}
+  button::after{content:"";position:absolute;right:11px;top:34%;width:5px;height:5px;
+    border-radius:50%;background:rgba(6,68,80,.75);pointer-events:none;z-index:2}
+  #b1::after{background:rgba(58,37,6,.8)}
+  #b2:hover:not(:disabled),#b3:hover:not(:disabled){background:rgba(255,255,255,.82);border-color:rgba(6,68,80,.5)}
+  .rule{width:100%;border-top:1px solid rgba(6,68,80,.2);margin-top:6px}
+  .laps{width:100%;min-height:16px;font-size:11.5px;letter-spacing:.5px;
+    color:rgba(6,68,80,.78);font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
+  @media (prefers-reduced-motion: reduce){.bub,.rays i,.fish,.fish i{animation:none !important}.bub{display:none}.glowline{animation:none !important}}
 </style>
 </head>
 <body>
-  <span class="bub" aria-hidden="true"></span><span class="bub" aria-hidden="true"></span>
-  <span class="bub" aria-hidden="true"></span><span class="bub" aria-hidden="true"></span>
-  <span class="bub" aria-hidden="true"></span><span class="bub" aria-hidden="true"></span>
-  <span class="bub" aria-hidden="true"></span>
+  <div class="rays" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="school" id="school" aria-hidden="true"></div>
+  <span class="shell" aria-hidden="true">🐚</span>
+  <div class="bubbles" id="bubbles" aria-hidden="true"></div>
 
   <div class="panel">
-    <div class="title">OCEAN TIDE</div>
-    <div class="subtitle">TIME FLOWS LIKE THE SEA</div>
     <div class="time"><span id="t">00:00:00<span class="cs">.000</span></span></div>
     <div class="glowline" aria-hidden="true"></div>
     <div class="row">
@@ -77,28 +109,87 @@
       <button id="b3" disabled>리셋</button>
     </div>
     <div class="rule" aria-hidden="true"></div>
-    <div class="laps" id="lp"></div>
+    <div class="laps" id="lp" aria-live="polite"></div>
   </div>
 <script>
 (function(){
+  /* 물고기 8마리: 깊이·크기·속도·방향을 흩어 놓는다 */
+  var school=document.getElementById('school');
+  var FISH=[
+    {top:5,  size:21,dur:15,rev:false,ch:'\uD83D\uDC20'},
+    {top:13, size:15,dur:21,rev:true, ch:'\uD83D\uDC1F'},
+    {top:21, size:18,dur:17,rev:false,ch:'\uD83D\uDC1F'},
+    {top:29, size:13,dur:25,rev:true, ch:'\uD83D\uDC20'},
+    {top:79, size:23,dur:13,rev:false,ch:'\uD83D\uDC21'},
+    {top:85, size:15,dur:19,rev:true, ch:'\uD83D\uDC1F'},
+    {top:90, size:12,dur:27,rev:false,ch:'\uD83D\uDC20'},
+    {top:95, size:17,dur:16,rev:true, ch:'\uD83D\uDC21'}
+  ];
+  FISH.forEach(function(f,i){
+    var e=document.createElement('span');
+    e.className='fish'+(f.rev?' rev':'');
+    e.style.top=f.top+'%';
+    e.style.fontSize=f.size+'px';
+    e.style.animationDuration=f.dur+'s';
+    e.style.animationDelay=(-i*2.6)+'s';
+    e.style.opacity=(0.55+(f.size/50)).toFixed(2);
+    var inner=document.createElement('i');
+    inner.textContent=f.ch;
+    inner.style.animationDuration=(2.2+i*0.3).toFixed(1)+'s';
+    inner.style.animationDelay=(-i*0.7)+'s';
+    e.appendChild(inner);
+    school.appendChild(e);
+  });
+
+  /* 기포 18개: 위치·크기·속도·흐림을 흩어 놓는다 */
+  var wrap=document.getElementById('bubbles'),i,b;
+  var L=[4,11,17,24,30,37,43,49,55,61,67,73,79,84,89,93,7,52];
+  var SZ=[7,13,9,18,6,11,15,8,20,10,14,7,17,9,12,6,22,8];
+  var DUR=[11,15,9,17,8,13,16,10,19,12,14,9,18,11,15,8,21,10];
+  for(i=0;i<18;i++){
+    b=document.createElement('span'); b.className='bub';
+    b.style.left=L[i]+'%';
+    b.style.width=SZ[i]+'px'; b.style.height=SZ[i]+'px';
+    b.style.animationDuration=DUR[i]+'s';
+    b.style.animationDelay=(-i*1.3)+'s';
+    if(SZ[i]<9)b.style.filter='blur(1.2px)';
+    else if(SZ[i]>16)b.style.filter='blur(.6px)';
+    wrap.appendChild(b);
+  }
   var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),
       b3=document.getElementById('b3'),lp=document.getElementById('lp');
   var run=false,st=0,acc=0,iv=null,laps=[],last=0;
   function el(){return acc+(run?performance.now()-st:0);}
-  function f(ms){if(ms<0)ms=0;var mmm=Math.floor(ms)%1000,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
-    return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(mmm).padStart(3,'0')+'</span>';}
-  function plain(ms){if(ms<0)ms=0;var mmm=Math.floor(ms)%1000,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
-    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(mmm).padStart(3,'0');}
+  function f(ms){if(ms<0)ms=0;var mmm=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(mmm).padStart(2,'0')+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var mmm=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(mmm).padStart(2,'0');}
   function draw(){t.innerHTML=f(el());}
-  function ui(){document.body.classList.toggle('go',run);
+  function ui(){
+    document.body.classList.toggle('go',run);
+    var sp=run?0.45:1;
+    for(var k=0;k<wrap.children.length;k++){
+      wrap.children[k].style.animationDuration=(DUR[k]*sp)+'s';
+    }
+    for(var j=0;j<school.children.length;j++){
+      school.children[j].style.animationDuration=(FISH[j].dur*(run?0.5:1))+'s';
+    }
     b1.textContent=run?'정지':(el()>0?'재개':'시작');
     b2.disabled=!run;b3.disabled=run||el()===0;}
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
-  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
   function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
-    lp.textContent='LAP '+laps.length+'  +'+plain(sp);}
+    var best=Math.min.apply(null,laps);lp.textContent='LAP '+laps.length+'  +'+plain(sp)+(laps.length>1&&sp===best?'  ★ 최단':'');}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
   draw();ui();
 })();

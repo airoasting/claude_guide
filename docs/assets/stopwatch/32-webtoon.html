@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>카카오 웹툰 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23070818'/><circle cx='50' cy='42' r='16' fill='%235B6BFF'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{
+    --blue:#6A7BFF;
+    --blue-lt:#AEB9FF;
+    --cyan:#8FE3FF;
+  }
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    color:#EAEEFF;background:#070818;position:relative}
+
+  /* ── 웹툰 컷 (전면 배경) ── */
+  .cut{position:absolute;inset:0;overflow:hidden}
+  .cut img{width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block}
+  /* 컷 테두리 */
+  .cut::after{content:'';position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 0 2px rgba(106,123,255,.34)}
+
+  /* 위·아래 스크림 (글자 가독) */
+  .scrim{position:absolute;left:0;right:0;pointer-events:none;z-index:2}
+  .scrim.top{top:0;height:30%;
+    background:linear-gradient(180deg,rgba(4,5,16,.88) 0%,rgba(4,5,16,.34) 58%,transparent 100%)}
+  .scrim.bot{bottom:0;height:54%;
+    background:linear-gradient(0deg,rgba(4,5,16,.96) 0%,rgba(4,5,16,.74) 34%,rgba(4,5,16,.2) 74%,transparent 100%)}
+
+  /* 그림자 기운이 일렁인다 */
+  .glow{position:absolute;inset:0;pointer-events:none;z-index:1;mix-blend-mode:screen;opacity:.45;
+    background:radial-gradient(60% 44% at 50% 56%,rgba(88,108,255,.5) 0%,transparent 72%)}
+  body.go .glow{animation:surge 2.6s ease-in-out infinite}
+  @keyframes surge{0%,100%{opacity:.38}50%{opacity:.85}}
+
+
+  /* ── 시간 ── */
+  .time{position:absolute;left:0;right:0;bottom:106px;z-index:5;text-align:center;
+    font-size:33px;font-weight:900;letter-spacing:-1.2px;white-space:nowrap;line-height:1;
+    font-variant-numeric:tabular-nums;color:#FFFFFF;
+    text-shadow:0 0 14px rgba(106,123,255,.95),0 0 34px rgba(58,78,232,.8),0 2px 3px rgba(0,0,0,.9)}
+  .time .cs{font-size:19px;color:var(--cyan);text-shadow:0 0 14px rgba(143,227,255,.9)}
+
+  .laps{position:absolute;left:0;right:0;bottom:86px;z-index:5;text-align:center;min-height:14px;
+    font-size:11px;font-weight:800;letter-spacing:.2px;color:var(--blue-lt);
+    font-variant-numeric:tabular-nums;text-shadow:0 1px 4px rgba(0,0,0,.95)}
+
+  /* 효과음 */
+  .fx{position:absolute;left:26px;top:34px;z-index:6;pointer-events:none;opacity:0;
+    font-size:30px;font-weight:900;letter-spacing:-1.5px;color:var(--cyan);
+    text-shadow:0 0 12px rgba(143,227,255,.95),0 0 28px rgba(90,180,255,.75),2px 2px 0 #05060F;
+    transform:rotate(-11deg)}
+  .fx.on{animation:boom .8s cubic-bezier(.26,1.5,.5,1) 1}
+  @keyframes boom{
+    0%{opacity:0;transform:rotate(-11deg) scale(.4)}
+    22%{opacity:1;transform:rotate(-11deg) scale(1.16)}
+    70%{opacity:1;transform:rotate(-11deg) scale(1)}
+    100%{opacity:0;transform:rotate(-11deg) scale(1.04)}
+  }
+
+  /* ── 조작부 ── */
+  .row{position:absolute;left:12px;right:12px;bottom:34px;z-index:6;display:flex;gap:8px}
+  button{flex:1;font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;white-space:nowrap;
+    padding:10.5px 0;border:2px solid rgba(106,123,255,.55);border-radius:7px;
+    background:rgba(9,11,28,.86);color:#E6EBFF;
+    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+    box-shadow:0 0 0 1px rgba(106,123,255,.14),0 3px 10px rgba(0,0,0,.55);
+    transition:transform .09s,box-shadow .09s,background .15s,border-color .15s}
+  button:hover:not(:disabled){background:rgba(24,28,60,.94);border-color:var(--blue)}
+  button:active:not(:disabled){transform:translateY(2px)}
+  button:disabled{color:rgba(230,235,255,.42);background:rgba(7,9,22,.82);
+    border-color:rgba(106,123,255,.26);cursor:default}
+  button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+  #b1{background:linear-gradient(160deg,#5566F5,#2E38B8);border-color:transparent;color:#fff;
+    box-shadow:0 0 16px rgba(85,102,245,.55),0 3px 10px rgba(0,0,0,.5)}
+  #b1:hover{background:linear-gradient(160deg,#6A79FF,#3B46CC);border-color:transparent}
+
+  @media (prefers-reduced-motion: reduce){
+    .glow,.fx.on{animation:none !important}
+  }
+</style>
+</head>
+<body>
+  <div class="cut"><img src="images/kakao.png" alt="" /></div>
+  <span class="glow" aria-hidden="true"></span>
+  <span class="scrim top" aria-hidden="true"></span>
+  <span class="scrim bot" aria-hidden="true"></span>
+
+  <div class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></div>
+  <div class="laps" id="lp" aria-live="polite"></div>
+  <div class="fx" id="fx" aria-hidden="true">촤악!</div>
+
+  <div class="row">
+    <button id="b1" type="button">시작</button>
+    <button id="b2" type="button" disabled>랩</button>
+    <button id="b3" type="button" disabled>리셋</button>
+  </div>
+
+<script>
+(function(){
+  var t=document.getElementById('t'),fx=document.getElementById('fx'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),
+      b3=document.getElementById('b3'),lp=document.getElementById('lp');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0,fxT=null;
+  var SFX=['촤악!','번쩍!','쾅!','두구두구','철컥!'];
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return pad(hh,2)+':'+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+  function draw(){t.innerHTML=f(el());}
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b1.textContent=run?'정지':(el()>0?'재개':'시작');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+  }
+  function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;lp.textContent='';draw();ui();}
+  /* 랩을 찍으면 컷에 효과음이 터진다 */
+  function lap(){
+    if(!run)return;
+    var e=el(),sp=e-last;last=e;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    lp.textContent='컷 '+laps.length+'  '+plain(sp)+(laps.length>1&&sp===best?'  ★ 최단':'');
+    fx.textContent=SFX[(laps.length-1)%SFX.length];
+    fx.classList.remove('on'); void fx.offsetWidth; fx.classList.add('on');
+    clearTimeout(fxT);
+    fxT=setTimeout(function(){fx.classList.remove('on');},800);
+  }
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;clearTimeout(fxT);});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

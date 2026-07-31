@@ -48,7 +48,7 @@
   .sub b{color:var(--coin)}
   .sub .sep{width:4px;height:4px;background:#fff;display:inline-block;opacity:.5}
   /* ── 레벨 씬 (카메라 추적: 마리오 고정, 배경 스크롤) ── */
-  .scene{position:relative;z-index:3;height:104px;margin-top:auto;overflow:hidden}
+  .scene{position:relative;z-index:3;height:104px;margin-top:auto;overflow:hidden;flex-shrink:0}
   /* 구름 (느린 패럴랙스) */
   .clouds{position:absolute;top:6px;left:0;width:200%;height:30px;z-index:1}
   .clouds .cloud{position:absolute;top:0;width:46px;height:18px;background:#fff;border-radius:11px;
@@ -112,11 +112,9 @@
     25%{opacity:1;transform:translateY(-4px) scale(1)}
     100%{opacity:0;transform:translateY(-24px) scale(1)}}
   /* ── 랩(코인) 리스트 ── */
-  .laps{position:relative;z-index:6;flex:1 1 auto;min-height:0;overflow-y:auto;
+  .laps{position:relative;z-index:6;flex:0 1 auto;max-height:96px;min-height:0;overflow-y:auto;
     margin:6px 10px 0;display:flex;flex-direction:column;gap:4px;padding:1px;scrollbar-width:thin}
   .laps::-webkit-scrollbar{width:4px}.laps::-webkit-scrollbar-thumb{background:#3a4a78;border-radius:4px}
-  .laps:empty::after{content:'COIN 으로 랩 기록';display:block;text-align:center;
-    font-size:7px;letter-spacing:1px;color:#3a2a14;padding:14px 0}
   .lap{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:7px;
     padding:5px 8px;background:rgba(26,18,8,.82);border-radius:5px;font-size:8px;
     box-shadow:inset 0 0 0 2px rgba(255,255,255,.08);animation:lapIn .22s ease}
@@ -138,11 +136,11 @@
     transition:transform .05s,filter .12s}
   button:active{transform:translateY(2px);box-shadow:inset 3px 3px 0 rgba(0,0,0,.32)}
   button:hover{filter:brightness(1.12)}
-  #b1{background:var(--green)}
+  #b1{background:var(--green);color:#082A0A}
   #b1.run{background:var(--red)}
   #b2{background:var(--coin);color:#7a3b00}
-  #b3{background:var(--brick)}
-  button:disabled{opacity:.32;cursor:default;filter:grayscale(.5);
+  #b3{background:var(--brick);color:#33190A}
+  button:disabled{opacity:.6;cursor:default;filter:grayscale(.5);
     box-shadow:inset 0 0 0 2px rgba(255,255,255,.12)}
   button:focus-visible{outline:3px solid #fff;outline-offset:2px}
   @media(max-width:330px){.stage{width:96vw}}
@@ -318,7 +316,7 @@
     jumpTO=setTimeout(function(){mario.classList.remove('jump');},560);
   }
   function reset(){
-    run=false;clearInterval(iv);iv=null;acc=0;st=0;
+    if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;
     lapT=[];lapStart=0;bestIdx=-1;bestVal=Infinity;
     coinsEl.textContent='00';bestEl.textContent='--:--';
     mario.classList.remove('jump');pop.classList.remove('show');
@@ -329,10 +327,13 @@
   b2.onclick=lap;
   b3.onclick=reset;
   document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.code==='Space'||e.key===' '))return;
     if(e.code==='Space'){e.preventDefault();run?pause():start();}
     else if(e.key==='l'||e.key==='L'){if(run)lap();}
     else if(e.key==='r'||e.key==='R'){if(!b3.disabled)reset();}
   });
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)draw();});
 
   draw();ui();

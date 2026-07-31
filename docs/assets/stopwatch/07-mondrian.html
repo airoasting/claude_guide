@@ -10,7 +10,9 @@
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
   body{font-family:"Helvetica Neue",Arial,'Pretendard',sans-serif;background:#EDEAE1;
-    display:flex;align-items:center;justify-content:center;color:#111;padding:14px}
+    display:flex;align-items:center;justify-content:center;color:#111;
+    /* 비어 있는 랩 줄(28px)이 가운데 정렬을 위로 끌어당겨서 그만큼 위를 띄운다 */
+    padding:42px 14px 14px}
   .wrap{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:280px}
   .title{font-size:12px;font-weight:800;letter-spacing:.34em;color:#111;text-indent:.34em}
   .canvas{position:relative;width:264px;height:200px;background:#fff;border:6px solid #111;box-shadow:0 10px 24px rgba(0,0,0,.2)}
@@ -30,26 +32,31 @@
   button+button{border-left:5px solid #111}
   button:active{transform:translateY(2px)}
   #b2{background:#1356A8;color:#fff}#b1{background:#E2231A;color:#fff}#b1.run{background:#111;color:#fff}#b3{background:#F6CB16}
-  button:disabled{opacity:.45;cursor:default}
+  button:disabled{opacity:.6;cursor:default}
   .lp{font-size:11px;color:#444;min-height:14px;font-weight:700;letter-spacing:.04em}
   button:focus-visible{outline:3px solid #1356A8;outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+  button:hover:not(:disabled){filter:brightness(1.1)}
 </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="canvas" aria-hidden="true">
-      <div class="blk red b1"></div>
-      <div class="blk blu b2"></div>
-      <div class="blk yel b3"></div>
-      <div class="blk red b4"></div>
-      <div class="mid"><span class="time"><span id="t">00:00<span class="cs">.00</span></span></span></div>
+    <div class="canvas">
+      <div class="blk red b1" aria-hidden="true"></div>
+      <div class="blk blu b2" aria-hidden="true"></div>
+      <div class="blk yel b3" aria-hidden="true"></div>
+      <div class="blk red b4" aria-hidden="true"></div>
+      <div class="mid"><span class="time"><span id="t" role="timer">00:00<span class="cs">.00</span></span></span></div>
     </div>
     <div class="row">
       <button id="b2" disabled>랩</button>
       <button id="b1">시작</button>
       <button id="b3" disabled>리셋</button>
     </div>
-    <div class="lp" id="lp"></div>
+    <div class="lp" id="lp" aria-live="polite"></div>
   </div>
 <script>
 (function(){
@@ -64,9 +71,17 @@
   function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
-  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
-  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);lp.textContent='LAP '+laps.length+'  +'+plain(sp);}
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);lp.textContent='LAP '+laps.length+'  +'+plain(sp)+(laps.length>1&&sp===best?'  ★ 최단':'');}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
   draw();ui();
 })();

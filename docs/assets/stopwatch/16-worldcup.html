@@ -70,9 +70,14 @@
   button{flex:1;font-family:inherit;font-weight:800;font-size:12px;padding:11px 0;border:none;border-radius:10px;cursor:pointer;
     color:#fff;transition:transform .06s,filter .15s}
   button:active{transform:translateY(1px)}
-  #b1{background:#1f9d57}#b1.run{background:#c0392b}#b2{background:#c98a1e}#b3{background:#48505e}
-  button:disabled{opacity:.4;cursor:default}
+  #b1{background:#1f9d57;color:#032414}#b1.run{background:#c0392b}#b2{background:#c98a1e;color:#301F02}#b3{background:#48505e}
+  button:disabled{opacity:.6;cursor:default}
   button:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+  button:hover:not(:disabled){filter:brightness(1.1)}
 </style>
 </head>
 <body>
@@ -120,7 +125,7 @@
         <span class="tm wld">WLD</span>
       </div>
       <div class="clock"><span id="t">00:00<span class="cs">.00</span></span></div>
-      <div class="last" id="last"></div>
+      <div class="last" id="last" aria-live="polite"></div>
     </div>
     <div class="goalflash" id="gf"><span class="g">GOAL!</span><span class="kr">대한민국</span></div>
     <div class="row">
@@ -169,9 +174,17 @@
   }
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);field.classList.add('live');draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;field.classList.remove('live');draw();ui();}
-  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;score=0;sk.textContent='0';last.textContent='';
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;score=0;sk.textContent='0';last.textContent='';
     field.classList.remove('live','goal');draw();ui();}
   b1.onclick=function(){run?stop():start();};b2.onclick=goal;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){goal();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
   draw();ui();
 })();

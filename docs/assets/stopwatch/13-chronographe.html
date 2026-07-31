@@ -49,8 +49,24 @@
     background:transparent;border:none;padding:0;margin:0;pointer-events:auto}
   .h1{top:66px}.h2{top:50%;transform:translateY(-50%);height:56px}.h3{bottom:66px}
   .hit:focus-visible{outline:2px solid #f6e9b0;outline-offset:2px;border-radius:6px}
-  .hint{position:absolute;left:0;right:0;bottom:1px;text-align:center;font-family:Arial,sans-serif;
-    font-size:8.5px;letter-spacing:.5px;color:#6b5e3a}
+  .hint{position:absolute;left:0;right:0;bottom:-1px;text-align:center;font-family:Arial,sans-serif;
+    font-size:9px;letter-spacing:.5px;color:#b9a877}
+  .lapline{position:absolute;left:0;right:0;bottom:11px;text-align:center;font-family:Arial,sans-serif;
+    font-size:9px;font-weight:800;letter-spacing:.4px;color:#e8d9a4;min-height:11px;
+    text-shadow:0 1px 2px rgba(0,0,0,.9);
+    font-variant-numeric:tabular-nums}
+  /* 비활성 푸셔는 커서로도 알 수 있게 */
+  .hit:disabled{cursor:default}
+  /* 실제로 보이는 금색 푸셔에 상태를 입힌다 */
+  .pusher{transition:opacity .18s,filter .18s,transform .1s}
+  .watch.d2 .p2,.watch.d3 .p3{opacity:.4;filter:grayscale(.55)}
+
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+  button:hover:not(:disabled){filter:brightness(1.1)}
 </style>
 </head>
 <body>
@@ -71,7 +87,8 @@
     <button class="hit h1" id="b1" aria-label="시작 / 정지"></button>
     <button class="hit h2" id="b3" aria-label="리셋"></button>
     <button class="hit h3" id="b2" aria-label="랩"></button>
-    <div class="hint" id="hint">위 버튼 시작 · 가운데 리셋 · 아래 랩</div>
+    <div class="lapline" id="lp" aria-live="polite"></div>
+    <div class="hint" id="hint">위 버튼을 눌러 시작</div>
   </div>
 <script>
 (function(){
@@ -80,7 +97,7 @@
     l.setAttribute('x1',(120+r1*Math.sin(a)).toFixed(1));l.setAttribute('y1',(120-r1*Math.cos(a)).toFixed(1));
     l.setAttribute('x2',(120+r2*Math.sin(a)).toFixed(1));l.setAttribute('y2',(120-r2*Math.cos(a)).toFixed(1));
     l.setAttribute('stroke',maj?'#d4af37':'rgba(212,175,55,.4)');l.setAttribute('stroke-width',maj?2.4:1);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
-  var t=document.getElementById('t'),hand=document.getElementById('hand'),hint=document.getElementById('hint'),
+  var t=document.getElementById('t'),hand=document.getElementById('hand'),hint=document.getElementById('hint'),lp=document.getElementById('lp'),
       b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
   var run=false,stt=0,acc=0,iv=null,laps=[];
   function el(){return acc+(run?performance.now()-stt:0);}
@@ -90,13 +107,29 @@
   function plain(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1])+'.'+pad(p[2]);}
   function draw(){var e=el();t.innerHTML=f(e);hand.style.transform='translate(-50%,-92px) rotate('+((e/1000)%60*6)+'deg)';}
   function ui(){
-    hint.textContent=run?'위 버튼 정지 · 아래 랩':(el()>0?'위 재개 · 가운데 리셋':'위 버튼 시작 · 가운데 리셋 · 아래 랩');
+    b2.disabled=!run;
+    b3.disabled=run||el()===0;
+    var wa=document.querySelector('.watch');
+    if(wa){wa.classList.toggle('d3',b2.disabled);wa.classList.toggle('d2',b3.disabled);}
+    b1.setAttribute('aria-label',run?'정지':(el()>0?'재개':'시작'));
+    hint.textContent=run?'위 버튼 정지 · 아래 랩':(el()>0?'위 재개 · 가운데 리셋':'위 버튼을 눌러 시작');
   }
   function start(){run=true;stt=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
-  function reset(){if(run)return;acc=0;stt=0;laps=[];draw();ui();}
-  function lap(){if(!run)return;laps.push(el());hint.textContent='LAP '+laps.length+' · '+plain(laps[laps.length-1]);}
+  function reset(){if(run)return;acc=0;stt=0;laps=[];lp.textContent='';draw();ui();}
+  function lap(){if(!run)return;var e=el(),sp=e-(laps.length?laps[laps.length-1].t:0);
+    laps.push({t:e,sp:sp});
+    var best=Math.min.apply(null,laps.map(function(x){return x.sp}));
+    lp.textContent='LAP '+laps.length+' · '+plain(e)+' (+'+plain(sp)+')'+(laps.length>1&&sp===best?' ★':'');}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
   draw();ui();
 })();

@@ -13,7 +13,7 @@
     background:#FBF1E2;display:flex;align-items:center;justify-content:center;color:#6B4A2B;padding:14px}
   .wrap{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:300px}
   .dog{width:170px;height:158px;position:relative}
-  .ear{position:absolute;top:34px;width:46px;height:96px;border-radius:48% 48% 50% 50%;background:#9A6А3A;background:#9A6A3A;
+  .ear{position:absolute;top:34px;width:46px;height:96px;border-radius:48% 48% 50% 50%;background:#9A6A3A;
     box-shadow:inset -4px -6px 10px rgba(0,0,0,.18);z-index:1}
   .ear.l{left:6px;transform:rotate(14deg)}.ear.r{right:6px;transform:rotate(-14deg)}
   .face{position:absolute;left:50%;top:18px;transform:translateX(-50%);width:124px;height:120px;border-radius:50% 50% 48% 48%;
@@ -34,9 +34,9 @@
   button{font-family:inherit;font-weight:800;font-size:14px;color:#fff;border:none;cursor:pointer;
     padding:13px 0;width:80px;border-radius:22px;box-shadow:0 4px 0 rgba(0,0,0,.13),0 6px 10px rgba(0,0,0,.10);transition:transform .07s,opacity .15s}
   button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.13)}
-  #b1{background:#7CB86A}#b1.run{background:#E07856}
-  #b2{background:#86C36F}#b3{background:#B6ADA0}
-  button:disabled{opacity:.42;cursor:default}
+  #b1{background:#7CB86A;color:#12300A}#b1.run{background:#E07856;color:#3A1408}
+  #b2{background:#86C36F;color:#1E3A14}#b3{background:#B6ADA0;color:#33302A}
+  button:disabled{opacity:.6;cursor:default}
   .lp{font-size:12px;color:#9A7A52;font-weight:700;min-height:16px}
   button:focus-visible{outline:3px solid #5A3A1C;outline-offset:2px}
   /* 시작하면 강아지가 신나서 움직인다 */
@@ -50,6 +50,11 @@
   @keyframes pant{0%,100%{transform:translateX(-50%) scaleY(1)}50%{transform:translateX(-50%) scaleY(1.4)}}
   .dog.go .eye{animation:blink 2.8s infinite}
   @keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+  button:hover:not(:disabled){filter:brightness(1.1)}
 </style>
 </head>
 <body>
@@ -64,9 +69,9 @@
     <div class="row">
       <button id="b1">시작</button>
       <button id="b2" disabled>랩</button>
-      <button id="b3" disabled>초기화</button>
+      <button id="b3" disabled>리셋</button>
     </div>
-    <div class="lp" id="lp"></div>
+    <div class="lp" id="lp" aria-live="polite"></div>
   </div>
 <script>
 (function(){
@@ -82,9 +87,17 @@
   function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);fig.classList.add('go');draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;fig.classList.remove('go');draw();ui();}
-  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;fig.classList.remove('go');draw();ui();lp.textContent='';}
-  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);lp.textContent='랩 '+laps.length+'  +'+plain(sp);}
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;fig.classList.remove('go');draw();ui();lp.textContent='';}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);lp.textContent='랩 '+laps.length+'  +'+plain(sp)+(laps.length>1&&sp===best?'  ★ 최단':'');}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
   draw();ui();
 })();

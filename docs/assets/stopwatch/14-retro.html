@@ -53,7 +53,6 @@
 
   /* LCD 스탑워치 */
   .lcd{background:#efece2;padding:9px 12px 11px}
-  .lcd-top{font-size:9px;font-weight:700;letter-spacing:2px;color:#6a6155;margin-bottom:2px}
   .lcd-top::before{content:"\25B6 ";color:#c0392b}
   .time{font-weight:800;font-variant-numeric:tabular-nums;color:#2c2722;text-align:center;
     font-size:30px;letter-spacing:1px;line-height:1.1;
@@ -82,6 +81,7 @@
     box-shadow:inset 0 -2px 3px rgba(0,0,0,.4),0 1px 1px rgba(255,255,255,.2)}
   .start{display:flex;gap:5px;margin-top:9px;justify-content:center}
   .start i{width:24px;height:5px;border-radius:3px;background:#6f1d14;transform:rotate(-20deg)}
+  button:hover:not(:disabled){filter:brightness(1.1)}
 </style>
 </head>
 <body>
@@ -115,9 +115,8 @@
         </span>
       </div>
       <div class="lcd">
-        <div class="lcd-top">STOP WATCH</div>
         <div class="time"><span id="t">00:00:00<span class="cs">.00</span></span></div>
-        <div class="laprec" id="laps">아직 기록 없음...</div>
+        <div class="laprec" id="laps" aria-live="polite"></div>
         <div class="row">
           <button id="b2" disabled>LAP</button>
           <button id="b1">START</button>
@@ -139,15 +138,32 @@
   function parts(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);return [hh,mm,ss,cc];}
   function pad(n){return String(n).padStart(2,'0');}
   function f(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1])+':'+pad(p[2])+'<span class="cs">.'+pad(p[3])+'</span>';}
-  function plain(ms){var p=parts(ms);return pad(p[1])+':'+pad(p[2])+'.'+pad(p[3]);}
+  function plain(ms){var p=parts(ms);return (p[0]?pad(p[0])+':':'')+pad(p[1])+':'+pad(p[2])+'.'+pad(p[3]);}
   function draw(){t.innerHTML=f(el());}
-  function renderLaps(){if(!laps.length){lapsEl.innerHTML='아직 기록 없음...';return;}var h='';for(var i=laps.length-1;i>=Math.max(0,laps.length-2);i--){h+='<b>LAP '+(i+1)+'</b> '+plain(laps[i])+'<br>';}lapsEl.innerHTML=h;}
+  function renderLaps(){
+    if(!laps.length){lapsEl.innerHTML='';return;}
+    var h='',sp=[];
+    for(var k=0;k<laps.length;k++)sp.push(laps[k]-(k>0?laps[k-1]:0));
+    var best=Math.min.apply(null,sp);
+    for(var i=laps.length-1;i>=Math.max(0,laps.length-2);i--){
+      var mk=(laps.length>1&&sp[i]===best)?' \u2605':'';
+      h+='<b>LAP '+(i+1)+mk+'</b> +'+plain(sp[i])+'<br>';
+    }
+    lapsEl.innerHTML=h;}
   function ui(){b1.textContent=run?'STOP':(el()>0?'GO':'START');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();hero.classList.add('go');}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();hero.classList.remove('go');}
-  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];draw();ui();renderLaps();hero.classList.remove('go');}
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];draw();ui();renderLaps();hero.classList.remove('go');}
   function lap(){if(!run)return;laps.push(el());renderLaps();}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
   draw();ui();
 })();

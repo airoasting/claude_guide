@@ -37,9 +37,14 @@
   #b1{background:#E0762F;box-shadow:0 4px 0 rgba(0,0,0,.34),0 0 16px rgba(224,118,47,.5)}
   #b1.run{background:#D23F35;box-shadow:0 4px 0 rgba(0,0,0,.34),0 0 16px rgba(210,63,53,.55)}
   #b2{background:#2C6E9C}#b3{background:#37485E}
-  button:disabled{opacity:.4;cursor:default}
+  button:disabled{opacity:.6;cursor:default}
   .lp{font-size:12px;color:#9EC0D6;font-weight:700;min-height:16px}
   button:focus-visible{outline:3px solid #FFE0B0;outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+  button:hover:not(:disabled){filter:brightness(1.1)}
 </style>
 </head>
 <body>
@@ -170,9 +175,9 @@
     <div class="row">
       <button id="b1">시작</button>
       <button id="b2" disabled>랩</button>
-      <button id="b3" disabled>초기화</button>
+      <button id="b3" disabled>리셋</button>
     </div>
-    <div class="lp" id="lp"></div>
+    <div class="lp" id="lp" aria-live="polite"></div>
   </div>
 <script>
 (function(){
@@ -187,9 +192,17 @@
   function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;fig.classList.toggle('run',run);}
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
-  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
-  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);lp.textContent='랩 '+laps.length+'  +'+plain(sp);}
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);lp.textContent='랩 '+laps.length+'  +'+plain(sp)+(laps.length>1&&sp===best?'  ★ 최단':'');}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
   draw();ui();
 })();

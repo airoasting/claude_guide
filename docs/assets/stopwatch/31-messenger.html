@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>라인 메신저 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%2306C755'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{ --grn:#06C755; --grn-dk:#05A948; --ink:#1B242D; --sky:#A9C0DC; }
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    color:var(--ink);display:flex;flex-direction:column;
+    background:linear-gradient(180deg,#9FB9DA 0%,#B2C8E1 54%,#CBDAEC 100%)}
+  /* 옅은 구름 */
+  body::before{content:'';position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;opacity:.85;
+    background:
+      radial-gradient(70px 30px at 16% 52%,rgba(255,255,255,.75),transparent 72%),
+      radial-gradient(96px 38px at 74% 66%,rgba(255,255,255,.62),transparent 72%),
+      radial-gradient(56px 24px at 44% 40%,rgba(255,255,255,.5),transparent 72%),
+      radial-gradient(120px 46px at 28% 84%,rgba(255,255,255,.42),transparent 74%),
+      radial-gradient(80px 30px at 88% 30%,rgba(255,255,255,.34),transparent 74%)}
+
+  /* ── 상단 바 ── */
+  .nav{position:relative;z-index:3;flex-shrink:0;display:flex;align-items:center;gap:8px;
+    padding:11px 12px;background:#fff;box-shadow:0 1px 0 rgba(20,45,70,.08)}
+  .back{font-size:19px;font-weight:400;color:#3D4753;line-height:1;margin-right:1px}
+  .nm{flex:1;min-width:0;font-size:14px;font-weight:800;letter-spacing:-.3px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tools{display:flex;gap:11px;flex-shrink:0}
+  .tools i{display:block;width:15px;height:15px;opacity:.62}
+  .tools svg{width:100%;height:100%;display:block;stroke:#3D4753;fill:none;stroke-width:1.8}
+
+  /* ── 대화창 ── */
+  .chat{position:relative;z-index:2;flex:1;min-height:0;overflow:hidden;
+    padding:11px 16px 6px;display:flex;flex-direction:column;justify-content:flex-start;gap:7px}
+  .day{align-self:center;font-size:9.5px;font-weight:700;color:#fff;
+    background:rgba(28,45,66,.62);padding:3px 12px;border-radius:20px;margin-bottom:1px}
+
+  .feed{display:flex;flex-direction:column;gap:7px;overflow:hidden}
+
+  /* 보낸 메시지 (오른쪽 · 초록) */
+  .out{display:flex;align-items:flex-end;justify-content:flex-end;gap:5px;
+    animation:sendIn .3s cubic-bezier(.34,1.5,.64,1) 1}
+  .out .b{background:var(--grn);color:#04331A;border-radius:16px;padding:7px 12px;
+    font-size:11.5px;font-weight:700;letter-spacing:.1px;white-space:nowrap;
+    font-variant-numeric:tabular-nums;box-shadow:0 1px 3px rgba(10,60,30,.16)}
+  .out.best .b{background:#FFB300;color:#3A2600}
+  @keyframes sendIn{0%{opacity:0;transform:translate(10px,6px) scale(.94)}100%{opacity:1;transform:none}}
+
+  /* 받은 메시지 (왼쪽 · 흰색 + 프로필) */
+  .in{display:flex;align-items:flex-end;gap:6px}
+  .ava{width:28px;height:28px;border-radius:50%;flex-shrink:0;overflow:hidden;
+    box-shadow:0 1px 3px rgba(20,45,70,.2)}
+  .ava svg{width:100%;height:100%;display:block}
+  .in .b{background:#fff;border-radius:16px;padding:10px 15px;
+    box-shadow:0 1px 3px rgba(20,45,70,.16)}
+  .time{font-size:26px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;line-height:1.04;
+    font-variant-numeric:tabular-nums;color:var(--ink)}
+  .time .cs{font-size:15px;font-weight:700;color:var(--grn-dk)}
+  .ts{font-size:8.5px;font-weight:700;color:rgba(24,40,60,.88);padding-bottom:3px;white-space:nowrap;flex-shrink:0}
+
+  /* ── 입력 바 ── */
+  .bar{position:relative;z-index:3;flex-shrink:0;display:flex;gap:6px;
+    padding:8px 10px 34px;background:#fff;box-shadow:0 -1px 0 rgba(20,45,70,.08)}
+  .bar::after{content:'';position:absolute;left:50%;bottom:11px;width:104px;height:4px;
+    margin-left:-52px;border-radius:4px;background:rgba(27,36,45,.22)}
+  button{flex:1;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap;
+    padding:12.5px 0;border-radius:20px;transition:all .16s;
+    color:#41586E;border:none;background:#EEF1F5}
+  button:disabled{opacity:.6;cursor:default}
+  button:focus-visible{outline:2px solid var(--grn-dk);outline-offset:2px}
+  button:hover:not(:disabled){background:#E2E7ED}
+  #b1{background:var(--grn);color:#04331A;box-shadow:0 3px 9px rgba(6,199,85,.36)}
+  #b1:hover{background:var(--grn-dk)}
+
+  /* 재는 동안 시간 말풍선에 초록 테두리가 살아난다 */
+  body.go .in .b{box-shadow:0 1px 3px rgba(20,45,70,.16),0 0 0 2px rgba(6,199,85,.55)}
+  body.go .time .cs{color:var(--grn)}
+
+  @media (prefers-reduced-motion: reduce){.out{animation:none !important}}
+</style>
+</head>
+<body>
+  <div class="nav">
+    <span class="back" aria-hidden="true">&#8249;</span>
+    <span class="nm" id="nm">스탑워치</span>
+    <span class="tools" aria-hidden="true">
+      <i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i>
+      <i><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/></svg></i>
+      <i><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></i>
+    </span>
+  </div>
+
+  <div class="chat">
+    <span class="day">오늘</span>
+    <div class="in">
+      <span class="ava" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <rect width="100" height="100" fill="#06C755"/>
+          <path d="M50 25 C31 25 17 36.5 17 51 C17 63.5 27.5 73.2 42 75.6 L39.6 88 L53.4 77.6 C70.5 75.2 83 64.6 83 51 C83 36.5 69 25 50 25 Z" fill="#fff"/>
+        </svg>
+      </span>
+      <span class="b"><span class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></span></span>
+      <span class="ts" id="ts">지금</span>
+    </div>
+    <div class="feed" id="feed" aria-live="polite"></div>
+  </div>
+
+  <div class="bar">
+    <button id="b1" type="button">시작</button>
+    <button id="b2" type="button" disabled>랩</button>
+    <button id="b3" type="button" disabled>리셋</button>
+  </div>
+
+<script>
+(function(){
+  var t=document.getElementById('t'),feed=document.getElementById('feed'),
+      nm=document.getElementById('nm'),ts=document.getElementById('ts'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  var MAX_MSG=3;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return pad(hh,2)+':'+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+  function draw(){t.innerHTML=f(el());}
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b1.textContent=run?'정지':(el()>0?'재개':'시작');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+    nm.textContent=laps.length?'스탑워치 ('+laps.length+')':'스탑워치';
+    ts.textContent=run?'재는 중':'지금';
+  }
+  function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;feed.innerHTML='';draw();ui();}
+  /* 랩을 찍으면 오른쪽으로 메시지가 하나 나간다 */
+  function lap(){
+    if(!run)return;
+    var e=el(),sp=e-last;last=e;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    var row=document.createElement('div');
+    row.className='out';
+    row.dataset.sp=sp; row.dataset.no=laps.length;
+    row.innerHTML='<span class="ts">'+plain(e).slice(0,5)+'</span><span class="b">LAP '+laps.length+'  '+plain(sp)+'</span>';
+    feed.appendChild(row);
+    while(feed.children.length>MAX_MSG)feed.removeChild(feed.firstChild);
+    /* 최단은 하나만 남도록 매번 다시 매긴다 */
+    for(var k=0;k<feed.children.length;k++){
+      var c=feed.children[k];
+      c.classList.toggle('best', laps.length>1 && Number(c.dataset.sp)===best);
+    }
+    ui();
+  }
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

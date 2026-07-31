@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>베인 나침반 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='none' stroke='%23E4002B' stroke-width='11'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{ --red:#E4002B; --ink:#1A1A1E; --paper:#FFFFFF; }
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    color:var(--ink);background:var(--paper);position:relative;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:16px 16px 84px}
+
+  /* 컨설팅 장표의 옅은 격자 */
+  .grid{position:absolute;inset:0;pointer-events:none;opacity:.55;
+    background-image:
+      linear-gradient(rgba(26,26,30,.05) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(26,26,30,.05) 1px,transparent 1px);
+    background-size:32px 32px}
+
+  /* ── 마크 = 파이 게이지 ── */
+  .mark{position:relative;z-index:2;width:150px;height:150px;flex-shrink:0}
+  .mark svg{width:100%;height:100%;display:block;overflow:visible}
+  .ring{fill:none;stroke-width:15}
+  .ring.track{stroke:#FAD2DA}
+  .ring.prog{stroke:var(--red);stroke-linecap:butt;transition:stroke-dashoffset .12s linear}
+  /* 지침은 로고 그대로 고정. 재는 동안 은은히 맥동한다 */
+  .wedge{transform-box:view-box;transform-origin:100px 100px}
+  body.go .wedge{animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.62}}
+  .wedge{fill:var(--red)}
+  .notch{fill:var(--paper)}
+
+  /* ── 수치 ── */
+  .read{position:relative;z-index:2;text-align:center}
+  .time{font-size:30px;font-weight:800;letter-spacing:-.6px;white-space:nowrap;line-height:1.05;
+    font-variant-numeric:tabular-nums;color:var(--ink)}
+  .time .cs{font-size:18px;font-weight:700;color:var(--red)}
+
+  .laps{position:absolute;left:0;right:0;bottom:14px;z-index:3;text-align:center;min-height:14px;font-size:11px;font-weight:800;letter-spacing:.2px;
+    color:#6E6E78;font-variant-numeric:tabular-nums}
+
+  /* ── 조작부 ── */
+  .row{position:absolute;left:0;right:0;bottom:34px;z-index:3;justify-content:center;display:flex;gap:8px}
+  button{font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap;
+    padding:11px 0;width:78px;border-radius:4px;transition:all .16s;
+    color:var(--ink);border:1.5px solid rgba(26,26,30,.22);background:#fff}
+  button:disabled{opacity:.6;cursor:default}
+  button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+  button:hover:not(:disabled){border-color:var(--ink);background:#FAFAFB}
+  #b1{background:var(--red);color:#fff;border-color:transparent;
+    box-shadow:0 4px 12px rgba(228,0,43,.3)}
+  #b1:hover{background:#B80023;border-color:transparent}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+</style>
+</head>
+<body>
+  <div class="grid" aria-hidden="true"></div>
+
+  <div class="mark">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
+      <circle class="ring track" cx="100" cy="100" r="82"/>
+      <!-- 경과 시간이 12시부터 시계방향으로 링을 채운다 (60초에 한 바퀴) -->
+      <circle class="ring prog" id="ring" cx="100" cy="100" r="82"
+              pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"
+              transform="rotate(-74.96 100 100)"/>
+      <!-- 12시 노치 -->
+      <rect class="notch" x="94.5" y="2" width="11" height="26" transform="rotate(11.2 100 100)"/>
+      <!-- 로고의 나침반 지침 (고정) -->
+      <path class="wedge" id="wedge" d=""/>
+    </svg>
+  </div>
+
+  <div class="read">
+    <div class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></div>
+  </div>
+
+  <div class="laps" id="lp" aria-live="polite"></div>
+
+  <div class="row">
+    <button id="b1" type="button">시작</button>
+    <button id="b2" type="button" disabled>랩</button>
+    <button id="b3" type="button" disabled>리셋</button>
+  </div>
+
+<script>
+(function(){
+  var t=document.getElementById('t'),wedge=document.getElementById('wedge'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),
+      b3=document.getElementById('b3'),lp=document.getElementById('lp');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  var CX=100,CY=100,R=70.9;            /* 꼭짓점 반지름 (링 안쪽에 닿는다) */
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return pad(hh,2)+':'+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+  /* 마크의 부채꼴이 60초에 걸쳐 한 바퀴 채워진다 */
+  /* 로고 바늘(48도)에서 출발해 나침반이 열리듯 벌어진다 */
+  /* 로고의 나침반 지침: 뾰족한 끝이 바깥 링에 닿고 밑변이 중심 쪽.
+     크기는 그대로 두고 시계방향으로 돈다 (60초에 한 바퀴). */
+  var D=Math.PI/180;
+  var TILT=11.2*D;                     /* 지침은 12시에서 11.2도 오른쪽 */
+  var BL_A=-85.1*D, BL_R=32.0;         /* 좌 밑변 */
+  var BR_A= 89.4*D, BR_R=31.6;         /* 우 밑변 */
+  function needle(){
+    var a=-Math.PI/2+TILT;                          /* 로고 그대로 고정 */
+    var tx=CX+Math.cos(a)*R,        ty=CY+Math.sin(a)*R;
+    var lx=CX+Math.cos(a+BL_A)*BL_R, ly=CY+Math.sin(a+BL_A)*BL_R;
+    var rx=CX+Math.cos(a+BR_A)*BR_R, ry=CY+Math.sin(a+BR_A)*BR_R;
+    return 'M'+tx.toFixed(2)+' '+ty.toFixed(2)+
+           ' L'+lx.toFixed(2)+' '+ly.toFixed(2)+
+           ' L'+rx.toFixed(2)+' '+ry.toFixed(2)+' Z';
+  }
+  var ring=document.getElementById('ring');
+  function drawWedge(e){
+    /* 지침은 로고 자리에 그대로 두고, 링이 차오른다 */
+    /* 노치 오른쪽 끝에서 출발해 노치 왼쪽 끝까지 시계방향으로 채운다 */
+    ring.setAttribute('stroke-dashoffset', (1-((e%60000)/60000)*0.97868).toFixed(4));
+  }
+  function draw(){
+    var e=el();
+    t.innerHTML=f(e);
+    drawWedge(e);
+  }
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b1.textContent=run?'정지':(el()>0?'재개':'시작');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+  }
+  function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;lp.textContent='';draw();ui();}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    lp.textContent='LAP '+laps.length+'  +'+plain(sp)+(laps.length>1&&sp===best?'  ★ 최단':'');}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  wedge.setAttribute('d', needle());
+  draw();ui();
+})();
+</script>
+</body>
+</html>

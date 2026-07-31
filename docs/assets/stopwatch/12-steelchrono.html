@@ -54,7 +54,6 @@
     font-family:"Courier New",monospace;font-size:9.5px;line-height:1.5;letter-spacing:1px;
     color:rgba(168,216,160,.85);text-shadow:0 0 4px rgba(120,200,120,.35)}
   .laps span{color:rgba(150,191,138,.65);margin-right:4px}
-  .brand{font-size:9px;font-weight:700;letter-spacing:.4em;color:#7e858a;text-indent:.4em;margin-bottom:4px;z-index:1}
   .time{z-index:1;font-family:"Courier New",monospace;font-weight:700;font-variant-numeric:tabular-nums;
     font-size:33px;letter-spacing:3px;color:#c8e8c0;text-shadow:0 0 9px rgba(140,220,140,.55),0 0 2px rgba(200,255,200,.7)}
   .time .cs{font-size:18px;color:#8fbf8a;letter-spacing:2px}
@@ -71,20 +70,25 @@
   #b1.run{background:radial-gradient(circle at 40% 30%,#ef7d68,#c23f2c 75%,#9a2a1a)}
   #b3{background:radial-gradient(circle at 40% 30%,#ead85f,#b09a22 75%,#8a7818)}
   #b2{background:radial-gradient(circle at 40% 30%,#ef7676,#c23030 75%,#9a2020)}
-  button:disabled{filter:grayscale(.5) brightness(.62);cursor:default}
+  button:disabled{filter:grayscale(.35) brightness(.88);cursor:default}
   button:focus-visible{outline:2px solid #c8e8c0;outline-offset:3px}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+  button:hover:not(:disabled){filter:brightness(1.1)}
 </style>
 </head>
 <body>
   <div class="watch">
     <div class="crown" aria-hidden="true"></div>
-    <div class="bezel" aria-hidden="true">
-      <span class="screw s-t"></span><span class="screw s-r"></span><span class="screw s-b"></span><span class="screw s-l"></span>
+    <div class="bezel">
+      <span class="screw s-t" aria-hidden="true"></span><span class="screw s-r" aria-hidden="true"></span><span class="screw s-b" aria-hidden="true"></span><span class="screw s-l" aria-hidden="true"></span>
       <div class="dial">
         <svg class="ticks" viewBox="0 0 200 200" id="ticks" aria-hidden="true"></svg>
         <div class="cross" aria-hidden="true"></div>
-        <div class="laps" id="laps"></div>
-        <div class="time"><span id="t">00:00<span class="cs">.00</span></span></div>
+        <div class="laps" id="laps" aria-live="polite"></div>
+        <div class="time"><span id="t" role="timer">00:00<span class="cs">.00</span></span></div>
         <div class="row">
           <button id="b1">START</button>
           <button id="b3" disabled>RESET</button>
@@ -112,13 +116,29 @@
   function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
     return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
   function draw(){t.innerHTML=f(el());}
-  function renderLaps(){var h='';for(var i=laps.length-1;i>=Math.max(0,laps.length-3);i--){h+='<span>L'+(i+1)+'</span>'+plain(laps[i])+'<br>';}lapsEl.innerHTML=h;}
+  function renderLaps(){
+    var h='',sp=[];
+    for(var k=0;k<laps.length;k++)sp.push(laps[k]-(k>0?laps[k-1]:0));
+    var best=sp.length?Math.min.apply(null,sp):0;
+    for(var i=laps.length-1;i>=Math.max(0,laps.length-3);i--){
+      var mk=(laps.length>1&&sp[i]===best)?' \u2605':'';
+      h+='<span>L'+(i+1)+mk+'</span>+'+plain(sp[i])+'<br>';
+    }
+    lapsEl.innerHTML=h;}
   function ui(){b1.textContent=run?'STOP':(el()>0?'RESUME':'START');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
-  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lapsEl.innerHTML='';}
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lapsEl.innerHTML='';}
   function lap(){if(!run)return;var e=el();last=e;laps.push(e);renderLaps();}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
   draw();ui();
 })();

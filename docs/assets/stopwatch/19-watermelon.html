@@ -31,19 +31,20 @@
     padding:11px 15px;border-radius:24px;transition:transform .07s,opacity .15s,background .15s;
     box-shadow:0 4px 8px rgba(150,110,120,.22)}
   button:active{transform:translateY(2px);box-shadow:0 1px 3px rgba(150,110,120,.22)}
-  button:disabled{opacity:.45;cursor:default}
+  button:disabled{opacity:.6;cursor:default}
   button:focus-visible{outline:3px solid #EF6A8A;outline-offset:2px}
-  #b1{background:#F2607E;color:#fff}
-  #b2{background:#D7E6C6;color:#6a8a52}
-  #b3{background:#D3E7F2;color:#5a8aa8}
+  #b1{background:#F2607E;color:#4A0A1C}
+  #b2{background:#D7E6C6;color:#33501E}
+  #b3{background:#D3E7F2;color:#1E4A63}
   /* 하단 핑크 랩 바 */
   .bar{width:100%;min-height:30px;border:2px solid #F5C4D0;border-radius:20px;background:#FFF9F5;
     display:flex;align-items:center;justify-content:center;
-    font-size:12px;font-weight:700;color:#E0708C;padding:4px 12px;text-align:center}
+    font-size:12px;font-weight:700;color:#A32F50;padding:4px 12px;text-align:center}
   /* 실행 중: 수박이 통통 튄다 */
   .card.go .slice{animation:melonBounce .8s ease-in-out infinite}
   @keyframes melonBounce{0%,100%{transform:translateX(-50%) rotate(-8deg) translateY(0)}50%{transform:translateX(-50%) rotate(-4deg) translateY(-6px)}}
   @media (prefers-reduced-motion: reduce){.card.go .slice{animation:none}}
+  button:hover:not(:disabled){filter:brightness(1.1)}
 </style>
 </head>
 <body>
@@ -68,7 +69,7 @@
       <button id="b2" disabled>랩 🌾</button>
       <button id="b3" disabled>리셋 💦</button>
     </div>
-    <div class="bar" id="lp"></div>
+    <div class="bar" id="lp" aria-live="polite"></div>
   </div>
 <script>
 (function(){
@@ -87,10 +88,18 @@
     card.classList.toggle('go',run);}
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
-  function reset(){run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
   function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
-    lp.textContent='랩 '+laps.length+' 🍉 +'+plain(sp);}
+    var best=Math.min.apply(null,laps);lp.textContent='랩 '+laps.length+' 🍉 +'+plain(sp)+(laps.length>1&&sp===best?'  ★ 최단':'');}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
   draw();ui();
 })();

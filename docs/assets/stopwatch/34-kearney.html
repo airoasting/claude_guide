@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>커니 타이포 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23262629'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{ --charcoal:#262629; --line:rgba(255,255,255,.22); --dim:rgba(255,255,255,.62); }
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    color:#fff;background:var(--charcoal);position:relative;
+    display:flex;flex-direction:column;justify-content:center;padding:26px 24px}
+
+  /* 상단 · 하단 헤어라인 */
+  .rule{position:absolute;left:24px;right:24px;height:1px;background:var(--line)}
+  .rule.top{top:26px} .rule.bot{bottom:26px}
+  /* 진행 헤어라인: 1분에 한 번 왼쪽에서 오른쪽으로 */
+  /* 기준선과 같은 폭(좌우 24px 안쪽)에서만 자라도록 감싼다 */
+  .prog-track{position:absolute;left:24px;right:24px;top:26px;height:1px;pointer-events:none}
+  .prog{height:100%;width:0;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.6)}
+
+  .kicker{position:absolute;left:24px;top:38px;
+    font-size:8.5px;font-weight:600;letter-spacing:4px;text-indent:4px;color:var(--dim)}
+  .state{position:absolute;right:24px;top:38px;
+    font-size:8.5px;font-weight:600;letter-spacing:4px;text-indent:4px;color:var(--dim)}
+
+  /* ── 시간: 얇고 넓은 대문자 조판 ── */
+  .time{font-size:38px;font-weight:200;letter-spacing:4px;text-indent:4px;
+    white-space:nowrap;line-height:1;font-variant-numeric:tabular-nums;color:#fff}
+  .time .cs{font-size:20px;font-weight:300;color:var(--dim);letter-spacing:2px}
+  /* K의 사선 다리에서 따온 유일한 장식 */
+  /* K의 사선에서 딴 선. 재는 동안 스스로 늘었다 줄며 각도까지 흔들린다 */
+  .slash{width:34px;height:1px;margin:34px 0 0;transform-origin:left center;
+    transform:skewY(-18deg);
+    background:linear-gradient(90deg,rgba(255,255,255,.25),#fff 60%,rgba(255,255,255,.85));
+    transition:width .5s cubic-bezier(.22,.61,.36,1)}
+  body.go .slash{animation:slashRun 1.9s cubic-bezier(.45,0,.35,1) infinite}
+  @keyframes slashRun{
+    0%   {width:26px; transform:skewY(-10deg); opacity:.55}
+    38%  {width:96px; transform:skewY(-22deg); opacity:1}
+    62%  {width:96px; transform:skewY(-22deg); opacity:1}
+    100% {width:26px; transform:skewY(-10deg); opacity:.55}
+  }
+  /* 선을 따라 흐르는 빛 */
+  .slash::after{content:'';position:absolute;left:0;top:0;width:22px;height:1px;
+    background:#fff;box-shadow:0 0 8px rgba(255,255,255,.9);opacity:0}
+  body.go .slash::after{animation:slashSpark 1.9s linear infinite}
+  @keyframes slashSpark{
+    0%{left:0;opacity:0}
+    20%{opacity:1}
+    70%{left:74px;opacity:.9}
+    100%{left:96px;opacity:0}
+  }
+
+  /* 워드마크: 얇고 넓은 대문자 */
+  .wordmark{margin-top:26px;font-size:19px;font-weight:200;letter-spacing:9px;text-indent:9px;
+    color:#fff;line-height:1;white-space:nowrap}
+  .laps{margin-top:14px;min-height:14px;font-size:10px;font-weight:600;letter-spacing:2.2px;
+    text-indent:2.2px;color:var(--dim);font-variant-numeric:tabular-nums}
+
+  /* ── 조작부: 테두리 없는 텍스트 ── */
+  .row{position:absolute;left:24px;right:24px;bottom:34px;display:flex;gap:26px}
+  button{font-family:inherit;font-size:11px;font-weight:600;letter-spacing:2.6px;text-indent:2.6px;
+    cursor:pointer;padding:13.5px 0;border:none;background:none;color:#fff;
+    position:relative;transition:color .2s}
+  button::after{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:#fff;
+    transition:width .28s cubic-bezier(.22,.61,.36,1)}
+  button:hover:not(:disabled)::after{width:100%}
+  button:disabled{color:rgba(255,255,255,.28);cursor:default}
+  button:focus-visible{outline:2px solid #fff;outline-offset:5px}
+  #b1{font-weight:800}
+  #b1::after{width:100%;background:rgba(255,255,255,.55)}
+  #b1:hover::after{background:#fff}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+</style>
+</head>
+<body>
+  <span class="rule top" aria-hidden="true"></span>
+  <span class="prog-track" aria-hidden="true"><span class="prog" id="prog"></span></span>
+  <span class="rule bot" aria-hidden="true"></span>
+
+  <span class="kicker">ELAPSED</span>
+  <span class="state" id="state">READY</span>
+
+  <div class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></div>
+  <span class="slash" aria-hidden="true" style="position:relative"></span>
+  <div class="wordmark">KEARNEY</div>
+
+  <div class="laps" id="lp" aria-live="polite"></div>
+
+  <div class="row">
+    <button id="b1" type="button">START</button>
+    <button id="b2" type="button" disabled>LAP</button>
+    <button id="b3" type="button" disabled>RESET</button>
+  </div>
+
+<script>
+(function(){
+  var t=document.getElementById('t'),prog=document.getElementById('prog'),state=document.getElementById('state'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),
+      b3=document.getElementById('b3'),lp=document.getElementById('lp');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return pad(hh,2)+':'+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+  function draw(){
+    var e=el();
+    t.innerHTML=f(e);
+    /* 1분을 한 줄로 그린다 */
+    prog.style.width=(((e%60000)/60000)*100)+'%';
+  }
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b1.textContent=run?'STOP':(el()>0?'RESUME':'START');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+    state.textContent=run?'RUNNING':(el()>0?'PAUSED':'READY');
+  }
+  function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;lp.textContent='';draw();ui();}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    lp.textContent='LAP '+laps.length+'   '+plain(sp)+(laps.length>1&&sp===best?'   FASTEST':'');}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  draw();ui();
+})();
+</script>
+</body>
+</html>
