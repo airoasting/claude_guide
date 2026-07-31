@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dd-redflag · 한성정밀 실사 스크리닝 (샘플)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12161c;
+    --ink-soft:#39424f;
+    --muted:#79838f;
+    --bg:#eef0f2;
+    --card:#ffffff;
+    --line:#dde1e6;
+    --line-soft:#eaedf0;
+    --slate:#334155;
+    --hi:#a32f2f;
+    --hi-soft:#fbeeee;
+    --mid:#9a6a10;
+    --mid-soft:#fcf4e4;
+    --lo:#2b6b4f;
+    --lo-soft:#eaf4ef;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Noto Sans KR","Pretendard",system-ui,sans-serif;
+    line-height:1.68;word-break:keep-all;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:22px 22px 70px}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+  /* 표지 밴드 */
+  .cover{
+    background:var(--slate);color:#fff;border-radius:16px;
+    padding:28px 30px;margin-bottom:18px;
+  }
+  .cover .doc{font-size:11px;font-weight:700;letter-spacing:.16em;opacity:.7;text-transform:uppercase;margin-bottom:11px}
+  .cover h1{margin:0 0 9px;font-size:clamp(25px,4.4vw,35px);font-weight:900;letter-spacing:-.02em;line-height:1.2}
+  .cover .lede{margin:0 0 18px;font-size:14.5px;opacity:.85;max-width:60ch;line-height:1.7}
+  .cover-meta{display:flex;flex-wrap:wrap;gap:7px}
+  .cover-meta span{
+    font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:999px;
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);
+  }
+  .cover-meta span.warn{background:rgba(255,215,150,.16);border-color:rgba(255,215,150,.34)}
+
+  /* 집계 */
+  .tally{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+  @media(max-width:620px){.tally{grid-template-columns:1fr}}
+  .tally-box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px 19px}
+  .tally-box .g{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.04em;margin-bottom:8px}
+  .tally-box .dot{width:9px;height:9px;border-radius:50%}
+  .tally-box .cnt{font-size:31px;font-weight:900;letter-spacing:-.03em;line-height:1}
+  .tally-box .cnt em{font-style:normal;font-size:14px;font-weight:700;color:var(--muted);margin-left:3px}
+  .tally-box p{margin:8px 0 0;font-size:12.5px;color:var(--muted);line-height:1.6}
+  .g.hi{color:var(--hi)} .g.hi .dot{background:var(--hi)}
+  .g.mid{color:var(--mid)} .g.mid .dot{background:var(--mid)}
+  .g.lo{color:var(--lo)} .g.lo .dot{background:var(--lo)}
+
+  section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:18px}
+  .sec-title{
+    display:flex;align-items:baseline;gap:9px;margin:0 0 15px;padding-bottom:12px;
+    border-bottom:2px solid var(--ink);font-size:14px;font-weight:900;letter-spacing:-.01em;
+  }
+  .sec-title .hint{margin-left:auto;font-size:11.5px;font-weight:500;color:var(--muted);letter-spacing:0}
+
+  /* 결론 */
+  .lead{font-size:15px;color:var(--ink-soft);line-height:1.75;margin:0 0 14px}
+  .lead b{color:var(--ink)}
+
+  /* 출처 표 */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  th{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.03em;background:#f7f8f9}
+  td.num{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:none}
+
+  /* 발견 카드 */
+  .find{border:1px solid var(--line);border-radius:14px;padding:0;margin-bottom:14px;overflow:hidden}
+  .find:last-child{margin-bottom:0}
+  .find-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 17px;background:#f8f9fa}
+  .find-no{font-size:11.5px;font-weight:700;color:var(--muted);font-family:"IBM Plex Mono",monospace}
+  .find-name{font-size:16px;font-weight:800;letter-spacing:-.01em}
+  .lvl{font-size:11px;font-weight:800;padding:3px 10px;border-radius:7px;letter-spacing:.04em;margin-left:auto;white-space:nowrap}
+  .lvl.hi{background:var(--hi-soft);color:var(--hi)}
+  .lvl.mid{background:var(--mid-soft);color:var(--mid)}
+  .find-body{padding:16px 17px}
+  .row{display:grid;grid-template-columns:96px 1fr;gap:13px;padding:10px 0;border-top:1px solid var(--line-soft)}
+  .row:first-child{border-top:none;padding-top:0}
+  .row:last-child{padding-bottom:0}
+  .row-k{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.02em;padding-top:2px}
+  .row-v{font-size:13.5px;color:var(--ink-soft);line-height:1.7;margin:0}
+  .row-v b{color:var(--ink)}
+  .row-v.alt{color:var(--lo)}
+  .figs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px}
+  @media(max-width:560px){.figs{grid-template-columns:1fr}}
+  .fig{background:#f7f8f9;border-radius:9px;padding:9px 11px}
+  .fig .l{display:block;font-size:10.5px;color:var(--muted);font-weight:600}
+  .fig .v{display:block;font-size:14.5px;font-weight:700;margin-top:2px;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  .fig .v.up{color:var(--hi)}
+
+  /* 낮음 표 */
+  .lo-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--lo-soft);color:var(--lo);white-space:nowrap}
+
+  /* 요청 자료 */
+  .ask{display:flex;gap:11px;padding:10px 0;border-top:1px solid var(--line-soft);align-items:flex-start}
+  .ask:first-of-type{border-top:none;padding-top:0}
+  .ask-n{flex:0 0 auto;font-size:11.5px;font-weight:700;color:var(--slate);font-family:"IBM Plex Mono",monospace;padding-top:3px}
+  .ask p{margin:0;font-size:13.5px;color:var(--ink-soft);line-height:1.68}
+  .ask p b{color:var(--ink)}
+
+  .limits{background:#f7f8f9;border-radius:12px;padding:15px 17px}
+  .limits p{margin:0 0 8px;font-size:13px;color:var(--ink-soft);line-height:1.7}
+  .limits p:last-child{margin-bottom:0}
+
+  .disclaimer{
+    margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;font-size:12.5px;color:var(--muted);line-height:1.7;
+  }
+  .disclaimer b{color:var(--ink-soft)}
+  footer{margin-top:26px;text-align:center;font-size:12px;color:var(--muted);line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-topnav" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 22px"><a href="../../../showcase-skills.html" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#37352f;border:1px solid #e4e2dd;padding:9px 15px;border-radius:999px;font-size:13.5px;font-weight:600;text-decoration:none;white-space:nowrap;line-height:1">← 스킬 쇼케이스로 돌아가기</a><a href="https://github.com/airoasting/claude_guide/tree/main/docs/assets/skills/dd-redflag" target="_blank" rel="noopener" title="GitHub에서 이 스킬 보기" style="display:inline-flex;align-items:center;gap:6px;background:#1f2328;color:#fff;padding:9px 14px;border-radius:999px;font-size:13.5px;font-weight:600;text-decoration:none;white-space:nowrap;line-height:1"><svg width="15" height="15" viewBox="0 0 16 16" fill="#fff" aria-hidden="true" style="flex:none"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .271.53-1.04 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>GitHub<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+
+  <div class="cover">
+    <div class="doc">Due Diligence · Red Flag Screening</div>
+    <h1>한성정밀 재무 실사 스크리닝</h1>
+    <p class="lede">2023~2025 사업연도 감사보고서 3개년을 열두 개 점검 항목으로 대조했습니다. 이 문서는 실사 범위를 정하기 위한 것이며, 부실이나 회계 위반을 판정하지 않습니다.</p>
+    <div class="cover-meta">
+      <span class="warn">샘플 · 가상 기업, 모든 수치는 형식 시연용</span>
+      <span>비상장 · 사용자 제공 감사보고서</span>
+      <span>3개년 대조</span>
+      <span>산업 기준: 자동차 부품 제조</span>
+    </div>
+  </div>
+
+  <!-- 집계 -->
+  <div class="tally">
+    <div class="tally-box">
+      <div class="g hi"><span class="dot"></span>위험도 높음</div>
+      <div class="cnt">3<em>건</em></div>
+      <p>실사 범위에 반드시 포함</p>
+    </div>
+    <div class="tally-box">
+      <div class="g mid"><span class="dot"></span>위험도 중간</div>
+      <div class="cnt">4<em>건</em></div>
+      <p>대상 회사 질의 후 등급 재조정</p>
+    </div>
+    <div class="tally-box">
+      <div class="g lo"><span class="dot"></span>위험도 낮음</div>
+      <div class="cnt">5<em>건</em></div>
+      <p>기록만, 실사 범위 제외</p>
+    </div>
+  </div>
+
+  <!-- 결론 -->
+  <section>
+    <div class="sec-title">한 줄 결론<span class="hint">12개 항목 중 7개 표시</span></div>
+    <p class="lead">외형은 3년간 <b>18.0%</b> 성장했지만 그 성장이 현금으로 돌아오지 않았습니다. 매출채권 회전일수가 <b>60일에서 84일</b>로 늘었고 같은 기간 특수관계자 매입 비중이 <b>8%에서 23%</b>로 올랐습니다. 두 항목과 대표이사 개인 채무에 대한 회사 지급보증 <b>34억 원</b>을 실사 1순위로 둡니다. 나머지는 질의로 정리할 수 있는 수준입니다.</p>
+    <table>
+      <tr><th>구분</th><th>2023</th><th>2024</th><th>2025</th><th>3년 변화</th></tr>
+      <tr><td>매출액</td><td class="num">412억</td><td class="num">447억</td><td class="num">486억</td><td class="num">+18.0%</td></tr>
+      <tr><td>매출채권</td><td class="num">68억</td><td class="num">89억</td><td class="num">112억</td><td class="num">+64.7%</td></tr>
+      <tr><td>영업이익</td><td class="num">31억</td><td class="num">34억</td><td class="num">38억</td><td class="num">+22.6%</td></tr>
+      <tr><td>영업활동현금흐름</td><td class="num">27억</td><td class="num">19억</td><td class="num">11억</td><td class="num">-59.3%</td></tr>
+    </table>
+  </section>
+
+  <!-- 데이터 출처 -->
+  <section>
+    <div class="sec-title">데이터 출처<span class="hint">DART 조회 아님</span></div>
+    <table>
+      <tr><th>자료</th><th>기간</th><th>형태</th><th>비고</th></tr>
+      <tr><td>감사보고서 (적정의견)</td><td>2023~2025</td><td>PDF 3부</td><td>주석 포함</td></tr>
+      <tr><td>재무제표 부속명세서</td><td>2024~2025</td><td>엑셀 2부</td><td>2023년분 미수령</td></tr>
+      <tr><td>특수관계자 거래 내역</td><td>2023~2025</td><td>주석 발췌</td><td>거래처명 일부 비공개</td></tr>
+    </table>
+  </section>
+
+  <!-- 높음 -->
+  <section>
+    <div class="sec-title">위험도 높음 · 3건<span class="hint">관찰 → 신호 → 반대 설명 → 확인 방법</span></div>
+
+    <div class="find">
+      <div class="find-head">
+        <span class="find-no">01</span><span class="find-name">매출채권 회전</span><span class="lvl hi">높음</span>
+      </div>
+      <div class="find-body">
+        <div class="row"><div class="row-k">관찰</div><p class="row-v">매출이 3년간 18.0% 늘어나는 동안 매출채권은 <b>64.7%</b> 늘었습니다. 회전일수로 환산하면 60일에서 84일입니다. 격차는 46.7%포인트로, 자동차 부품 제조 기준선인 15%포인트를 크게 넘습니다.
+          <span class="figs">
+            <span class="fig"><span class="l">2023 회전일수</span><span class="v">60일</span></span>
+            <span class="fig"><span class="l">2025 회전일수</span><span class="v up">84일</span></span>
+            <span class="fig"><span class="l">기준선 대비</span><span class="v up">+31.7%p</span></span>
+          </span>
+        </p></div>
+        <div class="row"><div class="row-k">신호</div><p class="row-v">매출이 회수되지 않는 채권으로 쌓이고 있습니다. 매출 인식 기준이 느슨해졌거나, 특정 거래처의 결제가 밀리고 있을 수 있습니다. 영업활동현금흐름이 같은 기간 59.3% 줄어든 것과 방향이 맞습니다.</p></div>
+        <div class="row"><div class="row-k">반대 설명</div><p class="row-v alt">2024년에 신규 진입한 1차 협력사 거래는 결제 조건이 90일로 기존 60일보다 깁니다. 신규 거래처 비중이 늘면 회전일수는 회수 능력과 무관하게 늘어납니다. 이 경우라면 문제가 아니라 거래 구성의 변화입니다.</p></div>
+        <div class="row"><div class="row-k">확인 방법</div><p class="row-v">거래처별 채권 연령분석표 3개년을 받아 90일 초과 채권의 거래처 집중도를 봅니다. 상위 3개 거래처가 초과분의 절반 이상을 차지하면 회수 위험, 고르게 분포하면 결제 조건 변화로 정리합니다.</p></div>
+      </div>
+    </div>
+
+    <div class="find">
+      <div class="find-head">
+        <span class="find-no">04</span><span class="find-name">특수관계자 거래</span><span class="lvl hi">높음</span>
+      </div>
+      <div class="find-body">
+        <div class="row"><div class="row-k">관찰</div><p class="row-v">매입 총액에서 특수관계자가 차지하는 비중이 2023년 <b>8%</b>에서 2025년 <b>23%</b>로 올랐습니다. 상대는 대표이사의 배우자가 지분 100%를 보유한 가공 업체 한 곳입니다. 해당 거래의 단가가 시장가와 어떻게 비교되는지는 주석에 없습니다.</p></div>
+        <div class="row"><div class="row-k">신호</div><p class="row-v">인수 후 이 거래를 끊으면 원가가 오를 수 있고, 유지하면 매도인 측 이해관계가 회사에 남습니다. 어느 쪽이든 인수 후 손익에 직접 영향을 줍니다.</p></div>
+        <div class="row"><div class="row-k">반대 설명</div><p class="row-v alt">해당 공정이 사외 조달이 어려운 특수 열처리라면, 관계사 의존은 선택이 아니라 구조일 수 있습니다. 이 경우 대체 업체 확보 비용을 가격에 반영하는 것으로 정리됩니다.</p></div>
+        <div class="row"><div class="row-k">확인 방법</div><p class="row-v">해당 품목의 외부 견적 2건을 받아 단가를 비교하고, 대체 공급처 확보에 필요한 기간과 초기 비용을 산출합니다. 거래 계약서의 해지 조항과 최소 물량 약정도 함께 확인합니다.</p></div>
+      </div>
+    </div>
+
+    <div class="find">
+      <div class="find-head">
+        <span class="find-no">06</span><span class="find-name">우발부채</span><span class="lvl hi">높음</span>
+      </div>
+      <div class="find-body">
+        <div class="row"><div class="row-k">관찰</div><p class="row-v">2025년 주석에 대표이사 개인 채무에 대한 회사의 연대보증 <b>34억 원</b>이 기재되어 있습니다. 자기자본 <b>121억 원</b>의 28%에 해당합니다. 2023년과 2024년 주석에는 없던 항목입니다.</p></div>
+        <div class="row"><div class="row-k">신호</div><p class="row-v">회사가 대주주 개인의 신용 위험을 떠안고 있습니다. 인수 시점에 해소되지 않으면 인수자가 그대로 승계합니다.</p></div>
+        <div class="row"><div class="row-k">반대 설명</div><p class="row-v alt">공장 증설 자금을 대표 개인 명의로 조달하면서 회사가 보증한 구조라면, 자금이 실제로 회사에 들어왔는지 여부에 따라 성격이 달라집니다. 회사 유입이 확인되면 실질은 회사 차입입니다.</p></div>
+        <div class="row"><div class="row-k">확인 방법</div><p class="row-v">보증 대상 채무의 대출약정서와 자금 입금 계좌를 확인합니다. 거래 종결 조건(CP)에 보증 해소를 넣을 수 있는지 법률 자문과 함께 검토합니다.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 중간 -->
+  <section>
+    <div class="sec-title">위험도 중간 · 4건<span class="hint">질의 답변에 따라 등급 조정</span></div>
+
+    <div class="find">
+      <div class="find-head"><span class="find-no">05</span><span class="find-name">이익의 질</span><span class="lvl mid">중간</span></div>
+      <div class="find-body">
+        <div class="row"><div class="row-k">관찰</div><p class="row-v">영업이익은 3년간 22.6% 늘었으나 영업활동현금흐름은 59.3% 줄었습니다. 2025년 기준 영업이익 38억에 현금흐름 11억으로 괴리가 27억입니다.</p></div>
+        <div class="row"><div class="row-k">신호</div><p class="row-v">이익이 현금이 아닌 채권과 재고로 남아 있습니다. 01번 항목과 같은 원인을 공유할 가능성이 큽니다.</p></div>
+        <div class="row"><div class="row-k">반대 설명</div><p class="row-v alt">2025년에 원자재를 선매입했다면 일시적으로 현금이 재고로 묶입니다. 2026년 1분기 현금흐름이 회복되었다면 시점 문제입니다.</p></div>
+        <div class="row"><div class="row-k">확인 방법</div><p class="row-v">2026년 1분기 월별 현금흐름표를 받아 회복 여부를 봅니다. 회복이 없으면 01번과 묶어 높음으로 올립니다.</p></div>
+      </div>
+    </div>
+
+    <div class="find">
+      <div class="find-head"><span class="find-no">02</span><span class="find-name">재고 적체</span><span class="lvl mid">중간</span></div>
+      <div class="find-body">
+        <div class="row"><div class="row-k">관찰</div><p class="row-v">재고자산이 3년간 41% 늘어 매출원가 증가율 16%를 25%포인트 앞섰습니다. 증가분의 대부분은 원재료가 아니라 제품 재고입니다.</p></div>
+        <div class="row"><div class="row-k">신호</div><p class="row-v">팔리지 않은 완성품이 쌓이고 있을 수 있습니다. 평가손실 인식이 늦어지면 이익이 과대 계상됩니다.</p></div>
+        <div class="row"><div class="row-k">반대 설명</div><p class="row-v alt">신규 수주 물량의 납품 시점이 2026년 상반기라면 선생산 재고는 정상입니다.</p></div>
+        <div class="row"><div class="row-k">확인 방법</div><p class="row-v">품목별 재고 연령과 2026년 수주잔고를 대조합니다. 1년 초과 재고 비중이 15%를 넘으면 높음으로 올립니다.</p></div>
+      </div>
+    </div>
+
+    <div class="find">
+      <div class="find-head"><span class="find-no">09</span><span class="find-name">비용의 자산화</span><span class="lvl mid">중간</span></div>
+      <div class="find-body">
+        <div class="row"><div class="row-k">관찰</div><p class="row-v">연구개발 지출 중 자산으로 잡은 비중이 2023년 21%에서 2025년 44%로 올랐습니다. 손상 인식 이력은 없습니다.</p></div>
+        <div class="row"><div class="row-k">신호</div><p class="row-v">비용으로 처리해야 할 지출이 자산에 남아 이익을 떠받치고 있을 수 있습니다.</p></div>
+        <div class="row"><div class="row-k">반대 설명</div><p class="row-v alt">2024년에 양산 승인을 받은 과제가 있다면 자본화 요건을 충족한 시점부터 비중이 오르는 것이 맞습니다.</p></div>
+        <div class="row"><div class="row-k">확인 방법</div><p class="row-v">자본화한 과제별로 양산 승인 문서와 예상 회수 계획을 받습니다. 승인 없는 과제 비중이 절반을 넘으면 높음으로 올립니다.</p></div>
+      </div>
+    </div>
+
+    <div class="find">
+      <div class="find-head"><span class="find-no">10</span><span class="find-name">차입 구조</span><span class="lvl mid">중간</span></div>
+      <div class="find-body">
+        <div class="row"><div class="row-k">관찰</div><p class="row-v">총차입금 96억 중 1년 내 만기 도래액이 71억(74%)입니다. 기말 현금은 14억입니다.</p></div>
+        <div class="row"><div class="row-k">신호</div><p class="row-v">차환에 실패하면 즉시 유동성 문제가 생깁니다. 인수 구조에서 리파이낸싱 전제를 세워야 합니다.</p></div>
+        <div class="row"><div class="row-k">반대 설명</div><p class="row-v alt">주거래 은행의 한도 대출이 매년 자동 연장되어 온 것이라면 실질 만기는 더 깁니다.</p></div>
+        <div class="row"><div class="row-k">확인 방법</div><p class="row-v">차입 약정서에서 연장 조항과 재무약정(covenant)을 확인하고, 최근 3년 연장 이력을 받습니다.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 낮음 -->
+  <section>
+    <div class="sec-title">위험도 낮음 · 5건<span class="hint">기록만, 실사 범위 제외</span></div>
+    <table>
+      <tr><th>번호</th><th>항목</th><th>관찰</th><th>판정</th></tr>
+      <tr><td class="num">03</td><td>매출 인식 시점</td><td>4분기 매출 비중 27~29%로 3년간 안정</td><td><span class="lo-tag">정상 범위</span></td></tr>
+      <tr><td class="num">07</td><td>감사 이력</td><td>3년간 동일 감사인, 적정의견, 강조사항 없음</td><td><span class="lo-tag">정상 범위</span></td></tr>
+      <tr><td class="num">08</td><td>대손 정책</td><td>설정률 2.1~2.4%로 유지, 하락 없음</td><td><span class="lo-tag">정상 범위</span></td></tr>
+      <tr><td class="num">11</td><td>경영진 관련 거래</td><td>임원 대여금 없음, 보수 총액 연 4~6% 증가</td><td><span class="lo-tag">정상 범위</span></td></tr>
+      <tr><td class="num">12</td><td>종속회사</td><td>종속회사 없음, 별도 재무제표만 존재</td><td><span class="lo-tag">해당 없음</span></td></tr>
+    </table>
+  </section>
+
+  <!-- 요청 자료 -->
+  <section>
+    <div class="sec-title">실사 요청 자료 목록<span class="hint">대상 회사에 그대로 전달 가능</span></div>
+    <div class="ask"><span class="ask-n">01</span><p><b>거래처별 매출채권 연령분석표</b> 2023~2025 각 기말 기준, 90일 초과 구간 별도 표시</p></div>
+    <div class="ask"><span class="ask-n">02</span><p><b>특수관계자 거래 명세</b> 품목별 단가, 물량, 계약서 사본, 최소 물량 약정 유무</p></div>
+    <div class="ask"><span class="ask-n">03</span><p><b>동일 품목 외부 견적서</b> 2건 이상, 최근 6개월 이내</p></div>
+    <div class="ask"><span class="ask-n">04</span><p><b>대표이사 연대보증 관련 대출약정서</b> 및 해당 자금의 입금 계좌 거래내역</p></div>
+    <div class="ask"><span class="ask-n">05</span><p><b>2026년 1분기 월별 현금흐름표</b> 및 자금수지 계획</p></div>
+    <div class="ask"><span class="ask-n">06</span><p><b>품목별 재고 연령표</b> 및 2026년 수주잔고 명세</p></div>
+    <div class="ask"><span class="ask-n">07</span><p><b>자본화 개발 과제 목록</b> 과제별 양산 승인 문서, 회수 계획</p></div>
+    <div class="ask"><span class="ask-n">08</span><p><b>차입 약정서 전부</b> 연장 조항, 재무약정, 최근 3년 연장 이력</p></div>
+  </section>
+
+  <!-- 한계 -->
+  <section>
+    <div class="sec-title">데이터 한계와 확인하지 못한 영역</div>
+    <div class="limits">
+      <p>2023년 부속명세서를 받지 못해 해당 연도의 거래처별 세부 내역은 대조하지 못했습니다. 2023년 수치는 감사보고서 본문과 주석만으로 산출했습니다.</p>
+      <p>특수관계자 거래 주석에서 거래처명 일부가 비공개로 처리되어, 관계사 외의 특수관계 거래가 더 있는지 확인하지 못했습니다.</p>
+      <p>세무조정계산서를 받지 못해 세무상 위험(가지급금 인정이자, 부당행위계산 부인 가능성)은 이번 점검 범위에 들어가지 않았습니다. 별도 세무 실사가 필요합니다.</p>
+    </div>
+  </section>
+
+  <div class="disclaimer">
+    <b>이 문서는 회계감사도 법적 판단도 아닙니다.</b> 제공된 자료에서 관찰된 사항과 실사에서 확인할 방법만 적었으며, 회계 처리의 적정성이나 위반 여부를 판정하지 않습니다. 각 항목에는 문제가 아닐 수 있는 경우를 함께 기재했습니다. 인수 여부와 가격 조정은 이 문서가 결정하지 않습니다.
+  </div>
+
+  <footer>
+    <p style="margin:0 0 16px">dd-redflag 스킬 샘플 출력. 회사명 한성정밀과 모든 수치는 형식 시연을 위한 가상 데이터이며 실제 기업의 사실이 아닙니다.</p>
+  </footer>
+
+</div>
+</body>
+</html>

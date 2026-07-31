@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ic-memo · 한성정밀 투자심의 메모 (샘플)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#141821;
+    --ink-soft:#3c4453;
+    --muted:#7a8390;
+    --paper:#f2f1ee;
+    --card:#ffffff;
+    --line:#dfdcd6;
+    --line-soft:#ecebe6;
+    --navy:#1e2a4a;
+    --navy-soft:#eaedf4;
+    --ok:#25674a;
+    --ok-soft:#e9f2ed;
+    --un:#96631a;
+    --un-soft:#f9f1e2;
+    --est:#5b4a86;
+    --est-soft:#efecf7;
+    --alert:#a03333;
+    --alert-soft:#f9ecec;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Noto Sans KR","Pretendard",system-ui,sans-serif;
+    line-height:1.72;word-break:keep-all;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:22px 22px 70px}
+  .serif{font-family:"Noto Serif KR",serif}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+  .doc{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:0;overflow:hidden}
+  .doc-head{border-bottom:3px double var(--navy);padding:34px 40px 26px}
+  @media(max-width:640px){.doc-head{padding:26px 22px 20px}}
+  .conf{font-size:10.5px;font-weight:700;letter-spacing:.2em;color:var(--alert);text-transform:uppercase;margin-bottom:14px}
+  .doc-head h1{font-family:"Noto Serif KR",serif;font-weight:900;font-size:clamp(24px,4.2vw,32px);letter-spacing:-.02em;line-height:1.24;margin:0 0 10px}
+  .doc-head .who{font-size:13.5px;color:var(--muted);margin:0 0 18px}
+  .doc-badges{display:flex;flex-wrap:wrap;gap:7px}
+  .doc-badges span{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:5px;background:#f5f4f1;border:1px solid var(--line);color:var(--ink-soft)}
+  .doc-badges span.warn{background:var(--un-soft);border-color:#eadfc4;color:var(--un)}
+
+  .alert-bar{
+    display:flex;gap:11px;align-items:flex-start;margin:0;
+    background:var(--alert-soft);border-bottom:1px solid #eed8d8;padding:15px 40px;
+    font-size:13.5px;color:var(--ink-soft);line-height:1.68;
+  }
+  @media(max-width:640px){.alert-bar{padding:14px 22px}}
+  .alert-bar b{color:var(--alert);flex:0 0 auto}
+
+  .body{padding:30px 40px 38px}
+  @media(max-width:640px){.body{padding:24px 22px 30px}}
+
+  h2{
+    font-family:"Noto Serif KR",serif;font-weight:900;font-size:17px;letter-spacing:-.01em;
+    margin:34px 0 14px;padding-bottom:9px;border-bottom:1.5px solid var(--ink);
+    display:flex;align-items:baseline;gap:10px;
+  }
+  h2:first-child{margin-top:0}
+  h2 .no{font-size:11.5px;font-weight:700;color:#fff;background:var(--navy);border-radius:4px;padding:2px 8px;font-family:"Noto Sans KR",sans-serif}
+  h2 .en{margin-left:auto;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.06em;font-family:"Noto Sans KR",sans-serif;text-transform:uppercase}
+  h3{font-size:13.5px;font-weight:700;margin:20px 0 9px;color:var(--ink)}
+  p{font-size:14px;color:var(--ink-soft);line-height:1.78;margin:0 0 12px}
+  p b{color:var(--ink)}
+  p:last-child{margin-bottom:0}
+
+  /* 확인 상태 태그 */
+  .t{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:5px;vertical-align:1.5px;white-space:nowrap;letter-spacing:.02em}
+  .t.ok{background:var(--ok-soft);color:var(--ok)}
+  .t.un{background:var(--un-soft);color:var(--un)}
+  .t.est{background:var(--est-soft);color:var(--est)}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0 4px}
+  th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  th{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.03em;background:#f7f6f3;white-space:nowrap}
+  td.num,th.num{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:none}
+  tr.sum td{background:#f7f6f3;font-weight:700;border-top:1.5px solid var(--ink)}
+  caption{caption-side:bottom;text-align:left;font-size:11.5px;color:var(--muted);padding-top:7px;line-height:1.6}
+
+  .ask{background:var(--navy-soft);border-radius:6px;padding:16px 18px;margin:6px 0 0}
+  .ask b{display:block;font-size:11.5px;letter-spacing:.06em;color:var(--navy);margin-bottom:8px}
+  .ask ol{margin:0;padding-left:19px;font-size:13.5px;color:var(--ink-soft)}
+  .ask li{margin-bottom:5px;line-height:1.7}
+  .ask li:last-child{margin-bottom:0}
+
+  .thesis{border-left:none;background:#f7f6f3;border-radius:6px;padding:16px 18px}
+  .thesis p{font-size:14.5px;color:var(--ink);margin-bottom:9px;line-height:1.75}
+  .thesis p:last-child{margin-bottom:0}
+
+  /* 반대 논거 */
+  .con{border:1px solid var(--line);border-radius:6px;margin-bottom:12px;overflow:hidden}
+  .con:last-child{margin-bottom:0}
+  .con-h{display:flex;align-items:center;gap:9px;padding:12px 15px;background:#f7f6f3;font-size:14px;font-weight:700}
+  .con-h .n{font-size:11px;font-weight:700;color:#fff;background:var(--alert);border-radius:4px;padding:2px 7px}
+  .con-b{padding:14px 15px}
+  .con-row{display:grid;grid-template-columns:104px 1fr;gap:12px;padding:9px 0;border-top:1px solid var(--line-soft)}
+  .con-row:first-child{border-top:none;padding-top:0}
+  .con-row:last-child{padding-bottom:0}
+  .con-k{font-size:11.5px;font-weight:700;color:var(--muted);padding-top:2px}
+  .con-v{font-size:13.5px;color:var(--ink-soft);margin:0;line-height:1.7}
+  .con-v.none{color:var(--alert);font-weight:700}
+
+  .src{background:#f7f6f3;border-radius:6px;padding:15px 17px}
+  .src p{font-size:12.5px;margin-bottom:7px}
+  .src p:last-child{margin-bottom:0}
+
+  .disclaimer{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px 16px;font-size:12.5px;color:var(--muted);line-height:1.7}
+  .disclaimer b{color:var(--ink-soft)}
+  footer{margin-top:26px;text-align:center;font-size:12px;color:var(--muted);line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-topnav" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 22px"><a href="../../../showcase-skills.html" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#37352f;border:1px solid #e4e2dd;padding:9px 15px;border-radius:999px;font-size:13.5px;font-weight:600;text-decoration:none;white-space:nowrap;line-height:1">← 스킬 쇼케이스로 돌아가기</a><a href="https://github.com/airoasting/claude_guide/tree/main/docs/assets/skills/ic-memo" target="_blank" rel="noopener" title="GitHub에서 이 스킬 보기" style="display:inline-flex;align-items:center;gap:6px;background:#1f2328;color:#fff;padding:9px 14px;border-radius:999px;font-size:13.5px;font-weight:600;text-decoration:none;white-space:nowrap;line-height:1"><svg width="15" height="15" viewBox="0 0 16 16" fill="#fff" aria-hidden="true" style="flex:none"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .271.53-1.04 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>GitHub<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+
+  <div class="doc">
+    <div class="doc-head">
+      <div class="conf">Confidential · Investment Committee</div>
+      <h1>한성정밀 경영권 지분 70% 인수 건</h1>
+      <p class="who">제3차 투자심의위원회 상정 · 2026년 4월 9일 · 담당 이현우</p>
+      <div class="doc-badges">
+        <span class="warn">샘플 · 가상 기업, 모든 수치는 형식 시연용</span>
+        <span>재무·법무·세무 실사 완료</span>
+        <span>상업 실사 진행 중</span>
+        <span>숫자 표시: 확인 18 · 미확인 6 · 추정 9</span>
+      </div>
+    </div>
+
+    <div class="alert-bar">
+      <b>주의</b>
+      <span>8번 섹션의 반대 논거 2번에 "답 없음"이 남아 있습니다. 매출채권 연령분석표를 받지 못해 운전자본 위험을 검증하지 못했습니다. 이 항목을 해소하지 않은 상태로 승인하면, 인수금융 상환 계획의 전제가 검증되지 않은 채로 확정됩니다.</span>
+    </div>
+
+    <div class="body">
+
+      <!-- 1 -->
+      <h2><span class="no">1</span>거래 요약<span class="en">Transaction Summary</span></h2>
+      <table>
+        <tr><th>항목</th><th>내용</th></tr>
+        <tr><td>대상 회사</td><td>한성정밀 (비상장, 자동차 부품 제조, 1998년 설립)</td></tr>
+        <tr><td>인수 지분</td><td>보통주 70% (매도인: 창업자 겸 대표이사)</td></tr>
+        <tr><td>기업가치 (EV)</td><td>496억 원 <span class="t est">추정</span> 2025년 EBITDA 62억 × 8.0배</td></tr>
+        <tr><td>순차입금</td><td>82억 원 <span class="t ok">확인</span> 차입 96억 - 현금 14억</td></tr>
+        <tr><td>지분가치 (100%)</td><td>414억 원</td></tr>
+        <tr><td>지분 대가 (70%)</td><td>290억 원</td></tr>
+        <tr><td>거래 비용</td><td>10억 원 <span class="t est">추정</span> 자문 수수료, 인수금융 취급 수수료</td></tr>
+        <tr class="sum"><td>총 소요 자금</td><td>300억 원</td></tr>
+      </table>
+      <table style="margin-top:14px">
+        <tr><th>자금 조달</th><th class="num">금액</th><th class="num">비중</th><th>조건</th></tr>
+        <tr><td>펀드 출자</td><td class="num">180억</td><td class="num">60%</td><td>3호 블라인드 펀드</td></tr>
+        <tr><td>인수금융</td><td class="num">120억</td><td class="num">40%</td><td>5년 만기, 금리 6.5%, DSCR 1.2배 약정 <span class="t un">미확인</span></td></tr>
+        <tr class="sum"><td>합계</td><td class="num">300억</td><td class="num">100%</td><td>인수 직후 총차입 216억 (EBITDA 3.5배)</td></tr>
+      </table>
+      <div class="ask">
+        <b>승인 요청 사항</b>
+        <ol>
+          <li>펀드 출자 180억 원 집행 승인</li>
+          <li>인수금융 120억 원 조달 및 담보 제공 승인</li>
+          <li>거래 종결 조건에 대표이사 연대보증 34억 원 해소를 필수 조건으로 포함하는 안 승인</li>
+          <li>상업 실사 완료 전 주식매매계약(SPA) 협상 착수 승인</li>
+        </ol>
+      </div>
+
+      <!-- 2 -->
+      <h2><span class="no">2</span>투자 논거<span class="en">Investment Thesis</span></h2>
+      <div class="thesis">
+        <p>전기차 전환으로 기존 엔진 부품 협력사가 줄어드는 동안, 한성정밀은 구동계 정밀가공이라는 남는 영역에서 1차 협력사 두 곳의 승인 벤더 지위를 유지하고 있습니다.</p>
+        <p>대표이사 개인 역량에 묶여 있던 영업과 원가 관리를 조직으로 옮기면, 현재 12.8%인 EBITDA 마진을 업계 상위 수준인 15%까지 끌어올릴 여지가 있습니다.</p>
+        <p>승계 의사가 없는 창업자가 경영권을 넘기면서도 30% 지분으로 남는 구조라, 인수 직후 현장 이탈 위험이 낮습니다.</p>
+      </div>
+
+      <!-- 3 -->
+      <h2><span class="no">3</span>대상 회사와 시장<span class="en">Company &amp; Market</span></h2>
+      <p><b>사업 구조.</b> 구동계 정밀가공 부품을 1차 협력사에 납품합니다. 2025년 매출 486억 <span class="t ok">확인</span> 중 상위 2개 거래처가 <b>68%</b> <span class="t ok">확인</span>를 차지합니다. 거래처 집중도는 이 산업의 일반적 수준이지만, 두 곳 중 하나를 잃으면 회복이 어렵습니다.</p>
+      <p><b>승인 벤더 지위.</b> 두 거래처 모두 신규 벤더 승인에 통상 18개월 이상이 걸립니다 <span class="t un">미확인</span>. 대상 회사 진술이며 거래처 확인은 상업 실사에서 진행 중입니다. 이 기간이 사실이라면 신규 진입 방어에 실질적인 역할을 합니다.</p>
+      <p><b>시장.</b> 국내 구동계 부품 시장에는 전기차 전환으로 축소되는 영역과 확대되는 영역이 함께 있습니다. 대상 회사가 속한 감속기 하우징 가공은 내연기관과 전기차 모두에 쓰여 전환 충격이 상대적으로 작습니다 <span class="t est">추정</span>. 근거는 2024~2025년 두 거래처의 발주 품목 구성 변화입니다.</p>
+
+      <!-- 4 -->
+      <h2><span class="no">4</span>재무와 밸류에이션<span class="en">Financials &amp; Valuation</span></h2>
+      <table>
+        <tr><th>항목</th><th class="num">2023</th><th class="num">2024</th><th class="num">2025</th><th>확인 상태</th></tr>
+        <tr><td>매출액</td><td class="num">412억</td><td class="num">447억</td><td class="num">486억</td><td><span class="t ok">확인</span> 감사보고서</td></tr>
+        <tr><td>영업이익</td><td class="num">31억</td><td class="num">34억</td><td class="num">38억</td><td><span class="t ok">확인</span> 감사보고서</td></tr>
+        <tr><td>EBITDA</td><td class="num">52억</td><td class="num">57억</td><td class="num">62억</td><td><span class="t ok">확인</span> 감가상각 주석</td></tr>
+        <tr><td>EBITDA 마진</td><td class="num">12.6%</td><td class="num">12.8%</td><td class="num">12.8%</td><td><span class="t ok">확인</span></td></tr>
+        <tr><td>영업활동현금흐름</td><td class="num">27억</td><td class="num">19억</td><td class="num">11억</td><td><span class="t ok">확인</span> 감사보고서</td></tr>
+        <tr><td>순차입금</td><td class="num">64억</td><td class="num">73억</td><td class="num">82억</td><td><span class="t ok">확인</span></td></tr>
+      </table>
+      <p style="margin-top:14px">영업이익이 3년간 22.6% 늘어나는 동안 영업활동현금흐름은 59.3% 줄었습니다. 재무 실사에서 매출채권 회전일수가 60일에서 84일로 늘어난 것이 주된 원인으로 확인되었으나, 이것이 거래 조건 변화 때문인지 회수 문제인지는 <b>아직 확정하지 못했습니다</b> <span class="t un">미확인</span>. 8번 섹션 반대 논거 2번과 연결됩니다.</p>
+      <h3>가격 산정</h3>
+      <table>
+        <tr><th>비교 대상</th><th class="num">EV/EBITDA</th><th>비고</th></tr>
+        <tr><td>국내 자동차 부품 비상장 거래 3건 (2024~2025)</td><td class="num">7.2 ~ 9.1배</td><td><span class="t est">추정</span> 언론 보도 기준, 조건 미확인</td></tr>
+        <tr><td>상장 유사기업 5개사 중앙값</td><td class="num">6.8배</td><td><span class="t ok">확인</span> 2026년 3월 말 기준</td></tr>
+        <tr class="sum"><td>본건 적용 배수</td><td class="num">8.0배</td><td>승인 벤더 지위와 거래처 집중도를 함께 반영</td></tr>
+      </table>
+      <caption style="display:block">상장 유사기업 대비 1.2배 높은 배수입니다. 그 차이를 정당화하는 근거는 승인 벤더 지위이며, 이 지위의 실체는 상업 실사에서 확인 중입니다.</caption>
+
+      <!-- 5 -->
+      <h2><span class="no">5</span>실사 결과<span class="en">Due Diligence Findings</span></h2>
+      <table>
+        <tr><th>영역</th><th>주요 발견</th><th>반영 방식</th></tr>
+        <tr>
+          <td>재무</td>
+          <td>매출채권 회전일수 60일 → 84일, 영업현금흐름 59.3% 감소</td>
+          <td>미해소. 연령분석표 수령 후 가격 재협의 가능성 유보</td>
+        </tr>
+        <tr>
+          <td>재무</td>
+          <td>특수관계자 매입 비중 8% → 23% (대표 배우자 소유 가공업체)</td>
+          <td>대체 견적 2건 확보, 연 4억 절감 확인 <span class="t ok">확인</span>. 밸류업 계획에 반영</td>
+        </tr>
+        <tr>
+          <td>법무</td>
+          <td>대표이사 개인 채무에 대한 회사 연대보증 34억 원</td>
+          <td>거래 종결 조건(CP)에 해소 의무 포함</td>
+        </tr>
+        <tr>
+          <td>법무</td>
+          <td>거래처 계약에 지배구조 변경 시 통지 의무 조항</td>
+          <td>거래 종결 전 사전 통지 및 이의 부존재 확인을 CP에 포함</td>
+        </tr>
+        <tr>
+          <td>세무</td>
+          <td>가지급금 및 부당행위계산 부인 위험 없음</td>
+          <td>조치 불필요</td>
+        </tr>
+        <tr>
+          <td>상업</td>
+          <td>진행 중 (거래처 인터뷰 2건 중 1건 완료)</td>
+          <td>SPA 서명 전 완료 조건</td>
+        </tr>
+      </table>
+
+      <!-- 6 -->
+      <h2><span class="no">6</span>거래 구조<span class="en">Deal Structure</span></h2>
+      <p><b>인수 구조.</b> 특수목적법인(SPC)을 설립해 지분 70%를 취득한 뒤 대상 회사와 합병하지 않고 존속시킵니다. 인수금융은 SPC가 조달하고 대상 회사 주식을 담보로 제공합니다.</p>
+      <p><b>매도인 잔류.</b> 대표이사가 30%를 보유하며 3년간 대표직을 유지합니다. 주주간계약에 다음 사항을 사전동의 대상으로 넣습니다. 특수관계자 거래, 연간 5억 원 초과 투자, 임원 선임, 배당.</p>
+      <p><b>거래 종결 조건.</b> 대표이사 연대보증 34억 원 해소, 거래처 지배구조 변경 통지 및 이의 부존재 확인, 상업 실사 완료, 인수금융 약정 체결.</p>
+      <p><b>진술보장.</b> 재무제표 정확성, 우발부채 부존재, 특수관계자 거래 공개 완전성에 대해 매도인 진술보장을 받고, 매매대금의 10%를 18개월간 에스크로합니다 <span class="t un">미확인</span> 매도인 측과 아직 합의되지 않았습니다.</p>
+
+      <!-- 7 -->
+      <h2><span class="no">7</span>밸류업과 회수<span class="en">Value Creation &amp; Exit</span></h2>
+      <p>보유 기간 5년을 전제로, EBITDA 마진을 12.8%에서 15.0%로 올리는 것을 목표로 합니다. 세부 실행 계획은 별첨 100일 계획서에 있습니다.</p>
+      <table>
+        <tr><th>구분</th><th class="num">기본 시나리오</th><th class="num">하방 시나리오</th><th>가정</th></tr>
+        <tr><td>매각 시점</td><td class="num">2031년</td><td class="num">2031년</td><td>보유 5년</td></tr>
+        <tr><td>매출</td><td class="num">720억</td><td class="num">610억</td><td><span class="t est">추정</span> 연평균 8.2% / 4.7%</td></tr>
+        <tr><td>EBITDA</td><td class="num">108억</td><td class="num">85억</td><td><span class="t est">추정</span> 마진 15.0% / 13.9%</td></tr>
+        <tr><td>매각 배수</td><td class="num">8.0배</td><td class="num">6.5배</td><td><span class="t est">추정</span> 진입 배수 유지 / 축소</td></tr>
+        <tr><td>기업가치</td><td class="num">864억</td><td class="num">553억</td><td></td></tr>
+        <tr><td>순차입금</td><td class="num">60억</td><td class="num">120억</td><td><span class="t est">추정</span> 상환 속도 차이</td></tr>
+        <tr><td>지분가치 70%</td><td class="num">563억</td><td class="num">303억</td><td></td></tr>
+        <tr class="sum"><td>투자 배수 / IRR</td><td class="num">3.13배 / 25.6%</td><td class="num">1.68배 / 11.0%</td><td>출자 180억 기준</td></tr>
+      </table>
+      <caption style="display:block">회수 경로는 전략적 투자자 매각을 우선으로 봅니다. 두 거래처 중 한 곳의 계열 부품사가 수직 통합을 진행 중이라는 관측이 있으나 <span class="t un">미확인</span>, 이를 회수 전제로 삼지 않았습니다.</caption>
+
+      <!-- 8 -->
+      <h2><span class="no">8</span>위험과 반대 논거<span class="en">Risks &amp; The Case Against</span></h2>
+      <h3>주요 위험과 완화 방안</h3>
+      <table>
+        <tr><th>위험</th><th>완화 방안</th></tr>
+        <tr><td>상위 2개 거래처 의존도 68%</td><td>보유 기간 중 3번째 거래처 승인 확보를 밸류업 지표에 포함</td></tr>
+        <tr><td>인수금융 상환 부담 (EBITDA 3.5배)</td><td>운전자본 개선으로 연 15억 현금 확보 목표. 다만 아래 반대 논거 2번 참조</td></tr>
+        <tr><td>대표이사 3년 후 이탈</td><td>2년차부터 후임 대표 영입, 주주간계약에 경업금지 3년 포함</td></tr>
+        <tr><td>전기차 전환 가속</td><td>감속기 하우징은 양쪽 모두에 쓰이나, 물량 구성 변화를 분기별로 점검</td></tr>
+      </table>
+
+      <h3 style="margin-top:24px">반대 논거</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">이 딜을 거절해야 하는 이유 세 가지입니다. 담당자가 직접 작성했습니다.</p>
+
+      <div class="con">
+        <div class="con-h"><span class="n">1</span>특수관계 거래를 끊으면 원가가 오르고, 유지하면 통제가 남지 않는다</div>
+        <div class="con-b">
+          <div class="con-row"><div class="con-k">논거</div><p class="con-v">매입의 23%가 대표 배우자 소유 업체입니다. 인수 후 이 거래를 끊으면 원가가 오르고, 유지하면 매도인 이해관계가 회사에 계속 남습니다.</p></div>
+          <div class="con-row"><div class="con-k">맞다면</div><p class="con-v">EBITDA 마진 15% 목표가 무너집니다. 마진이 13%에 머물면 기본 시나리오 IRR은 25.6%에서 약 18%로 내려갑니다.</p></div>
+          <div class="con-row"><div class="con-k">그럼에도</div><p class="con-v">대체 견적 2건에서 현재 단가보다 낮은 가격을 확인했습니다. 전환에 6개월과 초기 비용 3억이 들지만 연 4억 절감이 가능합니다. 주주간계약의 특수관계자 거래 사전동의 조항으로 통제합니다.</p></div>
+        </div>
+      </div>
+
+      <div class="con">
+        <div class="con-h"><span class="n">2</span>매출채권 악화가 회수 문제라면 인수금융 상환 계획이 무너진다</div>
+        <div class="con-b">
+          <div class="con-row"><div class="con-k">논거</div><p class="con-v">회전일수가 24일 늘어난 이유를 아직 모릅니다. 신규 거래처의 결제 조건 때문이라는 대상 회사 설명은 확인되지 않았습니다.</p></div>
+          <div class="con-row"><div class="con-k">맞다면</div><p class="con-v">운전자본이 매년 20억 이상 묶입니다. 인수금융 원리금 상환에 연 32억이 필요한 구조에서 이 규모는 DSCR 약정 위반으로 이어집니다.</p></div>
+          <div class="con-row"><div class="con-k">그럼에도</div><p class="con-v none">답 없음. 거래처별 채권 연령분석표를 세 차례 요청했으나 아직 받지 못했습니다. 자료 수령 전에는 이 위험의 크기를 말할 수 없습니다.</p></div>
+        </div>
+      </div>
+
+      <div class="con">
+        <div class="con-h"><span class="n">3</span>상장 유사기업 대비 1.2배 높은 배수를 정당화하는 근거가 아직 대상 회사 진술뿐이다</div>
+        <div class="con-b">
+          <div class="con-row"><div class="con-k">논거</div><p class="con-v">8.0배를 쓴 이유는 승인 벤더 지위입니다. 그런데 신규 벤더 승인에 18개월이 걸린다는 것은 대상 회사 진술이고, 거래처 확인은 절반만 끝났습니다.</p></div>
+          <div class="con-row"><div class="con-k">맞다면</div><p class="con-v">적정 배수는 7.0배 수준으로, 기업가치가 496억에서 434억으로 62억 낮아집니다. 지분 70% 기준 43억을 더 낸 것이 됩니다.</p></div>
+          <div class="con-row"><div class="con-k">그럼에도</div><p class="con-v">상업 실사의 나머지 거래처 인터뷰를 SPA 서명 전 완료 조건으로 두었습니다. 확인되지 않으면 배수를 7.2배로 낮춰 재협상하는 것을 대안으로 준비했습니다.</p></div>
+        </div>
+      </div>
+
+      <!-- 출처 -->
+      <h2><span class="no">9</span>자료 출처와 첨부<span class="en">Sources &amp; Appendix</span></h2>
+      <div class="src">
+        <p><b>확인 표시 18건</b> 감사보고서 3개년(2023~2025), 감가상각 주석, 차입금 명세, 대체 견적서 2건, 법무 실사 보고서, 세무 실사 보고서, 상장 유사기업 시세(2026년 3월 31일 종가)</p>
+        <p><b>미확인 표시 6건</b> 신규 벤더 승인 기간, 인수금융 약정 조건(타결 전), 에스크로 조건(협상 전), 매출채권 회전 악화 원인, 거래처 수직 통합 관측, 특수관계 거래 단가의 시장가 대비 수준</p>
+        <p><b>추정 표시 9건</b> 진입 배수, 거래 비용, 2031년 매출과 EBITDA(기본·하방), 매각 배수(기본·하방), 순차입금(기본·하방), 전환 충격 정도</p>
+        <p><b>첨부</b> 재무 실사 보고서, 법무 실사 보고서, 세무 실사 보고서, 100일 밸류업 계획서, 인수금융 텀시트 초안</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <b>이 문서는 투자 여부를 결론짓지 않습니다.</b> 심의위원회에 올릴 판단 재료와 승인 요청 사항만 담았습니다. 모든 숫자에는 확인, 미확인, 추정 표시를 붙였고, 반대 논거 세 가지 중 하나는 답을 찾지 못한 상태 그대로 남겨 두었습니다.
+  </div>
+
+  <footer>
+    <p style="margin:0 0 16px">ic-memo 스킬 샘플 출력. 회사명 한성정밀, 담당자명, 모든 수치는 형식 시연을 위한 가상 데이터이며 실제 기업이나 인물의 사실이 아닙니다.</p>
+  </footer>
+
+</div>
+</body>
+</html>

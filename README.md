@@ -113,8 +113,8 @@
 | 페이지 | 설명 |
 |--------|------|
 | [시로 쓴 자화상](https://airoasting.vercel.app/showcase-poems.html) | 멀티 페르소나 실습으로 완성한 시 39편, AI 시대 일하는 사람들의 하루 |
-| [스탑워치 쇼케이스](https://airoasting.vercel.app/showcase-stopwatch.html) | 수강생이 직접 만든 스탑워치 22선을 라이브로 임베드한 모음 |
-| [스킬 쇼케이스](https://airoasting.vercel.app/showcase-skills.html) | 수강생들이 자기 업무를 Claude 스킬로 만든 실전 자동화 21선 |
+| [스탑워치 쇼케이스](https://airoasting.vercel.app/showcase-stopwatch.html) | 수강생이 직접 만든 스탑워치 31선을 라이브로 임베드한 모음 |
+| [스킬 쇼케이스](https://airoasting.vercel.app/showcase-skills.html) | 수강생들이 자기 업무를 Claude 스킬로 만든 실전 자동화 26선 |
 
 ---
 

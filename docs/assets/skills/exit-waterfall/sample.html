@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>exit-waterfall · 노드리프 엑싯 분배 시뮬레이션 (샘플)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0f1a1c;
+    --ink-soft:#31474b;
+    --muted:#74898d;
+    --bg:#eff2f1;
+    --card:#ffffff;
+    --line:#dbe2e1;
+    --line-soft:#e9eeed;
+    --teal:#12464e;
+    --teal-soft:#e6efef;
+    --gold:#a97a1e;
+    --gold-soft:#faf1de;
+    /* 주주별 색 */
+    --sh-found:#12464e;
+    --sh-pool:#4e8f92;
+    --sh-seed:#c9963c;
+    --sh-a:#a95a3c;
+    --sh-b:#6a4a75;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Noto Sans KR","Pretendard",system-ui,sans-serif;
+    line-height:1.68;word-break:keep-all;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:22px 22px 70px}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+  .cover{background:var(--teal);color:#fff;border-radius:16px;padding:28px 30px;margin-bottom:18px}
+  .cover .doc{font-size:11px;font-weight:700;letter-spacing:.16em;opacity:.65;text-transform:uppercase;margin-bottom:11px}
+  .cover h1{margin:0 0 9px;font-size:clamp(25px,4.4vw,35px);font-weight:900;letter-spacing:-.02em;line-height:1.2}
+  .cover .lede{margin:0 0 18px;font-size:14.5px;opacity:.86;max-width:62ch;line-height:1.7}
+  .cover-meta{display:flex;flex-wrap:wrap;gap:7px}
+  .cover-meta span{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+  .cover-meta span.warn{background:rgba(255,220,160,.16);border-color:rgba(255,220,160,.34)}
+  .cover-meta span.ok{background:rgba(150,235,190,.16);border-color:rgba(150,235,190,.36)}
+
+  section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:18px}
+  .sec-title{display:flex;align-items:baseline;gap:9px;margin:0 0 15px;padding-bottom:12px;border-bottom:2px solid var(--ink);font-size:14px;font-weight:900;letter-spacing:-.01em}
+  .sec-title .hint{margin-left:auto;font-size:11.5px;font-weight:500;color:var(--muted);letter-spacing:0}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+  th{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.03em;background:#f6f8f8;white-space:nowrap}
+  td.num,th.num{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:none}
+  tr.sum td{background:#f6f8f8;font-weight:700;border-top:2px solid var(--ink)}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;vertical-align:-1px}
+  .dflt{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--gold-soft);color:var(--gold);margin-left:6px;white-space:nowrap}
+
+  /* 시나리오 */
+  .scn{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:14px}
+  .scn:last-child{margin-bottom:0}
+  .scn-head{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:14px 17px;background:#f6f8f8}
+  .scn-tag{font-size:11px;font-weight:700;color:#fff;background:var(--teal);padding:3px 9px;border-radius:6px}
+  .scn-amt{font-size:20px;font-weight:900;letter-spacing:-.02em;font-family:"IBM Plex Mono",monospace}
+  .scn-note{font-size:12.5px;color:var(--muted);margin-left:auto;text-align:right;flex:1 1 200px}
+  .scn-body{padding:16px 17px}
+  .stack{display:flex;height:34px;border-radius:9px;overflow:hidden;margin-bottom:9px}
+  .stack i{display:block;height:100%}
+  .stack-lab{display:flex;flex-wrap:wrap;gap:11px;font-size:11.5px;color:var(--muted);margin-bottom:15px}
+  .stack-lab b{color:var(--ink);font-weight:700;font-family:"IBM Plex Mono",monospace}
+
+  /* 분기점 */
+  .bp{display:grid;grid-template-columns:130px 1fr;gap:14px;padding:13px 0;border-top:1px solid var(--line-soft);align-items:start}
+  .bp:first-of-type{border-top:none;padding-top:0}
+  .bp:last-of-type{padding-bottom:0}
+  .bp-amt{font-size:17px;font-weight:800;font-family:"IBM Plex Mono",monospace;color:var(--teal);letter-spacing:-.01em}
+  .bp-amt small{display:block;font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.05em;font-family:"Noto Sans KR",sans-serif;margin-top:2px}
+  .bp-t{font-size:14px;font-weight:700;margin:0 0 4px}
+  .bp-d{font-size:13px;color:var(--ink-soft);margin:0;line-height:1.66}
+
+  .read p{font-size:14px;color:var(--ink-soft);line-height:1.78;margin:0 0 11px}
+  .read p:last-child{margin-bottom:0}
+  .read b{color:var(--ink)}
+  .read .mk{background:var(--gold-soft);padding:1px 5px;border-radius:4px;font-weight:700;color:var(--gold)}
+
+  .check{display:flex;align-items:center;gap:10px;background:var(--teal-soft);border-radius:11px;padding:13px 15px;font-size:13.5px;color:var(--ink-soft)}
+  .check b{color:var(--teal)}
+
+  .assume p{margin:0 0 8px;font-size:13px;color:var(--ink-soft);line-height:1.7}
+  .assume p:last-child{margin-bottom:0}
+
+  .disclaimer{margin-top:20px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:12.5px;color:var(--muted);line-height:1.7}
+  .disclaimer b{color:var(--ink-soft)}
+  footer{margin-top:26px;text-align:center;font-size:12px;color:var(--muted);line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-topnav" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 22px"><a href="../../../showcase-skills.html" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#37352f;border:1px solid #e4e2dd;padding:9px 15px;border-radius:999px;font-size:13.5px;font-weight:600;text-decoration:none;white-space:nowrap;line-height:1">← 스킬 쇼케이스로 돌아가기</a><a href="https://github.com/airoasting/claude_guide/tree/main/docs/assets/skills/exit-waterfall" target="_blank" rel="noopener" title="GitHub에서 이 스킬 보기" style="display:inline-flex;align-items:center;gap:6px;background:#1f2328;color:#fff;padding:9px 14px;border-radius:999px;font-size:13.5px;font-weight:600;text-decoration:none;white-space:nowrap;line-height:1"><svg width="15" height="15" viewBox="0 0 16 16" fill="#fff" aria-hidden="true" style="flex:none"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .271.53-1.04 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>GitHub<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+
+  <div class="cover">
+    <div class="doc">Exit Waterfall · Liquidation Preference Model</div>
+    <h1>노드리프 매각 시 분배 시뮬레이션</h1>
+    <p class="lede">주주 5그룹, 발행주식 1,200만 주, 누적 투자 210억 원 기준입니다. 세 시나리오 모두 주주별 수령액 합계가 매각 대금과 일치하는지 검산했습니다.</p>
+    <div class="cover-meta">
+      <span class="warn">샘플 · 가상 기업, 모든 수치는 형식 시연용</span>
+      <span>3개 라운드 · 참가적 1건</span>
+      <span class="ok">검산 통과 3/3</span>
+      <span>세전 기준</span>
+    </div>
+  </div>
+
+  <!-- 캡테이블 -->
+  <section>
+    <div class="sec-title">캡테이블과 적용 조건<span class="hint">기본값 사용 항목은 표시</span></div>
+    <table>
+      <tr>
+        <th>주주</th><th class="num">주식 수</th><th class="num">지분율</th><th class="num">투자금</th>
+        <th class="num">주당 발행가</th><th>청산우선권</th><th>참가</th>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:var(--sh-found)"></span>창업팀 (보통주)</td>
+        <td class="num">4,500,000</td><td class="num">37.5%</td><td class="num">&mdash;</td>
+        <td class="num">&mdash;</td><td>없음</td><td>&mdash;</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:var(--sh-pool)"></span>스톡옵션 풀</td>
+        <td class="num">1,500,000</td><td class="num">12.5%</td><td class="num">&mdash;</td>
+        <td class="num">&mdash;</td><td>없음</td><td>&mdash;</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:var(--sh-seed)"></span>시드 우선주</td>
+        <td class="num">1,500,000</td><td class="num">12.5%</td><td class="num">15억</td>
+        <td class="num">1,000원</td><td>1배</td><td>비참가</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:var(--sh-a)"></span>시리즈A 우선주</td>
+        <td class="num">2,500,000</td><td class="num">20.8%</td><td class="num">75억</td>
+        <td class="num">3,000원</td><td>1배</td><td>비참가</td>
+      </tr>
+      <tr>
+        <td><span class="swatch" style="background:var(--sh-b)"></span>시리즈B 우선주</td>
+        <td class="num">2,000,000</td><td class="num">16.7%</td><td class="num">120억</td>
+        <td class="num">6,000원</td><td>1배</td><td>참가 · 상한 2배</td>
+      </tr>
+      <tr class="sum">
+        <td>합계</td><td class="num">12,000,000</td><td class="num">100.0%</td><td class="num">210억</td>
+        <td class="num">&mdash;</td><td colspan="2">시리즈B 최근 기업가치 720억</td>
+      </tr>
+    </table>
+    <p style="margin:14px 0 0;font-size:12.5px;color:var(--muted);line-height:1.7">
+      우선순위는 후순위 라운드 우선(시리즈B → 시리즈A → 시드)으로 적용했습니다<span class="dflt">기본값</span><br>
+      희석방지 조항은 입력에 없어 반영하지 않았습니다<span class="dflt">기본값</span>
+    </p>
+  </section>
+
+  <!-- 시나리오 -->
+  <section>
+    <div class="sec-title">시나리오별 분배<span class="hint">아무도 선택을 바꿔 더 받을 수 없는 상태</span></div>
+
+    <!-- 400억 -->
+    <div class="scn">
+      <div class="scn-head">
+        <span class="scn-tag">시나리오 1</span>
+        <span class="scn-amt">400억 원</span>
+        <span class="scn-note">우선변제 총액 210억의 약 1.9배 · 직전 기업가치 대비 하향 매각</span>
+      </div>
+      <div class="scn-body">
+        <div class="stack">
+          <i style="width:24.3%;background:var(--sh-found)"></i>
+          <i style="width:8.1%;background:var(--sh-pool)"></i>
+          <i style="width:8.1%;background:var(--sh-seed)"></i>
+          <i style="width:18.8%;background:var(--sh-a)"></i>
+          <i style="width:40.8%;background:var(--sh-b)"></i>
+        </div>
+        <div class="stack-lab">
+          <span><span class="swatch" style="background:var(--sh-found)"></span>창업팀 <b>24.3%</b></span>
+          <span><span class="swatch" style="background:var(--sh-pool)"></span>옵션풀 <b>8.1%</b></span>
+          <span><span class="swatch" style="background:var(--sh-seed)"></span>시드 <b>8.1%</b></span>
+          <span><span class="swatch" style="background:var(--sh-a)"></span>시리즈A <b>18.8%</b></span>
+          <span><span class="swatch" style="background:var(--sh-b)"></span>시리즈B <b>40.8%</b></span>
+        </div>
+        <table>
+          <tr><th>주주</th><th class="num">수령액</th><th class="num">비중</th><th class="num">지분율</th><th class="num">투자 배수</th><th>선택</th></tr>
+          <tr><td>창업팀</td><td class="num">97.11억</td><td class="num">24.3%</td><td class="num">37.5%</td><td class="num">&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>스톡옵션 풀</td><td class="num">32.37억</td><td class="num">8.1%</td><td class="num">12.5%</td><td class="num">&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>시드</td><td class="num">32.37억</td><td class="num">8.1%</td><td class="num">12.5%</td><td class="num">2.16배</td><td>보통주 전환</td></tr>
+          <tr><td>시리즈A</td><td class="num">75.00억</td><td class="num">18.8%</td><td class="num">20.8%</td><td class="num">1.00배</td><td>우선권 수령</td></tr>
+          <tr><td>시리즈B</td><td class="num">163.16억</td><td class="num">40.8%</td><td class="num">16.7%</td><td class="num">1.36배</td><td>우선권 + 참가</td></tr>
+          <tr class="sum"><td>합계</td><td class="num">400.00억</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">&mdash;</td><td>검산 일치</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 800억 -->
+    <div class="scn">
+      <div class="scn-head">
+        <span class="scn-tag">시나리오 2</span>
+        <span class="scn-amt">800억 원</span>
+        <span class="scn-note">직전 기업가치 720억을 약간 넘는 매각</span>
+      </div>
+      <div class="scn-body">
+        <div class="stack">
+          <i style="width:31.9%;background:var(--sh-found)"></i>
+          <i style="width:10.6%;background:var(--sh-pool)"></i>
+          <i style="width:10.6%;background:var(--sh-seed)"></i>
+          <i style="width:17.7%;background:var(--sh-a)"></i>
+          <i style="width:29.2%;background:var(--sh-b)"></i>
+        </div>
+        <div class="stack-lab">
+          <span><span class="swatch" style="background:var(--sh-found)"></span>창업팀 <b>31.9%</b></span>
+          <span><span class="swatch" style="background:var(--sh-pool)"></span>옵션풀 <b>10.6%</b></span>
+          <span><span class="swatch" style="background:var(--sh-seed)"></span>시드 <b>10.6%</b></span>
+          <span><span class="swatch" style="background:var(--sh-a)"></span>시리즈A <b>17.7%</b></span>
+          <span><span class="swatch" style="background:var(--sh-b)"></span>시리즈B <b>29.2%</b></span>
+        </div>
+        <table>
+          <tr><th>주주</th><th class="num">수령액</th><th class="num">비중</th><th class="num">지분율</th><th class="num">투자 배수</th><th>선택</th></tr>
+          <tr><td>창업팀</td><td class="num">255.00억</td><td class="num">31.9%</td><td class="num">37.5%</td><td class="num">&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>스톡옵션 풀</td><td class="num">85.00억</td><td class="num">10.6%</td><td class="num">12.5%</td><td class="num">&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>시드</td><td class="num">85.00억</td><td class="num">10.6%</td><td class="num">12.5%</td><td class="num">5.67배</td><td>보통주 전환</td></tr>
+          <tr><td>시리즈A</td><td class="num">141.67억</td><td class="num">17.7%</td><td class="num">20.8%</td><td class="num">1.89배</td><td>보통주 전환</td></tr>
+          <tr><td>시리즈B</td><td class="num">233.33억</td><td class="num">29.2%</td><td class="num">16.7%</td><td class="num">1.94배</td><td>우선권 + 참가</td></tr>
+          <tr class="sum"><td>합계</td><td class="num">800.00억</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">&mdash;</td><td>검산 일치</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 1500억 -->
+    <div class="scn">
+      <div class="scn-head">
+        <span class="scn-tag">시나리오 3</span>
+        <span class="scn-amt">1,500억 원</span>
+        <span class="scn-note">직전 기업가치의 약 2배 매각</span>
+      </div>
+      <div class="scn-body">
+        <div class="stack">
+          <i style="width:37.5%;background:var(--sh-found)"></i>
+          <i style="width:12.5%;background:var(--sh-pool)"></i>
+          <i style="width:12.5%;background:var(--sh-seed)"></i>
+          <i style="width:20.8%;background:var(--sh-a)"></i>
+          <i style="width:16.7%;background:var(--sh-b)"></i>
+        </div>
+        <div class="stack-lab">
+          <span><span class="swatch" style="background:var(--sh-found)"></span>창업팀 <b>37.5%</b></span>
+          <span><span class="swatch" style="background:var(--sh-pool)"></span>옵션풀 <b>12.5%</b></span>
+          <span><span class="swatch" style="background:var(--sh-seed)"></span>시드 <b>12.5%</b></span>
+          <span><span class="swatch" style="background:var(--sh-a)"></span>시리즈A <b>20.8%</b></span>
+          <span><span class="swatch" style="background:var(--sh-b)"></span>시리즈B <b>16.7%</b></span>
+        </div>
+        <table>
+          <tr><th>주주</th><th class="num">수령액</th><th class="num">비중</th><th class="num">지분율</th><th class="num">투자 배수</th><th>선택</th></tr>
+          <tr><td>창업팀</td><td class="num">562.50억</td><td class="num">37.5%</td><td class="num">37.5%</td><td class="num">&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>스톡옵션 풀</td><td class="num">187.50억</td><td class="num">12.5%</td><td class="num">12.5%</td><td class="num">&mdash;</td><td>&mdash;</td></tr>
+          <tr><td>시드</td><td class="num">187.50억</td><td class="num">12.5%</td><td class="num">12.5%</td><td class="num">12.50배</td><td>보통주 전환</td></tr>
+          <tr><td>시리즈A</td><td class="num">312.50억</td><td class="num">20.8%</td><td class="num">20.8%</td><td class="num">4.17배</td><td>보통주 전환</td></tr>
+          <tr><td>시리즈B</td><td class="num">250.00억</td><td class="num">16.7%</td><td class="num">16.7%</td><td class="num">2.08배</td><td>보통주 전환</td></tr>
+          <tr class="sum"><td>합계</td><td class="num">1,500.00억</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">&mdash;</td><td>검산 일치</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 분기점 -->
+  <section>
+    <div class="sec-title">분기점<span class="hint">조건을 바꾸면 이 지점들이 움직입니다</span></div>
+
+    <div class="bp">
+      <div class="bp-amt">210억<small>보통주 첫 수령</small></div>
+      <div>
+        <p class="bp-t">이 금액을 넘겨야 창업팀과 옵션풀에 돈이 갑니다.</p>
+        <p class="bp-d">우선변제 총액이 정확히 210억이므로, 매각가가 여기에 못 미치면 보통주 수령액은 0입니다. 창업팀 지분 37.5%는 이 구간에서 아무 의미가 없습니다.</p>
+      </div>
+    </div>
+
+    <div class="bp">
+      <div class="bp-amt">290억<small>시드 전환</small></div>
+      <div>
+        <p class="bp-t">시드가 우선권 15억을 포기하고 보통주로 돌아섭니다.</p>
+        <p class="bp-d">이 지점의 잔여 주당 금액이 시드 발행가 1,000원과 같아집니다. 1배 비참가 우선주의 전환 분기점은 발행가를 회복하는 지점과 일치합니다.</p>
+      </div>
+    </div>
+
+    <div class="bp">
+      <div class="bp-amt">480억<small>시리즈A 전환</small></div>
+      <div>
+        <p class="bp-t">시리즈A가 우선권 75억을 포기합니다.</p>
+        <p class="bp-d">400억 시나리오에서 시리즈A가 정확히 1.00배에 머문 이유가 여기 있습니다. 480억에 닿기 전까지 시리즈A는 원금만 회수하고 상승분을 받지 못합니다.</p>
+      </div>
+    </div>
+
+    <div class="bp">
+      <div class="bp-amt">840억<small>시리즈B 상한 도달</small></div>
+      <div>
+        <p class="bp-t">시리즈B 수령액이 상한 240억에 닿아 멈춥니다.</p>
+        <p class="bp-d">이 지점을 넘으면 시리즈B가 더 받지 못하고, 초과분은 나머지 주주에게 돌아갑니다. 800억 시나리오는 이 지점 바로 아래라 상한이 아직 걸리지 않았습니다.</p>
+      </div>
+    </div>
+
+    <div class="bp">
+      <div class="bp-amt">1,440억<small>시리즈B 전환</small></div>
+      <div>
+        <p class="bp-t">시리즈B가 상한 240억보다 보통주 전환이 유리해집니다.</p>
+        <p class="bp-d">지분 16.7%에 해당하는 금액이 240억을 넘는 지점입니다. 여기서부터 참가 조건은 시리즈B에 아무 이득이 없고, 모든 주주의 수령 비율이 명목 지분율과 같아집니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 읽는 법 -->
+  <section>
+    <div class="sec-title">이 캡테이블에서 특이한 점</div>
+    <div class="read">
+      <p><b>시리즈B의 참가 조건이 낮은 매각가에서 지분을 두 배 넘게 부풀립니다.</b> 400억 매각에서 시리즈B는 지분 16.7%로 <span class="mk">40.8%</span>를 가져갑니다. 우선변제 120억을 먼저 받고 잔여 배분에도 참여하기 때문입니다. 같은 조건이 1,500억에서는 아무 효과가 없어 정확히 16.7%로 돌아옵니다.</p>
+      <p><b>시리즈A는 480억까지 원금만 회수합니다.</b> 400억 시나리오의 1.00배가 그 결과입니다. 비참가 1배 우선주는 하방을 막아주지만, 상방으로 가는 구간에서는 전환 시점까지 상승분을 받지 못합니다.</p>
+      <p><b>창업팀 지분율 37.5%가 실제로 37.5%가 되는 지점은 1,440억 이후입니다.</b> 그 아래에서는 계속 낮게 나옵니다. 400억에서는 24.3%, 800억에서는 31.9%입니다. 협상 자리에서 지분율만 보고 말하면 이 차이가 통째로 빠집니다.</p>
+    </div>
+  </section>
+
+  <!-- 검산 -->
+  <section>
+    <div class="sec-title">검산</div>
+    <div class="check">
+      <b>3개 시나리오 모두 일치</b>
+      <span>주주별 수령액 합계가 매각 대금과 원 단위까지 같습니다. 400억, 800억, 1,500억 각각에서 차이 0원입니다.</span>
+    </div>
+  </section>
+
+  <!-- 전제 -->
+  <section>
+    <div class="sec-title">계산 전제와 다루지 않은 것</div>
+    <div class="assume">
+      <p>모든 금액은 세전입니다. 양도소득세, 법인세, 스톡옵션 행사이익에 대한 근로소득세를 반영하지 않았습니다.</p>
+      <p>거래 비용, 에스크로 유보금, 언아웃, 매도인 진술보장 관련 유보를 반영하지 않았습니다. 이 항목들은 실제 수령 시점과 금액을 모두 바꿉니다.</p>
+      <p>스톡옵션 풀 1,500,000주는 전량 행사되어 보통주가 된 것으로 계산했습니다. 미행사분이 있으면 창업팀 비중이 올라갑니다.</p>
+      <p>희석방지 조항은 입력에 없어 반영하지 않았습니다. 다운라운드가 있었다면 시리즈A와 시리즈B의 전환비율이 바뀌어 결과가 달라집니다.</p>
+    </div>
+  </section>
+
+  <div class="disclaimer">
+    <b>이 문서는 정해진 조건에서 돈이 어떻게 나뉘는지만 계산합니다.</b> 텀시트 조항의 법적 효력을 해석하지 않고, 매각을 권하거나 조건의 좋고 나쁨을 평가하지 않습니다. 실제 거래에서는 계약서 문언과 준거법에 따라 결과가 달라질 수 있으므로 법률 자문과 함께 확인해야 합니다.
+  </div>
+
+  <footer>
+    <p style="margin:0 0 16px">exit-waterfall 스킬 샘플 출력. 회사명 노드리프와 모든 수치는 형식 시연을 위한 가상 데이터이며 실제 기업의 사실이 아닙니다.</p>
+  </footer>
+
+</div>
+</body>
+</html>
