@@ -91,8 +91,8 @@
   button:disabled{filter:grayscale(.55) brightness(.86);cursor:default;
     box-shadow:0 2px 0 rgba(0,0,0,.25);transform:translateY(1px)}
   button:focus-visible{outline:3px solid #ffd76b;outline-offset:3px}
-  .b-spin{background:linear-gradient(#2fc060,#1a9c45)}
-  .b-spin.running{background:linear-gradient(#ff5d5d,#d11d2c)}
+  .b-spin{background:linear-gradient(#1B8E45,#0E6B30)}
+  .b-spin.running{background:linear-gradient(#D6303A,#A11020)}
   .b-lap{background:linear-gradient(#ffce54,#e0a312);color:#5a3c00;text-shadow:none}
   .b-reset{background:linear-gradient(#7d8493,#565d6b)}
 
@@ -244,6 +244,21 @@
     raf=requestAnimationFrame(tick);
   }
 
+  /* ── 접근성 ── 정지·초기화 결과를 스크린리더에 알린다 */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+
   function start(){
     if(running) return;
     running=true; startTs=now()-elapsed;
@@ -267,6 +282,9 @@
     spinBtn.textContent=elapsed>0?'RESUME':'SPIN'; spinBtn.classList.remove('running');
     lapBtn.disabled=true; resetBtn.disabled=(elapsed===0);
     jp.textContent='STOP'; bulbsOn(false);
+    render(false);                       /* rAF가 멈춘 뒤에도 판독값을 맞춘다 */
+    srSay('정지. 경과 시간 '+srHuman(elapsed));
+    if(document.activeElement&&document.activeElement.disabled) spinBtn.focus();
   }
 
   function toggle(){ running?stop():start(); }
@@ -283,6 +301,8 @@
     jp.textContent='READY'; jp.classList.remove('flash');
     receipt.innerHTML='<div class="empty">— NO RECORD —</div>';
     bulbsOn(false);
+    srSay('초기화했습니다');
+    if(document.activeElement&&document.activeElement.disabled) spinBtn.focus();
   }
 
   function fmt(ms){
@@ -352,6 +372,7 @@
     },340);
   }
 
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){elapsed=running?now()-startTs:elapsed;render(running);}});
   window.addEventListener('pageshow',function(){if(running&&!raf)raf=requestAnimationFrame(tick);});
   window.addEventListener('pagehide',function(){ cancelAnimationFrame(raf); raf=0; clearInterval(flashT); flashT=null; });
   spinBtn.addEventListener('click',toggle);
@@ -359,6 +380,7 @@
   lapBtn.addEventListener('click',doLap);
   resetBtn.addEventListener('click',reset);
   document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
     if(e.target&&e.target.tagName==='BUTTON'&&(e.code==='Space'||e.key===' '))return;
     if(e.code==='Space'){ e.preventDefault(); toggle(); }
     else if(e.key==='l'||e.key==='L'){ doLap(); }

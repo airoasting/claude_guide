@@ -47,7 +47,8 @@
   @keyframes cEarR{0%,100%{transform:rotate(12deg)}50%{transform:rotate(21deg)}}
   .cat.go .bow{animation:bowPop .7s ease-in-out infinite}
   @keyframes bowPop{0%,100%{transform:translateX(-50%) scale(1) rotate(0)}50%{transform:translateX(-50%) scale(1.15) rotate(-7deg)}}
-  .cat.go .eye{animation:cBlink 2.6s infinite}
+  .eye{animation:cBlink 4.6s ease-in-out infinite}
+  .cat.go .eye{animation-duration:2.6s}
   @keyframes cBlink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
@@ -86,15 +87,41 @@
   function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
     return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
   function draw(){t.innerHTML=f(el());}
-  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);fig.classList.add('go');draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;fig.classList.remove('go');draw();ui();}
   function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;fig.classList.remove('go');draw();ui();lp.textContent='';}
-  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);lp.textContent='랩 '+laps.length+'  +'+plain(sp)+(laps.length>1&&sp===best?'  ★ 최단':'');}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);lp.textContent='랩 '+laps.length+'  +'+plain(sp)+(laps.length>1?(sp===best?'  ★ 최단':'  · 최단 '+plain(best)):'');}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
   window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
   window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
   document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
     if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
     if(e.key===' '){e.preventDefault();run?stop():start();}
     else if(e.key==='l'||e.key==='L'){lap();}

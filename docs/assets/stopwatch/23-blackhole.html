@@ -160,17 +160,42 @@
   function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
     return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
   function draw(){t.innerHTML=f(el());}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
   function ui(){
     document.body.classList.toggle('go',run);
     b1.textContent=run?'정지':(el()>0?'재개':'시작');
     b2.disabled=!run; b3.disabled=run||el()===0;
+  
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
   }
   function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
   function reset(){if(run)return;run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;lp.textContent='';draw();ui();}
   function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
     var best=Math.min.apply(null,laps);
-    lp.textContent='LAP '+laps.length+'  +'+plain(sp)+(laps.length>1&&sp===best?'  ★ 최단':'');
+    lp.textContent='LAP '+laps.length+'  +'+plain(sp)+(laps.length>1?(sp===best?'  ★ 최단':'  · 최단 '+plain(best)):'');
     /* 랩을 찍으면 원반이 한 번 폭발한다 */
     document.body.classList.remove('blast-on');
     void document.body.offsetWidth;
@@ -181,6 +206,7 @@
   b2.addEventListener('click',lap);
   b3.addEventListener('click',reset);
   document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
     if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
     if(e.key===' '){e.preventDefault();run?stop():start();}
     else if(e.key==='l'||e.key==='L'){lap();}

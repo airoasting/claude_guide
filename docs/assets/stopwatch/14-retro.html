@@ -150,7 +150,32 @@
       h+='<b>LAP '+(i+1)+mk+'</b> +'+plain(sp[i])+'<br>';
     }
     lapsEl.innerHTML=h;}
-  function ui(){b1.textContent=run?'STOP':(el()>0?'GO':'START');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){b1.textContent=run?'STOP':(el()>0?'GO':'START');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();hero.classList.add('go');}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();hero.classList.remove('go');}
   function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];draw();ui();renderLaps();hero.classList.remove('go');}
@@ -159,6 +184,7 @@
   window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
   window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
   document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
     if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
     if(e.key===' '){e.preventDefault();run?stop():start();}
     else if(e.key==='l'||e.key==='L'){lap();}

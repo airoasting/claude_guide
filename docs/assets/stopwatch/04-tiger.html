@@ -24,6 +24,10 @@
   .tiger.run .body{animation:prowl 1.1s ease-in-out infinite}
   @keyframes prowl{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
   .pupil{transform-box:fill-box;transform-origin:center}
+  /* 눈 전체를 세로로 감아 깜빡인다 */
+  .eyes{transform-box:view-box;transform-origin:106px 84px;animation:tBlink 4.4s ease-in-out infinite}
+  .tiger.run .eyes{animation-duration:3s}
+  @keyframes tBlink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.06)}98%{transform:scaleY(1)}}
   .tiger.run .pupil{animation:dilate 1.1s ease-in-out infinite}
   @keyframes dilate{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.7)}}
 
@@ -34,7 +38,7 @@
   button{font-family:inherit;font-weight:800;font-size:14px;color:#fff;border:none;cursor:pointer;
     padding:13px 0;width:80px;border-radius:22px;box-shadow:0 4px 0 rgba(0,0,0,.34),0 6px 14px rgba(0,0,0,.3);transition:transform .07s,opacity .15s,background .15s}
   button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.34)}
-  #b1{background:#E0762F;box-shadow:0 4px 0 rgba(0,0,0,.34),0 0 16px rgba(224,118,47,.5)}
+  #b1{background:#A8500F;box-shadow:0 4px 0 rgba(0,0,0,.34),0 0 16px rgba(224,118,47,.42)}
   #b1.run{background:#D23F35;box-shadow:0 4px 0 rgba(0,0,0,.34),0 0 16px rgba(210,63,53,.55)}
   #b2{background:#2C6E9C}#b3{background:#37485E}
   button:disabled{opacity:.6;cursor:default}
@@ -134,6 +138,7 @@
           <path d="M102 60 q4 8 0 16 M110 60 q-4 8 0 16" stroke="#1B3D72" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
 
           <!-- ── 큰 발광 눈 ── -->
+          <g class="eyes">
           <g class="eyeglow">
             <circle cx="78" cy="84" r="30" fill="url(#halo)" filter="url(#soft)"/>
             <circle cx="134" cy="84" r="30" fill="url(#halo)" filter="url(#soft)"/>
@@ -151,6 +156,7 @@
           <!-- 캐치라이트 -->
           <circle cx="72" cy="74" r="4" fill="#FFF7E6" opacity=".95"/>
           <circle cx="128" cy="74" r="4" fill="#FFF7E6" opacity=".95"/>
+          </g>
           <!-- 아래 눈꺼풀 -->
           <path d="M58 92 Q78 104 98 92" stroke="#2C548C" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".7"/>
           <path d="M154 92 Q134 104 114 92" stroke="#2C548C" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".7"/>
@@ -189,15 +195,41 @@
   function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
     return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
   function draw(){t.innerHTML=f(el());}
-  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;fig.classList.toggle('run',run);}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;fig.classList.toggle('run',run);
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
   function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
   function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lp.textContent='';}
-  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);lp.textContent='랩 '+laps.length+'  +'+plain(sp)+(laps.length>1&&sp===best?'  ★ 최단':'');}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);lp.textContent='랩 '+laps.length+'  +'+plain(sp)+(laps.length>1?(sp===best?'  ★ 최단':'  · 최단 '+plain(best)):'');}
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
   window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
   window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
   document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
     if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
     if(e.key===' '){e.preventDefault();run?stop():start();}
     else if(e.key==='l'||e.key==='L'){lap();}
