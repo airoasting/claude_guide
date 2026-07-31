@@ -3,112 +3,110 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>라인 메신저 스탑워치</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%2306C755'/></svg>" />
+<title>라인 프렌즈 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23100D0B'/><circle cx='50' cy='54' r='27' fill='%23A2673A'/><circle cx='30' cy='33' r='9' fill='%23A2673A'/><circle cx='70' cy='33' r='9' fill='%23A2673A'/><ellipse cx='50' cy='66' rx='13' ry='10' fill='%23E2C49B'/></svg>" />
 <style>
   @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;overflow:hidden}
-  :root{ --grn:#06C755; --grn-dk:#05A948; --ink:#1B242D; --sky:#A9C0DC; }
+  :root{
+    --grn:#06C755;          /* 라인 그린 */
+    --neon:#8CFFB4;         /* 네온관이 뿜는 빛 */
+    --fur:#A2673A;
+    --fur-dk:#6E4423;
+    --muzzle:#E2C49B;
+  }
   body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-    color:var(--ink);display:flex;flex-direction:column;
-    background:linear-gradient(180deg,#9FB9DA 0%,#B2C8E1 54%,#CBDAEC 100%)}
-  /* 옅은 구름 */
-  body::before{content:'';position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;opacity:.85;
+    color:#F2FFF6;background:#0B0908;position:relative;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    padding:12px 14px 86px;overflow:hidden}
+
+  /* ── 전시장 안쪽. 위에서 초록 네온이 쏟아진다 ── */
+  .room{position:absolute;inset:0;pointer-events:none;
     background:
-      radial-gradient(70px 30px at 16% 52%,rgba(255,255,255,.75),transparent 72%),
-      radial-gradient(96px 38px at 74% 66%,rgba(255,255,255,.62),transparent 72%),
-      radial-gradient(56px 24px at 44% 40%,rgba(255,255,255,.5),transparent 72%),
-      radial-gradient(120px 46px at 28% 84%,rgba(255,255,255,.42),transparent 74%),
-      radial-gradient(80px 30px at 88% 30%,rgba(255,255,255,.34),transparent 74%)}
+      radial-gradient(120% 52% at 50% -6%,rgba(20,220,96,.72) 0%,rgba(12,150,66,.34) 38%,transparent 72%),
+      radial-gradient(80% 46% at 50% 108%,rgba(120,66,34,.5) 0%,transparent 70%),
+      linear-gradient(180deg,#123018 0%,#1B1410 46%,#0B0908 100%)}
+  /* 벽에 그려진 잎사귀. 네온을 받아 위쪽만 밝다 */
+  .leaf{position:absolute;top:-6%;width:34px;height:62%;pointer-events:none;
+    border-radius:60% 60% 46% 46%/70% 70% 30% 30%;
+    background:linear-gradient(180deg,rgba(150,255,170,.5) 0%,rgba(40,150,70,.2) 46%,transparent 88%);
+    filter:blur(.4px)}
+  .l1{left:2%;transform:rotate(-9deg)}
+  .l2{left:13%;height:52%;transform:rotate(5deg)}
+  .l3{right:3%;transform:rotate(8deg)}
+  .l4{right:15%;height:50%;transform:rotate(-6deg)}
+  /* 바닥으로 길게 떨어지는 빛줄기 */
+  .beam{position:absolute;left:0;right:0;top:0;height:46%;pointer-events:none;opacity:.5;
+    background:repeating-linear-gradient(90deg,transparent 0 13px,rgba(160,255,190,.16) 13px 15px)}
 
-  /* ── 상단 바 ── */
-  .nav{position:relative;z-index:3;flex-shrink:0;display:flex;align-items:center;gap:8px;
-    padding:11px 12px;background:#fff;box-shadow:0 1px 0 rgba(20,45,70,.08)}
-  .back{font-size:19px;font-weight:400;color:#3D4753;line-height:1;margin-right:1px}
-  .nm{flex:1;min-width:0;font-size:14px;font-weight:800;letter-spacing:-.3px;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .tools{display:flex;gap:11px;flex-shrink:0}
-  .tools i{display:block;width:15px;height:15px;opacity:.62}
-  .tools svg{width:100%;height:100%;display:block;stroke:#3D4753;fill:none;stroke-width:1.8}
+  /* ── 네온 사인 ── */
+  .sign{position:relative;z-index:3;flex-shrink:0;width:100%;
+    display:flex;flex-direction:column;align-items:flex-end;gap:3px;
+    padding-right:2px;min-height:58px;justify-content:center}
+  .sign span{font-size:10px;font-weight:800;letter-spacing:.2px;white-space:nowrap;
+    color:#F4FFF7;font-variant-numeric:tabular-nums;
+    text-shadow:0 0 5px rgba(190,255,210,.95),0 0 13px rgba(50,235,120,.85),0 0 26px rgba(20,200,90,.6);
+    animation:pop .34s cubic-bezier(.3,1.5,.6,1) 1}
+  .sign span.hit{color:#FFF4CF;
+    text-shadow:0 0 5px rgba(255,240,190,.95),0 0 14px rgba(255,196,60,.85),0 0 28px rgba(230,150,20,.55)}
+  @keyframes pop{0%{opacity:0;transform:translateY(-5px)}100%{opacity:1;transform:none}}
+  body.go .sign span:first-child{animation:pop .34s cubic-bezier(.3,1.5,.6,1) 1,flick 3.4s steps(1,end) .4s infinite}
+  @keyframes flick{0%,92%,100%{opacity:1}94%{opacity:.42}96%{opacity:1}97%{opacity:.55}}
 
-  /* ── 대화창 ── */
-  .chat{position:relative;z-index:2;flex:1;min-height:0;overflow:hidden;
-    padding:11px 16px 6px;display:flex;flex-direction:column;justify-content:flex-start;gap:7px}
-  .day{align-self:center;font-size:9.5px;font-weight:700;color:#fff;
-    background:rgba(28,45,66,.62);padding:3px 12px;border-radius:20px;margin-bottom:1px}
+  /* ── 브라운 (line.mp4를 12fps 96장으로 뽑아 둔 것) ── */
+  .stage{position:relative;z-index:3;width:118px;height:148px;flex-shrink:0}
+  .doll{width:100%;height:100%;display:block;object-fit:contain;
+    filter:drop-shadow(0 8px 12px rgba(0,0,0,.5))}
+  /* 발밑 그림자 */
+  .stage::after{content:'';position:absolute;left:50%;bottom:2px;width:62px;height:11px;
+    margin-left:-31px;border-radius:50%;z-index:-1;
+    background:radial-gradient(closest-side,rgba(0,0,0,.5),transparent)}
 
-  .feed{display:flex;flex-direction:column;gap:7px;overflow:hidden}
+  /* ── 시간 ── */
+  .read{position:relative;z-index:3;text-align:center}
+  .time{font-size:26px;font-weight:800;letter-spacing:-.9px;white-space:nowrap;line-height:1;
+    font-variant-numeric:tabular-nums;color:#FFFFFF;
+    text-shadow:0 0 12px rgba(60,240,130,.6),0 2px 4px rgba(0,0,0,.8)}
+  .time .cs{font-size:15px;font-weight:700;color:var(--neon)}
 
-  /* 보낸 메시지 (오른쪽 · 초록) */
-  .out{display:flex;align-items:flex-end;justify-content:flex-end;gap:5px;
-    animation:sendIn .3s cubic-bezier(.34,1.5,.64,1) 1}
-  .out .b{background:var(--grn);color:#04331A;border-radius:16px;padding:7px 12px;
-    font-size:11.5px;font-weight:700;letter-spacing:.1px;white-space:nowrap;
-    font-variant-numeric:tabular-nums;box-shadow:0 1px 3px rgba(10,60,30,.16)}
-  .out.best .b{background:#FFB300;color:#3A2600}
-  @keyframes sendIn{0%{opacity:0;transform:translate(10px,6px) scale(.94)}100%{opacity:1;transform:none}}
+  /* ── 조작부 ── */
+  .row{position:absolute;left:0;right:0;bottom:34px;z-index:4;display:flex;justify-content:center;gap:8px}
+  button{font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap;
+    padding:11px 0;width:78px;border-radius:20px;transition:all .16s;
+    color:#EAFFF1;border:1.5px solid rgba(150,255,185,.4);background:rgba(12,26,16,.72);
+    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+  button:disabled{opacity:.42;cursor:default}
+  button:focus-visible{outline:2px solid var(--neon);outline-offset:3px}
+  button:hover:not(:disabled){border-color:var(--neon);background:rgba(20,52,30,.86)}
+  #b1{background:var(--grn);color:#04331A;border-color:transparent;
+    box-shadow:0 0 18px rgba(6,199,85,.55),0 3px 10px rgba(0,0,0,.45)}
+  #b1:hover{background:#0AE063;border-color:transparent}
 
-  /* 받은 메시지 (왼쪽 · 흰색 + 프로필) */
-  .in{display:flex;align-items:flex-end;gap:6px}
-  .ava{width:28px;height:28px;border-radius:50%;flex-shrink:0;overflow:hidden;
-    box-shadow:0 1px 3px rgba(20,45,70,.2)}
-  .ava svg{width:100%;height:100%;display:block}
-  .in .b{background:#fff;border-radius:16px;padding:10px 15px;
-    box-shadow:0 1px 3px rgba(20,45,70,.16)}
-  .time{font-size:26px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;line-height:1.04;
-    font-variant-numeric:tabular-nums;color:var(--ink)}
-  .time .cs{font-size:15px;font-weight:700;color:var(--grn-dk)}
-  .ts{font-size:8.5px;font-weight:700;color:rgba(24,40,60,.88);padding-bottom:3px;white-space:nowrap;flex-shrink:0}
-
-  /* ── 입력 바 ── */
-  .bar{position:relative;z-index:3;flex-shrink:0;display:flex;gap:6px;
-    padding:8px 10px 34px;background:#fff;box-shadow:0 -1px 0 rgba(20,45,70,.08)}
-  .bar::after{content:'';position:absolute;left:50%;bottom:11px;width:104px;height:4px;
-    margin-left:-52px;border-radius:4px;background:rgba(27,36,45,.22)}
-  button{flex:1;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap;
-    padding:12.5px 0;border-radius:20px;transition:all .16s;
-    color:#41586E;border:none;background:#EEF1F5}
-  button:disabled{opacity:.6;cursor:default}
-  button:focus-visible{outline:2px solid var(--grn-dk);outline-offset:2px}
-  button:hover:not(:disabled){background:#E2E7ED}
-  #b1{background:var(--grn);color:#04331A;box-shadow:0 3px 9px rgba(6,199,85,.36)}
-  #b1:hover{background:var(--grn-dk)}
-
-  /* 재는 동안 시간 말풍선에 초록 테두리가 살아난다 */
-  body.go .in .b{box-shadow:0 1px 3px rgba(20,45,70,.16),0 0 0 2px rgba(6,199,85,.55)}
-  body.go .time .cs{color:var(--grn)}
-
-  @media (prefers-reduced-motion: reduce){.out{animation:none !important}}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none !important;transition-duration:.001ms !important}
+  }
 </style>
 </head>
 <body>
-  <div class="nav">
-    <span class="back" aria-hidden="true">&#8249;</span>
-    <span class="nm" id="nm">스탑워치</span>
-    <span class="tools" aria-hidden="true">
-      <i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i>
-      <i><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/></svg></i>
-      <i><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></i>
-    </span>
+  <div class="room" aria-hidden="true">
+    <span class="leaf l1"></span><span class="leaf l2"></span>
+    <span class="leaf l3"></span><span class="leaf l4"></span>
+    <span class="beam"></span>
   </div>
 
-  <div class="chat">
-    <span class="day">오늘</span>
-    <div class="in">
-      <span class="ava" aria-hidden="true">
-        <svg viewBox="0 0 100 100">
-          <rect width="100" height="100" fill="#06C755"/>
-          <path d="M50 25 C31 25 17 36.5 17 51 C17 63.5 27.5 73.2 42 75.6 L39.6 88 L53.4 77.6 C70.5 75.2 83 64.6 83 51 C83 36.5 69 25 50 25 Z" fill="#fff"/>
-        </svg>
-      </span>
-      <span class="b"><span class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></span></span>
-      <span class="ts" id="ts">지금</span>
-    </div>
-    <div class="feed" id="feed" aria-live="polite"></div>
+  <!-- 전시장 벽의 네온 사인. 랩을 찍으면 여기에 한 줄씩 걸린다 -->
+  <div class="sign" id="sign" aria-live="polite"></div>
+
+  <div class="stage">
+    <img class="doll" id="doll" src="images/line-frames/f001.png" alt="" />
   </div>
 
-  <div class="bar">
+  <div class="read">
+    <div class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></div>
+  </div>
+
+  <div class="row">
     <button id="b1" type="button">시작</button>
     <button id="b2" type="button" disabled>랩</button>
     <button id="b3" type="button" disabled>리셋</button>
@@ -116,11 +114,64 @@
 
 <script>
 (function(){
-  var t=document.getElementById('t'),feed=document.getElementById('feed'),
-      nm=document.getElementById('nm'),ts=document.getElementById('ts'),
+  var t=document.getElementById('t'),sign=document.getElementById('sign'),
+      doll=document.getElementById('doll'),
       b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
   var run=false,st=0,acc=0,iv=null,laps=[],last=0;
-  var MAX_MSG=3;
+
+  /* 네온 사인은 세 줄까지만 걸린다. 랩이 없으면 인사말, 있으면 최근 랩 세 개 */
+  var HELLO=['#See U again','#เจอกันใหม่นะ','#또 만나요','#下次再见'];
+  var MAX_LINE=4;
+  function paintSign(){
+    var lines,hit=-1;
+    if(!laps.length){ lines=HELLO.slice(); }
+    else{
+      var best=Math.min.apply(null,laps);
+      var from=Math.max(0,laps.length-MAX_LINE);
+      lines=[];
+      for(var i=from;i<laps.length;i++){
+        lines.push('#'+(i+1)+' '+plain(laps[i]));
+        if(laps.length>1&&laps[i]===best) hit=lines.length-1;
+      }
+    }
+    sign.textContent='';
+    for(var k=0;k<lines.length;k++){
+      var s=document.createElement('span');
+      s.textContent=lines[k];
+      if(k===hit) s.className='hit';
+      sign.appendChild(s);
+    }
+  }
+
+  /* ── 캐릭터 재생 ──
+     line.mp4의 27~217번째 프레임을 한 칸씩 건너뛰어 96장으로 뽑아 뒀다.
+     8초 주기가 정확히 맞아떨어져서 마지막 장 다음이 첫 장으로 이어진다.
+     카드가 여러 개 떠 있으므로 처음 시작할 때만 받아 온다. */
+  var FRAMES=96, FPS=12, DIR='images/line-frames/';
+  var frameNo=0, frameT=null, cached=false, loading=false;
+  var REDUCED=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function src(i){ return DIR+'f'+String(i+1).padStart(3,'0')+'.png'; }
+  function preload(done){
+    if(cached||loading){ if(cached)done(); return; }
+    loading=true;
+    var left=FRAMES;
+    for(var i=0;i<FRAMES;i++){
+      var im=new Image();
+      im.onload=im.onerror=function(){ if(--left===0){ cached=true; loading=false; done(); } };
+      im.src=src(i);
+    }
+  }
+  function playDoll(){
+    if(REDUCED) return;
+    clearInterval(frameT);
+    frameT=setInterval(function(){
+      frameNo=(frameNo+1)%FRAMES;
+      doll.src=src(frameNo);
+    }, Math.round(1000/FPS));
+  }
+  function pauseDoll(){ clearInterval(frameT); frameT=null; }
+  function rewindDoll(){ pauseDoll(); frameNo=0; doll.src=src(0); }
+
   function el(){return acc+(run?performance.now()-st:0);}
   function pad(n,w){return String(n).padStart(w,'0');}
   function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
@@ -151,9 +202,7 @@
     document.body.classList.toggle('go',run);
     b1.textContent=run?'정지':(el()>0?'재개':'시작');
     b2.disabled=!run; b3.disabled=run||el()===0;
-    nm.textContent=laps.length?'스탑워치 ('+laps.length+')':'스탑워치';
-    ts.textContent=run?'재는 중':'지금';
-  
+
     /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
     var srE=el();
     if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
@@ -161,26 +210,16 @@
     srWasRun=run; srLast=srE;
     if(document.activeElement&&document.activeElement.disabled) b1.focus();
   }
-  function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
-  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
-  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;feed.innerHTML='';draw();ui();}
-  /* 랩을 찍으면 오른쪽으로 메시지가 하나 나간다 */
+  function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);
+    preload(function(){ if(run) playDoll(); });
+    draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;pauseDoll();draw();ui();}
+  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;rewindDoll();paintSign();draw();ui();}
+  /* 랩을 찍으면 네온 사인에 해시태그가 한 줄 걸린다 */
   function lap(){
     if(!run)return;
     var e=el(),sp=e-last;last=e;laps.push(sp);
-    var best=Math.min.apply(null,laps);
-    var row=document.createElement('div');
-    row.className='out';
-    row.dataset.sp=sp; row.dataset.no=laps.length;
-    row.innerHTML='<span class="ts">'+plain(e).slice(0,5)+'</span><span class="b">LAP '+laps.length+'  '+plain(sp)+'</span>';
-    feed.appendChild(row);
-    while(feed.children.length>MAX_MSG)feed.removeChild(feed.firstChild);
-    /* 최단은 하나만 남도록 매번 다시 매긴다 */
-    for(var k=0;k<feed.children.length;k++){
-      var c=feed.children[k];
-      c.classList.toggle('best', laps.length>1 && Number(c.dataset.sp)===best);
-    }
-    ui();
+    paintSign();ui();
   }
   b1.addEventListener('click',function(){run?stop():start();});
   b2.addEventListener('click',lap);
@@ -193,9 +232,10 @@
     else if(e.key==='r'||e.key==='R'){reset();}
   });
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
-  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
-  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
-  draw();ui();
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);
+    if(run&&!frameT&&cached)playDoll();});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;pauseDoll();});
+  paintSign();draw();ui();
 })();
 </script>
 </body>

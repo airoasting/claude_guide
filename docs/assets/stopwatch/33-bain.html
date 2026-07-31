@@ -4,12 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>베인 나침반 스탑워치</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='none' stroke='%23E4002B' stroke-width='11'/></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23CC0000'/><circle cx='50' cy='50' r='34' fill='none' stroke='%23fff' stroke-width='10'/></svg>" />
 <style>
   @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;overflow:hidden}
-  :root{ --red:#E4002B; --ink:#1A1A1E; --paper:#FFFFFF; }
+  /* 로고 타일 그대로. 베인 레드 바탕에 마크와 글자는 흰색 */
+  :root{ --red:#CC0000; --ink:#FFFFFF; --paper:#CC0000; }
   body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
     color:var(--ink);background:var(--paper);position:relative;
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:16px 16px 84px}
@@ -17,43 +18,46 @@
   /* 컨설팅 장표의 옅은 격자 */
   .grid{position:absolute;inset:0;pointer-events:none;opacity:.55;
     background-image:
-      linear-gradient(rgba(26,26,30,.05) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(26,26,30,.05) 1px,transparent 1px);
+      linear-gradient(rgba(255,255,255,.11) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.11) 1px,transparent 1px);
     background-size:32px 32px}
 
   /* ── 마크 = 파이 게이지 ── */
   .mark{position:relative;z-index:2;width:150px;height:150px;flex-shrink:0}
   .mark svg{width:100%;height:100%;display:block;overflow:visible}
-  .ring{fill:none;stroke-width:15}
-  .ring.track{stroke:#FAD2DA}
-  .ring.prog{stroke:var(--red);stroke-linecap:butt;transition:stroke-dashoffset .12s linear}
+  /* 처음엔 로고가 온전히 흰색. 시간이 지나며 연한 분홍이 그 위를 덮어 간다.
+     링은 굵기가 일정하지 않아서(위가 얇고 아래가 두껍다) 클립으로 모양을 잡고
+     그 안에서 두꺼운 호를 돌린다 */
+  .band{fill:#FFFFFF}
+  .prog{fill:none;stroke:#F3C7C7;stroke-width:28;stroke-linecap:butt;
+    transition:stroke-dashoffset .12s linear}
   /* 지침은 로고 그대로 고정. 재는 동안 은은히 맥동한다 */
   .wedge{transform-box:view-box;transform-origin:100px 100px}
   body.go .wedge{animation:pulse 1.6s ease-in-out infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.62}}
-  .wedge{fill:var(--red)}
-  .notch{fill:var(--paper)}
+  .wedge{fill:#FFFFFF}
+  .notch{fill:var(--paper)}   /* 노치는 바탕색으로 링을 끊는다 */
 
   /* ── 수치 ── */
   .read{position:relative;z-index:2;text-align:center}
   .time{font-size:30px;font-weight:800;letter-spacing:-.6px;white-space:nowrap;line-height:1.05;
-    font-variant-numeric:tabular-nums;color:var(--ink)}
-  .time .cs{font-size:18px;font-weight:700;color:var(--red)}
+    font-variant-numeric:tabular-nums;color:#FFFFFF}
+  .time .cs{font-size:18px;font-weight:700;color:rgba(255,255,255,.72)}
 
   .laps{position:absolute;left:0;right:0;bottom:14px;z-index:3;text-align:center;min-height:14px;font-size:11px;font-weight:800;letter-spacing:.2px;
-    color:#6E6E78;font-variant-numeric:tabular-nums}
+    color:rgba(255,255,255,.78);font-variant-numeric:tabular-nums}
 
   /* ── 조작부 ── */
   .row{position:absolute;left:0;right:0;bottom:34px;z-index:3;justify-content:center;display:flex;gap:8px}
   button{font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap;
     padding:11px 0;width:78px;border-radius:4px;transition:all .16s;
-    color:var(--ink);border:1.5px solid rgba(26,26,30,.22);background:#fff}
-  button:disabled{opacity:.6;cursor:default}
-  button:focus-visible{outline:2px solid var(--red);outline-offset:2px}
-  button:hover:not(:disabled){border-color:var(--ink);background:#FAFAFB}
-  #b1{background:var(--red);color:#fff;border-color:transparent;
-    box-shadow:0 4px 12px rgba(228,0,43,.3)}
-  #b1:hover{background:#B80023;border-color:transparent}
+    color:#FFFFFF;border:1.5px solid rgba(255,255,255,.55);background:transparent}
+  button:disabled{opacity:.45;cursor:default}
+  button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+  button:hover:not(:disabled){border-color:#fff;background:rgba(255,255,255,.14)}
+  #b1{background:#FFFFFF;color:var(--red);border-color:transparent;
+    box-shadow:0 4px 14px rgba(0,0,0,.18)}
+  #b1:hover{background:#FFEFEF;border-color:transparent}
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
       transition-duration:.001ms !important;scroll-behavior:auto !important}
@@ -65,11 +69,22 @@
 
   <div class="mark">
     <svg viewBox="0 0 200 200" aria-hidden="true">
-      <circle class="ring track" cx="100" cy="100" r="82"/>
-      <!-- 경과 시간이 12시부터 시계방향으로 링을 채운다 (60초에 한 바퀴) -->
-      <circle class="ring prog" id="ring" cx="100" cy="100" r="82"
-              pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"
-              transform="rotate(-74.96 100 100)"/>
+      <defs>
+        <!-- 바깥 원은 (100,100) r90, 안쪽 원은 (102,94) r74.
+             안쪽 원을 오른쪽 위로 밀어 두께가 위 10 아래 22로 벌어진다 -->
+        <clipPath id="bainBand">
+          <path clip-rule="evenodd"
+                d="M10 100 A90 90 0 1 0 190 100 A90 90 0 1 0 10 100 Z
+                   M28 94 A74 74 0 1 0 176 94 A74 74 0 1 0 28 94 Z"/>
+        </clipPath>
+      </defs>
+      <g clip-path="url(#bainBand)">
+        <rect class="band" width="200" height="200"/>
+        <!-- 경과 시간이 12시부터 시계방향으로 링을 채운다 (60초에 한 바퀴) -->
+        <circle class="prog" id="ring" cx="100" cy="100" r="79"
+                pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"
+                transform="rotate(-74.96 100 100)"/>
+      </g>
       <!-- 12시 노치 -->
       <rect class="notch" x="94.5" y="2" width="11" height="26" transform="rotate(11.2 100 100)"/>
       <!-- 로고의 나침반 지침 (고정) -->
@@ -95,7 +110,7 @@
       b1=document.getElementById('b1'),b2=document.getElementById('b2'),
       b3=document.getElementById('b3'),lp=document.getElementById('lp');
   var run=false,st=0,acc=0,iv=null,laps=[],last=0;
-  var CX=100,CY=100,R=70.9;            /* 꼭짓점 반지름 (링 안쪽에 닿는다) */
+  var CX=100,CY=100,R=78;              /* 꼭짓점 반지름 (링 안쪽에 닿는다) */
   function el(){return acc+(run?performance.now()-st:0);}
   function pad(n,w){return String(n).padStart(w,'0');}
   function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
