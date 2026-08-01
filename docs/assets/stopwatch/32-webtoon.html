@@ -108,12 +108,13 @@
   var run=false,st=0,acc=0,iv=null,laps=[],last=0,fxT=null;
 
   /* ── 컷 재생 ──
-     webtoon.mp4를 12fps 120장으로 뽑아 두고, 시작을 누르면 순서대로 넘긴다.
+     webtoon.mp4를 12fps로 뽑아 두고, 시작을 누르면 순서대로 넘긴다.
+     괴물이 한 번 확대되고 주인공이 다시 나오는 83장에서 끊어, 그 다음이 첫 장으로 이어진다.
      31개 카드가 한 화면에 있으므로 처음 시작할 때만 받아 온다. */
   var cut=document.getElementById('cut');
-  var FRAMES=120, FPS=12, DIR='images/webtoon-frames/';
+  var FRAMES=83, FPS=12, DIR='images/webtoon-frames/';
   var POSTER=25;                       /* f026. 인물이 가운데 서는 컷 */
-  var frameNo=POSTER, frameStep=1, frameT=null, cached=false, loading=false;
+  var frameNo=POSTER, frameT=null, cached=false, loading=false;
   var REDUCED=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   function src(i){ return DIR+'f'+String(i+1).padStart(3,'0')+'.jpg'; }
   function preload(done){
@@ -126,20 +127,16 @@
       im.src=src(i);
     }
   }
-  /* 원본 영상은 첫 장과 끝 장이 서로 다른 장면이라 그냥 되감으면 이음매가 튄다.
-     끝에 닿으면 방향을 되돌려 왕복시킨다. 이러면 이음매가 아예 생기지 않는다. */
   function playCut(){
     if(REDUCED) return;
     clearInterval(frameT);
     frameT=setInterval(function(){
-      frameNo+=frameStep;
-      if(frameNo>FRAMES-1){ frameNo=FRAMES-2; frameStep=-1; }
-      else if(frameNo<0){ frameNo=1; frameStep=1; }
+      frameNo=(frameNo+1)%FRAMES;
       cut.src=src(frameNo);
     }, Math.round(1000/FPS));
   }
   function pauseCut(){ clearInterval(frameT); frameT=null; }
-  function rewindCut(){ pauseCut(); frameNo=POSTER; frameStep=1; cut.src=src(POSTER); }
+  function rewindCut(){ pauseCut(); frameNo=POSTER; cut.src=src(POSTER); }
   var SFX=['촤악!','번쩍!','쾅!','두구두구','철컥!'];
   function el(){return acc+(run?performance.now()-st:0);}
   function pad(n,w){return String(n).padStart(w,'0');}
