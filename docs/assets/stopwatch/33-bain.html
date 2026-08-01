@@ -3,17 +3,26 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>베인 나침반 스탑워치</title>
+<title>베인 앤 컴퍼니 스탑워치</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23CC0000'/><circle cx='50' cy='50' r='34' fill='none' stroke='%23fff' stroke-width='10'/></svg>" />
 <style>
   @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;overflow:hidden}
   /* 로고 타일 그대로. 베인 레드 바탕에 마크와 글자는 흰색 */
-  :root{ --red:#CC0000; --ink:#FFFFFF; --paper:#CC0000; }
+  :root{ --red:#CC0000; --ink:#FFFFFF; }
   body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-    color:var(--ink);background:var(--paper);position:relative;
+    color:var(--ink);position:relative;
+    /* 좌상단에서 빛이 들어오고 우하단으로 깊어진다 */
+    background:
+      radial-gradient(88% 62% at 22% 6%,rgba(255,255,255,.2) 0%,transparent 58%),
+      radial-gradient(120% 108% at 50% 30%,#E01414 0%,var(--red) 42%,#8E0000 100%);
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:16px 16px 84px}
+
+  /* 아래쪽으로 한 겹 더 가라앉혀 조작부가 뜨지 않게 한다 */
+  body::after{content:'';position:absolute;left:0;right:0;bottom:0;height:38%;
+    pointer-events:none;z-index:0;
+    background:linear-gradient(180deg,transparent 0%,rgba(96,0,0,.34) 100%)}
 
   /* 컨설팅 장표의 옅은 격자 */
   .grid{position:absolute;inset:0;pointer-events:none;opacity:.55;
@@ -36,7 +45,6 @@
   body.go .wedge{animation:pulse 1.6s ease-in-out infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.62}}
   .wedge{fill:#FFFFFF}
-  .notch{fill:var(--paper)}   /* 노치는 바탕색으로 링을 끊는다 */
 
   /* ── 수치 ── */
   .read{position:relative;z-index:2;text-align:center}
@@ -72,21 +80,22 @@
       <defs>
         <!-- 바깥 원은 (100,100) r90, 안쪽 원은 (102,94) r74.
              안쪽 원을 오른쪽 위로 밀어 두께가 위 10 아래 22로 벌어진다 -->
-        <clipPath id="bainBand">
-          <path clip-rule="evenodd"
-                d="M10 100 A90 90 0 1 0 190 100 A90 90 0 1 0 10 100 Z
-                   M28 94 A74 74 0 1 0 176 94 A74 74 0 1 0 28 94 Z"/>
-        </clipPath>
+        <!-- 클립 대신 마스크를 쓴다. 노치가 링 바깥으로 삐져나가도
+             흰 원 밖은 어차피 안 그려져서 조각이 남지 않는다 -->
+        <mask id="bainBand" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="200">
+          <circle cx="100" cy="100" r="90" fill="#FFFFFF"/>
+          <circle cx="102" cy="94" r="74" fill="#000000"/>
+          <rect x="94.5" y="2" width="11" height="26"
+                transform="rotate(11.2 100 100)" fill="#000000"/>
+        </mask>
       </defs>
-      <g clip-path="url(#bainBand)">
+      <g mask="url(#bainBand)">
         <rect class="band" width="200" height="200"/>
         <!-- 경과 시간이 12시부터 시계방향으로 링을 채운다 (60초에 한 바퀴) -->
         <circle class="prog" id="ring" cx="100" cy="100" r="79"
                 pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"
                 transform="rotate(-74.96 100 100)"/>
       </g>
-      <!-- 12시 노치 -->
-      <rect class="notch" x="94.5" y="2" width="11" height="26" transform="rotate(11.2 100 100)"/>
       <!-- 로고의 나침반 지침 (고정) -->
       <path class="wedge" id="wedge" d=""/>
     </svg>
