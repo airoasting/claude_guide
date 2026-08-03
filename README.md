@@ -1,19 +1,19 @@
 <p align="center">
   <a href="https://airoasting.vercel.app">
-    <img src="docs/assets/thumbnails/thumbnail.png" alt="AI ROASTING · 비즈니스 리더를 위한 Claude 완전 정복" width="100%">
+    <img src="docs/assets/thumbnails/thumbnail.png" alt="AI ROASTING · AI 에이전트를 고용하라" width="100%">
   </a>
 </p>
 
-# AI ROASTING · Claude 완전 정복
+# AI ROASTING · AI 에이전트를 고용하라
 
-![Version](https://img.shields.io/badge/Version-3.2-4CAF50)
+![Version](https://img.shields.io/badge/Version-3.3-4CAF50)
 ![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
 ![Pages](https://img.shields.io/badge/Pages-43-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
 ![Language](https://img.shields.io/badge/Language-%ED%95%9C%EA%B5%AD%EC%96%B4-2196F3)
 ![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000)
 
-비즈니스 리더를 위한 Claude 완전 정복. 진단부터 자동화까지, 5단계 실전 가이드.
+프롬프트에서 하네스·루프까지, 대화를 실행으로 바꾸는 5단계. Claude·ChatGPT·Hermes 실전 가이드.
 
 🔗 **Live Site:** [airoasting.vercel.app](https://airoasting.vercel.app)
 
@@ -24,10 +24,10 @@
 ### 진단. 내 AI 활용 수준 파악
 | 페이지 | 설명 |
 |--------|------|
-| [Claude 완전 정복, 5분 오리엔테이션](https://airoasting.vercel.app/claude-orientation.html) | 앤트로픽 소개부터 최신 모델 벤치마크·가격 비교까지, 왜 지금 Claude인지 데이터로 확인 |
+| [Claude·ChatGPT 완전 정복, 5분 오리엔테이션](https://airoasting.vercel.app/orientation.html) | 이름의 유래, 기능별 출시 시점, 기업 도입률, 벤치마크와 가격을 두 서비스로 나누어 비교 |
 | [나는 지금 몇 단계일까?](https://airoasting.vercel.app/ai-levels.html) | 자율주행 0~5단계 비유로 내 AI 활용 수준과 다음에 배울 것을 진단 |
 
-### 1단계. 기본기부터
+### 1단계. 멀티 페르소나
 
 **기본기**
 
@@ -49,26 +49,26 @@
 | 페이지 | 설명 |
 |--------|------|
 | [크롬에서 Claude 사용](https://airoasting.vercel.app/chrome-plugin.html) | 브라우저를 떠나지 않고 요약, 작성, 검색 보조 |
-| [MS Office에서 Claude 사용](https://airoasting.vercel.app/claude-plugin.html) | 엑셀, 파워포인트, 워드 3종 플러그인 실전 가이드 |
+| [MS Office에서 Claude·ChatGPT 사용](https://airoasting.vercel.app/office-plugin.html) | 엑셀, 파워포인트, 워드에서 두 AI를 쓰는 법. 공통점과 차이 정리 |
 | [스마트폰에서 Claude 쓰기](https://airoasting.vercel.app/claude-mobile.html) | 앱 여섯 개 메뉴(채팅·프로젝트·아티팩트·코드·Dispatch·코워크)와 폰에서 일 맡기는 법 |
 
-### 3단계. 클로드 코드
+### 3단계. 바이브 코딩
 
 **노코드 트랙**
 
 | 페이지 | 설명 |
 |--------|------|
-| [클로드 코드 101](https://airoasting.vercel.app/claude-code-101.html) | 터미널 없이 Claude Desktop으로 시작하는 가장 쉬운 방법 |
-| [실전 과제 8가지](https://airoasting.vercel.app/claude-code-tasks.html) | 스탑워치부터 엑셀 분석 PPT까지 바이브코딩 8과제 |
+| [바이브 코딩 101](https://airoasting.vercel.app/vibe-coding-101.html) | Claude Code와 Codex, 터미널 없이 앱에서 시작하는 방법 |
+| [실전 과제 8가지](https://airoasting.vercel.app/vibe-coding-tasks.html) | 스탑워치부터 엑셀 분석 PPT까지 바이브코딩 8과제 |
 | [GitHub · Vercel · Netlify](https://airoasting.vercel.app/github-guide.html) | 코드를 저장하고 웹 주소로 접속하기까지 한 번에 |
 
 **CLI 트랙**
 
 | 페이지 | 설명 |
 |--------|------|
-| [클로드 코드 20단계로 따라하기](https://airoasting.vercel.app/checklist.html) | 기초부터 고급까지 단계별 체크리스트, 설치 명령은 운영체제별로 |
-| [명령어 모음](https://airoasting.vercel.app/cheatsheet.html) | 슬래시 명령어 60개와 단축키, 꼭 필요한 12개는 따로 표시 |
-| [고수처럼 쓰는 5가지 원칙](https://airoasting.vercel.app/claude-code-best-practices.html) | 노코드든 CLI든 공통으로 통하는, Anthropic 베스트 프랙티스 한국어판 |
+| [터미널 CLI 20단계로 따라하기](https://airoasting.vercel.app/checklist.html) | 기초부터 고급까지 단계별 체크리스트, 설치 명령은 운영체제별로 |
+| [명령어 모음](https://airoasting.vercel.app/cheatsheet.html) | 슬래시 명령어 59개와 단축키, 꼭 필요한 12개는 따로 표시 |
+| [고수처럼 쓰는 5가지 원칙](https://airoasting.vercel.app/cli-best-practices.html) | 노코드든 CLI든 공통으로 통하는, Anthropic 베스트 프랙티스 한국어판 |
 
 ### 4단계. 에이전트 설계
 
@@ -77,14 +77,14 @@
 | 페이지 | 설명 |
 |--------|------|
 | [하네스 엔지니어링이란?](https://airoasting.vercel.app/harness-engineering.html) | 같은 모델도 하네스에 따라 결과가 달라집니다. 역할 분리·컨텍스트 리셋 두 원칙 |
-| [Claude의 도구란?](https://airoasting.vercel.app/claude-tools.html) | 내장 도구·MCP·커넥터·스킬·플러그인. 도구 다섯 종류를 한 지도로 정리 |
+| [에이전트의 도구란?](https://airoasting.vercel.app/agent-tools.html) | 내장 도구·MCP·커넥터·스킬·플러그인. 도구 다섯 종류를 한 지도로 정리 |
 | [멀티 에이전트 소환](https://airoasting.vercel.app/harness-workflows.html) | `/goal` 한 줄로 목표를 선언하면 Claude가 에이전트 팀을 직접 짜서 끝까지 실행 |
 
 **스킬**
 
 | 페이지 | 설명 |
 |--------|------|
-| [CLAUDE.md로 내 규칙 알려주기](https://airoasting.vercel.app/claude-md-templates.html) | 프로젝트별 규칙을 저장하는 설정 파일 작성법 |
+| [AGENTS.md로 내 규칙 알려주기](https://airoasting.vercel.app/agents-md-templates.html) | 프로젝트별 규칙을 저장하는 설정 파일 작성법 |
 | [나만의 Skill 만들기](https://airoasting.vercel.app/skills.html) | 내 스타일을 등록해 한 마디로 결과물 받기 |
 | [스킬·MCP를 플러그인으로 묶기](https://airoasting.vercel.app/code-plugin.html) | 스킬과 MCP를 한 패키지로 묶어 팀에 한 줄 명령으로 배포하기 |
 
@@ -159,7 +159,7 @@
 
 ## 모델 기준 (2026-07-26)
 
-가이드 전체의 모델 표기는 2026년 7월 24일 출시된 **Claude Opus 5**를 최신 기준으로 씁니다. 자세한 벤치마크와 가격 비교는 [5분 오리엔테이션](https://airoasting.vercel.app/claude-orientation.html)에, 요금제별 기본 모델과 `/model`·`/effort` 사용법은 [20단계 체크리스트](https://airoasting.vercel.app/checklist.html)에 있습니다.
+가이드 전체의 모델 표기는 2026년 7월 24일 출시된 **Claude Opus 5**를 최신 기준으로 씁니다. 자세한 벤치마크와 가격 비교는 [5분 오리엔테이션](https://airoasting.vercel.app/orientation.html)에, 요금제별 기본 모델과 `/model`·`/effort` 사용법은 [20단계 체크리스트](https://airoasting.vercel.app/checklist.html)에 있습니다.
 
 | 모델 | 출시 | 자리 | API 가격 (100만 토큰 입력/출력) |
 |------|------|------|------|
@@ -168,7 +168,7 @@
 | Claude Sonnet 5 | 2026-06-30 | 실무 표준. 환각 억제율 63%로 Claude 3종 중 가장 높음 | $2 / $10 (출시 기념가, 9월 1일부터 $3 / $15) |
 | Claude Haiku 4.5 | 이전 세대 | 단순 반복 작업과 멀티 에이전트 보조 | $1 / $5 |
 
-직전 플래그십 계보는 Opus 4.6(2026-02-05), Opus 4.7(2026-04-16), Opus 4.8(2026-05-28)입니다. 모델 교체가 있을 때 함께 손봐야 하는 곳은 네 군데입니다. `claude-orientation.html`의 벤치마크 표·가격 표·모델 타임라인, `checklist.html`의 `/model`·`/effort` 항목, `ai-levels.html`의 모델 4종 카드, `index.html` 히어로의 최신 모델 표기입니다.
+직전 플래그십 계보는 Opus 4.6(2026-02-05), Opus 4.7(2026-04-16), Opus 4.8(2026-05-28)입니다. 모델 교체가 있을 때 함께 손봐야 하는 곳은 네 군데입니다. `orientation.html`의 벤치마크 표·가격 표·모델 타임라인, `checklist.html`의 `/model`·`/effort` 항목, `ai-levels.html`의 모델 4종 카드, `index.html` 히어로의 최신 모델 표기입니다.
 
 ---
 
@@ -186,6 +186,8 @@
 
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 한 주 작업을 정리해 매주 업데이트하고 있습니다.
 
+- **v3.3 · 2026-08-02: 이름 확장과 표지·모바일 재설계**
+  가이드 이름을 '모두의 Claude 완전 정복'으로 넓혔습니다. 첫 화면 표지는 제목을 한 줄로 세우고, 발치에 마스코트 애니메이션과 상표를 놓았습니다. 모바일에서는 로고 인트로를 걷어내 표지가 첫 화면이 되게 하고, 스크롤이 중간에 멈추던 자리를 없앴습니다. 스킬 쇼케이스는 사모·벤처 투자 5종을 더해 26선이 됐고, 사이트 링크는 커스텀 도메인으로 정리했습니다.
 - **v3.2 · 2026-07-26: Opus 5 최신화와 스마트폰 페이지 신설**
   7월 24일 나온 Claude Opus 5에 맞춰 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 고쳤습니다. 5단계에는 '헤르메스 에이전트' 페이지를 넣었습니다. 2단계에는 '스마트폰에서 Claude 쓰기'를 새로 만들어 앱 메뉴 여섯 개와 폰에서 일을 맡기는 법을 정리했습니다.
 - **v3.1 · 2026-07-19: 디자인·시각화 갤러리 4종 재편**

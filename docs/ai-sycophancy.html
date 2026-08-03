@@ -514,9 +514,15 @@
         .data-table td { padding: 9px 12px; border-top: 1px solid rgba(0,0,0,0.05); color: #5C5650; }
         .data-table tr:hover td { background: rgba(179,85,53,0.04); }
 
-        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; border-radius: 32px 32px 0 0;
+        }
         .footer-brand { font-size: 13px; font-weight: 700; color: #D97757; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
         .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-about-link { display: inline-block; margin-top: 0; color: rgba(255,255,255,0.75); text-decoration: none; font-size: 12px; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 1px; transition: all 0.2s; }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
 
         @media (max-width: 768px) {
             header { padding: 22px 18px 26px; border-radius: 0 0 24px 24px; }
@@ -800,13 +806,13 @@
     </video>
 
     <nav class="step-nav">
-        <a class="step-node sn-diag" href="claude-orientation.html">진단</a>
+        <a class="step-node sn-diag" href="orientation.html">진단</a>
         <div class="step-line"></div>
         <a class="step-node active" href="ai-fluency.html">1</a>
         <div class="step-line"></div>
         <a class="step-node" href="chrome-plugin.html">2</a>
         <div class="step-line"></div>
-        <a class="step-node" href="claude-code-101.html">3</a>
+        <a class="step-node" href="vibe-coding-101.html">3</a>
         <div class="step-line"></div>
         <a class="step-node" href="harness-engineering.html">4</a>
         <div class="step-line"></div>
@@ -814,7 +820,7 @@
         <div class="step-line"></div>
         <a class="step-node sn-final" href="mcp-examples.html">예제</a>
     </nav>
-    <a href="index.html" class="back-link">&larr; 목록으로</a>
+    <a href="index.html#section-1" class="back-link">&larr; 목록으로</a>
     <h1>AI의 동조를 줄이는 법</h1>
     <p>AI는 사용자에게 동의하도록 학습됐습니다. "다 좋습니다"는 실력 평가가 아니라 습성입니다.<br>연구가 밝힌 원인과, 칭찬 대신 날카로운 답을 받는 질문법.</p>
     <div class="mode-tabs">
@@ -1142,15 +1148,34 @@
 </main>
 
 <footer>
-    <div class="footer-brand">AI ROASTING</div>
-    <div class="footer-text">AI의 동조를 줄이는 질문법 · Anti-Sycophancy Prompts · 2026</div>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">AI 에이전트를 고용하라</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
 </footer>
 
 <script>
 function switchMode(mode) {
-    ['basic','verify'].forEach(function(m){
-        var t=document.getElementById('tab-'+m); if(t) t.classList.toggle('active', mode===m);
-        var p=document.getElementById('pages-'+m); if(p) p.style.display = mode===m ? 'flex' : 'none';
+    // 토글은 그 묶음의 첫 페이지로 데려간다. 이미 그 페이지면 표시만 바꾼다
+    var group = document.getElementById('pages-' + mode);
+    var first = group ? group.querySelector('a.header-page-link') : null;
+    if (first) {
+        var href = first.getAttribute('href') || '';
+        var to = href.split('#')[0].split('/').pop();
+        var here = location.pathname.split('/').pop() || 'index.html';
+        if (to && to !== here) { location.href = href; return; }
+    }
+    document.querySelectorAll('.mode-tab').forEach(function(t){
+        var on = t.id === 'tab-' + mode;
+        t.classList.toggle('active', on);
+        if (t.hasAttribute('aria-selected')) t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.header-pages[id^="pages-"]').forEach(function(p){
+        p.style.display = (p.id === 'pages-' + mode) ? 'flex' : 'none';
     });
 }
 function copy(btn) {
@@ -1370,6 +1395,7 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
            섹션명 공통 규격 · AGENTS.md 3.8
            폰트 13px / 800 / 자간 0.5px · 색 #D97757 · 알약 높이 36px
            구분선 여백 위 70px · 아래 22px (모바일 52px·16px)
+           단, 페이지 첫 섹션 구분선만 위 여백 0 (컨테이너 패딩만 남긴다)
            고칠 때는 이 마커 블록만 고치고 전 페이지에 함께 반영한다.
            ══════════════════════════════════════════════════════════════ */
         .step-divider.step-divider,
@@ -1383,6 +1409,24 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
             margin: 70px 0 22px;
             position: relative;
             text-align: center;
+        }
+        /* 첫 섹션 구분선은 위 여백을 걷어낸다. 컨테이너 패딩(32px, 모바일 24px)만 남는다 */
+        main.container > .step-divider:first-child,
+        main.container > .cat-label:first-child,
+        main.container > .chapter-divider:first-child,
+        main.container > .design-cat:first-child,
+        main.container > :first-child > .step-divider:first-child,
+        main.container > :first-child > .cat-label:first-child,
+        main.container > :first-child > .chapter-divider:first-child,
+        main.container > :first-child > .design-cat:first-child,
+        main.container > :empty:first-child + .step-divider,
+        main.container > :empty:first-child + .cat-label,
+        main.container > :empty:first-child + .chapter-divider,
+        main.container > :empty:first-child + .design-cat,
+        main.container > :empty:first-child + * > .step-divider:first-child,
+        main.container > :empty:first-child + * > .cat-label:first-child,
+        main.container > :empty:first-child + * > .chapter-divider:first-child {
+            margin-top: 0;
         }
         .step-divider::before, .step-divider::after,
         .chapter-divider::before, .chapter-divider::after {
@@ -1464,7 +1508,7 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
 <div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
 <aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
     <div class="sm-drawer-heading" id="smDrawerHeading"></div>
-    <a href="index.html" class="sm-drawer-back">
+    <a href="index.html#section-1" class="sm-drawer-back">
         <span aria-hidden="true">←</span><span>목록으로</span>
     </a>
     <nav class="sm-drawer-list" id="smDrawerList"></nav>
@@ -1557,6 +1601,9 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     window.addEventListener('keydown', onFirst);
 })();
 </script>
+
+<!-- 가이드 소개 모달: 단일 소스 assets/js/about-modal.js 에서 주입 -->
+<script src="assets/js/about-modal.js"></script>
 
 </body>
 </html>

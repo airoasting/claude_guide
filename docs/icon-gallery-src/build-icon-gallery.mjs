@@ -355,7 +355,7 @@ const html = `<!DOCTYPE html>
     <source src="assets/media/hero-bg.mp4" type="video/mp4">
   </video>
   <a href="index.html" class="back-link">&larr; 목록으로</a>
-  <h1>SVG 아이콘 ${items.length}</h1>
+  <h1>SVG 아이콘 갤러리 ${items.length}</h1>
   <p>버튼·카드에 바로 붙여 쓰는 라인 아이콘 · 카드를 누르면 SVG 코드가 복사됩니다</p>
   <div class="header-pages">
     <a href="eda-gallery.html" class="header-page-link">EDA 차트</a>
@@ -396,7 +396,7 @@ ${sections}
 
 <footer>
   <p class="footer-brand">AI ROASTING</p>
-  <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+  <p class="footer-text">모두의 Claude 완전 정복</p>
   <span class="footer-link-row">
     <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
     <span class="footer-link-sep" aria-hidden="true">·</span>

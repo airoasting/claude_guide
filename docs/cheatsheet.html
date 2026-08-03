@@ -6,14 +6,14 @@
     <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
     <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
     <link rel="canonical" href="https://airoasting.github.io/claude_guide/cheatsheet.html">
-    <meta property="og:title" content="AI ROASTING · Claude 완전 정복">
-    <meta property="og:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta property="og:title" content="AI ROASTING · AI 에이전트를 고용하라">
+    <meta property="og:description" content="프롬프트에서 하네스·루프까지, 대화를 실행으로 바꾸는 5단계. Claude·ChatGPT·Hermes 실전 가이드">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
     <meta property="og:url" content="https://airoasting.github.io/claude_guide/cheatsheet.html">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="AI ROASTING · Claude 완전 정복">
-    <meta name="twitter:description" content="비즈니스 리더를 위한 Claude 완전 정복 확장 프로그램부터 클로드 코드까지 5단계 실전 가이드">
+    <meta name="twitter:title" content="AI ROASTING · AI 에이전트를 고용하라">
+    <meta name="twitter:description" content="프롬프트에서 하네스·루프까지, 대화를 실행으로 바꾸는 5단계. Claude·ChatGPT·Hermes 실전 가이드">
     <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
     <title>핵심 명령어 모음 | AI ROASTING</title>
     <style>
@@ -33,8 +33,28 @@
             --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
             --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
             --ant-orange: #D97757;
+            --ant-orange-2: #C4613E;
+            --ant-orange-text: #B0522F;
+            --ant-orange-rgb: 217,119,87;
+            /* 내비게이션 비활성 원. 두 도구 공통 중립색이라 강조색을 따라가지 않는다 */
+            --nav-idle: #7C7568;
             --ant-dark: #1A1917;
         }
+
+        /* 도구 선택에 따라 본문 강조색이 바뀐다. Claude Code는 주황, Codex는 초록.
+           헤더와 도구 스위치 버튼은 각 도구의 고유색을 그대로 쓰므로 여기서 건드리지 않는다 */
+        :root[data-active-tool="codex"] {
+            --ant-orange: #4C8DD6;
+            --ant-orange-2: #2A6EBB;
+            --ant-orange-text: #1A5FBF;
+            --ant-orange-rgb: 76,141,214;
+        }
+        /* 도구를 바꿀 때 강조색이 튀지 않고 넘어가게 한다. CSS 변수 자체는 전환되지 않으므로 실제 속성에 건다.
+           :where()는 특정도가 0이라, 개별 규칙에 이미 transition이 있으면 그쪽이 그대로 이긴다 */
+        :where(main.container *, .sub-menu *, .page-nav a, footer *) {
+            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+        }
+
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
@@ -190,6 +210,77 @@
         }
         .mode-tab:hover:not(.active) { color: rgba(255,255,255,0.8); }
 
+        /* ── 도구 전환 (Claude Code / Codex) · TOOL-SWITCH-STD ── */
+        .tool-pick {
+            display: flex; justify-content: center;
+            margin: 0 0 26px;
+        }
+        .tool-switch {
+            display: inline-flex; gap: 6px;
+            background: var(--nm-bg);
+            box-shadow: var(--nm-inset);
+            border-radius: 24px; padding: 5px;
+            max-width: 100%;
+        }
+        .tool-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            border: none; cursor: pointer; font-family: inherit;
+            font-size: 13.5px; font-weight: 700; white-space: nowrap;
+            color: #9A9590; background: transparent;
+            min-width: 142px;
+            padding: 10px 24px; border-radius: 20px; transition: all 0.22s;
+        }
+        .tool-btn .tb-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: currentColor; opacity: 0.45; flex-shrink: 0;
+        }
+        .tool-btn:hover:not(.active) { color: #6B655E; }
+        .tool-btn:focus { outline: none; }
+        .tool-btn:focus-visible { outline: 3px solid rgba(var(--ant-orange-rgb),0.55); outline-offset: 2px; }
+        .tool-btn.active { color: #fff; }
+        .tool-btn.active .tb-dot { opacity: 1; }
+        .tool-btn.active[data-tool-btn="claude"] {
+            background: linear-gradient(135deg, #D97757, #C4613E);
+            box-shadow: 0 3px 10px rgba(196,97,62,0.38);
+        }
+        .tool-btn.active[data-tool-btn="codex"] {
+            background: linear-gradient(135deg, #3890F2, #1F6FD0);
+            box-shadow: 0 3px 10px rgba(56,144,242,0.38);
+        }
+        /* 두 도구가 똑같은 내용임을 알리는 배지 */
+        .both-tag {
+            display: inline-block; vertical-align: middle; margin-left: 10px;
+            font-size: 11px; font-weight: 800; letter-spacing: 0.2px;
+            color: #6B655E; background: rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.08);
+            padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+        }
+        /* 한쪽 도구에만 해당하는 보충 설명 */
+        .tool-note {
+            display: block; margin: 12px 0 0;
+            font-size: 13px; line-height: 1.6;
+            border-radius: 12px; padding: 11px 15px;
+        }
+        .tool-note.claude {
+            color: #8A4A2E; background: rgba(217,119,87,0.09);
+            border: 1px solid rgba(217,119,87,0.22);
+        }
+        .tool-note.codex {
+            color: #1A5FBF; background: rgba(76,141,214,0.08);
+            border: 1px solid rgba(76,141,214,0.24);
+        }
+        .tool-note b { font-weight: 800; }
+        .tool-note code {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 12px; background: rgba(255,255,255,0.75);
+            padding: 1px 7px; border-radius: 5px;
+        }
+        @media (max-width: 768px) {
+            .tool-pick { margin-bottom: 20px; }
+            .tool-switch { width: 100%; }
+            .tool-btn { flex: 1 1 0; min-width: 0; padding: 12px 10px; font-size: 13px; }
+        }
+
         /* ── Sub Menu ── */
         .sub-menu {
             position: sticky;
@@ -199,10 +290,11 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.06);
             border-bottom: 1px solid #E0DDD7;
             border-radius: 0 0 32px 32px;
-            padding: 14px 0;
+            /* 콘텐츠 폭(.container max-width 1080 - padding 64 = 1016px)에 좌우 끝을 맞춘다 */
+            padding: 14px max(32px, calc((100% - 1016px) / 2));
             display: flex;
             justify-content: center;
-            gap: 0;
+            gap: 10px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
@@ -214,29 +306,29 @@
             align-items: center;
             gap: 5px;
             text-decoration: none;
-            padding: 8px 18px;
+            padding: 8px 10px;
             transition: all 0.2s;
-            flex: 1;
-            max-width: 120px;
+            /* 항목 7개가 콘텐츠 영역을 고르게 채운다 (기본 130px, 늘어나되 줄지 않음) */
+            flex: 1 0 130px;
         }
         .sub-menu a:hover .sm-num { transform: scale(1.1); }
         .sub-menu a:hover .sm-title { color: var(--ant-dark); }
         .sub-menu a.active {
-            background: rgba(217,119,87,0.10);
+            background: rgba(var(--ant-orange-rgb),0.10);
             border-radius: 14px;
         }
         .sub-menu a.active .sm-num {
             background: var(--ant-orange);
-            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+            box-shadow: 0 2px 8px rgba(var(--ant-orange-rgb),0.4);
         }
         .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
-        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange-text); }
         .sm-num svg { width: 15px; height: 15px; }
         .sm-num {
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: #B0544A;
+            background: var(--nav-idle);
             color: #fff;
             font-size: 13px;
             font-weight: 800;
@@ -277,7 +369,7 @@
             width: 38px;
             height: 38px;
             border-radius: 11px;
-            background: linear-gradient(135deg, #D97757, #C4613E);
+            background: linear-gradient(135deg, var(--ant-orange), var(--ant-orange-2));
             color: #fff;
             font-size: 15px;
             font-weight: 800;
@@ -300,8 +392,8 @@
             align-items: center;
             gap: 8px;
             padding: 6px 14px;
-            background: rgba(217,119,87,0.12);
-            border: 1px solid rgba(217,119,87,0.3);
+            background: rgba(var(--ant-orange-rgb),0.12);
+            border: 1px solid rgba(var(--ant-orange-rgb),0.3);
             border-radius: 999px;
             flex-shrink: 0;
             cursor: pointer;
@@ -309,20 +401,20 @@
             user-select: none;
         }
         .legend-essential:hover {
-            background: rgba(217,119,87,0.2);
+            background: rgba(var(--ant-orange-rgb),0.2);
             transform: translateY(-1px);
         }
         .legend-essential.active {
             background: var(--ant-orange);
             border-color: var(--ant-orange);
-            box-shadow: 0 3px 10px rgba(217,119,87,0.4);
+            box-shadow: 0 3px 10px rgba(var(--ant-orange-rgb),0.4);
         }
         .legend-essential.active .legend-star,
         .legend-essential.active .legend-text {
             color: #fff;
         }
         .legend-essential .legend-star {
-            color: var(--ant-orange);
+            color: var(--ant-orange-text);
             font-size: 14px;
             font-weight: 700;
             transition: color 0.2s;
@@ -330,14 +422,14 @@
         .legend-essential .legend-text {
             font-size: 12px;
             font-weight: 700;
-            color: var(--ant-orange);
+            color: var(--ant-orange-text);
             white-space: nowrap;
             transition: color 0.2s;
         }
         .legend-essential .legend-arrow {
             font-size: 14px;
             font-weight: 700;
-            color: var(--ant-orange);
+            color: var(--ant-orange-text);
             transition: transform 0.25s, color 0.2s;
             display: inline-block;
             line-height: 1;
@@ -411,17 +503,17 @@
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover { background: rgba(255,255,255,0.4); }
 
-        tbody tr.essential { background: rgba(217,119,87,0.10); }
-        tbody tr.essential:hover { background: rgba(217,119,87,0.16); }
+        tbody tr.essential { background: rgba(var(--ant-orange-rgb),0.10); }
+        tbody tr.essential:hover { background: rgba(var(--ant-orange-rgb),0.16); }
         tbody tr.essential td:first-child code {
             background: var(--ant-orange);
             color: #fff;
-            box-shadow: 0 2px 6px rgba(217,119,87,0.35);
+            box-shadow: 0 2px 6px rgba(var(--ant-orange-rgb),0.35);
             font-weight: 700;
         }
         tbody tr.essential td:first-child::before {
             content: '★';
-            color: var(--ant-orange);
+            color: var(--ant-orange-text);
             margin-right: 6px;
             font-size: 12px;
             font-weight: 700;
@@ -434,7 +526,7 @@
             padding: 3px 9px;
             border-radius: 6px;
             font-size: 11px;
-            color: var(--ant-orange);
+            color: var(--ant-orange-text);
             display: inline-block;
         }
 
@@ -475,7 +567,7 @@
         .mode-card .when {
             font-size: 11px;
             font-weight: 700;
-            color: var(--ant-orange);
+            color: var(--ant-orange-text);
             background: var(--nm-bg);
             box-shadow: var(--nm-inset);
             padding: 5px 14px;
@@ -522,34 +614,6 @@
             line-height: 1.6;
         }
 
-        /* ── Install Block ── */
-        .install-block {
-            background: #1A1917;
-            border-radius: 12px;
-            padding: 24px;
-        }
-
-        .install-block code {
-            background: none;
-            box-shadow: none;
-            color: #e0e0e0;
-            font-size: 13px;
-            padding: 0;
-            display: block;
-            white-space: pre;
-            line-height: 1.8;
-        }
-
-        .install-note {
-            margin: 14px 4px 0;
-            font-size: 13px;
-            color: #6b6b6b;
-            line-height: 1.6;
-        }
-        .install-note code {
-            font-size: 12px;
-        }
-
         /* ── Divider ── */
         .divider {
             height: 2px;
@@ -575,7 +639,7 @@
             align-items: center;
             gap: 6px;
             text-decoration: none;
-            color: var(--ant-orange);
+            color: var(--ant-orange-text);
             font-size: 13px;
             font-weight: 600;
             padding: 12px 22px;
@@ -595,8 +659,9 @@
         }
 
         /* ── Footer ── */
-        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; }
-        .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; border-radius: 32px 32px 0 0;
+        }
+        .footer-brand { font-size: 13px; font-weight: 700; color: #D97757; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
         .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
         .footer-about-link {
             display: inline-block; margin-top: 8px;
@@ -702,8 +767,6 @@
             /* Code example block */
             .code-example { padding: 14px 16px; }
             .code-example code { font-size: 12px; }
-            .install-block { padding: 18px; }
-            .install-block code { font-size: 12px; }
             /* Mode cards */
             .mode-card { padding: 22px 18px; }
             .mode-card h3 { font-size: 16px; }
@@ -761,6 +824,14 @@
             .hero-video { display: none; }
         }
     </style>
+    <script>
+        // 저장된 도구 선택을 그리기 전에 먼저 반영한다. 본문 강조색이 주황에서 초록으로 튀는 것을 막는다
+        (function () {
+            var t = null;
+            try { t = localStorage.getItem('cli-tool'); } catch (e) {}
+            document.documentElement.setAttribute('data-active-tool', t === 'codex' ? 'codex' : 'claude');
+        })();
+    </script>
 </head>
 <body>
     <header>
@@ -769,13 +840,13 @@
     </video>
 
         <nav class="step-nav">
-            <a class="step-node sn-diag" href="claude-orientation.html">진단</a>
+            <a class="step-node sn-diag" href="orientation.html">진단</a>
             <div class="step-line"></div>
             <a class="step-node" href="ai-fluency.html">1</a>
             <div class="step-line"></div>
             <a class="step-node" href="chrome-plugin.html">2</a>
             <div class="step-line"></div>
-            <a class="step-node active" href="claude-code-101.html">3</a>
+            <a class="step-node active" href="vibe-coding-101.html">3</a>
             <div class="step-line"></div>
             <a class="step-node" href="harness-engineering.html">4</a>
             <div class="step-line"></div>
@@ -784,7 +855,7 @@
             <a class="step-node sn-final" href="mcp-examples.html">예제</a>
         </nav>
 
-        <a class="back-link" href="index.html">← 목록으로</a>
+        <a class="back-link" href="index.html#section-3">← 목록으로</a>
         <h1>명령어 모음</h1>
         <p>한눈에 보는 필수 명령어</p>
         <div class="mode-tabs">
@@ -792,33 +863,28 @@
             <span class="mode-tab active" id="tab-cli" onclick="switchMode('cli')">CLI</span>
         </div>
         <div class="header-pages" id="pages-nocode" style="display:none;">
-            <a href="claude-code-101.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="11.5" rx="1.8"/><path d="M9 20h6M12 16v4"/></svg></span> 클로드 코드 101</a>
-            <a href="claude-code-tasks.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg></span> 실전 과제 8가지</a>
+            <a href="vibe-coding-101.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="11.5" rx="1.8"/><path d="M9 20h6M12 16v4"/></svg></span> 바이브 코딩 101</a>
+            <a href="vibe-coding-tasks.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg></span> 실전 과제 8가지</a>
             <a href="github-guide.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 1.5 4.5 5 4 9.5l-2 2h-4l-2-2c-.5-4.5 1-8 4-9.5z"/><circle cx="12" cy="10" r="1.4"/><path d="M9 14.5 7 19M15 14.5 17 19M10 19h4"/></svg></span> GitHub, Vercel & Netlify</a>
         </div>
         <div class="header-pages" id="pages-cli">
             <a href="checklist.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="m8.3 12.3 2.6 2.6 4.6-5.6"/></svg></span> 20단계 따라하기</a>
             <a href="cheatsheet.html" class="header-page-link active"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="11" rx="2"/><path d="M6.5 10.2h.01M10 10.2h.01M13.5 10.2h.01M17 10.2h.01M6.5 13.7h11"/></svg></span> 명령어 모음</a>
-            <a href="claude-code-best-practices.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5 2.5 9.5 12 14l9.5-4.5z"/><path d="M6.5 11.8V16c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5v-4.2"/><path d="M21 9.5v5.5"/></svg></span> 고수처럼 쓰기</a>
+            <a href="cli-best-practices.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5 2.5 9.5 12 14l9.5-4.5z"/><path d="M6.5 11.8V16c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5v-4.2"/><path d="M21 9.5v5.5"/></svg></span> 고수처럼 쓰기</a>
         </div>
     </header>
 
     <!-- 서브 메뉴 -->
     <nav class="sub-menu" id="subMenu">
-        <a href="#install" class="active" data-sec="install">
-            <span class="sm-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4.5 20h15"/></svg></span>
-            <span class="sm-title">설치</span>
-            <span class="sm-sub">시작하기</span>
-        </a>
-        <a href="#keyboard" data-sec="keyboard">
+        <a href="#keyboard" class="active" data-sec="keyboard">
             <span class="sm-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6.5 9.8h.01M10 9.8h.01M13.5 9.8h.01M17 9.8h.01M6.5 13.2h.01M10 13.2h.01M13.5 13.2h.01M17 13.2h.01M8.5 16.2h7"/></svg></span>
             <span class="sm-title">단축키</span>
-            <span class="sm-sub">6개</span>
+            <span class="sm-sub" data-tool="claude">6개</span><span class="sm-sub" data-tool="codex" style="display:none;">8개</span>
         </a>
         <a href="#modes" data-sec="modes">
             <span class="sm-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h7"/><path d="M15 7h5"/><circle cx="13" cy="7" r="2"/><path d="M4 17h4"/><path d="M12 17h8"/><circle cx="10" cy="17" r="2"/></svg></span>
             <span class="sm-title">모드</span>
-            <span class="sm-sub">3가지</span>
+            <span class="sm-sub" data-tool="claude">3가지</span><span class="sm-sub" data-tool="codex" style="display:none;">권한 3단계</span>
         </a>
         <a href="#fileref" data-sec="fileref">
             <span class="sm-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5"/><path d="M9 13h6"/><path d="M9 16.5h4"/></svg></span>
@@ -828,7 +894,7 @@
         <a href="#slash" data-sec="slash">
             <span class="sm-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="m7 9.5 3 2.5-3 2.5"/><path d="M12.5 15h5"/></svg></span>
             <span class="sm-title">슬래시</span>
-            <span class="sm-sub">명령어 8분류</span>
+            <span class="sm-sub" data-tool="claude">명령어 10분류</span><span class="sm-sub" data-tool="codex" style="display:none;">명령어 7분류</span>
         </a>
         <a href="#thinking" data-sec="thinking">
             <span class="sm-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.3 18h5.4"/><path d="M10.3 21h3.4"/><path d="M12 2.8a6.2 6.2 0 0 0-3.6 11.2c.5.4.8 1 .8 1.6v.4h5.6v-.4c0-.6.3-1.2.8-1.6A6.2 6.2 0 0 0 12 2.8z"/></svg></span>
@@ -843,26 +909,18 @@
         <a href="#troubleshoot" data-sec="troubleshoot">
             <span class="sm-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 4 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 4a2 2 0 0 0-3.4 0z"/><path d="M12 9.3v4"/><path d="M12 16.8h.01"/></svg></span>
             <span class="sm-title">문제 해결</span>
-            <span class="sm-sub">6가지 증상</span>
+            <span class="sm-sub" data-tool="claude">6가지 증상</span><span class="sm-sub" data-tool="codex" style="display:none;">8가지 증상</span>
         </a>
     </nav>
 
     <main class="container">
-
-
-        <!-- 설치 -->
-        <section class="content-section" id="install">
-            <div class="step-divider">
-                <span class="step-badge"><span class="sd-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4.5 20h15"/></svg></span><span class="sd-text">설치</span></span>
+        <!-- TOOL-SWITCH-STD: CLI 3페이지 공통 규격. 선택은 localStorage 'cli-tool'로 세 페이지가 함께 씁니다 -->
+        <div class="tool-pick">
+            <div class="tool-switch" role="group" aria-label="도구 선택">
+                <button type="button" class="tool-btn active" data-tool-btn="claude" onclick="switchTool('claude', true)"><span class="tb-dot"></span>Claude Code</button>
+                <button type="button" class="tool-btn" data-tool-btn="codex" onclick="switchTool('codex', true)"><span class="tb-dot"></span>Codex</button>
             </div>
-            <div class="nm-card">
-                <div class="install-block">
-                    <code>npm install -g @anthropic-ai/claude-code
-claude</code>
-                </div>
-                <p class="install-note">맥에서 권한 에러가 나면 <code>sudo npm install -g @anthropic-ai/claude-code</code></p>
-            </div>
-        </section>
+        </div>
 
 
 
@@ -871,7 +929,7 @@ claude</code>
             <div class="step-divider">
                 <span class="step-badge"><span class="sd-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6.5 9.8h.01M10 9.8h.01M13.5 9.8h.01M17 9.8h.01M6.5 13.2h.01M10 13.2h.01M13.5 13.2h.01M17 13.2h.01M8.5 16.2h7"/></svg></span><span class="sd-text">키보드 단축키</span></span>
             </div>
-            <div class="nm-card">
+            <div class="nm-card" data-tool="claude">
                 <div class="table-wrapper">
                     <table>
                         <thead>
@@ -888,6 +946,26 @@ claude</code>
                     </table>
                 </div>
             </div>
+            <div class="nm-card" data-tool="codex" style="display:none;">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr><th>단축키</th><th>기능</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>↑</code> / <code>↓</code></td><td>이전에 쓰던 입력 다시 불러오기</td></tr>
+                            <tr><td><code>Esc</code> 두 번</td><td>입력창이 빈 상태에서 이전 메시지 편집, 그 지점부터 대화 분기</td></tr>
+                            <tr><td><code>Enter</code> (작업 중)</td><td>지금 하는 작업에 지시를 즉시 끼워 넣기</td></tr>
+                            <tr><td><code>Tab</code> (작업 중)</td><td>다음 차례로 예약 (지금 작업은 그대로 진행)</td></tr>
+                            <tr><td><code>Ctrl + R</code></td><td>이전에 보낸 프롬프트 검색</td></tr>
+                            <tr><td><code>Ctrl + O</code></td><td>마지막 응답 복사 (<code>/copy</code>와 같음)</td></tr>
+                            <tr><td><code>Ctrl + C</code></td><td>세션 종료 (<code>/exit</code>와 같음)</td></tr>
+                            <tr><td><code>?</code></td><td>단축키 목록 열기</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <span class="tool-note codex"><b>모드 전환 단축키는 없습니다.</b> Claude Code의 Shift+Tab에 해당하는 것은 Codex에서 <code>/permissions</code>와 <code>/plan</code> 명령입니다. 아래 "3가지 모드"에서 다룹니다.</span>
+            </div>
         </section>
 
 
@@ -897,7 +975,7 @@ claude</code>
             <div class="step-divider">
                 <span class="step-badge"><span class="sd-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h7"/><path d="M15 7h5"/><circle cx="13" cy="7" r="2"/><path d="M4 17h4"/><path d="M12 17h8"/><circle cx="10" cy="17" r="2"/></svg></span><span class="sd-text">3가지 모드</span></span>
             </div>
-            <div class="mode-cards">
+            <div class="mode-cards" data-tool="claude">
                 <div class="mode-card">
                     <h3>일반 모드</h3>
                     <p>매번 승인 필요</p>
@@ -917,6 +995,30 @@ claude</code>
                     <div class="shortcut"><kbd>Shift</kbd>+<kbd>Tab</kbd> 2회</div>
                 </div>
             </div>
+            <div data-tool="codex" style="display:none;">
+                <div class="mode-cards">
+                    <div class="mode-card">
+                        <h3>Read only</h3>
+                        <p>읽기만, 수정 없음</p>
+                        <span class="when">남의 코드를 훑을 때</span>
+                        <div class="shortcut"><code>/permissions</code></div>
+                    </div>
+                    <div class="mode-card">
+                        <h3>Auto</h3>
+                        <p>작업 폴더 안은 자동, 밖은 확인</p>
+                        <span class="when">평소 (기본값)</span>
+                        <div class="shortcut"><code>/permissions</code></div>
+                    </div>
+                    <div class="mode-card">
+                        <h3>Full access</h3>
+                        <p>제한 없음</p>
+                        <span class="when">격리된 환경에서만</span>
+                        <div class="shortcut"><code>/permissions</code></div>
+                    </div>
+                </div>
+                <span class="tool-note codex"><b>계획 모드는 따로 있습니다.</b> <code>/plan</code>을 치면 코드를 쓰지 않고 계획부터 세웁니다. 명령 뒤에 부탁할 내용을 이어서 적어도 됩니다. 권한 단계와는 별개라서 둘을 섞어 쓸 수 있습니다.</span>
+                <span class="tool-note codex"><b>실행할 때 지정할 수도 있습니다.</b> <code>--sandbox read-only</code>, <code>--sandbox workspace-write</code>, <code>--sandbox danger-full-access</code>가 위 세 단계에 해당합니다. 승인 시점은 <code>--ask-for-approval</code>로 따로 정합니다.</span>
+            </div>
         </section>
 
 
@@ -932,7 +1034,10 @@ claude</code>
                         <tbody>
                             <tr><td><code>@파일명</code></td><td>특정 파일 참조</td></tr>
                             <tr><td><code>@폴더명</code></td><td>폴더 전체 참조</td></tr>
-                            <tr><td><code>!명령어</code></td><td>즉시 실행 (승인 없이)</td></tr>
+                            <tr data-tool="claude"><td><code>!명령어</code></td><td>즉시 실행 (승인 없이)</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td><code>!명령어</code></td><td>즉시 실행 (지금 권한 단계를 그대로 따름)</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td><code>/mention</code></td><td>파일을 목록에서 골라 붙이기</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td><code>codex -i 그림.png</code></td><td>실행하면서 이미지 첨부 (<code>--image</code>)</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -940,6 +1045,7 @@ claude</code>
                     <code>> @index.html 이 코드 설명해줘
 > !git status</code>
                 </div>
+                <span class="tool-note codex" data-tool="codex" style="display:none;"><b>Codex의 @는 이름 조각만으로 찾습니다.</b> 경로를 정확히 몰라도 파일 이름 일부를 치면 후보가 좁혀집니다.</span>
             </div>
         </section>
 
@@ -948,8 +1054,9 @@ claude</code>
         <!-- 슬래시 명령어 -->
         <section class="content-section" id="slash">
             <div class="step-divider">
-                <span class="step-badge"><span class="sd-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="m7 9.5 3 2.5-3 2.5"/><path d="M12.5 15h5"/></svg></span><span class="sd-text">슬래시 명령어 (10개 카테고리 · 총 60개 명령어)</span></span>
+                <span class="step-badge"><span class="sd-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="m7 9.5 3 2.5-3 2.5"/><path d="M12.5 15h5"/></svg></span><span class="sd-text" data-tool="claude">슬래시 명령어 (10개 카테고리 · 총 59개 명령어)</span><span class="sd-text" data-tool="codex" style="display:none;">슬래시 명령어 (7개 카테고리 · 총 40개 명령어)</span></span>
             </div>
+          <div data-tool="claude">
             <div class="legend-row"><span class="legend-essential"><span class="legend-star">★</span><span class="legend-text">반드시 알아야 할 12개</span><span class="legend-arrow">▼</span></span></div>
             <div class="nm-card">
                 <div class="table-wrapper">
@@ -964,7 +1071,7 @@ claude</code>
                         </thead>
                         <tbody>
                             <!-- ── 1. 토큰·컨텍스트 / 세션 관리 ── -->
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">1. 토큰·컨텍스트 / 세션 관리</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">1. 토큰·컨텍스트 / 세션 관리</td></tr>
                             <tr><td><code>/context</code></td><td>시스템 프롬프트·메시지·파일별 토큰 사용량을 시각화하고 최적화 힌트를 보여줍니다.</td><td>어디서 토큰을 많이 쓰는지 분석하고, 압축·삭제 대상을 찾고 싶을 때.</td></tr>
                             <tr class="essential"><td><code>/compact</code></td><td>긴 대화 이력을 AI가 요약해 컨텍스트/토큰 사용량을 줄이고, 절감 전·후 토큰 수를 보여줍니다.<span class="example">예시: <code>/compact 핵심만 남겨줘</code></span></td><td>같은 작업을 이어가되 컨텍스트가 너무 커졌을 때, 토큰을 아끼고 싶을 때.</td></tr>
                             <tr class="essential"><td><code>/clear</code></td><td>현재 세션의 대화·도구·파일 컨텍스트를 모두 지우고 완전히 새 대화로 시작합니다.</td><td>완전히 다른 작업으로 전환할 때, 긴 디버깅 후 리셋하고 싶을 때, 민감 정보가 섞였을 때.</td></tr>
@@ -975,7 +1082,7 @@ claude</code>
                             <tr><td><code>/exit</code></td><td>현재 Claude Code 세션을 종료하고 기본 쉘로 돌아갑니다.</td><td>더 이상 이 세션에서 작업하지 않을 때, 깔끔하게 종료하고 싶을 때.</td></tr>
 
                             <!-- ── 2. 모델·리소스 / 비용 관리 ── -->
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">2. 모델·리소스 / 비용 관리</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">2. 모델·리소스 / 비용 관리</td></tr>
                             <tr class="essential"><td><code>/model</code></td><td>현재 사용 중인 AI 모델과 컨텍스트 윈도우 크기를 확인·변경합니다.<span class="example">예시: <code>/model Haiku</code>, <code>/model Sonnet</code>, <code>/model Opus</code></span></td><td>가벼운 작업은 저렴한 모델로, 깊은 분석은 강한 모델·큰 컨텍스트로 바꾸고 싶을 때.</td></tr>
                             <tr class="essential"><td><code>/cost</code></td><td>현재 세션에서 누적된 입력·출력 토큰 수와 예상 비용을 보여줍니다.</td><td>특정 작업/세션에서 얼마나 토큰과 비용을 썼는지 모니터링할 때.</td></tr>
                             <tr><td><code>/usage</code></td><td>계정 전체 기준 토큰 사용량·남은 한도(플랜, Extra usage 등)를 보여줍니다.</td><td>월별 한도에 얼마나 가까워졌는지, 추가 사용량이 얼마나 남았는지 확인할 때.</td></tr>
@@ -983,7 +1090,7 @@ claude</code>
                             <tr><td><code>/stats</code></td><td>최근 토큰 사용량·모델 사용 패턴을 간단한 통계로 요약합니다.</td><td>장기간 사용 패턴을 감으로 보고 싶을 때.</td></tr>
 
                             <!-- ── 3. 파일·컨텍스트 / 프로젝트 스코프 관리 ── -->
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">3. 파일·컨텍스트 / 프로젝트 스코프 관리</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">3. 파일·컨텍스트 / 프로젝트 스코프 관리</td></tr>
                             <tr class="essential"><td><code>/add</code></td><td>특정 파일을 현재 세션 컨텍스트에 추가합니다.<span class="example">예시: <code>/add src/index.html</code></span></td><td>한두 개 파일을 기반으로 분석·리팩토링·요약을 받고 싶을 때.</td></tr>
                             <tr><td><code>/add-dir</code></td><td>디렉터리 전체를 컨텍스트에 추가합니다.<span class="example">예시: <code>/add-dir ./src</code></span></td><td>프로젝트 전체 구조를 이해시키고, 모노레포 단위로 작업 지시를 하고 싶을 때.</td></tr>
                             <tr><td><code>/files</code></td><td>세션에 추가된 파일 목록과 크기를 보여줍니다.</td><td>어떤 파일들이 올라가 있는지, 덩치 큰 파일이 무엇인지 확인하고 싶을 때.</td></tr>
@@ -991,7 +1098,7 @@ claude</code>
                             <tr><td><code>/snapshot</code></td><td>현재 코드베이스 상태를 스냅샷으로 저장합니다.<span class="example">예시: <code>/snapshot before-refactor</code></span></td><td>리팩토링·대규모 변경 전 기준점을 남겨두고, 이후 상태와 비교하고 싶을 때.</td></tr>
 
                             <!-- ── 4. 코드 변경·리뷰 / 품질·보안 ── -->
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">4. 코드 변경·리뷰 / 품질·보안</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">4. 코드 변경·리뷰 / 품질·보안</td></tr>
                             <tr class="essential"><td><code>/diff</code></td><td>Claude가 수행한 코드 변경 사항을 diff 형식으로 보여줍니다.</td><td>어떤 파일이 어떻게 바뀌었는지, 리뷰 전에 변경 내역을 빠르게 훑고 싶을 때.</td></tr>
                             <tr><td><code>/review</code></td><td>선택한 파일 또는 변경 사항에 대한 코드 리뷰를 요청합니다.<span class="example">예시: <code>/review src/auth.js</code></span></td><td>코드 품질·구조·버그 가능성·테스트 관점에서 피드백이 필요할 때.</td></tr>
                             <tr><td><code>/fix</code></td><td>에러 로그·실패한 테스트를 기반으로 버그 수정을 시도합니다.</td><td>이미 드러난 오류를 중심으로 자동 수정 제안을 받고 싶을 때.</td></tr>
@@ -1000,14 +1107,14 @@ claude</code>
                             <tr><td><code>/pr-comments</code></td><td>GitHub PR 코멘트를 기반으로 변경 내용을 요약하거나 답변 초안을 작성합니다.</td><td>복잡한 PR에서 코멘트들을 한 번에 처리할 전략·요약·응답 초안이 필요할 때.</td></tr>
 
                             <!-- ── 5. 계획·자동 편집 / 워크플로 설계 ── -->
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">5. 계획·자동 편집 / 워크플로 설계</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">5. 계획·자동 편집 / 워크플로 설계</td></tr>
                             <tr class="essential"><td><code>/plan</code></td><td>코드를 바로 수정하지 않고 단계별 작업 계획을 먼저 세우는 플랜 모드로 전환합니다.<span class="example">예시: <code>/plan 로그인 기능 만들기</code></span></td><td>대규모 리팩토링/신규 기능처럼 다단계 작업 로드맵을 먼저 설계하고 싶을 때.</td></tr>
                             <tr><td><code>/auto-accept</code></td><td>Claude가 제안한 코드 변경을 사용자 확인 없이 자동 적용하는 모드로 전환합니다.</td><td>포맷팅, 간단 리팩토링 등 신뢰 가능한 반복 작업을 빠르게 처리하고 싶을 때.</td></tr>
                             <tr><td><code>/rewind</code></td><td>세션을 특정 시점 이전 상태로 되돌립니다.<span class="example">예시: <code>/rewind</code>, <code>/rewind 3</code></span></td><td>잘못된 방향으로 길게 진행했을 때, 과감하게 일정 시점으로 롤백하고 싶을 때.</td></tr>
                             <tr><td><code>/btw</code></td><td>메인 흐름을 유지한 채 사이드 질문·노트를 던집니다.<span class="example">예시: <code>/btw Node 버전 뭐야?</code></span></td><td>현재 문맥을 유지한 채 보조 질문/메모를 남기고 싶을 때.</td></tr>
 
                             <!-- ── 6. 프로젝트 설정·메모리 / CLAUDE.md ── -->
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">6. 프로젝트 설정·메모리 / CLAUDE.md</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">6. 프로젝트 설정·메모리 / CLAUDE.md</td></tr>
                             <tr class="essential"><td><code>/init</code></td><td>새 프로젝트용 CLAUDE.md(설정 파일)를 생성하고 기본 설정을 구성합니다.</td><td>새로운 레포에서 Claude 사용 규칙·컨텍스트 전략·토큰 가이드라인을 초기 세팅할 때.</td></tr>
                             <tr><td><code>/memory</code></td><td>프로젝트 메모리/CLAUDE.md를 열어 편집합니다.</td><td>도메인 지식, 금지 규칙, "이 레포에서는 항상 지켜야 할 것들"을 장기 메모리처럼 저장하고 싶을 때.</td></tr>
                             <tr><td><code>/config</code></td><td>프로젝트 설정 파일을 열어 모델, 컨텍스트 정책, 자동화 옵션 등을 직접 수정합니다.</td><td>이 레포에서만 적용되는 고정 정책(예: 자동 compact 여부)을 정하고 싶을 때.</td></tr>
@@ -1018,7 +1125,7 @@ claude</code>
                             <tr><td><code>/todos</code></td><td>Claude가 파악한 "할 일 목록"을 생성·관리합니다.</td><td>큰 기능·리팩토링 중 남아 있는 서브태스크를 자동으로 정리하고 싶을 때.</td></tr>
 
                             <!-- ── 7. 스킬·자동화·에이전트 / 플러그인 ── -->
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">7. 스킬·자동화·에이전트 / 플러그인</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">7. 스킬·자동화·에이전트 / 플러그인</td></tr>
                             <tr><td><code>/run</code></td><td>특정 스킬 또는 워크플로를 실행합니다.<span class="example">예시: <code>/run weekly-report</code></span></td><td>자주 반복되는 분석·리포트·정리 작업을 미리 정의해두고 버튼 한 번에 실행하고 싶을 때.</td></tr>
                             <tr><td><code>/optimize</code></td><td>최적화 스킬을 실행해 코드·설정을 개선합니다.</td><td>성능·구조 개선이 필요한 코드에 대해 자동 최적화 제안을 받고 싶을 때.</td></tr>
                             <tr><td><code>/buddy</code></td><td>서브 에이전트를 호출해 특정 역할(리뷰어, QA, PM 등)을 맡깁니다.<span class="example">예시: <code>/buddy reviewer</code>, <code>/buddy qa</code>, <code>/buddy pm</code></span></td><td>메인 대화와 별도로, 역할 분리된 에이전트와 병렬로 작업하고 싶을 때.</td></tr>
@@ -1027,13 +1134,13 @@ claude</code>
                             <tr><td><code>/install-github-app</code></td><td>GitHub PR 자동 리뷰용 앱 설치를 도와줍니다.</td><td>PR 생성 시 자동 리뷰·요약을 GitHub에 붙이고 싶을 때.</td></tr>
 
                             <!-- ── 8. 출력·결과물 / 인터페이스·환경·보안·CLI ── -->
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">8. 출력·결과물</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">8. 출력·결과물</td></tr>
                             <tr><td><code>/copy [N]</code></td><td>Claude의 마지막 N개 응답(또는 기본 1개)을 복사합니다.<span class="example">예시: <code>/copy 3</code></span></td><td>방금 생성된 코드·요약을 IDE, 문서, 이슈 트래커에 바로 붙여 넣고 싶을 때.</td></tr>
                             <tr><td><code>/summarize</code></td><td>긴 텍스트나 변경 내역을 요약합니다.</td><td>긴 로그·문서·PR 설명을 한눈에 볼 수 있는 요약본이 필요할 때.</td></tr>
                             <tr><td><code>/simplify</code></td><td>복잡한 코드·텍스트를 더 단순한 형태로 재작성합니다.</td><td>복잡한 로직·설명을 팀원이나 비개발자도 이해할 수 있게 정리하고 싶을 때.</td></tr>
                             <tr><td><code>/export</code></td><td>결과물을 파일·패치 등으로 내보냅니다.<span class="example">예시: <code>/export changes.patch</code></span></td><td>변경 내용을 patch 파일로 저장하거나, 리뷰·배포용 산출물을 아카이브할 때.</td></tr>
 
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">9. 보안·운영·환경</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">9. 보안·운영·환경</td></tr>
                             <tr><td><code>/permissions</code></td><td>파일/명령 실행 권한 등 Claude가 할 수 있는 작업 범위를 제어합니다.</td><td>삭제·배포·외부 호출 같은 위험한 액션을 제한하고 싶을 때.</td></tr>
                             <tr class="essential"><td><code>/doctor</code></td><td>설치·환경·연동 상태를 진단하고, 성능/컨텍스트 관련 문제를 점검합니다.</td><td>토큰 사용량이 이상하게 높거나, MCP/플러그인 때문에 문제가 생긴 것 같을 때.</td></tr>
                             <tr><td><code>/privacy-settings</code></td><td>로그·데이터 수집·텔레메트리 등 개인정보 설정을 관리합니다.</td><td>기업/규제 환경에서 데이터 사용 범위를 명확히 제한해야 할 때.</td></tr>
@@ -1045,7 +1152,7 @@ claude</code>
                             <tr><td><code>/bug</code></td><td>Claude Code 관련 버그 리포트를 제출합니다.</td><td>재현 가능한 버그·오작동을 팀에 바로 공유하고 싶을 때.</td></tr>
                             <tr><td><code>/release-notes</code></td><td>최신 릴리즈 노트를 확인합니다.</td><td>새 버전에서 어떤 명령어·기능이 추가·변경되었는지 빠르게 훑고 싶을 때.</td></tr>
 
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">10. CLI·외부</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">10. CLI·외부</td></tr>
                             <tr><td><code>claude auth</code></td><td>CLI에서 계정 인증을 수행하고 액세스 토큰을 관리합니다.<span class="example">예시: <code>claude auth login</code>, <code>claude auth logout</code>, <code>claude auth status</code></span></td><td>새로운 머신/환경에서 Claude Code CLI를 처음 설정하거나 토큰을 갱신해야 할 때.</td></tr>
                             <tr><td><code>claude update</code></td><td>Claude Code를 최신 버전으로 업데이트합니다.</td><td>새 기능·버그 픽스가 포함된 최신 버전으로 올리고 싶을 때.</td></tr>
                             <tr><td><code>claude mcp</code></td><td>MCP 서버 관련 설정을 CLI에서 일괄 관리합니다.<span class="example">예시: <code>claude mcp list</code>, <code>claude mcp add</code>, <code>claude mcp remove</code></span></td><td>여러 MCP 서버를 한 번에 설정·점검하고 싶을 때.</td></tr>
@@ -1053,6 +1160,73 @@ claude</code>
                     </table>
                 </div>
             </div>
+          </div>
+          <div data-tool="codex" style="display:none;">
+            <div class="legend-row"><span class="legend-essential"><span class="legend-star">★</span><span class="legend-text">반드시 알아야 할 12개</span><span class="legend-arrow">▼</span></span></div>
+            <div class="nm-card">
+                <div class="table-wrapper">
+                    <table>
+                        <colgroup>
+                            <col style="width:28%">
+                            <col style="width:40%">
+                            <col style="width:32%">
+                        </colgroup>
+                        <thead>
+                            <tr><th>명령어</th><th>기능</th><th>언제?</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">1. 세션·컨텍스트 관리</td></tr>
+                            <tr class="essential"><td><code>/status</code></td><td>지금 모델과 권한, 세션이 어디까지 왔는지를 한 화면에 보여줍니다.</td><td>어떤 설정으로 돌고 있는지 확인할 때, 대화가 얼마나 쌓였는지 볼 때.</td></tr>
+                            <tr class="essential"><td><code>/compact</code></td><td>지금까지의 대화를 요약해 토큰 여유를 만듭니다.</td><td>같은 작업을 이어가되 대화가 너무 길어졌을 때.</td></tr>
+                            <tr class="essential"><td><code>/clear</code></td><td>화면과 대화 내용을 모두 지우고 새로 시작합니다.</td><td>완전히 다른 작업으로 넘어갈 때, 민감한 내용이 섞였을 때.</td></tr>
+                            <tr><td><code>/copy</code></td><td>마지막으로 끝난 응답이나 계획을 복사합니다. <code>Ctrl+O</code>와 같습니다.</td><td>방금 나온 코드나 요약을 편집기·문서에 바로 붙여 넣을 때.</td></tr>
+                            <tr><td><code>/rename</code></td><td>저장된 대화에 알아볼 수 있는 이름을 붙입니다.</td><td>나중에 <code>codex resume</code>으로 찾기 쉽게 정리할 때.</td></tr>
+                            <tr><td><code>/archive</code></td><td>지금 대화를 활성 목록에서 내립니다.</td><td>끝난 작업을 목록에서 치우고 싶을 때.</td></tr>
+                            <tr><td><code>/delete</code></td><td>대화와 기록을 완전히 지웁니다.</td><td>남기면 안 되는 내용이 들어간 대화를 없앨 때.</td></tr>
+                            <tr><td><code>/exit</code></td><td>Codex를 종료합니다. <code>/quit</code>도 같습니다.</td><td>작업을 마치고 터미널로 돌아갈 때.</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">2. 모델·응답 조절</td></tr>
+                            <tr class="essential"><td><code>/model</code></td><td>모델과 추론 강도를 같은 화면에서 고릅니다.<span class="example">예시: <code>gpt-5.6-sol</code>, <code>gpt-5.6-terra</code>, <code>gpt-5.6-luna</code></span></td><td>어려운 일은 위로, 단순한 일은 아래로 바꾸고 싶을 때.</td></tr>
+                            <tr><td><code>/fast</code></td><td>쓸 수 있는 상황이면 빠른 응답 등급으로 바꿉니다.</td><td>품질보다 속도가 급할 때.</td></tr>
+                            <tr class="essential"><td><code>/plan</code></td><td>코드를 쓰지 않고 계획부터 세우는 모드로 바꿉니다. 뒤에 부탁할 내용을 이어서 적어도 됩니다.<span class="example">예시: <code>/plan 로그인 기능 만들기</code></span></td><td>구조를 바꾸는 큰 작업을 설계부터 시작하고 싶을 때.</td></tr>
+                            <tr><td><code>/goal</code></td><td>이번 작업의 목표를 저장하고, 고치고, 지웁니다.</td><td>대화가 길어져도 처음 목표를 계속 붙들게 하고 싶을 때.</td></tr>
+                            <tr><td><code>/personality</code></td><td>답변의 말투를 고릅니다.</td><td>설명을 짧게 받고 싶거나 톤을 맞추고 싶을 때.</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">3. 권한·샌드박스</td></tr>
+                            <tr class="essential"><td><code>/permissions</code></td><td>묻지 않고 해도 되는 범위를 정합니다.<span class="example">Read only · Auto(기본) · Full access</span></td><td>읽기만 시키고 싶을 때, 반대로 확인 절차를 줄이고 싶을 때.</td></tr>
+                            <tr><td><code>/approve</code></td><td>방금 거절된 명령 하나만 다시 시도합니다.</td><td>권한 단계를 올리지 않고 한 번만 통과시키고 싶을 때.</td></tr>
+                            <tr><td><code>/sandbox-add-read-dir</code></td><td>특정 폴더에 읽기 권한을 더해 줍니다.</td><td>작업 폴더 바깥의 자료를 참고해야 할 때.</td></tr>
+                            <tr><td><code>/setup-default-sandbox</code></td><td>Windows 샌드박스를 설정합니다. Windows 전용입니다.</td><td>Windows에서 격리 실행을 처음 준비할 때.</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">4. 파일·도구 연결</td></tr>
+                            <tr class="essential"><td><code>/mention</code></td><td>파일을 목록에서 골라 대화에 붙입니다.</td><td>경로를 외우지 않고 파일을 넘기고 싶을 때.</td></tr>
+                            <tr><td><code>/ide</code></td><td>편집기에서 열어 둔 내용과 선택 영역을 가져옵니다.</td><td>지금 보고 있는 코드를 그대로 물어보고 싶을 때.</td></tr>
+                            <tr><td><code>/apps</code></td><td>연결할 수 있는 외부 서비스를 찾아 붙입니다.</td><td>외부 데이터나 도구를 끌어와야 할 때.</td></tr>
+                            <tr><td><code>/plugins</code></td><td>설치된 플러그인을 확인하고 관리합니다.</td><td>어떤 확장이 붙어 있는지 점검할 때.</td></tr>
+                            <tr class="essential"><td><code>/skills</code></td><td>쓸 수 있는 스킬 목록을 보고 고릅니다. 프롬프트에서 <code>$스킬이름</code>으로 직접 부를 수도 있습니다.</td><td>반복 작업을 스킬로 묶어 두고 꺼내 쓸 때.</td></tr>
+                            <tr><td><code>/mcp</code></td><td>설정된 MCP 도구 목록을 봅니다.</td><td>외부 연동이 제대로 붙었는지 확인할 때.</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">5. 프로젝트 설정·자동화</td></tr>
+                            <tr class="essential"><td><code>/init</code></td><td>AGENTS.md 초안을 만듭니다.</td><td>새 저장소에서 규칙과 작업 방식을 처음 정해 둘 때.</td></tr>
+                            <tr><td><code>/memories</code></td><td>대화가 끝나도 남길 내용을 설정합니다.</td><td>반복되는 개인 취향을 저장해 두고 싶을 때.</td></tr>
+                            <tr><td><code>/agent</code></td><td>지금 쓰는 에이전트 갈래를 바꿉니다.</td><td>역할이 다른 에이전트로 갈아탈 때.</td></tr>
+                            <tr><td><code>/hooks</code></td><td>특정 시점에 자동으로 도는 동작을 보고 관리합니다.</td><td>커밋 전 검사처럼 자동 절차를 걸어 둘 때.</td></tr>
+                            <tr><td><code>/import</code></td><td>다른 에이전트 도구의 설정을 가져옵니다.</td><td>쓰던 설정을 Codex로 옮길 때.</td></tr>
+                            <tr><td><code>/experimental</code></td><td>실험 기능을 켜고 끕니다.</td><td>아직 정식이 아닌 기능을 먼저 써 볼 때.</td></tr>
+                            <tr><td><code>/keymap</code></td><td>단축키를 다시 지정합니다.</td><td>손에 익은 키로 바꾸고 싶을 때.</td></tr>
+                            <tr><td><code>/vim</code></td><td>입력을 Vim 방식으로 바꿉니다.</td><td>Vim 키맵에 익숙할 때.</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">6. 진단·지원</td></tr>
+                            <tr class="essential"><td><code>/diff</code></td><td>Git 기준 변경 내용을 보여 줍니다. 아직 추적되지 않은 새 파일도 포함합니다.</td><td>커밋 전에 무엇이 바뀌었는지 확인할 때.</td></tr>
+                            <tr><td><code>/feedback</code></td><td>로그를 붙여 문제를 신고합니다.</td><td>재현되는 오작동을 알리고 싶을 때.</td></tr>
+                            <tr><td><code>/logout</code></td><td>저장된 로그인 정보를 지웁니다.</td><td>공용 컴퓨터에서 계정을 분리할 때.</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">7. CLI·외부 (터미널에서 직접 입력)</td></tr>
+                            <tr><td><code>codex exec</code></td><td>대화 없이 한 번에 실행하고 결과를 내보냅니다. <code>codex e</code>로 줄여 씁니다.</td><td>스크립트나 CI에서 자동으로 돌릴 때.</td></tr>
+                            <tr class="essential"><td><code>codex resume</code></td><td>이 저장소에서 하던 대화를 다시 엽니다.</td><td>어제 하던 작업을 그대로 이어서 할 때.</td></tr>
+                            <tr class="essential"><td><code>codex doctor</code></td><td>설치·설정·로그인·실행 환경·Git을 한 번에 진단합니다.</td><td>뭔가 안 될 때 가장 먼저 돌려 볼 명령.</td></tr>
+                            <tr><td><code>codex mcp</code></td><td>MCP 서버를 추가·삭제·인증합니다.</td><td>외부 도구 연동을 정리할 때.</td></tr>
+                            <tr><td><code>codex cloud</code></td><td>클라우드에서 도는 작업을 터미널에서 확인합니다.</td><td>원격 환경에 일을 맡겨 두고 진행을 볼 때.</td></tr>
+                            <tr><td><code>codex completion</code></td><td>셸 자동완성 스크립트를 만듭니다.</td><td>터미널에서 codex 명령을 탭으로 완성하고 싶을 때.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+          </div>
         </section>
 
 
@@ -1062,15 +1236,30 @@ claude</code>
             <div class="step-divider">
                 <span class="step-badge"><span class="sd-num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.3 18h5.4"/><path d="M10.3 21h3.4"/><path d="M12 2.8a6.2 6.2 0 0 0-3.6 11.2c.5.4.8 1 .8 1.6v.4h5.6v-.4c0-.6.3-1.2.8-1.6A6.2 6.2 0 0 0 12 2.8z"/></svg></span><span class="sd-text">깊이 생각하기 (Extended Thinking)</span></span>
             </div>
-            <div class="nm-card">
+            <div class="nm-card" data-tool="claude">
                 <div class="table-wrapper">
                     <table>
                         <tbody>
                             <tr><td>상태</td><td>기본적으로 켜져 있음 (별도 설정 불필요)</td></tr>
                             <tr><td>켜기/끄기</td><td><code>Option+T</code> (Mac) / <code>Alt+T</code> (Win)</td></tr>
+                            <tr><td>깊이 조절</td><td><code>/effort low · medium · high · xhigh · max</code></td></tr>
+                            <tr><td>이번 한 번만</td><td>프롬프트에 <code>ultrathink</code>라고 적기</td></tr>
                         </tbody>
                     </table>
                 </div>
+            </div>
+            <div class="nm-card" data-tool="codex" style="display:none;">
+                <div class="table-wrapper">
+                    <table>
+                        <tbody>
+                            <tr><td>상태</td><td>기본적으로 켜져 있음 (별도 설정 불필요)</td></tr>
+                            <tr><td>깊이 조절</td><td><code>/model</code> 화면에서 모델과 함께 고름</td></tr>
+                            <tr><td>단계</td><td>Low · Medium(기본) · High · Extra High · Max · Ultra</td></tr>
+                            <tr><td>Ultra는 무엇이 다른가</td><td>가장 깊게 생각하면서 스스로 일을 쪼개 나눠 맡김</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <span class="tool-note codex"><b>끄는 스위치는 없습니다.</b> Codex는 생각 기능 자체를 켜고 끄는 대신, 강도를 여섯 단계로 조절합니다. 가장 낮은 <code>Low</code>가 사실상 가장 가벼운 설정입니다.</span>
             </div>
         </section>
 
@@ -1088,13 +1277,22 @@ claude</code>
                             <tr><th>파일</th><th>위치</th><th>용도</th></tr>
                         </thead>
                         <tbody>
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">프로젝트 범위 (이 레포에서만 적용)</td></tr>
-                            <tr><td><code>CLAUDE.md</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트별 규칙</td></tr>
-                            <tr><td><code>.claude/commands/</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트 전용 명령어</td></tr>
-                            <tr><td><code>.claude/settings.json</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트별 설정</td></tr>
-                            <tr style="background:rgba(217,119,87,0.07);"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange);padding:10px 16px;">사용자 범위 (모든 프로젝트에 적용)</td></tr>
-                            <tr><td><code>~/.claude/CLAUDE.md</code></td><td>내 컴퓨터 홈 폴더</td><td>전역 규칙</td></tr>
-                            <tr><td><code>~/.claude/commands/</code></td><td>내 컴퓨터 홈 폴더</td><td>개인 전용 명령어</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);" data-tool="claude"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">프로젝트 범위 (이 레포에서만 적용)</td></tr>
+                            <tr data-tool="claude"><td><code>CLAUDE.md</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트별 규칙</td></tr>
+                            <tr data-tool="claude"><td><code>.claude/commands/</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트 전용 명령어</td></tr>
+                            <tr data-tool="claude"><td><code>.claude/settings.json</code></td><td>프로젝트 최상위 폴더</td><td>프로젝트별 설정</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);" data-tool="claude"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">사용자 범위 (모든 프로젝트에 적용)</td></tr>
+                            <tr data-tool="claude"><td><code>~/.claude/CLAUDE.md</code></td><td>내 컴퓨터 홈 폴더</td><td>전역 규칙</td></tr>
+                            <tr data-tool="claude"><td><code>~/.claude/commands/</code></td><td>내 컴퓨터 홈 폴더</td><td>개인 전용 명령어</td></tr>
+
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);display:none;" data-tool="codex"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">프로젝트 범위 (이 레포에서만 적용)</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td><code>AGENTS.md</code></td><td>저장소 루트부터 하위 폴더까지</td><td>프로젝트별 규칙. 루트에서 아래로 이어 붙이고, 가까운 파일이 우선</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td><code>AGENTS.override.md</code></td><td>같은 폴더</td><td>같은 폴더의 AGENTS.md 대신 읽힘</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td><code>.agents/skills/</code></td><td>지금 폴더부터 저장소 루트까지</td><td>프로젝트 전용 스킬. 폴더마다 두면 올라가며 모두 읽음</td></tr>
+                            <tr style="background:rgba(var(--ant-orange-rgb),0.07);display:none;" data-tool="codex"><td colspan="3" style="font-weight:700;font-size:13px;color:var(--ant-orange-text);padding:10px 16px;">사용자 범위 (모든 프로젝트에 적용)</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td><code>~/.codex/AGENTS.md</code></td><td>내 컴퓨터 홈 폴더</td><td>전역 규칙. 가장 먼저 읽힘</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td><code>~/.agents/skills/</code></td><td>내 컴퓨터 홈 폴더</td><td>개인 전용 스킬. 폴더 안에 <code>SKILL.md</code>(앞머리에 name·description)</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td><code>~/.codex/prompts/</code></td><td>내 컴퓨터 홈 폴더</td><td>커스텀 프롬프트(<code>/prompts:이름</code>). 공식 문서상 더 이상 권장하지 않음</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1115,12 +1313,21 @@ claude</code>
                             <tr><th>증상</th><th>해결</th></tr>
                         </thead>
                         <tbody>
-                            <tr><td>응답이 느림</td><td><code>/model</code> 로 Sonnet 또는 Haiku 전환</td></tr>
-                            <tr><td>에러 발생</td><td><code>/doctor</code> 실행</td></tr>
-                            <tr><td>대화 용량 부족</td><td><code>/compact</code> 또는 <code>/clear</code></td></tr>
-                            <tr><td>이상한 응답</td><td><code>/clear</code> 후 다시 시작</td></tr>
-                            <tr><td>파일 수정 안 됨</td><td>권한 확인, 자동승인 모드 전환</td></tr>
-                            <tr><td>파일을 못 찾음</td><td><code>@파일명</code> 으로 직접 지정</td></tr>
+                            <tr data-tool="claude"><td>응답이 느림</td><td><code>/model</code> 로 Sonnet 또는 Haiku 전환</td></tr>
+                            <tr data-tool="claude"><td>에러 발생</td><td><code>/doctor</code> 실행</td></tr>
+                            <tr data-tool="claude"><td>대화 용량 부족</td><td><code>/compact</code> 또는 <code>/clear</code></td></tr>
+                            <tr data-tool="claude"><td>이상한 응답</td><td><code>/clear</code> 후 다시 시작</td></tr>
+                            <tr data-tool="claude"><td>파일 수정 안 됨</td><td>권한 확인, 자동승인 모드 전환</td></tr>
+                            <tr data-tool="claude"><td>파일을 못 찾음</td><td><code>@파일명</code> 으로 직접 지정</td></tr>
+
+                            <tr data-tool="codex" style="display:none;"><td>응답이 느림</td><td><code>/model</code> 로 Terra 또는 Luna 전환, 추론 강도도 함께 낮추기</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td>에러 발생</td><td>터미널에서 <code>codex doctor</code> 실행</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td>대화 용량 부족</td><td><code>/compact</code> 또는 <code>/clear</code></td></tr>
+                            <tr data-tool="codex" style="display:none;"><td>이상한 응답</td><td><code>/clear</code> 후 다시 시작, 또는 <code>Esc</code> 두 번으로 잘못 보낸 지시부터 다시</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td>파일 수정 안 됨</td><td><code>/permissions</code> 확인. Read only면 수정이 막힘</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td>작업 폴더 밖을 못 건드림</td><td>정상 동작. 필요하면 <code>/approve</code> 또는 <code>/sandbox-add-read-dir</code></td></tr>
+                            <tr data-tool="codex" style="display:none;"><td>파일을 못 찾음</td><td><code>@파일명</code> 또는 <code>/mention</code> 으로 직접 지정</td></tr>
+                            <tr data-tool="codex" style="display:none;"><td>지운 대화를 되찾고 싶음</td><td>터미널에서 <code>codex resume</code></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1131,7 +1338,7 @@ claude</code>
 
     <footer>
         <p class="footer-brand">AI ROASTING</p>
-        <p class="footer-text">비즈니스 리더를 위한 Claude 완전 정복</p>
+        <p class="footer-text">AI 에이전트를 고용하라</p>
         <span class="footer-link-row">
             <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
             <span class="footer-link-sep" aria-hidden="true">·</span>
@@ -1143,11 +1350,47 @@ claude</code>
     <script>
 // ── Mode Tabs ──
 function switchMode(mode) {
-    ['nocode','cli'].forEach(function(m){
-        var t=document.getElementById('tab-'+m); if(t) t.classList.toggle('active', mode===m);
-        var p=document.getElementById('pages-'+m); if(p) p.style.display = mode===m ? 'flex' : 'none';
+    // 토글은 그 묶음의 첫 페이지로 데려간다. 이미 그 페이지면 표시만 바꾼다
+    var group = document.getElementById('pages-' + mode);
+    var first = group ? group.querySelector('a.header-page-link') : null;
+    if (first) {
+        var href = first.getAttribute('href') || '';
+        var to = href.split('#')[0].split('/').pop();
+        var here = location.pathname.split('/').pop() || 'index.html';
+        if (to && to !== here) { location.href = href; return; }
+    }
+    document.querySelectorAll('.mode-tab').forEach(function(t){
+        var on = t.id === 'tab-' + mode;
+        t.classList.toggle('active', on);
+        if (t.hasAttribute('aria-selected')) t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.header-pages[id^="pages-"]').forEach(function(p){
+        p.style.display = (p.id === 'pages-' + mode) ? 'flex' : 'none';
     });
 }
+
+// ── 도구 전환 (Claude Code / Codex) · TOOL-SWITCH-STD ──
+// CLI 3페이지가 localStorage 'cli-tool' 하나를 함께 씁니다.
+// data-tool="claude" 또는 "codex"가 붙은 요소만 전환하고,
+// 속성이 없는 요소는 두 도구 공통이라 항상 남습니다.
+function switchTool(tool, byUser) {
+    if (tool !== 'claude' && tool !== 'codex') tool = 'claude';
+    document.querySelectorAll('[data-tool]').forEach(function(el) {
+        el.style.display = (el.dataset.tool === tool) ? '' : 'none';
+    });
+    document.querySelectorAll('[data-tool-btn]').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.toolBtn === tool);
+    });
+    document.documentElement.setAttribute('data-active-tool', tool);
+    if (byUser) {
+        try { localStorage.setItem('cli-tool', tool); } catch (e) {}
+    }
+}
+(function() {
+    var savedTool = null;
+    try { savedTool = localStorage.getItem('cli-tool'); } catch (e) {}
+    switchTool(savedTool || 'claude', false);
+})();
 
         // Sub menu active state tracking on scroll
         const sections = document.querySelectorAll('.content-section');
@@ -1167,11 +1410,10 @@ function switchMode(mode) {
         sections.forEach(section => observer.observe(section));
 
         // ── Essential filter toggle ──
-        (function(){
-            const legend = document.querySelector('.legend-essential');
-            if (!legend) return;
-            const slashSection = document.getElementById('slash');
-            const table = slashSection ? slashSection.querySelector('table') : null;
+        // 도구별로 표가 하나씩 있으므로 각 범례를 자기 표에만 묶는다
+        document.querySelectorAll('.legend-essential').forEach(function(legend){
+            const scope = legend.closest('[data-tool]') || document.getElementById('slash');
+            const table = scope ? scope.querySelector('table') : null;
             if (!table) return;
 
             legend.addEventListener('click', () => {
@@ -1196,12 +1438,12 @@ function switchMode(mode) {
                 });
                 finalize();
             });
-        })();
+        });
     </script>
 <script>
 document.addEventListener('keydown', function(e) {
     if (e.key === '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        window.location.href = 'claude-tools.html';
+        window.location.href = 'agent-tools.html';
     }
 });
 </script>
@@ -1282,12 +1524,12 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     transition: all 0.15s;
 }
 .sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
-.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
-.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active { background: rgba(var(--ant-orange-rgb),0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: var(--ant-orange); box-shadow: 0 2px 8px rgba(var(--ant-orange-rgb),0.4); }
 .sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
 .sm-drawer-num {
     width: 28px; height: 28px; border-radius: 50%;
-    background: #B0544A; color: #fff;
+    background: var(--nav-idle); color: #fff;
     font-size: 13px; font-weight: 800;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0; transition: all 0.2s;
@@ -1353,6 +1595,7 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
            섹션명 공통 규격 · AGENTS.md 3.8
            폰트 13px / 800 / 자간 0.5px · 색 #D97757 · 알약 높이 36px
            구분선 여백 위 70px · 아래 22px (모바일 52px·16px)
+           단, 페이지 첫 섹션 구분선만 위 여백 0 (컨테이너 패딩만 남긴다)
            고칠 때는 이 마커 블록만 고치고 전 페이지에 함께 반영한다.
            ══════════════════════════════════════════════════════════════ */
         .step-divider.step-divider,
@@ -1366,6 +1609,24 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
             margin: 70px 0 22px;
             position: relative;
             text-align: center;
+        }
+        /* 첫 섹션 구분선은 위 여백을 걷어낸다. 컨테이너 패딩(32px, 모바일 24px)만 남는다 */
+        main.container > .step-divider:first-child,
+        main.container > .cat-label:first-child,
+        main.container > .chapter-divider:first-child,
+        main.container > .design-cat:first-child,
+        main.container > :first-child > .step-divider:first-child,
+        main.container > :first-child > .cat-label:first-child,
+        main.container > :first-child > .chapter-divider:first-child,
+        main.container > :first-child > .design-cat:first-child,
+        main.container > :empty:first-child + .step-divider,
+        main.container > :empty:first-child + .cat-label,
+        main.container > :empty:first-child + .chapter-divider,
+        main.container > :empty:first-child + .design-cat,
+        main.container > :empty:first-child + * > .step-divider:first-child,
+        main.container > :empty:first-child + * > .cat-label:first-child,
+        main.container > :empty:first-child + * > .chapter-divider:first-child {
+            margin-top: 0;
         }
         .step-divider::before, .step-divider::after,
         .chapter-divider::before, .chapter-divider::after {
@@ -1447,7 +1708,7 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
 <div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
 <aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
     <div class="sm-drawer-heading" id="smDrawerHeading"></div>
-    <a href="index.html" class="sm-drawer-back">
+    <a href="index.html#section-3" class="sm-drawer-back">
         <span aria-hidden="true">←</span><span>목록으로</span>
     </a>
     <nav class="sm-drawer-list" id="smDrawerList"></nav>
