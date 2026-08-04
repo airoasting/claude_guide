@@ -541,7 +541,7 @@
                     <div class="ab-log">
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.3</span><span class="ab-date">2026-08-02</span></div>
-                            <div><p class="ab-log-title">2단계를 확장 프로그램과 스마트폰 앱으로 나눔</p><p class="ab-log-desc">2단계를 '확장 프로그램'(크롬·MS Office)과 '스마트폰 앱'(Claude·ChatGPT) 두 갈래로 나눴습니다. '스마트폰에서 ChatGPT 쓰기'를 새로 만들어 대화·프로젝트·예약 작업·Codex 리모트·음성을 정리하고, Claude 앱과 무엇이 다른지 비교했습니다. 2단계 네 페이지 헤더에는 두 갈래를 오가는 토글을 달았습니다.</p></div>
+                            <div><p class="ab-log-title">2단계를 확장 프로그램과 스마트폰 앱으로 나눔</p><p class="ab-log-desc">2단계를 '확장 프로그램'(크롬·MS Office)과 '스마트폰 앱'(Claude·ChatGPT) 둘로 나눴습니다. '스마트폰에서 ChatGPT 쓰기'를 새로 만들어 대화·프로젝트·예약 작업·Codex 리모트·음성을 정리하고, Claude 앱과 무엇이 다른지 비교했습니다.</p></div>
                         </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.2</span><span class="ab-date">2026-07-26</span></div>

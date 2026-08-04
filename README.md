@@ -8,7 +8,7 @@
 
 ![Version](https://img.shields.io/badge/Version-3.3-4CAF50)
 ![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
-![Pages](https://img.shields.io/badge/Pages-43-8A4FE0)
+![Pages](https://img.shields.io/badge/Pages-47-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
 ![Language](https://img.shields.io/badge/Language-%ED%95%9C%EA%B5%AD%EC%96%B4-2196F3)
 ![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000)
@@ -44,13 +44,29 @@
 | [AI의 동조를 줄이는 법](https://airoasting.vercel.app/ai-sycophancy.html) | 무조건 맞장구치는 AI의 아첨(sycophancy)을 걸러내는 법 |
 | [AI의 환각을 벗어나는 법](https://airoasting.vercel.app/ai-hallucination.html) | 빅4 컨설팅사도 가짜 각주에 걸렸습니다. AI가 지어내는 것을 막는 실전 검증 습관 |
 
-### 2단계. 확장 프로그램
+### 2단계. 확장과 위임
+
+**쓰던 화면에 AI를 붙이기**
 
 | 페이지 | 설명 |
 |--------|------|
-| [크롬에서 Claude 사용](https://airoasting.vercel.app/chrome-plugin.html) | 브라우저를 떠나지 않고 요약, 작성, 검색 보조 |
-| [MS Office에서 Claude·ChatGPT 사용](https://airoasting.vercel.app/office-plugin.html) | 엑셀, 파워포인트, 워드에서 두 AI를 쓰는 법. 공통점과 차이 정리 |
-| [스마트폰에서 Claude 쓰기](https://airoasting.vercel.app/claude-mobile.html) | 앱 여섯 개 메뉴(채팅·프로젝트·아티팩트·코드·Dispatch·코워크)와 폰에서 일 맡기는 법 |
+| [크롬에서 Claude·ChatGPT 사용](https://airoasting.vercel.app/chrome-plugin.html) | 보고 있는 페이지에서 바로 요약, 번역, 화면 조작을 실행 |
+| [MS Office에서 Claude·ChatGPT 사용](https://airoasting.vercel.app/office-plugin.html) | 엑셀, 파워포인트, 워드에서 두 AI를 호출하는 방법. 기능 차이와 요금제 조건 정리 |
+
+**목표만 주고 자리 비우기**
+
+| 페이지 | 설명 |
+|--------|------|
+| [Claude Cowork로 업무 맡기기](https://airoasting.vercel.app/claude-cowork.html) | 입력창에서 Cowork를 선택하면 로컬 파일을 열어 처리하고 결과를 파일로 저장 |
+| [ChatGPT Work로 업무 맡기기](https://airoasting.vercel.app/chatgpt-work.html) | Chat 대신 Work를 선택하면 연결된 도구에서 자료를 모아 슬라이드와 스프레드시트로 |
+| [코워크 실전 과제 8가지](https://airoasting.vercel.app/cowork-tasks.html) | 이메일 요약에서 데이터 분석, 주간 브리핑 자동화까지 프롬프트 그대로 |
+
+**노트북 밖에서도 이어서 쓰기**
+
+| 페이지 | 설명 |
+|--------|------|
+| [스마트폰에서 Claude 쓰기](https://airoasting.vercel.app/claude-mobile.html) | 앱 메뉴 여섯 개 비교. 코드, Dispatch, 코워크의 차이와 폰에서 일 맡기는 절차 |
+| [스마트폰에서 ChatGPT 쓰기](https://airoasting.vercel.app/chatgpt-mobile.html) | 폰에서 끝낼 작업과 컴퓨터에 맡길 작업 구분. 프로젝트, 예약 작업, Codex 리모트 |
 
 ### 3단계. 바이브 코딩
 
@@ -112,8 +128,8 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [시로 쓴 자화상](https://airoasting.vercel.app/showcase-poems.html) | 멀티 페르소나 실습으로 완성한 시 39편, AI 시대 일하는 사람들의 하루 |
-| [스탑워치 쇼케이스](https://airoasting.vercel.app/showcase-stopwatch.html) | 수강생이 직접 만든 스탑워치 31선을 라이브로 임베드한 모음 |
+| [시로 쓴 자화상](https://airoasting.vercel.app/showcase-poems.html) | 멀티 페르소나 실습으로 완성한 시 47편, AI 시대 일하는 사람들의 하루 |
+| [스탑워치 쇼케이스](https://airoasting.vercel.app/showcase-stopwatch.html) | 수강생이 직접 만든 스탑워치 29선을 라이브로 임베드한 모음 |
 | [스킬 쇼케이스](https://airoasting.vercel.app/showcase-skills.html) | 수강생들이 자기 업무를 Claude 스킬로 만든 실전 자동화 26선 |
 
 ---
@@ -186,8 +202,8 @@
 
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 한 주 작업을 정리해 매주 업데이트하고 있습니다.
 
-- **v3.3 · 2026-08-02: 이름 확장과 표지·모바일 재설계**
-  가이드 이름을 '모두의 Claude 완전 정복'으로 넓혔습니다. 첫 화면 표지는 제목을 한 줄로 세우고, 발치에 마스코트 애니메이션과 상표를 놓았습니다. 모바일에서는 로고 인트로를 걷어내 표지가 첫 화면이 되게 하고, 스크롤이 중간에 멈추던 자리를 없앴습니다. 스킬 쇼케이스는 사모·벤처 투자 5종을 더해 26선이 됐고, 사이트 링크는 커스텀 도메인으로 정리했습니다.
+- **v3.3 · 2026-08-02: 이름 개칭과 ChatGPT 트랙 신설**
+  가이드 이름을 'AI 에이전트를 고용하라'로 바꿨습니다. Claude 한 도구에서 Claude와 ChatGPT 두 도구로 넓히면서 페이지 이름 다섯 개도 함께 바꿨습니다(orientation, agent-tools, agents-md-templates, office-plugin, cli-best-practices). 옛 주소로 들어와도 새 주소로 이어집니다. 2단계는 '확장과 위임'으로 바꿔 붙이기·맡기기·스마트폰 세 묶음으로 정리하고, Claude Cowork, ChatGPT Work, 코워크 실전 과제, 스마트폰에서 ChatGPT 쓰기 네 페이지를 신설했습니다. 3단계는 바이브 코딩 101과 실전 과제 8가지로 이름을 바꿨습니다. 첫 화면 표지는 제목을 한 줄로 세우고 발치에 마스코트 애니메이션과 상표를 놓았습니다. 모바일에서는 로고 인트로를 걷어내 표지가 첫 화면이 되게 하고, 스크롤이 중간에 멈추던 자리를 없앴습니다. 스킬 쇼케이스는 사모·벤처 투자 5종을 추가해 26선이 됐습니다.
 - **v3.2 · 2026-07-26: Opus 5 최신화와 스마트폰 페이지 신설**
   7월 24일 나온 Claude Opus 5에 맞춰 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 고쳤습니다. 5단계에는 '헤르메스 에이전트' 페이지를 넣었습니다. 2단계에는 '스마트폰에서 Claude 쓰기'를 새로 만들어 앱 메뉴 여섯 개와 폰에서 일을 맡기는 법을 정리했습니다.
 - **v3.1 · 2026-07-19: 디자인·시각화 갤러리 4종 재편**

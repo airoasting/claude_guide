@@ -3807,8 +3807,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (hint) { hint.style.opacity = ''; hint.style.pointerEvents = ''; }
 
         // 재생이 끝나면 표지로 내려보낸다. 표지는 100svh라 이 위치에서 한 화면에 다 들어온다.
-        // 사용자가 이미 손으로 내려갔으면 끼어들지 않는다
-        if (!jumped && intro.getBoundingClientRect().top > -10) {
+        // 사용자가 이미 손으로 내려갔으면 끼어들지 않는다.
+        // 인트로가 접힌 뒤에는 offsetHeight가 0이고 rect.top도 0이라 아래 조건이 늘 참이 된다.
+        // 그대로 두면 본문을 읽던 사람을 0(접힌 뒤의 표지 자리)으로 끌어올린다
+        if (!jumped && intro.offsetHeight > 0 && intro.getBoundingClientRect().top > -10) {
             jumped = true;
             window.scrollTo({ top: intro.offsetHeight, behavior: reduce.matches ? 'auto' : 'smooth' });
         }
@@ -3837,6 +3839,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (jumped) return;
         var track = intro.offsetHeight - window.innerHeight;
         if (track <= 0) return;
+        // 이 이동은 인트로 안에서 표지로 내려보내는 것이다. 표지를 이미 지난 자리에서 부르면
+        // 본문을 읽던 사람을 위로 끌어올린다. 본문 중간에서 새로고침하면 브라우저가 그 자리를
+        // 되살리는데, jumped는 거짓으로 남아 있어 첫 스크롤에 표지로 튕겨 나갔다
+        if (window.scrollY >= intro.offsetHeight) { jumped = true; return; }
         if (window.scrollY > track * 0.75) {
             jumped = true;
             if (raf) { cancelAnimationFrame(raf); raf = null; }
@@ -3884,7 +3890,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('pointerleave', onLeave);
     }
 
-    function autoPlay() { if (!everPlayed) play(); }
+    // wheel·touchmove·keydown도 이 함수를 직접 부른다. 접힌 뒤에는 어느 쪽으로 들어와도 재생하지 않는다
+    function autoPlay() {
+        if (document.documentElement.classList.contains('no-intro')) return;
+        if (!everPlayed) play();
+    }
 
     // 맨 위로 돌아오면 처음 상태로 되돌린다. 아래로 내려가며 마지막 프레임에서 멈춘 채로
     // 남아 있으면, 다시 올라왔을 때 로고가 아니라 로봇이 보이고 재생도 되지 않는다
@@ -3901,6 +3911,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function onScroll() {
+        // 트랙을 지나면 인트로는 접힌다(no-intro). 그 뒤의 0은 로고 화면이 아니라 표지다.
+        // 여기서 손을 떼지 않으면 표지에 올라올 때마다 재생이 다시 걸리고,
+        // 몇 초 뒤 재생이 끝나며 본문을 읽던 사람을 표지로 끌어올린다
+        if (document.documentElement.classList.contains('no-intro')) return;
         if (window.scrollY <= 4) { resetToLogo(); return; }
         autoPlay();
         maybeJump();
