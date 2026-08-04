@@ -167,7 +167,7 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [파일 유형 한눈에 보기](https://airoasting.vercel.app/file-types.html) | .md부터 .py까지 자주 만나는 파일 여덟 가지를 AI가 읽고 쓰는 관점으로 비교 |
+| [파일 유형 한눈에 보기](https://airoasting.vercel.app/file-types.html) | .md부터 .hwpx까지 자주 만나는 파일 10가지를 AI가 읽고 쓰는 관점으로 비교 |
 | [라이선스 가이드](https://airoasting.vercel.app/license-compare.html) | MIT, Apache, GPL 등 오픈소스 라이선스를 신호등(초록·노랑·빨강)으로 정리 |
 | [모르는 용어, 바로 찾기](https://airoasting.vercel.app/glossary.html) | AI 70년을 여섯 장면으로 나눠 핵심 용어 73개를 담은 비즈니스 리더용 사전 |
 
