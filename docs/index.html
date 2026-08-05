@@ -70,6 +70,11 @@
         html.no-smooth { scroll-behavior: auto !important; }
         .intro {
             position: relative; height: 300svh;
+            /* INTRO-OFF · 로고 인트로는 어느 화면에서도 띄우지 않는다.
+               처음 들어와도 표지가 첫 화면이다. 모바일에 먼저 적용했던 규칙을 전 화면으로 올렸다.
+               head의 no-intro 고정이 프레임 69장 내려받기까지 막는다.
+               되살리려면 이 한 줄과 아래 .cover-up의 INTRO-OFF 줄, head 스크립트를 함께 되돌린다 */
+            display: none;
             /* 표지 머리 단추로 인트로를 되살리면 위쪽에 300svh가 갑자기 생긴다.
                스크롤 앵커링이 켜져 있으면 브라우저가 화면을 붙잡으려고 스크롤 값을 그만큼 밀어 올리고,
                그 스크롤이 접힘 판정을 다시 불러 인트로가 즉시 도로 접힌다. 여기서는 앵커링을 끈다 */
@@ -300,9 +305,8 @@
             text-align: center;
         }
         /* ── 표지 머리 · 로고 화면으로 ──
-           인트로는 표지를 지나는 순간 문서에서 접힌다(파일 끝 스크립트). 그래서 위로 굴려도
-           로고 화면은 나오지 않는다. 되돌아가는 길은 이 단추 하나뿐이라 눈에 띄어야 하고,
-           동시에 표지의 주인공은 제목이라 조용해야 한다. 판면 가운데에 두어 제목과 축을 맞춘다 */
+           INTRO-OFF로 로고 화면 자체가 사라졌으므로 돌아갈 곳이 없는 이 단추도 내린다.
+           내리는 규칙은 이 블록 끝에 있다. 아래 규격은 인트로를 되살릴 때 그대로 쓰려고 남겨 둔다 */
         .cover-up {
             flex: 0 0 auto; align-self: center;
             display: inline-flex; align-items: center; justify-content: center;
@@ -329,6 +333,8 @@
             0%, 100% { transform: translateY(2.5px); opacity: 0.68; }
             45%      { transform: translateY(-3px);  opacity: 1; }
         }
+        /* INTRO-OFF · 위 규격을 모두 덮는 자리에 둔다. 앞에 두면 inline-flex에 덮여 단추가 도로 보인다 */
+        .cover-up { display: none; }
         /* 표지 가운데 · 제목. 발치를 비워 제목을 광학 중심으로 올린다 */
         .cover-mid {
             flex: 1; min-height: 0;
@@ -2036,10 +2042,13 @@
 
     </style>
 <script>
-// 목록으로 돌아오거나 #section-N 주소를 새로 고치면 표지 로고가 한 번 번쩍인다.
-// 브라우저가 맨 위를 먼저 그리고, 파일 끝의 착지 스크립트가 그다음에 내려보내기 때문이다.
-// 첫 페인트 전에 여기서 로고 트랙을 접어 두면 번쩍임 자체가 생기지 않는다
-if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no-intro', 'no-smooth');
+// INTRO-OFF · 로고 트랙은 언제나 접은 채로 시작한다. 처음 들어와도 표지가 첫 화면이다.
+// 첫 페인트 전에 접어야 로고가 한 번 번쩍이지 않고, 인트로 스크립트도 같은 조건에서 빠져나가
+// 프레임 69장(1.7MB)을 내려받지 않는다
+document.documentElement.classList.add('no-intro');
+// 목록으로 돌아오거나 #section-N 주소를 새로 고칠 때는 부드러운 이동도 끈다.
+// 브라우저가 맨 위를 먼저 그리고, 파일 끝의 착지 스크립트가 그다음에 내려보내기 때문이다
+if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no-smooth');
 </script>
 </head>
 <body>
