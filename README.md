@@ -61,13 +61,6 @@
 | [ChatGPT Work로 업무 맡기기](https://airoasting.vercel.app/chatgpt-work.html) | Chat 대신 Work를 선택하면 연결된 도구에서 자료를 모아 슬라이드와 스프레드시트로 |
 | [코워크 실전 과제 8가지](https://airoasting.vercel.app/cowork-tasks.html) | 이메일 요약에서 데이터 분석, 주간 브리핑 자동화까지 프롬프트 그대로 |
 
-**노트북 밖에서도 이어서 쓰기**
-
-| 페이지 | 설명 |
-|--------|------|
-| [스마트폰에서 Claude 쓰기](https://airoasting.vercel.app/claude-mobile.html) | 앱 메뉴 여섯 개 비교. 코드, Dispatch, 코워크의 차이와 폰에서 일 맡기는 절차 |
-| [스마트폰에서 ChatGPT 쓰기](https://airoasting.vercel.app/chatgpt-mobile.html) | 폰에서 끝낼 작업과 컴퓨터에 맡길 작업 구분. 프로젝트, 예약 작업, Codex 리모트 |
-
 ### 3단계. 바이브 코딩
 
 **노코드 트랙**
@@ -111,6 +104,13 @@
 | [루프 엔지니어링](https://airoasting.vercel.app/loop-engineering.html) | 행동하고 결과를 관찰해 조정하기를 목표에 닿을 때까지 반복하는 작업 구조 설계 |
 | [Routines 예약 실행](https://airoasting.vercel.app/routines.html) | 정해진 시각에 클라우드에서 무인으로 도는 예약형 에이전트 |
 | [헤르메스 에이전트](https://airoasting.vercel.app/hermes-agent.html) | 늘 켜 둔 컴퓨터나 빌린 서버에 오픈소스 에이전트를 상주시키고 텔레그램으로 부르기 |
+
+**노트북 밖에서도 이어서 쓰기**
+
+| 페이지 | 설명 |
+|--------|------|
+| [스마트폰에서 Claude 쓰기](https://airoasting.vercel.app/claude-mobile.html) | 앱 메뉴 여섯 개 비교. 코드, Dispatch, 코워크의 차이와 폰에서 일 맡기는 절차 |
+| [스마트폰에서 ChatGPT 쓰기](https://airoasting.vercel.app/chatgpt-mobile.html) | 폰에서 끝낼 작업과 컴퓨터에 맡길 작업 구분. 프로젝트, 예약 작업, Codex 리모트 |
 
 ---
 
