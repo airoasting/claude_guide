@@ -6,7 +6,7 @@
 
 # AI ROASTING · AI 에이전트를 고용하라
 
-![Version](https://img.shields.io/badge/Version-3.3-4CAF50)
+![Version](https://img.shields.io/badge/Version-3.4-4CAF50)
 ![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
 ![Pages](https://img.shields.io/badge/Pages-47-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
@@ -202,6 +202,8 @@
 
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 한 주 작업을 정리해 매주 업데이트하고 있습니다.
 
+- **v3.4 · 2026-08-09: 스마트폰 앱 트랙 이동과 5단계 토글 신설**
+  스마트폰 앱 두 페이지는 2단계에서 5단계로 옮기고, 5단계 다섯 페이지에 루프 자동화와 스마트폰 앱을 오가는 토글을 달았습니다. 메인은 '80 에이전트 고용 실전' 띠와 외부 사이트 카드 세 장을 실전 예제 아래로 옮겨 정리했습니다. 플러그인 페이지에는 Claude Code와 Codex의 차이를 자리마다 보여 주는 토글을 넣었습니다.
 - **v3.3 · 2026-08-02: 이름 개칭과 ChatGPT 트랙 신설**
   가이드 이름을 'AI 에이전트를 고용하라'로 바꿨습니다. Claude 한 도구에서 Claude와 ChatGPT 두 도구로 넓히면서 페이지 이름 다섯 개도 함께 바꿨습니다(orientation, agent-tools, agents-md-templates, office-plugin, cli-best-practices). 옛 주소로 들어와도 새 주소로 이어집니다. 2단계는 '확장과 위임'으로 바꿔 붙이기·맡기기·스마트폰 세 묶음으로 정리하고, Claude Cowork, ChatGPT Work, 코워크 실전 과제, 스마트폰에서 ChatGPT 쓰기 네 페이지를 신설했습니다. 3단계는 바이브 코딩 101과 실전 과제 8가지로 이름을 바꿨습니다. 첫 화면 표지는 제목을 한 줄로 세우고 발치에 마스코트 애니메이션과 상표를 놓았습니다. 모바일에서는 로고 인트로를 걷어내 표지가 첫 화면이 되게 하고, 스크롤이 중간에 멈추던 자리를 없앴습니다. 스킬 쇼케이스는 사모·벤처 투자 5종을 추가해 26선이 됐습니다.
 - **v3.2 · 2026-07-26: Opus 5 최신화와 스마트폰 페이지 신설**

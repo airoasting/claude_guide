@@ -536,9 +536,13 @@
                     <p class="ab-eyebrow ab-latin">Changelog</p>
                     <div class="ab-sec-head">
                         <h2 class="ab-sec-title">업데이트 내역</h2>
-                        <span class="ab-sec-note">최신순 · 전체 24건</span>
+                        <span class="ab-sec-note">최신순 · 전체 25건</span>
                     </div>
                     <div class="ab-log">
+                        <div class="ab-log-item">
+                            <div class="ab-log-meta"><span class="ab-ver">v3.4</span><span class="ab-date">2026-08-09</span></div>
+                            <div><p class="ab-log-title">스마트폰 앱 트랙 이동과 5단계 토글 신설</p><p class="ab-log-desc">스마트폰 앱 두 페이지는 2단계에서 5단계로 옮기고, 5단계 다섯 페이지에 루프 자동화와 스마트폰 앱을 오가는 토글을 달았습니다. 메인은 '80 에이전트 고용 실전' 띠와 외부 사이트 카드 세 장을 실전 예제 아래로 옮겨 정리했습니다. 플러그인 페이지에는 Claude Code와 Codex의 차이를 자리마다 보여 주는 토글을 넣었습니다.</p></div>
+                        </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.3</span><span class="ab-date">2026-08-02</span></div>
                             <div><p class="ab-log-title">2단계를 확장 프로그램과 스마트폰 앱으로 나눔</p><p class="ab-log-desc">2단계를 '확장 프로그램'(크롬·MS Office)과 '스마트폰 앱'(Claude·ChatGPT) 둘로 나눴습니다. '스마트폰에서 ChatGPT 쓰기'를 새로 만들어 대화·프로젝트·예약 작업·Codex 리모트·음성을 정리하고, Claude 앱과 무엇이 다른지 비교했습니다.</p></div>
@@ -559,12 +563,12 @@
                             <div class="ab-log-meta"><span class="ab-ver">v2.9</span><span class="ab-date">2026-07-05</span></div>
                             <div><p class="ab-log-title">다른 콘텐츠 개편과 앤트로픽 소개 최신화</p><p class="ab-log-desc">메인 '다른 콘텐츠' 링크를 10선으로 다시 골라 한국어 윤문 스킬과 GPT 이미지 프롬프트 랩을 넣었습니다. 실전 예제의 기본 예제 세 과제는 구성을 가볍게 하려고 백업으로 내렸습니다. 앤트로픽 소개(엿보기)에는 6월 말 소네트 5와 클로드 사이언스 공개, 페이블 5의 수출통제 해제와 재공개 소식을 반영했고, 히어로의 최신 모델 표기는 Fable 5·Opus 4.8·Sonnet 5로 고쳤습니다.</p></div>
                         </div>
-                        <div class="ab-log-item">
-                            <div class="ab-log-meta"><span class="ab-ver">v2.8</span><span class="ab-date">2026-06-28</span></div>
-                            <div><p class="ab-log-title">스킬 라이브러리 확장과 라이선스 정리</p><p class="ab-log-desc">수강생이 직접 만든 스킬을 더해 스킬 쇼케이스를 21선으로 늘렸습니다. 모든 스킬의 README와 라이선스는 MIT로 통일하고, 샘플에 드러난 실명과 연락처는 전부 익명으로 바꿨습니다. 검증 트랙(동조·환각)에는 1차 출처로 교차검증한 실제 사례를 더했습니다. 용어 사전에는 PowerShell과 파이썬을 넣어 73선으로 늘렸습니다.</p></div>
-                        </div>
                         <details class="ab-more">
-                            <summary>이전 기록 18건 더 보기</summary>
+                            <summary>이전 기록 19건 더 보기</summary>
+                            <div class="ab-log-item">
+                                <div class="ab-log-meta"><span class="ab-ver">v2.8</span><span class="ab-date">2026-06-28</span></div>
+                                <div><p class="ab-log-title">스킬 라이브러리 확장과 라이선스 정리</p><p class="ab-log-desc">수강생이 직접 만든 스킬을 더해 스킬 쇼케이스를 21선으로 늘렸습니다. 모든 스킬의 README와 라이선스는 MIT로 통일하고, 샘플에 드러난 실명과 연락처는 전부 익명으로 바꿨습니다. 검증 트랙(동조·환각)에는 1차 출처로 교차검증한 실제 사례를 더했습니다. 용어 사전에는 PowerShell과 파이썬을 넣어 73선으로 늘렸습니다.</p></div>
+                            </div>
                             <div class="ab-log-item">
                                 <div class="ab-log-meta"><span class="ab-ver">v2.7</span><span class="ab-date">2026-06-21</span></div>
                                 <div><p class="ab-log-title">쇼케이스 보강</p><p class="ab-log-desc">수강생들이 직접 만든 결과물을 모아 수강생 쇼케이스를 새로 정리했습니다. 전 세계 클로드 코드 해커톤 우승작 14선을 모은 쇼케이스도 함께 손봤습니다. 어디까지 가능한지 실제 사례로 바로 확인할 수 있습니다.</p></div>
