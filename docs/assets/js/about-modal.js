@@ -330,6 +330,12 @@
         }
         .ab-colophon p { margin: 0 0 6px; }
         .ab-colophon .ab-meta { font-size: 12.5px; color: var(--ab-dim); }
+        .ab-colophon a {
+            color: var(--ab-tan); text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.26);
+            transition: border-color 0.2s;
+        }
+        .ab-colophon a:hover { border-bottom-color: var(--ab-tan); }
         .ab-colophon h3 {
             margin: 15px 0 6px; padding-top: 14px;
             border-top: 1px solid var(--ab-line);
@@ -675,6 +681,9 @@
 
                         <h3>4. 면책 및 준거법</h3>
                         <p>본 콘텐츠는 있는 그대로(as-is) 제공되며, 사용으로 발생한 손해에 대해 작성자는 책임을 지지 않습니다. 본 약관은 대한민국법에 따라 해석되며, 사전 고지 후 변경될 수 있습니다.</p>
+
+                        <h3>5. 방문 통계</h3>
+                        <p>본 사이트는 방문 통계 관리를 목적으로 Google Analytics를 사용하며, 이 과정에서 방문자의 브라우저에 쿠키를 저장합니다. 수집 항목은 페이지 주소, 방문 시각, 대략적인 지역, 브라우저와 기기 종류, 유입 경로입니다. 이름과 연락처처럼 개인을 직접 식별하는 정보는 수집하지 않습니다. 방문자는 브라우저 설정이나 <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">구글이 제공하는 차단 프로그램</a>으로 이 수집을 거부할 수 있습니다.</p>
                     </div>
                 </section>
             </div>
