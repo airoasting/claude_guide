@@ -15,8 +15,13 @@
        기본값(G-XXXXXXXXXX)이면 아무것도 수집하지 않는다. */
     var GA_ID = 'G-CXV10TSXZ5';
 
-    /* 실제 배포 도메인에서만 수집한다. localhost 와 file:// 은 자동 제외된다. */
-    var HOSTS = ['airoasting.github.io'];
+    /* 실제 배포 도메인에서만 수집한다. localhost 와 file:// 은 자동 제외된다.
+       이 사이트는 두 곳에 같은 내용으로 떠 있다.
+         airoasting.github.io/claude_guide/  GitHub Pages (main/docs)
+         airoasting.com                      Vercel, 같은 저장소를 루트로 서빙
+       한쪽만 적으면 다른 쪽 방문자가 통째로 안 잡힌다. 배포처를 늘리면 여기도 늘린다.
+       vercel.app 미리보기 주소는 일부러 뺐다. 시험 배포가 실제 통계를 더럽히지 않게 한다. */
+    var HOSTS = ['airoasting.github.io', 'airoasting.com', 'www.airoasting.com'];
 
     if (GA_ID === 'G-XXXXXXXXXX' || GA_ID.indexOf('G-') !== 0) return;
     if (HOSTS.indexOf(location.hostname) === -1) return;
