@@ -338,7 +338,12 @@
         /* 표지 가운데 · 제목. 발치를 비워 제목을 광학 중심으로 올린다 */
         .cover-mid {
             flex: 1; min-height: 0;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            display: flex; flex-direction: column; align-items: center;
+            /* 아래로 붙인다. 중앙 정렬이면 남는 높이가 소속과 마스코트 사이에 몰려
+               저자 이름이 부제와 마스코트 어디에도 안 붙고 허공에 뜬다.
+               저자 묶음은 마스코트와 한 덩어리로 읽혀야 하므로 아래에 붙이고,
+               위쪽 여백은 .cover-author 의 margin-top 이 정한다 */
+            justify-content: flex-end;
             /* 발치는 마스코트가 채운다. 제목 덩어리는 광학 중심보다 조금 아래에 놓는다 */
             padding: clamp(24px, 7%, 96px) 0 0;
         }
@@ -363,7 +368,7 @@
         /* 부제는 두 단이다. 윗단은 대상과 범위, 아랫단은 방법과 구조.
            제목이 주장을 맡으므로 "누구를 위한 것인가"는 이 윗단이 답한다 */
         .cover-sub {
-            font-size: clamp(13px, 1.55vw, 21px); font-weight: 600;
+            font-size: clamp(15px, 1.74vw, 25px); font-weight: 600;
             /* 0.8은 주황 바탕에서 4.1:1이라 AA를 넘지 못했다. 21px 500은 large text가 아니다 */
             color: rgba(255,255,255,0.93); line-height: 1.6;
             max-width: none; white-space: nowrap;
@@ -375,13 +380,23 @@
         /* 아랫단은 크기와 굵기로만 내린다. 투명도로 내리면 위 주석의 대비 하한을 깬다.
            아랫단이 윗단보다 물리적으로 길어서(판면 대비 73% 대 59%) 같은 크기면 위계가 뒤집힌다 */
         .cover-sub2 {
-            margin-top: 9px;
-            font-size: clamp(10px, 1.11vw, 15px); font-weight: 500;
-            color: rgba(255,255,255,0.93); line-height: 1.6;
+            margin-top: 12px;
+            font-size: clamp(11px, 1.18vw, 16px); font-weight: 500;
+            /* 윗단보다 한 단 물러서게 0.93에서 0.84로 내렸다. 여기가 하한이다.
+               부제2 자리의 실제 배경은 rgb(163,74,42)이고 알파별 대비는
+               0.93=5.32:1, 0.88=4.95:1, 0.84=4.66:1, 0.80=4.38:1 이다.
+               0.80부터 AA(4.5:1)를 깬다. 16px 500은 large text가 아니라 3:1 완화를 못 받는다 */
+            color: rgba(255,255,255,0.84); line-height: 1.6;
             max-width: none; white-space: nowrap;
         }
+        /* 두 단 사이 구분선은 모바일에만 둔다(아래 max-width: 768px 블록).
+           데스크톱은 두 단이 각각 한 줄이라 크기 차이만으로 구분되고, 선을 넣으면 오히려 번잡하다 */
         .cover-author {
-            margin-top: clamp(34px, 4vw, 58px);
+            /* 이름 위는 넓게(1440x900에서 81px), 소속에서 마스코트까지는 좁게(34px).
+               이 비율이 뒤집히면 이름이 부제 쪽에 붙어 저자 묶음이 흩어진다.
+               svh를 함께 물린 이유는 아래로 붙여 놓았기 때문이다. 화면이 낮으면 내용이 위로 밀려
+               제목이 표지 밖으로 나간다. 1440x660에서 5.6vw만 쓰면 25px이 잘렸다 */
+            margin-top: clamp(28px, min(5.6vw, 9svh), 82px);
             font-size: clamp(13px, 1.15vw, 15px); font-weight: 700;
             letter-spacing: 0.01em; line-height: 1.4; color: rgba(255,255,255,0.94);
         }
@@ -405,6 +420,9 @@
            0.66은 3.4:1이라 12.5px 본문 기준을 넘지 못했다 */
         .cover-affil {
             margin-top: 7px;
+            /* .cover-mid 가 flex-end 이고 아래 패딩이 0이라, 이게 없으면 소속이 마스코트에 붙는다.
+               위 .cover-author 와 같은 이유로 화면 높이도 함께 본다 */
+            margin-bottom: clamp(14px, min(2.4vw, 3.8svh), 34px);
             display: flex; flex-direction: column; gap: 2px;
             font-size: clamp(11px, 0.92vw, 12.5px); font-weight: 500; line-height: 1.5;
             color: rgba(255,255,255,0.80);
@@ -1766,26 +1784,28 @@
             .cover-title .ct-main { font-size: clamp(18px, 8.4vw, 44px); letter-spacing: -0.026em; line-height: 1.12; }
             .cover-rule { width: 44px; margin: 20px auto 16px; }
             /* 375px에서 한 줄로 세우면 9px 아래로 내려가 읽을 수 없다. 모바일만 두 줄을 허용한다 */
-            .cover-sub { font-size: 15px; white-space: normal; max-width: 30ch; }
-            /* 아랫단도 모바일에서 그대로 보여준다. 윗단 15px과 구별되도록 12.5px로 내리고,
-               절 단위로 끊기게 뒤 절을 묶었다(.cs-keep). 투명도는 대비 하한 때문에 안 건드린다 */
-            .cover-sub2 { font-size: 12.5px; white-space: normal; max-width: 30ch; margin-top: 11px; }
-            /* 두 단이 각각 두 줄로 접히면 네 줄이 한 덩어리로 붙어 보인다. 사이에 선을 하나 둔다.
-               제목 아래 .cover-rule(2px, 0.8)보다 얇고 짧게 잡아 그쪽과 경쟁하지 않게 한다 */
+            .cover-sub { font-size: 16.5px; white-space: normal; max-width: 30ch; }
+            /* 아랫단도 모바일에서 그대로 보여준다. 윗단 15px과 구별되도록 13.5px로 내리고,
+               절 단위로 끊기게 뒤 절을 묶었다(.cs-keep). 투명도는 대비 하한 때문에 안 건드린다.
+               구분선은 기본 규칙에 있고 clamp 하한이 26px이라 여기서 따로 손대지 않는다 */
+            .cover-sub2 { font-size: 13.5px; white-space: normal; max-width: 30ch; margin-top: 11px; }
+            /* 모바일에서만 두 단 사이에 선을 둔다. 각 단이 두 줄로 접혀 네 줄이 한 덩어리로 붙어 보인다.
+               제목 아래 .cover-rule(2px, 0.8)보다 얇고 짧고 옅게 잡아 그쪽과 경쟁하지 않게 한다 */
             .cover-sub2::before {
                 content: ''; display: block;
-                width: 26px; height: 1px; margin: 0 auto 9px;
+                width: 26px; height: 1px; margin: 0 auto 11px;
                 background: rgba(255,255,255,0.4);
             }
             /* 저자 묶음은 제목 묶음이 아니라 마스코트 쪽에 붙인다.
                .cover-mid는 원래 세로 중앙 정렬이라 아래에 97px 여유가 생겨 이름이 허공에 떠 있었다.
                아래로 붙여 놓고(flex-end) 이름 위 여백만 벌리면 이름 위 62px, 마스코트까지 36px이 된다.
                제목도 24px 내려가 햄버거 단추(bottom 58px)와 더 떨어진다 */
-            .cover-mid { justify-content: flex-end; }
-            /* 7.6svh는 812px 화면에서 62px이 되는 값이다. 아래로 붙여 놓은 만큼 화면이 짧아지면
+            /* flex-end 는 기본 규칙에 있다. 여기서는 여백만 모바일 값으로 바꾼다.
+               7.6svh는 812px 화면에서 62px이 되는 값이다. 아래로 붙여 놓은 만큼 화면이 짧아지면
                내용이 위로 밀려 제목이 햄버거 단추에 닿는다. SE(667px)에서 62px 고정이면 여유가 12px뿐이라
                화면 높이를 따라 줄어들게 했다. 667px에서 51px로 줄어 여유가 24px이 된다 */
             .cover-author { margin-top: clamp(30px, 7.6svh, 62px); font-size: 13px; }
+            .cover-affil { margin-bottom: 18px; }
             /* 데스크탑 상한(17svh)을 그대로 두면 375px 화면에서 마스코트가 판면의 59%를 먹는다.
                좁은 화면은 세로가 길어 svh 배수를 낮춰야 폭이 잡힌다.
                max-width로 묶으면 height가 이미 확정이라 aspect-ratio가 깨져 납작해진다 */
