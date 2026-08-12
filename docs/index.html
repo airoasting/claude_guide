@@ -977,6 +977,16 @@
         .card p { font-size: 14px; color: var(--ink-muted); line-height: 1.55; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; }
         .badge-time { font-size: 12px; font-weight: 600; color: var(--ink-muted); background: #E4E0D8; border: none; box-shadow: none; padding: 3px 10px; border-radius: 20px; }
+        /* 시계 아이콘. 이모지(⏱)를 쓰면 스크린리더가 칩마다 `스톱워치`를 읽고,
+           이 프로젝트는 이모지 금지에 아이콘은 SVG만 쓴다(3.13-1).
+           mask + currentColor 라 글자색을 그대로 따라가고 장식이라 읽히지 않는다.
+           시간이 아닌 칩(읽어보기·둘러보기)은 --plain 으로 빼 둔다 */
+        .badge-time:not(.badge-time--plain)::before {
+            content: ''; display: inline-block; width: 11px; height: 11px;
+            margin-right: 5px; vertical-align: -1px; background: currentColor;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M12 7.2V12l3.2 1.9'/%3E%3C/svg%3E") center/contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M12 7.2V12l3.2 1.9'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
         .badge-level { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
         /* 난이도는 순서가 있는 값이라 한 색상(슬레이트 블루)의 명도 3단계로 서열을 만든다.
            웜톤 카드 배경 위에서 유일한 쿨톤이라 난이도만 눈에 들어오고,
@@ -1207,7 +1217,7 @@
         .newsletter-cards { max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; padding: 0 44px; }
         .newsletter-cards > .card { flex: 0 0 calc((100% - 48px) / 5); }
         .newsletter-section .card { background: rgba(255,255,255,0.08); box-shadow: 4px 4px 12px rgba(0,0,0,0.3), -2px -2px 8px rgba(255,255,255,0.05); border: none; min-height: 130px; padding: 24px 22px; }
-        .newsletter-section .card:hover { background: rgba(236,138,95,0.34); box-shadow: inset 4px 4px 12px rgba(0,0,0,0.3), inset -2px -2px 8px rgba(255,255,255,0.05); transform: translateY(-2px); }
+        .newsletter-section .card:hover { background: rgba(0,0,0,0.14); box-shadow: inset 4px 4px 12px rgba(0,0,0,0.3), inset -2px -2px 8px rgba(255,255,255,0.05); transform: translateY(-2px); }
         .newsletter-section .card:hover::before { background: rgba(255,255,255,0.3); }
         .newsletter-section .card h2 { color: #fff; }
         .newsletter-section .card p { color: rgba(255,255,255,0.75); -webkit-line-clamp: 2; font-size: 13px; line-height: 1.45; }
@@ -1221,10 +1231,12 @@
         .acc-row { display: flex; gap: 12px; }
         .acc-row > .card { flex: 0 0 calc((100% - 48px) / 5); }
         button.acc-toggle { width: 100%; font-family: inherit; text-align: left; cursor: pointer; }
-        /* 주황 면 위 강조는 순백을 덮지 않는다. 흰색은 밝기를 올리는 대신 채도를 깎아
-           채도 57%인 주황이 42%까지 떨어져 뿌옇게 탁해진다.
-           같은 색상(16°)의 밝은 톤을 쓰면 같은 밝기(+8pt)를 얻으면서 채도 손실은 7pt에 그친다 */
-        .acc-toggle.active { background: rgba(236,138,95,0.34); box-shadow: inset 4px 4px 12px rgba(0,0,0,0.3), inset -2px -2px 8px rgba(255,255,255,0.05); }
+        /* 기본 채움은 흰 0.08 그대로 둔다. 호버와 펼침만 검은 투명으로 눌러 내린다.
+           흰색을 덧씌워 밝히면 채도 57%인 주황이 42%까지 떨어져 뿌옇게 탁해진다.
+           검은 투명은 세 채널을 같은 비율로 낮추므로 채도가 57% 그대로 남고
+           흰 글자 대비도 함께 오른다. 카드가 눌린 형태라 어두워지는 쪽이 형태와도 맞는다.
+           호버 0.14 < 펼침 0.20 으로 두 상태를 구분한다 */
+        .acc-toggle.active { background: rgba(0,0,0,0.20); box-shadow: inset 4px 4px 12px rgba(0,0,0,0.3), inset -2px -2px 8px rgba(255,255,255,0.05); }
         .acc-toggle.active .card-icon { color: #ffe8d2; }
         .acc-toggle .card-title-row { align-items: flex-start; }
         .acc-toggle .card-title-row h2 { min-width: 0; white-space: normal; overflow: visible; text-overflow: clip; }
@@ -2401,7 +2413,7 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
     <!-- 스티키 네비 -->
     <div class="nav-wrapper" id="navWrapper">
         <a href="?about=1" class="drawer-about" data-about-open>
-            <span>📖 가이드 소개</span>
+            <span>가이드 소개</span>
             <span class="da-arrow">→</span>
         </a>
         <div class="guide-btn-row">
@@ -2429,7 +2441,7 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
                     <span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="m14.7 9.3-2.1 5.4-5.4 2.1 2.1-5.4z"/></svg></span>
                     <h2>Claude·ChatGPT 완전 정복, 5분 오리엔테이션</h2>
                 </div>
-                <div class="card-meta"><span class="badge-time">⏱ 5분</span><span class="badge-level beginner">입문</span></div>
+                <div class="card-meta"><span class="badge-time">5분</span><span class="badge-level beginner">입문</span></div>
                 <p>이름의 유래, 열 가지 기능의 출시 시점, 기업 도입률, 벤치마크와 가격을 Claude와 ChatGPT로 나누어 비교합니다.</p>
             </a>
             <a class="card featured" href="ai-levels.html">
@@ -2437,7 +2449,7 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
                     <span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5v-4M9.5 19.5v-7M14.5 19.5V8M19.5 19.5V4.5"/></svg></span>
                     <h2>나는 지금 몇 단계일까?</h2>
                 </div>
-                <div class="card-meta"><span class="badge-time">⏱ 5분</span><span class="badge-level beginner">입문</span></div>
+                <div class="card-meta"><span class="badge-time">5분</span><span class="badge-level beginner">입문</span></div>
                 <p>자율주행 0~5단계에 대응하는 AI 활용 수준 진단표입니다. 현재 단계와 다음에 익힐 항목을 확인합니다.</p>
             </a>
         </section>
@@ -2459,17 +2471,17 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
         <section class="cards">
             <a class="card" href="ai-fluency.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5h4L18.6 9.4a2.1 2.1 0 0 0-3-3L5.5 16.5z"/><path d="m13.8 7.5 2.7 2.7"/></svg></span><h2>프롬프트 잘 쓰는 법</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 10분</span><span class="badge-level beginner">입문</span></div>
+                <div class="card-meta"><span class="badge-time">10분</span><span class="badge-level beginner">입문</span></div>
                 <p>최신 모델에서 통하지 않는 옛 프롬프트 방식과 지금 권장되는 방식을 항목별로 비교합니다.</p>
             </a>
             <a class="card" href="project-intro.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7A1.5 1.5 0 0 1 5 5.5h4l2 2h8A1.5 1.5 0 0 1 20.5 9v8A1.5 1.5 0 0 1 19 18.5H5A1.5 1.5 0 0 1 3.5 17z"/></svg></span><h2>프로젝트 만들기</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 20분</span><span class="badge-level beginner">입문</span></div>
+                <div class="card-meta"><span class="badge-time">20분</span><span class="badge-level beginner">입문</span></div>
                 <p>프로젝트에 지침과 파일을 한 번 설정하면 대화마다 같은 조건을 다시 설명하지 않아도 됩니다. 설정 순서를 정리했습니다.</p>
             </a>
             <a class="card" href="multi-persona.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8" r="2.6"/><circle cx="16" cy="9.2" r="2.1"/><path d="M3.5 19.5v-1a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v1"/><path d="M14.7 14.3h.6a3.3 3.3 0 0 1 3.3 3.3v1.9"/></svg></span><h2>멀티 페르소나 토론</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 10분</span><span class="badge-level intermediate">중급</span></div>
+                <div class="card-meta"><span class="badge-time">10분</span><span class="badge-level intermediate">중급</span></div>
                 <p>역할을 나눈 전문가 페르소나에게 토론시켜 결론을 검증하는 방법입니다. 연구 근거와 적용 예시를 함께 실었습니다.</p>
             </a>
         </section>
@@ -2482,12 +2494,12 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
         <section class="cards col-2">
             <a class="card" href="ai-sycophancy.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5h15L14 12.5V19l-4 1.5v-8z"/></svg></span><h2>AI의 동조를 줄이는 법</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 8분</span><span class="badge-level beginner">입문</span></div>
+                <div class="card-meta"><span class="badge-time">8분</span><span class="badge-level beginner">입문</span></div>
                 <p>사용자 의견에 동조하는 것은 모델이 학습한 경향입니다. 연구로 검증된 다섯 가지 질문법으로 약점을 끌어냅니다.</p>
             </a>
             <a class="card" href="ai-hallucination.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m19.5 19.5-4.3-4.3"/></svg></span><h2>AI의 환각을 벗어나는 법</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 12분</span><span class="badge-level intermediate">중급</span></div>
+                <div class="card-meta"><span class="badge-time">12분</span><span class="badge-level intermediate">중급</span></div>
                 <p>AI는 존재하지 않는 출처를 만들어 냅니다. EY와 KPMG 보고서에서 실제로 발생한 사례와 각주를 3분 안에 검증하는 절차를 실었습니다.</p>
             </a>
         </section>
@@ -2509,12 +2521,12 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
         <section class="cards col-2">
             <a class="card" href="chrome-plugin.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.8 2.3 2.8 15 0 17"/><path d="M12 3.5c-2.8 2.3-2.8 15 0 17"/></svg></span><h2>크롬에서 Claude·ChatGPT 사용</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 15분</span><span class="badge-level beginner">입문</span></div>
+                <div class="card-meta"><span class="badge-time">15분</span><span class="badge-level beginner">입문</span></div>
                 <p>크롬에 Claude와 ChatGPT를 연결하면 보고 있는 페이지에서 바로 요약, 번역, 화면 조작을 실행합니다.</p>
             </a>
             <a class="card" href="office-plugin.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5V7a4 4 0 0 1 8 0v9a2.5 2.5 0 0 1-5 0V8.5"/></svg></span><h2>MS Office에서 AI 활용</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 10분</span><span class="badge-level beginner">입문</span></div>
+                <div class="card-meta"><span class="badge-time">10분</span><span class="badge-level beginner">입문</span></div>
                 <p>엑셀, 파워포인트, 워드에서 Claude와 ChatGPT를 호출하는 방법입니다. 두 AI의 기능 차이와 지원 앱, 요금제 조건을 정리했습니다.</p>
             </a>
         </section>
@@ -2527,17 +2539,17 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
         <section class="cards">
             <a class="card" href="claude-cowork.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="-24 -24 296 296" fill="currentColor"><path d="M52.4285 162.873L98.7844 136.879L99.5485 134.602L98.7844 133.334H96.4921L88.7237 132.862L62.2346 132.153L39.3113 131.207L17.0249 130.026L11.4214 128.844L6.2 121.873L6.7094 118.447L11.4214 115.257L18.171 115.847L33.0711 116.911L55.485 118.447L71.6586 119.392L95.728 121.873H99.5485L100.058 120.337L98.7844 119.392L97.7656 118.447L74.5877 102.732L49.4995 86.1905L36.3823 76.62L29.3779 71.7757L25.8121 67.2858L24.2839 57.3608L30.6515 50.2716L39.3113 50.8623L41.4763 51.4531L50.2636 58.1879L68.9842 72.7209L93.4357 90.6804L97.0015 93.6343L98.4374 92.6652L98.6571 91.9801L97.0015 89.2625L83.757 65.2772L69.621 40.8192L63.2534 30.6579L61.5978 24.632C60.9565 22.1032 60.579 20.0111 60.579 17.4246L67.8381 7.49965L71.9133 6.19995L81.7193 7.49965L85.7946 11.0443L91.9074 24.9865L101.714 46.8451L116.996 76.62L121.453 85.4816L123.873 93.6343L124.764 96.1155H126.292V94.6976L127.566 77.9197L129.858 57.3608L132.15 30.8942L132.915 23.4505L136.608 14.4708L143.994 9.62643L149.725 12.344L154.437 19.0788L153.8 23.4505L150.998 41.6463L145.522 70.1215L141.957 89.2625H143.994L146.414 86.7813L156.093 74.0206L172.266 53.698L179.398 45.6635L187.803 36.802L193.152 32.5484H203.34L210.726 43.6549L207.415 55.1159L196.972 68.3492L188.312 79.5739L175.896 96.2095L168.191 109.585L168.882 110.689L170.738 110.53L198.755 104.504L213.91 101.787L231.994 98.7149L240.144 102.496L241.036 106.395L237.852 114.311L218.495 119.037L195.826 123.645L162.07 131.592L161.696 131.893L162.137 132.547L177.36 133.925L183.855 134.279H199.774L229.447 136.524L237.215 141.605L241.8 147.867L241.036 152.711L229.065 158.737L213.019 154.956L175.45 145.977L162.587 142.787H160.805V143.85L171.502 154.366L191.242 172.089L215.82 195.011L217.094 200.682L213.91 205.172L210.599 204.699L188.949 188.394L180.544 181.069L161.696 165.118H160.422V166.772L164.752 173.152L187.803 207.771L188.949 218.405L187.294 221.832L181.308 223.959L174.813 222.777L161.187 203.754L147.305 182.486L136.098 163.345L134.745 164.2L128.075 235.42L125.019 239.082L117.887 241.8L111.902 237.31L108.718 229.984L111.902 215.452L115.722 196.547L118.779 181.541L121.58 162.873L123.291 156.636L123.14 156.219L121.773 156.449L107.699 175.752L86.304 204.699L69.3663 222.777L65.291 224.431L58.2867 220.768L58.9235 214.27L62.8713 208.48L86.304 178.705L100.44 160.155L109.551 149.507L109.462 147.967L108.959 147.924L46.6977 188.512L35.6182 189.93L30.7788 185.44L31.4156 178.115L33.7079 175.752L52.4285 162.873Z"/></svg></span><h2>Claude Cowork로 업무 맡기기</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 12분</span><span class="badge-level beginner">입문</span></div>
+                <div class="card-meta"><span class="badge-time">12분</span><span class="badge-level beginner">입문</span></div>
                 <p>입력창에서 Cowork를 선택하고 작업을 지정하면 로컬 파일을 열어 처리하고 결과를 파일로 저장합니다. 요금제와 시작 순서를 정리했습니다.</p>
             </a>
             <a class="card" href="chatgpt-work.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M11.217 19.384a3.501 3.501 0 0 0 6.783-1.217v-5.167l-6-3.35"/><path d="M5.214 15.014a3.501 3.501 0 0 0 4.446 5.266l4.34-2.534v-6.946"/><path d="M6 7.63c-1.391-.236-2.787.395-3.534 1.689a3.474 3.474 0 0 0 1.271 4.745l4.263 2.514 6-3.348"/><path d="M12.783 4.616a3.501 3.501 0 0 0-6.783 1.217v5.067l6 3.45"/><path d="M18.786 8.986a3.501 3.501 0 0 0-4.446-5.266l-4.34 2.534v6.946"/><path d="M18 16.302c1.391.236 2.787-.395 3.534-1.689a3.474 3.474 0 0 0-1.271-4.745l-4.308-2.514-5.955 3.42"/></svg></span><h2>ChatGPT Work로 업무 맡기기</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 12분</span><span class="badge-level beginner">입문</span></div>
+                <div class="card-meta"><span class="badge-time">12분</span><span class="badge-level beginner">입문</span></div>
                 <p>Chat 대신 Work를 선택하면 연결된 도구에서 자료를 모아 슬라이드와 스프레드시트로 만듭니다. 요금제와 시작 순서를 정리했습니다.</p>
             </a>
             <a class="card" href="cowork-tasks.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3.6" width="15" height="16.8" rx="2"/><path d="m8.4 9.4 1.6 1.6 3.4-3.6"/><path d="m8.4 15.4 1.6 1.6 3.4-3.6"/></svg></span><h2>코워크 실전 과제 8가지</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 과제별 상이</span><span class="badge-level beginner">입문</span></div>
+                <div class="card-meta"><span class="badge-time">과제별 상이</span><span class="badge-level beginner">입문</span></div>
                 <p>이메일 요약으로 시작해 데이터 분석, 주간 브리핑 자동화까지 갑니다. 프롬프트를 그대로 복사해 붙여넣으면 됩니다.</p>
             </a>
         </section>
@@ -2578,17 +2590,17 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
         <section class="cards">
             <a class="card featured" href="vibe-coding-101.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="11.5" rx="1.8"/><path d="M9 20h6M12 16v4"/></svg></span><h2>바이브 코딩 101</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 10분</span><span class="badge-level beginner">입문</span></div>
+                <div class="card-meta"><span class="badge-time">10분</span><span class="badge-level beginner">입문</span></div>
                 <p>코딩 지식 없이 한국어 지시로 파일 작업을 맡깁니다. Claude Code와 Codex 두 도구의 설치부터 첫 실행까지 다룹니다.</p>
             </a>
             <a class="card" href="vibe-coding-tasks.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg></span><h2>바이브 코딩 실전 과제 8가지</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 과제별 상이</span><span class="badge-level intermediate">중급</span></div>
+                <div class="card-meta"><span class="badge-time">과제별 상이</span><span class="badge-level intermediate">중급</span></div>
                 <p>스탑워치, 랜딩 페이지, GitHub 배포, 엑셀 기반 PPT까지 난이도순 여덟 과제입니다. 프롬프트를 그대로 복사해 실행합니다.</p>
             </a>
             <a class="card" href="github-guide.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3 1.5 4.5 5 4 9.5l-2 2h-4l-2-2c-.5-4.5 1-8 4-9.5z"/><circle cx="12" cy="10" r="1.4"/><path d="M9 14.5 7 19M15 14.5 17 19M10 19h4"/></svg></span><h2>GitHub · Vercel · Netlify</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 20분</span><span class="badge-level intermediate">중급</span></div>
+                <div class="card-meta"><span class="badge-time">20분</span><span class="badge-level intermediate">중급</span></div>
                 <p>Git과 GitHub의 차이부터 정리합니다. 결과물을 올리고 Vercel과 Netlify로 웹 주소를 만드는 절차를 다룹니다.</p>
             </a>
         </section>
@@ -2607,17 +2619,17 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
         <section class="cards">
             <a class="card" href="checklist.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="m8.3 12.3 2.6 2.6 4.6-5.6"/></svg></span><h2>터미널 CLI 20단계로 따라하기</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 단계별</span><span class="badge-level advanced">고급</span></div>
+                <div class="card-meta"><span class="badge-time">단계별</span><span class="badge-level advanced">고급</span></div>
                 <p>설치부터 첫 실행까지 20개 항목의 점검표입니다. 설치 명령은 운영체제별로 복사해 쓰도록 정리했습니다.</p>
             </a>
             <a class="card" href="cheatsheet.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="11" rx="2"/><path d="M6.5 10.2h.01M10 10.2h.01M13.5 10.2h.01M17 10.2h.01M6.5 13.7h11"/></svg></span><h2>명령어 모음</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 레퍼런스</span><span class="badge-level reference">참고</span></div>
+                <div class="card-meta"><span class="badge-time">레퍼런스</span><span class="badge-level reference">참고</span></div>
                 <p>슬래시 명령어 60개와 단축키, 세 가지 모드를 정리했습니다. 먼저 익힐 12개는 따로 표시했습니다.</p>
             </a>
             <a class="card" href="cli-best-practices.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5 2.5 9.5 12 14l9.5-4.5z"/><path d="M6.5 11.8V16c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5v-4.2"/><path d="M21 9.5v5.5"/></svg></span><h2>고수처럼 쓰는 5가지 원칙</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 15분</span><span class="badge-level advanced">고급</span></div>
+                <div class="card-meta"><span class="badge-time">15분</span><span class="badge-level advanced">고급</span></div>
                 <p>컨텍스트 관리를 중심으로 한 다섯 가지 원칙입니다. 효과가 큰 세 가지를 앞에 표시했습니다.</p>
             </a>
         </section>
@@ -2640,17 +2652,17 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
         <section class="cards">
             <a class="card" href="harness-engineering.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 20v-6.5c0-4.2 2.7-7.5 6-7.5 2.2 0 4 1.5 4.3 3.4l2.7 1.6-.7 1.8-2.3-.4-1 7.6"/><circle cx="13.3" cy="8.6" r="0.7" fill="currentColor" stroke="none"/></svg></span><h2>하네스 엔지니어링이란?</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 15분</span><span class="badge-level advanced">고급</span></div>
+                <div class="card-meta"><span class="badge-time">15분</span><span class="badge-level advanced">고급</span></div>
                 <p>모델을 감싸는 환경 설계가 결과를 바꾸는 이유를 정리했습니다. 하네스를 이루는 구성 요소를 단계별로 설명합니다.</p>
             </a>
             <a class="card" href="agent-tools.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9.5" width="17" height="9.5" rx="1.8"/><path d="M8.5 9.5V7a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2.5"/><path d="M3.5 13.5h17"/></svg></span><h2>에이전트의 도구란?</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 12분</span><span class="badge-level intermediate">중급</span></div>
+                <div class="card-meta"><span class="badge-time">12분</span><span class="badge-level intermediate">중급</span></div>
                 <p>내장 도구, MCP, 커넥터, 스킬, 플러그인 다섯 가지의 차이와 관계를 지도 한 장으로 정리했습니다.</p>
             </a>
             <a class="card" href="harness-workflows.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="8" width="15" height="11" rx="3"/><path d="M12 8V4.5"/><circle cx="12" cy="3.3" r="1.1"/><circle cx="9" cy="13.5" r="1.3"/><circle cx="15" cy="13.5" r="1.3"/><path d="M9 17h6"/></svg></span><h2>멀티 에이전트 소환</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 15분</span><span class="badge-level advanced">고급</span></div>
+                <div class="card-meta"><span class="badge-time">15분</span><span class="badge-level advanced">고급</span></div>
                 <p>큰 작업을 여러 에이전트에 나눠 맡기는 방법입니다. /goal로 목표를 고정하고 작업을 분배하는 절차를 다룹니다.</p>
             </a>
         </section>
@@ -2663,17 +2675,17 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
         <section class="cards">
             <a class="card" href="agents-md-templates.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="4.5" width="13" height="16" rx="2"/><rect x="9" y="3" width="6" height="3" rx="1"/><path d="M8.5 10.5h7M8.5 14h7M8.5 17.5h4"/></svg></span><h2>AGENTS.md로 내 규칙 알려주기</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 10분</span><span class="badge-level intermediate">중급</span></div>
+                <div class="card-meta"><span class="badge-time">10분</span><span class="badge-level intermediate">중급</span></div>
                 <p>AGENTS.md, CLAUDE.md, MEMORY.md 세 파일로 대화마다 반복하던 규칙 설명을 대체합니다. 템플릿을 그대로 씁니다.</p>
             </a>
             <a class="card" href="skills.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 18 6"/><path d="M15 3.3l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z"/></svg></span><h2>나만의 Skill 만들기</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 20분</span><span class="badge-level intermediate">중급</span></div>
+                <div class="card-meta"><span class="badge-time">20분</span><span class="badge-level intermediate">중급</span></div>
                 <p>반복해 설명하던 형식과 말투를 스킬로 저장하면 한 줄 호출로 실행됩니다. 스킬 제작 순서를 정리했습니다.</p>
             </a>
             <a class="card" href="code-plugin.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h4.2a1.7 1.7 0 1 1 0 3.3H12V5h4a2 2 0 0 1 2 2v3.5a1.7 1.7 0 1 0 0 3.3V17a2 2 0 0 1-2 2h-4v-3.3H8.8a1.7 1.7 0 1 1 0-3.4H5z"/></svg></span><h2>스킬·MCP를 플러그인으로 묶기</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 20분</span><span class="badge-level intermediate">중급</span></div>
+                <div class="card-meta"><span class="badge-time">20분</span><span class="badge-level intermediate">중급</span></div>
                 <p>스킬과 MCP를 한 폴더로 묶어 한 줄 명령으로 설치하게 만듭니다. 팀에 배포하는 절차를 다룹니다.</p>
             </a>
         </section>
@@ -2690,17 +2702,17 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
         <section class="cards">
             <a class="card" href="loop-engineering.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.5-5.8"/><path d="M20 12a8 8 0 0 1-13.5 5.8"/><path d="M17.5 3.7v3h-3"/><path d="M6.5 20.3v-3h3"/></svg></span><h2>루프 엔지니어링이란?</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 14분</span><span class="badge-level advanced">고급</span></div>
+                <div class="card-meta"><span class="badge-time">14분</span><span class="badge-level advanced">고급</span></div>
                 <p>목표 조건을 만족할 때까지 AI가 스스로 반복 실행하는 구조입니다. 실패한 테스트를 자동으로 고치는 루프 설계를 다룹니다.</p>
             </a>
             <a class="card" href="routines.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l3 2"/><path d="M8 3.5 5 6M16 3.5l3 2.5"/></svg></span><h2>Routines 예약 실행</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 12분</span><span class="badge-level intermediate">중급</span></div>
+                <div class="card-meta"><span class="badge-time">12분</span><span class="badge-level intermediate">중급</span></div>
                 <p>실행 시각과 작업을 등록하면 정해진 때에 클라우드에서 실행합니다. 노트북 전원 상태와 무관합니다.</p>
             </a>
             <a class="card" href="hermes-agent.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/><path d="M11 7.5h5M11 16.5h5"/></svg></span><h2>헤르메스 에이전트</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 18분</span><span class="badge-level advanced">고급</span><span class="badge-level selfhost">별도 설치형</span></div>
+                <div class="card-meta"><span class="badge-time">18분</span><span class="badge-level advanced">고급</span><span class="badge-level selfhost">별도 설치형</span></div>
                 <p>상시 가동하는 컴퓨터나 임대 서버에 오픈소스 에이전트를 설치합니다. Claude나 ChatGPT를 연결해 텔레그램으로 호출합니다.</p>
             </a>
         </section>
@@ -2866,17 +2878,17 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
         <section class="cards">
             <a class="card" href="showcase-poems.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-6 0-11 5-13 14 9-2 14-7 14-13z"/><path d="M8.5 17 17 8.5"/></svg></span><h2>멀티 페르소나로 시 쓰기</h2></div>
-                <div class="card-meta"><span class="badge-time">📖 읽어보기</span><span class="badge-level reference">참고</span></div>
+                <div class="card-meta"><span class="badge-time badge-time--plain">읽어보기</span><span class="badge-level reference">참고</span></div>
                 <p>수업 첫 실습에서 나온 시 47편입니다. 쓰고 비평하고 다시 쓴 결과를 여섯 묶음으로 정리했습니다.</p>
             </a>
             <a class="card" href="showcase-stopwatch.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 13V8.5"/><path d="M9.5 3.5h5"/><path d="M12 3.5V6"/></svg></span><h2>스탑워치 쇼케이스</h2></div>
-                <div class="card-meta"><span class="badge-time">⏱ 둘러보기</span><span class="badge-level reference">참고</span></div>
+                <div class="card-meta"><span class="badge-time">둘러보기</span><span class="badge-level reference">참고</span></div>
                 <p>같은 한 줄 지시에서 출발한 스탑워치 29종입니다. 디자인과 구현 방식이 각각 다릅니다.</p>
             </a>
             <a class="card" href="showcase-skills.html">
                 <div class="card-title-row"><span class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h4.2a1.7 1.7 0 1 1 0 3.3H12V5h4a2 2 0 0 1 2 2v3.5a1.7 1.7 0 1 0 0 3.3V17a2 2 0 0 1-2 2h-4v-3.3H8.8a1.7 1.7 0 1 1 0-3.4H5z"/></svg></span><h2>스킬 쇼케이스</h2></div>
-                <div class="card-meta"><span class="badge-time">🧩 둘러보기</span><span class="badge-level reference">참고</span></div>
+                <div class="card-meta"><span class="badge-time badge-time--plain">둘러보기</span><span class="badge-level reference">참고</span></div>
                 <p>수강생이 투자 리서치, 딜 스크리닝, 브랜드 기획, 가맹 상담 업무를 스킬로 만들었습니다. 실제로 실행해 나온 결과물 26선입니다.</p>
             </a>
         </section>
