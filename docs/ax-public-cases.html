@@ -168,13 +168,34 @@
         .ov-metric { color: #a3572f; font-weight: 700; }
         .field-pill { display: inline-flex; align-items: center; font-size: 11px; font-weight: 800; color: #fff; padding: 3px 10px; border-radius: 100px; background: var(--fc, #8f8980); white-space: nowrap; }
 
+        /* ── 요약표 행 클릭 → 해당 사례로 이동 ── */
+        .overview-table tbody tr.ov-row { cursor: pointer; }
+        .overview-table tbody tr.ov-row:hover { background: rgba(255,255,255,0.7); }
+        .overview-table tbody tr.ov-row:hover .ov-name { color: var(--ant-orange); }
+        .ov-link { display: block; color: inherit; text-decoration: none; }
+        .ov-link:focus-visible { outline: 2px solid var(--ant-orange); outline-offset: 3px; border-radius: 6px; }
+        .ov-go { display: inline-block; margin-left: 6px; font-weight: 800; color: var(--ant-orange); opacity: 0; transform: translateX(-4px); transition: opacity 0.18s ease, transform 0.18s ease; }
+        .overview-table tbody tr.ov-row:hover .ov-go,
+        .ov-link:focus-visible .ov-go { opacity: 1; transform: translateX(0); }
+
         /* ── Step Divider ── */
         .step-divider { display: flex; align-items: center; }
         .step-divider-badge { display: flex; align-items: center; }
 
         /* ── AX Case Card ── */
-        .ax-case { background: rgba(255,255,255,0.5); border: 1px solid #D4CEC4; border-radius: 16px; padding: 24px 26px; margin-bottom: 18px; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease; }
+        .ax-case { position: relative; background: rgba(255,255,255,0.5); border: 1px solid #D4CEC4; border-radius: 16px; padding: 24px 26px; margin-bottom: 18px; scroll-margin-top: 140px; transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease; }
         .ax-case:hover { transform: translateY(-2px); background: rgba(255,255,255,0.85); border-color: #C6BEB2; box-shadow: 0 12px 26px rgba(120,140,110,0.14); }
+        .ax-case::after { content: ''; position: absolute; inset: -4px; border: 2px solid var(--cc, #D97757); border-radius: 20px; opacity: 0; pointer-events: none; }
+        .ax-case.case-flash::after { animation: caseFlash 1.6s ease-out; }
+        @keyframes caseFlash {
+            0%, 12% { opacity: 0; }
+            26% { opacity: 1; }
+            60% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ax-case.case-flash::after { animation: none; opacity: 1; }
+        }
         .ax-case-head { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
         .ax-cat-tag { font-size: 11px; font-weight: 800; letter-spacing: 0.3px; padding: 4px 11px; border-radius: 7px; background: var(--cc, #8f8980); color: #fff; }
         .ax-case-num { margin-left: auto; font-size: 13px; font-weight: 800; color: #bdb7ae; letter-spacing: 0.5px; }
@@ -235,7 +256,7 @@
             .lead-card p { font-size: 13.5px; }
             .lead-rule { font-size: 13px; padding: 12px 14px; }
             .overview-card { padding: 20px 16px; margin-bottom: 24px; }
-            .ax-case { padding: 20px 18px; }
+            .ax-case { padding: 20px 18px; scroll-margin-top: 20px; }
             .ax-case-title { font-size: 17px; }
             .ax-feat { grid-template-columns: 1fr; }
 
@@ -251,6 +272,10 @@
             .overview-table tbody td::before { content: attr(data-label); flex: 0 0 60px; font-size: 11px; font-weight: 700; color: #9a948c; letter-spacing: 0.2px; }
             .overview-table tbody td.ov-name { display: block; font-size: 15px; font-weight: 800; color: #2c2722; padding: 0 0 9px !important; margin-bottom: 7px; border-bottom: 1px solid rgba(221,216,208,0.7) !important; }
             .overview-table tbody td.ov-name::before { display: none; }
+            .overview-table tbody tr.ov-row { position: relative; }
+            .overview-table tbody tr.ov-row:hover { background: rgba(255,255,255,0.4); }
+            .overview-table tbody tr.ov-row:active { background: rgba(255,255,255,0.85); }
+            .ov-go { opacity: 1; transform: none; }
 
             .header-pages { flex-wrap: nowrap; gap: 8px; }
             .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
@@ -365,30 +390,30 @@
                         <th>분야</th>
                         <th>사례 · 기관</th>
                         <th>핵심 AI 기술</th>
-                        <th>대표 성과</th>
+                        <th>주요 성과</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#2f9e6f;">환경</span></td><td class="ov-name" data-label="사례"><span class="ov-name">AI 홍수예보시스템</span><span class="ov-org">기후에너지환경부</span></td><td class="ov-tech" data-label="기술">LSTM 시계열 예측</td><td class="ov-metric" data-label="성과">분석 30분→10분, 특보지점 75→223개소</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#2f9e6f;">환경</span></td><td class="ov-name" data-label="사례"><span class="ov-name">AI 스마트 정수장</span><span class="ov-org">기후에너지환경부 · K-water</span></td><td class="ov-tech" data-label="기술">LSTM·YOLOv7 공정 자율운영</td><td class="ov-metric" data-label="성과">연 94억 원 절감, 점검비 35%↓</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#D97757;">고용노동</span></td><td class="ov-name" data-label="사례"><span class="ov-name">AI 재해조사 지원모델</span><span class="ov-org">고용노동부 · 근로복지공단</span></td><td class="ov-tech" data-label="기술">빅데이터 분류(2,700여 그룹)</td><td class="ov-metric" data-label="성과">조사 유형 자동 분류, 편차 표준화</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#D97757;">고용노동</span></td><td class="ov-name" data-label="사례"><span class="ov-name">근로감독관 AI 지원시스템</span><span class="ov-org">고용노동부</span></td><td class="ov-tech" data-label="기술">GPT-4.1·GPT-OSS 120B</td><td class="ov-metric" data-label="성과">공개 한 달 2,528명·11,682건, 34개 언어</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#7c5cbf;">사회복지</span></td><td class="ov-name" data-label="사례"><span class="ov-name">복지위기가구 AI 초기상담</span><span class="ov-org">보건복지부 · 사회보장정보원</span></td><td class="ov-tech" data-label="기술">음성인식(STT)·자연어이해(NLU)</td><td class="ov-metric" data-label="성과">발신 66.9만·수신 42.2만건(63.2%)</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#7c5cbf;">사회복지</span></td><td class="ov-name" data-label="사례"><span class="ov-name">맞춤형 360° AI+돌봄</span><span class="ov-org">경기도</span></td><td class="ov-tech" data-label="기술">HyperCLOVA X 클로바 케어콜</td><td class="ov-metric" data-label="성과">만족도 4.8, 월 1,100원(20배 절감)</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#c0392b;">안전·치안</span></td><td class="ov-name" data-label="사례"><span class="ov-name">AI 운전자격확인시스템</span><span class="ov-org">국토교통부 · 교통안전공단</span></td><td class="ov-tech" data-label="기술">얼굴인식·라이브니스</td><td class="ov-metric" data-label="성과">연 1.5억건 조회·11만건 차단, 사고 14%↓</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#c0392b;">안전·치안</span></td><td class="ov-name" data-label="사례"><span class="ov-name">AI 딥페이크 분석모델</span><span class="ov-org">행정안전부 · 국립과학수사연구원</span></td><td class="ov-tech" data-label="기술">딥러닝 영상·음성 판독</td><td class="ov-metric" data-label="성과">정확도 영상 94.98%, 감정 며칠→수분</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><span class="ov-name">경기데이터 찾아드림</span><span class="ov-org">경기도</span></td><td class="ov-tech" data-label="기술">생성형 AI·RAG(ChatGPT)</td><td class="ov-metric" data-label="성과">자연어 공공데이터 검색·요약</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><span class="ov-name">초거대 AI 통합연구지원</span><span class="ov-org">경제·인문사회연구회</span></td><td class="ov-tech" data-label="기술">HyperCLOVA X 멀티LLM RAG</td><td class="ov-metric" data-label="성과">연구 전 주기 자료 정리·문서 생성</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><span class="ov-name">AI 당직시스템</span><span class="ov-org">광주광역시</span></td><td class="ov-tech" data-label="기술">KT A'cen 음성상담</td><td class="ov-metric" data-label="성과">당직비 93%↓, 야간민원 83% AI 처리</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><span class="ov-name">AI 다국어 동시통역</span><span class="ov-org">서울 용산구</span></td><td class="ov-tech" data-label="기술">KONAN LLM(STT·MT)</td><td class="ov-metric" data-label="성과">13개 언어, 통역 인력 없이 즉시 상담</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><span class="ov-name">AI 부정주차 관리시스템</span><span class="ov-org">서울 강남구</span></td><td class="ov-tech" data-label="기술">YOLOv8 객체인식</td><td class="ov-metric" data-label="성과">차량 인식률 99.93%, 사후단속→사전안내</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><span class="ov-name">AI 여객 흐름 관리</span><span class="ov-org">인천국제공항공사</span></td><td class="ov-tech" data-label="기술">시뮬레이션 기반 머신러닝</td><td class="ov-metric" data-label="성과">예측 정확도 92%, 5년 810억 경제가치</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#b8860b;">법제</span></td><td class="ov-name" data-label="사례"><span class="ov-name">AI 특허심사 업무지원</span><span class="ov-org">지식재산처</span></td><td class="ov-tech" data-label="기술">특허 특화 LLM(EXAONE)·ViT</td><td class="ov-metric" data-label="성과">세계 최초 특허 특화 언어모델</td></tr>
-                    <tr><td data-label="분야"><span class="field-pill" style="--fc:#b8860b;">법제</span></td><td class="ov-name" data-label="사례"><span class="ov-name">생성형 AI 법령정보 서비스</span><span class="ov-org">법제처</span></td><td class="ov-tech" data-label="기술">벡터검색·sLLM·RAG</td><td class="ov-metric" data-label="성과">만족도 83.7%, 일평균 80만 방문</td></tr>
+                    <tr class="ov-row" data-case="case-01"><td data-label="분야"><span class="field-pill" style="--fc:#2f9e6f;">환경</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-01" aria-label="AI 홍수예보시스템 사례 자세히 보기"><span class="ov-name">AI 홍수예보시스템</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">기후에너지환경부</span></a></td><td class="ov-tech" data-label="기술">LSTM 시계열 예측</td><td class="ov-metric" data-label="성과">분석 30분→10분, 특보지점 75→223개소</td></tr>
+                    <tr class="ov-row" data-case="case-02"><td data-label="분야"><span class="field-pill" style="--fc:#2f9e6f;">환경</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-02" aria-label="AI 스마트 정수장 사례 자세히 보기"><span class="ov-name">AI 스마트 정수장</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">기후에너지환경부 · K-water</span></a></td><td class="ov-tech" data-label="기술">LSTM·YOLOv7 공정 자율운영</td><td class="ov-metric" data-label="성과">연 94억 원 절감, 점검비 35%↓</td></tr>
+                    <tr class="ov-row" data-case="case-03"><td data-label="분야"><span class="field-pill" style="--fc:#D97757;">고용노동</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-03" aria-label="AI 재해조사 지원모델 사례 자세히 보기"><span class="ov-name">AI 재해조사 지원모델</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">고용노동부 · 근로복지공단</span></a></td><td class="ov-tech" data-label="기술">빅데이터 분류(2,700여 그룹)</td><td class="ov-metric" data-label="성과">조사 유형 자동 분류, 편차 표준화</td></tr>
+                    <tr class="ov-row" data-case="case-04"><td data-label="분야"><span class="field-pill" style="--fc:#D97757;">고용노동</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-04" aria-label="근로감독관 AI 지원시스템 사례 자세히 보기"><span class="ov-name">근로감독관 AI 지원시스템</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">고용노동부</span></a></td><td class="ov-tech" data-label="기술">GPT-4.1·GPT-OSS 120B</td><td class="ov-metric" data-label="성과">공개 한 달 2,528명·11,682건, 34개 언어</td></tr>
+                    <tr class="ov-row" data-case="case-05"><td data-label="분야"><span class="field-pill" style="--fc:#7c5cbf;">사회복지</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-05" aria-label="복지위기가구 AI 초기상담 사례 자세히 보기"><span class="ov-name">복지위기가구 AI 초기상담</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">보건복지부 · 사회보장정보원</span></a></td><td class="ov-tech" data-label="기술">음성인식(STT)·자연어이해(NLU)</td><td class="ov-metric" data-label="성과">발신 66.9만·수신 42.2만건(63.2%)</td></tr>
+                    <tr class="ov-row" data-case="case-06"><td data-label="분야"><span class="field-pill" style="--fc:#7c5cbf;">사회복지</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-06" aria-label="맞춤형 360° AI+돌봄 사례 자세히 보기"><span class="ov-name">맞춤형 360° AI+돌봄</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">경기도</span></a></td><td class="ov-tech" data-label="기술">HyperCLOVA X 클로바 케어콜</td><td class="ov-metric" data-label="성과">만족도 4.8, 월 1,100원(20배 절감)</td></tr>
+                    <tr class="ov-row" data-case="case-07"><td data-label="분야"><span class="field-pill" style="--fc:#c0392b;">안전·치안</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-07" aria-label="AI 운전자격확인시스템 사례 자세히 보기"><span class="ov-name">AI 운전자격확인시스템</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">국토교통부 · 교통안전공단</span></a></td><td class="ov-tech" data-label="기술">얼굴인식·라이브니스</td><td class="ov-metric" data-label="성과">연 1.5억건 조회·11만건 차단, 사고 14%↓</td></tr>
+                    <tr class="ov-row" data-case="case-08"><td data-label="분야"><span class="field-pill" style="--fc:#c0392b;">안전·치안</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-08" aria-label="AI 딥페이크 분석모델 사례 자세히 보기"><span class="ov-name">AI 딥페이크 분석모델</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">행정안전부 · 국립과학수사연구원</span></a></td><td class="ov-tech" data-label="기술">딥러닝 영상·음성 판독</td><td class="ov-metric" data-label="성과">정확도 영상 94.98%, 감정 며칠→수분</td></tr>
+                    <tr class="ov-row" data-case="case-09"><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-09" aria-label="경기데이터 찾아드림 사례 자세히 보기"><span class="ov-name">경기데이터 찾아드림</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">경기도</span></a></td><td class="ov-tech" data-label="기술">생성형 AI·RAG(ChatGPT)</td><td class="ov-metric" data-label="성과">자연어 공공데이터 검색·요약</td></tr>
+                    <tr class="ov-row" data-case="case-10"><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-10" aria-label="초거대 AI 통합연구지원 사례 자세히 보기"><span class="ov-name">초거대 AI 통합연구지원</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">경제·인문사회연구회</span></a></td><td class="ov-tech" data-label="기술">HyperCLOVA X 멀티LLM RAG</td><td class="ov-metric" data-label="성과">연구 전 주기 자료 정리·문서 생성</td></tr>
+                    <tr class="ov-row" data-case="case-11"><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-11" aria-label="AI 당직시스템 사례 자세히 보기"><span class="ov-name">AI 당직시스템</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">광주광역시</span></a></td><td class="ov-tech" data-label="기술">KT A'cen 음성상담</td><td class="ov-metric" data-label="성과">당직비 93%↓, 야간민원 83% AI 처리</td></tr>
+                    <tr class="ov-row" data-case="case-12"><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-12" aria-label="AI 다국어 동시통역 사례 자세히 보기"><span class="ov-name">AI 다국어 동시통역</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">서울 용산구</span></a></td><td class="ov-tech" data-label="기술">KONAN LLM(STT·MT)</td><td class="ov-metric" data-label="성과">13개 언어, 통역 인력 없이 즉시 상담</td></tr>
+                    <tr class="ov-row" data-case="case-13"><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-13" aria-label="AI 부정주차 관리시스템 사례 자세히 보기"><span class="ov-name">AI 부정주차 관리시스템</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">서울 강남구</span></a></td><td class="ov-tech" data-label="기술">YOLOv8 객체인식</td><td class="ov-metric" data-label="성과">차량 인식률 99.93%, 사후단속→사전안내</td></tr>
+                    <tr class="ov-row" data-case="case-14"><td data-label="분야"><span class="field-pill" style="--fc:#2b7bb9;">일반행정</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-14" aria-label="AI 여객 흐름 관리 사례 자세히 보기"><span class="ov-name">AI 여객 흐름 관리</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">인천국제공항공사</span></a></td><td class="ov-tech" data-label="기술">시뮬레이션 기반 머신러닝</td><td class="ov-metric" data-label="성과">예측 정확도 92%, 5년 810억 경제가치</td></tr>
+                    <tr class="ov-row" data-case="case-15"><td data-label="분야"><span class="field-pill" style="--fc:#b8860b;">법제</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-15" aria-label="AI 특허심사 업무지원 사례 자세히 보기"><span class="ov-name">AI 특허심사 업무지원</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">지식재산처</span></a></td><td class="ov-tech" data-label="기술">특허 특화 LLM(EXAONE)·ViT</td><td class="ov-metric" data-label="성과">세계 최초 특허 특화 언어모델</td></tr>
+                    <tr class="ov-row" data-case="case-16"><td data-label="분야"><span class="field-pill" style="--fc:#b8860b;">법제</span></td><td class="ov-name" data-label="사례"><a class="ov-link" href="#case-16" aria-label="생성형 AI 법령정보 서비스 사례 자세히 보기"><span class="ov-name">생성형 AI 법령정보 서비스</span><span class="ov-go" aria-hidden="true">&rarr;</span><span class="ov-org">법제처</span></a></td><td class="ov-tech" data-label="기술">벡터검색·sLLM·RAG</td><td class="ov-metric" data-label="성과">만족도 83.7%, 일평균 80만 방문</td></tr>
                 </tbody>
             </table>
         </div>
-        <div class="ax-note" style="margin-top:16px;">아래에서 16개 사례를 분야별로 나눠, 각각 배경·핵심 기능·성과를 자세히 풀었습니다.</div>
+        <div class="ax-note" style="margin-top:16px;"><strong>표의 각 줄을 누르면 그 사례로 바로 이동합니다.</strong> 아래에서 16개 사례를 분야별로 나눠, 각각 배경·핵심 기능·성과를 자세히 풀었습니다.</div>
     </div>
 
     <!-- ═══ SECTION 1: 환경 ═══ -->
@@ -398,7 +423,7 @@
         <div class="step-divider-line"></div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#2f9e6f;">
+    <div class="ax-case reveal" id="case-01" style="--cc:#2f9e6f;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">환경일반</span>
             <span class="ax-case-num">01</span>
@@ -428,7 +453,7 @@
         </div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#2f9e6f;">
+    <div class="ax-case reveal" id="case-02" style="--cc:#2f9e6f;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">환경일반</span>
             <span class="ax-case-num">02</span>
@@ -465,7 +490,7 @@
         <div class="step-divider-line"></div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#D97757;">
+    <div class="ax-case reveal" id="case-03" style="--cc:#D97757;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">고용노동</span>
             <span class="ax-case-num">03</span>
@@ -490,7 +515,7 @@
         <p class="ax-note">※ 원문에 정량 성과 수치는 별도 기재되지 않았습니다. 담당자별 편차를 줄여 표준화된 분류 결과를 제공하는 정성 효과 중심. 서비스 개시 2025년 8월.</p>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#D97757;">
+    <div class="ax-case reveal" id="case-04" style="--cc:#D97757;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">고용노동</span>
             <span class="ax-case-num">04</span>
@@ -527,7 +552,7 @@
         <div class="step-divider-line"></div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#7c5cbf;">
+    <div class="ax-case reveal" id="case-05" style="--cc:#7c5cbf;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">사회복지일반</span>
             <span class="ax-case-num">05</span>
@@ -556,7 +581,7 @@
         </div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#7c5cbf;">
+    <div class="ax-case reveal" id="case-06" style="--cc:#7c5cbf;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">사회복지일반</span>
             <span class="ax-case-num">06</span>
@@ -593,7 +618,7 @@
         <div class="step-divider-line"></div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#c0392b;">
+    <div class="ax-case reveal" id="case-07" style="--cc:#c0392b;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">공공질서·안전</span>
             <span class="ax-case-num">07</span>
@@ -623,7 +648,7 @@
         </div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#c0392b;">
+    <div class="ax-case reveal" id="case-08" style="--cc:#c0392b;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">공공질서·안전</span>
             <span class="ax-case-num">08</span>
@@ -659,7 +684,7 @@
         <div class="step-divider-line"></div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#2b7bb9;">
+    <div class="ax-case reveal" id="case-09" style="--cc:#2b7bb9;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">일반행정</span>
             <span class="ax-case-num">09</span>
@@ -684,7 +709,7 @@
         <p class="ax-note">※ 원문에 이용 건수 등 정량 성과 지표는 기재되지 않았습니다. 검색·정리 시간 단축, 도민 체감도·연구 생산성 향상의 정성 효과 중심. 서비스 개시 2024년 8월.</p>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#2b7bb9;">
+    <div class="ax-case reveal" id="case-10" style="--cc:#2b7bb9;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">일반행정</span>
             <span class="ax-case-num">10</span>
@@ -709,7 +734,7 @@
         <p class="ax-note">※ 원문에 검색 시간 단축률 등 정량 성과 지표는 기재되지 않았습니다. 자료 수집·정리 시간 단축과 데이터 통합의 정성 효과 중심. 2024년 12월 시범 서비스 개시.</p>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#2b7bb9;">
+    <div class="ax-case reveal" id="case-11" style="--cc:#2b7bb9;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">일반행정</span>
             <span class="ax-case-num">11</span>
@@ -738,7 +763,7 @@
         </div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#2b7bb9;">
+    <div class="ax-case reveal" id="case-12" style="--cc:#2b7bb9;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">일반행정</span>
             <span class="ax-case-num">12</span>
@@ -767,7 +792,7 @@
         </div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#2b7bb9;">
+    <div class="ax-case reveal" id="case-13" style="--cc:#2b7bb9;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">일반행정</span>
             <span class="ax-case-num">13</span>
@@ -796,7 +821,7 @@
         </div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#2b7bb9;">
+    <div class="ax-case reveal" id="case-14" style="--cc:#2b7bb9;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">일반행정</span>
             <span class="ax-case-num">14</span>
@@ -832,7 +857,7 @@
         <div class="step-divider-line"></div>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#b8860b;">
+    <div class="ax-case reveal" id="case-15" style="--cc:#b8860b;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">법제</span>
             <span class="ax-case-num">15</span>
@@ -862,7 +887,7 @@
         <p class="ax-note">※ 다수 기능이 시범(연구·실증) 단계로, 정량적 시간 단축 폭 등 세부 수치는 원문에 기재되지 않았습니다.</p>
     </div>
 
-    <div class="ax-case reveal" style="--cc:#b8860b;">
+    <div class="ax-case reveal" id="case-16" style="--cc:#b8860b;">
         <div class="ax-case-head">
             <span class="ax-cat-tag">법제</span>
             <span class="ax-case-num">16</span>
@@ -972,6 +997,82 @@
     }
     window.addEventListener('scroll', update, {passive:true});
     update();
+})();
+
+/* ── 요약표 행 클릭 → 해당 사례로 스크롤 ── */
+(function(){
+    var rows = document.querySelectorAll('.overview-table tbody tr.ov-row');
+    if(!rows.length) return;
+    var subMenu = document.getElementById('subMenu');
+    var flashTimer = null;
+
+    function docOffsetTop(el){
+        var top = 0;
+        while(el){ top += el.offsetTop; el = el.offsetParent; }
+        return top;
+    }
+
+    /* 데스크톱은 sticky 서브메뉴 아래, 모바일은 떠 있는 햄버거 단추(top 14 + 44px) 아래로 */
+    function targetTop(el){
+        var navH = subMenu ? subMenu.offsetHeight : 0;
+        var gap = navH > 0 ? 10 : 66;
+        return Math.max(docOffsetTop(el) - navH - gap, 0);
+    }
+
+    function goTo(id){
+        var target = document.getElementById(id);
+        if(!target) return;
+        /* 아직 등장 애니메이션 전이면 먼저 보이게 */
+        target.classList.add('visible');
+        var top = targetTop(target);
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({top: top, behavior: reduce ? 'instant' : 'smooth'});
+        history.replaceState(null, '', '#' + id);
+        if(reduce) window.dispatchEvent(new Event('scroll'));   /* 즉시 이동일 때 서브메뉴 활성 표시 갱신 */
+
+        document.querySelectorAll('.ax-case.case-flash').forEach(function(el){ el.classList.remove('case-flash'); });
+        if(flashTimer) clearTimeout(flashTimer);
+        void target.offsetWidth;
+        target.classList.add('case-flash');
+        flashTimer = setTimeout(function(){ target.classList.remove('case-flash'); }, 1700);
+    }
+
+    rows.forEach(function(row){
+        row.addEventListener('click', function(e){
+            if(e.target.closest('a')) return;                 /* 링크는 자기 핸들러가 처리 */
+            var sel = window.getSelection();
+            if(sel && sel.toString().length) return;           /* 본문 드래그 선택 중이면 무시 */
+            goTo(row.getAttribute('data-case'));
+        });
+    });
+
+    document.querySelectorAll('.overview-table a.ov-link').forEach(function(a){
+        a.addEventListener('click', function(e){
+            e.preventDefault();
+            goTo(a.getAttribute('href').substring(1));
+        });
+    });
+
+    /* 공유 링크·새로고침으로 #case-NN 에 바로 들어온 경우 정확한 위치에 착지 */
+    (function(){
+        if(!/^#case-\d\d$/.test(location.hash)) return;
+        var target = document.getElementById(location.hash.substring(1));
+        if(!target) return;
+        var userMoved = false;
+        ['wheel','touchstart','keydown'].forEach(function(ev){
+            window.addEventListener(ev, function(){ userMoved = true; }, {passive:true, once:true});
+        });
+        function settle(){
+            if(userMoved) return;
+            target.classList.add('visible');
+            window.scrollTo({top: targetTop(target), behavior: 'instant'});
+            window.dispatchEvent(new Event('scroll'));
+        }
+        settle();
+        setTimeout(settle, 120);
+        setTimeout(settle, 420);
+        window.addEventListener('load', function(){ setTimeout(settle, 80); });
+    })();
 })();
 </script>
 
