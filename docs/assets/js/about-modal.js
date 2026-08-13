@@ -547,7 +547,7 @@
                     <div class="ab-log">
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.4</span><span class="ab-date">2026-08-09</span></div>
-                            <div><p class="ab-log-title">표지 디자인 개선과 실전 예제 3종 보강</p><p class="ab-log-desc">로고 인트로를 모든 화면에서 걷어내 표지가 첫 화면이 되게 하고, 제목과 마스코트 애니메이션은 첫 페인트에 맞춰 재생되도록 고쳤습니다. 실전 예제 아래에는 '80 에이전트 고용 실전' 구분 띠를 놓고 5 Color, 25인 자문단, 50 에이전트 팀 빌더 세 도구를 카드로 모았습니다. 색으로 나눈 5인 협업, 페르소나 25명의 토론, 목적 한 줄로 꾸리는 50인 팀을 각 사이트에서 바로 써 볼 수 있습니다.</p></div>
+                            <div><p class="ab-log-title">표지 디자인 개선과 실전 예제 3종 보강</p><p class="ab-log-desc">제목과 마스코트 애니메이션은 첫 페인트에 맞춰 재생되도록 고쳤습니다. 실전 예제 아래에는 '80 에이전트 고용 실전' 구분 띠를 놓고 5 Color, 25인 자문단, 50 에이전트 팀 빌더 세 도구를 카드로 모았습니다. 색으로 나눈 5인 협업, 페르소나 25명의 토론, 목적 한 줄로 꾸리는 50인 팀을 각 사이트에서 바로 써 볼 수 있습니다.</p></div>
                         </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.3</span><span class="ab-date">2026-08-02</span></div>
