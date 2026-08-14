@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>지구 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%232D9BD6'/><path d='M26 34h18v10H34v12h16v10H30V44H26z' fill='%2352B03E'/><path d='M58 28h16v12H62v8h14v10H58z' fill='%2352B03E'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    color:#D6DEEC;word-break:keep-all;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;
+    background:radial-gradient(120% 92% at 50% 40%,#12203C 0%,#0A1226 46%,#04070F 100%)}
+
+  /* ── 우주 ──
+     별은 크기와 밝기를 섞어야 깊이가 생긴다. 멀리 흐린 은하수 띠를 한 겹
+     깔고 그 위에 밝은 별을 얹는다. */
+  .space{position:absolute;inset:0;pointer-events:none}
+  .space::before{content:'';position:absolute;inset:0;opacity:.5;
+    background:linear-gradient(112deg,transparent 30%,rgba(150,180,240,.14) 46%,rgba(196,180,240,.10) 56%,transparent 70%);
+    filter:blur(16px)}
+  .stars{position:absolute;inset:0;pointer-events:none;
+    background-image:
+      radial-gradient(1.5px 1.5px at 7% 12%,rgba(255,255,255,.92),transparent),
+      radial-gradient(1px 1px at 19% 30%,rgba(206,226,255,.6),transparent),
+      radial-gradient(1.3px 1.3px at 31% 8%,rgba(255,255,255,.78),transparent),
+      radial-gradient(1px 1px at 44% 21%,rgba(226,216,255,.55),transparent),
+      radial-gradient(1.6px 1.6px at 58% 6%,rgba(255,255,255,.85),transparent),
+      radial-gradient(1px 1px at 71% 26%,rgba(206,226,255,.5),transparent),
+      radial-gradient(1.4px 1.4px at 86% 14%,rgba(255,255,255,.8),transparent),
+      radial-gradient(1px 1px at 94% 36%,rgba(226,216,255,.52),transparent),
+      radial-gradient(1.2px 1.2px at 5% 54%,rgba(255,255,255,.66),transparent),
+      radial-gradient(1px 1px at 14% 76%,rgba(206,226,255,.48),transparent),
+      radial-gradient(1.5px 1.5px at 27% 92%,rgba(255,255,255,.72),transparent),
+      radial-gradient(1px 1px at 48% 79%,rgba(226,216,255,.45),transparent),
+      radial-gradient(1.3px 1.3px at 63% 95%,rgba(255,255,255,.7),transparent),
+      radial-gradient(1px 1px at 78% 72%,rgba(206,226,255,.46),transparent),
+      radial-gradient(1.5px 1.5px at 91% 88%,rgba(255,255,255,.75),transparent),
+      radial-gradient(1px 1px at 97% 62%,rgba(226,216,255,.44),transparent);
+    animation:twinkle 6.5s ease-in-out infinite}
+  @keyframes twinkle{50%{opacity:.55}}
+
+  .globe{position:relative;width:210px;z-index:2}
+  .globe::before{content:'';position:absolute;inset:-11%;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle,rgba(96,176,255,.34) 42%,rgba(60,130,220,.16) 56%,transparent 70%);
+    filter:blur(9px)}
+  .globe svg{position:relative;display:block;width:100%;height:auto;
+    filter:drop-shadow(0 0 18px rgba(74,158,240,.45))}
+
+  /* 자전: 대륙 띠 두 벌을 이어 붙여 끊김 없이 흐르게 한다 */
+  #land,#cloud{animation:spin 40s linear infinite}
+  #cloud{animation-duration:29s}
+  body.go #land{animation-duration:11s}
+  body.go #cloud{animation-duration:8s}
+  @keyframes spin{to{transform:translateX(-264px)}}
+
+  .pill{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;
+    background:#FFFFFF;border-radius:999px;padding:9px 20px;white-space:nowrap;
+    box-shadow:0 5px 16px rgba(28,52,96,.22),0 1px 0 rgba(255,255,255,.9) inset}
+  .time{font-size:25px;font-weight:800;letter-spacing:.2px;color:#1D3F73;line-height:1.1;
+    font-variant-numeric:tabular-nums}
+  .time .cs{font-size:14px;font-weight:700;color:#6C8CB8}
+
+  .row{position:relative;z-index:2;display:flex;gap:10px;margin-top:20px}
+  button{font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;
+    width:82px;height:38px;border:0;border-radius:999px;color:#FFFFFF;
+    transition:filter .18s,opacity .18s,transform .12s,box-shadow .18s}
+  button:hover:not(:disabled){filter:brightness(1.05);transform:translateY(-1px)}
+  button:active:not(:disabled){transform:translateY(0)}
+  button:disabled{opacity:.3;filter:grayscale(.45);cursor:default}
+  button:focus-visible{outline:2px solid #2D9BD6;outline-offset:3px}
+  #b1{background:#E8635C;box-shadow:0 4px 12px rgba(232,99,92,.32)}
+  #b2{background:#F2C230;color:#5A4408;box-shadow:0 4px 12px rgba(242,194,48,.32)}
+  #b3{background:#C9D2E2;color:#3C4658;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+
+  .lapline{position:relative;z-index:2;margin-top:10px;min-height:13px;font-size:10.5px;font-weight:700;color:#9FB2D0;
+    font-variant-numeric:tabular-nums;text-align:center}
+
+  @media (max-height:334px){
+    .globe{width:168px}
+    .time{font-size:20px}
+    .time .cs{font-size:11.5px}
+    .pill{padding:7px 15px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #land,#cloud,.stars{animation:none !important}
+  }
+</style>
+</head>
+<body>
+  <div class="space" aria-hidden="true"><span class="stars"></span></div>
+
+  <div class="globe">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
+      <defs>
+        <clipPath id="ball"><circle cx="100" cy="100" r="88"/></clipPath>
+        <radialGradient id="sea" cx="36%" cy="30%" r="78%">
+          <stop offset="0%" stop-color="#5CBEEE"/>
+          <stop offset="52%" stop-color="#2D9BD6"/>
+          <stop offset="100%" stop-color="#1B6FA8"/>
+        </radialGradient>
+        <radialGradient id="shade" cx="34%" cy="28%" r="76%">
+          <stop offset="0%" stop-color="#FFFFFF" stop-opacity=".34"/>
+          <stop offset="46%" stop-color="#FFFFFF" stop-opacity="0"/>
+          <stop offset="82%" stop-color="#0B3A66" stop-opacity=".16"/>
+          <stop offset="100%" stop-color="#07284A" stop-opacity=".42"/>
+        </radialGradient>
+        <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.4"/>
+        </filter>
+        <g id="world">
+          <g fill="#3C7C40">
+            <path d="M8.8,24.4 L11.0,18.6 L29.3,19.6 L40.3,19.6 L58.7,16.6 L73.3,16.6 L86.5,23.5 L91.7,37.2 L83.6,45.0 L80.7,47.9 L76.3,51.8 L72.6,57.7 L73.3,63.6 L66.0,59.6 L60.9,62.6 L60.9,70.4 L67.5,72.4 L70.4,78.2 L74.8,80.2 L68.9,74.3 L62.3,72.4 L55.0,68.4 L51.3,64.5 L48.4,58.7 L43.3,53.8 L40.3,46.0 L41.1,41.1 L36.7,34.2 L29.3,29.3 L22.0,30.3 L16.1,32.3 L11.0,29.3 Z"/>
+            <path d="M73.3,78.2 L79.2,76.3 L86.5,77.2 L93.9,83.1 L95.3,88.0 L106.3,92.9 L104.1,100.7 L96.8,112.4 L92.4,121.2 L90.2,125.2 L86.5,127.1 L85.8,136.9 L82.1,141.8 L79.2,140.8 L78.5,132.0 L79.9,117.3 L80.7,105.6 L76.3,101.7 L72.6,93.9 L73.3,88.0 L75.5,81.2 Z"/>
+            <path d="M119.5,73.3 L124.7,60.6 L132.0,52.8 L139.3,51.8 L146.7,56.7 L155.5,57.7 L157.7,65.5 L163.5,76.3 L169.4,76.3 L162.8,90.0 L161.3,97.8 L161.3,107.6 L157.7,111.5 L155.5,116.4 L150.3,121.2 L145.2,121.2 L140.8,105.6 L138.6,89.0 L138.6,84.1 L134.2,82.1 L126.1,84.1 L121.7,78.2 Z"/>
+            <path d="M125.4,45.0 L125.4,37.2 L129.1,31.3 L135.7,27.4 L140.8,21.5 L146.7,19.6 L154.0,19.6 L161.3,23.5 L161.3,34.2 L159.9,43.0 L152.5,44.0 L148.1,48.9 L143.0,50.8 L139.3,46.0 L134.2,46.0 L130.5,46.0 Z"/>
+            <path d="M161.3,23.5 L176.0,19.6 L190.7,15.6 L205.3,13.7 L220.0,16.6 L234.7,19.6 L249.3,21.5 L260.3,23.5 L262.5,27.4 L249.3,31.3 L242.0,39.1 L234.7,45.0 L231.0,53.8 L221.5,58.7 L216.3,66.5 L210.5,78.2 L205.3,83.1 L201.7,73.3 L196.5,66.5 L190.7,68.4 L184.8,68.4 L180.4,63.6 L176.0,58.7 L168.7,58.7 L165.0,50.8 L161.3,46.9 L159.9,39.1 Z"/>
+            <path d="M181.9,65.5 L184.8,68.4 L188.5,80.2 L190.7,78.2 L196.5,67.5 L190.7,63.6 Z"/>
+            <path d="M214.9,109.5 L215.6,120.3 L218.5,122.2 L226.6,119.3 L232.5,122.2 L238.3,125.2 L242.0,124.2 L244.2,115.4 L239.1,105.6 L236.1,98.8 L231.0,99.7 L226.6,102.7 L221.5,104.6 Z"/>
+            <path d="M227.3,57.7 L231.0,54.8 L234.7,50.8 L236.1,45.0 L238.3,45.0 L235.4,52.8 L231.7,55.7 Z"/>
+            <path d="M128.3,39.1 L129.8,34.2 L128.3,31.3 L130.5,31.3 L132.0,36.2 L132.7,38.1 Z"/>
+            <path d="M163.5,99.7 L168.7,102.7 L168.7,112.4 L165.0,112.4 L163.5,107.6 Z"/>
+            <path d="M258.1,121.2 L262.5,125.2 L259.6,129.1 L255.2,133.0 L253.7,132.0 L256.7,127.1 Z"/>
+            <path d="M201.7,83.1 L205.3,86.0 L209.7,93.9 L208.3,93.9 L203.9,88.0 Z"/>
+            <path d="M211.9,86.0 L217.8,84.1 L219.3,89.0 L217.1,91.9 L212.7,90.9 Z"/>
+            <path d="M228.1,89.0 L235.4,90.9 L242.0,95.8 L236.9,96.8 L230.3,92.9 Z"/>
+          </g>
+          <g fill="#B49A62" opacity=".9">
+            <path d="M121.0,68.4 L132.0,62.6 L146.7,60.6 L155.5,60.6 L157.7,68.4 L154.0,73.3 L143.0,74.3 L132.0,73.3 Z"/>
+            <path d="M157.7,60.6 L168.7,63.6 L174.5,68.4 L170.1,74.3 L163.5,75.3 L158.4,68.4 Z"/>
+            <path d="M176.0,44.0 L190.7,44.0 L205.3,44.0 L212.7,46.9 L205.3,50.8 L190.7,50.8 L177.5,48.9 Z"/>
+            <path d="M218.5,109.5 L227.3,107.6 L234.7,111.5 L233.2,117.3 L224.4,117.3 L219.3,114.4 Z"/>
+          </g>
+          <g fill="#E6EEF3">
+            <path d="M99.0,6.8 L117.3,9.8 L115.9,19.6 L102.7,29.3 L93.9,27.4 L89.5,19.6 L89.5,11.7 Z"/>
+            <path d="M0.0,156.4 L44.0,159.4 L88.0,158.4 L132.0,156.4 L176.0,154.5 L220.0,156.4 L264.0,156.4 L264.0,176.0 L0.0,176.0 Z"/>
+          </g>
+        </g>
+      </defs>
+
+      <circle cx="100" cy="100" r="88" fill="url(#sea)"/>
+      <g clip-path="url(#ball)">
+        <g id="land" transform="translate(0,12)">
+          <use href="#world" x="0"/><use href="#world" x="264"/>
+        </g>
+        <g id="cloud" filter="url(#soft)" opacity=".40"></g>
+      </g>
+      <circle cx="100" cy="100" r="88" fill="url(#shade)"/>
+      <circle cx="100" cy="100" r="87" fill="none" stroke="#1A6296" stroke-width="2" opacity=".5"/>
+    </svg>
+    <div class="pill"><div class="time" id="t" role="timer">00:00<span class="cs">.00</span></div></div>
+  </div>
+
+  <div class="row">
+    <button id="b1" type="button">시작</button>
+    <button id="b2" type="button" disabled>랩</button>
+    <button id="b3" type="button" disabled>리셋</button>
+  </div>
+  <div class="lapline" id="lp" aria-live="polite"></div>
+
+<script>
+(function(){
+  /* ── 구름 ──
+     대륙은 defs의 세계지도를 use로 두 벌 이어 붙여 쓴다. 구름만 따로 뿌리고
+     지도보다 조금 빠르게 흘려 지구가 도는 느낌을 낸다. */
+  var ns='http://www.w3.org/2000/svg', BAND=264, TOP=12;
+  var CLOUDS=[[38,44,20,6],[96,28,15,5],[150,58,18,6],[64,104,22,7],[178,118,16,5],
+              [120,146,20,6],[34,160,14,5],[206,74,17,5.5],[240,132,15,5]];
+  var cloud=document.getElementById('cloud');
+  [0,BAND].forEach(function(dx){
+    CLOUDS.forEach(function(c){
+      var e=document.createElementNS(ns,'ellipse');
+      e.setAttribute('cx',dx+c[0]);e.setAttribute('cy',TOP+c[1]);
+      e.setAttribute('rx',c[2]);e.setAttribute('ry',c[3]);
+      e.setAttribute('fill','#FFFFFF');
+      cloud.appendChild(e);
+    });
+  });
+
+  var t=document.getElementById('t'),lp=document.getElementById('lp'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,stt=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-stt:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  /* 한 시간을 넘기면 앞에 시를 붙여 자리수를 늘린다 */
+  function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return (hh?pad(hh,2)+':':'')+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+  function draw(){t.innerHTML=f(el());}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b1.textContent=run?'정지':(el()>0?'재개':'시작');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function start(){if(run)return;run=true;stt=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;stt=0;laps=[];last=0;lp.textContent='';draw();ui();}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    lp.textContent='LAP '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');
+    srSay('랩 '+laps.length+'. 구간 '+srHuman(sp));}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

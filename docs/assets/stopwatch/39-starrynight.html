@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>별이 빛나는 밤 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%231B4E90'/><circle cx='70' cy='30' r='13' fill='%23F0D77A'/><path d='M10 62c18-22 42-14 44 6' stroke='%23E8C558' stroke-width='6' fill='none' stroke-linecap='round'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    color:#F2ECDC;word-break:keep-all;
+    display:flex;align-items:center;justify-content:center;padding:11px;
+    background:radial-gradient(115% 90% at 50% 30%,#12203A 0%,#0A1424 60%,#060B14 100%)}
+
+  .frame{width:100%;max-width:306px;border-radius:14px;overflow:hidden;
+    box-shadow:0 18px 40px rgba(0,0,0,.62),0 0 0 1px rgba(232,197,88,.18)}
+  .art{display:block;width:100%;height:auto;background:#0B2A5C}
+
+  /* 밤하늘의 붓결이 흐른다 */
+  .flow{stroke-dasharray:44 300;animation:flow 11s linear infinite}
+  .flow.b{animation-duration:15s;animation-delay:-4s}
+  .flow.c{animation-duration:18s;animation-delay:-9s}
+  body.go .flow{animation-duration:3.6s}
+  body.go .flow.b{animation-duration:4.8s}
+  body.go .flow.c{animation-duration:6s}
+  @keyframes flow{to{stroke-dashoffset:-344}}
+  .halo{animation:beat 4.4s ease-in-out infinite}
+  .halo:nth-of-type(even){animation-duration:5.9s;animation-delay:-1.7s}
+  body.go .halo{animation-duration:1.9s}
+  @keyframes beat{0%,100%{opacity:.55;transform-box:fill-box;transform-origin:center;transform:scale(.9)}
+                  50%{opacity:1;transform-box:fill-box;transform-origin:center;transform:scale(1.14)}}
+  #rays{transform-box:fill-box;transform-origin:center;animation:turn 44s linear infinite}
+  body.go #rays{animation-duration:13s}
+  @keyframes turn{to{transform:rotate(360deg)}}
+
+  /* ── 조작부 ── */
+  .bar{background:linear-gradient(180deg,#0C1526 0%,#080E1A 100%);padding:14px 13px 13px;text-align:center}
+  .time{font-size:26px;font-weight:800;letter-spacing:.3px;line-height:1.1;white-space:nowrap;
+    color:#FFFFFF;font-variant-numeric:tabular-nums;text-shadow:0 0 16px rgba(232,197,88,.28)}
+  .time .cs{font-size:14px;font-weight:700;color:#E5C778;text-shadow:none}
+
+  .row{display:flex;gap:8px;justify-content:center;margin-top:11px}
+  button{font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;
+    flex:1 1 0;min-width:0;max-width:88px;height:32px;border:0;border-radius:8px;color:#FFFFFF;
+    transition:filter .18s,opacity .18s,transform .12s}
+  button:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+  button:active:not(:disabled){transform:translateY(0)}
+  button:disabled{opacity:.36;cursor:default}
+  button:focus-visible{outline:2px solid #F0D77A;outline-offset:3px}
+  #b1{background:#3FA96B}
+  #b2{background:#4A7FCB}
+  #b3{background:#D8503F}
+
+  .lapline{margin-top:9px;min-height:12px;font-size:10px;font-weight:700;color:rgba(229,199,120,.72);
+    font-variant-numeric:tabular-nums}
+
+  @media (max-height:326px){
+    .time{font-size:21px}
+    .time .cs{font-size:12px}
+    .bar{padding:9px 11px 10px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .flow,.halo,#rays{animation:none !important}
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <svg class="art" viewBox="0 0 320 190" aria-hidden="true">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0.3" y2="1">
+          <stop offset="0%" stop-color="#0A2755"/>
+          <stop offset="45%" stop-color="#1A4E92"/>
+          <stop offset="100%" stop-color="#25639F"/>
+        </linearGradient>
+        <radialGradient id="glow"><stop offset="0%" stop-color="#FFF3C4" stop-opacity=".85"/>
+          <stop offset="45%" stop-color="#F0D77A" stop-opacity=".38"/>
+          <stop offset="100%" stop-color="#F0D77A" stop-opacity="0"/></radialGradient>
+        <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#173C6E"/><stop offset="100%" stop-color="#0B1E3C"/></linearGradient>
+      </defs>
+
+      <rect width="320" height="190" fill="url(#sky)"/>
+
+      <!-- 하늘의 큰 결과 소용돌이. 같은 선을 두 번 쓴다.
+           한 번은 굵고 잔잔한 붓자국으로, 한 번은 그 위를 흘러가는 빛으로. -->
+      <defs>
+        <path id="w1" d="M-8,42 C34,16 74,60 116,38 C158,16 196,58 240,36 C276,18 302,48 330,32"/>
+        <path id="w2" d="M-8,150 C36,136 74,164 122,150 C172,135 210,162 256,150 C292,141 312,156 330,146"/>
+        <path id="w3" d="M-8,120 C30,100 60,132 98,116 C138,99 168,130 208,116 C248,102 296,132 330,112"/>
+        <path id="sp1" d="M52,88 C56,44 108,24 148,44 C186,63 194,116 158,134 C126,150 92,128 98,102
+                          C103,80 132,74 142,92 C149,105 138,118 127,110"/>
+        <path id="sp2" d="M190,126 C192,96 220,80 244,94 C266,107 262,136 240,140 C222,143 212,128 222,118"/>
+      </defs>
+
+      <g fill="none" stroke-linecap="round">
+        <use href="#w1" stroke="#D8B650" stroke-width="4.6" opacity=".42"/>
+        <use href="#w3" stroke="#9FC0E4" stroke-width="3.4" opacity=".26"/>
+        <use href="#w2" stroke="#D8B650" stroke-width="3.4" opacity=".28"/>
+        <use href="#sp1" stroke="#D8B650" stroke-width="5" opacity=".52"/>
+        <use href="#sp2" stroke="#D8B650" stroke-width="3.8" opacity=".4"/>
+
+        <use class="flow" href="#sp1" stroke="#FFF3C8" stroke-width="3.2" opacity=".95"/>
+        <use class="flow b" href="#sp2" stroke="#FFF3C8" stroke-width="2.4" opacity=".8"/>
+        <use class="flow c" href="#w1" stroke="#FFF3C8" stroke-width="2.8" opacity=".8"/>
+        <use class="flow b" href="#w3" stroke="#E8F1FF" stroke-width="2" opacity=".6"/>
+        <use class="flow" href="#w2" stroke="#FFF3C8" stroke-width="2.2" opacity=".62"/>
+      </g>
+
+      <!-- 별 -->
+      <g>
+        <circle class="halo" cx="34" cy="36" r="13" fill="url(#glow)"/><circle cx="34" cy="36" r="3.4" fill="#FFF8DC"/>
+        <circle class="halo" cx="104" cy="26" r="11" fill="url(#glow)"/><circle cx="104" cy="26" r="2.8" fill="#FFF8DC"/>
+        <circle class="halo" cx="186" cy="40" r="12" fill="url(#glow)"/><circle cx="186" cy="40" r="3.1" fill="#FFF8DC"/>
+        <circle class="halo" cx="146" cy="120" r="10" fill="url(#glow)"/><circle cx="146" cy="120" r="2.6" fill="#FFF8DC"/>
+        <circle class="halo" cx="238" cy="86" r="11" fill="url(#glow)"/><circle cx="238" cy="86" r="2.9" fill="#FFF8DC"/>
+        <circle class="halo" cx="296" cy="102" r="10" fill="url(#glow)"/><circle cx="296" cy="102" r="2.6" fill="#FFF8DC"/>
+      </g>
+
+      <!-- 달 -->
+      <g>
+        <circle cx="272" cy="38" r="26" fill="url(#glow)"/>
+        <g id="rays" fill="none" stroke="#F7E7AE" stroke-width="1.9" stroke-linecap="round" opacity=".8">
+          <path d="M272,8 L272,-2 M272,68 L272,78 M242,38 L232,38 M302,38 L312,38
+                   M251,17 L244,10 M293,59 L300,66 M293,17 L300,10 M251,59 L244,66"/>
+        </g>
+        <circle cx="272" cy="38" r="14" fill="#F6E39C"/>
+        <circle cx="272" cy="38" r="14" fill="none" stroke="#FFF8DC" stroke-width="1.4" opacity=".7"/>
+      </g>
+
+      <!-- 언덕과 마을 -->
+      <path d="M0,140 C42,128 74,150 116,140 C160,129 198,150 244,140 C280,132 302,146 320,138 L320,190 L0,190 Z"
+            fill="url(#hill)"/>
+      <path d="M0,152 C46,143 82,162 128,153 C176,144 214,162 260,152 C290,146 306,156 320,150 L320,190 L0,190 Z"
+            fill="#0A1A34"/>
+      <g fill="#0A1A34">
+        <path d="M96,152 l10,-11 l10,11 v14 h-20 z"/>
+        <path d="M138,155 l9,-9 l9,9 v11 h-18 z"/>
+        <path d="M186,153 l11,-10 l11,10 v13 h-22 z"/>
+        <path d="M232,157 l8,-8 l8,8 v9 h-16 z"/>
+      </g>
+      <g fill="#F0CF6E">
+        <rect x="101" y="156" width="3.4" height="4"/><rect x="108" y="156" width="3.4" height="4"/>
+        <rect x="144" y="158" width="3" height="3.6"/>
+        <rect x="192" y="157" width="3.4" height="4"/><rect x="199" y="157" width="3.4" height="4"/>
+        <rect x="237" y="160" width="3" height="3.4"/>
+      </g>
+
+      <!-- 사이프러스 -->
+      <path d="M30,190 C20,168 30,156 23,142 C32,130 23,116 32,102 C41,88 32,72 41,58
+               C47,44 43,24 50,6 C59,26 55,46 62,60 C71,74 62,88 71,102 C80,116 70,130 76,144
+               C82,158 71,172 70,190 Z"
+            fill="#0A1626"/>
+      <path d="M50,184 C44,164 52,146 46,130 C54,114 46,96 53,80 C57,64 52,44 51,20"
+            fill="none" stroke="#1A3757" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+      <path d="M38,150 C44,140 40,128 46,118 M64,160 C58,148 64,136 58,124 M44,104 C50,94 46,84 52,72"
+            fill="none" stroke="#16304E" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>
+    </svg>
+
+    <div class="bar">
+      <div class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></div>
+      <div class="row">
+        <button id="b1" type="button">시작</button>
+        <button id="b2" type="button" disabled>랩</button>
+        <button id="b3" type="button" disabled>리셋</button>
+      </div>
+      <div class="lapline" id="lp" aria-live="polite"></div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  var t=document.getElementById('t'),lp=document.getElementById('lp'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,stt=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-stt:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return pad(hh,2)+':'+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+  function draw(){t.innerHTML=f(el());}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b1.textContent=run?'정지':(el()>0?'재개':'시작');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function start(){if(run)return;run=true;stt=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;stt=0;laps=[];last=0;lp.textContent='';draw();ui();}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    lp.textContent='LAP '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');
+    srSay('랩 '+laps.length+'. 구간 '+srHuman(sp));}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

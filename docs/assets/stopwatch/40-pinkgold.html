@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>스켈레톤 퍼페추얼 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23C98F63'/><circle cx='50' cy='50' r='36' fill='%23F4F1EA'/><circle cx='50' cy='50' r='26' fill='%23CFCAC0'/><circle cx='50' cy='50' r='4' fill='%23B07B4E'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    word-break:keep-all;display:flex;align-items:center;justify-content:center;padding:8px;
+    background:radial-gradient(115% 90% at 50% 34%,#2A211A 0%,#160F0B 58%,#0A0705 100%)}
+
+  .watch{position:relative;width:296px;height:296px;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0}
+
+  /* 로즈 골드 브레이슬릿 */
+  .band{position:absolute;left:50%;transform:translateX(-50%);width:118px;height:30px;z-index:0;
+    background:linear-gradient(90deg,#8A5C38 0%,#C08B5E 14%,#F0CBA6 30%,#D6A176 50%,#F0CBA6 70%,#C08B5E 86%,#8A5C38 100%)}
+  .band::after{content:'';position:absolute;inset:0;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 9px),
+               linear-gradient(90deg,transparent 26%,rgba(0,0,0,.20) 33%,transparent 40%,
+                               transparent 60%,rgba(0,0,0,.20) 67%,transparent 74%)}
+  .band.t{top:-6px}.band.b{bottom:-6px}
+
+  /* 푸셔와 크라운. 원의 그 높이 폭에 맞춰 안쪽으로 물려 넣는다 */
+  .pusher{position:absolute;right:5.5%;width:19px;height:27px;z-index:1;border-radius:4px 6px 6px 4px;
+    box-shadow:0 0 0 1.6px rgba(58,32,14,.9),2px 2px 7px rgba(0,0,0,.7),
+               inset 0 1px 2px rgba(255,255,255,.85),inset 0 -2px 3px rgba(0,0,0,.3);
+    transition:opacity .18s,filter .18s,transform .12s}
+  /* 시작 푸셔는 한 단 크고, 대기 중에는 눌러 달라고 은은하게 신호를 준다 */
+  /* 시작=초록, 정지=빨강, 랩=파랑, 리셋=스틸 */
+  .p1{top:24%;height:31px;
+    background:linear-gradient(180deg,#C8F4D6 0%,#42A96E 38%,#1E6B42 78%,#86DCA6 100%)}
+  body.go .p1{background:linear-gradient(180deg,#FFCEC2 0%,#E2523C 38%,#962C1C 78%,#F29684 100%)}
+  .p2{bottom:24%;
+    background:linear-gradient(180deg,#D6E8FA 0%,#4C84CA 38%,#254F7C 78%,#A4C6EA 100%)}
+  body:not(.go) .p1{animation:hint 2.4s ease-in-out infinite}
+  @keyframes hint{
+    0%,100%{box-shadow:0 0 0 1.6px rgba(58,32,14,.9),2px 2px 7px rgba(0,0,0,.7),
+            inset 0 1px 2px rgba(255,255,255,.85),0 0 0 0 rgba(96,214,146,0)}
+    50%{box-shadow:0 0 0 1.6px rgba(58,32,14,.9),2px 2px 7px rgba(0,0,0,.7),
+        inset 0 1px 2px rgba(255,255,255,.85),0 0 0 6px rgba(96,214,146,.32)}}
+  .crown{position:absolute;right:0;top:50%;transform:translateY(-50%);width:22px;height:40px;z-index:1;
+    border-radius:4px 7px 7px 4px;
+    background:repeating-linear-gradient(0deg,#E6E2DA 0 2px,#7E7A72 2px 4px);
+    box-shadow:0 0 0 1.6px rgba(58,32,14,.9),2px 2px 7px rgba(0,0,0,.72),
+               inset 0 1px 2px rgba(255,255,255,.6);
+    transition:opacity .18s,filter .18s}
+  .watch.d2 .crown,.watch.d3 .p2{opacity:.34;filter:grayscale(.75)}
+
+  /* 18K 핑크 골드 케이스 */
+  .case{position:relative;width:268px;height:268px;border-radius:50%;padding:11px;z-index:2;
+    background:conic-gradient(from 118deg,#A9784F,#F8E3CC,#D6A87C,#FFF2E4,#B9895E,#EEC9A6,#A9784F);
+    box-shadow:0 20px 44px rgba(0,0,0,.74),inset 0 2px 4px rgba(255,255,255,.62),inset 0 -4px 9px rgba(0,0,0,.45)}
+  /* 몰타 십자를 따 낸 베젤 노치 여섯 개 */
+  .notch{position:absolute;left:50%;top:50%;width:26px;height:15px;margin:-7.5px 0 0 -13px;
+    border-radius:4px;pointer-events:none;
+    background:linear-gradient(180deg,#FFF0DE,#C89468 60%,#A0714A);
+    box-shadow:0 1px 2px rgba(0,0,0,.4)}
+  .case::before{content:'';position:absolute;inset:8px;border-radius:50%;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.32),inset 0 0 12px rgba(0,0,0,.4)}
+
+  .dial{position:relative;width:100%;height:100%;border-radius:50%;overflow:hidden;
+    background:radial-gradient(circle at 50% 32%,#EDE9E0 0%,#DAD5CA 50%,#BCB6AA 100%)}
+  .ring{position:absolute;inset:0;width:100%;height:100%;z-index:2}
+
+  /* 스켈레톤: 다이얼 아래로 무브먼트가 비친다 */
+  .mvt{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+  #gearA{transform-box:fill-box;transform-origin:center;animation:spin 12s linear infinite}
+  #gearB{transform-box:fill-box;transform-origin:center;animation:spin 19s linear infinite reverse}
+  #gearC{transform-box:fill-box;transform-origin:center;animation:spin 27s linear infinite}
+  body.go #gearA{animation-duration:3.4s}
+  body.go #gearB{animation-duration:5.2s}
+  body.go #gearC{animation-duration:7.6s}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .digi{position:absolute;left:0;right:0;top:41.5%;text-align:center;z-index:5;
+    font-family:Georgia,'Times New Roman',serif;font-size:21px;font-weight:700;letter-spacing:1.2px;
+    font-variant-numeric:tabular-nums;color:#2E2A22;white-space:nowrap;
+    text-shadow:0 1px 0 rgba(255,255,255,.7)}
+  .digi .cs{font-size:12px;font-weight:600;color:#8A6B41}
+
+  /* 로즈 골드 시곗바늘 */
+  .hand{position:absolute;left:50%;top:50%;width:2px;height:126px;z-index:6;border-radius:2px;
+    background:linear-gradient(#F6D9BB 0%,#D09A6C 34%,#A5713F 100%);
+    transform-origin:50% 108px;transform:translate(-50%,-108px) rotate(0deg);
+    box-shadow:0 0 4px rgba(0,0,0,.35)}
+  .hand::after{content:'';position:absolute;left:50%;bottom:-15px;width:3.8px;height:15px;border-radius:3px;
+    background:linear-gradient(#C08B5E,#93683F);transform:translateX(-50%)}
+  .pin{position:absolute;left:50%;top:50%;width:9px;height:9px;border-radius:50%;z-index:7;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle at 36% 30%,#FFF2E4,#D2A177 58%,#8A6B41);
+    box-shadow:0 1px 2px rgba(0,0,0,.45)}
+
+  .glass{position:absolute;inset:0;border-radius:50%;z-index:8;pointer-events:none;
+    background:linear-gradient(126deg,rgba(255,255,255,.26) 0%,rgba(255,255,255,.06) 26%,transparent 46%)}
+
+  /* 보이지 않는 조작 영역. 케이스(z-index 2) 뒤에 둬 포커스 테두리가 다이얼을 덮지 않게 한다 */
+  .hit{position:absolute;right:-6px;width:40px;height:42px;z-index:1;cursor:pointer;
+    background:transparent;border:0;padding:0;margin:0}
+  .h1{top:21%}.h2{top:50%;transform:translateY(-50%);height:52px}.h3{bottom:21%}
+  .hit:disabled{cursor:default}
+  .hit:focus-visible{outline:2px solid #F7E2CB;outline-offset:2px;border-radius:7px}
+
+  .lapline{position:absolute;left:0;right:0;bottom:-19px;text-align:center;z-index:9;
+    font-size:9.5px;font-weight:700;color:#D8B58A;min-height:11px;
+    font-variant-numeric:tabular-nums;text-shadow:0 1px 2px rgba(0,0,0,.85)}
+
+  @media (max-height:322px),(max-width:300px){
+    .watch{width:256px;height:256px}
+    .case{width:234px;height:234px}
+    .digi{font-size:18px}
+    .digi .cs{font-size:10.5px}
+    .hand{height:110px;transform-origin:50% 94px;transform:translate(-50%,-94px) rotate(0deg)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #gearA,#gearB,#gearC{animation:none !important}
+    body:not(.go) .p1{animation:none !important}
+  }
+</style>
+</head>
+<body>
+  <div class="watch" id="wa">
+    <span class="band t" aria-hidden="true"></span>
+    <span class="band b" aria-hidden="true"></span>
+    <span class="pusher p1" aria-hidden="true"></span>
+    <span class="crown" aria-hidden="true"></span>
+    <span class="pusher p2" aria-hidden="true"></span>
+
+    <div class="case" id="cs">
+      <div class="dial">
+        <svg class="mvt" viewBox="0 0 246 246" id="mvt" aria-hidden="true"></svg>
+        <svg class="ring" viewBox="0 0 246 246" id="ring" aria-hidden="true"></svg>
+        <div class="digi"><span id="t">00:00<span class="cs">.00</span></span></div>
+        <div class="hand" id="hand" aria-hidden="true"></div>
+        <div class="pin" aria-hidden="true"></div>
+        <div class="glass" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <button class="hit h1" id="b1" type="button" aria-label="시작"></button>
+    <button class="hit h2" id="b3" type="button" aria-label="리셋" disabled></button>
+    <button class="hit h3" id="b2" type="button" aria-label="랩" disabled></button>
+
+    <div class="lapline" id="lp" aria-live="polite"></div>
+  </div>
+
+<script>
+(function(){
+  var ns='http://www.w3.org/2000/svg', C=123;
+  function el2(tag,attrs,parent){
+    var e=document.createElementNS(ns,tag);
+    for(var k in attrs) e.setAttribute(k,attrs[k]);
+    if(parent) parent.appendChild(e);
+    return e;
+  }
+  function pol(cx,cy,r,deg){var a=(deg-90)*Math.PI/180;return [cx+r*Math.cos(a), cy+r*Math.sin(a)];}
+
+  /* ── 무브먼트 ──
+     스켈레톤 다이얼이라 판이 뚫려 있고 그 사이로 톱니와 브리지가 보인다.
+     톱니를 정확히 그리기보다, 굵기가 다른 링과 톱니 원판을 겹쳐 기계 밀도를 만든다. */
+  var mv=document.getElementById('mvt');
+  /* 로듐 도금 지판 */
+  el2('circle',{cx:C,cy:C,r:106,fill:'#E2DED4'},mv);
+  /* 지판을 도려낸 구멍. 어두운 안쪽이 비쳐 두께가 느껴진다 */
+  [[123,58,24],[62,96,21],[186,104,20],[96,166,19],[168,172,18],[123,196,16]].forEach(function(o){
+    el2('circle',{cx:o[0],cy:o[1],r:o[2],fill:'#B6B0A4',opacity:'.42'},mv);
+    el2('circle',{cx:o[0],cy:o[1],r:o[2],fill:'none',stroke:'#F5F2EA','stroke-width':1},mv);
+  });
+  /* 브리지: 지판 위를 가로지르는 밝은 다리 */
+  el2('path',{d:'M28,100 C74,72 156,66 220,88 L220,110 C156,88 78,94 30,122 Z',
+    fill:'#F1EEE6',stroke:'#B7B1A4','stroke-width':1.1},mv);
+  el2('path',{d:'M32,152 C88,182 162,184 216,154 L216,176 C160,206 86,204 34,174 Z',
+    fill:'#EAE6DC',stroke:'#B7B1A4','stroke-width':1.1},mv);
+  el2('path',{d:'M108,36 C118,34 130,34 140,38 L136,210 C126,212 116,212 108,208 Z',
+    fill:'#EDEAE1',stroke:'#B7B1A4','stroke-width':1},mv);
+
+  /* 톱니바퀴: 이빨을 원 둘레에 박아 만든다 */
+  function gear(cx,cy,r,teeth,id,fill){
+    var g=el2('g',{id:id},mv), i, p;
+    for(i=0;i<teeth;i++){
+      p=pol(cx,cy,r+3.2,i*360/teeth);
+      el2('rect',{x:(p[0]-2).toFixed(1),y:(p[1]-2).toFixed(1),width:4,height:4,
+        fill:fill,transform:'rotate('+(i*360/teeth)+' '+p[0].toFixed(1)+' '+p[1].toFixed(1)+')'},g);
+    }
+    el2('circle',{cx:cx,cy:cy,r:r,fill:'none',stroke:fill,'stroke-width':3},g);
+    el2('circle',{cx:cx,cy:cy,r:r*0.4,fill:'none',stroke:fill,'stroke-width':2.2},g);
+    for(i=0;i<5;i++){
+      var a=i*72*Math.PI/180;
+      el2('line',{x1:cx+r*0.4*Math.cos(a),y1:cy+r*0.4*Math.sin(a),
+        x2:cx+r*0.94*Math.cos(a),y2:cy+r*0.94*Math.sin(a),stroke:fill,'stroke-width':1.9},g);
+    }
+    return g;
+  }
+  gear(62,96,17,15,'gearA','#C79B62');
+  gear(186,104,14,13,'gearB','#BCA98A');
+  gear(96,166,13,12,'gearC','#C79B62');
+
+  /* 루비 베어링과 나사 */
+  [[62,96],[186,104],[96,166]].forEach(function(j){
+    el2('circle',{cx:j[0],cy:j[1],r:2.4,fill:'#A8323F'},mv);
+    el2('circle',{cx:j[0],cy:j[1],r:2.4,fill:'none',stroke:'#D8B078','stroke-width':.8},mv);
+  });
+
+  /* ── 다이얼 위 인쇄와 아플리케 ── */
+  var rg=document.getElementById('ring');
+
+  /* 바깥 흰 분 트랙 */
+  el2('circle',{cx:C,cy:C,r:112.5,fill:'none',stroke:'#F8F6F1','stroke-width':18},rg);
+  el2('circle',{cx:C,cy:C,r:121.5,fill:'none',stroke:'rgba(120,104,86,.35)','stroke-width':1},rg);
+  el2('circle',{cx:C,cy:C,r:102.5,fill:'none',stroke:'rgba(120,104,86,.28)','stroke-width':1},rg);
+  var i,p1,p2;
+  for(i=0;i<60;i++){
+    var maj=(i%5===0), r1=maj?104:108, r2=119;
+    p1=pol(C,C,r1,i*6); p2=pol(C,C,r2,i*6);
+    el2('line',{x1:p1[0].toFixed(1),y1:p1[1].toFixed(1),x2:p2[0].toFixed(1),y2:p2[1].toFixed(1),
+      stroke:maj?'#3A342C':'#8A8378','stroke-width':maj?1.5:0.7,'stroke-linecap':'butt'},rg);
+  }
+  /* 5분 단위 파란 숫자 */
+  for(i=1;i<=12;i++){
+    var lab=(i*5)===60?'60':String(i*5);
+    var pp=pol(C,C,112,i*30);
+    var tx=el2('text',{x:pp[0].toFixed(1),y:(pp[1]+3.4).toFixed(1),'text-anchor':'middle',
+      'font-family':'Helvetica,Arial,sans-serif','font-size':'7.6','font-weight':'600',
+      'letter-spacing':'.3',fill:'#27508C'},rg);
+    tx.textContent=lab;
+  }
+
+  /* 아플리케 로즈 골드 인덱스 */
+  for(i=0;i<12;i++){
+    p1=pol(C,C,74,i*30); p2=pol(C,C,96,i*30);
+    el2('line',{x1:p1[0].toFixed(1),y1:p1[1].toFixed(1),x2:p2[0].toFixed(1),y2:p2[1].toFixed(1),
+      stroke:'#9A6836','stroke-width':4.4,'stroke-linecap':'round'},rg);
+    el2('line',{x1:p1[0].toFixed(1),y1:p1[1].toFixed(1),x2:p2[0].toFixed(1),y2:p2[1].toFixed(1),
+      stroke:'#F6DCBC','stroke-width':1.7,'stroke-linecap':'round'},rg);
+  }
+
+  /* 보조 다이얼 네 개: 요일, 월, 문페이즈, 날짜 */
+  function sub(cx,cy,r,label){
+    var g=el2('g',{},rg);
+    el2('circle',{cx:cx,cy:cy,r:r,fill:'#EFEDE6',opacity:'.92',stroke:'rgba(120,104,86,.5)','stroke-width':1},g);
+    el2('circle',{cx:cx,cy:cy,r:r-3,fill:'none',stroke:'rgba(120,104,86,.28)','stroke-width':.8},g);
+    return g;
+  }
+  /* 요일 원판 */
+  var gDay=sub(84,80,26);
+  ['SAT','SUN','MON','TUE','WED','THU','FRI'].forEach(function(d,k){
+    var a=k*360/7, pp=pol(84,80,17,a);
+    var tx=el2('text',{x:pp[0].toFixed(1),y:(pp[1]+2.6).toFixed(1),'text-anchor':'middle',
+      'font-family':'Helvetica,Arial,sans-serif','font-size':'5.8','font-weight':'600',fill:'#3A342C',
+      transform:'rotate('+a+' '+pp[0].toFixed(1)+' '+pp[1].toFixed(1)+')'},gDay);
+    tx.textContent=d;
+  });
+  /* 월 원판 */
+  var gMon=sub(166,84,24);
+  ['JAN','APR','JUL','OCT','JAN','APR','JUL','OCT'].forEach(function(d,k){
+    var a=k*45, pp=pol(166,84,15,a);
+    var tx=el2('text',{x:pp[0].toFixed(1),y:(pp[1]+2.4).toFixed(1),'text-anchor':'middle',
+      'font-family':'Helvetica,Arial,sans-serif','font-size':'5.4','font-weight':'600',
+      fill:k%2?'#27508C':'#3A342C',
+      transform:'rotate('+a+' '+pp[0].toFixed(1)+' '+pp[1].toFixed(1)+')'},gMon);
+    tx.textContent=d;
+  });
+  /* 문페이즈 */
+  var gm=el2('g',{},rg);
+  el2('circle',{cx:100,cy:168,r:25,fill:'#12306E',stroke:'#C9A46E','stroke-width':1.6},gm);
+  el2('circle',{cx:92,cy:162,r:11,fill:'#F6EFD8'},gm);
+  el2('circle',{cx:112,cy:176,r:9,fill:'#F6EFD8',opacity:'.9'},gm);
+  [[86,152,1.1],[110,158,.9],[96,182,1],[116,164,.8]].forEach(function(s){
+    el2('circle',{cx:s[0],cy:s[1],r:s[2],fill:'#EDE6CE',opacity:'.85'},gm);
+  });
+  /* 날짜 눈금 */
+  var gDate=sub(160,168,27);
+  for(i=0;i<16;i++){
+    var a=i*360/16, pp=pol(160,168,18,a);
+    var tx=el2('text',{x:pp[0].toFixed(1),y:(pp[1]+2.2).toFixed(1),'text-anchor':'middle',
+      'font-family':'Helvetica,Arial,sans-serif','font-size':'5','font-weight':'600',fill:'#3A342C',
+      transform:'rotate('+a+' '+pp[0].toFixed(1)+' '+pp[1].toFixed(1)+')'},gDate);
+    tx.textContent=String(i*2+1);
+  }
+  /* 보조 다이얼 바늘 */
+  ['84,80,15','166,84,14','160,168,16'].forEach(function(v){
+    var q=v.split(',');
+    el2('line',{x1:q[0],y1:q[1],x2:q[0],y2:(+q[1]-(+q[2])).toFixed(1),
+      stroke:'#A5713F','stroke-width':1.8,'stroke-linecap':'round'},rg);
+    el2('circle',{cx:q[0],cy:q[1],r:2.2,fill:'#C08B5E'},rg);
+  });
+
+  /* 베젤 노치 여섯 개를 케이스 둘레에 앉힌다 */
+  var cs=document.getElementById('cs');
+  for(i=0;i<6;i++){
+    var ang=i*60+30;
+    var n=document.createElement('span');
+    n.className='notch';
+    n.style.transform='rotate('+ang+'deg) translateY(-131px)';
+    cs.appendChild(n);
+  }
+
+  var t=document.getElementById('t'),hand=document.getElementById('hand'),
+      lp=document.getElementById('lp'),wa=document.getElementById('wa'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,stt=0,acc=0,iv=null,laps=[],last=0;
+  var SMALL=window.matchMedia('(max-height:322px),(max-width:300px)');
+  function elp(){return acc+(run?performance.now()-stt:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function f(ms){if(ms<0)ms=0;var cs2=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return (hh?pad(hh,2)+':':'')+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs2,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs2=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs2,2);}
+  function draw(){
+    var e=elp(),pv=SMALL.matches?94:108;
+    t.innerHTML=f(e);
+    hand.style.transform='translate(-50%,-'+pv+'px) rotate('+((e/1000)%60*6)+'deg)';
+  }
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs2=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs2).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b2.disabled=!run; b3.disabled=run||elp()===0;
+    wa.classList.toggle('d3',b2.disabled);
+    wa.classList.toggle('d2',b3.disabled);
+    b1.setAttribute('aria-label',run?'정지':(elp()>0?'재개':'시작'));
+
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=elp();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function start(){if(run)return;run=true;stt=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=elp();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;stt=0;laps=[];last=0;lp.textContent='';draw();ui();}
+  function lap(){if(!run)return;var e=elp(),sp=e-last;last=e;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    lp.textContent='LAP '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');
+    srSay('랩 '+laps.length+'. 구간 '+srHuman(sp));}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('resize',draw);
+  draw();ui();
+})();
+</script>
+</body>
+</html>
