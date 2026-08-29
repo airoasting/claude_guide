@@ -547,7 +547,7 @@
                     <div class="ab-log">
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.7</span><span class="ab-date">2026-08-30</span></div>
-                            <div><p class="ab-log-title">토큰 절감 가이드 개편</p><p class="ab-log-desc">'토큰 아껴 쓰기'를 비용·보안·법률 섹션으로 옮기고, 토큰에 요금이 어떻게 매겨지는지 먼저 설명한 뒤 팀에 지시할 행동 지침을 이어 놓았습니다. 구독제는 사용량 한도로 계산되지만 Enterprise와 API는 쓴 만큼 요금이 붙는다는 차이도 분명히 밝혔습니다.</p></div>
+                            <div><p class="ab-log-title">토큰 절감 가이드 개편</p><p class="ab-log-desc">'토큰 아껴 쓰기'를 비용·보안·법률 섹션으로 옮기고, 토큰에 요금이 어떻게 매겨지는지 먼저 설명한 뒤 팀에 지시할 행동 지침을 이어 놓았습니다. 구독제는 사용량 한도로 계산되지만 Enterprise와 API는 사용한 만큼 요금이 책정된다는 점도 추가했습니다.</p></div>
                         </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.6</span><span class="ab-date">2026-08-23</span></div>
