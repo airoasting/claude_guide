@@ -555,7 +555,7 @@
                         </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.5</span><span class="ab-date">2026-08-16</span></div>
-                            <div><p class="ab-log-title">AX 컨설팅 리포트 추가와 색 체계 정비</p><p class="ab-log-desc">전략 컨설팅 빅3가 AX를 어떻게 보는지 정리한 페이지를 더하고, 오리엔테이션에서 근거로 이어지도록 연결했습니다. 메인 페이지는 눈으로 구분되지 않을 만큼 비슷한 색을 하나로 합쳐 쓰는 색을 52종에서 27종으로 줄이고, 표지를 제목·대상·방법 세 단으로 다시 짰습니다.</p></div>
+                            <div><p class="ab-log-title">AX 컨설팅 리포트 추가와 색 체계 정비</p><p class="ab-log-desc">전략 컨설팅 빅3가 AX를 어떻게 보는지 정리한 페이지를 더하고, 오리엔테이션에서 근거로 이어지도록 연결했습니다. 메인 페이지에서는 눈으로 구분되지 않을 만큼 비슷한 색을 하나로 합쳐 색 수를 52종에서 27종으로 줄였고, 표지는 'AI 에이전트를 고용하라'라는 컨셉으로 완전히 재구성했습니다.</p></div>
                         </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.4</span><span class="ab-date">2026-08-09</span></div>
