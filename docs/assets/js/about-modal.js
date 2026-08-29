@@ -488,7 +488,7 @@
                         <div class="ab-card">
                             <span class="ab-card-tag">목적</span>
                             <span class="ab-card-title">왜 만들었나요</span>
-                            <p>강의마다 같은 질문이 돌아왔습니다. 프롬프트는 어떻게 써야 잘 쓰는지, Claude Code는 어떻게 쓰는지.</p>
+                            <p>강의마다 매번 같은 질문을 받았습니다. 프롬프트는 어떻게 써야 잘 쓰는지, Claude Code는 어떻게 쓰는지.</p>
                             <p>매번 같은 답을 반복하는 대신 <strong>한 권으로 정리된 표준 레퍼런스</strong>를 만들기로 했습니다. 이 가이드가 그 시작입니다.</p>
                         </div>
                         <div class="ab-card">
