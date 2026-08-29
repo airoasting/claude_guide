@@ -319,6 +319,43 @@
             padding: 8px 15px; color: #8A5A42;
         }
         .cmd-text { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
+        /* 맥과 윈도우 명령이 다를 때, 알약 위에 어느 쪽인지 붙인다 */
+        .cmd-os {
+            display: block; margin: 12px 0 0 27px;
+            font-size: 11.5px; font-weight: 800; letter-spacing: 0.2px; color: #8A5A42;
+        }
+        .cmd-os + .cmd-tail { margin-top: 5px; }
+        .cmd-item.checked .cmd-os { opacity: 0.5; }
+
+        /* TERM-TIP-STD 처음 나오는 용어 옆 물음표 단추와 설명 말풍선 */
+        .tq {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 15px; height: 15px; margin: 0 1px 0 3px; padding: 0;
+            vertical-align: 1px;
+            border: 1px solid rgba(179,85,53,0.45);
+            border-radius: 50%; background: rgba(179,85,53,0.10);
+            color: #A9573B;
+            font-size: 10px; font-weight: 800; line-height: 1;
+            font-family: inherit; cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .tq::before { content: '?'; }
+        .tq:hover, .tq.is-open { background: var(--gold); border-color: var(--gold); color: #fff; }
+        .tq:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+        .tq-pop {
+            position: absolute; z-index: 900; display: none;
+            max-width: 320px; padding: 12px 14px;
+            border: 1px solid #E4DFD7; border-radius: 12px;
+            background: #fff; box-shadow: 0 10px 28px rgba(26,25,23,0.14);
+            font-size: 12.5px; line-height: 1.65; color: #4A453F;
+            text-align: left; font-weight: 400;
+        }
+        .tq-pop.is-show { display: block; }
+        .tq-pop b { display: block; margin-bottom: 5px; font-size: 13px; color: #1A1917; font-weight: 800; }
+        .tq-pop .tq-read { display: block; margin-top: 6px; font-size: 11.5px; color: #8A857E; }
+        @media (max-width: 640px) {
+            .tq-pop { max-width: calc(100vw - 32px); }
+        }
         .cmd-copy {
             flex-shrink: 0; cursor: pointer; border: none;
             font-family: inherit; font-size: 11px; font-weight: 800; color: #A9573B;
@@ -1190,28 +1227,31 @@ DART_API_KEY=발급받은_40자_키_붙여넣기</span><button type="button" cla
             </div>
             <div class="task-body">
                 <div class="task-content">
-                    <p class="task-lead">텔레그램 봇을 Claude Code에 연결해, 분석 결과나 알림을 <strong>텔레그램으로 받고</strong> 봇에게 지시도 보냅니다.</p>
+                    <p class="task-lead">자리를 비운 사이에도 <strong>휴대폰 텔레그램으로 지시를 보내고 결과를 받습니다.</strong> 일은 내 컴퓨터의 Claude Code가 하고, 텔레그램 봇은 그 사이를 오가는 창구 역할만 합니다. 그래서 <strong>컴퓨터를 켜 두고 Claude Code를 실행해 둔 동안에만</strong> 작동합니다.</p>
 
                     <div class="highlight-box hl-terminal" style="margin: 4px 0 20px;">
-                        <div class="hl-title">&#x26A0;&#xFE0F; 이 예제만 Claude Desktop이 아니라 터미널(CLI)입니다</div>
+                        <div class="hl-title">&#x26A0;&#xFE0F; 이 예제만 Claude Desktop 앱이 아니라 터미널에서 합니다</div>
                     </div>
 
                     <p class="mcp-sub-label">핵심 스텝</p>
                     <ul class="cmd-list">
                         <li class="cmd-item">
                             <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9312; Claude Code 설치 확인</span></div>
-                            <span class="cmd-why">터미널을 열어 <code>claude</code>를 입력했을 때 <strong>명령을 찾을 수 없다</strong>고 나오면 아직 깔리지 않은 것입니다. 체크리스트 1단계에서 <strong>Node.js + Claude Code</strong> 설치하고 돌아옵니다.</span>
+                            <span class="cmd-why">터미널을 열어 <code>claude</code>를 입력했을 때 <strong>명령을 찾을 수 없다</strong>고 나오면 아직 설치되지 않은 것입니다. 체크리스트 1단계에서 <strong>Node.js와 Claude Code</strong>를 설치하고 돌아옵니다.</span>
                             <a class="pill-link pill-block" href="checklist.html#tip1">체크리스트 1단계 &middot; Claude Code 설치하기 <span class="sp-tail">&rsaquo;</span></a>
                         </li>
                         <li class="cmd-item">
-                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9313; Bun 설치 (맥&middot;윈도우 공통)</span></div>
-                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">npm install -g bun</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
-                            <span class="cmd-why">터미널에서 위 명령어를 붙여넣기 하여 <strong>Bun</strong>을 설치합니다. 맥과 윈도우가 같은 명령입니다.</span>
-                            <span class="cmd-ok">설치가 끝나면 <b>터미널을 껐다 켜고</b> <code>bun --version</code>을 입력해봅니다. <b>버전 숫자가 나오면</b> 성공적으로 설치된 것입니다.</span>
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9313; Bun 설치</span></div>
+                            <span class="cmd-why">Bun<button class="tq" data-term="bun"></button>은 Claude Code를 설치할 때 쓴 npm<button class="tq" data-term="npm"></button> 대신 자체 설치 명령을 씁니다. 그 명령이 맥과 윈도우에서 다르므로, 아래에서 <strong>내 컴퓨터에 맞는 쪽</strong>을 골라 씁니다.</span>
+                            <span class="cmd-os">윈도우 &middot; 시작 메뉴에서 <strong>Windows PowerShell</strong>을 열고 아래 명령어를 붙여넣습니다</span>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">irm bun.sh/install.ps1 | iex</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-os">맥 &middot; <strong>터미널</strong>을 열고 아래 명령어를 붙여넣습니다</span>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">curl -fsSL https://bun.sh/install | bash</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-ok">설치가 끝나면 <b>창을 껐다 켜고</b> <code>bun --version</code>을 입력해 봅니다. <b>버전 숫자가 나오면</b> 성공입니다. 윈도우에서 붙여넣기가 <b>Ctrl+V로 안 되면 마우스 우클릭</b>을 쓰세요.</span>
                         </li>
                         <li class="cmd-item">
                             <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9314; BotFather로 봇 만들고 토큰 받기</span></div>
-                            <span class="cmd-why">텔레그램 앱에서 <strong>@BotFather</strong>를 찾아 대화를 엽니다. <code>/newbot</code>을 보내고 안내에 따라 <strong>봇 이름</strong>과 <strong>봇 아이디</strong>(끝이 <code>_bot</code>)를 정하면, <strong>숫자로 시작하는 긴 토큰</strong>을 줍니다. 이 토큰을 복사해 둡니다.</span>
+                            <span class="cmd-why">텔레그램 앱에서 <strong>@BotFather</strong>를 찾아 대화를 엽니다. <code>/newbot</code>을 보내고 안내에 따라 <strong>봇 이름</strong>과 <strong>봇 아이디</strong>(<code>my_assistant_bot</code>처럼 <code>bot</code>으로 끝나야 합니다)를 정하면, <strong>숫자로 시작하는 긴 문자열</strong>을 줍니다. 이것이 <strong>토큰</strong>, 즉 내 컴퓨터가 이 봇을 움직일 때 쓰는 비밀번호입니다. 통째로 복사해 둡니다.</span>
                             <span class="step-warn step-row">
                                 <span>텔레그램에서 <code>BotFather</code>로 검색하면 이름이 비슷한 가짜 봇이 여럿 나옵니다. 이름 옆에 <strong>파란 인증 마크</strong>가 붙은 계정을 골라야 합니다.</span>
                                 <a class="pill-link" href="https://t.me/BotFather" target="_blank" rel="noopener">@BotFather 열기 <span class="sp-tail">&rsaquo;</span></a>
@@ -1220,40 +1260,45 @@ DART_API_KEY=발급받은_40자_키_붙여넣기</span><button type="button" cla
                         <li class="cmd-item">
                             <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9315; 텔레그램 플러그인 설치 (최초 1회)</span></div>
                             <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">/plugin install telegram@claude-plugins-official</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
-                            <span class="cmd-why">터미널에서 <code>claude</code>를 입력해 <strong>Claude Code</strong>에 접속합니다. 그 안에서 위 명령으로 <strong>텔레그램 플러그인</strong>을 설치합니다. 이 설치는 <strong>한 번만</strong> 하면 됩니다.</span>
-                            <span class="cmd-ok">설치가 끝나면 Claude Code를 <b>한 번 껐다 켭니다.</b> 그래야 다음 단계의 <code>/telegram:</code> 명령과 <code>--channels</code> 옵션을 인식할 수 있습니다.</span>
+                            <span class="cmd-why">터미널에서 <code>claude</code>를 입력해 <strong>Claude Code</strong>를 켭니다. 그 안에서 위 명령으로 <strong>텔레그램 플러그인</strong>을 설치합니다. 이 설치는 <strong>한 번만</strong> 하면 됩니다.</span>
+                            <span class="cmd-ok">설치가 끝나면 Claude Code를 <b>한 번 껐다 켭니다.</b> 그래야 Claude Code가 다음 단계의 <code>/telegram:</code> 명령과 <code>--channels</code> 옵션을 알아봅니다.</span>
                             <div class="mcp-green">
                                 <strong>회사 계정이면 이 설치가 막혀 있을 수 있습니다.</strong> 팀 요금제나 엔터프라이즈 요금제는 관리자가 설치 가능한 플러그인 목록을 미리 정해 둘 수 있습니다. 그러면 위 명령을 실행해도 설치가 거부되거나, <code>/plugin</code> 목록에 텔레그램이 아예 보이지 않습니다. 회사 노트북에 IT가 배포한 설정이 걸려 있는 경우도 같습니다.<br><br>
                                 이 경우, 사내 IT나 Claude 관리자에게 <code>telegram</code> 플러그인 허용을 요청하거나, 회사 자산이 아닌 <strong>개인 계정과 개인 컴퓨터</strong>에서 사용합니다.
                             </div>
                         </li>
                         <li class="cmd-item">
-                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9316; 토큰 등록</span></div>
-                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">/telegram:configure 토큰</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
-                            <span class="cmd-why">Claude Code를 다시 실행하고, 위 명령처럼 <code>/telegram:configure</code> 뒤에 <strong>3번에서 받은 토큰</strong>을 붙여 실행합니다. 제대로 된 토큰은 숫자로 시작해 콜론(<code>:</code>)이 하나 있고, 그 뒤로 영문과 숫자가 길게 이어집니다.</span>
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9316; 토큰을 Claude Code에 등록</span></div>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">/telegram:configure &lt;토큰&gt;</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-why">Claude Code를 켜고 위 명령을 붙여넣습니다. <code>&lt;토큰&gt;</code> 부분을 지우고 그 자리에 <strong>3번에서 복사해 둔 토큰</strong>을 붙여 실행합니다. 제대로 된 토큰은 숫자로 시작해 콜론(<code>:</code>)이 하나 있고, 그 뒤로 영문과 숫자가 길게 이어집니다.</span>
                             <div class="mcp-green"><strong>봇 토큰은 비밀번호와 같습니다.</strong> 공개된 곳에 올리지 않습니다. 토큰은 내 컴퓨터의 <code>~/.claude/</code> 안에만 저장됩니다. 혹시 노출되면 BotFather에서 <code>/revoke</code>로 새 토큰을 다시 받습니다.</div>
                         </li>
                         <li class="cmd-item">
-                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9317; 텔레그램 채널을 열고 Claude Code 실행</span></div>
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9317; 텔레그램과 연결한 상태로 Claude Code 실행</span></div>
                             <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">claude --channels plugin:telegram@claude-plugins-official</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
-                            <span class="cmd-why">터미널을 새롭게 열어서 위 명령으로 다시 켭니다. <code>--channels</code> 옵션이 <strong>텔레그램 채널</strong>을 함께 엽니다.</span>
-                            <span class="cmd-ok">텔레그램을 쓰려면 <b>Claude Code를 켤 때마다</b> 이 명령으로 실행합니다. <code>claude</code>만 입력하면 텔레그램 채널이 열리지 않습니다.</span>
+                            <span class="cmd-why">터미널을 새로 열고 위 명령으로 Claude Code를 켭니다. 뒤에 붙은 <code>--channels</code>가 <strong>텔레그램과 이어 주는 통로를 함께 엽니다.</strong></span>
+                            <span class="cmd-ok">텔레그램을 쓰려면 <b>Claude Code를 켤 때마다</b> 이 명령으로 실행합니다. <code>claude</code>만 입력하면 텔레그램과 연결되지 않습니다.</span>
                         </li>
                         <li class="cmd-item">
-                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9318; 봇에게 메시지를 보내 페어링 코드 받기</span></div>
-                            <span class="cmd-why">내 텔레그램에서 <strong>방금 만든 봇</strong>을 찾아 아무 메시지나 한 번 보냅니다. 그러면 <strong>페어링 코드</strong>(짧은 숫자)가 생깁니다.</span>
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9318; 봇에게 메시지를 보내 확인 코드 받기</span></div>
+                            <span class="cmd-why">내 텔레그램에서 <strong>방금 만든 봇</strong>을 찾아 아무 메시지나 보냅니다. 봇은 아직 내가 주인인지 모르기 때문에 메시지를 Claude Code로 넘기지 않고, <strong>6자리 확인 코드</strong>부터 보내 줍니다. 숫자와 a부터 f까지의 영문이 섞인 코드입니다.</span><span class="cmd-ok">봇은 다음 단계에 붙여 넣을 명령까지 통째로 적어 답장합니다. 그대로 복사해 쓰면 됩니다. 코드는 <b>1시간 뒤 만료</b>되고, 지났으면 메시지를 다시 보내 새로 받습니다.</span>
                         </li>
                         <li class="cmd-item">
-                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9319; 접근 허용</span></div>
-                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">/telegram:access pair 페어링코드</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
-                            <span class="cmd-why">위 명령처럼 <code>/telegram:access pair</code> 뒤에 <strong>그 페어링 코드</strong>를 넣어 실행합니다.</span>
-                            <span class="cmd-ok">이렇게 나를 허용해 두면, 다른 사람이 봇 주소를 알아내 메시지를 보내도 <b>나만</b> Claude에 연결됩니다.</span>
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9319; 내가 주인이라고 알려 주기</span></div>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">/telegram:access pair &lt;확인코드&gt;</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-why">Claude Code 화면으로 돌아와 위 명령을 붙여넣고, <code>&lt;확인코드&gt;</code> 자리에 <strong>방금 받은 6자리 코드</strong>를 넣어 실행합니다. 이제 봇이 내 메시지를 Claude Code로 넘겨 줍니다.</span>
+                            <span class="cmd-ok">이 코드를 넣은 사람만 봇을 쓸 수 있습니다. 다른 사람이 봇 주소를 알아내 말을 걸어도 <b>내 Claude Code에는 닿지 않습니다.</b></span>
                         </li>
                         <li class="cmd-item">
-                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9320; 연결 확인 (봇 대화창에 입력)</span></div>
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9320; 봇 대화창에서 연결 확인하기</span></div>
                             <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">테스트</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
-                            <span class="cmd-why">텔레그램 봇 대화창에 위 메시지를 보냅니다. Claude Code 화면에 그 메시지가 그대로 도착하면 연결이 끝난 것입니다.</span>
-                            <div class="mcp-green"><span class="note-tag"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.2 2.4c-.5.2-.8.6-.8 1.1v.6"/><line x1="12" y1="16.8" x2="12" y2="16.8"/></svg>실행이 안 된다면</span><strong>6번 명령</strong>(<code>--channels</code>)으로 클로드를 실행했는지, <strong>8번 페어링 코드</strong>를 제대로 입력했는지 확인해봅니다. 그래도 안 되면 터미널에서 <code>bun --version</code>을 입력해서 Bun이 설치되었는지 확인합니다.</div>
+                            <span class="cmd-why">텔레그램 봇 대화창에 위 메시지를 보냅니다. Claude Code 화면에 그 메시지가 그대로 도착하면 연결에 성공한 것입니다.</span>
+                            <div class="mcp-green"><span class="note-tag"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.2 2.4c-.5.2-.8.6-.8 1.1v.6"/><line x1="12" y1="16.8" x2="12" y2="16.8"/></svg>메시지가 도착하지 않는다면</span><strong>6번 명령</strong>(<code>--channels</code>)으로 Claude Code를 켰는지, <strong>8번 확인 코드</strong>를 제대로 넣었는지 확인해 봅니다. 그래도 안 되면 터미널에서 <code>bun --version</code>을 입력해서 Bun이 설치되었는지 확인합니다.</div>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9321; 모르는 사람에게 코드가 나가지 않게 막기</span></div>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">/telegram:access policy allowlist</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-why">지금까지의 설정에서는 낯선 사람이 봇에게 말을 걸면 봇이 <strong>그 사람에게도 확인 코드를 보내 줍니다.</strong> 7번에서 내가 받은 것과 같은 코드입니다. 내 연결은 9번에서 이미 확인했으니 더는 필요 없습니다. 위 명령을 실행하면 코드 발급이 멈추고, 등록해 둔 나만 봇을 쓰게 됩니다.</span>
                         </li>
                     </ul>
 
@@ -1672,6 +1717,123 @@ function switchMode(mode) {
     var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
     window.addEventListener('pointerdown', onFirst);
     window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+<!-- TERM-TIP-STD 용어 물음표 단추. 설명은 아래 사전 한 곳에서만 고친다 -->
+<script>
+(function () {
+    var TERMS = {
+        'bun': { t: 'Bun', d: '자바스크립트로 만든 프로그램을 실행해 주는 엔진입니다. 텔레그램 플러그인이 Bun 위에서 돌아가기 때문에 먼저 설치합니다. Node.js와 하는 일이 같고 Bun 쪽이 더 빠릅니다. 설치한 뒤에는 따로 열어 볼 일이 없고, 클로드가 알아서 씁니다.', r: '읽기: 번. 만든 사람이 먹는 빵(번)에서 딴 이름이고, 약자가 아닙니다' },
+        'npm': { t: 'npm', d: 'Node.js와 함께 깔리는 프로그램 설치 도구입니다. 이름 하나만 알려 주면 인터넷에서 그 프로그램을 받아 설치합니다. Claude Code도 이 도구로 깝니다.', r: '읽기: 엔피엠. 흔히 node package manager의 줄임말로 불리지만, 공식 문서는 약자가 아니라고 밝힙니다' },
+        'nodejs': { t: 'Node.js', d: 'JavaScript로 만든 프로그램을 컴퓨터에서 실행해 주는 기반 소프트웨어입니다. Claude Code가 이 위에서 돌아가기 때문에 먼저 깝니다. 설치하면 npm도 함께 들어옵니다.', r: '읽기: 노드제이에스' },
+        'terminal': { t: '터미널', d: '명령어를 글자로 입력해 컴퓨터에 일을 시키는 창입니다. 마우스로 아이콘을 누르는 대신 문장을 쳐서 지시한다고 보면 됩니다. 윈도우에서는 PowerShell이 같은 역할을 합니다.' }
+    };
+
+    var pop = null;
+    var openBtn = null;
+
+    function ensurePop() {
+        if (pop) return pop;
+        pop = document.createElement('div');
+        pop.className = 'tq-pop';
+        pop.setAttribute('role', 'tooltip');
+        document.body.appendChild(pop);
+        return pop;
+    }
+
+    function close() {
+        if (openBtn) { openBtn.classList.remove('is-open'); openBtn.setAttribute('aria-expanded', 'false'); }
+        openBtn = null;
+        if (pop) pop.classList.remove('is-show');
+    }
+
+    function open(btn) {
+        var item = TERMS[btn.getAttribute('data-term')];
+        if (!item) return;
+        var el = ensurePop();
+        el.innerHTML = '<b></b><span class="tq-body"></span>';
+        el.querySelector('b').textContent = item.t;
+        el.querySelector('.tq-body').textContent = item.d;
+        if (item.r) {
+            var r = document.createElement('span');
+            r.className = 'tq-read';
+            r.textContent = item.r;
+            el.appendChild(r);
+        }
+        el.classList.add('is-show');
+        btn.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+        openBtn = btn;
+
+        var rect = btn.getBoundingClientRect();
+        var w = el.offsetWidth;
+        var h = el.offsetHeight;
+        var left = window.scrollX + rect.left + rect.width / 2 - w / 2;
+        var maxLeft = window.scrollX + document.documentElement.clientWidth - w - 12;
+        if (left > maxLeft) left = maxLeft;
+        if (left < window.scrollX + 12) left = window.scrollX + 12;
+        var top = window.scrollY + rect.bottom + 8;
+        if (rect.bottom + 8 + h > window.innerHeight && rect.top - 8 - h > 0) {
+            top = window.scrollY + rect.top - h - 8;
+        }
+        el.style.left = left + 'px';
+        el.style.top = top + 'px';
+    }
+
+    // 마우스를 올리면 바로 보이고, 벗어나면 닫힌다. 말풍선 위로 옮겨 가는 사이에는 닫지 않는다
+    var hideTimer = null;
+    function cancelHide() { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } }
+    function scheduleHide() { cancelHide(); hideTimer = setTimeout(close, 140); }
+
+    document.addEventListener('mouseover', function (e) {
+        var btn = e.target.closest ? e.target.closest('.tq') : null;
+        if (btn) { cancelHide(); if (openBtn !== btn) { close(); open(btn); } return; }
+        if (e.target.closest && e.target.closest('.tq-pop')) cancelHide();
+    });
+
+    document.addEventListener('mouseout', function (e) {
+        if (!e.target.closest) return;
+        if (e.target.closest('.tq') || e.target.closest('.tq-pop')) scheduleHide();
+    });
+
+    // 터치 화면과 키보드용. 마우스가 없을 때도 눌러서 열 수 있게 둔다
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('.tq') : null;
+        if (btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            cancelHide();
+            if (openBtn === btn) { close(); return; }
+            close();
+            open(btn);
+            return;
+        }
+        if (pop && !e.target.closest('.tq-pop')) close();
+    });
+
+    document.addEventListener('focusin', function (e) {
+        if (e.target.classList && e.target.classList.contains('tq')) { cancelHide(); close(); open(e.target); }
+    });
+
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    document.addEventListener('focusout', function (e) { if (e.target.classList && e.target.classList.contains('tq')) scheduleHide(); });
+    window.addEventListener('resize', close);
+    window.addEventListener('scroll', function () { if (openBtn) open(openBtn); }, { passive: true });
+
+    // 접힘 카드가 닫힐 때 말풍선이 허공에 남지 않게 한다
+    document.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('.task-header')) close();
+    }, true);
+
+    // 사전에 있는 용어만 단추를 살린다. 오타가 나면 조용히 지워서 깨진 물음표를 남기지 않는다
+    document.querySelectorAll('.tq').forEach(function (b) {
+        var item = TERMS[b.getAttribute('data-term')];
+        if (!item) { b.remove(); return; }
+        b.setAttribute('type', 'button');
+        b.setAttribute('aria-expanded', 'false');
+        b.setAttribute('aria-label', item.t + ' 설명 보기');
+    });
 })();
 </script>
 
