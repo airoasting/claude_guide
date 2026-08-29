@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>킹콩 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23140C22'/><rect x='36' y='24' width='28' height='58' fill='%23F2B33D'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{
+    --gold:#F2B33D;
+    --red:#D8392F;
+    --line:rgba(242,179,61,.55);
+  }
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    color:#F3E7CE;word-break:keep-all;
+    display:flex;align-items:center;justify-content:center;padding:10px;
+    background:radial-gradient(120% 90% at 50% 20%,#1A1030 0%,#0B0718 60%,#050310 100%)}
+
+  .cab{width:min(304px,100%);border:1.5px solid var(--line);border-radius:16px;padding:12px 12px 11px;
+    background:linear-gradient(180deg,#151029,#0C0819);
+    box-shadow:0 16px 34px rgba(0,0,0,.6),inset 0 1px 0 rgba(242,179,61,.16)}
+
+  .title{text-align:center;font-size:14.5px;font-weight:900;letter-spacing:1.6px;
+    background:linear-gradient(90deg,#F5C752,#E8683C 48%,#F5C752);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+
+  /* ── 야경 ──
+     하늘, 달, 도시 실루엣, 빌딩을 겹으로 쌓아 깊이를 만든다. */
+  .scene{position:relative;height:134px;margin:9px 0 8px;border-radius:9px;overflow:hidden;
+    background:linear-gradient(180deg,#2C1F58 0%,#1A1138 58%,#0E0A24 100%);
+    box-shadow:inset 0 0 0 1px rgba(242,179,61,.18)}
+  .stars{position:absolute;inset:0;
+    background-image:
+      radial-gradient(1.3px 1.3px at 12% 16%,rgba(255,255,255,.9),transparent),
+      radial-gradient(1px 1px at 28% 9%,rgba(255,236,200,.7),transparent),
+      radial-gradient(1.2px 1.2px at 44% 20%,rgba(255,255,255,.75),transparent),
+      radial-gradient(1px 1px at 62% 12%,rgba(255,236,200,.6),transparent),
+      radial-gradient(1.3px 1.3px at 88% 26%,rgba(255,255,255,.8),transparent),
+      radial-gradient(1px 1px at 74% 34%,rgba(255,255,255,.55),transparent);
+    animation:tw 4.6s ease-in-out infinite}
+  @keyframes tw{50%{opacity:.5}}
+  .moon{position:absolute;right:18px;top:12px;width:34px;height:34px;border-radius:50%;
+    background:radial-gradient(circle at 36% 34%,#FFF7DF,#F0DFA6);
+    box-shadow:0 0 22px rgba(255,240,200,.45)}
+  .moon::after{content:'';position:absolute;left:9px;top:11px;width:7px;height:7px;border-radius:50%;
+    background:rgba(214,196,150,.55);box-shadow:12px 6px 0 -2px rgba(214,196,150,.5),4px 15px 0 -3px rgba(214,196,150,.45)}
+
+  .plane{position:absolute;top:24px;left:-38px;width:32px;height:16px;opacity:.92;
+    animation:fly 9s linear infinite;animation-play-state:paused}
+  body.go .plane{animation-play-state:running}
+  @keyframes fly{to{transform:translateX(330px)}}
+
+  .city{position:absolute;left:0;right:0;bottom:0;width:100%;height:46px;display:block}
+  .ground{position:absolute;left:0;right:0;bottom:0;height:8px;background:#06030C}
+
+  /* 빌딩: 아래에서 위로 좁아지는 3단 */
+  .tower{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);width:70px}
+  .blk{margin:0 auto;background:#120C24;box-shadow:inset 0 0 0 1px rgba(242,179,61,.4)}
+  .blk i{display:block;height:100%;
+    background-image:linear-gradient(90deg,rgba(242,179,61,.42) 1px,transparent 1px),
+      linear-gradient(180deg,rgba(242,179,61,.42) 1px,transparent 1px);
+    background-size:9px 9px;opacity:.75}
+  .b1{width:70px;height:42px}
+  .b2{width:52px;height:34px}
+  .b3{width:34px;height:26px}
+  .spire{width:2px;height:20px;margin:0 auto;background:linear-gradient(180deg,#F2B33D,#6B4A12)}
+  .lamp{width:5px;height:5px;border-radius:50%;margin:0 auto -2px;background:#FF5A48;
+    box-shadow:0 0 8px #FF5A48;animation:blink 1.6s ease-in-out infinite}
+  @keyframes blink{50%{opacity:.25}}
+
+  /* 고릴라: 경과 시간만큼 빌딩을 타고 오른다 */
+  .kong{position:absolute;left:50%;margin-left:-54px;bottom:8px;width:46px;height:56px;
+    transition:bottom .12s linear}
+  .kong svg{display:block;width:100%;height:100%;filter:drop-shadow(0 3px 5px rgba(0,0,0,.55))}
+  /* 흔들림은 늘 걸어 두고 재생만 멈춘다. 애니메이션을 붙였다 떼면
+     멈추는 순간 자세가 튄다. */
+  .kong{animation:climb .46s ease-in-out infinite alternate;animation-play-state:paused}
+  body.go .kong{animation-play-state:running}
+  @keyframes climb{to{transform:translateY(-3px) rotate(-3deg)}}
+
+  .roar{position:absolute;left:50%;margin-left:-10px;bottom:56px;padding:3px 8px;border-radius:9px;
+    background:rgba(255,255,255,.94);color:#20142E;font-size:10.5px;font-weight:900;white-space:nowrap;
+    opacity:0;transform:scale(.7);transition:opacity .18s,transform .18s}
+  .roar.on{opacity:1;transform:scale(1)}
+  .roar::after{content:'';position:absolute;left:12px;bottom:-5px;border:5px solid transparent;
+    border-top-color:rgba(255,255,255,.94);border-bottom:0}
+
+  /* ── 표시부 ── */
+  .time{text-align:center;font-family:'Pretendard',sans-serif;font-size:27px;font-weight:900;
+    letter-spacing:.6px;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.1;
+    text-shadow:0 0 16px rgba(242,179,61,.4)}
+  .time .cs{font-size:16px;color:#E8683C}
+
+  .row{display:flex;gap:7px;justify-content:center;margin-top:9px}
+  button{font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap;
+    padding:9px 0;width:88px;border-radius:8px;border:0;transition:all .16s;
+    background:#3A3348;color:#EDE3D2}
+  button:disabled{opacity:.42;cursor:default}
+  button:hover:not(:disabled){transform:translateY(-1px)}
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  #b1{background:var(--red);color:#FFF3EA}
+  #b1.idle{background:linear-gradient(180deg,#F5C752,#DE9A22);color:#2A1A08}
+  #b2{background:linear-gradient(180deg,#F5C752,#DE9A22);color:#2A1A08}
+  #b2:disabled{background:#3A3348;color:#EDE3D2}
+
+  .laps{margin-top:9px;padding-top:8px;border-top:1px dashed rgba(242,179,61,.35);height:44px;overflow:hidden}
+  .laps .lp{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;
+    color:#E4D6B8;padding:1px 2px;font-variant-numeric:tabular-nums}
+  .laps .lp b{display:flex;align-items:center;gap:5px;font-weight:700;color:var(--gold)}
+  .laps .lp svg{width:11px;height:11px}
+  .laps .empty{font-size:10.5px;font-weight:600;color:#7A6E8C;text-align:center;padding-top:11px}
+
+  @media (prefers-reduced-motion: reduce){
+    .stars,.lamp,.plane,.kong{animation:none !important}
+    .kong{transition:none}
+  }
+</style>
+</head>
+<body>
+  <div class="cab">
+    <div class="title">KING KONG STOPWATCH</div>
+
+    <div class="scene">
+      <div class="stars" aria-hidden="true"></div>
+      <div class="moon" aria-hidden="true"></div>
+      <svg class="plane" viewBox="0 0 36 18" aria-hidden="true">
+        <path d="M4 8h19l9 2.2-9 2.2H4z" fill="#F3E7CE"/>
+        <path d="M13 8.2l3.4-6.2h4.2l-1.4 6.2zM11 12.4l-2.6 5.2h4.4l1.6-5.2z" fill="#E8683C"/>
+        <path d="M2 7.4l3 3.2-3 3.2z" fill="#C9BCA4"/>
+      </svg>
+      <svg class="city" viewBox="0 0 280 46" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 46V30h14v-6h10v22zM30 46V22h18v24zM54 46V32h12v-9h9v23zM82 46V26h16v20zM104 46V34h10v12z
+                 M176 46V33h11v13zM194 46V24h15v22zM214 46V31h10v-7h8v22zM232 46V27h14v19zM252 46V35h12v-9h9v20zM272 46V30h8v16z"
+              fill="#07040F"/>
+        <g fill="#F2B33D" opacity=".5">
+          <rect x="34" y="27" width="2.4" height="3"/><rect x="40" y="27" width="2.4" height="3"/>
+          <rect x="34" y="34" width="2.4" height="3"/><rect x="86" y="31" width="2.4" height="3"/>
+          <rect x="92" y="31" width="2.4" height="3"/><rect x="86" y="38" width="2.4" height="3"/>
+          <rect x="198" y="29" width="2.4" height="3"/><rect x="204" y="29" width="2.4" height="3"/>
+          <rect x="198" y="36" width="2.4" height="3"/><rect x="236" y="32" width="2.4" height="3"/>
+          <rect x="242" y="32" width="2.4" height="3"/><rect x="58" y="37" width="2.4" height="3"/>
+          <rect x="256" y="39" width="2.4" height="3"/><rect x="218" y="36" width="2.4" height="3"/>
+        </g>
+      </svg>
+
+      <div class="tower" aria-hidden="true">
+        <div class="lamp"></div>
+        <div class="spire"></div>
+        <div class="blk b3"><i></i></div>
+        <div class="blk b2"><i></i></div>
+        <div class="blk b1"><i></i></div>
+      </div>
+      <div class="ground" aria-hidden="true"></div>
+
+      <div class="kong" id="kong" aria-hidden="true">
+        <svg viewBox="0 0 72 88">
+          <defs>
+            <!-- 달이 오른쪽 위에 있으니 명암 축도 그쪽으로 잡는다 -->
+            <linearGradient id="fur" gradientUnits="userSpaceOnUse" x1="8" y1="0" x2="66" y2="0">
+              <stop offset="0" stop-color="#2E2937"/><stop offset=".5" stop-color="#443E4E"/>
+              <stop offset="1" stop-color="#635C71"/>
+            </linearGradient>
+          </defs>
+          <g fill="url(#fur)" stroke="url(#fur)" stroke-linecap="round" stroke-linejoin="round">
+            <!-- 팔: 위를 붙잡고 매달린다 -->
+            <path d="M25 40 L14 24 L10 13" stroke-width="12" fill="none"/>
+            <path d="M47 40 L58 25 L62 14" stroke-width="12.5" fill="none"/>
+            <!-- 다리: 무릎을 벌리고 벽을 딛는다 -->
+            <path d="M29 60 L19 70 L22 78" stroke-width="14" fill="none"/>
+            <path d="M45 60 L55 69 L52 77" stroke-width="14" fill="none"/>
+            <!-- 몸통 -->
+            <path d="M36 28c12 0 21 6 23 15 2 9 1 18-2 23-4 6-12 8-21 8s-17-2-21-8c-3-5-4-14-2-23 2-9 11-15 23-15z" stroke="none"/>
+            <!-- 머리 -->
+            <path d="M36 4c9 0 15 6 15 15 0 10-6 17-15 17s-15-7-15-17c0-9 6-15 15-15z" stroke="none"/>
+          </g>
+          <!-- 주먹 -->
+          <ellipse cx="9" cy="11" rx="7" ry="5.6" fill="#3A3442" transform="rotate(-22 9 11)"/>
+          <ellipse cx="63" cy="12" rx="7.2" ry="5.8" fill="#6A6378" transform="rotate(20 63 12)"/>
+          <path d="M60 10h6.4M60 13.4h6.4" stroke="#332E3C" stroke-width="1.1" stroke-linecap="round" opacity=".7"/>
+          <!-- 발 -->
+          <ellipse cx="21" cy="80" rx="8" ry="5" fill="#332E3C" transform="rotate(-14 21 80)"/>
+          <ellipse cx="52" cy="79" rx="8" ry="5" fill="#4A4454" transform="rotate(12 52 79)"/>
+          <!-- 실버백: 어깨 위에만 얹는다 -->
+          <path d="M36 30c10 0 17 4 20 11-7-4-13-6-20-6s-13 2-20 6c3-7 10-11 20-11z" fill="#A49DB0" opacity=".7"/>
+          <!-- 가슴 -->
+          <path d="M29 50c-3.4 0-6-2.4-6-5.4 0-2.6 2-4.6 4.6-4.6M43 50c3.4 0 6-2.4 6-5.4 0-2.6-2-4.6-4.6-4.6"
+                stroke="#282331" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".65"/>
+          <!-- 시상능 -->
+          <path d="M30 9c1.4-3.6 3.4-5.4 6-5.4S40.6 5.4 42 9c-4-1.6-8-1.6-12 0z" fill="#6E6779"/>
+          <!-- 귀 -->
+          <ellipse cx="20.5" cy="20" rx="3.4" ry="4" fill="#332E3C"/>
+          <ellipse cx="51.5" cy="20" rx="3.4" ry="4" fill="#57505F"/>
+          <!-- 눈두덩 -->
+          <path d="M22.5 17.6c4-3.2 8.6-4.8 13.5-4.8s9.5 1.6 13.5 4.8c-.8 3.2-3 4.8-6 4.4-2.8-.4-4.8-1.6-7.5-1.6s-4.7 1.2-7.5 1.6c-3 .4-5.2-1.2-6-4.4z" fill="#2A2532"/>
+          <!-- 눈 -->
+          <ellipse cx="29.6" cy="18.6" rx="2" ry="1.8" fill="#12101A"/>
+          <ellipse cx="42.4" cy="18.6" rx="2" ry="1.8" fill="#12101A"/>
+          <circle cx="30.4" cy="18" r=".7" fill="#D6CDE0" opacity=".85"/>
+          <circle cx="43.2" cy="18" r=".7" fill="#D6CDE0" opacity=".85"/>
+          <!-- 주둥이 -->
+          <path d="M36 21.4c6.4 0 10.6 3.6 10.6 8.2 0 4.4-4.2 7.6-10.6 7.6s-10.6-3.2-10.6-7.6c0-4.6 4.2-8.2 10.6-8.2z" fill="#251F2E"/>
+          <path d="M32.4 25c1.4-1 2.6-.8 3 .4M39.6 25c-1.4-1-2.6-.8-3 .4" stroke="#0E0C14" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <!-- 벌린 입과 송곳니 -->
+          <path d="M29.6 30c4-1.6 8.8-1.6 12.8 0 0 4-2.8 6.4-6.4 6.4s-6.4-2.4-6.4-6.4z" fill="#100D16"/>
+          <path d="M31.6 30.6l1.5 2.6 1.5-2.6zM37.4 30.6l1.5 2.6 1.5-2.6z" fill="#EFE9E0"/>
+          <!-- 털결 -->
+          <path d="M17.5 45c-1.6 3.4-1.8 6.6-.6 9.6M55 45c1.6 3.4 1.8 6.6.6 9.6" stroke="#241F2C" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".55"/>
+        </svg>
+      </div>
+      <div class="roar" id="roar">크아앙!</div>
+    </div>
+
+    <div class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></div>
+
+    <div class="row">
+      <button id="b1" class="idle" type="button">시작</button>
+      <button id="b2" type="button" disabled>쿵쾅! (랩)</button>
+      <button id="b3" type="button" disabled>리셋</button>
+    </div>
+
+    <div class="laps" id="lp" aria-live="polite"><div class="empty">랩을 찍으면 여기에 쌓입니다</div></div>
+  </div>
+
+<script>
+(function(){
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),
+      b3=document.getElementById('b3'),lp=document.getElementById('lp'),
+      kong=document.getElementById('kong'),roar=document.getElementById('roar');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0,roarT=null;
+  var FLAG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18" stroke="#F2B33D" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M8 4h11l-3 4 3 4H8z" fill="#F2B33D"/></svg>';
+
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return pad(hh,2)+':'+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+
+  /* 30초에 꼭대기까지 오른다. 그 뒤에는 첨탑을 붙잡고 버틴다. */
+  function draw(){
+    var e=el();
+    t.innerHTML=f(e);
+    var p=Math.min(e/30000,1),y=8+p*68;
+    kong.style.bottom=y+'px';
+    roar.style.bottom=(y+50)+'px';
+  }
+
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b1.textContent=run?'정지':(el()>0?'재개':'시작');
+    b1.classList.toggle('idle',!run);
+    b2.disabled=!run; b3.disabled=run||el()===0;
+    var e=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(e));
+    else if(!srWasRun&&!run&&srLast>0&&e===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=e;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function render(){
+    if(!laps.length){lp.innerHTML='<div class="empty">랩을 찍으면 여기에 쌓입니다</div>';return;}
+    var h='';
+    for(var i=laps.length-1;i>=0&&i>=laps.length-2;i--){
+      h+='<div class="lp"><b>'+FLAG+'랩 '+(i+1)+'</b><span>'+plain(laps[i].at)+'</span></div>';
+    }
+    lp.innerHTML=h;
+  }
+  function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;render();draw();ui();}
+  function lap(){
+    if(!run)return;
+    var e=el();laps.push({at:e,sp:e-last});last=e;render();
+    roar.classList.add('on');
+    clearTimeout(roarT); roarT=setTimeout(function(){roar.classList.remove('on');},900);
+  }
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

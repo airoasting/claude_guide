@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>스쿠버 다이버 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%231C6FA8'/><circle cx='50' cy='46' r='22' fill='%23EAF4FA'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{
+    --mint:#6FE7CE;
+    --deep:#0B3E68;
+  }
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    color:#EAF4FA;word-break:keep-all;position:relative;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:12px 12px 62px;
+    background:linear-gradient(180deg,#79CFEE 0%,#3E9CD2 26%,#1B6DA6 58%,#0C3F6C 100%)}
+
+  /* ── 수중 배경 ──
+     빛줄기, 물고기, 기포, 바닥 순으로 겹을 쌓는다. */
+  .rays{position:absolute;inset:0;pointer-events:none;opacity:.5;
+    background:linear-gradient(102deg,transparent 12%,rgba(255,255,255,.28) 17%,transparent 23%,
+      transparent 44%,rgba(255,255,255,.22) 49%,transparent 55%,
+      transparent 72%,rgba(255,255,255,.2) 77%,transparent 83%)}
+
+  .fish{position:absolute;width:26px;height:14px;opacity:.92;animation:swim linear infinite}
+  @keyframes swim{from{transform:translateX(-40px)}to{transform:translateX(380px)}}
+  .f1{top:74px;animation-duration:16s}
+  .f2{top:146px;animation-duration:22s;animation-delay:-6s;width:20px;height:11px}
+  .f3{top:206px;animation-duration:19s;animation-delay:-11s}
+  .f4{top:262px;animation-duration:26s;animation-delay:-3s;width:22px;height:12px}
+
+  .bub{position:absolute;border-radius:50%;background:rgba(255,255,255,.42);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);animation:rise linear infinite}
+  @keyframes rise{from{transform:translateY(0);opacity:0}
+    12%{opacity:.9} to{transform:translateY(-320px);opacity:0}}
+  .u1{left:34px;bottom:60px;width:7px;height:7px;animation-duration:7s}
+  .u2{left:58px;bottom:60px;width:4px;height:4px;animation-duration:9s;animation-delay:-3s}
+  .u3{right:52px;bottom:60px;width:6px;height:6px;animation-duration:8s;animation-delay:-5s}
+  .u4{right:28px;bottom:60px;width:3px;height:3px;animation-duration:11s;animation-delay:-1s}
+
+  /* 바닥 */
+  .bed{position:absolute;left:-20px;right:-20px;bottom:-26px;height:96px;border-radius:50% 50% 0 0;
+    background:linear-gradient(180deg,#C7B183,#A99366)}
+  .weed{position:absolute;bottom:30px;width:14px;border-radius:9px 9px 4px 4px;transform-origin:50% 100%;
+    animation:sway 4.4s ease-in-out infinite}
+  @keyframes sway{50%{transform:rotate(5deg)}}
+  .w1{left:36px;height:38px;background:#3FA36B}
+  .w2{left:58px;height:26px;background:#E27FA8;animation-delay:-1.2s}
+  .w3{right:78px;height:32px;background:#8B6FD0;animation-delay:-2.4s;width:12px}
+  .w4{right:52px;height:44px;background:#E08A3C;animation-delay:-.6s;width:18px}
+  .w5{right:30px;height:24px;background:#3FA36B;animation-delay:-3s;width:11px}
+
+  /* ── 다이버 ──
+     경로와 몸놀림을 두 겹으로 나눈다. 바깥은 왼쪽에서 오른쪽 아래로 내려갔다
+     떠올라 다시 왼쪽으로 돌아오는 왕복, 안쪽은 그동안 이어지는 상하 흔들림이다.
+     방향을 바꿀 때 scaleX를 0 근처까지 좁혔다 뒤집어 몸을 트는 것처럼 보이게 한다.
+     물고기가 이미 swim을 쓰므로 경로 이름은 dive다. */
+  .diver{position:absolute;left:14px;top:6px;width:100px;height:73px;
+    animation:dive 20s linear infinite}
+  .dv-in{position:relative;width:100%;height:100%;
+    animation:bob 2.8s ease-in-out infinite alternate}
+  .diver svg{display:block;width:100%;height:100%;filter:drop-shadow(0 6px 10px rgba(6,40,70,.35))}
+  @keyframes bob{from{transform:translateY(-3px)}to{transform:translateY(3px)}}
+
+  /* ── 팔다리 ──
+     발차기는 엉덩이에서 시작해 무릎으로 이어진다. 종아리를 조금 늦게 돌려야
+     오리발이 물을 채는 것처럼 보인다. 두 다리는 위상을 반대로 둔다. */
+  .leg,.shin,.arm,.fore{transform-box:view-box}
+  .leg,.shin{animation:kick 1.9s ease-in-out infinite alternate}
+  .lg-far{transform-origin:76px 60px}
+  .sh-far{transform-origin:54px 55px;animation-delay:-.42s}
+  .lg-near{transform-origin:80px 65px;animation-delay:-.95s}
+  .sh-near{transform-origin:58px 74px;animation-delay:-1.37s}
+  @keyframes kick{from{transform:rotate(-9deg)}to{transform:rotate(9deg)}}
+
+  /* 팔은 어깨에서 젓고 팔꿈치가 반 박자 늦게 따라간다.
+     양팔은 서로 반대 위상이라 한쪽이 내려갈 때 다른 쪽이 올라온다. */
+  .arm{animation:scull 2.6s ease-in-out infinite alternate}
+  .fore{animation:scull-fore 2.6s ease-in-out infinite alternate}
+  .ar-near{transform-origin:112px 45px}
+  .fo-near{transform-origin:126px 52px;animation-delay:-.55s}
+  .ar-far{transform-origin:104px 51px;animation-delay:-1.3s}
+  .fo-far{transform-origin:117px 62px;animation-delay:-1.85s}
+  @keyframes scull{from{transform:rotate(-13deg)}to{transform:rotate(10deg)}}
+  @keyframes scull-fore{from{transform:rotate(-9deg)}to{transform:rotate(13deg)}}
+  @keyframes dive{
+    0%{transform:translate(0,0) rotate(8deg) scaleX(1)}
+    24%{transform:translate(118px,30px) rotate(16deg) scaleX(1)}
+    34%{transform:translate(166px,44px) rotate(9deg) scaleX(1)}
+    41%{transform:translate(182px,34px) rotate(-18deg) scaleX(1)}
+    50%{transform:translate(190px,4px) rotate(-22deg) scaleX(1)}
+    55%{transform:translate(184px,0) rotate(-8deg) scaleX(.25)}
+    60%{transform:translate(172px,2px) rotate(6deg) scaleX(-.75)}
+    66%{transform:translate(142px,8px) rotate(8deg) scaleX(-1)}
+    84%{transform:translate(44px,20px) rotate(5deg) scaleX(-1)}
+    91%{transform:translate(12px,12px) rotate(-9deg) scaleX(-1)}
+    95%{transform:translate(4px,7px) rotate(-5deg) scaleX(-.4)}
+    98%{transform:translate(0,3px) rotate(1deg) scaleX(.35)}
+    100%{transform:translate(0,0) rotate(8deg) scaleX(1)}
+  }
+
+  /* 호흡 기포: 재는 동안에만 마우스피스에서 올라온다 */
+  .breath{position:absolute;left:78px;top:0;width:18px;height:26px;opacity:0;transition:opacity .3s}
+  body.go .breath{opacity:1}
+  .breath i{position:absolute;bottom:0;border-radius:50%;background:rgba(255,255,255,.6);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.7);animation:puff 2.6s linear infinite}
+  .breath i:nth-child(1){left:2px;width:5px;height:5px}
+  .breath i:nth-child(2){left:9px;width:3.5px;height:3.5px;animation-delay:-.9s}
+  .breath i:nth-child(3){left:14px;width:4.5px;height:4.5px;animation-delay:-1.7s}
+  @keyframes puff{from{transform:translateY(0) scale(.7);opacity:0}
+    18%{opacity:.9} to{transform:translateY(-42px) scale(1.15);opacity:0}}
+
+  /* ── 패널 ── */
+  .panel{position:relative;z-index:3;width:min(282px,100%);padding:13px 13px 12px;border-radius:16px;
+    background:rgba(12,58,94,.42);border:1px solid rgba(255,255,255,.34);
+    box-shadow:0 14px 30px rgba(4,32,58,.4),inset 0 1px 0 rgba(255,255,255,.35);
+    backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+  .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+  .brand{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;letter-spacing:2.2px}
+  .brand svg{width:17px;height:17px;flex-shrink:0}
+  .depth{font-size:10.5px;font-weight:800;letter-spacing:.4px;color:var(--mint);font-variant-numeric:tabular-nums}
+
+  .disp{border-radius:11px;padding:10px 8px;text-align:center;
+    background:linear-gradient(180deg,#07293F,#0A3550);box-shadow:inset 0 2px 8px rgba(0,0,0,.45)}
+  .time{font-family:'Courier New',ui-monospace,monospace;font-size:27px;font-weight:700;letter-spacing:1px;
+    color:var(--mint);white-space:nowrap;font-variant-numeric:tabular-nums;line-height:1;
+    text-shadow:0 0 14px rgba(111,231,206,.45)}
+  .time .cs{font-size:17px;color:#48BBA8}
+
+  .row{display:flex;gap:6px;justify-content:center;margin-top:11px}
+  button{font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap;
+    padding:10px 0;width:76px;border-radius:10px;border:0;transition:all .16s;color:#FFF;background:#5E7686}
+  button:disabled{opacity:.45;cursor:default}
+  button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08)}
+  button:focus-visible{outline:2px solid #FFF;outline-offset:2px}
+  #b1{background:#2FA98A}
+  #b1.stop{background:#E43E63}
+  #b3{background:#2E9BD8}
+  #b4{background:#7C8B99}
+
+  /* 랩 자리는 처음부터 잡아 둔다. 비어 있어도 칸이 사라지지 않는다 */
+  .lapline{margin-top:10px;height:27px;display:flex;align-items:center;justify-content:center;
+    border-radius:9px;background:rgba(6,38,60,.45);box-shadow:inset 0 1px 3px rgba(0,0,0,.28);
+    font-size:10.5px;font-weight:700;letter-spacing:.3px;color:#CFE6F2;font-variant-numeric:tabular-nums}
+
+  /* 재는 동안 빨라지는 몫은 JS가 재생 속도로 준다.
+     animation-duration을 바꾸면 같은 시각이라도 진행률이 달라져
+     다이버가 다른 자리로 튄다. */
+
+  @media (prefers-reduced-motion: reduce){
+    .fish,.bub,.weed,.diver,.dv-in,.leg,.shin,.arm,.fore,.breath i{animation:none !important}
+  }
+</style>
+</head>
+<body>
+  <div class="rays" aria-hidden="true"></div>
+
+  <svg class="fish f1" viewBox="0 0 40 22" aria-hidden="true"><path d="M2 11l10-7v14z" fill="#F2C14E"/><ellipse cx="24" cy="11" rx="14" ry="8" fill="#F2C14E"/><circle cx="31" cy="9" r="1.8" fill="#243B4A"/></svg>
+  <svg class="fish f2" viewBox="0 0 40 22" aria-hidden="true"><path d="M2 11l10-7v14z" fill="#9CD8F0"/><ellipse cx="24" cy="11" rx="14" ry="8" fill="#9CD8F0"/><circle cx="31" cy="9" r="1.8" fill="#243B4A"/></svg>
+  <svg class="fish f3" viewBox="0 0 40 22" aria-hidden="true"><path d="M2 11l10-7v14z" fill="#E8834B"/><ellipse cx="24" cy="11" rx="14" ry="8" fill="#E8834B"/><circle cx="31" cy="9" r="1.8" fill="#243B4A"/></svg>
+  <svg class="fish f4" viewBox="0 0 40 22" aria-hidden="true"><path d="M2 11l10-7v14z" fill="#B79BE8"/><ellipse cx="24" cy="11" rx="14" ry="8" fill="#B79BE8"/><circle cx="31" cy="9" r="1.8" fill="#243B4A"/></svg>
+
+  <div class="diver" aria-hidden="true">
+    <div class="dv-in">
+    <svg viewBox="0 0 160 110">
+      <defs>
+        <linearGradient id="suit" gradientUnits="userSpaceOnUse" x1="120" y1="30" x2="70" y2="72">
+          <stop offset="0" stop-color="#375069"/><stop offset="1" stop-color="#1E2D3D"/>
+        </linearGradient>
+      </defs>
+
+      <!-- ── 먼 쪽 다리: 엉덩이와 무릎 두 마디로 찬다 ── -->
+      <g class="leg lg-far">
+        <path d="M76 60L54 55" stroke="#16222E" stroke-width="11" fill="none" stroke-linecap="round"/>
+        <g class="shin sh-far">
+          <path d="M28 50C18 46 8 45 3 47c3 5 12 9 22 9z" fill="#C96A24"/>
+          <path d="M54 55L33 51" stroke="#16222E" stroke-width="8.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="30" cy="51" rx="5.6" ry="4.4" fill="#0F1922" transform="rotate(10 30 51)"/>
+        </g>
+      </g>
+
+      <!-- ── 산소통: 등에 얹혀 있다 ── -->
+      <path d="M86 44L104 32" stroke="#E8843C" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <path d="M88 43L100 34.6" stroke="#F8B77E" stroke-width="3.2" fill="none" stroke-linecap="round" opacity=".7"/>
+      <path d="M106.6 31.4a3.4 3.4 0 014 1.4" stroke="#8C949E" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+
+      <!-- ── 먼 쪽 팔 ──
+           같이 앞으로 뻗되 한 뼘 아래로 두고 색을 낮춰 원근을 준다.
+           위팔은 몸통에 가리고 아래팔부터 드러난다. -->
+      <g class="arm ar-far">
+        <path d="M104 51L117 62" stroke="#16222E" stroke-width="7.2" fill="none" stroke-linecap="round"/>
+        <g class="fore fo-far">
+          <path d="M117 62L128 70" stroke="#1B2836" stroke-width="6.4" fill="none" stroke-linecap="round"/>
+          <path d="M132 69.4c2.5.6 4 1.8 3.8 3.2-.2 1.7-2.5 2.7-5.2 2.3-2.3-.4-3.8-1.4-3.6-2.9.2-1.5 2.1-2.9 5-2.6z" fill="#C08F66"/>
+        </g>
+      </g>
+
+      <!-- ── 몸통: 어깨에서 골반으로 좁아진다 ── -->
+      <path d="M107.3 35.2C113 34.6 117.6 41 116.7 52.8 110 62 92 66.5 81.3 68.2 76.6 68.8 73.6 63 74.7 55.8 84 47 97 38.6 107.3 35.2z" fill="url(#suit)"/>
+      <path d="M110 40c3 4 3.6 9 2 13" stroke="#4C6782" stroke-width="3" fill="none" stroke-linecap="round" opacity=".5"/>
+      <!-- 부력조절기 스트랩 -->
+      <path d="M103 37L108 51M93 43L98 57" stroke="#101922" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+      <!-- 웨이트 벨트 -->
+      <path d="M80 55L84 66" stroke="#0E161E" stroke-width="3.8" fill="none" stroke-linecap="round"/>
+
+      <!-- ── 가까운 쪽 다리: 반대 위상으로 찬다 ── -->
+      <g class="leg lg-near">
+        <path d="M80 65L58 74" stroke="#2E4459" stroke-width="12.5" fill="none" stroke-linecap="round"/>
+        <g class="shin sh-near">
+          <path d="M58 74L36 83" stroke="#26394C" stroke-width="10" fill="none" stroke-linecap="round"/>
+          <ellipse cx="33" cy="84" rx="6.2" ry="4.6" fill="#16222E" transform="rotate(-22 33 84)"/>
+          <path d="M30 79C20 82 11 88 8 94c6 4 17 1 25-6z" fill="#E8843C"/>
+          <path d="M30 79C20 82 11 88 8 94" stroke="#C96A24" stroke-width="1.4" fill="none"/>
+        </g>
+      </g>
+
+      <!-- ── 가까운 쪽 팔: 앞으로 뻗어 물을 젓는다 ── -->
+      <g class="arm ar-near">
+        <path d="M112 45L126 52" stroke="#31485E" stroke-width="8.6" fill="none" stroke-linecap="round"/>
+        <g class="fore fo-near">
+          <path d="M126 52L138 57" stroke="#2A3E52" stroke-width="7.6" fill="none" stroke-linecap="round"/>
+          <rect x="131" y="51.4" width="6.6" height="5.4" rx="1.8" fill="#12202C" transform="rotate(22 134 54)"/>
+          <path d="M142 56.4c3 .6 4.8 2 4.6 3.6-.2 2-3 3.2-6.2 2.8-2.8-.4-4.6-1.6-4.4-3.4.2-1.8 2.6-3.4 6-3z" fill="#E0B08D"/>
+        </g>
+      </g>
+
+      <!-- ── 목과 머리 ── -->
+      <path d="M112 42L118 37.6" stroke="#C9986F" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <!-- 후드가 뒤통수를 덮고 얼굴은 드러난다 -->
+      <ellipse cx="126.4" cy="30" rx="11.4" ry="11.8" fill="#16202B" transform="rotate(-14 126.4 30)"/>
+      <path d="M126.4 26.6c4-2 9.4-1.6 13 1.2 1.8 4.6.4 10.6-4 13.6-3 2-6.4 1.8-8.4-.6-2-2.4-2.8-5.8-2.6-9 .2-2.2.8-4 2-5.2z" fill="#E8BC97"/>
+      <!-- 광대와 턱선 -->
+      <path d="M138.4 37.6c-1 2.6-2.8 4.6-5 5.6" stroke="#CE9C74" stroke-width="1.3" fill="none" stroke-linecap="round" opacity=".75"/>
+      <!-- 마스크: 렌즈 하나가 눈을 덮는다 -->
+      <path d="M124.8 25.4c4.8-2.4 9.8-2 13.4 1 .6 3.6-1 6.4-4 6.8-1.8.2-3-.8-4.4-1-1.6-.2-2.8.6-3.9-.3-1.8-1.5-2.2-4.5-1.1-6.5z" fill="#E4F0F7" opacity=".95"/>
+      <path d="M124.8 25.4c4.8-2.4 9.8-2 13.4 1" stroke="#7E94A6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M126.6 31.8c3.4 1.4 8 1.2 11.6-1" stroke="#7E94A6" stroke-width="1.2" fill="none" stroke-linecap="round" opacity=".8"/>
+      <path d="M126.8 27c2.4-1.2 5-1 7 .4" stroke="#FFFFFF" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".85"/>
+      <path d="M124.4 26.8l-7.4 2" stroke="#3E4855" stroke-width="2.4" stroke-linecap="round"/>
+      <!-- 눈 -->
+      <ellipse cx="129.4" cy="29.6" rx="1.7" ry="1.9" fill="#33291F" transform="rotate(14 129.4 29.6)"/>
+      <ellipse cx="135" cy="30" rx="1.6" ry="1.8" fill="#33291F" transform="rotate(14 135 30)"/>
+      <circle cx="130" cy="29" r=".6" fill="#FFFFFF" opacity=".9"/>
+      <circle cx="135.6" cy="29.4" r=".55" fill="#FFFFFF" opacity=".9"/>
+      <!-- 코 -->
+      <path d="M136.8 34c1.2.6 1.6 1.6 1 2.6" stroke="#CE9C74" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+
+      <!-- ── 호흡기와 호스 ── -->
+      <path d="M108 34c9-2 17 .6 21 6.6" stroke="#3E4855" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+      <circle cx="131.4" cy="41.6" r="4.6" fill="#3E4855"/>
+      <circle cx="131.4" cy="41.6" r="1.9" fill="#77828F"/>
+      <path d="M133.6 38c.6-1 1-2 1-3" stroke="#3E4855" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div class="breath"><i></i><i></i><i></i></div>
+    </div>
+  </div>
+
+  <div class="bed" aria-hidden="true"></div>
+  <div class="weed w1" aria-hidden="true"></div>
+  <div class="weed w2" aria-hidden="true"></div>
+  <div class="weed w3" aria-hidden="true"></div>
+  <div class="weed w4" aria-hidden="true"></div>
+  <div class="weed w5" aria-hidden="true"></div>
+
+  <span class="bub u1" aria-hidden="true"></span>
+  <span class="bub u2" aria-hidden="true"></span>
+  <span class="bub u3" aria-hidden="true"></span>
+  <span class="bub u4" aria-hidden="true"></span>
+
+  <div class="panel">
+    <div class="head">
+      <span class="brand">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 8h11a3 3 0 013 3v3a3 3 0 01-6 0v-2H4z" fill="#E43E63"/>
+          <path d="M17 4h3v9" stroke="#2E9BD8" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        </svg>DIVE STOPWATCH
+      </span>
+      <span class="depth" id="dp">-0.0m</span>
+    </div>
+
+    <div class="disp">
+      <div class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></div>
+    </div>
+
+    <div class="row">
+      <button id="b1" type="button">시작</button>
+      <button id="b3" type="button" disabled>랩</button>
+      <button id="b4" type="button" disabled>리셋</button>
+    </div>
+
+    <div class="lapline" id="lp" aria-live="polite"></div>
+  </div>
+
+<script>
+(function(){
+  var t=document.getElementById('t'),lp=document.getElementById('lp'),dp=document.getElementById('dp'),
+      b1=document.getElementById('b1'),
+      b3=document.getElementById('b3'),b4=document.getElementById('b4');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return pad(hh,2)+':'+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+
+  /* 수심은 1초에 0.4m씩 깊어진다. 40m에서 멈춰 더 내려가지 않는다.
+     헤엄치는 경로 자체는 CSS 애니메이션이 맡는다. */
+  function draw(){
+    var e=el(),m=Math.min(e/1000*0.4,40);
+    t.innerHTML=f(e);
+    dp.textContent='-'+m.toFixed(1)+'m';
+  }
+
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    document.body.classList.toggle('go',run);
+    var e=el();
+    /* 시작과 정지는 한 버튼이다. 도는 중이면 정지, 멈춰 있으면 시작 또는 재개 */
+    b1.textContent=run?'정지':(e>0?'재개':'시작');
+    b1.classList.toggle('stop',run);
+    b3.disabled=!run; b4.disabled=run||e===0;
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(e));
+    else if(!srWasRun&&!run&&srLast>0&&e===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=e;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  /* ── 유영 속도 ──
+     시작하면 빨라지고 멈추면 돌아온다. 재생 속도만 바꾸므로 지금 있던
+     자리와 자세는 그대로 이어진다. */
+  var swimAnims=null;
+  function swimRate(r){
+    var dv=document.querySelector('.diver');
+    if(!dv||!dv.getAnimations)return;
+    if(!swimAnims){
+      swimAnims=[];
+      var els=[dv].concat([].slice.call(dv.querySelectorAll('*')))
+                  .concat([].slice.call(document.querySelectorAll('.bub')));
+      els.forEach(function(el){
+        if(el.getAnimations) swimAnims=swimAnims.concat(el.getAnimations());
+      });
+    }
+    /* playbackRate는 지금 시각을 그대로 두고 앞으로의 속도만 바꾼다.
+       updatePlaybackRate는 다음 프레임까지 미뤄지므로 쓰지 않는다. */
+    swimAnims.forEach(function(a){ try{ a.playbackRate=r; }catch(err){} });
+  }
+
+  function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);swimRate(1.55);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;swimRate(1);draw();ui();}
+  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;lp.textContent='';draw();ui();}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    lp.textContent='랩 '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b3.addEventListener('click',lap);
+  b4.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

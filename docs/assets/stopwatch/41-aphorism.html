@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>격언 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23C9A227'/><circle cx='50' cy='50' r='34' fill='%23F6F0E2'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{
+    --gold:#C9A227;
+    --gold-lt:#E7CE86;
+    --cream:#F6F0E2;
+    --ink:#2A2018;
+  }
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    color:var(--gold-lt);word-break:keep-all;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:9px;
+    background:radial-gradient(120% 96% at 50% 26%,#33261C 0%,#1D1510 52%,#0D0906 100%)}
+
+  /* ── 격언 ──
+     장식 글리프 한 점을 위에 두고, 영문은 이탤릭 세리프, 한국어는 그 아래
+     한 단 낮은 밝기로 둔다. 두 줄이 한 덩어리로 읽히게 간격을 좁게 잡았다. */
+  .quote{text-align:center;max-width:296px;flex-shrink:0}
+  .fleur{display:block;margin:0 auto 8px;width:60px;height:12px;opacity:.9}
+  .en{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:13px;line-height:1.42;
+    color:var(--gold-lt);letter-spacing:.1px;min-height:37px;
+    display:flex;align-items:center;justify-content:center}
+  .ko{margin-top:5px;font-size:11px;font-weight:500;line-height:1.4;color:#9C8F7B;min-height:16px}
+  .quote.turn .en,.quote.turn .ko{opacity:0}
+  .quote .en,.quote .ko{transition:opacity .28s ease}
+
+  /* ── 다이얼 ── */
+  .dial{position:relative;width:184px;height:184px;flex-shrink:0;
+    filter:drop-shadow(0 12px 24px rgba(0,0,0,.55))}
+  .dial svg{display:block;width:100%;height:100%}
+  .time{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;
+    font-family:Georgia,'Times New Roman',serif;font-size:16px;letter-spacing:.1px;white-space:nowrap;
+    font-variant-numeric:tabular-nums;color:#3A2C1C}
+  .time .cs{font-size:16px;color:#7A6244}
+  .lapline{margin-top:1px;text-align:center;font-size:9.5px;font-weight:700;letter-spacing:.4px;
+    color:#8C7A5C;font-variant-numeric:tabular-nums;min-height:12px}
+
+  /* ── 조작부 ── */
+  .row{display:flex;gap:7px;flex-shrink:0}
+  button{font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;
+    padding:10px 0;width:84px;border-radius:999px;transition:all .18s;
+    color:#D9C79A;border:1px solid rgba(201,162,39,.42);background:rgba(255,255,255,.045)}
+  button:disabled{opacity:1;color:rgba(201,162,39,.42);border-color:rgba(201,162,39,.18);
+    background:rgba(255,255,255,.02);cursor:default}
+  button:hover:not(:disabled){background:rgba(201,162,39,.16);border-color:rgba(201,162,39,.7)}
+  button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:3px}
+  #b1{background:linear-gradient(180deg,#DDBB5A,#B4881F);border-color:transparent;color:#2A2018;font-weight:800;
+    box-shadow:0 5px 14px rgba(0,0,0,.42)}
+  #b1:hover{background:linear-gradient(180deg,#E9CC72,#C0932A);transform:translateY(-1px)}
+
+  /* 초침은 돌아가는 동안에만 움직인다 */
+  #hand{transform-origin:100px 100px;transition:transform .09s linear}
+
+  @media (prefers-reduced-motion: reduce){#hand{transition:none}}
+</style>
+</head>
+<body>
+  <div class="quote" id="q">
+    <svg class="fleur" viewBox="0 0 60 12" aria-hidden="true">
+      <path d="M2 6h18M40 6h18" stroke="#C9A227" stroke-width="1" opacity=".7"/>
+      <path d="M30 1l4 5-4 5-4-5z" fill="#C9A227"/>
+      <path d="M23 3.4l2.4 2.6-2.4 2.6-2.4-2.6zM37 3.4l2.4 2.6-2.4 2.6-2.4-2.6z" fill="#C9A227" opacity=".7"/>
+    </svg>
+    <div class="en" id="qen"></div>
+    <div class="ko" id="qko"></div>
+  </div>
+
+  <div class="dial">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
+      <defs>
+        <linearGradient id="bez" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#F0DCA0"/><stop offset=".38" stop-color="#C9A227"/>
+          <stop offset=".68" stop-color="#8F6C18"/><stop offset="1" stop-color="#E0C173"/>
+        </linearGradient>
+        <radialGradient id="face" cx=".5" cy=".38" r=".72">
+          <stop offset="0" stop-color="#FFFCF3"/><stop offset="1" stop-color="#EDE3CE"/>
+        </radialGradient>
+      </defs>
+      <circle cx="100" cy="100" r="98" fill="url(#bez)"/>
+      <circle cx="100" cy="100" r="86" fill="#7C5D14" opacity=".55"/>
+      <circle cx="100" cy="100" r="84" fill="url(#face)"/>
+      <g id="ticks"></g>
+      <g font-family="Georgia, 'Times New Roman', serif" font-size="13.5" fill="#4A3720" text-anchor="middle">
+        <text x="100" y="44">XII</text>
+        <text x="163" y="105">III</text>
+        <text x="100" y="167">VI</text>
+        <text x="37" y="105">IX</text>
+      </g>
+      <line id="hand" x1="100" y1="30" x2="100" y2="18" stroke="#B4881F" stroke-width="2.8" stroke-linecap="round" opacity=".9"/>
+    </svg>
+    <div class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></div>
+  </div>
+  <div class="lapline" id="lp" aria-live="polite"></div>
+
+  <div class="row">
+    <button id="b1" type="button">시작</button>
+    <button id="b3" type="button" disabled>랩</button>
+    <button id="b4" type="button" disabled>초기화</button>
+  </div>
+
+<script>
+(function(){
+  /* ── 눈금 ──
+     60개를 두르되 5분할마다 굵고 길게 해서 시각을 먼저 읽게 한다. */
+  var g=document.getElementById('ticks'),NS='http://www.w3.org/2000/svg';
+  for(var i=0;i<60;i++){
+    var big=i%5===0,r1=big?78:80,r2=big?68:75,a=i*6*Math.PI/180;
+    var ln=document.createElementNS(NS,'line');
+    ln.setAttribute('x1',100+r1*Math.sin(a)); ln.setAttribute('y1',100-r1*Math.cos(a));
+    ln.setAttribute('x2',100+r2*Math.sin(a)); ln.setAttribute('y2',100-r2*Math.cos(a));
+    ln.setAttribute('stroke',big?'#5A431F':'#B3A180');
+    ln.setAttribute('stroke-width',big?2.4:1.1);
+    ln.setAttribute('stroke-linecap','round');
+    g.appendChild(ln);
+  }
+
+  /* ── 격언 ──
+     출처가 분명한 짧은 잠언만 담았다. 새로 시작할 때마다 다른 문장을 뽑는다. */
+  var QUOTES=[
+    ['Small daily improvements lead to staggering results.','매일의 작은 개선이 놀라운 결과를 만든다.'],
+    ['Lost time is never found again.','잃어버린 시간은 다시 찾을 수 없다.'],
+    ['Well begun is half done.','시작이 반이다.'],
+    ['A journey of a thousand miles begins with a single step.','천 리 길도 한 걸음부터 시작된다.'],
+    ['Time is what we want most, but what we use worst.','시간은 가장 원하면서 가장 함부로 쓰는 것이다.'],
+    ['Better three hours too soon than a minute too late.','한 시간 늦느니 세 시간 이른 편이 낫다.'],
+    ['Do not wait; the time will never be just right.','기다리지 마라. 딱 맞는 때는 오지 않는다.'],
+    ['Every day is a fresh beginning.','하루하루가 새로 여는 시작이다.'],
+    ['Nothing is worth more than this day.','오늘 하루보다 값진 것은 없다.'],
+    ['He who gains time gains everything.','시간을 얻는 사람이 모든 것을 얻는다.']
+  ];
+  var q=document.getElementById('q'),qen=document.getElementById('qen'),qko=document.getElementById('qko'),qi=-1;
+  function quote(first){
+    var n=qi;
+    while(n===qi&&QUOTES.length>1) n=Math.floor(Math.random()*QUOTES.length);
+    qi=n;
+    if(first){ qen.textContent=QUOTES[n][0]; qko.textContent=QUOTES[n][1]; return; }
+    q.classList.add('turn');
+    setTimeout(function(){
+      qen.textContent=QUOTES[n][0]; qko.textContent=QUOTES[n][1];
+      q.classList.remove('turn');
+    },280);
+  }
+  quote(true);
+
+  var t=document.getElementById('t'),lp=document.getElementById('lp'),hand=document.getElementById('hand'),
+      b1=document.getElementById('b1'),
+      b3=document.getElementById('b3'),b4=document.getElementById('b4');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return pad(hh,2)+':'+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+  function draw(){var e=el();t.innerHTML=f(e);hand.setAttribute('transform','rotate('+(e/1000%60)*6+' 100 100)');}
+
+  /* ── 접근성 공통 ──
+     정지와 초기화만 한 번씩 알린다. 시간 표시는 10ms마다 바뀌므로 라이브
+     리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    var e=el();
+    /* 시작과 정지는 한 버튼이다. 도는 중이면 정지, 멈춰 있으면 시작 또는 재개 */
+    b1.textContent=run?'정지':(e>0?'재개':'시작');
+    b3.disabled=!run; b4.disabled=run||e===0;
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(e));
+    else if(!srWasRun&&!run&&srLast>0&&e===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=e;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;lp.textContent='';quote(false);draw();ui();}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    lp.textContent='랩 '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b3.addEventListener('click',lap);
+  b4.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  draw();ui();
+})();
+</script>
+</body>
+</html>
