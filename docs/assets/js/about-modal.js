@@ -542,9 +542,21 @@
                     <p class="ab-eyebrow ab-latin">Changelog</p>
                     <div class="ab-sec-head">
                         <h2 class="ab-sec-title">업데이트 내역</h2>
-                        <span class="ab-sec-note">최신순 · 전체 25건</span>
+                        <span class="ab-sec-note">최신순 · 전체 28건</span>
                     </div>
                     <div class="ab-log">
+                        <div class="ab-log-item">
+                            <div class="ab-log-meta"><span class="ab-ver">v3.7</span><span class="ab-date">2026-08-30</span></div>
+                            <div><p class="ab-log-title">토큰 절감 가이드 개편</p><p class="ab-log-desc">'토큰 아껴 쓰기'를 비용·보안·법률 섹션으로 옮기고, 토큰에 요금이 어떻게 매겨지는지 먼저 설명한 뒤 팀에 지시할 행동 지침을 이어 놓았습니다. 구독제는 사용량 한도로 계산되지만 Enterprise와 API는 쓴 만큼 요금이 붙는다는 차이도 분명히 밝혔습니다.</p></div>
+                        </div>
+                        <div class="ab-log-item">
+                            <div class="ab-log-meta"><span class="ab-ver">v3.6</span><span class="ab-date">2026-08-23</span></div>
+                            <div><p class="ab-log-title">GitHub 가이드 보강과 스킬 제작 5단계 추가</p><p class="ab-log-desc">GitHub 가이드에 Git과 GitHub가 어떻게 시작됐는지와 세 서비스의 요금제 비교를 더했습니다. 스킬 페이지에는 스킬을 직접 만드는 5단계를 새로 넣고 구성 요소를 여섯 가지로 넓혔습니다.</p></div>
+                        </div>
+                        <div class="ab-log-item">
+                            <div class="ab-log-meta"><span class="ab-ver">v3.5</span><span class="ab-date">2026-08-16</span></div>
+                            <div><p class="ab-log-title">AX 컨설팅 리포트 추가와 색 체계 정비</p><p class="ab-log-desc">전략 컨설팅 빅3가 AX를 어떻게 보는지 정리한 페이지를 더하고, 오리엔테이션에서 근거로 이어지도록 연결했습니다. 메인 페이지는 눈으로 구분되지 않을 만큼 비슷한 색을 하나로 합쳐 쓰는 색을 52종에서 27종으로 줄이고, 표지를 제목·대상·방법 세 단으로 다시 짰습니다.</p></div>
+                        </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.4</span><span class="ab-date">2026-08-09</span></div>
                             <div><p class="ab-log-title">표지 디자인 개선과 실전 예제 3종 보강</p><p class="ab-log-desc">제목과 마스코트 애니메이션은 첫 페인트에 맞춰 재생되도록 고쳤습니다. 실전 예제 아래에는 '80 에이전트 고용 실전' 구분 띠를 놓고 5 Color, 25인 자문단, 50 에이전트 팀 빌더 세 도구를 카드로 모았습니다. 색으로 나눈 5인 협업, 페르소나 25명의 토론, 목적 한 줄로 꾸리는 50인 팀을 각 사이트에서 바로 써 볼 수 있습니다.</p></div>
@@ -557,20 +569,20 @@
                             <div class="ab-log-meta"><span class="ab-ver">v3.2</span><span class="ab-date">2026-07-26</span></div>
                             <div><p class="ab-log-title">Opus 5 최신화와 스마트폰 페이지 신설</p><p class="ab-log-desc">7월 24일 나온 Claude Opus 5에 맞춰 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 고쳤습니다. 5단계에는 '헤르메스 에이전트' 페이지를 넣었습니다. 2단계에는 '스마트폰에서 Claude 쓰기'를 새로 만들어 앱 메뉴 여섯 개와 폰에서 일을 맡기는 법을 정리했습니다.</p></div>
                         </div>
-                        <div class="ab-log-item">
-                            <div class="ab-log-meta"><span class="ab-ver">v3.1</span><span class="ab-date">2026-07-19</span></div>
-                            <div><p class="ab-log-title">디자인·시각화 갤러리 4종 재편</p><p class="ab-log-desc">디자인·시각화 갤러리를 EDA 차트, UI 디자인, UI 컴포넌트, SVG 아이콘 네 개로 나눴습니다. 버튼과 카드에 바로 붙여 쓰는 라인 아이콘 300개를 모아 SVG 아이콘 갤러리를 새로 만들고, 네 페이지 상단에는 서로 오가는 서브 메뉴를 같은 모양으로 달았습니다. 메인 갤러리 카드는 네 장으로 맞췄습니다. EDA 차트 개수도 28종으로 고쳤습니다.</p></div>
-                        </div>
-                        <div class="ab-log-item">
-                            <div class="ab-log-meta"><span class="ab-ver">v3.0</span><span class="ab-date">2026-07-12</span></div>
-                            <div><p class="ab-log-title">AI와 함께 일하는 7단계 신설</p><p class="ab-log-desc">스킬 다섯 개(slide_library·casting·5color·korean·council)를 목표부터 검증까지 하나로 잇는 'AI와 함께 일하는 7단계' 실전 예제를 새로 만들었습니다. 예제 세 페이지(MCP 연결·7단계·책 쓰기)는 상단 메뉴를 하나로 맞추고, 일곱 단계는 키보드로도 펼칠 수 있는 아코디언에 담았습니다. 사이트 폴더 구조와 내비게이션도 정돈했습니다. 카드와 헤더 아이콘은 이모지에서 흰 타일 위 오렌지 라인 SVG로 모두 바꾸고, 메인 '다른 콘텐츠'에는 검색 스킬 Hound를 더했습니다.</p></div>
-                        </div>
-                        <div class="ab-log-item">
-                            <div class="ab-log-meta"><span class="ab-ver">v2.9</span><span class="ab-date">2026-07-05</span></div>
-                            <div><p class="ab-log-title">다른 콘텐츠 개편과 앤트로픽 소개 최신화</p><p class="ab-log-desc">메인 '다른 콘텐츠' 링크를 10선으로 다시 골라 한국어 윤문 스킬과 GPT 이미지 프롬프트 랩을 넣었습니다. 실전 예제의 기본 예제 세 과제는 구성을 가볍게 하려고 백업으로 내렸습니다. 앤트로픽 소개(엿보기)에는 6월 말 소네트 5와 클로드 사이언스 공개, 페이블 5의 수출통제 해제와 재공개 소식을 반영했고, 히어로의 최신 모델 표기는 Fable 5·Opus 4.8·Sonnet 5로 고쳤습니다.</p></div>
-                        </div>
                         <details class="ab-more">
-                            <summary>이전 기록 19건 더 보기</summary>
+                            <summary>이전 기록 22건 더 보기</summary>
+                            <div class="ab-log-item">
+                                <div class="ab-log-meta"><span class="ab-ver">v3.1</span><span class="ab-date">2026-07-19</span></div>
+                                <div><p class="ab-log-title">디자인·시각화 갤러리 4종 재편</p><p class="ab-log-desc">디자인·시각화 갤러리를 EDA 차트, UI 디자인, UI 컴포넌트, SVG 아이콘 네 개로 나눴습니다. 버튼과 카드에 바로 붙여 쓰는 라인 아이콘 300개를 모아 SVG 아이콘 갤러리를 새로 만들고, 네 페이지 상단에는 서로 오가는 서브 메뉴를 같은 모양으로 달았습니다. 메인 갤러리 카드는 네 장으로 맞췄습니다. EDA 차트 개수도 28종으로 고쳤습니다.</p></div>
+                            </div>
+                            <div class="ab-log-item">
+                                <div class="ab-log-meta"><span class="ab-ver">v3.0</span><span class="ab-date">2026-07-12</span></div>
+                                <div><p class="ab-log-title">AI와 함께 일하는 7단계 신설</p><p class="ab-log-desc">스킬 다섯 개(slide_library·casting·5color·korean·council)를 목표부터 검증까지 하나로 잇는 'AI와 함께 일하는 7단계' 실전 예제를 새로 만들었습니다. 예제 세 페이지(MCP 연결·7단계·책 쓰기)는 상단 메뉴를 하나로 맞추고, 일곱 단계는 키보드로도 펼칠 수 있는 아코디언에 담았습니다. 사이트 폴더 구조와 내비게이션도 정돈했습니다. 카드와 헤더 아이콘은 이모지에서 흰 타일 위 오렌지 라인 SVG로 모두 바꾸고, 메인 '다른 콘텐츠'에는 검색 스킬 Hound를 더했습니다.</p></div>
+                            </div>
+                            <div class="ab-log-item">
+                                <div class="ab-log-meta"><span class="ab-ver">v2.9</span><span class="ab-date">2026-07-05</span></div>
+                                <div><p class="ab-log-title">다른 콘텐츠 개편과 앤트로픽 소개 최신화</p><p class="ab-log-desc">메인 '다른 콘텐츠' 링크를 10선으로 다시 골라 한국어 윤문 스킬과 GPT 이미지 프롬프트 랩을 넣었습니다. 실전 예제의 기본 예제 세 과제는 구성을 가볍게 하려고 백업으로 내렸습니다. 앤트로픽 소개(엿보기)에는 6월 말 소네트 5와 클로드 사이언스 공개, 페이블 5의 수출통제 해제와 재공개 소식을 반영했고, 히어로의 최신 모델 표기는 Fable 5·Opus 4.8·Sonnet 5로 고쳤습니다.</p></div>
+                            </div>
                             <div class="ab-log-item">
                                 <div class="ab-log-meta"><span class="ab-ver">v2.8</span><span class="ab-date">2026-06-28</span></div>
                                 <div><p class="ab-log-title">스킬 라이브러리 확장과 라이선스 정리</p><p class="ab-log-desc">수강생이 직접 만든 스킬을 더해 스킬 쇼케이스를 21선으로 늘렸습니다. 모든 스킬의 README와 라이선스는 MIT로 통일하고, 샘플에 드러난 실명과 연락처는 전부 익명으로 바꿨습니다. 검증 트랙(동조·환각)에는 1차 출처로 교차검증한 실제 사례를 더했습니다. 용어 사전에는 PowerShell과 파이썬을 넣어 73선으로 늘렸습니다.</p></div>
