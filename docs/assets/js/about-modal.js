@@ -542,9 +542,13 @@
                     <p class="ab-eyebrow ab-latin">Changelog</p>
                     <div class="ab-sec-head">
                         <h2 class="ab-sec-title">업데이트 내역</h2>
-                        <span class="ab-sec-note">최신순 · 전체 28건</span>
+                        <span class="ab-sec-note">최신순 · 전체 29건</span>
                     </div>
                     <div class="ab-log">
+                        <div class="ab-log-item">
+                            <div class="ab-log-meta"><span class="ab-ver">v3.8</span><span class="ab-date">2026-09-06</span></div>
+                            <div><p class="ab-log-title">최신 모델 반영과 LLM Wiki 실습 개편</p><p class="ab-log-desc">9월 1일 나온 Claude Fable 5.1, 9월 3일 나온 GPT-6 Astra, 9월 2일 나온 Gemini 3.8 Flash에 맞춰 표지의 최신 모델 표기와 오리엔테이션의 벤치마크 표, 가격표, 모델 타임라인, 체크리스트와 활용 수준 진단의 모델 설명을 고쳤습니다. 벤치마크는 Artificial Analysis가 9월에 개편한 v4.2 지수로 다시 채우고, 가격은 각 사 공식 가격표를 다시 대조했습니다. 컴퍼니 브레인 실습 편은 공개된 LLM 위키 스킬을 Claude 데스크톱 앱에 올려 샘플 문서 8개로 돌리는 방식으로 바꿨습니다.</p></div>
+                        </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.7</span><span class="ab-date">2026-08-30</span></div>
                             <div><p class="ab-log-title">토큰 절감 가이드 개편</p><p class="ab-log-desc">'토큰 아껴 쓰기'를 비용·보안·법률 섹션으로 옮기고, 토큰에 요금이 어떻게 매겨지는지 먼저 설명한 뒤 팀에 지시할 행동 지침을 이어 놓았습니다. 구독제는 사용량 한도로 계산되지만 Enterprise와 API는 사용한 만큼 요금이 책정된다는 점도 추가했습니다.</p></div>
@@ -565,12 +569,12 @@
                             <div class="ab-log-meta"><span class="ab-ver">v3.3</span><span class="ab-date">2026-08-02</span></div>
                             <div><p class="ab-log-title">2단계를 확장 프로그램과 스마트폰 앱으로 나눔</p><p class="ab-log-desc">2단계를 '확장 프로그램'(크롬·MS Office)과 '스마트폰 앱'(Claude·ChatGPT) 둘로 나눴습니다. '스마트폰에서 ChatGPT 쓰기'를 새로 만들어 대화·프로젝트·예약 작업·Codex 리모트·음성을 정리하고, Claude 앱과 무엇이 다른지 비교했습니다.</p></div>
                         </div>
-                        <div class="ab-log-item">
-                            <div class="ab-log-meta"><span class="ab-ver">v3.2</span><span class="ab-date">2026-07-26</span></div>
-                            <div><p class="ab-log-title">Opus 5 최신화와 스마트폰 페이지 신설</p><p class="ab-log-desc">7월 24일 나온 Claude Opus 5에 맞춰 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 고쳤습니다. 5단계에는 '헤르메스 에이전트' 페이지를 넣었습니다. 2단계에는 '스마트폰에서 Claude 쓰기'를 새로 만들어 앱 메뉴 여섯 개와 폰에서 일을 맡기는 법을 정리했습니다.</p></div>
-                        </div>
                         <details class="ab-more">
-                            <summary>이전 기록 22건 더 보기</summary>
+                            <summary>이전 기록 23건 더 보기</summary>
+                            <div class="ab-log-item">
+                                <div class="ab-log-meta"><span class="ab-ver">v3.2</span><span class="ab-date">2026-07-26</span></div>
+                                <div><p class="ab-log-title">Opus 5 최신화와 스마트폰 페이지 신설</p><p class="ab-log-desc">7월 24일 나온 Claude Opus 5에 맞춰 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 고쳤습니다. 5단계에는 '헤르메스 에이전트' 페이지를 넣었습니다. 2단계에는 '스마트폰에서 Claude 쓰기'를 새로 만들어 앱 메뉴 여섯 개와 폰에서 일을 맡기는 법을 정리했습니다.</p></div>
+                            </div>
                             <div class="ab-log-item">
                                 <div class="ab-log-meta"><span class="ab-ver">v3.1</span><span class="ab-date">2026-07-19</span></div>
                                 <div><p class="ab-log-title">디자인·시각화 갤러리 4종 재편</p><p class="ab-log-desc">디자인·시각화 갤러리를 EDA 차트, UI 디자인, UI 컴포넌트, SVG 아이콘 네 개로 나눴습니다. 버튼과 카드에 바로 붙여 쓰는 라인 아이콘 300개를 모아 SVG 아이콘 갤러리를 새로 만들고, 네 페이지 상단에는 서로 오가는 서브 메뉴를 같은 모양으로 달았습니다. 메인 갤러리 카드는 네 장으로 맞췄습니다. EDA 차트 개수도 28종으로 고쳤습니다.</p></div>

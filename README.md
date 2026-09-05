@@ -6,7 +6,7 @@
 
 # AI ROASTING · AI 에이전트를 고용하라
 
-![Version](https://img.shields.io/badge/Version-3.7-4CAF50)
+![Version](https://img.shields.io/badge/Version-3.8-4CAF50)
 ![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
 ![Pages](https://img.shields.io/badge/Pages-47-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
@@ -173,18 +173,18 @@
 
 ---
 
-## 모델 기준 (2026-07-26)
+## 모델 기준 (2026-09-05)
 
-가이드 전체의 모델 표기는 2026년 7월 24일 출시된 **Claude Opus 5**를 최신 기준으로 씁니다. 자세한 벤치마크와 가격 비교는 [5분 오리엔테이션](https://airoasting.vercel.app/orientation.html)에, 요금제별 기본 모델과 `/model`·`/effort` 사용법은 [20단계 체크리스트](https://airoasting.vercel.app/checklist.html)에 있습니다.
+가이드 전체의 모델 표기는 2026년 9월 1일 출시된 **Claude Fable 5.1**을 최신 기준으로 씁니다. 자세한 벤치마크와 가격 비교는 [5분 오리엔테이션](https://airoasting.vercel.app/orientation.html)에, 요금제별 기본 모델과 `/model`·`/effort` 사용법은 [20단계 체크리스트](https://airoasting.vercel.app/checklist.html)에 있습니다.
 
 | 모델 | 출시 | 자리 | API 가격 (100만 토큰 입력/출력) |
 |------|------|------|------|
-| Claude Opus 5 | 2026-07-24 | 최신 플래그십. 종합 지능, 실무 지식노동, 에이전틱 코딩 1위 | $5 / $25 |
-| Claude Fable 5 | 2026-06-09 | 창작·고급 추론 라인. 지식 정확도와 고난도 추론에서 앞섬 | $10 / $50 |
-| Claude Sonnet 5 | 2026-06-30 | 실무 표준. 환각 억제율 63%로 Claude 3종 중 가장 높음 | $2 / $10 (출시 기념가, 9월 1일부터 $3 / $15) |
+| Claude Fable 5.1 | 2026-09-01 | 최신 플래그십. 종합 지능, 실무 지식노동, 에이전틱 코딩 1위. 환각 억제율은 27%로 가장 낮음 | $10 / $50 |
+| Claude Opus 5 | 2026-07-24 | 고난도 추론. Fable 5.1의 절반 단가 | $5 / $25 |
+| Claude Sonnet 5 | 2026-06-30 | 실무 표준. 환각 억제율 61%로 Claude 3종 중 가장 높음 | $2 / $10 (프로모션 특별가를 정가로 확정) |
 | Claude Haiku 4.5 | 이전 세대 | 단순 반복 작업과 멀티 에이전트 보조 | $1 / $5 |
 
-직전 플래그십 계보는 Opus 4.6(2026-02-05), Opus 4.7(2026-04-16), Opus 4.8(2026-05-28)입니다. 모델 교체가 있을 때 함께 손봐야 하는 곳은 네 군데입니다. `orientation.html`의 벤치마크 표·가격 표·모델 타임라인, `checklist.html`의 `/model`·`/effort` 항목, `ai-levels.html`의 모델 4종 카드, `index.html` 히어로의 최신 모델 표기입니다.
+직전 플래그십 계보는 Opus 4.8(2026-05-28), Fable 5(2026-06-09), Opus 5(2026-07-24)입니다. 모델 교체가 있을 때 함께 손봐야 하는 곳은 네 군데입니다. `orientation.html`의 벤치마크 표·가격 표·모델 타임라인, `checklist.html`의 `/model`·`/effort` 항목, `ai-levels.html`의 모델 4종 카드, `index.html` 히어로의 최신 모델 표기입니다.
 
 ---
 
@@ -202,6 +202,8 @@
 
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 한 주 작업을 정리해 매주 업데이트하고 있습니다.
 
+- **v3.8 · 2026-09-06: 최신 모델 반영과 LLM Wiki 실습 개편**
+  9월 1일 나온 Claude Fable 5.1, 9월 3일 나온 GPT-6 Astra, 9월 2일 나온 Gemini 3.8 Flash에 맞춰 표지의 최신 모델 표기와 오리엔테이션의 벤치마크 표, 가격표, 모델 타임라인, 체크리스트와 활용 수준 진단의 모델 설명을 고쳤습니다. 벤치마크는 Artificial Analysis가 9월에 개편한 v4.2 지수로 다시 채우고, 가격은 각 사 공식 가격표를 다시 대조했습니다. 컴퍼니 브레인 실습 편은 공개된 LLM 위키 스킬을 Claude 데스크톱 앱에 올려 샘플 문서 8개로 돌리는 방식으로 바꿨습니다.
 - **v3.7 · 2026-08-30: 토큰 절감 가이드 개편**
   '토큰 아껴 쓰기'를 비용·보안·법률 섹션으로 옮기고, 토큰에 요금이 어떻게 매겨지는지 먼저 설명한 뒤 팀에 지시할 행동 지침을 이어 놓았습니다. 구독제는 사용량 한도로 계산되지만 Enterprise와 API는 사용한 만큼 요금이 책정된다는 점도 추가했습니다.
 - **v3.6 · 2026-08-23: GitHub 가이드 보강과 스킬 제작 5단계 추가**
