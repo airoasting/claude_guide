@@ -547,7 +547,7 @@
                     <div class="ab-log">
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.8</span><span class="ab-date">2026-09-06</span></div>
-                            <div><p class="ab-log-title">최신 모델 반영과 LLM Wiki 실습 개편</p><p class="ab-log-desc">9월 1일 나온 Claude Fable 5.1, 9월 3일 나온 GPT-6 Astra, 9월 2일 나온 Gemini 3.8 Flash에 맞춰 표지의 최신 모델 표기와 오리엔테이션의 벤치마크 표, 가격표, 모델 타임라인, 체크리스트와 활용 수준 진단의 모델 설명을 고쳤습니다. 벤치마크는 Artificial Analysis가 9월에 개편한 v4.2 지수로 다시 채우고, 가격은 각 사 공식 가격표를 다시 대조했습니다. 컴퍼니 브레인 실습 편은 공개된 LLM 위키 스킬을 Claude 데스크톱 앱에 올려 샘플 문서 8개로 돌리는 방식으로 바꿨습니다.</p></div>
+                            <div><p class="ab-log-title">최신 모델 반영과 LLM Wiki 실습 개편</p><p class="ab-log-desc">9월 첫 주에 잇달아 출시된 Claude Fable 5.1(1일), Gemini 3.8 Flash(2일), GPT-6 Astra(3일)를 반영해 성능 벤치마크 표, 가격표, 모델 타임라인, 체크리스트와 활용 수준 진단의 모델 설명을 갱신했습니다. 컴퍼니 브레인 실습 편은 공개된 LLM 위키 스킬을 Claude 데스크톱 앱에 설치해 샘플 문서 8개로 바로 실행해 볼 수 있게 했습니다.</p></div>
                         </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.7</span><span class="ab-date">2026-08-30</span></div>
@@ -573,7 +573,7 @@
                             <summary>이전 기록 23건 더 보기</summary>
                             <div class="ab-log-item">
                                 <div class="ab-log-meta"><span class="ab-ver">v3.2</span><span class="ab-date">2026-07-26</span></div>
-                                <div><p class="ab-log-title">Opus 5 최신화와 스마트폰 페이지 신설</p><p class="ab-log-desc">7월 24일 나온 Claude Opus 5에 맞춰 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 고쳤습니다. 5단계에는 '헤르메스 에이전트' 페이지를 넣었습니다. 2단계에는 '스마트폰에서 Claude 쓰기'를 새로 만들어 앱 메뉴 여섯 개와 폰에서 일을 맡기는 법을 정리했습니다.</p></div>
+                                <div><p class="ab-log-title">Opus 5 최신화와 스마트폰 페이지 신설</p><p class="ab-log-desc">7월 24일 출시된 Claude Opus 5를 반영해 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 고쳤습니다. 5단계에는 '헤르메스 에이전트' 페이지를 넣었습니다. 2단계에는 '스마트폰에서 Claude 쓰기'를 새로 만들어 앱 메뉴 여섯 개와 폰에서 일을 맡기는 법을 정리했습니다.</p></div>
                             </div>
                             <div class="ab-log-item">
                                 <div class="ab-log-meta"><span class="ab-ver">v3.1</span><span class="ab-date">2026-07-19</span></div>
