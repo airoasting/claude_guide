@@ -68,7 +68,7 @@
 | 페이지 | 설명 |
 |--------|------|
 | [바이브 코딩 101](https://airoasting.vercel.app/vibe-coding-101.html) | Claude Code와 Codex, 터미널 없이 앱에서 시작하는 방법 |
-| [실전 과제 8가지](https://airoasting.vercel.app/vibe-coding-tasks.html) | 스탑워치부터 엑셀 분석 PPT까지 바이브코딩 8과제 |
+| [실전 과제 9가지](https://airoasting.vercel.app/vibe-coding-tasks.html) | 스탑워치부터 엑셀 분석 PPT, 지식 그래프까지 바이브코딩 9과제 |
 | [GitHub · Vercel · Netlify](https://airoasting.vercel.app/github-guide.html) | 코드를 저장하고 웹 주소로 접속하기까지 한 번에 |
 
 **CLI 트랙**
