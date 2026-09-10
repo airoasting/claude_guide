@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>타임보이 어드밴스 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='6' y='22' width='88' height='56' rx='14' fill='%236B54B8'/><rect x='30' y='32' width='40' height='36' rx='4' fill='%2374B8E8'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-display:swap;}
+  @font-face{font-family:'PressStart';src:url('../fonts/PressStart2P.ttf') format('truetype');font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{
+    --shell:#6F58BE; --shell-dk:#4C3A94; --shell-lt:#8E78D8;
+    --gold:#F5B942; --lcd:#7CC0E8; --ink:#2A2140;
+  }
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;color:#E9E2FF;
+    background:radial-gradient(120% 90% at 50% 20%,#241C3A 0%,#15102A 55%,#0C0918 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px;word-break:keep-all}
+
+  /* ── 본체 ── */
+  .gba{position:relative;width:min(322px,100%);padding:22px 10px 10px;border-radius:24px 24px 30px 30px;
+    background:linear-gradient(165deg,var(--shell-lt) 0%,var(--shell) 40%,var(--shell-dk) 100%);
+    box-shadow:0 16px 34px rgba(0,0,0,.6),inset 0 2px 2px rgba(255,255,255,.28),inset 0 -6px 12px rgba(0,0,0,.32)}
+  .gba::before,.gba::after{content:"";position:absolute;top:-8px;height:16px;width:29%;border-radius:10px 10px 0 0;
+    background:linear-gradient(180deg,var(--shell-lt),var(--shell));box-shadow:inset 0 1px 0 rgba(255,255,255,.3);z-index:-1}
+  .gba::before{left:12%}.gba::after{right:12%}
+  .sh{position:absolute;top:-6px;font-family:'PressStart',monospace;font-size:6px;color:rgba(255,255,255,.55)}
+  .sh.l{left:calc(12% + 10px)}.sh.r{right:calc(12% + 10px)}
+  .brand{position:absolute;left:0;right:0;top:7px;text-align:center;font-family:'PressStart',monospace;font-size:6.5px;
+    letter-spacing:2px;color:rgba(255,255,255,.62)}
+  .brand b{color:var(--gold)}
+
+  .mid{display:flex;align-items:center;gap:6px}
+
+  /* 십자키 */
+  .dpad{position:relative;width:48px;height:48px;flex:0 0 48px}
+  .dpad button{position:absolute;border:0;cursor:pointer;background:transparent;padding:0}
+  .dpad .v,.dpad .h{position:absolute;background:linear-gradient(180deg,#3E2F7A,#2E2260);border-radius:4px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 2px 3px rgba(0,0,0,.4)}
+  .dpad .v{left:16px;top:2px;width:16px;height:44px}.dpad .h{left:2px;top:16px;width:44px;height:16px}
+  .dpad button{width:16px;height:16px;z-index:2}
+  .dpad button::before{content:"";position:absolute;left:50%;top:50%;width:0;height:0;border:3.5px solid transparent;transform:translate(-50%,-50%)}
+  .dpad .u{left:16px;top:2px}.dpad .u::before{border-bottom-color:#8C7AD0;margin-top:-2px}
+  .dpad .d{left:16px;top:30px}.dpad .d::before{border-top-color:#8C7AD0;margin-top:2px}
+  .dpad .lf{left:2px;top:16px}.dpad .lf::before{border-right-color:#8C7AD0;margin-left:-2px}
+  .dpad .rt{left:30px;top:16px}.dpad .rt::before{border-left-color:#8C7AD0;margin-left:2px}
+  .dpad button:active::before{filter:brightness(1.6)}
+
+  /* 화면 */
+  .bezel{flex:1;min-width:0;background:#1A1626;border-radius:8px;padding:9px 8px 7px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 4px rgba(0,0,0,.35)}
+  .led{display:flex;align-items:center;gap:3px;font-family:'PressStart',monospace;font-size:5px;color:#7A7295;margin:-4px 0 3px 1px}
+  .led i{width:4px;height:4px;border-radius:50%;background:#5A3A3A}
+  body.go .led i{background:#FF5C5C;box-shadow:0 0 5px #FF5C5C}
+  .lcd{position:relative;height:126px;overflow:hidden;border-radius:3px;background:#5FB2E4}
+  .lcd svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .hud{position:absolute;left:0;right:0;top:7px;display:flex;justify-content:space-between;padding:0 9px;
+    font-family:'PressStart',monospace;color:#FFFFFF;text-shadow:2px 2px 0 #1F2A5A}
+  .hud small{display:block;font-size:6px;margin-bottom:4px;opacity:.95}
+  .hud b{font-size:11px;font-weight:400;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+  .hud b .cs{font-size:8px}
+  .hud .lp{text-align:right}
+  .msg{position:absolute;left:50%;top:50px;transform:translateX(-50%);padding:4px 8px;white-space:nowrap;
+    font-family:'PressStart',monospace;font-size:6.5px;color:#FFF;background:#2F3B6E;border:2px solid #1B2250;
+    box-shadow:2px 2px 0 rgba(0,0,0,.3)}
+  .msg.blink{animation:bl 1s steps(2,jump-none) infinite}
+  @keyframes bl{to{opacity:.25}}
+
+  /* 픽셀 캐릭터 */
+  .hero{position:absolute;left:0;bottom:38px;width:16px;height:22px;z-index:2;transform:translateX(-24px);
+    animation:walk 7s linear infinite;animation-play-state:paused}
+  body.go .hero{animation-play-state:running}
+  .hero i{position:absolute;display:block}
+  .cap{left:3px;top:0;width:10px;height:3px;background:#D8342A}
+  .brim{left:1px;top:3px;width:14px;height:2px;background:#B0261E}
+  .face{left:4px;top:5px;width:9px;height:5px;background:#F5C9A2}
+  .eye{left:10px;top:6px;width:2px;height:2px;background:#2A1A1A}
+  .body{left:3px;top:10px;width:10px;height:6px;background:#D8342A}
+  .arm{left:12px;top:11px;width:3px;height:4px;background:#F5C9A2;animation:arm .34s steps(1) infinite;animation-play-state:paused}
+  .legL{left:4px;top:16px;width:3px;height:5px;background:#3A57C4;animation:stA .34s steps(1) infinite;animation-play-state:paused}
+  .legR{left:9px;top:16px;width:3px;height:5px;background:#3A57C4;animation:stB .34s steps(1) infinite;animation-play-state:paused}
+  body.go .arm,body.go .legL,body.go .legR{animation-play-state:running}
+  @keyframes walk{to{transform:translateX(230px)}}
+  @keyframes stA{50%{transform:translateY(-2px)}}
+  @keyframes stB{0%{transform:translateY(-2px)}50%{transform:translateY(0)}}
+  @keyframes arm{50%{transform:translateY(1px)}}
+
+  /* A / B */
+  .ab{position:relative;width:62px;height:62px;flex:0 0 62px}
+  .ab button{position:absolute;width:30px;height:30px;border-radius:50%;border:0;cursor:pointer;
+    font-family:'PressStart',monospace;font-size:8px;color:#EFE8FF;
+    background:radial-gradient(circle at 35% 30%,#6A55B5,#3A2C78 70%);
+    box-shadow:0 3px 0 #241A52,0 5px 8px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .06s}
+  .ab button:active{transform:translateY(2px);box-shadow:0 1px 0 #241A52,inset 0 1px 0 rgba(255,255,255,.25)}
+  .ab #a{right:0;top:0}.ab #b{left:0;bottom:0}
+  .ab button:disabled{opacity:.45;cursor:default}
+
+  .row{display:flex;justify-content:center;gap:12px;margin-top:9px}
+  .row button{height:14px;padding:0 12px;border:0;border-radius:999px;cursor:pointer;
+    font-family:'PressStart',monospace;font-size:5.5px;color:#D9D0F5;letter-spacing:.5px;
+    background:linear-gradient(180deg,#4B3B90,#33276E);box-shadow:0 2px 0 #241A52,inset 0 1px 0 rgba(255,255,255,.18)}
+  .row button:active{transform:translateY(1px);box-shadow:0 1px 0 #241A52}
+  .row button span{color:#6FE29B}
+  .row button.off span{color:#8C7AD0}
+  .spk{position:absolute;right:16px;bottom:12px;width:36px;height:22px;
+    background:radial-gradient(circle,rgba(0,0,0,.42) 1.3px,transparent 1.6px) 0 0/6px 6px;transform:skewY(-12deg)}
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  /* ── 랩 기록 ── */
+  .rec{width:min(322px,100%);display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:12px;
+    background:#F1ECDD;color:#4A4059;font-variant-numeric:tabular-nums;font-size:11px;font-weight:700;line-height:1;
+    box-shadow:0 4px 12px rgba(0,0,0,.35)}
+  .rec h2{font-family:'PressStart',monospace;font-size:7px;letter-spacing:1px;color:#5B4B8F;margin-right:auto}
+  .rec b{color:#2C2240;font-weight:800}
+  .rec .no{color:#B0261E}
+
+  /* 2열 구간(약 294px). 조작부를 줄여 화면 폭을 벌고 HUD 숫자를 한 단계 낮춘다 */
+  @media (max-width:320px){
+    .dpad{transform:scale(.84);margin:0 -5px}
+    .ab{transform:scale(.84);margin:0 -6px}
+    .hud{padding:0 7px}.hud b{font-size:9px}.hud b .cs{font-size:7px}.hud small{font-size:5.5px}
+    .msg{font-size:6px;top:52px}
+  }
+  @media (prefers-reduced-motion:reduce){.hero,.arm,.legL,.legR,.msg{animation:none !important}}
+</style>
+</head>
+<body>
+  <div class="gba">
+    <span class="sh l">L</span><span class="sh r">R</span>
+    <div class="brand">TIMEBOY <b>ADVANCE</b></div>
+
+    <div class="mid">
+      <div class="dpad" role="group" aria-label="십자키 (랩)">
+        <span class="v"></span><span class="h"></span>
+        <button class="u" type="button" aria-label="랩 (위)" data-lap></button>
+        <button class="d" type="button" aria-label="랩 (아래)" data-lap></button>
+        <button class="lf" type="button" aria-label="랩 (왼쪽)" data-lap></button>
+        <button class="rt" type="button" aria-label="랩 (오른쪽)" data-lap></button>
+      </div>
+
+      <div class="bezel">
+        <div class="led"><i></i>TIME</div>
+        <div class="lcd">
+          <svg viewBox="0 0 240 126" preserveAspectRatio="xMidYMax slice" shape-rendering="crispEdges" aria-hidden="true">
+            <rect width="240" height="126" fill="#5FB2E4"/>
+            <g fill="#FFFFFF" opacity=".95">
+              <rect x="150" y="18" width="30" height="8"/><rect x="144" y="24" width="42" height="8"/><rect x="156" y="12" width="14" height="6"/>
+              <rect x="36" y="30" width="22" height="7"/><rect x="30" y="35" width="34" height="7"/>
+            </g>
+            <polygon points="20,88 62,44 104,88" fill="#3FAE4B"/>
+            <polygon points="34,88 62,58 90,88" fill="#58C35F"/>
+            <rect x="52" y="60" width="4" height="4" fill="#2E8A3A"/><rect x="66" y="70" width="4" height="4" fill="#2E8A3A"/>
+            <g fill="#3FAE4B">
+              <rect x="126" y="76" width="56" height="12"/><rect x="132" y="70" width="14" height="6"/><rect x="152" y="70" width="14" height="6"/><rect x="170" y="70" width="8" height="6"/>
+            </g>
+            <rect x="204" y="58" width="30" height="6" fill="#2F8F3A"/><rect x="206" y="64" width="26" height="24" fill="#3FAE4B"/>
+            <rect x="204" y="58" width="30" height="2" fill="#7EE08A"/><rect x="206" y="64" width="4" height="24" fill="#7EE08A"/>
+            <rect x="0" y="88" width="240" height="38" fill="#C8642A"/>
+            <g fill="#8E4318">
+              <rect x="0" y="88" width="240" height="2"/><rect x="0" y="106" width="240" height="2"/>
+              <rect x="30" y="90" width="2" height="16"/><rect x="66" y="90" width="2" height="16"/><rect x="102" y="90" width="2" height="16"/><rect x="138" y="90" width="2" height="16"/><rect x="174" y="90" width="2" height="16"/><rect x="210" y="90" width="2" height="16"/>
+              <rect x="12" y="108" width="2" height="18"/><rect x="48" y="108" width="2" height="18"/><rect x="84" y="108" width="2" height="18"/><rect x="120" y="108" width="2" height="18"/><rect x="156" y="108" width="2" height="18"/><rect x="192" y="108" width="2" height="18"/><rect x="228" y="108" width="2" height="18"/>
+            </g>
+          </svg>
+          <div class="hud">
+            <div><small>TIME</small><b id="t" role="timer">00:00<span class="cs">.00</span></b></div>
+            <div class="lp"><small>LAP</small><b id="lc">00</b></div>
+          </div>
+          <div class="msg blink" id="msg">PRESS A TO START</div>
+          <div class="hero" aria-hidden="true"><i class="cap"></i><i class="brim"></i><i class="face"></i><i class="eye"></i><i class="body"></i><i class="arm"></i><i class="legL"></i><i class="legR"></i></div>
+        </div>
+      </div>
+
+      <div class="ab">
+        <button id="a" type="button" aria-label="A 시작/정지">A</button>
+        <button id="b" type="button" aria-label="B 초기화" disabled>B</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <button id="start" type="button">START</button>
+      <button id="sel" type="button" aria-pressed="true">SELECT <span>&#9835;ON</span></button>
+    </div>
+    <div class="spk" aria-hidden="true"></div>
+  </div>
+
+  <div class="rec">
+    <h2>LAP RECORD</h2>
+    <span id="rl">
+      <span class="no">NO.--</span>&nbsp;&nbsp;구간 <b>--:--.--</b>&nbsp;&nbsp;누적 <b>--:--.--</b>
+    </span>
+  </div>
+
+<script>
+(function(){
+  var t=document.getElementById('t'),lc=document.getElementById('lc'),msg=document.getElementById('msg'),
+      rl=document.getElementById('rl'),a=document.getElementById('a'),b=document.getElementById('b'),
+      start=document.getElementById('start'),sel=document.getElementById('sel');
+  var run=false,st=0,acc=0,iv=null,laps=0,last=0,sound=true,ac=null;
+
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n){return String(n).padStart(2,'0');}
+  function fmt(ms){var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000)%60,m=Math.min(Math.floor(ms/60000),99);
+    return pad(m)+':'+pad(s)+'.'+pad(cs);}
+  function draw(){var f=fmt(el());t.innerHTML=f.slice(0,5)+'<span class="cs">'+f.slice(5)+'</span>';}
+
+  /* 8비트 삑 소리. SELECT로 끈다 */
+  function beep(hz,dur){
+    if(!sound)return;
+    try{
+      var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+      ac=ac||new AC();var o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;
+      o.type='square';o.frequency.value=hz;
+      g.gain.setValueAtTime(0.06,n);g.gain.exponentialRampToValueAtTime(0.0001,n+dur);
+      o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+dur);
+    }catch(e){}
+  }
+
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status');r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){r.textContent='';setTimeout(function(){r.textContent=m;},30);};
+  })();
+
+  function ui(){
+    document.body.classList.toggle('go',run);
+    a.setAttribute('aria-label',run?'A 정지':(acc>0?'A 재개':'A 시작'));
+    b.disabled=run||el()===0;
+    var lapBtns=document.querySelectorAll('[data-lap]');
+    for(var i=0;i<lapBtns.length;i++)lapBtns[i].disabled=!run;
+    msg.textContent=run?'RUNNING':(acc>0?'PAUSED  A:GO  B:RESET':'PRESS A TO START');
+    msg.classList.toggle('blink',!run);
+    if(document.activeElement&&document.activeElement.disabled)a.focus();
+  }
+  function go(){
+    if(run){acc=el();run=false;clearInterval(iv);iv=null;draw();beep(330,.12);srSay('정지 '+fmt(acc));}
+    else{st=performance.now();run=true;if(!iv)iv=setInterval(draw,31);beep(880,.08);}
+    ui();
+  }
+  function lap(){
+    if(!run)return;
+    var e=el(),seg=e-last;last=e;laps=Math.min(laps+1,99);
+    lc.textContent=pad(laps);
+    rl.innerHTML='<span class="no">NO.'+pad(laps)+'</span>&nbsp;&nbsp;구간 <b>'+fmt(seg)+'</b>&nbsp;&nbsp;누적 <b>'+fmt(e)+'</b>';
+    beep(1320,.06);
+  }
+  function reset(){
+    if(run)return;
+    acc=0;st=0;laps=0;last=0;lc.textContent='00';draw();
+    rl.innerHTML='<span class="no">NO.--</span>&nbsp;&nbsp;구간 <b>--:--.--</b>&nbsp;&nbsp;누적 <b>--:--.--</b>';
+    beep(220,.15);ui();srSay('초기화했습니다');
+  }
+  function toggleSound(){
+    sound=!sound;
+    sel.innerHTML='SELECT <span>&#9835;'+(sound?'ON':'OFF')+'</span>';
+    sel.classList.toggle('off',!sound);
+    sel.setAttribute('aria-pressed',sound?'true':'false');
+  }
+
+  a.addEventListener('click',go);
+  start.addEventListener('click',go);
+  b.addEventListener('click',reset);
+  sel.addEventListener('click',toggleSound);
+  document.querySelectorAll('[data-lap]').forEach(function(x){x.addEventListener('click',lap);});
+
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.key==='Enter'))return;
+    var k=e.key;
+    if(k===' '||k==='z'||k==='Z'||k==='Enter'){e.preventDefault();go();}
+    else if(k==='x'||k==='X'||k==='r'||k==='R'){reset();}
+    else if(k==='l'||k==='L'||k.indexOf('Arrow')===0){e.preventDefault();lap();}
+    else if(k==='Shift'&&e.location===2){toggleSound();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+
+  draw();ui();
+})();
+</script>
+</body>
+</html>

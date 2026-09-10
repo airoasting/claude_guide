@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>내비게이터 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230A1B2E'/><circle cx='50' cy='50' r='30' fill='none' stroke='%23D9A84A' stroke-width='8'/><circle cx='50' cy='50' r='9' fill='%23D9A84A'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{--gold:#D9A84A;--gold-lt:#F3D58A;--gold-dk:#8E6A22;--navy:#0A1B2E;--ink:#E9DDBF;}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;color:var(--ink);
+    position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;word-break:keep-all;
+    background:radial-gradient(120% 80% at 50% 0%,#14304C 0%,#0A1B2E 50%,#050D18 100%)}
+  /* 해도 격자 */
+  body::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+    background:linear-gradient(rgba(217,168,74,.09) 1px,transparent 1px) 0 0/28px 28px,
+               linear-gradient(90deg,rgba(217,168,74,.09) 1px,transparent 1px) 0 0/28px 28px}
+
+  .title{position:absolute;left:14px;top:12px;font-family:"Times New Roman",Georgia,serif;font-size:11.5px;letter-spacing:4px;line-height:1.35;
+    color:var(--gold);font-weight:700}
+  .title::after{content:"";display:block;width:36px;height:1px;margin-top:5px;background:linear-gradient(90deg,var(--gold),transparent)}
+  .comp{position:absolute;right:14px;top:12px;width:20px;height:20px;color:var(--gold)}
+
+  /* 타륜 */
+  .wheel{position:relative;width:212px;height:212px;margin-top:6px}
+  .wheel svg{display:block;width:100%;height:100%;overflow:visible}
+  .pin{position:absolute;left:50%;top:-4px;transform:translateX(-50%);width:0;height:0;
+    border-left:6px solid transparent;border-right:6px solid transparent;border-top:11px solid var(--gold-lt);
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
+  .hub{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+  .time{font-family:"Times New Roman",Georgia,serif;font-size:29px;line-height:1;letter-spacing:.5px;color:var(--gold-lt);
+    font-variant-numeric:tabular-nums;text-shadow:0 0 14px rgba(243,213,138,.35)}
+  .time .cs{font-size:16px;color:var(--gold)}
+  .state{margin-top:6px;font-size:9.5px;letter-spacing:3px;color:#9FB0C4;font-weight:600}
+  .state.on{color:var(--gold-lt)}
+
+  .row{display:flex;gap:8px;width:min(300px,100%);margin-top:10px}
+  button{flex:1;height:40px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:800;letter-spacing:4px;padding-left:4px;
+    border:1px solid rgba(217,168,74,.35);color:#D8CBA6;
+    background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+    box-shadow:0 6px 14px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.1);transition:all .16s}
+  button:hover:not(:disabled){border-color:var(--gold);color:var(--gold-lt)}
+  #b1{flex:1.3;color:#2A1D06;border-color:var(--gold-lt);
+    background:linear-gradient(180deg,#F3D58A 0%,#D9A84A 55%,#B8862E 100%);box-shadow:0 8px 20px rgba(217,168,74,.35),inset 0 1px 0 rgba(255,255,255,.55)}
+  #b1:hover{filter:brightness(1.05)}
+  button:disabled{opacity:.4;cursor:default}
+  button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:3px}
+
+  .lapline{height:14px;margin-top:9px;font-size:10.5px;color:#9FB0C4;font-variant-numeric:tabular-nums;letter-spacing:.2px;white-space:nowrap}
+  .lapline b{color:var(--gold-lt)}.lapline em{font-style:normal;color:var(--gold);font-weight:700;margin-right:6px}
+</style>
+</head>
+<body>
+  <div class="title">NAVIGATOR<br>STOPWATCH</div>
+  <svg class="comp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+    <circle cx="12" cy="12" r="10"/><path d="M15.5 8.5l-2.2 5.6-5.6 2.2 2.2-5.6z" fill="currentColor" stroke="none"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/>
+  </svg>
+
+  <div class="wheel">
+    <span class="pin" aria-hidden="true"></span>
+    <svg viewBox="0 0 220 220" aria-hidden="true">
+      <defs>
+        <!-- userSpaceOnUse: 수직·수평 선은 바운딩박스 넓이가 0이라 기본 단위로는 그려지지 않는다 -->
+        <linearGradient id="g1" gradientUnits="userSpaceOnUse" x1="30" y1="30" x2="190" y2="190">
+          <stop offset="0" stop-color="#F6DE9A"/><stop offset=".45" stop-color="#D9A84A"/><stop offset="1" stop-color="#8E6A22"/>
+        </linearGradient>
+        <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#F6DE9A"/><stop offset="1" stop-color="#A9812E"/>
+        </linearGradient>
+        <radialGradient id="g3" cx=".4" cy=".35" r=".7">
+          <stop offset="0" stop-color="#F6DE9A"/><stop offset="1" stop-color="#8E6A22"/>
+        </radialGradient>
+      </defs>
+      <!-- 고정 다이얼: 60초 눈금 -->
+      <g id="ticks"></g>
+      <!-- 도는 부분: 손잡이·림·살. 속성 rotate(a 110 110)만 써서 중심이 흔들리지 않는다 -->
+      <g id="rot">
+        <g id="hd"></g>
+        <circle cx="110" cy="110" r="78" fill="none" stroke="url(#g1)" stroke-width="12"/>
+        <circle cx="110" cy="110" r="78" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1"/>
+        <circle cx="110" cy="110" r="84.5" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1"/>
+        <circle cx="110" cy="110" r="71.5" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+        <circle cx="110" cy="110" r="56" fill="none" stroke="url(#g1)" stroke-width="7"/>
+        <circle cx="110" cy="110" r="60" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1"/>
+        <g id="sp"></g>
+      </g>
+      <!-- 고정 허브: 시간이 놓이는 가운데 -->
+      <circle cx="110" cy="110" r="44" fill="#0B1C30" stroke="url(#g2)" stroke-width="2.5"/>
+      <circle cx="110" cy="110" r="40" fill="none" stroke="rgba(217,168,74,.22)" stroke-width="1"/>
+    </svg>
+    <div class="hub">
+      <div class="time" id="t" role="timer">00:00<span class="cs">.00</span></div>
+      <div class="state" id="stt">대 기</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <button id="b1" type="button">출항</button>
+    <button id="b2" type="button" disabled>기록</button>
+    <button id="b3" type="button" disabled>귀항</button>
+  </div>
+  <div class="lapline" id="lp"></div>
+
+<script>
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  function mk(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  /* 손잡이 8개, 살 8개 */
+  var hd=document.getElementById('hd'),sp=document.getElementById('sp');
+  for(var i=0;i<8;i++){
+    var a=i*45*Math.PI/180,sx=Math.sin(a),cy=-Math.cos(a);
+    sp.appendChild(mk('line',{x1:110+sx*44,y1:110+cy*44,x2:110+sx*80,y2:110+cy*80,stroke:'url(#g1)','stroke-width':7,'stroke-linecap':'round'}));
+    sp.appendChild(mk('line',{x1:110+sx*44,y1:110+cy*44,x2:110+sx*80,y2:110+cy*80,stroke:'rgba(255,255,255,.18)','stroke-width':1.5,'stroke-linecap':'round'}));
+    hd.appendChild(mk('line',{x1:110+sx*84,y1:110+cy*84,x2:110+sx*102,y2:110+cy*102,stroke:'url(#g1)','stroke-width':9,'stroke-linecap':'round'}));
+    hd.appendChild(mk('circle',{cx:110+sx*105,cy:110+cy*105,r:6.5,fill:'url(#g3)'}));
+  }
+  /* 60초 눈금. 고정 다이얼에 새긴다 */
+  var tk=document.getElementById('ticks');
+  for(var j=0;j<60;j++){
+    var b=j*6*Math.PI/180,bx=Math.sin(b),by=-Math.cos(b),big=j%5===0;
+    tk.appendChild(mk('line',{x1:110+bx*(big?64:66),y1:110+by*(big?64:66),x2:110+bx*70,y2:110+by*70,
+      stroke:big?'#F6DE9A':'rgba(246,222,154,.55)','stroke-width':big?1.8:1,'stroke-linecap':'round'}));
+  }
+
+  var t=document.getElementById('t'),stt=document.getElementById('stt'),lp=document.getElementById('lp'),rot=document.getElementById('rot'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,st=0,acc=0,iv=null,laps=0,last=0;
+  var still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n){return String(n).padStart(2,'0');}
+  function fmt(ms){var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000)%60,m=Math.min(Math.floor(ms/60000),99);
+    return pad(m)+':'+pad(s)+'.'+pad(cs);}
+  function draw(){
+    var e=el(),f=fmt(e);
+    t.innerHTML=f.slice(0,5)+'<span class="cs">'+f.slice(5)+'</span>';
+    /* 타륜은 8초에 한 바퀴, 중심(110,110) 고정. 각도는 경과 시간에서 바로 계산해 멈추면 그 자리에 선다 */
+    if(!still)rot.setAttribute('transform','rotate('+((e%8000)/8000*360).toFixed(2)+' 110 110)');
+  }
+
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status');r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){r.textContent='';setTimeout(function(){r.textContent=m;},30);};
+  })();
+
+  function ui(){
+    document.body.classList.toggle('spin',run);
+    b1.textContent=run?'정박':(acc>0?'출항':'출항');
+    b2.disabled=!run;b3.disabled=run||el()===0;
+    stt.textContent=run?'항 해 중':(acc>0?'정 박':'대 기');
+    stt.classList.toggle('on',run);
+    if(document.activeElement&&document.activeElement.disabled)b1.focus();
+  }
+  var raf=null;
+  function loop(){if(!run){raf=null;return;}draw();raf=requestAnimationFrame(loop);}
+  function go(){
+    if(run){acc=el();run=false;clearInterval(iv);iv=null;if(raf){cancelAnimationFrame(raf);raf=null;}draw();srSay('정박 '+fmt(acc));}
+    else{st=performance.now();run=true;if(!iv)iv=setInterval(draw,31);if(!raf&&!still)raf=requestAnimationFrame(loop);}
+    ui();
+  }
+  function lap(){
+    if(!run)return;
+    var e=el(),seg=e-last;last=e;laps++;
+    lp.innerHTML='<em>항로 '+pad(laps)+'</em>구간 <b>'+fmt(seg)+'</b> &middot; 누적 <b>'+fmt(e)+'</b>';
+  }
+  function reset(){
+    if(run)return;
+    acc=0;st=0;laps=0;last=0;lp.textContent='';draw();ui();srSay('귀항했습니다. 초기화');
+  }
+
+  b1.addEventListener('click',go);b2.addEventListener('click',lap);b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();go();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);if(run&&!raf&&!still)raf=requestAnimationFrame(loop);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>하이프 워치 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='%23FF2E88'/><stop offset='1' stop-color='%2300C2FF'/></linearGradient></defs><rect x='10' y='10' width='80' height='80' rx='16' fill='none' stroke='url(%23g)' stroke-width='8'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{--pink:#FF2E88;--org:#FF7A1A;--yel:#FFE04A;--grn:#3DFFA6;--cyan:#39D6FF;--pur:#7A5CFF;--ink:#F4F0FF;
+    --beat:.46875s; /* 128 BPM */ }
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;color:var(--ink);position:relative;word-break:keep-all;
+    background:#160A2A}
+  /* 고정 루트가 배경 효과와 회전 프레임의 넘침을 잘라 body 스크롤 영역이 늘지 않는다 */
+  .root{position:fixed;inset:0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:14px;isolation:isolate}
+
+  /* ── 무대 배경: 색이 흐르는 하늘 + 돌아가는 조명 빔 + 스트로브 ── */
+  .sky{position:absolute;inset:-30%;z-index:-3;
+    background:linear-gradient(120deg,#FF2E88,#7A5CFF,#39D6FF,#FF7A1A,#FF2E88);background-size:300% 300%;
+    animation:sky 9s ease-in-out infinite;filter:saturate(1.15)}
+  body.go .sky{animation-duration:3.2s}
+  @keyframes sky{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  .dark{position:absolute;inset:0;z-index:-2;background:radial-gradient(70% 60% at 50% 50%,rgba(10,4,24,.28),rgba(10,4,24,.7))}
+  .beam{position:absolute;left:50%;top:50%;width:0;height:0;z-index:-1;pointer-events:none;mix-blend-mode:screen}
+  .beam::before{content:"";position:absolute;left:-360px;top:-360px;width:720px;height:720px;border-radius:50%;
+    background:conic-gradient(from 0deg,transparent 0 40deg,rgba(255,255,255,.22) 44deg,transparent 52deg,
+      transparent 150deg,rgba(57,214,255,.3) 156deg,transparent 166deg,
+      transparent 250deg,rgba(255,46,136,.32) 258deg,transparent 268deg);
+    animation:beam 12s linear infinite}
+  .beam.b2::before{animation-direction:reverse;animation-duration:17s;opacity:.7;
+    background:conic-gradient(from 90deg,transparent 0 70deg,rgba(255,224,74,.28) 76deg,transparent 86deg,
+      transparent 200deg,rgba(122,92,255,.32) 208deg,transparent 220deg)}
+  body.go .beam::before{animation-duration:3.4s}
+  body.go .beam.b2::before{animation-duration:4.6s}
+  @keyframes beam{to{transform:rotate(360deg)}}
+  .strobe{position:absolute;inset:0;z-index:-1;background:#FFF;opacity:0;pointer-events:none}
+  body.go .strobe{animation:strobe calc(var(--beat)*4) steps(1) infinite}
+  @keyframes strobe{0%{opacity:.16}4%{opacity:0}50%{opacity:.09}53%{opacity:0}}
+  /* 떠오르는 응원봉 불빛 */
+  .spark{position:absolute;bottom:-12px;width:6px;height:6px;border-radius:50%;pointer-events:none;opacity:0;
+    background:#FFF;box-shadow:0 0 10px 3px var(--c);animation:rise var(--d) linear infinite;animation-delay:var(--dl)}
+  body.go .spark{animation-duration:calc(var(--d)/2.4)}
+  @keyframes rise{0%{transform:translateY(0) scale(.6);opacity:0}12%{opacity:.9}100%{transform:translateY(-390px) scale(1.1);opacity:0}}
+
+  .wrap{position:relative;width:min(300px,100%)}
+  /* 360도 도는 사각 테두리 두 겹. 바깥은 시계, 안쪽은 반시계로 어긋나게 돈다 */
+  .orbit{position:absolute;left:50%;top:50%;width:112%;height:104%;transform:translate(-50%,-50%) rotate(-7deg);
+    border-radius:14px;padding:2px;pointer-events:none;
+    background:conic-gradient(from 210deg,var(--pink),var(--org),var(--yel),var(--grn),var(--cyan),var(--pur),var(--pink));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+    animation:orbit 14s linear infinite}
+  .orbit.glow{filter:blur(7px);opacity:.75}
+  .orbit.rev{width:106%;height:110%;animation:orbitR 19s linear infinite;opacity:.8;padding:1.5px}
+  @keyframes orbit{from{transform:translate(-50%,-50%) rotate(-7deg)}to{transform:translate(-50%,-50%) rotate(353deg)}}
+  @keyframes orbitR{from{transform:translate(-50%,-50%) rotate(5deg)}to{transform:translate(-50%,-50%) rotate(-355deg)}}
+  body.go .orbit{animation-duration:4s}
+  body.go .orbit.rev{animation-duration:5.5s}
+
+  .card{position:relative;padding:14px 18px 12px;border-radius:22px;
+    background:linear-gradient(160deg,rgba(20,8,40,.55),rgba(20,8,40,.35));
+    border:1px solid rgba(255,255,255,.22);
+    box-shadow:0 24px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.35);
+    -webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3)}
+  body.go .card{animation:bump var(--beat) ease-out infinite}
+  @keyframes bump{0%{transform:scale(1.012)}40%{transform:scale(1)}}
+
+  .head{display:flex;align-items:center;justify-content:space-between}
+  .tag{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;font-size:10.5px;font-weight:900;letter-spacing:1.5px;color:#160B22;
+    background:linear-gradient(90deg,var(--yel),var(--grn),var(--cyan));background-size:200% 100%;animation:shift 3s linear infinite;
+    box-shadow:0 4px 12px rgba(61,255,166,.35)}
+  @keyframes shift{to{background-position:200% 0}}
+  .tag svg{width:10px;height:12px}
+  .kst{font-size:9.5px;font-weight:800;letter-spacing:3px;color:rgba(244,240,255,.7)}
+  .kst i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#FF3B3B;margin-right:6px;vertical-align:1px;box-shadow:0 0 8px #FF3B3B;
+    animation:live 1s steps(2) infinite}
+  @keyframes live{to{opacity:.25}}
+
+  /* 글리치 타이틀 */
+  .ttl{position:relative;margin-top:10px;font-size:27px;font-weight:900;letter-spacing:1.5px;line-height:1;font-style:italic;width:max-content;max-width:100%}
+  .ttl span{display:block;background:linear-gradient(90deg,#FF5FA8,var(--pink) 40%,var(--pur));-webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 12px rgba(255,46,136,.45))}
+  .ttl::before,.ttl::after{content:attr(data-t);position:absolute;left:0;top:0;pointer-events:none;opacity:0;mix-blend-mode:screen}
+  .ttl::before{color:var(--cyan)}.ttl::after{color:var(--pink)}
+  body.go .ttl::before{animation:gl1 2.6s steps(1) infinite}
+  body.go .ttl::after{animation:gl2 2.6s steps(1) infinite}
+  @keyframes gl1{0%,88%{opacity:0;transform:none;clip-path:inset(0)}90%{opacity:.9;transform:translate(-3px,-1px);clip-path:inset(10% 0 55% 0)}94%{opacity:.9;transform:translate(3px,1px);clip-path:inset(55% 0 5% 0)}97%{opacity:0}}
+  @keyframes gl2{0%,89%{opacity:0;transform:none;clip-path:inset(0)}91%{opacity:.9;transform:translate(3px,1px);clip-path:inset(40% 0 20% 0)}95%{opacity:.9;transform:translate(-3px,0);clip-path:inset(0 0 70% 0)}98%{opacity:0}}
+  .sub{margin-top:5px;font-size:10.5px;font-weight:700;color:rgba(244,240,255,.72)}
+
+  /* 이퀄라이저 */
+  .eq{display:flex;align-items:flex-end;justify-content:center;gap:3px;height:28px;margin-top:9px}
+  .eq i{width:6px;height:5px;border-radius:3px 3px 1px 1px;transform-origin:bottom;opacity:.4;
+    background:linear-gradient(180deg,var(--pink),var(--yel) 50%,var(--grn));
+    animation:eq var(--beat) ease-in-out infinite alternate;animation-play-state:paused}
+  body.go .eq i{animation-play-state:running;opacity:1;box-shadow:0 0 8px rgba(255,224,74,.45)}
+  .eq i:nth-child(1){animation-delay:-.05s;--h:10px}.eq i:nth-child(2){animation-delay:-.2s;--h:18px}.eq i:nth-child(3){animation-delay:-.35s;--h:26px}
+  .eq i:nth-child(4){animation-delay:-.1s;--h:22px}.eq i:nth-child(5){animation-delay:-.4s;--h:28px}.eq i:nth-child(6){animation-delay:-.25s;--h:16px}
+  .eq i:nth-child(7){animation-delay:-.15s;--h:24px}.eq i:nth-child(8){animation-delay:-.3s;--h:14px}.eq i:nth-child(9){animation-delay:-.45s;--h:20px}
+  .eq i:nth-child(10){animation-delay:-.08s;--h:12px}.eq i:nth-child(11){animation-delay:-.22s;--h:9px}
+  @keyframes eq{from{height:5px}to{height:var(--h)}}
+
+  .time{margin-top:4px;text-align:center;font-size:52px;font-weight:900;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;
+    background:linear-gradient(180deg,#FFFFFF,var(--cyan) 55%,var(--pur));-webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 14px rgba(57,214,255,.55))}
+  .time .cs{font-size:26px;letter-spacing:0}
+  body.go .time{animation:pulse var(--beat) ease-out infinite}
+  @keyframes pulse{0%{transform:scale(1.035);filter:drop-shadow(0 0 22px rgba(255,255,255,.7))}60%{transform:scale(1);filter:drop-shadow(0 0 14px rgba(57,214,255,.55))}}
+
+  .row{display:flex;gap:7px;margin-top:12px}
+  button{flex:1;height:40px;border:0;border-radius:13px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:900;letter-spacing:.5px;color:#FFF;
+    display:flex;align-items:center;justify-content:center;gap:5px;transition:transform .12s,filter .12s}
+  button svg{width:11px;height:11px;flex:0 0 auto}
+  #b1{background:linear-gradient(90deg,var(--org),var(--pink),var(--pur),var(--org));background-size:300% 100%;animation:shift 2.2s linear infinite;
+    box-shadow:0 8px 20px rgba(255,46,136,.4)}
+  #b1.on{animation-duration:.9s}
+  #b2{background:linear-gradient(90deg,var(--cyan),var(--pur));box-shadow:0 8px 20px rgba(122,92,255,.4)}
+  #b3{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.26)}
+  button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.1)}
+  button:disabled{opacity:.4;cursor:default;box-shadow:none;animation:none}
+  button:focus-visible{outline:2px solid var(--yel);outline-offset:3px}
+
+  /* 앙코르 티커 + 랩 */
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;font-size:9.5px;font-weight:900;letter-spacing:2.5px;color:rgba(244,240,255,.65)}
+  .tick{flex:1;min-width:0;overflow:hidden;white-space:nowrap;
+    -webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 80%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 80%,transparent)}
+  .tick span{display:inline-block;padding-right:18px;animation:tick 9s linear infinite}
+  body.go .tick span{animation-duration:3.5s;color:var(--yel)}
+  @keyframes tick{to{transform:translateX(-50%)}}
+  .lc{flex:0 0 auto;color:#FFF;margin-left:4px}
+  .lapline{height:13px;margin-top:4px;font-size:10.5px;font-variant-numeric:tabular-nums;color:rgba(244,240,255,.75);white-space:nowrap}
+  .lapline b{color:#FFF}.lapline em{font-style:normal;color:var(--yel);font-weight:900;margin-right:6px}
+
+  @media (prefers-reduced-motion:reduce){
+    .sky,.beam::before,.strobe,.spark,.orbit,.card,.tag,.ttl::before,.ttl::after,.eq i,.time,#b1,.tick span{animation:none !important}
+  }
+</style>
+</head>
+<body>
+  <div class="root">
+    <div class="sky" aria-hidden="true"></div>
+    <div class="dark" aria-hidden="true"></div>
+    <div class="beam" aria-hidden="true"></div>
+    <div class="beam b2" aria-hidden="true"></div>
+    <div class="strobe" aria-hidden="true"></div>
+    <div class="spark" style="left:8%;--c:#FF2E88;--d:7s;--dl:-1s" aria-hidden="true"></div>
+    <div class="spark" style="left:22%;--c:#39D6FF;--d:9s;--dl:-4s" aria-hidden="true"></div>
+    <div class="spark" style="left:37%;--c:#FFE04A;--d:8s;--dl:-6s" aria-hidden="true"></div>
+    <div class="spark" style="left:55%;--c:#3DFFA6;--d:7.5s;--dl:-2.5s" aria-hidden="true"></div>
+    <div class="spark" style="left:70%;--c:#7A5CFF;--d:8.5s;--dl:-5s" aria-hidden="true"></div>
+    <div class="spark" style="left:84%;--c:#FF7A1A;--d:9.5s;--dl:-3s" aria-hidden="true"></div>
+    <div class="spark" style="left:93%;--c:#FF2E88;--d:7s;--dl:-7s" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="orbit glow" aria-hidden="true"></div>
+    <div class="orbit" aria-hidden="true"></div>
+    <div class="orbit rev" aria-hidden="true"></div>
+
+    <div class="card">
+      <div class="head">
+        <span class="tag"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M5 0c1 2.6 3.6 3.6 3.6 6.8A3.6 3.6 0 011.4 6.8C1.4 5.2 2.6 4.6 3 3.4c.6 1 .4 1.8 1 2.2C4.6 4.2 4.2 2 5 0z" fill="#160B22"/></svg>HYPE</span>
+        <span class="kst"><i></i>K-STAGE LIVE</span>
+      </div>
+      <h1 class="ttl" data-t="HYPE WATCH"><span>HYPE WATCH</span></h1>
+      <div class="sub">무대 위 모든 순간, 비트에 맞춰 카운트</div>
+
+      <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="time" id="t" role="timer">00:00<span class="cs">.00</span></div>
+
+      <div class="row">
+        <button id="b1" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="#FFF"/></svg><span>START</span></button>
+        <button id="b2" type="button" disabled><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M7 0L1 7h4l-1 5 7-7H7z" fill="#FFF"/></svg>LAP</button>
+        <button id="b3" type="button" disabled><svg viewBox="0 0 12 12" fill="none" stroke="#FFF" stroke-width="1.6" aria-hidden="true"><path d="M2.5 6a3.5 3.5 0 106-2.5"/><path d="M8 1v3H5"/></svg>RESET</button>
+      </div>
+
+      <div class="foot">
+        <div class="tick" aria-hidden="true"><span>ENCORE &nbsp;&#9733;&nbsp; SET LIST &nbsp;&#9733;&nbsp; 128 BPM &nbsp;&#9733;&nbsp; ENCORE &nbsp;&#9733;&nbsp; SET LIST &nbsp;&#9733;&nbsp; 128 BPM &nbsp;&#9733;&nbsp; </span></div>
+        <span class="lc" id="lc">0 LAPS</span>
+      </div>
+      <div class="lapline" id="lp"></div>
+    </div>
+  </div>
+  </div>
+
+<script>
+(function(){
+  var t=document.getElementById('t'),lp=document.getElementById('lp'),lc=document.getElementById('lc'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,st=0,acc=0,iv=null,laps=0,last=0;
+
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n){return String(n).padStart(2,'0');}
+  function fmt(ms){var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000)%60,m=Math.min(Math.floor(ms/60000),99);
+    return pad(m)+':'+pad(s)+'.'+pad(cs);}
+  function draw(){var f=fmt(el());t.innerHTML=f.slice(0,5)+'<span class="cs">'+f.slice(5)+'</span>';}
+
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status');r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){r.textContent='';setTimeout(function(){r.textContent=m;},30);};
+  })();
+
+  var play='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="#FFF"/></svg>',
+      pause='<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h3v10H2zM7 1h3v10H7z" fill="#FFF"/></svg>';
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b1.innerHTML=(run?pause:play)+'<span>'+(run?'STOP':(acc>0?'GO':'START'))+'</span>';
+    b1.setAttribute('aria-label',run?'정지':(acc>0?'재개':'시작'));
+    b1.classList.toggle('on',run);
+    b2.disabled=!run;b3.disabled=run||el()===0;
+    if(document.activeElement&&document.activeElement.disabled)b1.focus();
+  }
+  function go(){
+    if(run){acc=el();run=false;clearInterval(iv);iv=null;draw();srSay('정지 '+fmt(acc));}
+    else{st=performance.now();run=true;if(!iv)iv=setInterval(draw,31);}
+    ui();
+  }
+  function lap(){
+    if(!run)return;
+    var e=el(),seg=e-last;last=e;laps++;
+    lc.textContent=laps+(laps===1?' LAP':' LAPS');
+    lp.innerHTML='<em>#'+pad(laps)+'</em>구간 <b>'+fmt(seg)+'</b> &middot; 누적 <b>'+fmt(e)+'</b>';
+  }
+  function reset(){
+    if(run)return;
+    acc=0;st=0;laps=0;last=0;lp.textContent='';lc.textContent='0 LAPS';draw();ui();srSay('초기화했습니다');
+  }
+
+  b1.addEventListener('click',go);b2.addEventListener('click',lap);b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();go();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  draw();ui();
+})();
+</script>
+</body>
+</html>
