@@ -542,9 +542,13 @@
                     <p class="ab-eyebrow ab-latin">Changelog</p>
                     <div class="ab-sec-head">
                         <h2 class="ab-sec-title">업데이트 내역</h2>
-                        <span class="ab-sec-note">최신순 · 전체 29건</span>
+                        <span class="ab-sec-note">최신순 · 전체 30건</span>
                     </div>
                     <div class="ab-log">
+                        <div class="ab-log-item">
+                            <div class="ab-log-meta"><span class="ab-ver">v3.9</span><span class="ab-date">2026-09-13</span></div>
+                            <div><p class="ab-log-title">1단계 기본기 개편</p><p class="ab-log-desc">1단계 기본기를 프롬프트 잘 쓰는 법, 멀티 페르소나 토론, 프로젝트 만들기 순서로 다시 묶었습니다. 멀티 페르소나는 흩어져 있던 실습을 하나로 합치고 요청문을 짧게 줄여 처음 쓰는 사람도 따라올 수 있게 했습니다. AI 활용 능력 페이지는 기본 작성법을 앞에 두고 여러 단계로 이어지는 일을 맡기는 방법을 뒤에 놓았으며, 겹치던 설명은 덜어냈습니다.</p></div>
+                        </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.8</span><span class="ab-date">2026-09-06</span></div>
                             <div><p class="ab-log-title">최신 모델 반영과 LLM Wiki 실습 개편</p><p class="ab-log-desc">9월 첫 주에 잇달아 출시된 Claude Fable 5.1(1일), Gemini 3.8 Flash(2일), GPT-6 Astra(3일)를 반영해 성능 벤치마크 표, 가격표, 모델 타임라인, 체크리스트와 활용 수준 진단의 모델 설명을 갱신했습니다. 컴퍼니 브레인 실습 편은 공개된 LLM 위키 스킬을 Claude 데스크톱 앱에 설치해 샘플 문서 8개로 바로 실행해 볼 수 있게 했습니다.</p></div>
@@ -565,12 +569,12 @@
                             <div class="ab-log-meta"><span class="ab-ver">v3.4</span><span class="ab-date">2026-08-09</span></div>
                             <div><p class="ab-log-title">표지 디자인 개선과 실전 예제 3종 보강</p><p class="ab-log-desc">제목과 마스코트 애니메이션은 첫 페인트에 맞춰 재생되도록 고쳤습니다. 실전 예제 아래에는 '80 에이전트 고용 실전' 구분 띠를 놓고 5 Color, 25인 자문단, 50 에이전트 팀 빌더 세 도구를 카드로 모았습니다. 색으로 나눈 5인 협업, 페르소나 25명의 토론, 목적 한 줄로 꾸리는 50인 팀을 각 사이트에서 바로 써 볼 수 있습니다.</p></div>
                         </div>
-                        <div class="ab-log-item">
-                            <div class="ab-log-meta"><span class="ab-ver">v3.3</span><span class="ab-date">2026-08-02</span></div>
-                            <div><p class="ab-log-title">2단계를 확장 프로그램과 스마트폰 앱으로 나눔</p><p class="ab-log-desc">2단계를 '확장 프로그램'(크롬·MS Office)과 '스마트폰 앱'(Claude·ChatGPT) 둘로 나눴습니다. '스마트폰에서 ChatGPT 쓰기'를 새로 만들어 대화·프로젝트·예약 작업·Codex 리모트·음성을 정리하고, Claude 앱과 무엇이 다른지 비교했습니다.</p></div>
-                        </div>
-                        <details class="ab-more">
-                            <summary>이전 기록 23건 더 보기</summary>
+                                                <details class="ab-more">
+                            <summary>이전 기록 24건 더 보기</summary>
+                            <div class="ab-log-item">
+                                <div class="ab-log-meta"><span class="ab-ver">v3.3</span><span class="ab-date">2026-08-02</span></div>
+                                <div><p class="ab-log-title">2단계를 확장 프로그램과 스마트폰 앱으로 나눔</p><p class="ab-log-desc">2단계를 '확장 프로그램'(크롬·MS Office)과 '스마트폰 앱'(Claude·ChatGPT) 둘로 나눴습니다. '스마트폰에서 ChatGPT 쓰기'를 새로 만들어 대화·프로젝트·예약 작업·Codex 리모트·음성을 정리하고, Claude 앱과 무엇이 다른지 비교했습니다.</p></div>
+                            </div>
                             <div class="ab-log-item">
                                 <div class="ab-log-meta"><span class="ab-ver">v3.2</span><span class="ab-date">2026-07-26</span></div>
                                 <div><p class="ab-log-title">Opus 5 최신화와 스마트폰 페이지 신설</p><p class="ab-log-desc">7월 24일 출시된 Claude Opus 5를 반영해 오리엔테이션의 벤치마크 표와 가격 표, 모델 타임라인을 고쳤습니다. 5단계에는 '헤르메스 에이전트' 페이지를 넣었습니다. 2단계에는 '스마트폰에서 Claude 쓰기'를 새로 만들어 앱 메뉴 여섯 개와 폰에서 일을 맡기는 법을 정리했습니다.</p></div>

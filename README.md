@@ -6,7 +6,7 @@
 
 # AI ROASTING · AI 에이전트를 고용하라
 
-![Version](https://img.shields.io/badge/Version-3.8-4CAF50)
+![Version](https://img.shields.io/badge/Version-3.9-4CAF50)
 ![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
 ![Pages](https://img.shields.io/badge/Pages-47-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
@@ -202,6 +202,8 @@
 
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 한 주 작업을 정리해 매주 업데이트하고 있습니다.
 
+- **v3.9 · 2026-09-13: 1단계 기본기 개편**
+  1단계 기본기를 프롬프트 잘 쓰는 법, 멀티 페르소나 토론, 프로젝트 만들기 순서로 다시 묶었습니다. 멀티 페르소나는 흩어져 있던 실습을 하나로 합치고 요청문을 짧게 줄여 처음 쓰는 사람도 따라올 수 있게 했습니다. AI 활용 능력 페이지는 기본 작성법을 앞에 두고 여러 단계로 이어지는 일을 맡기는 방법을 뒤에 놓았으며, 겹치던 설명은 덜어냈습니다.
 - **v3.8 · 2026-09-06: 최신 모델 반영과 LLM Wiki 실습 개편**
   9월 첫 주에 잇달아 출시된 Claude Fable 5.1(1일), Gemini 3.8 Flash(2일), GPT-6 Astra(3일)를 반영해 성능 벤치마크 표, 가격표, 모델 타임라인, 체크리스트와 활용 수준 진단의 모델 설명을 갱신했습니다. 컴퍼니 브레인 실습 편은 공개된 LLM 위키 스킬을 Claude 데스크톱 앱에 설치해 샘플 문서 8개로 바로 실행해 볼 수 있게 했습니다.
 - **v3.7 · 2026-08-30: 토큰 절감 가이드 개편**
