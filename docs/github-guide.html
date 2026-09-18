@@ -600,6 +600,8 @@
             display: block; white-space: pre; line-height: 1.7;
         }
         .code-block .comment { color: #6a9955; }
+        /* 긴 한 줄 명령(Homebrew 설치)은 좁은 열에서 잘리지 않게 줄바꿈한다 */
+        .code-block code.code-wrap { white-space: pre-wrap; word-break: break-all; }
         .copy-btn {
             position: absolute; top: 8px; right: 8px;
             background: rgba(255,255,255,0.1);
@@ -918,6 +920,10 @@
             text-align: center;
             vertical-align: middle;
         }
+        /* 유래 비교표(Git / GitHub): 긴 서술 셀은 본문 크기로 줄이고 위 정렬 */
+        .why-row .table-wrapper.origin-wrap { margin: 4px 0 34px; }
+        .origin-cmp tbody td { font-size: 13px; line-height: 1.7; vertical-align: top; }
+        .origin-cmp tbody td:first-child { white-space: nowrap; }
         .brand-cmp .th-go {
             display: inline-block;
             margin-left: 10px;
@@ -1165,6 +1171,8 @@
             mask: no-repeat center/100% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5.5A2 2 0 0 1 6 4h4.5a1.5 1.5 0 0 1 1.5 1.5V20a1.2 1.2 0 0 0-1.2-1.2H4z'/%3E%3Cpath d='M20 5.5A2 2 0 0 0 18 4h-4.5A1.5 1.5 0 0 0 12 5.5V20a1.2 1.2 0 0 1 1.2-1.2H20z'/%3E%3C/svg%3E");
         }
         .gg-more.gg-more-hl[open] { background: rgba(217,119,87,0.045); }
+        /* 접힘 항목 목록 바로 뒤에 올 때는 위 항목들과 같은 간격(경계선만)으로 붙인다 */
+        .gg-more + .gg-more.gg-more-hl { margin-top: 0; }
         .gg-more.gg-more-hl .gg-more-block-title { color: #B85A3A; }
         .gg-jump {
             color: var(--ant-orange); font-weight: 700; text-decoration: none;
@@ -1390,6 +1398,43 @@
             .brand-cmp .th-go { font-size: 9px; padding: 2px 5px; margin-left: 4px; }
             .step-block > .step-row { padding: 14px 10px; }
             .step-block > .step-row > .info-box { padding: 12px; }
+        }
+        /* TERM-TIP-STD 명령어 옆 물음표 단추와 설명 말풍선 (checklist.html과 같은 규격) */
+        .tq {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 15px; height: 15px; margin: 0 1px 0 3px; padding: 0;
+            vertical-align: 1px;
+            border: 1px solid rgba(217,119,87,0.45);
+            border-radius: 50%; background: rgba(217,119,87,0.10);
+            color: #B0522F;
+            font-size: 10px; font-weight: 800; line-height: 1;
+            font-family: inherit; cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .tq::before { content: '?'; }
+        .tq:hover, .tq.is-open { background: var(--ant-orange); border-color: var(--ant-orange); color: #fff; }
+        .tq:focus-visible { outline: 2px solid var(--ant-orange); outline-offset: 2px; }
+        /* 어두운 코드 블록 안에서는 흰 테두리. code를 인라인으로 두어 물음표가 명령어 마지막 글자 바로 뒤에 붙는다
+           (flex로 두면 주석 줄이 더 길 때 그 폭 뒤로 밀린다). code 밖에 두어 복사 버튼이 물음표를 복사하지 않는다 */
+        .code-block.has-tq code { display: inline; }
+        .code-block .tq {
+            width: 18px; height: 18px; font-size: 11px; margin: 0 0 0 8px; vertical-align: 0.5px;
+            border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.10); color: #fff;
+        }
+        .tq-pop {
+            position: absolute; z-index: 900; display: none;
+            max-width: 320px; padding: 12px 14px;
+            border: 1px solid #E4DFD7; border-radius: 12px;
+            background: #fff; box-shadow: 0 10px 28px rgba(26,25,23,0.14);
+            font-size: 12.5px; line-height: 1.65; color: #4A453F;
+            text-align: left; font-weight: 400;
+        }
+        .tq-pop.is-show { display: block; }
+        .tq-pop b { display: block; margin-bottom: 5px; font-size: 13px; color: #1A1917; font-weight: 800; font-family: 'SF Mono', 'Fira Code', monospace; }
+        .tq-pop .tq-body { white-space: pre-line; }
+        .tq-pop .tq-read { display: block; margin-top: 6px; font-size: 11.5px; color: #8A857E; }
+        @media (max-width: 640px) {
+            .tq-pop { max-width: calc(100vw - 32px); }
         }
     </style>
     <link rel="stylesheet" href="assets/css/github-repo-tour.css">
@@ -1633,62 +1678,43 @@
             </div>
         </div>
         </details>
+        <details class="gg-more">
+        <summary>왜 archive가 아니라 repository인가</summary>
+        <div class="gg-more-body">
+            <div class="gg-more-block">
+                <ul class="gg-more-bullets">
+                    <li><strong>어원이 다릅니다.</strong> repository는 라틴어 reponere(다시 놓다, 보관하다)에서 파생된 repositorium이 어원이며, 창고를 의미합니다. archive는 그리스어 arkheion(관청, 공문서 보관소)이 어원이며, 완결된 공식 기록을 보존하는 장소라는 의미를 처음부터 내포합니다.</li>
+                    <li><strong>버전 관리 도구의 오랜 관행입니다.</strong> 1990년 전후에 등장한 버전 관리 도구 CVS(Concurrent Versions System, 동시 버전 시스템)가 저장소를 repository라고 명명했고, 2000년의 후속 도구 Subversion(약칭 SVN)이 이 용어를 계승했으며, 2005년의 Git도 그대로 이어받았습니다. 같은 시기의 상용 도구인 Perforce는 <strong>depot</strong>(창고), SourceGear 사의 Vault는 <strong>vault</strong>(금고)라는 명칭을 사용했습니다. 명칭은 다르지만 모두 물건을 넣고 꺼내는 창고를 비유한 것입니다.</li>
+                    <li><strong>archive는 이미 다른 의미로 사용되고 있었습니다.</strong> 유닉스에서 archive는 여러 파일을 하나로 묶은 파일을 지칭합니다. tar는 tape archive의 약어이고, zip 파일 역시 archive라고 부릅니다.</li>
+                    <li><strong>그래서 Git에서는 두 용어의 역할이 구분됩니다.</strong> <code>git archive</code>는 특정 시점의 파일을 tar나 zip 하나로 묶어 이력 없이 내보내는 명령이고, GitHub의 Archive repository는 저장소를 읽기 전용으로 동결하는 기능입니다. repository는 도서관처럼 대출과 반납이 반복되는 공간이고, archive는 서고에 봉인한 상자입니다. 버전 관리의 본질은 check in과 check out, 즉 반복되는 출입이므로 repository라는 이름이 채택되었습니다.</li>
+                </ul>
+            </div>
+        </div>
+        </details>
         <details class="gg-more gg-more-hl">
         <summary>만든이와 이름의 유래</summary>
         <div class="gg-more-body">
-            <div class="gg-more-block">
-                <p class="gg-more-block-title">리눅스와 GNU, 1991년</p>
-                <ul class="gg-more-bullets">
-                    <li>핀란드 헬싱키 출신의 리누스 토르발스(Linus Torvalds)는 <strong>1991년</strong>에 취미로 리눅스를 만들었습니다. 당시 그는 헬싱키대학교에 다니던 21살 학생이었습니다. 토르발스는 인터넷 게시판에 리눅스를 소개하며 "그냥 취미일 뿐, GNU처럼 크고 전문적인 건 아니다"라고 썼습니다. 토르발스가 언급한 <strong>GNU</strong>는 리처드 스톨먼이 1983년에 시작한 프로젝트입니다. 스톨먼은 누구나 자유롭게 쓰고 고치고 나눌 수 있는 운영체제를 만들고자 했습니다.</li>
-                    <li>토르발스가 리눅스를 만들 무렵, GNU 개발자들은 운영체제에 필요한 여러 프로그램을 만들어 둔 상태였습니다. 하지만 CPU와 메모리를 관리하는 핵심 프로그램인 <strong>커널</strong>은 아직 완성하지 못했습니다. 토르발스가 만든 리눅스는 바로 이 커널이었습니다. 여기에 GNU의 프로그램들을 합치면서 하나의 운영체제로 사용할 수 있게 됐습니다. 이렇게 구성한 운영체제를 GNU/Linux라고 부릅니다.</li>
-                    <li>리눅스 커널의 첫 버전인 0.01은 <strong>1991년 9월</strong>에 공개됐습니다. 이후 개발을 이어가며 <strong>1994년 3월</strong>에 정식 버전 1.0을 출시했습니다.</li>
-                </ul>
-            </div>
-            <div class="gg-more-block">
-                <p class="gg-more-block-title">BitKeeper 분쟁 이후 탄생한 Git</p>
-                <ul class="gg-more-bullets">
-                    <li>2002년부터 리눅스 커널 개발자들은 <strong>BitKeeper</strong>라는 버전 관리 도구를 썼습니다. 이 도구를 만든 래리 맥보이는 선 마이크로시스템즈와 실리콘 그래픽스에서 유닉스 계열 운영체제의 성능을 개선하던 엔지니어였습니다. 맥보이는 선에서 만든 사내 협업 도구 팀웨어를 바탕으로 BitKeeper를 개발했습니다. 이후 비트무버라는 회사를 세워 BitKeeper를 상용 소프트웨어로 출시했습니다. 리눅스 커널 개발자들에게는 예외적으로 무료 라이선스를 내줬습니다.</li>
-                    <li>무료로 쓰려면 조건을 지켜야 했습니다. 이 도구를 쓰는 동안에는 경쟁 버전 관리 도구를 만들 수 없었고, 통신 방식을 역분석할 수도 없었습니다. <strong>2005년</strong> 개발자 앤드루 트리젤이 BitKeeper의 통신 방식을 분석하는 도구를 만들자, 비트무버는 곧바로 무료 라이선스 제공을 중단했습니다.</li>
-                    <li>이에 토르발스는 직접 개발에 착수했고, <strong>열흘 만에</strong> 새 버전 관리 시스템의 기본 구조를 완성했습니다. 전 세계 수천 명이 동시에 코드를 주고받아도 빠르게 작동하고, 기록이 손상되지 않도록 하는 데 집중했습니다. Git은 <strong>2005년 4월</strong> 처음 공개됐고, 정식 버전인 1.0은 <strong>2005년 12월</strong>에 출시됐습니다.</li>
-                </ul>
-            </div>
-            <div class="gg-more-block">
-                <p class="gg-more-block-title">이름의 유래</p>
-                <ul class="gg-more-bullets">
-                    <li>영어 단어 <strong>git</strong>은 영국 속어로 "고집불통", "밥맛" 정도의 뜻입니다.</li>
-                    <li>토르발스는 "나는 자아도취적인 놈이라 내가 만드는 프로젝트에는 전부 내 이름을 붙인다. 먼저 리눅스, 이번엔 깃"이라고 농담했다고 합니다.</li>
-                </ul>
-            </div>
-            <div class="gg-more-block">
-                <p class="gg-more-block-title">GitHub, 술자리에서 시작한 창업</p>
-                <ul class="gg-more-bullets">
-                    <li><strong>톰 프레스턴 워너</strong>는 아바타 서비스 그라바타를 만들어 워드프레스 운영사 오토매틱에 매각한 개발자입니다. 2005년 샌프란시스코로 이주한 뒤 자연어 검색 스타트업 파워셋에서 일하고 있었습니다. 2007년 가을 샌프란시스코의 한 술집에서 그는 친구 <strong>크리스 완스트라스</strong>에게 Git을 웹에서 쉽게 쓸 수 있는 서비스를 만들자고 제안했습니다. Git은 기능이 강력하지만 다루기가 너무 번거로웠기 때문입니다.</li>
-                    <li>두 사람은 다음 날 아침 첫 코드를 올렸습니다. 이후 석 달 동안 매주 토요일에 만나 기능을 개발하고 요금제를 정했습니다.</li>
-                    <li>또 다른 공동창업자 <strong>PJ 하이엇</strong>은 노스센트럴 칼리지에서 컴퓨터공학을 전공하고 CNET을 거쳐 컨설팅 회사 에러프리를 세웠습니다. 마지막으로 합류한 <strong>스콧 샤콘</strong>은 UC 샌디에이고에서 연극을 전공하다 개발자로 진로를 바꿨고, Git의 대표 교재인 <em>Pro Git</em>을 썼습니다. 공동창업자 4명 모두 샌프란시스코의 소프트웨어 엔지니어였습니다.</li>
-                    <li>네 사람이 함께 만든 깃허브는 2008년 4월 정식 출시됐습니다.</li>
-                    <li>GitHub는 <strong>Git</strong>(버전 관리 도구)과 <strong>Hub</strong>(중심)를 합친 이름으로, Git 저장소를 한곳에 모은다는 뜻입니다.</li>
-                </ul>
-            </div>
-            <div class="gg-more-block">
-                <p class="gg-more-block-title">2018년, 마이크로소프트가 75억 달러에 인수</p>
-                <ul class="gg-more-bullets">
-                    <li>스티브 발머 시절 마이크로소프트는 리눅스를 "암 같은 존재"라고 부를 만큼 오픈소스에 적대적이었습니다.</li>
-                    <li>인도 출신 사티아 나델라가 CEO를 맡은 뒤 마이크로소프트의 입장은 달라졌습니다. 애저 클라우드 사업을 확장하기 위한 핵심 전략으로 오픈소스를 선택했습니다. 개발자 3천만 명이 모인 깃허브를 인수한 일은 이런 변화를 상징합니다.</li>
-                </ul>
+            <div class="table-wrapper origin-wrap">
+            <table class="brand-cmp origin-cmp stack-mobile">
+            <thead>
+                <tr><th style="width: 15%; text-align: center;">항목</th><th style="width: 42.5%; text-align: center;"><span class="brand-icon brand-git" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 78 78"><title>Git logo by Jason Long · CC BY 3.0 · https://git-scm.com/community/logos</title><path fill="currentColor" transform="translate(10 10) rotate(-45 29 29)" d="M5,58c-2.76142,0 -5,-2.23858 -5,-5v-48c0,-2.76142 2.23858,-5 5,-5h33v12.54404c-2.06553,0.94801 -3.5,3.03446 -3.5,5.45596c0,0.73514 0.13221,1.43941 0.37415,2.09031l-15.28384,15.28384c-0.6509,-0.24194 -1.35517,-0.37415 -2.09031,-0.37415c-3.31371,0 -6,2.68629 -6,6c0,3.31371 2.68629,6 6,6c3.31371,0 6,-2.68629 6,-6c0,-0.73514 -0.13221,-1.43941 -0.37415,-2.09031l14.87415,-14.87415l0,11.50851c-2.06553,0.94801 -3.5,3.03446 -3.5,5.45596c0,3.31371 2.68629,6 6,6c3.31371,0 6,-2.68629 6,-6c0,-2.42149 -1.43447,-4.50795 -3.5,-5.45596l0,-12.08808c2.06553,-0.94801 3.5,-3.03446 3.5,-5.45596c0,-2.42149 -1.43447,-4.50795 -3.5,-5.45596l0,-12.54404h10c2.76142,0 5,2.23858 5,5v48c0,2.76142 -2.23858,5 -5,5z"/></svg></span>Git<a href="https://git-scm.com" target="_blank" rel="noopener" class="th-go">바로가기 ↗</a></th><th style="width: 42.5%; text-align: center;"><span class="brand-icon brand-gh"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></span>GitHub<a href="https://github.com" target="_blank" rel="noopener" class="th-go">바로가기 ↗</a></th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>만든이</strong></td><td data-label="Git"><strong>리누스 토르발스</strong><br>핀란드 헬싱키 출신. 1991년 헬싱키대학교 21살 학생 때 취미로 리눅스 커널을 만들었습니다. 여기에 리처드 스톨먼이 1983년에 시작한 GNU 프로젝트의 프로그램들이 합쳐져 GNU/Linux 운영체제가 됐습니다.</td><td data-label="GitHub"><strong>톰 프레스턴 워너 · 크리스 완스트라스 · PJ 하이엇 · 스콧 샤콘</strong><br>네 사람 모두 샌프란시스코의 소프트웨어 엔지니어였습니다. 프레스턴 워너는 아바타 서비스 그라바타를 만들어 오토매틱에 매각했고, 하이엇은 CNET을 거쳐 컨설팅 회사를 세웠습니다. 마지막에 합류한 샤콘은 Git 대표 교재 <em>Pro Git</em>의 저자입니다.</td></tr>
+                <tr><td><strong>출시 시점</strong></td><td data-label="Git"><strong>2005년 4월</strong> 첫 공개<br><strong>2005년 12월</strong> 정식 버전 1.0</td><td data-label="GitHub"><strong>2008년 4월</strong> 정식 출시</td></tr>
+                <tr><td><strong>탄생 배경</strong></td><td data-label="Git">리눅스 커널 개발자들은 2002년부터 상용 도구 <strong>BitKeeper</strong>를 무료 라이선스로 썼습니다. 조건은 경쟁 도구를 만들지 않고 통신 방식을 역분석하지 않는 것이었습니다. <strong>2005년</strong> 개발자 앤드루 트리젤이 통신 방식을 분석하는 도구를 만들자 무료 제공이 끊겼습니다. 토르발스는 직접 개발에 착수해 <strong>열흘 만에</strong> 기본 구조를 완성했습니다. 수천 명이 동시에 코드를 주고받아도 빠르고, 기록이 손상되지 않는 데 집중했습니다.</td><td data-label="GitHub"><strong>2007년 가을</strong> 샌프란시스코의 한 술집에서 프레스턴 워너가 친구 완스트라스에게 Git을 웹에서 쉽게 쓸 수 있는 서비스를 만들자고 제안했습니다. Git은 강력하지만 다루기가 너무 번거로웠기 때문입니다. 두 사람은 다음 날 아침 첫 코드를 올렸고, 석 달 동안 매주 토요일에 만나 기능을 개발하고 요금제를 정했습니다.</td></tr>
+                <tr><td><strong>이름의 뜻</strong></td><td data-label="Git">영국 속어로 "고집불통", "밥맛" 정도의 뜻입니다. 토르발스는 "나는 자아도취적인 놈이라 내가 만드는 프로젝트에는 전부 내 이름을 붙인다. 먼저 리눅스, 이번엔 깃"이라고 농담했습니다.</td><td data-label="GitHub"><strong>Git</strong>(버전 관리 도구) + <strong>Hub</strong>(중심). Git 저장소를 한곳에 모은다는 뜻입니다.</td></tr>
+                <tr><td><strong>그 뒤 이야기</strong></td><td data-label="Git">지금도 리눅스 커널을 비롯해 가장 널리 쓰이는 버전 관리 도구입니다. 무료 오픈소스로 남아 있습니다.</td><td data-label="GitHub"><strong>2018년</strong> 마이크로소프트가 <strong>75억 달러</strong>에 인수했습니다. 스티브 발머 시절 리눅스를 "암 같은 존재"라 부르던 회사가 사티아 나델라 체제에서 애저 클라우드 확장을 위해 오픈소스를 택한 결과입니다. 당시 개발자 3천만 명이 모여 있었습니다.</td></tr>
+                <tr><td><strong>다른 선택지</strong></td><td data-label="Git">Mercurial, Subversion</td><td data-label="GitHub">GitLab, Bitbucket</td></tr>
+            </tbody>
+            </table>
             </div>
             <div class="gg-more-block">
                 <p class="gg-more-block-title">AI 학습 데이터와 코파일럿 소송</p>
                 <ul class="gg-more-bullets">
-                    <li><strong>2021년 6월</strong>, 깃허브는 오픈AI와 함께 개발한 코드 자동완성 도구 코파일럿을 시험 공개했습니다. 이 도구의 AI 모델은 공개된 수십억 줄의 코드를 학습했습니다. <strong>2022년 11월</strong>, 개발자들은 깃허브·마이크로소프트·오픈AI를 상대로 집단소송을 제기했습니다. 코파일럿이 코드를 제공하면서 원저작자와 라이선스 표시를 누락해 오픈소스 라이선스를 위반한다는 주장이었습니다.</li>
-                    <li><strong>2024년 6월</strong>, 미국 캘리포니아 북부 연방지방법원은 저작자·라이선스 등 <strong>저작권 관리정보를 제거했다는 DMCA 청구</strong>를 기각했습니다. DMCA는 디지털 환경에서 저작권을 보호하기 위한 미국 법인 ‘디지털 밀레니엄 저작권법’의 약칭입니다. 이 소송에서는 코드에 붙은 저작자 이름이나 라이선스 정보를 삭제했는지가 문제가 됐습니다. 법원은 해당 조항을 적용하려면 원본과 동일한 복제물이 있어야 한다고 해석했고, 원고들이 그런 사례를 충분히 제시하지 못했다고 판단했습니다. AI 학습이나 코드 사용 전반이 적법하다고 판결한 것은 아닙니다.</li>
-                    <li>법원은 오픈소스 라이선스를 어겼다는 <strong>계약 위반 청구</strong>는 기각하지 않았습니다. 이는 계약 위반을 인정한 판결이 아니라, 소송을 이어갈 수 있도록 한 결정입니다. 부당이득 반환과 징벌적 손해배상 요구는 받아들이지 않았습니다. 법원은 이 사건의 계약 위반 주장만으로는 해당 배상을 요구할 법적 근거가 부족하다고 봤습니다.</li>
-                    <li>원고들은 DMCA 청구 기각에 불복해 항소했습니다. <strong>2024년 9월</strong>, 지방법원은 항소심 판단을 기다리도록 재판 절차를 중단했습니다. <strong>2026년 2월 11일</strong>에는 제9연방항소법원에서 양측 주장을 듣는 구두변론이 열렸습니다. 쟁점은 저작권 관리정보 제거를 문제 삼으려면 코드가 원본과 반드시 같아야 하는지입니다.</li>
-                </ul>
-            </div>
-            <div class="gg-more-block">
-                <p class="gg-more-block-title">다른 선택지</p>
-                <ul class="gg-more-bullets">
-                    <li>Git은 널리 쓰이는 버전 관리 도구이며, Mercurial이나 Subversion 같은 다른 도구도 있습니다. Git을 사용하면서 저장소를 관리하고 협업하려면 GitHub, GitLab, Bitbucket 같은 서비스를 선택할 수 있습니다.</li>
+                    <li><strong>2021년 6월</strong> 깃허브는 오픈AI와 함께 만든 코드 자동완성 도구 코파일럿을 시험 공개했습니다. 공개된 수십억 줄의 코드를 학습한 도구입니다. <strong>2022년 11월</strong> 개발자들은 코파일럿이 원저작자와 라이선스 표시를 누락해 오픈소스 라이선스를 위반한다며 깃허브·마이크로소프트·오픈AI를 상대로 집단소송을 제기했습니다.</li>
+                    <li><strong>2024년 6월</strong> 미국 캘리포니아 북부 연방지방법원은 저작권 관리정보를 제거했다는 DMCA(디지털 밀레니엄 저작권법) 청구를 기각했습니다. 원본과 동일한 복제물 사례를 원고가 충분히 제시하지 못했다는 판단입니다. 오픈소스 라이선스를 어겼다는 계약 위반 청구는 살아남아 소송이 이어집니다. AI 학습이나 코드 사용 전반이 적법하다고 판결한 것은 아닙니다.</li>
+                    <li>원고는 DMCA 기각에 항소했고, <strong>2026년 2월 11일</strong> 제9연방항소법원에서 구두변론이 열렸습니다. 쟁점은 저작권 관리정보 제거를 문제 삼으려면 코드가 원본과 반드시 같아야 하는지입니다.</li>
                 </ul>
             </div>
         </div>
@@ -1777,7 +1803,7 @@
                 <div class="step-number">3</div>
                 <h3>AI 코딩 도구와 GitHub 연결하기</h3>
             </div>
-            <p>AI가 내 저장소에 접근하려면 인증이 필요합니다. 컴퓨터에 한 번만 해 두면 되고, <strong>Claude Code와 Codex가 그 인증을 함께 씁니다.</strong> 방법은 두 가지입니다. 둘 중 하나만 하면 됩니다.</p>
+            <p>AI가 내 저장소에 접근하려면 인증이 필요합니다. 컴퓨터에 한 번만 해 두면 되고, <strong>Claude Code와 Codex가 그 인증을 함께 씁니다.</strong> 명령어를 외울 필요는 없습니다. <strong>폴더 이동과 설치는 AI에게 시키고</strong>, 로그인 질문 몇 개와 브라우저 승인만 직접 하면 됩니다.</p>
 
             <div class="auth-method reveal">
                 <div class="auth-method-head">
@@ -1787,35 +1813,52 @@
                 </div>
                 <p>GitHub가 공식으로 만든 <code>gh</code> 명령어를 설치하고 한 번 로그인하면 끝납니다. 인증 키는 GitHub가 알아서 발급해 윈도우 자격 증명 관리자(맥은 키체인)에 넣어 줍니다.</p>
 
+                <div class="code-block-wrap">
+                    <div class="code-block">
+                        <code><span class="comment"># AI에게 이렇게 말하세요</span>
+> 터미널을 열어서 이 프로젝트 폴더로 이동한 다음 GitHub CLI(gh)를 설치해 줘
+> 설치가 끝나면 gh auth login을 실행해 줘</code>
+                    </div>
+                    <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                </div>
+                <p class="code-note">※ 폴더 이동과 설치는 AI가 자동으로 실행합니다. 아래 명령어는 AI가 무엇을 실행하는지 확인하는 참고용입니다. 로그인 단계만 다릅니다. <code>gh auth login</code>은 질문에 답을 골라야 하므로 AI가 터미널 창에 띄워 주면 아래 순서대로 직접 고릅니다.</p>
+
                 <div class="os-grid">
                     <div>
                         <div class="os-col-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.8" y="3.8" width="7" height="7" rx="1.2"/><rect x="13.2" y="3.8" width="7" height="7" rx="1.2"/><rect x="3.8" y="13.2" width="7" height="7" rx="1.2"/><rect x="13.2" y="13.2" width="7" height="7" rx="1.2"/></svg>윈도우 <span class="os-tag">Windows</span></div>
                         <div class="code-block-wrap">
-                            <div class="code-block">
+                            <div class="code-block has-tq">
                                 <code><span class="comment"># PowerShell에 입력</span>
-winget install --id GitHub.cli</code>
+winget install --id GitHub.cli</code><button class="tq" data-term="winget"></button>
                             </div>
                             <button class="copy-btn" onclick="copyCode(this)">복사</button>
                         </div>
-                        <p class="os-alt">winget이 없다면 <a href="https://cli.github.com/" target="_blank" rel="noopener">cli.github.com</a>에서 <code>.msi</code> 설치 파일을 내려받아 실행하세요. 설치한 뒤에는 터미널을 껐다 켜야 명령어가 잡힙니다.</p>
+                        <p class="os-alt">winget은 Windows 10·11에 기본으로 들어 있습니다. "winget을 찾을 수 없다"고 나오면 Microsoft Store에서 <strong>앱 설치 관리자</strong>를 업데이트한 뒤 다시 실행하세요. 설치한 뒤에는 터미널을 껐다 켜야 명령어가 잡힙니다.</p>
                     </div>
                     <div>
                         <div class="os-col-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.2" y="5" width="15.6" height="10.4" rx="1.7"/><path d="M2.6 18.6h18.8"/></svg>맥 <span class="os-tag">macOS</span></div>
                         <div class="code-block-wrap">
-                            <div class="code-block">
-                                <code><span class="comment"># 터미널에 입력</span>
-brew install gh</code>
+                            <div class="code-block has-tq">
+                                <code class="code-wrap"><span class="comment"># Homebrew가 없다면 먼저 (한 번만)</span>
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code><button class="tq" data-term="brew-install"></button>
                             </div>
                             <button class="copy-btn" onclick="copyCode(this)">복사</button>
                         </div>
-                        <p class="os-alt">Homebrew가 없다면 <a href="https://cli.github.com/" target="_blank" rel="noopener">cli.github.com</a>에서 <code>.pkg</code> 설치 파일을 내려받아 더블클릭해도 됩니다.</p>
+                        <div class="code-block-wrap">
+                            <div class="code-block has-tq">
+                                <code><span class="comment"># 터미널에 입력</span>
+brew install gh</code><button class="tq" data-term="homebrew"></button>
+                            </div>
+                            <button class="copy-btn" onclick="copyCode(this)">복사</button>
+                        </div>
+                        <p class="os-alt">맥에는 Homebrew가 기본 탑재되어 있지 않으므로 첫 번째 명령어로 먼저 설치합니다. 설치 중에 맥 로그인 비밀번호를 요구하면 입력하고 Enter를 누릅니다. Homebrew가 이미 설치되어 있다면 첫 번째 명령어는 생략하고 <code>brew install gh</code>만 실행합니다. <code>brew -v</code>를 입력해 버전 번호가 출력되면 설치된 상태입니다.</p>
                     </div>
                 </div>
 
                 <div class="code-block-wrap">
-                    <div class="code-block">
+                    <div class="code-block has-tq">
                         <code><span class="comment"># 윈도우·맥 모두 같은 명령어</span>
-gh auth login</code>
+gh auth login</code><button class="tq" data-term="gh-auth-login"></button>
                     </div>
                     <button class="copy-btn" onclick="copyCode(this)">복사</button>
                 </div>
@@ -1829,9 +1872,9 @@ gh auth login</code>
                     <li>브라우저에 코드를 붙여넣고 <strong>Authorize github</strong> 버튼을 누르면 연결이 끝납니다.</li>
                 </ol>
                 <div class="code-block-wrap">
-                    <div class="code-block">
+                    <div class="code-block has-tq">
                         <code><span class="comment"># 잘 됐는지 확인</span>
-gh auth status</code>
+gh auth status</code><button class="tq" data-term="gh-auth-status"></button>
                     </div>
                     <button class="copy-btn" onclick="copyCode(this)">복사</button>
                 </div>
@@ -2112,9 +2155,9 @@ gh auth status</code>
                 <tr><th style="width: 16%; text-align: center;">항목</th><th style="width: 28%; text-align: center;"><span class="brand-icon brand-gh"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></span>GitHub Pages<a href="https://pages.github.com/" target="_blank" rel="noopener" class="th-go">바로가기 ↗</a></th><th style="width: 28%; text-align: center;"><span class="brand-icon brand-vc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2L22 20H2L12 2z"/></svg></span>Vercel<a href="https://vercel.com" target="_blank" rel="noopener" class="th-go">바로가기 ↗</a></th><th style="width: 28%; text-align: center;"><span class="brand-icon brand-nl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V4h3.2l7.6 10V4H19v16h-3.2L8.2 10v10z"/></svg></span>Netlify<a href="https://www.netlify.com" target="_blank" rel="noopener" class="th-go">바로가기 ↗</a></th></tr>
             </thead>
             <tbody>
-                <tr><td><strong>한 줄 정체성</strong></td><td data-label="GitHub Pages">GitHub 저장소의 파일을 웹사이트로 공개하는 기능</td><td data-label="Vercel">Next.js(React 기반 개발 도구)를 만든 회사가 운영하는 배포 플랫폼</td><td data-label="Netlify">정적 사이트(Jamstack) 배포를 대중화한 원조 서비스</td></tr>
+                <tr><td><strong>설명</strong></td><td data-label="GitHub Pages">GitHub 저장소의 파일을 웹사이트로 공개하는 기능</td><td data-label="Vercel">Next.js(React 기반 개발 도구)를 만든 회사가 운영하는 배포 플랫폼</td><td data-label="Netlify">정적 사이트(Jamstack) 배포를 대중화한 원조 서비스</td></tr>
                 <tr><td><strong>출시 시점</strong></td><td data-label="GitHub Pages"><strong>2008년 12월</strong></td><td data-label="Vercel"><strong>2016년 4월</strong> (Now로 첫 공개)<br><strong>2020년 4월</strong> Vercel로 이름 변경</td><td data-label="Netlify"><strong>2015년 4월</strong></td></tr>
-                <tr><td><strong>만든이</strong></td><td data-label="GitHub Pages">GitHub</td><td data-label="Vercel">기예르모 라우치</td><td data-label="Netlify">매트 빌만·크리스천 바흐</td></tr>
+                <tr><td><strong>만든이</strong></td><td data-label="GitHub Pages">톰 프레스턴 워너·크리스 완스트라스·PJ 하이엇</td><td data-label="Vercel">기예르모 라우치</td><td data-label="Netlify">매트 빌만·크리스천 바흐</td></tr>
                 <tr><td><strong>이름의 뜻·어원</strong></td><td data-label="GitHub Pages">GitHub에 웹페이지를 공개하는 기능으로, Pages는 ‘페이지들’이라는 뜻입니다.</td><td data-label="Vercel">라틴어 vertere(베르테레, 돌다·전환하다)에서 따온 신조어로, "전환·움직임"의 어감을 담았습니다.</td><td data-label="Netlify"><strong>Net</strong>(네트워크·인터넷) + <strong>-ify</strong>(~하게 만들다)의 조합입니다. "웹 배포를 누구나 쉽게"라는 의미를 담았습니다. 'Jamstack'이라는 용어를 만든 회사로도 알려져 있습니다.</td></tr>
                 <tr><td><strong>추천 용도</strong></td><td data-label="GitHub Pages">소개 페이지·강의 자료·문서·포트폴리오를 별도 배포 서비스 가입 없이 공개할 때</td><td data-label="Vercel"><a href="#ref-react" class="gg-jump">Next.js·React</a>로 만든 앱을 배포하거나 서버에서 실행할 함수를 함께 운영하는 프로젝트</td><td data-label="Netlify">사이트에 입력 폼·인증·함수를 연결하고 빌드 플러그인을 활용하려는 프로젝트</td></tr>
                 <tr><td><strong>자동 배포·미리보기</strong></td><td data-label="GitHub Pages">설정한 브랜치나 Actions로 자동 배포. PR별 미리보기는 별도 구성이 필요합니다.</td><td data-label="Vercel">GitHub 푸시 시 자동 빌드 + 브랜치·PR별 Preview URL 제공</td><td data-label="Netlify">동일하게 푸시 시 자동 빌드 + Deploy Preview 제공</td></tr>
@@ -2416,7 +2459,11 @@ function switchMode(mode) {
     /* ── #3 코드블록 복사 버튼 ── */
     function copyCode(btn) {
         const code = btn.previousElementSibling.querySelector('code');
-        navigator.clipboard.writeText(code.textContent.trim()).then(() => {
+        // 주석(# 설명, ← 설명)과 AI 프롬프트 앞의 '> ' 표시는 빼고 명령어 줄만 복사한다
+        const clone = code.cloneNode(true);
+        clone.querySelectorAll('.comment').forEach(el => el.remove());
+        const text = clone.textContent.split('\n').map(l => l.replace(/^>\s?/, '').replace(/\s+$/, '')).filter(l => l.trim()).join('\n');
+        navigator.clipboard.writeText(text).then(() => {
             btn.textContent = '✓ 복사됨';
             btn.classList.add('copied');
             setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
@@ -2818,5 +2865,118 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
 })();
 </script>
 
+<!-- TERM-TIP-STD 명령어 물음표 단추. 설명은 아래 사전 한 곳에서만 고친다 -->
+<script>
+(function () {
+    var TERMS = {
+        'winget': { t: 'winget install --id GitHub.cli', d: 'winget은 Windows에 기본으로 들어 있는 설치 도구입니다. 설치 파일을 웹에서 직접 내려받지 않아도 명령어 한 줄로 프로그램을 설치합니다. install은 설치하라는 뜻이고, --id GitHub.cli는 설치할 프로그램의 정확한 이름표입니다. 맥의 Homebrew와 같은 역할입니다.', r: '읽기: 윈겟 인스톨' },
+        'brew-install': { t: 'Homebrew 설치 명령어', d: 'curl은 Client URL의 줄임말로, 웹 브라우저 없이 명령어나 코드로 웹 주소에 접속해 브라우저처럼 데이터를 주고받는 도구입니다. 여기서는 Homebrew 공식 설치 스크립트(install.sh)를 내려받습니다.\n-fsSL은 curl 옵션 네 개를 붙여 쓴 것입니다. f(fail)는 서버 오류 시 중단, s(silent)는 진행 표시 생략, S(show error)는 오류만 표시, L(location)은 주소가 옮겨졌으면 따라가기입니다.\n/bin은 기본 프로그램이 모여 있는 폴더이고, bash는 명령어를 읽어 실행하는 프로그램(셸)입니다. -c(command)는 뒤에 오는 문자열을 명령어로 읽어 실행하라는 뜻이라, 내려받은 스크립트가 그 자리에서 실행됩니다.\n실행 중 설치 폴더를 만들기 위해 맥 로그인 비밀번호를 한 번 요구하며, 관리자 계정이어야 합니다. 앞에 sudo를 붙이면 오히려 중단됩니다.', r: '읽기: 배시 -c 컬 -fsSL' },
+        'gh-auth-login': { t: 'gh auth login', d: 'gh는 GitHub CLI(Command Line Interface)의 명령어 이름입니다. 웹사이트 대신 터미널에서 GitHub을 다루는 공식 도구입니다.\nauth는 authentication(인증)의 줄임말로 인증과 관련한 하위 명령 묶음이고, login은 그중 로그인하기입니다.\n실행하면 계정·프로토콜·인증 방식을 묻는 질문이 차례로 나오고, 브라우저에서 여덟 자리 코드를 입력해 승인하면 인증 키가 컴퓨터에 저장됩니다. 한 번만 하면 Claude Code와 Codex가 같은 인증을 씁니다.', r: '읽기: 지에이치 오스 로그인' },
+        'gh-auth-status': { t: 'gh auth status', d: 'gh auth login과 같은 gh의 인증(auth) 명령 묶음이고, status는 현재 상태를 보여 달라는 뜻입니다. 아무것도 바꾸지 않고 확인만 합니다.\n어느 계정으로 로그인되어 있는지, 인증 키가 어디에 저장되어 있는지, 어떤 권한 범위인지 출력합니다. 로그인이 안 되어 있으면 You are not logged into any GitHub hosts라고 나옵니다.\nAI가 GitHub에 접근하지 못할 때 가장 먼저 실행해 보는 점검 명령입니다.', r: '읽기: 지에이치 오스 스테이터스' },
+        'homebrew': { t: 'brew install gh', d: 'brew는 맥에서 개발 도구를 설치할 때 표준으로 쓰는 설치 도구 Homebrew의 명령어 이름입니다. install은 설치하라는 뜻이고, gh는 GitHub CLI의 짧은 이름입니다. Windows의 winget과 같은 역할입니다.', r: '읽기: 브루 인스톨' }
+    };
+
+    var pop = null;
+    var openBtn = null;
+
+    function ensurePop() {
+        if (pop) return pop;
+        pop = document.createElement('div');
+        pop.className = 'tq-pop';
+        pop.setAttribute('role', 'tooltip');
+        document.body.appendChild(pop);
+        return pop;
+    }
+
+    function close() {
+        if (openBtn) { openBtn.classList.remove('is-open'); openBtn.setAttribute('aria-expanded', 'false'); }
+        openBtn = null;
+        if (pop) pop.classList.remove('is-show');
+    }
+
+    function open(btn) {
+        var key = btn.getAttribute('data-term');
+        var item = TERMS[key];
+        if (!item) return;
+        var el = ensurePop();
+        el.innerHTML = '<b></b><span class="tq-body"></span>';
+        el.querySelector('b').textContent = item.t;
+        el.querySelector('.tq-body').textContent = item.d;
+        if (item.r) {
+            var r = document.createElement('span');
+            r.className = 'tq-read';
+            r.textContent = item.r;
+            el.appendChild(r);
+        }
+        el.classList.add('is-show');
+        btn.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+        openBtn = btn;
+
+        var rect = btn.getBoundingClientRect();
+        var w = el.offsetWidth;
+        var h = el.offsetHeight;
+        var left = window.scrollX + rect.left + rect.width / 2 - w / 2;
+        var maxLeft = window.scrollX + document.documentElement.clientWidth - w - 12;
+        if (left > maxLeft) left = maxLeft;
+        if (left < window.scrollX + 12) left = window.scrollX + 12;
+        var top = window.scrollY + rect.bottom + 8;
+        if (rect.bottom + 8 + h > window.innerHeight && rect.top - 8 - h > 0) {
+            top = window.scrollY + rect.top - h - 8;
+        }
+        el.style.left = left + 'px';
+        el.style.top = top + 'px';
+    }
+
+    // 마우스를 올리면 바로 보이고, 벗어나면 닫힌다. 말풍선 위로 옮겨 가는 사이에는 닫지 않는다
+    var hideTimer = null;
+    function cancelHide() { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } }
+    function scheduleHide() { cancelHide(); hideTimer = setTimeout(close, 140); }
+
+    document.addEventListener('mouseover', function (e) {
+        var btn = e.target.closest ? e.target.closest('.tq') : null;
+        if (btn) { cancelHide(); if (openBtn !== btn) { close(); open(btn); } return; }
+        if (e.target.closest && e.target.closest('.tq-pop')) cancelHide();
+    });
+
+    document.addEventListener('mouseout', function (e) {
+        if (!e.target.closest) return;
+        if (e.target.closest('.tq') || e.target.closest('.tq-pop')) scheduleHide();
+    });
+
+    // 터치 화면과 키보드용. 마우스가 없을 때도 눌러서 열 수 있게 둔다
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest ? e.target.closest('.tq') : null;
+        if (btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            cancelHide();
+            if (openBtn === btn) { close(); return; }
+            close();
+            open(btn);
+            return;
+        }
+        if (pop && !e.target.closest('.tq-pop')) close();
+    });
+
+    document.addEventListener('focusin', function (e) {
+        if (e.target.classList && e.target.classList.contains('tq')) { cancelHide(); close(); open(e.target); }
+    });
+
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    document.addEventListener('focusout', function (e) { if (e.target.classList && e.target.classList.contains('tq')) scheduleHide(); });
+    window.addEventListener('resize', close);
+    window.addEventListener('scroll', function () { if (openBtn) open(openBtn); }, { passive: true });
+
+    // 사전에 있는 용어만 단추를 살린다. 오타가 나면 조용히 지워서 깨진 물음표를 남기지 않는다
+    document.querySelectorAll('.tq').forEach(function (b) {
+        var item = TERMS[b.getAttribute('data-term')];
+        if (!item) { b.remove(); return; }
+        b.setAttribute('type', 'button');
+        b.setAttribute('aria-expanded', 'false');
+        b.setAttribute('aria-label', item.t + ' 설명 보기');
+    });
+})();
+</script>
 </body>
 </html>
