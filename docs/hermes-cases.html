@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
+    <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/hermes-cases.html">
+    <meta property="og:title" content="헤르메스 에이전트 사용 사례 | AI ROASTING · AI 에이전트를 고용하라">
+    <meta property="og:description" content="슬랙에서 활동하는 헤르메스 에이전트가 실제로 한 일 여덟 가지. 캘린더 초대, 점심 메뉴 추천, 배너 제작, 스킬 설치, 장애 원인 설명과 여섯 가지 교훈.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/hermes-cases.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="헤르메스 에이전트 사용 사례 | AI ROASTING · AI 에이전트를 고용하라">
+    <meta name="twitter:description" content="슬랙에서 활동하는 헤르메스 에이전트가 실제로 한 일 여덟 가지. 캘린더 초대, 점심 메뉴 추천, 배너 제작, 스킬 설치, 장애 원인 설명과 여섯 가지 교훈.">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>헤르메스 에이전트 사용 사례: 슬랙에서 실제로 한 일 여덟 가지 | AI ROASTING</title>
+    <meta name="description" content="슬랙에서 활동하는 헤르메스 에이전트(Hermes Agent)가 실제 스레드에서 한 일 여덟 가지를 명령한 내용과 결과로 정리했습니다. 여덟 사례의 공통점과 여섯 가지 교훈.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-orange-text: #B0522F;
+            --ant-brick: #B0544A;
+            --ant-dark: #1A1917;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body { word-break: keep-all;
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
+            line-height: 1.6;
+        }
+
+        /* ── KEYFRAMES ── */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes copyPop {
+            0%   { transform: scale(1); }
+            50%  { transform: scale(1.18); }
+            100% { transform: scale(1); }
+        }
+
+        /* ── SCROLL REVEAL ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.5s cubic-bezier(.25,.8,.25,1), transform 0.5s cubic-bezier(.25,.8,.25,1);
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -50px; left: 50%;
+            transform: translateX(-50%);
+            width: 600px; height: 300px;
+            background: radial-gradient(circle, rgba(255,200,150,0.12) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+            animation: fadeIn 0.5s ease both;
+        }
+        .back-link:hover { color: #fff; }
+
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+            position: relative; z-index: 1;
+            animation: fadeInDown 0.6s cubic-bezier(.25,.8,.25,1) 0.1s both;
+        }
+        header p {
+            font-size: 16px;
+            color: rgba(255,255,255,0.82);
+            position: relative; z-index: 1;
+            font-weight: 500;
+            animation: fadeInUp 0.6s ease 0.25s both;
+        }
+
+        /* ── Header Page Links (2개 묶음 · 490px) ── */
+        .header-pages {
+            max-width: 490px;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex; justify-content: center;
+            gap: 14px; margin-top: 22px;
+            position: relative; z-index: 1;
+            animation: fadeInUp 0.6s ease 0.45s both;
+        }
+        .header-page-link {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px; font-weight: 700;
+            padding: 12px 22px; border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13); color: #fff;
+            transform: translateY(-2px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .hpl-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; flex-shrink: 0;
+        }
+        .hpl-icon svg { width: 16px; height: 16px; display: block; }
+
+        /* ── Sub Menu (sticky) ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 150px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #B0544A; color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title { font-size: 13px; font-weight: 700; color: #3A3530; white-space: nowrap; }
+        .sm-sub { font-size: 11px; color: #999; white-space: nowrap; }
+        .content-section { scroll-margin-top: 137px; }
+        @media (max-width: 900px) {
+            .content-section { scroll-margin-top: 74px; }
+        }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 안내 상자 ── */
+        .notation {
+            margin-bottom: 28px; padding: 20px 24px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 12px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .notation-title {
+            font-size: 12px; font-weight: 800; color: #999;
+            text-transform: uppercase; letter-spacing: 1.2px;
+        }
+        .notation-row { display: flex; align-items: flex-start; gap: 14px; }
+        .notation-key {
+            flex-shrink: 0; margin-top: 2px;
+            min-width: 82px; text-align: center;
+        }
+        .notation-row p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .notation-row strong { color: #3A3530; font-weight: 700; }
+        .notation-row a { color: var(--ant-orange-text); font-weight: 700; text-decoration: none; }
+        .notation-row a:hover { text-decoration: underline; }
+        .meta-tag {
+            font-size: 12px; font-weight: 600;
+            padding: 3px 10px; border-radius: 6px;
+        }
+        .meta-tag.connect {
+            background: var(--nm-bg); color: var(--ant-brick);
+            box-shadow: 2px 2px 6px #CECAC3, -2px -2px 6px #FFFFFF;
+        }
+        .meta-tag.skill {
+            background: var(--nm-bg); color: #5C5650;
+            box-shadow: 2px 2px 6px #CECAC3, -2px -2px 6px #FFFFFF;
+        }
+
+        /* ── 사례 목차 ── */
+        .case-index {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            margin-bottom: 26px;
+        }
+        .case-index a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px; border-radius: 12px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 13px; font-weight: 700; line-height: 1.3;
+            transition: box-shadow 0.2s, color 0.2s;
+        }
+        .case-index a:hover { box-shadow: var(--nm-inset); color: var(--ant-orange-text); }
+        .ci-num {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--ant-brick); color: #fff;
+            font-size: 11px; font-weight: 800;
+            display: inline-flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .ci-verb { font-size: 11px; color: #9A948C; font-weight: 700; margin-left: auto; flex-shrink: 0; }
+
+        /* ── 사례 카드 ── */
+        .case-card {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow);
+            padding: 28px 30px;
+            margin-bottom: 26px;
+            scroll-margin-top: 130px;
+        }
+        .case-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-bottom: 8px; }
+        .case-num {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--ant-brick); color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: inline-flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 2px 2px 8px rgba(176,84,74,0.35);
+        }
+        .case-verb {
+            font-size: 12px; font-weight: 800; color: var(--ant-orange-text);
+            padding: 4px 12px; border-radius: 20px;
+            background: rgba(217,119,87,0.10);
+        }
+        .case-chan {
+            font-size: 12px; font-weight: 700; color: #5C5650;
+            padding: 4px 10px; border-radius: 8px;
+            background: var(--nm-bg);
+            box-shadow: 2px 2px 6px #CECAC3, -2px -2px 6px #FFFFFF;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            margin-left: auto;
+        }
+        .case-card h3 {
+            width: 100%;
+            font-size: 21px; font-weight: 800; color: #1A1917;
+            letter-spacing: -0.3px; line-height: 1.35;
+            margin: 6px 0 8px;
+        }
+        .case-lead { font-size: 15px; color: #5C5650; line-height: 1.7; margin-bottom: 20px; }
+        .case-body { display: grid; grid-template-columns: 300px 1fr; gap: 26px; align-items: start; }
+        .case-shots { display: flex; flex-direction: column; gap: 14px; }
+        .case-shots figure {
+            margin: 0; border-radius: 12px; overflow: hidden;
+            box-shadow: var(--nm-shadow-sm); background: #fff;
+        }
+        .case-shots figcaption {
+            font-size: 12px; color: #7C7568; line-height: 1.5;
+            padding: 8px 12px 10px; background: var(--nm-bg);
+        }
+
+        .ask-box {
+            border-radius: 12px; background: #2d2d2d; color: #fff;
+            padding: 14px 18px; margin-bottom: 18px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .ask-label {
+            display: block; font-size: 11px; font-weight: 800;
+            letter-spacing: 1.2px; text-transform: uppercase;
+            color: rgba(255,255,255,0.5); margin-bottom: 6px;
+        }
+        .ask-box p {
+            font-size: 14px; line-height: 1.7; color: #fff;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            white-space: pre-wrap; overflow-wrap: anywhere;
+        }
+        .ask-box p + p { margin-top: 8px; }
+        .ask-note { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 8px; font-family: inherit; }
+
+        .case-points { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .case-points li {
+            padding: 14px 16px 14px 18px; border-radius: 12px;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+        }
+        .case-points h4 {
+            font-size: 14.5px; font-weight: 800; color: #3A3530;
+            margin-bottom: 5px;
+            display: flex; gap: 8px; align-items: center;
+        }
+        .case-points h4 svg { width: 15px; height: 15px; color: var(--ant-orange); flex-shrink: 0; }
+        .case-points p { font-size: 13.5px; color: #5C5650; line-height: 1.65; }
+        .case-points code {
+            font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12.5px;
+            background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 5px; color: #3A3530;
+        }
+
+        /* ── 슬랙 목업 (em 기준. 글자 크기만 바꾸면 전체가 같이 커진다) ── */
+        .case-shots figure { position: relative; }
+        .slack {
+            display: block; text-align: left;
+            background: #1A1D21; color: #D1D2D3;
+            font-size: 11.5px; line-height: 1.55;
+            padding: 1em 1.1em 0.4em;
+            word-break: keep-all; overflow-wrap: anywhere;
+        }
+        .sk-ch { color: #ABABAD; font-weight: 800; font-size: 0.92em; padding-bottom: 0.7em; margin-bottom: 0.9em; border-bottom: 1px solid #35373B; }
+        .sk-msg { display: grid; grid-template-columns: 2.7em 1fr; gap: 0.75em; margin-bottom: 1.05em; }
+        .sk-msg--cont { margin-bottom: 1.2em; }
+        .sk-av {
+            width: 2.7em; height: 2.7em; border-radius: 0.45em; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 800; font-size: 1em;
+        }
+        /* AI ROASTING 로고는 흰 원 위에 얹는다 */
+        .sk-av--logo { background: #fff; border-radius: 50%; padding: 0.14em; }
+        .sk-av--logo img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+        .sk-av--agent { background: linear-gradient(150deg, #D97757, #A84726); }
+        .sk-av--agent svg { width: 1.7em; height: 1.7em; }
+        .sk-head { margin-bottom: 0.15em; }
+        .sk-head b { color: #fff; font-weight: 800; }
+        .sk-head time { color: #9A9B9E; font-size: 0.85em; margin-left: 0.55em; }
+        .sk-badge { font-size: 0.7em; font-weight: 800; background: #35373B; color: #ABABAD; padding: 0.12em 0.45em; border-radius: 0.3em; margin-left: 0.5em; vertical-align: 0.1em; }
+        .sk-status { color: #9A9B9E; font-size: 0.88em; margin-bottom: 0.35em; padding-left: 0.8em; border-left: 0.22em solid #4A4B4F; }
+        .sk-body p { margin: 0 0 0.55em; }
+        .sk-body b { color: #fff; font-weight: 700; }
+        .sk-body i { font-style: italic; }
+        .sk-body ul { margin: 0 0 0.65em 1.15em; padding: 0; }
+        .sk-body li { margin-bottom: 0.2em; }
+        .sk-h { color: #fff; font-weight: 800; margin-top: 0.2em !important; }
+        .sk-at { background: rgba(29,155,209,0.2); color: #4DB8E8; border-radius: 0.25em; padding: 0 0.22em; }
+        .sk-code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.9em; color: #E8912D; background: #2C2D30; border: 1px solid #4A4B4F; border-radius: 0.3em; padding: 0 0.3em; }
+        .sk-quote { border-left: 0.3em solid #4A4B4F; padding: 0.1em 0 0.1em 0.8em; margin: 0 0 0.6em; }
+        .sk-muted { color: #9A9B9E; }
+        .sk-replies { display: flex; align-items: center; gap: 0.8em; color: #9A9B9E; font-size: 0.9em; margin: 0 0 1em; }
+        .sk-replies::after { content: ''; flex: 1; height: 1px; background: #35373B; }
+        .sk-note { text-align: center; color: #9A9B9E; font-size: 0.88em; margin: 0 0 1.05em; }
+        .sk-react { display: inline-flex; align-items: center; gap: 0.35em; font-size: 0.85em; color: #D1D2D3; background: #2C2D30; border-radius: 1em; padding: 0.15em 0.7em; }
+        .sk-react svg { width: 1em; height: 1em; color: #4CAF50; }
+        .sk-attach, .sk-unfurl {
+            display: flex; flex-direction: column; gap: 0.3em;
+            border: 1px solid #35373B; border-radius: 0.6em; padding: 0.8em 0.9em; margin: 0.2em 0 0.4em;
+            background: #222529;
+        }
+        .sk-unfurl { border: none; border-left: 0.3em solid #4A4B4F; border-radius: 0; background: none; padding: 0 0 0 0.8em; }
+        .sk-attach span, .sk-unfurl em { color: #ABABAD; font-size: 0.9em; font-style: normal; }
+        .sk-attach-row { padding-top: 0.4em; border-top: 1px solid #35373B; }
+        .sk-link { color: #4DB8E8 !important; font-weight: 700; font-size: 1em !important; }
+        .sk-ph { display: block; height: 7em; border-radius: 0.5em; background: linear-gradient(135deg, #3A3D42, #2C2D30); }
+        .sk-bar { position: relative; display: block; height: 1.7em; border-radius: 0.4em; background: #2C2D30; overflow: hidden; }
+        .sk-bar i { position: absolute; inset: 0 auto 0 0; background: rgba(217,119,87,0.55); }
+        .sk-bar em { position: relative; line-height: 1.7em; padding-left: 0.6em; color: #fff !important; font-style: normal; font-size: 0.92em; }
+        .sk-file { color: #ABABAD; font-size: 0.9em; margin-bottom: 0.4em; }
+
+        /* 썸네일에서는 길이를 자르고, 눌러서 전체를 본다 */
+        .case-shots .shot-open { cursor: zoom-in; }
+        .case-shots .slack { max-height: 540px; overflow: hidden; position: relative; }
+        .case-shots .slack.is-clipped::after {
+            content: '눌러서 전체 보기';
+            position: absolute; left: 0; right: 0; bottom: 0;
+            padding: 3.2em 0 0.9em; text-align: center;
+            font-size: 1em; font-weight: 800; color: #fff;
+            background: linear-gradient(180deg, rgba(26,29,33,0), #1A1D21 62%);
+        }
+        .shot-open:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: -3px; }
+
+        /* ── 다시 그린 배너와 축하 카드 (cqw 기준. 폭에 맞춰 같이 커진다) ── */
+        .art { display: block; position: relative; width: 100%; aspect-ratio: 980 / 552; overflow: hidden; container-type: inline-size; }
+        .art-banner { background: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.16) 1px, transparent 1.6px) 0 0 / 3cqw 3cqw, #1E35D6; }
+        .bn-face {
+            position: absolute; width: 13cqw; height: 13cqw; margin: -6.5cqw 0 0 -6.5cqw;
+            border-radius: 50%; border: 0.7cqw solid #fff; color: rgba(26,25,23,0.55);
+            display: flex; align-items: flex-end; justify-content: center; overflow: hidden;
+        }
+        .bn-face svg { width: 84%; height: 84%; }
+        .bn-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6cqw; }
+        .bn-tag { background: #FFF6E0; color: #1B2A9E; font-weight: 900; font-size: 3.4cqw; padding: 0.3cqw 2.2cqw; letter-spacing: 0.05em; transform: rotate(-1.5deg); }
+        .bn-title { color: #FFF6E0; font-weight: 900; font-size: 11.5cqw; line-height: 0.95; letter-spacing: -0.02em; text-shadow: 0.5cqw 0.5cqw 0 #0E1A7A; }
+        .bn-title i { font-style: normal; }
+        .bn-pill { margin-top: 1.4cqw; background: #2340E8; border: 0.35cqw solid #fff; color: #fff; font-weight: 800; font-size: 2.6cqw; padding: 0.7cqw 3cqw; border-radius: 5cqw; }
+        .bn-ticket { background: #FF7A2F; color: #1A1917; font-weight: 900; font-size: 3.2cqw; padding: 0.8cqw 4cqw; margin-top: 0.6cqw; }
+
+        .art-card { background: linear-gradient(120deg, #FFFBF2 0%, #F8ECD6 60%, #EED9B4 100%); color: #3A2A1C; display: grid; grid-template-columns: 1.15fr 1fr; align-items: center; }
+        .art-card::before { content: ''; position: absolute; inset: 2.2cqw; border: 0.25cqw solid #CDA65A; pointer-events: none; }
+        .art-card--inline { border-radius: 0.6em; }
+        .cd-text { display: flex; flex-direction: column; align-items: center; gap: 0.9cqw; text-align: center; padding-left: 5cqw; font-family: 'Nanum Myeongjo', 'AppleMyungjo', 'Batang', serif; }
+        .cd-crown { width: 4cqw; height: 4cqw; color: #C79A45; }
+        .cd-name { font-size: 6.4cqw; color: #B5862F; font-weight: 700; line-height: 1.1; }
+        .cd-title { font-size: 7.4cqw; font-weight: 800; line-height: 1.22; }
+        .cd-title b { color: #B5862F; }
+        .cd-sub { font-size: 2.1cqw; color: #5C4A37; }
+        .cd-icons { display: flex; gap: 3.4cqw; margin-top: 0.8cqw; }
+        .cd-ic { display: flex; flex-direction: column; align-items: center; gap: 0.5cqw; color: #8A6A3A; font-family: 'Pretendard', sans-serif; }
+        .cd-ic svg { width: 4.4cqw; height: 4.4cqw; padding: 0.9cqw; border-radius: 50%; background: rgba(205,166,90,0.22); box-sizing: content-box; }
+        .cd-ic em { font-style: normal; font-size: 1.7cqw; }
+        .cd-thanks { font-style: italic; font-size: 2.8cqw; color: #B5862F; }
+        .cd-photo { justify-self: center; width: 34cqw; height: 34cqw; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFF3D6, #D9B56B); color: rgba(90,66,30,0.5); display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+        .cd-photo svg { width: 88%; height: 88%; }
+
+        /* ── 크게 보기 (라이트박스) ── */
+        .zoom-hint {
+            position: absolute; top: 8px; right: 8px; z-index: 2;
+            width: 30px; height: 30px; border-radius: 8px;
+            background: rgba(26,25,23,0.62); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none;
+        }
+        .zoom-hint svg { width: 15px; height: 15px; }
+        .lb {
+            position: fixed; inset: 0; z-index: 3000;
+            display: none;
+            background: rgba(20,17,15,0.9);
+            overflow: auto; -webkit-overflow-scrolling: touch;
+            padding: 64px 20px 40px;
+            text-align: center;
+            cursor: zoom-out;
+        }
+        .lb.open { display: block; }
+        .lb-stage { margin: 0 auto; max-width: 780px; border-radius: 10px; overflow: hidden; box-shadow: 0 12px 48px rgba(0,0,0,0.5); cursor: default; }
+        .lb-stage--art { max-width: 980px; }
+        .lb-stage .slack { font-size: 15px; padding: 1.2em 1.4em 0.6em; max-height: none; }
+        .lb-stage .slack::after { display: none; }
+        .lb-cap { margin: 14px auto 0; max-width: 760px; font-size: 13px; color: rgba(255,255,255,0.78); line-height: 1.6; }
+        .lb-close {
+            position: fixed; top: 14px; right: 14px; z-index: 3001;
+            width: 42px; height: 42px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.12); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .lb-close:hover { background: rgba(255,255,255,0.24); }
+        .lb-close:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 2px; }
+        .lb-close svg { width: 18px; height: 18px; }
+        @media (max-width: 768px) {
+            .lb { padding: 60px 10px 28px; }
+            .lb-stage .slack { font-size: 13px; }
+        }
+
+        /* ── 공통점 그리드 ── */
+        .pattern-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .pattern-card {
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px; padding: 22px 22px 20px;
+        }
+        .pattern-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            display: inline-flex; align-items: center; justify-content: center;
+            color: var(--ant-orange); margin-bottom: 14px;
+        }
+        .pattern-icon svg { width: 20px; height: 20px; }
+        .pattern-card h4 { font-size: 15.5px; font-weight: 800; color: #3A3530; margin-bottom: 8px; }
+        .pattern-card p { font-size: 13.5px; color: #5C5650; line-height: 1.65; }
+        .pattern-card .quote { color: #3A3530; font-weight: 600; }
+
+        /* ── 배운 것 목록 ── */
+        .sec-intro { font-size: 15px; color: #5C5650; line-height: 1.7; margin-bottom: 20px; max-width: 760px; }
+        .sec-intro strong { color: #3A3530; }
+        .lesson-list { list-style: none; display: grid; grid-template-columns: 1fr; gap: 14px; }
+        .lesson-list li {
+            display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px; padding: 20px 22px 18px;
+        }
+        .lesson-num {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 17px; font-weight: 800; color: var(--ant-orange-text);
+        }
+        .lesson-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; margin-bottom: 6px; }
+        .lesson-list h4 { font-size: 15.5px; font-weight: 800; color: #3A3530; margin: 0; }
+        .lesson-list p { font-size: 13.5px; color: #5C5650; line-height: 1.65; }
+        .lesson-ref {
+            display: inline-block; margin-top: 0; flex-shrink: 0;
+            font-size: 11px; font-weight: 700; color: var(--ant-orange-text);
+            padding: 3px 10px; border-radius: 20px; background: rgba(217,119,87,0.10);
+            text-decoration: none;
+        }
+        .lesson-ref:hover { background: rgba(217,119,87,0.18); }
+
+        .task-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.2px;
+            color: #999; margin-bottom: 6px;
+        }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            border-radius: 20px;
+            padding: 48px 32px;
+            text-align: center;
+            margin-top: 36px;
+            position: relative; overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute; top: -60px; right: -40px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,180,120,0.12) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .cta-section h3 {
+            font-size: 24px; font-weight: 800; color: #fff;
+            margin-bottom: 10px;
+            position: relative; z-index: 1;
+        }
+        .cta-section p {
+            font-size: 15px; color: rgba(255,255,255,0.78);
+            margin-bottom: 28px; line-height: 1.7;
+            position: relative; z-index: 1;
+        }
+        /* 설명 문단 없이 제목 바로 아래 단추가 올 때의 간격 */
+        .cta-section h3 + .cta-buttons { margin-top: 22px; }
+        .cta-buttons {
+            display: flex; justify-content: center; gap: 12px;
+            flex-wrap: wrap; position: relative; z-index: 1;
+        }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            flex: 0 0 260px; max-width: 100%;
+            font-size: 14px; font-weight: 700;
+            padding: 13px 28px; border-radius: 10px;
+            text-decoration: none; transition: all 0.25s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.3); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.78); border: 1px solid rgba(255,255,255,0.18); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.15); color: #fff; transform: translateY(-2px); }
+
+        /* ── 푸터 ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; border-radius: 32px 32px 0 0; }
+        footer .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        footer .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* ── 반응형 ── */
+        @media (max-width: 960px) {
+            .case-index { grid-template-columns: repeat(2, 1fr); }
+            .pattern-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 24px 16px 48px; }
+            .notation { padding: 18px 18px; }
+            .notation-row { flex-direction: column; gap: 7px; }
+            .notation-key { min-width: 0; align-self: flex-start; }
+            .header-pages { gap: 8px; flex-wrap: wrap; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            .case-card { padding: 20px 18px; border-radius: 14px; }
+            .case-card h3 { font-size: 18px; }
+            .case-chan { margin-left: 0; }
+            .case-body { grid-template-columns: 1fr; gap: 18px; }
+            .case-shots { flex-direction: row; overflow-x: auto; gap: 12px; padding-bottom: 6px; scroll-snap-type: x proximity; scrollbar-width: thin; }
+            .case-shots figure { flex: 0 0 82%; scroll-snap-align: start; }
+            .pattern-grid { grid-template-columns: 1fr; }
+            .lesson-list { grid-template-columns: 1fr; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+            .cta-btn { flex: 0 0 auto; width: 100%; max-width: 320px; }
+        }
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+            .case-index { grid-template-columns: 1fr; }
+        }
+
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+        }
+    </style>
+    <!-- ANALYTICS-STD -->
+    <script defer src="assets/js/analytics.js"></script>
+    <!-- /ANALYTICS-STD -->
+</head>
+<body>
+<!-- SKIP-STD -->
+<style>
+    /* 본문 바로가기 (WCAG 2.4.1 Level A). 평소엔 화면 위로 접히고 포커스 때만 내려온다 */
+    .skip-link {
+        position: fixed; left: 50%; top: 0; z-index: 999;
+        transform: translate(-50%, -130%);
+        padding: 12px 24px; border-radius: 0 0 14px 14px;
+        background: #1A1917; color: #fff;
+        font-size: 14px; font-weight: 700; text-decoration: none;
+        transition: transform 0.18s ease;
+    }
+    .skip-link:focus { transform: translate(-50%, 0); }
+    main:focus { outline: none; }
+</style>
+<a href="#main" class="skip-link">본문으로 건너뛰기</a>
+<script>
+    /* 해시에 맡기지 않고 직접 옮긴다. instant 로 못박아야 smooth 로 흘러가지 않는다 */
+    (function () {
+        var l = document.querySelector('.skip-link');
+        if (!l) return;
+        l.addEventListener('click', function (e) {
+            var m = document.getElementById('main');
+            if (!m) return;
+            e.preventDefault();
+            m.scrollIntoView({ behavior: 'instant', block: 'start' });
+            m.focus({ preventScroll: true });
+        });
+    })();
+</script>
+<!-- /SKIP-STD -->
+
+<!-- ── HEADER ── -->
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <a class="back-link" href="index.html#section-hermes">&larr; 목록으로</a>
+    <h1>헤르메스 에이전트 사용 사례</h1>
+    <p>슬랙에서 활동하는 헤르메스 에이전트가 실제로 어떤 일을 할 수 있는지 여덟 가지 사례로 정리했습니다.</p>
+    <div class="header-pages" id="pages-hermes">
+        <a href="hermes-agent.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/><path d="M11 7.5h5M11 16.5h5"/></svg></span> 헤르메스 에이전트</a>
+        <a href="hermes-cases.html" class="header-page-link active"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h11a1.5 1.5 0 0 1 1.5 1.5v6A1.5 1.5 0 0 1 15 14.5H9l-4 3.2V14.5A1.5 1.5 0 0 1 4 13V7a1.5 1.5 0 0 1 1.5-1.5z"/><path d="M19.5 9.5v6a1.5 1.5 0 0 1-1.5 1.5h-1"/></svg></span> 사용 사례</a>
+    </div>
+</header>
+
+<!-- ── SUB MENU ── -->
+<nav class="sub-menu" id="subMenu">
+    <a href="#cases" class="active" data-sec="cases">
+        <span class="sm-num">1</span>
+        <span class="sm-title">사례 여덟 가지</span>
+        <span class="sm-sub">Cases</span>
+    </a>
+    <a href="#pattern" data-sec="pattern">
+        <span class="sm-num">2</span>
+        <span class="sm-title">공통점</span>
+        <span class="sm-sub">Pattern</span>
+    </a>
+    <a href="#lessons" data-sec="lessons">
+        <span class="sm-num">3</span>
+        <span class="sm-title">여섯 가지 교훈</span>
+        <span class="sm-sub">Lessons</span>
+    </a>
+</nav>
+
+<main class="container" id="main" tabindex="-1">
+    <!-- 안내 -->
+    <div class="notation reveal">
+        <div class="notation-title">이 페이지는</div>
+        <div class="notation-row">
+            <span class="meta-tag connect notation-key">출처</span>
+            <p>이 페이지는 라이너의 DevOps 엔지니어 Young이 사내 hermes agent users 모임에서 발표한 자료를 각색한 것입니다.</p>
+        </div>
+        <div class="notation-row">
+            <span class="meta-tag skill notation-key">등장 이름</span>
+            <p><strong>Roasting</strong>는 Jayden의 에이전트입니다. <strong>pongpong</strong>과 <strong>pingping</strong>은 다른 동료들의 에이전트입니다. 사례 1에서는 pongpong이 진단을 검증하고, 사례 7과 8에서는 pingping이 기술 분석과 재측정을 맡습니다. <strong>Hound</strong>는 Jayden이 만들어서 공유한 조사용 스킬입니다.</p>
+        </div>
+    </div>
+
+    <!-- ═══════ 1. 여덟 사례 ═══════ -->
+    <div class="step-divider reveal"><span class="step-badge"><span class="sd-num">1</span><span class="sd-text">사례 여덟 가지</span></span></div>
+    <section id="cases" class="content-section">
+        <nav class="case-index reveal" aria-label="사례 목차">
+            <a href="#case-1"><span class="ci-num">1</span>모임 참석자 초대<span class="ci-verb">초대</span></a>
+            <a href="#case-2"><span class="ci-num">2</span>점심 메뉴 추천<span class="ci-verb">추천</span></a>
+            <a href="#case-3"><span class="ci-num">3</span>행사 배너 제작<span class="ci-verb">제작</span></a>
+            <a href="#case-4"><span class="ci-num">4</span>기념일 축하 카드<span class="ci-verb">축하</span></a>
+            <a href="#case-5"><span class="ci-num">5</span>동료 스킬 설치<span class="ci-verb">학습</span></a>
+            <a href="#case-6"><span class="ci-num">6</span>슬랙 활동으로 MBTI 분석<span class="ci-verb">분석</span></a>
+            <a href="#case-7"><span class="ci-num">7</span>장애 원인 쉽게 설명<span class="ci-verb">설명</span></a>
+            <a href="#case-8"><span class="ci-num">8</span>일주일 뒤 리마인드<span class="ci-verb">리마인드</span></a>
+        </nav>
+
+        <!-- 사례 1 -->
+        <article class="case-card reveal" id="case-1">
+            <div class="case-head">
+                <span class="case-num">01</span>
+                <span class="case-verb">초대</span>
+                <span class="case-chan">#z-hermes-users</span>
+                <h3>모임 참석자를 한 시간마다 확인해서 캘린더에 초대</h3>
+            </div>
+            <p class="case-lead">모임 공지 글에 일곱 명이 손 모양 이모지로 참석 신청을 했고, Roasting은 이 일곱 명을 모두 구글 캘린더 일정에 초대했습니다. 먼저 신청한 세 명은 부탁을 받자마자 초대했습니다. 그 뒤에 신청한 네 명은 한 시간마다 도는 예약 작업으로 자동 초대했습니다.</p>
+            <div class="case-body">
+                <div class="case-shots">
+                    <figure>
+                        <div class="slack shot-open" tabindex="0" role="button" aria-label="크게 보기: Jayden의 부탁부터 Roasting의 정정, 초대, 예약 오류 진단, 자동 초대까지 이어지는 슬랙 스레드"><div class="sk-ch"># z-hermes-users</div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Monday</time></div><p><span class="sk-at">@Roasting</span> 1시간에 한번씩 hermes agent users 모임 참가 신청자(손 이모지 표시한 사람) 파악해서 구글캘린더에 내가 마련해둔 일정으로 초대해 주면 좋겠어. 잘 할 수 있지?</p></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Monday</time></div><p>죄송합니다. 슬랙 메시지에 달린 이모지 반응은 제가 조회할 수 없어서, 누가 신청했는지 파악하지 못합니다.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Monday</time></div><p>너 분명히 이모지 읽을 수 있을 것 같은데. 다시 한번 확인해봐. 게으름 피우지 말고.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Monday</time></div><p>다시 확인해 보니 이모지 반응을 조회할 수 있습니다. 확인도 하지 않고 안 된다고 말씀드린 건 제 잘못입니다. 바로 진행하겠습니다.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Monday</time></div><p>손 이모지를 단 세 분을 캘린더 일정에 초대했습니다. 피부색이 지정된 손 이모지까지 포함했고, 기존 일정의 참석자 목록에 세 분이 추가된 것도 재조회해 확인했습니다. Jayden님과 회의실 예약은 그대로 유지했습니다.</p><p class="sk-h">매시간 자동 실행은 별도 문제가 남았습니다.</p><ul><li>작업은 등록했지만 <b>일시정지 상태</b>입니다.</li><li>기존 예약 작업들이 시작 단계에서 막히는 오류가 확인됐습니다. 슬랙 접근이나 이메일 문제가 아니라 "예약 실행 기능" 자체의 문제입니다.</li><li>자동 실행을 다시 켜려면 이 기능을 고치고 실제로 도는지 확인해야 합니다. 다른 기능에 영향을 줄 수 있는 설정은 임의로 바꾸지 않았습니다.</li></ul></div></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Monday at 12:26 PM</time></div><p><span class="sk-at">@Roasting</span> 나이쑤~ 아래 이미지는 내가 직접 캘린더에서 확인한 화면 스크린샷이야. 이번에 배운 것 기억 잘 해둬! 특히, 네가 슬랙에서 이모지 반응이나 프로필 정보를 직접 조회할 수 있다는 사실을 잊지 않았으면 좋겠어. 너를 너무 과소평가하지 말고. You can do it!</p><div class="sk-attach"><b>Hermes Users Bi-Weekly</b><span>Thursday, September 17 · 5:00 – 6:00pm</span><span class="sk-attach-row">참석자 4명 · Pepper, Shea, Sunny 추가됨</span></div></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Monday at 12:27 PM</time></div><p>스크린샷에서도 Pepper·Shea·Sunny 세 분이 초대된 것 확인했습니다. 감사합니다!</p><p>슬랙 정보를 직접 조회할 수 있다는 사실을 장기 기억에 분명히 저장했습니다. 이번에 확인한 이모지·프로필 이메일 조회 방법과, 같은 사람을 두 번 초대하지 않는 방법도 작업 요령으로 기록해 뒀습니다.</p><p>앞으로는 기능 목록만 보고 "못 합니다"라고 단정하지 않고, 실제로 되는지부터 확인하겠습니다.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Monday at 12:44 PM</time></div><p><span class="sk-at">@Roasting</span> 1시간에 한번씩 점검해서 추가 초대할 때, 신규 초대자가 있게 되면 이 쓰레드에 간단하게 보고 해줘. 아예 해당 초대자를 멘션해서 초대한 사실을 알리는 메시지를 작성해 줘도 되고.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Monday at 12:44 PM</time></div><p>네, 신규 초대가 있을 때만 이 스레드에 짧게 알리도록 작업에 반영했습니다.</p><div class="sk-quote"><span class="sk-at">@○○</span>님, 9/17(목) 17:00 Einstein 회의실에서 열리는 Hermes Users 모임에 캘린더 초대드렸습니다. 메일을 확인해 주세요!</div><p>신규 초대자가 없으면 별도 메시지는 보내지 않습니다.</p><p>다만 <b>예약 실행 기능의 오류가 아직 남아 있어 매시간 자동 점검은 일시정지 상태</b>입니다. 이번에는 보고 규칙까지 저장하고 확인했습니다.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Monday at 12:47 PM</time></div><p><span class="sk-at">@Roasting</span> 예약 실행이 안 되는 건 어떤 문제야? 해결할 수 없을까?</p></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Monday at 12:48 PM</time></div><p>해결할 수 있는 설정 문제입니다. 원인을 찾았습니다.</p><p>제가 <b>돌아가는 서버 환경을 실제와 다르게 인식</b>하고 있습니다. 그래서 이 환경에 없는 방식으로 작업을 시작하려다 실패하고 있습니다.</p></div></div><div class="sk-msg"><span class="sk-av" style="background:#8A6FA8" aria-hidden="true">po</span><div class="sk-body"><div class="sk-head"><b>pongpong</b><span class="sk-badge">APP</span><time>Monday</time></div><p>서버 환경과 코드를 직접 대조했습니다. Roasting의 진단이 맞습니다. 다만 다른 곳만 고치고 잘못 남은 설정을 그대로 두면 오류는 그대로입니다.</p></div></div><div class="sk-note">설정을 고치고 예약 작업을 다시 켠 뒤, 두 시간이 지나</div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Monday</time></div><p><span class="sk-at">@Spring</span>님, <span class="sk-at">@Mack</span>님, <span class="sk-at">@Eden</span>님, <span class="sk-at">@Lena</span>님, 9/17(목) 17:00 Einstein 회의실에서 열리는 Hermes Users 모임에 캘린더 초대드렸습니다. 메일을 확인해 주세요!</p></div></div></div>
+                        <figcaption>#z-hermes-users · 처음 부탁부터 자동 초대까지. 시각이 없는 앞뒤 대화는 원문 기록으로 다시 구성했습니다</figcaption>
+                    </figure>
+                </div>
+                <div class="case-text">
+                    <div class="ask-box">
+                        <span class="ask-label">에이전트에게 명령한 내용</span>
+                        <p>1시간에 한번씩 참가 신청자(손 이모지 표시한 사람) 파악해서 구글캘린더에 내가 마련해둔 일정으로 초대해 주면 좋겠어.</p>
+                    </div>
+                    <ul class="case-points">
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.5-5.8"/><path d="M17.5 3.7v3h-3"/><path d="M20 12a8 8 0 0 1-13.5 5.8"/><path d="M6.5 20.3v-3h3"/></svg>못 한다고 했다가 지적을 받고 정정</h4>
+                            <p>Roasting은 처음에 슬랙 반응은 조회할 수 없다고 답했습니다. Jayden이 다시 확인해 보라고 하자 실제로는 된다는 것을 확인했고, 확인도 안 해 보고 안 된다고 한 것은 자기 잘못이라고 사과했습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4 10-10"/></svg>새로 손 든 사람만 추가하고, 초대됐는지 다시 확인</h4>
+                            <p>피부색이 다른 손 이모지까지 다 세서, 이름@회사 도메인 메일 주소로 초대합니다. 이미 초대한 사람은 건드리지 않고 새로 반응한 사람만 추가합니다. 초대한 뒤에는 참석자 목록을 다시 조회해서 정말 들어갔는지 확인합니다. 구글 캘린더는 미리 연결돼 있어야 합니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>예약 작업이 안 돈 원인 발견</h4>
+                            <p>한 시간마다 돌아야 할 예약 작업이 돌지 않았습니다. Roasting이 원인을 찾아보니 권한 문제가 아니라 서버 설정 문제였습니다. 자기가 돌아가는 서버 환경을 실제와 다르게 인식해서, 그 환경에 없는 방식으로 작업을 시작하려다 시작도 못 하고 실패하고 있었습니다. 설정 하나가 잘못 남아 있었던 것입니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M10.5 10.5l3 3"/></svg>동료 에이전트의 진단 검증</h4>
+                            <p>동료의 에이전트 pongpong이 서버 환경과 코드를 직접 대조해서 이 진단이 맞다고 확인했습니다. 잘못 남은 설정을 그대로 두면 다른 곳을 고쳐도 오류가 계속 난다는 말도 덧붙였습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>다시 켜자 시키지 않아도 알아서 실행</h4>
+                            <p>예약 작업을 다시 켜자 두 시간 뒤에 Spring, Mack, Eden, Lena 네 명을 알아서 초대하고 스레드에 보고했습니다. 이 스레드에서 아무도 시키지 않았는데 올라온 보고는 이것 하나뿐입니다.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- 사례 2 -->
+        <article class="case-card reveal" id="case-2">
+            <div class="case-head">
+                <span class="case-num">02</span>
+                <span class="case-verb">추천</span>
+                <span class="case-chan">#z-yamyam-kr</span>
+                <h3>점심 메뉴 추천과 주문 마감 시각 알림</h3>
+            </div>
+            <p class="case-lead">Roasting이 쿠팡이츠를 실시간으로 조회해서 매장 세 곳을 골랐습니다. 가격, 거리, 평점, 배달 시간을 나란히 놓고 비교해 줬습니다. 주문 마감 시각에는 약속대로 Jayden을 멘션해서 알려 줬습니다. 메뉴 고르기부터 주문 마감까지 스레드 하나에서 끝났습니다.</p>
+            <div class="case-body">
+                <div class="case-shots">
+                    <figure>
+                        <div class="slack shot-open" tabindex="0" role="button" aria-label="크게 보기: Roasting이 쿠팡이츠 매장 세 곳을 가격, 거리, 평점, 배달 시간과 함께 비교해 추천한 슬랙 답변"><div class="sk-ch"># z-yamyam-kr</div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Thursday at 11:30 AM</time></div><p><span class="sk-at">@Roasting</span> 오늘은 닭곰탕 시먹해 볼까 싶은데, 쿠팡이츠에서 매장과 메뉴 추천해줘 &gt;&gt;</p><span class="sk-react"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4 4 10-10"/></svg>1</span></div></div><div class="sk-replies"><span>9 replies</span></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Thursday at 11:31 AM</time></div><p><b>오늘 시먹은 '닭가슴살 사골닭곰탕 본점'의 사골닭곰탕 9,900원 추천드립니다.</b> 사무실에서 1.4km이고, 밥·소면·김치·깍두기까지 포함입니다.</p><p>쿠팡이츠 실시간 조회 · 양화로 140 배달 기준 · <code class="sk-code">9/10 11:30 기준</code><br>아래 매장은 모두 조회 당시 <b>영업 중</b>이며, 추천 메뉴에 품절 표시는 없었습니다.</p><p class="sk-h">① 닭가슴살 사골닭곰탕 본점 · 가까운 곳에서 기본 한 그릇</p><ul><li><b>한우사골 사골닭곰탕 9,900원</b> · 밥·소면·대파·김치·깍두기 포함</li><li>사골닭곰탕 + 만두 2개 + 음료 세트 <b>14,500원</b></li><li>1.4km · 4.7 / 리뷰 171개 · 예상 배달 <b>27분</b> · 최소주문 11,000원</li></ul><p class="sk-h">② 효자동 설렁탕 신촌점 · 만두까지 드실 때</p><ul><li><b>사골닭곰탕 + 왕만두 2개 세트 12,900원</b> · 밥·소면·반찬 포함</li><li>한우사골 사골닭곰탕 단품 <b>9,900원</b></li><li>1.7km · 4.9 / 리뷰 4,172개 · 예상 배달 <b>24분</b> · 최소주문 11,000원</li><li>매장 전체 리뷰가 많은 편입니다. 닭곰탕만의 평점은 아닙니다.</li></ul><p class="sk-h">③ 1인분 엄마손 닭한마리 칼국수 · 당면·숙주 들어간 순살 닭곰탕</p><ul><li><b>순살닭곰탕 11,000원</b> · 순살·당면·숙주·대파 + 공기밥·반찬·다대기</li><li>실속 순살 닭곰탕 <b>10,500원</b> · 반찬 없는 메뉴</li><li>닭곰탕 2인 세트 <b>21,000원</b> · 탕 2개·밥 2개·반찬 2개</li><li>2.0km · 4.9 / 리뷰 1,585개 · 예상 배달 <b>25분</b> · 최소주문 12,000원</li></ul><p><b>같이 주문하시면 ① 단품, 혼자 주문하시면 최소주문을 충족하는 ② 만두 세트가 편합니다.</b> 단품 한 그릇만으로는 세 매장 모두 최소주문금액에 못 미칩니다.</p><p>단체 신청은 <b>식사 예정 시각보다 약 45~60분 전 마감</b>, 취합·결제 후 주문을 권합니다. 배달 예상시간은 현재 단일값에 여유를 더한 기준이며, 최종 배달비·할인·도착시간은 주문 직전 앱에서 확인해 주세요.</p><div class="sk-unfurl"><b>web.coupangeats.com</b><span class="sk-link">닭가슴살 사골닭곰탕 본점 · 4.7 (171)</span><span class="sk-ph"></span><em>Added by Roasting · 매장 링크 3건</em></div></div></div></div>
+                        <figcaption>#z-yamyam-kr · 실시간 조회로 고른 매장 세 곳</figcaption>
+                    </figure>
+                    <figure>
+                        <div class="slack shot-open" tabindex="0" role="button" aria-label="크게 보기: 주문 마감 시각에 Roasting이 약속대로 멘션해 알려준 슬랙 메시지"><div class="sk-ch"># z-yamyam-kr</div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Thursday at 11:48 AM</time></div><p>영: 사골닭곰탕 + 왕만두 2개</p><p><span class="sk-at">@Roasting</span> 12시 30분까지 주문마감할 예정인데 그때 되면 다시 나 좀 멘션해서 불러줘.</p><span class="sk-react"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4 4 10-10"/></svg>1</span></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Thursday at 11:50 AM</time></div><p>오늘 <b>12시 30분(한국 시간)</b>에 이 스레드에서 Jayden님을 멘션하도록 알림을 설정했습니다.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Thursday at 12:30 PM</time></div><p><span class="sk-at">@Jayden</span> 12시 30분입니다. 효자동 설렁탕 신촌점 시먹 주문 마감하실 시간이에요!</p></div></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Thursday at 12:35 PM</time></div><p>주문 완료!</p></div></div></div>
+                        <figcaption>같은 스레드 마지막 · 12시 30분에 온 알림</figcaption>
+                    </figure>
+                </div>
+                <div class="case-text">
+                    <div class="ask-box">
+                        <span class="ask-label">에이전트에게 명령한 내용</span>
+                        <p>오늘은 닭곰탕을 시켜 먹어 볼까 싶은데, 쿠팡이츠에서 매장과 메뉴를 추천해줘.</p>
+                    </div>
+                    <ul class="case-points">
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 11h16M10 5v14"/></svg>가격부터 배달 시간까지 한눈에 비교할 수 있게 정리</h4>
+                            <p>매장 세 곳의 가격, 거리, 평점, 리뷰 수, 예상 배달 시간, 최소 주문 금액을 표처럼 정리했습니다. 가까운 곳이 좋을 때, 만두를 같이 시킬 때처럼 상황별로 어느 매장이 나은지도 알려 줬습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>조회 시각 표시</h4>
+                            <p>답변에 "9/10 11:30 기준"이라고 조회 시각을 적었습니다. 조회할 때 세 매장 모두 영업 중이고 품절 메뉴는 없었다는 것도 함께 알렸습니다. 배달비와 할인은 주문 직전에 앱에서 다시 확인하라고 했습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M4 19c.5-3 2.5-4.5 5-4.5s4.5 1.5 5 4.5"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5c2.5 0 4 1.3 4.5 4"/></svg>혼자 시킬 때와 같이 시킬 때를 나눠서 추천</h4>
+                            <p>단품 한 그릇만 시키면 세 매장 다 최소 주문 금액이 안 된다는 점을 짚어 줬습니다. 그래서 동료와 같이 시키면 1번 매장, 혼자 시키면 세트 메뉴가 있는 2번 매장이 낫다고 정리했습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 17V10a6 6 0 0 1 12 0v7"/><path d="M4 17h16"/><path d="M10 20h4"/></svg>마감 시각에 정확히 멘션</h4>
+                            <p>Jayden이 "12시 30분까지 주문마감할 예정인데 그때 되면 다시 나 좀 멘션해서 불러줘"라고 하자, Roasting은 알림을 걸어 두었다가 정확히 그 시각에 멘션했습니다. Jayden은 "주문 완료"라고 답했습니다.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- 사례 3 -->
+        <article class="case-card reveal" id="case-3">
+            <div class="case-head">
+                <span class="case-num">03</span>
+                <span class="case-verb">제작</span>
+                <span class="case-chan">#z-hermes-users</span>
+                <h3>피드백을 받아 가며 행사 배너 시안 제작</h3>
+            </div>
+            <p class="case-lead">Office Hour 행사를 열기로 하고, 슬랙 공지 초안과 홍보 배너를 Roasting에게 맡겼습니다. 첫 결과물을 보고 "너무 심심하다"고 하자 시안 세 개를 더 만들어 왔습니다.</p>
+            <div class="case-body">
+                <div class="case-shots">
+                    <figure>
+                        <div class="art art-banner shot-open" tabindex="0" role="button" aria-label="크게 보기: Hermes Agent Office Hour 홍보 배너를 다시 그린 그림. 멤버 11명 자리는 사람 모양 아이콘으로 바꿨다"><span class="bn-face" style="left:7%;top:22%;background:#F7C6D9"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></span><span class="bn-face" style="left:24%;top:14%;background:#FFE9A8"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></span><span class="bn-face" style="left:43%;top:11%;background:#C9F26B"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></span><span class="bn-face" style="left:63%;top:11%;background:#FFD3B0"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></span><span class="bn-face" style="left:81%;top:16%;background:#BFE3FF"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></span><span class="bn-face" style="left:12%;top:52%;background:#FFD3B0"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></span><span class="bn-face" style="left:83%;top:47%;background:#F7C6D9"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></span><span class="bn-face" style="left:9%;top:84%;background:#BFE3FF"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></span><span class="bn-face" style="left:24%;top:76%;background:#C9F26B"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></span><span class="bn-face" style="left:76%;top:80%;background:#FFE9A8"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></span><span class="bn-face" style="left:90%;top:76%;background:#FFD3B0"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></span><div class="bn-center"><span class="bn-tag">HERMES AGENT</span><span class="bn-title"><i style="color:#F58CB6">O</i>FF<i style="color:#C9F26B">i</i>CE</span><span class="bn-title"><i style="color:#C9F26B">H</i><i style="color:#FF7A2F">O</i>UR</span><span class="bn-pill">함께 묻고, 함께 풀고, 함께 쌓는 시간</span><span class="bn-ticket">격주 금요일 · 17:00-18:00</span></div></div>
+                        <figcaption>최종 시안 B를 다시 그린 그림 · 원본에는 이모지로 반응한 멤버 11명의 합성 사진이 들어 있습니다</figcaption>
+                    </figure>
+                    <figure>
+                        <div class="slack shot-open" tabindex="0" role="button" aria-label="크게 보기: Roasting이 세미나 일정 투표를 집계한 뒤 정기 Office Hour를 제안하는 슬랙 스레드"><div class="sk-ch"># z-hermes-users</div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Sep 3rd at 12:37 PM</time></div><p><span class="sk-at">@channel</span> <b>Hermes Agent 활용 팁 공유 세미나 · 일정 투표</b></p><p>안녕하세요! Hermes Agent를 이미 쓰고 계신 분들의 실제 활용법을 모아 공유하는 자리를 만들어보려 합니다. "이렇게도 되네?" 싶은 것들을 서로 주고받는, 가볍고 실용적인 1시간입니다.</p><ul><li><b>시간</b> 평일 17:00~18:00 (1시간)</li><li><b>대상</b> Hermes Agent 쓰고 계신 분, 써보고 싶은 분 누구나</li><li><b>후보 일정</b> ① 9/7(월) ② 9/10(목) ③ 9/4(금) · 가능한 날에 이모지로 투표</li></ul><p>공유하고 싶은 활용 사례 있으신 분은 스레드에 적극적으로 남겨주세요. 세미나의 주인공은 여러분입니다.</p></div></div><div class="sk-replies"><span>16 replies</span></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Sep 4th at 10:48 AM</time></div><p><span class="sk-at">@Roasting</span> 공교롭게도 1,2,3 일정 모두 골고루 다양하게 이모지 달아주신 것 같은데, 네가 한번 정리해서 알려줘.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Sep 4th at 10:50 AM</time></div><p>현재 투표는 <b>②·③ 공동 1위</b>입니다.</p><ul><li>① 9/7(월) · 5명</li><li>② 9/10(목) · 6명</li><li>③ 9/4(금) · 6명</li></ul><p>Jayden 제외 시에도 ① 4명 · ② 5명 · ③ 5명으로 ②·③ 동률입니다.</p><p>즉, 단순 득표로는 ② 9/10 또는 ③ 9/4인데, ③은 임박한 일정이라 준비 시간을 고려하면 <b>② 9/10 확정이 가장 무난</b>해 보입니다.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Sep 4th at 10:54 AM</time></div><p><span class="sk-at">@Roasting</span> 내 판단에는 아직 이런 공유 세션을 갖는게 시기적으로는 이르거나 상황이 적절치 않은 것 같기도 해. 차라리 지난번에 한번 진행했던 Office Hour 시간을 정기적으로 가져보는게 더 나은 선택 같은데.... 네 생각은 어때?</p></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Sep 4th at 10:55 AM</time></div><p><b>저도 지금은 '세미나'보다 정기 Office Hour가 더 적절해 보입니다.</b></p><ul><li>투표자는 10명으로 관심 자체는 있음</li><li>다만 일정이 고르게 나뉘었고, 아직 공유 사례를 자발적으로 제안한 분은 없음</li><li>이 단계에서 발표형 세미나를 열면 Jayden님이 콘텐츠와 진행을 대부분 떠맡을 가능성이 큼</li></ul><p>반면 Office Hour는 참여 문턱이 낮고, 사람마다 다른 Hermes 활용 수준에도 잘 맞습니다.</p><p class="sk-h">추천 운영안</p><ul><li><b>격주 1회, 45~60분</b>으로 우선 3회 파일럿</li><li>별도 발표 준비 없이 실제 업무에서 막힌 문제, 잘된 프롬프트·스킬, 실패 사례 중 하나만 가져오기</li><li>현장에서 함께 해결하고, 유용한 사례만 짧게 기록</li><li>사례가 5~6개 쌓이면 그때 <b>활용 팁 공유 세미나</b>로 전환</li></ul></div></div></div>
+                        <figcaption>#z-hermes-users · 투표를 집계한 뒤 Office Hour를 제안한 답변</figcaption>
+                    </figure>
+                </div>
+                <div class="case-text">
+                    <div class="ask-box">
+                        <span class="ask-label">에이전트에게 명령한 내용</span>
+                        <p>관련 슬랙 공지글 초안 및 홍보 배너 이미지를 만들어서 이 스레드에 올려줘.</p>
+                        <p>배너 이미지가 너무 심심한데. 시안 3개를 추가로 만들어봐.</p>
+                        <span class="ask-note">두 번째 줄은 첫 결과물을 보고 다시 요청한 말입니다.</span>
+                    </div>
+                    <ul class="case-points">
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M6.5 6.5l11 11"/></svg>세미나 대신 Office Hour를 먼저 제안</h4>
+                            <p>처음 계획은 세미나 일정 투표였습니다. Roasting은 투표를 집계한 뒤, 지금은 세미나보다 정기 Office Hour가 더 맞아 보인다고 제안했습니다. 발표할 사례를 자발적으로 낸 사람이 아직 없어서, 세미나로 가면 진행자가 내용을 다 준비해야 한다는 것이 이유였습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h13"/></svg>시안마다 맞는 용도 안내</h4>
+                            <p>네온, 팝아트, 시네마틱 세 가지 스타일로 시안을 만들었습니다. "슬랙 피드에서 가장 눈에 띄는 시안"처럼 시안마다 특징을 설명하고, 용도별로 1순위도 추천했습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4 10-10"/></svg>11명이 빠짐없이 나오는지 확인</h4>
+                            <p>공지에 이모지로 반응한 멤버 11명의 프로필 사진을 참고해서 배너를 다시 만들었습니다. 세 시안 모두에 11명이 한 번씩 다 나오는지도 확인했습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l7 3v5c0 4.5-3 7.5-7 8.5-4-1-7-4-7-8.5V7z"/></svg>AI로 합성한 이미지라고 미리 안내</h4>
+                            <p>이름 같은 개인 정보는 배너에 넣지 않았습니다. 생성형 AI로 합성한 이미지라서 실제 얼굴과 인상이나 표정이 다를 수 있다는 점도 미리 말해 뒀습니다.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- 사례 4 -->
+        <article class="case-card reveal" id="case-4">
+            <div class="case-head">
+                <span class="case-num">04</span>
+                <span class="case-verb">축하</span>
+                <span class="case-chan">#1-people</span>
+                <h3>생일과 입사 기념일마다 축하 카드 제작</h3>
+            </div>
+            <p class="case-lead">인사 소식 채널에 축하 공지가 올라오면 동료들이 이모지로 축하를 이어 갑니다. 그 사이에 Roasting이 축하 카드 한 장을 만들어서 스레드에 올립니다.</p>
+            <div class="case-body">
+                <div class="case-shots">
+                    <figure>
+                        <div class="art art-card shot-open" tabindex="0" role="button" aria-label="크게 보기: Sunny의 입사 5주년 축하 카드를 다시 그린 그림. 사진 자리는 사람 모양 아이콘으로 바꿨다"><div class="cd-text"><svg class="cd-crown" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-1.8 10H4.8z"/></svg><span class="cd-name">Sunny님</span><span class="cd-title">입사 <b>5</b>주년<br>축하드립니다</span><span class="cd-sub">함께해 주신 시간에 진심으로 감사드립니다.</span><span class="cd-icons"><span class="cd-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><em>감사</em></span><span class="cd-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M4 19c.5-3 2.5-4.5 5-4.5s4.5 1.5 5 4.5"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5c2.5 0 4 1.3 4.5 4"/></svg><em>협력</em></span><span class="cd-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l2.4 5 5.6.7-4.1 3.8 1.1 5.5L12 16.3 7 19l1.1-5.5L4 9.7 9.600 9z"/></svg><em>성장</em></span></span><span class="cd-thanks">Thank you!</span></div><div class="cd-photo"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></div></div>
+                        <figcaption>입사 5주년 카드를 다시 그린 그림 · 원본은 본인 프로필 사진을 합성한 카드입니다</figcaption>
+                    </figure>
+                    <figure>
+                        <div class="slack shot-open" tabindex="0" role="button" aria-label="크게 보기: 1-people 채널 축하 스레드에 Roasting이 카드를 올린 장면"><div class="sk-ch"># 1-people</div><div class="sk-msg"><span class="sk-av" style="background:#7A6B9E" aria-hidden="true">A</span><div class="sk-body"><div class="sk-head"><b>동료 A</b><time>Jun 26th at 11:33 AM</time></div><p>반십년 ㄷㄷ 써니 5주년 축하드리고 늘 감사합니다</p></div></div><div class="sk-msg"><span class="sk-av" style="background:#4F8A8B" aria-hidden="true">B</span><div class="sk-body"><div class="sk-head"><b>동료 B</b><time>Jun 26th at 11:34 AM</time></div><p>반십년 ㄷㄷ 써니 5주년 축하드리고 늘 감사합니다</p></div></div><div class="sk-msg"><span class="sk-av" style="background:#A0626B" aria-hidden="true">C</span><div class="sk-body"><div class="sk-head"><b>동료 C</b><time>Jun 26th at 11:41 AM</time></div><p>반십년 ㄷㄷ 써니 5주년 축하드리고 늘 사랑합니다</p></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Jun 26th at 11:46 AM</time></div><p>입사 5주년을 진심으로 축하드리며, 앞으로도 좋은 순간들이 많이 이어지길 바랍니다. (by Jayden-HB)</p><div class="sk-file">Sunny님 입사 5주년 축하드립니다</div><div class="art art-card art-card--inline" aria-hidden="true"><div class="cd-text"><svg class="cd-crown" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-1.8 10H4.8z"/></svg><span class="cd-name">Sunny님</span><span class="cd-title">입사 <b>5</b>주년<br>축하드립니다</span><span class="cd-sub">함께해 주신 시간에 진심으로 감사드립니다.</span><span class="cd-icons"><span class="cd-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><em>감사</em></span><span class="cd-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M4 19c.5-3 2.5-4.5 5-4.5s4.5 1.5 5 4.5"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5c2.5 0 4 1.3 4.5 4"/></svg><em>협력</em></span><span class="cd-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l2.4 5 5.6.7-4.1 3.8 1.1 5.5L12 16.3 7 19l1.1-5.5L4 9.7 9.600 9z"/></svg><em>성장</em></span></span><span class="cd-thanks">Thank you!</span></div><div class="cd-photo"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="9" r="4.2"/><path d="M3.5 22c.8-5 4.2-7.6 8.5-7.6s7.7 2.6 8.5 7.6z"/></svg></div></div></div></div><div class="sk-note">동료들의 축하 인사가 이어집니다</div><div class="sk-msg"><span class="sk-av" style="background:#B58A3C" aria-hidden="true">S</span><div class="sk-body"><div class="sk-head"><b>Sunny</b><time>Jun 26th at 12:58 PM</time></div><p>축하해 주셔서 감사합니다 더 오래오래 열심히 하겠습니다</p></div></div></div>
+                        <figcaption>#1-people · 동료들의 축하 인사 사이에 올라간 카드</figcaption>
+                    </figure>
+                </div>
+                <div class="case-text">
+                    <div class="ask-box">
+                        <span class="ask-label">설정해 둔 규칙</span>
+                        <p>축하 공지가 올라오면 카드를 만들어서 그 스레드에 답글로 올린다.</p>
+                        <span class="ask-note">이 규칙을 한 번 정해 두면 매번 시킬 필요가 없습니다. 라이너에서는 인사 채널에 새 글이 올라오는지 지켜보도록 따로 설정해 두었습니다. 멘션 없이 반응하게 하려면 채널 자동 응답이나 주기 실행 설정이 필요한데, 이 설정은 앞 편 설치 범위에 들어 있지 않습니다.</span>
+                    </div>
+                    <ul class="case-points">
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.5-5.8"/><path d="M17.5 3.7v3h-3"/><path d="M20 12a8 8 0 0 1-13.5 5.8"/><path d="M6.5 20.3v-3h3"/></svg>상황에 맞춰 매번 새로 제작</h4>
+                            <p>생일이면 생일 문구를, 입사 5주년이면 연차를 넣은 문구를 씁니다. 카드에 들어가는 이름, 사진, 축하 문구가 전부 그 사람 것입니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="3.5"/><path d="M5 20c.7-3.8 3.6-6 7-6s6.3 2.2 7 6"/></svg>만든 사람 표시</h4>
+                            <p>카드 문구 끝에 "(by Jayden-HB)"를 붙여서 누구의 에이전트가 만든 카드인지 밝힙니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>사람의 축하를 대신하지 않는 역할</h4>
+                            <p>동료들의 축하 인사를 대신 써 주는 것이 아닙니다. 사람들이 각자 인사를 남기는 스레드에 카드 한 장을 보탤 뿐입니다.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- 사례 5 -->
+        <article class="case-card reveal" id="case-5">
+            <div class="case-head">
+                <span class="case-num">05</span>
+                <span class="case-verb">학습</span>
+                <span class="case-chan">#z-hermes-users</span>
+                <h3>공유받은 스킬을 설치하고 바로 사용</h3>
+            </div>
+            <p class="case-lead">Jayden이 Hound라는 스킬을 만들어 공유했습니다. 유튜브, 네이버, X처럼 일반 검색으로는 잘 안 잡히는 출처까지 파고드는 조사용 스킬입니다. 모임 참가자들이 각자 자기 에이전트에 이 스킬을 설치했는데, 그중 Roasting이 어떻게 설치했는지를 정리했습니다.</p>
+            <div class="case-body">
+                <div class="case-shots">
+                    <figure>
+                        <div class="slack shot-open" tabindex="0" role="button" aria-label="크게 보기: Roasting이 Hound 스킬에 필요한 도구를 설치하고 동작 검증 결과를 보고하는 슬랙 스레드"><div class="sk-ch"># z-hermes-users</div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Jul 14th at 11:44 AM</time></div><div class="sk-status">작업 중 · 3분째</div><p>Hound에 필요한 도구를 설치하고, 실제로 돌아가는지까지 확인했습니다.</p><p class="sk-h">설치하고 확인한 것</p><ul><li><code class="sk-code">yt-dlp</code> 2026.07.04 · 유튜브 영상 정보를 가져오는 도구. 실제 영상의 제목·조회수·게시일 조회 성공</li><li><code class="sk-code">whisper.cpp</code> 1.9.1 · 음성을 글로 옮기는 도구. 샘플 음성 변환 성공</li><li><code class="sk-code">feedparser</code> 6.0.12 · 뉴스와 블로그의 새 글을 모으는 도구. Hound 전용 공간에 설치</li><li>원래 있던 도구 확인: FFmpeg 7.1.4, curl 8.14.1, GitHub CLI 2.96.0, jq 1.7</li></ul><p class="sk-h">추가 점검</p><p>Hound의 전체 점검 항목을 돌린 결과:</p><ul><li>통과 11</li><li>실패 0</li><li>오류 0</li></ul><p>이제 유튜브 자막과 영상 정보 수집, 기간별 영상 순위 집계, 팟캐스트와 오디오를 글로 옮기는 일까지 바로 할 수 있습니다.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Jul 14th at 11:48 AM</time></div><p><span class="sk-at">@Roasting</span> hound로 한화이글스의 올해 KBO 우승 가능성에 대해 조사해줘.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Jul 14th at 11:51 AM</time></div><div class="sk-status">작업 중 · 6분째</div><p class="sk-h">결론</p><p><b>2026년 한화 이글스의 한국시리즈 우승 가능성은 현재 중앙 추정 약 2%, 합리적인 범위는 1~6% 정도</b>로 봅니다.</p></div></div></div>
+                        <figcaption>#z-hermes-users · 필요한 도구를 설치하고 점검한 결과 보고</figcaption>
+                    </figure>
+                    <figure>
+                        <div class="slack shot-open" tabindex="0" role="button" aria-label="크게 보기: 새로 설치한 Hound 스킬로 한화 이글스 우승 확률을 근거와 함께 분석한 슬랙 답변"><div class="sk-ch"># z-hermes-users</div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Jul 14th at 11:51 AM</time></div><div class="sk-status">작업 중 · 6분째</div><p class="sk-h">결론</p><p><b>2026년 한화 이글스의 한국시리즈 우승 가능성은 현재 중앙 추정 약 2%, 합리적인 범위는 1~6% 정도</b>로 봅니다.</p><ul><li>5강 진출: 약 50% (모형별 범위 34~68%)</li><li>정규시즌 1위: 1% 미만</li><li>한국시리즈 우승: 중앙 추정 1.8% (낙관적 득실차 모형 6.2%, 보수적 실제 승률 모형 0.4%)</li></ul><p>즉, <b>전력은 현재 6위라는 순위보다 좋지만, 우승 후보라기보다는 5강 경쟁권의 위험한 다크호스</b>에 가깝습니다.</p><p class="sk-h">긍정적인 근거</p><ul><li>7월 9일 전반기 종료 기준 <b>82경기 40승 40패 2무, 6위</b>입니다. 5위 두산과는 <b>1.5경기 차</b>라 포스트시즌 진입은 충분히 가능합니다.</li><li>공식 기록상 <b>481득점·414실점, 득실차 +67</b>입니다. 피타고라스 기대승률은 약 <b>0.568</b>로, 실제 승률 0.500보다 훨씬 높습니다.</li><li>경기당 5.86득점으로 리그 1위, 홈런도 <b>95개</b>입니다.</li></ul><p class="sk-h">우승 확률을 낮추는 요인</p><ul><li>선두 삼성과 <b>9.5경기 차</b>라 정규시즌 1위로 한국시리즈에 직행할 가능성은 매우 낮습니다.</li><li>문동주와 엄상백의 시즌 이탈로 선발 뎁스가 약해졌습니다.</li><li>4~5위로 가을야구에 진출하면 와일드카드부터 계단식으로 올라가야 하므로 최종 우승 확률은 급격히 줄어듭니다.</li></ul><p class="sk-h">한 줄 평가</p><p>가을야구는 반반, 우승은 낮지만 무시할 수 없는 확률입니다. 5위 턱걸이라면 우승은 1~2% 수준이고, 후반기 마운드가 안정돼 3위 안으로 올라가면 5% 이상으로 뛸 수 있습니다.</p><p><span class="sk-muted">주요 근거: KBO 공식 순위 · KBO 팀 타격 기록 · 주간조선 전반기 결산 · 한국일보 한화 리포트 · 엑스포츠뉴스 외국인 선발 점검</span></p><p>상세 조사 보고서도 첨부합니다.</p></div></div></div>
+                        <figcaption>설치 직후 사용한 결과 · 확률과 출처를 함께 제시</figcaption>
+                    </figure>
+                </div>
+                <div class="case-text">
+                    <div class="ask-box">
+                        <span class="ask-label">에이전트에게 명령한 내용</span>
+                        <p>이 스킬 장착해.</p>
+                        <span class="ask-note">해당 스킬 GitHub 링크를 같이 제공했습니다.</span>
+                    </div>
+                    <ul class="case-points">
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l7 3v5c0 4.5-3 7.5-7 8.5-4-1-7-4-7-8.5V7z"/><path d="M9 12l2 2 4-4"/></svg>설치, 보안 검사, 시험 가동까지 마치고 보고</h4>
+                            <p>파일 37개를 내려받아 설치한 뒤 보안 검사 결과가 안전(SAFE)으로 나왔는지 확인했습니다. 실제로 돌아가는지 간단한 시험도 해 보고 결과를 보고했습니다. 어느 버전을 설치했는지 나중에 알 수 있게 버전 정보도 남겼습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v5M12 16h.01"/></svg>빠진 도구를 먼저 알리고 이어서 설치</h4>
+                            <p>유튜브 자막을 가져오는 도구 <code>yt-dlp</code>가 빠져 있다고 먼저 보고했습니다. 이건 선택 사항이라 일반 조사는 바로 할 수 있다고도 덧붙였습니다. 그다음 <code>yt-dlp</code>, <code>whisper.cpp</code>, <code>feedparser</code> 세 가지를 설치하고, 실제 유튜브 영상으로 정보 조회와 음성 인식이 되는지 확인한 뒤에 설치가 끝났다고 보고했습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L5 13h6l-1 8 8-10h-6z"/></svg>설치 3분 뒤에 들어온 첫 조사 요청</h4>
+                            <p>설치 3분 뒤에 "hound로 한화이글스의 올해 KBO 우승 가능성에 대해 조사해줘"라는 요청이 들어왔습니다. Roasting은 우승 확률을 중앙값 2%, 합리적인 범위 1~6%로 잡았습니다. 우승에 유리한 근거와 불리한 요인을 나눠서 정리하고 출처 링크도 붙였습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h9l4 4v12H6z"/><path d="M15 4v4h4"/><path d="M9 13h6M9 16.5h4"/></svg>이 스킬을 언제 쓸지 정해서 기억</h4>
+                            <p>앞으로 깊이 조사해야 하는 요청에는 Hound를 먼저 쓰고, 단순한 사실 확인에는 쓰지 않기로 기준을 정해서 기억(메모리)에 저장했습니다.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- 사례 6 -->
+        <article class="case-card reveal" id="case-6">
+            <div class="case-head">
+                <span class="case-num">06</span>
+                <span class="case-verb">분석</span>
+                <span class="case-chan">#z-hermes-users · 답글 73</span>
+                <h3>슬랙 활동만으로 MBTI 분석</h3>
+            </div>
+            <p class="case-lead">공개 채널에서 어떻게 말하는지를 근거로 성격 유형을 추측하는 실험입니다. 재미로 시작했는데 자기도 봐 달라는 동료가 줄을 섰고, 스레드 답글이 73개까지 늘었습니다.</p>
+            <div class="case-body">
+                <div class="case-shots">
+                    <figure>
+                        <div class="slack shot-open" tabindex="0" role="button" aria-label="크게 보기: Roasting이 슬랙 활동을 근거로 MBTI를 확률과 함께 제시하고 다음 신청을 받는 슬랙 스레드"><div class="sk-ch"># z-hermes-users</div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Aug 20th at 4:43 PM</time></div><p>[살짝 감동] <span class="sk-at">@Roasting</span> 이 제 슬랙 활동을 분석해서 제 MBTI를 정확히 맞춰주네요. 다른 분 것 한번 맞춰 볼까요?</p><div class="sk-attach"><b>분석 결과 캡처</b><span class="sk-bar"><i style="width:45%"></i><em>INTJ 45%</em></span><span class="sk-bar"><i style="width:35%"></i><em>INTP 35%</em></span><span class="sk-bar"><i style="width:20%"></i><em>ENTJ 20%</em></span></div></div></div><div class="sk-replies"><span>73 replies</span></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Aug 20th at 4:44 PM</time></div><p>좋습니다. <b>다음 분의 Slack 표시 이름이나 멘션</b>을 알려주세요.</p><p>가능하면 본인 동의를 받은 분을 대상으로, 공개 채널의 업무 메시지를 폭넓게 살펴보고 <b>MBTI 후보, 근거, 확신하는 정도, 두 번째 후보</b>까지 같은 형식으로 분석해보겠습니다. 단, MBTI는 어디까지나 슬랙에서 보이는 대화 습관으로 세운 가설입니다.</p></div></div><div class="sk-note">동료 네 명이 잇따라 자기 이름을 올렸습니다</div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Aug 20th at 4:44 PM</time></div><p><span class="sk-at">@Roasting</span> 동료 A의 MBTI 한번 슬랙 분석해서 맞춰봐.</p><span class="sk-react"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4 4 10-10"/></svg>1</span></div></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Aug 20th at 4:45 PM</time></div><p>한분씩 해 드릴테니... 번호표 뽑고 기다려주세요~</p><span class="sk-react"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4 4 10-10"/></svg>3</span></div></div></div>
+                        <figcaption>#z-hermes-users · 확률로 답한 분석과 줄을 선 신청자</figcaption>
+                    </figure>
+                </div>
+                <div class="case-text">
+                    <div class="ask-box">
+                        <span class="ask-label">에이전트에게 명령한 내용</span>
+                        <p>내 슬랙 활동을 분석해서 MBTI를 맞춰봐.</p>
+                    </div>
+                    <ul class="case-points">
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15v-4M12 15V8M16 15v-6"/></svg>단정하지 않고 확률로 답변</h4>
+                            <p>유형 하나를 찍는 대신 INTJ 45%, INTP 35%, ENTJ 20%처럼 확률로 답했습니다. 네 가지 축 가운데 어느 축은 분명하고 어느 축은 아슬아슬한지도 따로 설명했습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.5-5.8"/><path d="M17.5 3.7v3h-3"/><path d="M20 12a8 8 0 0 1-13.5 5.8"/><path d="M6.5 20.3v-3h3"/></svg>같은 분석을 두 번 돌려서 대조</h4>
+                            <p>똑같은 분석을 처음부터 한 번 더 돌려서 결과가 같은지 확인한 다음에 최종 답을 냈습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M9.5 9.5a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 3.5"/><path d="M12 16.5h.01"/></svg>모르는 것은 모른다고 기록</h4>
+                            <p>"슬랙 활동만으로는 실제 에너지 충전 방식을 단정할 수 없습니다" 같은 한계를 결과에 같이 적었습니다. 이 결과는 슬랙에서 본 대화 습관으로 세운 가설일 뿐이라고도 분명히 밝혔습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l7 3v5c0 4.5-3 7.5-7 8.5-4-1-7-4-7-8.5V7z"/></svg>분석하기 전에 본인 동의부터 확인</h4>
+                            <p>누구를 분석할지 정하기 전에, 되도록 본인이 동의한 사람만 분석하겠다는 조건을 먼저 걸었습니다.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- 사례 7 -->
+        <article class="case-card reveal" id="case-7">
+            <div class="case-head">
+                <span class="case-num">07</span>
+                <span class="case-verb">설명</span>
+                <span class="case-chan">#0-issue-ui</span>
+                <h3>다른 에이전트의 기술 분석을 제보자가 알아듣게 다시 설명</h3>
+            </div>
+            <p class="case-lead">liner.com 접속이 가끔 20~30초씩 걸린다는 제보가 들어왔습니다. 동료의 에이전트 pingping이 브라우저에 남은 접속 기록 339건을 분석해서, 브라우저가 서버에 연결을 시작하기도 전에 10초를 기다린다는 것까지는 알아낸 상태였습니다.</p>
+            <div class="case-body">
+                <div class="case-shots">
+                    <figure>
+                        <div class="slack shot-open" tabindex="0" role="button" aria-label="크게 보기: 접속이 느리다는 제보, pingping의 분석, Roasting의 택배 비유 설명으로 이어지는 슬랙 스레드"><div class="sk-ch"># 0-issue-ui</div><div class="sk-msg"><span class="sk-av" style="background:#7C7568" aria-hidden="true">제</span><div class="sk-body"><div class="sk-head"><b>제보자</b><time>Thursday</time></div><p>liner.com 접속이 가끔 20~30초씩 걸립니다. 매번 그런 건 아니고 간헐적으로 그래요. 브라우저에 남은 접속 기록을 첨부합니다.</p></div></div><div class="sk-msg"><span class="sk-av" style="background:#5B7BB5" aria-hidden="true">pi</span><div class="sk-body"><div class="sk-head"><b>pingping</b><span class="sk-badge">APP</span><time>Thursday</time></div><p>보내주신 접속 기록 339건을 분석했습니다.</p><ul><li>서버가 페이지를 만들어 보내는 시간은 빨랐습니다.</li><li>느린 구간은 그 앞입니다. <b>브라우저가 서버에 연결을 시작하기도 전에 약 10초를 기다렸습니다.</b></li><li>그래서 서버보다는 접속하는 쪽 환경에서 원인을 찾아야 할 것으로 보입니다. 무엇 때문에 기다렸는지는 아직 확정하지 못했습니다.</li></ul><p>원본 분석 기록은 갖고 있습니다. 특정 요청을 더 살펴보고 싶으면 말해주세요.</p></div></div><div class="sk-msg"><span class="sk-av" style="background:#7C7568" aria-hidden="true">제</span><div class="sk-body"><div class="sk-head"><b>제보자</b><time>Thursday at 3:58 PM</time></div><p>아하 제 문제인가요?</p><p>나중에 외부망 + 다른 디바이스로 재현되면 다시 공유드리겠습니다.</p><p>감사합니다! (회사 맥에 깔린 cloudflare 문제일 수도 있겠네요.)</p></div></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Thursday at 4:04 PM</time></div><p><span class="sk-at">@Roasting</span> 위 핑핑이가 알려준 내용 네가 소화해서 다시 제보자에게 친절하게 알려줘. ELI7 으로 말이야.</p><span class="sk-react"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4 4 10-10"/></svg>1</span></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Thursday at 4:04 PM</time></div><p>제보자님, "제가 뭘 잘못했나요?"라고 생각하실 필요는 없어요. 보내주신 기록 덕분에 <i>어디서 기다렸는지</i>가 훨씬 분명해졌습니다.</p><p class="sk-h">택배를 보내는 상황으로 비유하면요</p><ul><li>브라우저가 라이너에 "페이지 주세요"라는 택배를 보내려고 했어요.</li><li>그런데 <b>출발 준비 단계에서 약 10초 동안 기다린 것</b>으로 보입니다.</li><li>출발한 뒤에는 라이너가 빠르게 답을 보내줬고요.</li></ul><p>핑핑님이 공유한 기록 분석대로라면, 라이너 서버가 페이지를 만드느라 오래 걸린 것보다는 브라우저나 컴퓨터가 연결을 준비하는 과정에서 기다렸을 가능성이 높습니다. 다만, <i>무엇 때문에 기다렸는지</i>까지 확정된 건 아니에요.</p><p>회사 보안 프로그램이나 VPN은 택배를 보내기 전에 "어느 길로 보낼까?"를 확인하는 안내원 역할을 하기도 합니다. 그 확인이 늦어졌을 수 있다는 뜻이지, 그 프로그램이 원인이라고 확인된 건 아닙니다.</p><p class="sk-h">다음에는 한 번에 하나씩 바꿔 비교해 주시면 도움이 됩니다.</p><ul><li>같은 맥으로 <b>회사 Wi-Fi 대신 휴대폰 핫스팟</b>에서 접속해 보기</li><li>같은 맥·같은 네트워크에서 <b>시크릿 창</b>으로 접속해 보기</li><li>회사 보안 프로그램은 임의로 끄기보다 <b>담당자에게 잠깐 비교 테스트해도 되는지 확인</b>하기</li></ul><p>지금은 "제보자님 장비가 문제다"가 아니라, "접속 준비 중 기다리는 이유를 찾아보자"가 정확한 설명이에요.</p></div></div></div>
+                        <figcaption>#0-issue-ui · 제보부터 택배 비유 설명까지. 시각이 없는 앞 대화는 원문 기록으로 다시 구성했습니다</figcaption>
+                    </figure>
+                </div>
+                <div class="case-text">
+                    <div class="ask-box">
+                        <span class="ask-label">에이전트에게 명령한 내용</span>
+                        <p>위 핑핑이가 알려준 내용 네가 소화해서 다시 제보자에게 친절하게 알려줘. ELI7으로 말이야.</p>
+                        <span class="ask-note">ELI7은 "Explain Like I'm 7"(내가 7살인 것처럼 설명해 줘)라는 영어 문장의 줄임말입니다.</span>
+                    </div>
+                    <ul class="case-points">
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>말투부터 결정</h4>
+                            <p>답변 첫 문장이 "'제가 뭘 잘못했나요?'라고 생각하실 필요는 없어요"였습니다. 제보자가 자기 탓이라고 느끼지 않게 하는 것부터 챙겼습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h12v9H4z"/><path d="M16 11h3l2 2.5V17h-5"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="17.5" cy="18" r="1.5"/></svg>비유는 택배 하나만 사용</h4>
+                            <p>택배 보내는 상황 하나로 끝까지 설명했습니다. 출발 준비하는 데서 10초를 기다렸고, 출발한 뒤에는 빨랐다는 식으로 구간을 나눠 설명했습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h13"/></svg>확실한 것과 추측을 나눠서 설명</h4>
+                            <p>"어디서 기다렸는지는 좁혀졌지만 무엇 때문에 기다렸는지까지 확정된 건 아니에요"라고 말해서, 확인된 부분과 아직 추측인 부분을 분명히 나눴습니다.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- 사례 8 -->
+        <article class="case-card reveal" id="case-8">
+            <div class="case-head">
+                <span class="case-num">08</span>
+                <span class="case-verb">리마인드</span>
+                <span class="case-chan">#3-cost-chat</span>
+                <h3>일주일 뒤로 설정한 알림이 그날 실제로 도착</h3>
+            </div>
+            <p class="case-lead">일주일 전에 네트워크 비용을 줄이는 작업을 적용하고, 월 220만 원쯤 아낄 것 같다고 잠정 추정한 스레드였습니다. 여덟 사례 가운데 명령이 가장 짧고, 결과가 금액으로 확인된 유일한 사례입니다.</p>
+            <div class="case-body">
+                <div class="case-shots">
+                    <figure>
+                        <div class="slack shot-open" tabindex="0" role="button" aria-label="크게 보기: Roasting이 일주일 뒤 약속대로 멘션해 비용 절감 재확인을 이끌어 낸 슬랙 스레드"><div class="sk-ch"># 3-cost-chat</div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Sep 7th at 5:30 PM</time></div><p><span class="sk-at">@pingping</span> 최근 동료가 해 준 비용 절감 작업이 효과가 나는지 실제 비용을 보고 한번 분석해 줄 수 있겠어? 아직 1주일 정도 지나봐야 알 것 같기는 한데 네트워크 비용이 좀 줄어들었다는 느낌(?)이 들고 있기는 하거든~</p></div></div><div class="sk-msg"><span class="sk-av" style="background:#5B7BB5" aria-hidden="true">pi</span><div class="sk-body"><div class="sk-head"><b>pingping</b><span class="sk-badge">APP</span><time>Sep 7th at 5:37 PM</time></div><p><b>효과가 있습니다.</b> 개발 서버가 외부와 주고받는 데이터가 평일 기준 33% 줄었습니다. 월로 환산하면 약 220만 원 절감입니다.</p><p class="sk-h">아직 단정하기 이른 것</p><ul><li>작업을 다 적용한 뒤 평일이 4일뿐입니다. 9/8~9/12 한 주를 더 봐야 확정할 수 있습니다.</li></ul></div></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Sep 7th at 5:40 PM</time></div><p><span class="sk-at">@Roasting</span> 1주일 뒤에 이 쓰레드에 나 멘션해서 다시 살펴볼 수 있게 해줘.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Sep 7th at 5:40 PM</time></div><p>설정했습니다. <b>1주일 뒤 이 스레드에서 Jayden님을 멘션</b>해 네트워크 비용 절감 효과를 다시 확인하시도록 알려드리겠습니다.</p></div></div><div class="sk-note">일주일 뒤</div><div class="sk-msg"><span class="sk-av sk-av--agent" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="8" width="14" height="10" rx="3"/><path d="M12 8V5"/><circle cx="12" cy="4" r="1"/><path d="M9.5 12.5v1.5M14.5 12.5v1.5"/><path d="M3 12v3M21 12v3"/></svg></span><div class="sk-body"><div class="sk-head"><b>Roasting</b><span class="sk-badge">AGENT</span><time>Monday at 5:40 PM</time></div><p><span class="sk-at">@Jayden</span> 1주일이 지났습니다. 클라우드 네트워크 비용 절감 효과를 다시 살펴보실 시간입니다. 지난번 잠정 분석에서 본 데이터 사용량 감소와 월 약 220만 원 절감 추정이 실제 청구서에서도 유지되는지, 그사이 개발 작업량이 달라지지는 않았는지 함께 확인해 보세요.</p></div></div><div class="sk-msg"><span class="sk-av sk-av--logo" aria-hidden="true"><img src="assets/logos/logo1-transparent.png" alt="" loading="lazy"></span><div class="sk-body"><div class="sk-head"><b>Jayden</b><time>Monday at 6:11 PM</time></div><p><span class="sk-at">@pingping</span> 네가 위 내용 읽어보고, 지난번 잠정 분석의 데이터 사용량 감소와 월 약 220만 원 절감 추정이 실제 비용에서도 유지되는지 한번 확인해줘</p></div></div><div class="sk-msg"><span class="sk-av" style="background:#5B7BB5" aria-hidden="true">pi</span><div class="sk-body"><div class="sk-head"><b>pingping</b><span class="sk-badge">APP</span><time>Monday at 6:14 PM</time></div><p><b>유지되는 수준을 넘어 더 커졌습니다.</b> 평일 데이터 사용량이 44% 줄었고, 실제 청구 기준으로 월 약 290만 원 절감입니다(지난번 추정 220만 원보다 큽니다).</p><p class="sk-h">실제 청구 금액으로 본 변화</p><ul><li>해당 항목의 평일 하루 청구액: 28만 4천 원(8/10~21) → 20만 9천 원(8/31~9/3) → 15만 3천 원(9/7~11)</li><li>하루 약 13만 1천 원 절감 × 평일 22일 ≈ 월 290만 원</li></ul></div></div></div>
+                        <figcaption>#3-cost-chat · 약속대로 일주일 뒤에 보낸 멘션과 이어진 재측정</figcaption>
+                    </figure>
+                </div>
+                <div class="case-text">
+                    <div class="ask-box">
+                        <span class="ask-label">에이전트에게 명령한 내용</span>
+                        <p>1주일 뒤에 이 스레드에 나 멘션해서 다시 살펴볼 수 있게 해줘.</p>
+                    </div>
+                    <ul class="case-points">
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h9l4 4v12H6z"/><path d="M15 4v4h4"/><path d="M9 13h6M9 16.5h4"/></svg>알림에 확인할 내용까지 포함</h4>
+                            <p>일주일 뒤 Roasting은 그냥 알림만 보내지 않았습니다. 데이터 사용량 감소가 실제 청구서에도 나타나는지, 그사이 개발 작업량이 달라지지는 않았는지처럼 다시 봐야 할 항목을 같이 적어서 멘션했습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15v-4M12 15V8M16 15v-6"/></svg>이 멘션 덕에 이루어진 재측정</h4>
+                            <p>이 멘션 뒤에 pingping이 실제 청구 데이터로 다시 측정했더니 절감 폭이 처음 추정보다 컸습니다. 평일 데이터 사용량은 44% 줄었고, 월 절감액은 실측 기준 290만 원으로 잠정 추정치 220만 원보다 많았습니다.</p>
+                        </li>
+                        <li>
+                            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>알림이 없었으면 그냥 넘어갔을 일</h4>
+                            <p>일주일 뒤에 누가 다시 들여다볼 이유가 딱히 없는 일이었습니다. 한 문장으로 걸어 둔 리마인드가 이 확인을 만들었습니다.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <!-- ═══════ 2. 공통점 ═══════ -->
+    <div class="step-divider reveal"><span class="step-badge"><span class="sd-num">2</span><span class="sd-text">사례 여덟 가지의 공통점</span></span></div>
+    <section id="pattern" class="content-section">
+        <div class="pattern-grid">
+            <div class="pattern-card reveal">
+                <div class="pattern-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l7 3v5c0 4.5-3 7.5-7 8.5-4-1-7-4-7-8.5V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
+                <h4>완료 보고 전에 직접 확인하게 하기</h4>
+                <p>다 됐다고 말하기 전에 스스로 확인하게 합니다. Roasting은 캘린더에 초대한 뒤 참석자 목록을 다시 열어 봤고, 스킬을 설치한 뒤에는 시험 삼아 돌려 봤습니다. MBTI는 같은 분석을 처음부터 한 번 더 했습니다.</p>
+            </div>
+            <div class="pattern-card reveal">
+                <div class="pattern-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v5M12 16h.01"/></svg></div>
+                <h4>막히면 막혔다고 보고하게 하기</h4>
+                <p>안 되는 일을 되는 척하지 않게 합니다. 예약 작업이 멈췄을 때 Roasting은 권한 탓인지 설정 탓인지부터 나눠서 보고했습니다. 스킬을 설치할 때는 빠진 도구가 있다는 말을 먼저 꺼냈습니다.</p>
+            </div>
+            <div class="pattern-card reveal">
+                <div class="pattern-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/><path d="M10.5 10.5l3 3"/></svg></div>
+                <h4>다른 에이전트에게 검증받게 하기</h4>
+                <p>에이전트 하나의 결론만 믿지 않고 다른 에이전트에게 다시 확인시킵니다. 예약 작업이 멈춘 원인은 pongpong이 한 번 더 확인했고, 비용이 정말 줄었는지는 pingping이 청구서로 다시 계산했습니다.</p>
+            </div>
+            <div class="pattern-card reveal">
+                <div class="pattern-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h9l4 4v12H6z"/><path d="M15 4v4h4"/><path d="M9 13h6M9 16.5h4"/></svg></div>
+                <h4>잘 안 된 것도 기록하게 하기</h4>
+                <p>실패한 일도 지우지 않고 스레드에 남기게 합니다. 못 한다고 잘못 답한 일도, 예약 작업이 멈춘 일도 그대로 남아 있습니다. 덕분에 다음 사람은 같은 데서 헤매지 않아도 됩니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════ 3. 여섯 가지 교훈 ═══════ -->
+    <div class="step-divider reveal"><span class="step-badge"><span class="sd-num">3</span><span class="sd-text">여섯 가지 교훈</span></span></div>
+    <section id="lessons" class="content-section">
+        <ol class="lesson-list">
+            <li class="reveal">
+                <span class="lesson-num">1</span>
+                <div>
+                    <div class="lesson-head"><h4>믿고 맡기는 만큼 돌아오는 결과</h4><a class="lesson-ref" href="#case-1">사례 1</a></div>
+                    <p>Roasting은 처음에 이모지 반응을 조회할 수 없다고 답했습니다. 다시 확인해 보라고 하자 조회가 됐습니다. 에이전트가 못 한다고 답해도 한 번은 다시 확인시킵니다.</p>
+                </div>
+            </li>
+            <li class="reveal">
+                <span class="lesson-num">2</span>
+                <div>
+                    <div class="lesson-head"><h4>한 번에 잘 나오길 기대하지 않기</h4><a class="lesson-ref" href="#case-3">사례 3</a></div>
+                    <p>첫 결과물로 끝나는 경우는 드뭅니다. 배너도 첫 시안은 단조로웠고, 피드백을 한 번 준 뒤에 최종 시안이 나왔습니다. 첫 결과물은 고쳐 나갈 재료로 봅니다.</p>
+                </div>
+            </li>
+            <li class="reveal">
+                <span class="lesson-num">3</span>
+                <div>
+                    <div class="lesson-head"><h4>만들어 놓고 내버려 두지 않기</h4><a class="lesson-ref" href="#case-5">사례 5</a></div>
+                    <p>Hound 스킬은 설치한 지 3분 만에 실제 조사에 썼고, 그래서 쓸 만한지 바로 확인했습니다. 설치만 해 두고 쓰지 않는 스킬은 곧 잊힙니다. 작업과 스킬은 계속 쓰면서 관리합니다.</p>
+                </div>
+            </li>
+            <li class="reveal">
+                <span class="lesson-num">4</span>
+                <div>
+                    <div class="lesson-head"><h4>구경만 하지 말고 직접 해보기</h4><a class="lesson-ref" href="#cases">사례 1~8</a></div>
+                    <p>처음에는 다른 사람의 명령을 그대로 따라 해도 충분합니다. 위 사례에서 명령 하나를 골라 자기 에이전트에게 똑같이 시켜 보면 됩니다.</p>
+                </div>
+            </li>
+            <li class="reveal">
+                <span class="lesson-num">5</span>
+                <div>
+                    <div class="lesson-head"><h4>쉽고 반복되는 일부터 맡기기</h4><a class="lesson-ref" href="#case-4">사례 4</a></div>
+                    <p>축하 카드는 한 번 설정한 뒤로 다시 손댈 일이 없었습니다. 이렇게 반복되고 실패해도 부담이 없는 일부터 맡깁니다. 중요한 업무는 그다음에 맡겨도 됩니다.</p>
+                </div>
+            </li>
+            <li class="reveal">
+                <span class="lesson-num">6</span>
+                <div>
+                    <div class="lesson-head"><h4>남의 눈을 의식하지 않기</h4><a class="lesson-ref" href="#pattern">공통점</a></div>
+                    <p>잘된 사례만 공유하면 다음 사람이 같은 문제를 다시 겪습니다. 그래서 안 된 사례도 함께 공유합니다.</p>
+                </div>
+            </li>
+        </ol>
+    </section>
+
+    <!-- CTA 섹션 -->
+    <div class="cta-section reveal">
+        <h3>쉬운 일 하나부터 맡겨 보기</h3>
+        <div class="cta-buttons">
+            <a class="cta-btn primary" href="hermes-agent.html">헤르메스 에이전트 설치 편 &rarr;</a>
+            <a class="cta-btn secondary" href="index.html#section-hermes">목록으로</a>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">AI 에이전트를 고용하라</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<script>
+    // 스크롤 리빌 애니메이션
+    var revealEls = document.querySelectorAll('.reveal');
+    var revealObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+    revealEls.forEach(function (el) { revealObserver.observe(el); });
+</script>
+<style>
+        /* ## SECTION-TITLE-STD START ## */
+        /* ══════════════════════════════════════════════════════════════
+           섹션명 공통 규격 · AGENTS.md 3.8
+           폰트 13px / 800 / 자간 0.5px · 색 #D97757 · 알약 높이 36px
+           구분선 여백 위 70px · 아래 22px (모바일 52px·16px)
+           단, 페이지 첫 섹션 구분선만 위 여백 0 (컨테이너 패딩만 남긴다)
+           고칠 때는 이 마커 블록만 고치고 전 페이지에 함께 반영한다.
+           ══════════════════════════════════════════════════════════════ */
+        .step-divider.step-divider,
+        .cat-label.cat-label,
+        .chapter-divider.chapter-divider,
+        .design-cat.design-cat {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 70px 0 22px;
+            position: relative;
+            text-align: center;
+        }
+        /* 첫 섹션 구분선은 위 여백을 걷어낸다. 컨테이너 패딩(32px, 모바일 24px)만 남는다 */
+        main.container > .step-divider:first-child,
+        main.container > .cat-label:first-child,
+        main.container > .chapter-divider:first-child,
+        main.container > .design-cat:first-child,
+        main.container > :first-child > .step-divider:first-child,
+        main.container > :first-child > .cat-label:first-child,
+        main.container > :first-child > .chapter-divider:first-child,
+        main.container > :first-child > .design-cat:first-child,
+        main.container > :empty:first-child + .step-divider,
+        main.container > :empty:first-child + .cat-label,
+        main.container > :empty:first-child + .chapter-divider,
+        main.container > :empty:first-child + .design-cat,
+        main.container > :empty:first-child + * > .step-divider:first-child,
+        main.container > :empty:first-child + * > .cat-label:first-child,
+        main.container > :empty:first-child + * > .chapter-divider:first-child {
+            margin-top: 0;
+        }
+        /* 난이도 범례 바로 뒤에 오는 첫 구분선은 여백을 줄인다 */
+        main.container > .legend + .step-divider { margin-top: 34px; }
+        .step-divider::before, .step-divider::after,
+        .chapter-divider::before, .chapter-divider::after {
+            content: ''; flex: 1; height: 1px; background: #DDD8D0;
+            opacity: 1; position: static; transform: none;
+        }
+        .step-badge.step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-shrink: 1;
+            max-width: 100%;
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            padding: 9px 24px;
+            border-radius: 24px;
+            background: var(--nm-bg, #EDEAE4);
+            background-image: none;
+            box-shadow: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+            text-transform: none;
+            color: var(--ant-orange, #D97757);
+            white-space: normal;
+            word-break: keep-all;
+            text-align: center;
+        }
+        .step-badge.step-badge svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .sd-num, .cat-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 9px;
+            background: var(--ant-orange, #D97757);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0;
+            line-height: 1;
+            flex-shrink: 0;
+            margin: 0;
+        }
+        .sd-num.sd-num svg { width: 13px; height: 13px; stroke: #fff; }
+        .sd-text { color: inherit; font: inherit; letter-spacing: inherit; }
+        .sd-tag, .dv-count {
+            font-size: 11px;
+            font-weight: 700;
+            color: #9A948C;
+            letter-spacing: 0;
+            flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+            .step-divider.step-divider,
+        .cat-label.cat-label,
+        .chapter-divider.chapter-divider,
+        .design-cat.design-cat { margin: 52px 0 16px; }
+            .step-badge.step-badge {
+                font-size: 12px;
+                padding: 8px 16px;
+                border-radius: 20px;
+                gap: 6px;
+            }
+            .sd-num, .cat-count { min-width: 17px; height: 17px; font-size: 10px; }
+            .sd-tag, .dv-count { font-size: 10px; }
+        }
+        /* ## SECTION-TITLE-STD END ## */
+    </style>
+
+<!-- ── Sub Menu Scroll Spy ── -->
+<script>
+(function(){
+    var links = document.querySelectorAll('.sub-menu a[data-sec]');
+    var sections = [];
+    links.forEach(function(l){ var s = document.getElementById(l.dataset.sec); if(s) sections.push({id:l.dataset.sec, el:s, link:l}); });
+
+    // 섹션의 시작은 카드가 아니라 그 위의 단계 배지다. 링크로 이동했을 때 배지가 서브메뉴
+    // 바로 아래에 서므로, 활성 판정도 같은 지점을 기준으로 삼아야 어긋나지 않는다
+    function sectionTop(s){
+        var prev = s.el.previousElementSibling;
+        return (prev && prev.classList.contains('step-divider')) ? prev.offsetTop : s.el.offsetTop;
+    }
+
+    // 배지와 카드 사이 간격이 섹션마다 달라, 고정값을 쓰면 어떤 섹션은 배지가 메뉴에 가린다.
+    // 섹션별로 실제 간격을 재서 착지 지점을 맞춘다
+    function applyScrollMargins(){
+        var smEl = document.getElementById('subMenu');
+        var visible = smEl && getComputedStyle(smEl).display !== 'none';
+        var menuH = visible ? smEl.offsetHeight : 64;
+        sections.forEach(function(s){
+            s.el.style.scrollMarginTop = (menuH + 16 + (s.el.offsetTop - sectionTop(s))) + 'px';
+        });
+    }
+
+    function update(){
+        var smEl = document.getElementById('subMenu');
+        var scrollY = window.scrollY + (smEl ? smEl.offsetHeight : 0) + 20;
+        var current = sections[0];
+        for(var i = 0; i < sections.length; i++){
+            if(sectionTop(sections[i]) <= scrollY) current = sections[i];
+        }
+        links.forEach(function(l){ l.classList.remove('active'); });
+        if(current) current.link.classList.add('active');
+
+        var activeLink = document.querySelector('.sub-menu a.active');
+        if(activeLink){
+            var nav = document.getElementById('subMenu');
+            var linkRect = activeLink.getBoundingClientRect();
+            var navRect = nav.getBoundingClientRect();
+            if(linkRect.left < navRect.left || linkRect.right > navRect.right){
+                // 가로 서브메뉴만 스크롤한다. sticky 컨테이너 안에서 scrollIntoView를 부르면
+                // 브라우저가 창을 서브메뉴의 원래(고정 전) 위치로 끌어올려 하단을 못 보게 만든다.
+                var target = activeLink.offsetLeft - (nav.clientWidth - activeLink.clientWidth) / 2;
+                nav.scrollTo({left: target, behavior: 'smooth'});
+            }
+        }
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    window.addEventListener('resize', applyScrollMargins);
+    window.addEventListener('load', applyScrollMargins);
+    applyScrollMargins();
+    update();
+})();
+</script>
+
+<!-- ## SM-HAMBURGER START ## -->
+<style>
+.sm-menu-toggle {
+    display: none;
+    position: fixed !important;
+    top: 14px !important;
+    right: 14px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1200 !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition: all 0.2s;
+}
+.sm-menu-toggle:hover { background: #fff; transform: translateY(-1px); }
+.sm-menu-toggle svg { width: 22px; height: 22px; stroke: #2D3748; }
+.sm-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(0,0,0,0.45);
+    opacity: 0; transition: opacity 0.25s;
+}
+body.sm-menu-open .sm-menu-backdrop { display: block; opacity: 1; }
+body.sm-menu-open { overflow: hidden; }
+.sm-drawer {
+    display: none;
+    position: fixed; top: 0; right: 0; z-index: 1160;
+    width: 78%; max-width: 320px; height: 100vh; height: 100dvh;
+    background: #EDE8DF;
+    box-shadow: -8px 0 28px rgba(0,0,0,0.25);
+    padding: 72px 18px 24px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    transform: translateX(105%);
+    transition: transform 0.28s ease;
+    box-sizing: border-box;
+}
+body.sm-menu-open .sm-drawer { transform: translateX(0); }
+.sm-drawer-heading {
+    font-size: 17px; font-weight: 800; color: #1F1A17;
+    line-height: 1.35; letter-spacing: -0.3px;
+    padding: 0 4px 12px;
+    margin: 0 0 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    word-break: keep-all;
+}
+.sm-drawer-heading:empty { display: none; }
+.sm-drawer-back {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    color: #3A3530; text-decoration: none;
+    font-size: 14px; font-weight: 700;
+}
+.sm-drawer-list { display: flex; flex-direction: column; gap: 8px; }
+.sm-drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: #EDEAE4;
+    border-radius: 12px;
+    box-shadow: 4px 4px 9px #CECAC3, -4px -4px 9px #FFFFFF;
+    text-decoration: none;
+    color: #3A3530;
+    transition: all 0.15s;
+}
+.sm-drawer-item:hover { box-shadow: inset 3px 3px 7px #CECAC3, inset -3px -3px 7px #FFFFFF; }
+.sm-drawer-item.active { background: rgba(217,119,87,0.10); }
+.sm-drawer-item.active .sm-drawer-num { background: #D97757; box-shadow: 0 2px 8px rgba(217,119,87,0.4); }
+.sm-drawer-item.active .sm-drawer-title { color: #1A1917; font-weight: 800; }
+.sm-drawer-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #B0544A; color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+}
+.sm-drawer-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sm-drawer-title { font-size: 14px; font-weight: 700; color: #3A3530; line-height: 1.35; }
+.sm-drawer-sub { font-size: 11px; color: #999; line-height: 1.4; }
+@media (max-width: 768px) {
+    .sm-menu-toggle { display: inline-flex; }
+    .sm-menu-toggle .sm-icon-close { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-open { display: none; }
+    body.sm-menu-open .sm-menu-toggle .sm-icon-close { display: block; }
+    .sm-drawer { display: block; }
+    nav.sub-menu { display: none !important; }
+    /* 상단 헤더 페이지 버튼: 모바일에서 세로 배치로 깨짐 방지 */
+    .header-pages {
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+        align-items: stretch !important;
+    }
+    .header-page-link {
+        flex: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        white-space: normal !important;
+        word-break: keep-all !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        border-radius: 12px !important;
+    }
+    /* 헤더 상단 여백 통일 */
+    header { padding-top: 24px !important; }
+    /* 상단 스텝 네비: 모든 페이지에서 동일한 크기·폰트·위치 */
+    .step-nav {
+        margin: 8px auto 18px !important;
+        max-width: 92% !important;
+        gap: 0 !important;
+        padding: 0 50px 0 0 !important;
+    }
+    .step-node {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        border-width: 2px !important;
+    }
+    .step-node.sn-diag,
+    .step-node.sn-final { font-size: 10px !important; }
+    .step-line {
+        min-width: 6px !important;
+        max-width: 18px !important;
+        height: 2px !important;
+    }
+}
+</style>
+<button class="sm-menu-toggle" id="smMenuToggle" type="button" aria-label="메뉴 열기" aria-expanded="false">
+    <svg class="sm-icon-open" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <svg class="sm-icon-close" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+</button>
+<div class="sm-menu-backdrop" id="smMenuBackdrop"></div>
+<aside class="sm-drawer" id="smDrawer" aria-label="섹션 메뉴">
+    <div class="sm-drawer-heading" id="smDrawerHeading"></div>
+    <a href="index.html#section-hermes" class="sm-drawer-back">
+        <span aria-hidden="true">←</span><span>목록으로</span>
+    </a>
+    <nav class="sm-drawer-list" id="smDrawerList"></nav>
+</aside>
+<script>
+(function() {
+    var src = document.querySelector('nav.sub-menu');
+    var list = document.getElementById('smDrawerList');
+    var toggle = document.getElementById('smMenuToggle');
+    var backdrop = document.getElementById('smMenuBackdrop');
+    var heading = document.getElementById('smDrawerHeading');
+    // 페이지 제목 추출: 헤더의 active 페이지 링크 > h1 > document.title
+    if (heading) {
+        var pageTitle = '';
+        var activeLink = document.querySelector('.header-page-link.active');
+        if (activeLink) {
+            var clone = activeLink.cloneNode(true);
+            var icon = clone.querySelector('.hpl-icon');
+            if (icon) icon.remove();
+            pageTitle = clone.textContent.trim();
+        }
+        if (!pageTitle) {
+            var h1 = document.querySelector('header h1');
+            if (h1) pageTitle = h1.textContent.trim();
+        }
+        if (!pageTitle && document.title) {
+            pageTitle = document.title.split('|')[0].trim();
+        }
+        heading.textContent = pageTitle;
+    }
+    var srcLinks = src ? src.querySelectorAll('a') : [];
+    var drawerItems = [];
+    if (src && list) srcLinks.forEach(function(a) {
+        var num = a.querySelector('.sm-num');
+        var title = a.querySelector('.sm-title');
+        var sub = a.querySelector('.sm-sub');
+        var item = document.createElement('a');
+        item.href = a.getAttribute('href');
+        item.className = 'sm-drawer-item' + (a.classList.contains('active') ? ' active' : '');
+        var html = '<span class="sm-drawer-num">' + (num ? num.textContent : '') + '</span>' +
+            '<span class="sm-drawer-text">' +
+                '<span class="sm-drawer-title">' + (title ? title.textContent : a.textContent.trim()) + '</span>';
+        if (sub && sub.textContent.trim()) html += '<span class="sm-drawer-sub">' + sub.textContent + '</span>';
+        html += '</span>';
+        item.innerHTML = html;
+        item.addEventListener('click', function() { setOpen(false); });
+        list.appendChild(item);
+        drawerItems.push(item);
+    });
+    function setOpen(open) {
+        document.body.classList.toggle('sm-menu-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+        }
+    }
+    if (toggle) toggle.addEventListener('click', function() {
+        setOpen(!document.body.classList.contains('sm-menu-open'));
+    });
+    if (backdrop) backdrop.addEventListener('click', function() { setOpen(false); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('sm-menu-open')) setOpen(false);
+    });
+    if (src) {
+        var observer = new MutationObserver(function() {
+            srcLinks.forEach(function(a, i) {
+                if (drawerItems[i]) drawerItems[i].classList.toggle('active', a.classList.contains('active'));
+            });
+        });
+        observer.observe(src, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    }
+})();
+</script>
+<!-- ## SM-HAMBURGER END ## -->
+
+<!-- 크게 보기: 슬랙 목업과 그림을 누르면 큰 화면으로 띄운다 -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="크게 보기" hidden>
+    <button class="lb-close" id="lbClose" type="button" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="lb-stage" id="lbStage"></div>
+    <p class="lb-cap" id="lbCap"></p>
+</div>
+<script>
+(function () {
+    var lb = document.getElementById('lb');
+    var stage = document.getElementById('lbStage');
+    var lbCap = document.getElementById('lbCap');
+    var lbClose = document.getElementById('lbClose');
+    if (!lb || !stage) return;
+    var lastFocus = null;
+    var prevOverflow = '';
+    var HINT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/><path d="M11 8.5v5M8.5 11h5"/></svg>';
+
+    function open(el) {
+        var fig = el.closest('figure');
+        var cap = fig ? fig.querySelector('figcaption') : null;
+        lastFocus = el;
+        // 원본을 옮기지 않고 복제본을 띄운다. 복제본은 단추 노릇을 하지 않는다
+        var copy = el.cloneNode(true);
+        copy.classList.remove('shot-open', 'is-clipped');
+        copy.removeAttribute('tabindex');
+        copy.removeAttribute('role');
+        stage.innerHTML = '';
+        stage.appendChild(copy);
+        stage.classList.toggle('lb-stage--art', el.classList.contains('art'));
+        lbCap.textContent = cap ? cap.textContent : '';
+        lb.hidden = false;
+        lb.classList.add('open');
+        lb.scrollTop = 0;
+        // 뒤 화면 스크롤을 잠근다. close()에서 반드시 되돌린다
+        prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        lbClose.focus();
+    }
+    function close() {
+        if (!lb.classList.contains('open')) return;
+        lb.classList.remove('open');
+        lb.hidden = true;
+        stage.innerHTML = '';
+        document.body.style.overflow = prevOverflow;
+        if (lastFocus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) {} }
+    }
+
+    function markClipped() {
+        document.querySelectorAll('.case-shots .slack').forEach(function (el) {
+            el.classList.toggle('is-clipped', el.scrollHeight > el.clientHeight + 4);
+        });
+    }
+
+    document.querySelectorAll('.case-shots .shot-open').forEach(function (el) {
+        var fig = el.closest('figure');
+        if (fig && !fig.querySelector('.zoom-hint')) {
+            var hint = document.createElement('span');
+            hint.className = 'zoom-hint';
+            hint.innerHTML = HINT;
+            fig.insertBefore(hint, fig.firstChild);
+        }
+        el.addEventListener('click', function () { open(el); });
+        el.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(el); }
+        });
+    });
+    markClipped();
+    window.addEventListener('load', markClipped);
+    window.addEventListener('resize', markClipped);
+
+    // 바깥을 누르면 닫힌다. 닫기 단추와 ESC도 같다. 띄운 화면 안은 눌러도 닫히지 않아 글을 긁을 수 있다
+    lb.addEventListener('click', function (e) { if (!stage.contains(e.target)) close(); });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') close();
+        // 열려 있는 동안 Tab은 닫기 단추에 머문다
+        if (e.key === 'Tab' && lb.classList.contains('open')) { e.preventDefault(); lbClose.focus(); }
+    });
+})();
+</script>
+
+<!-- 가이드 소개 모달: 단일 소스 assets/about-modal.js 에서 주입 -->
+<script src="assets/js/about-modal.js"></script>
+
+<!-- 해시를 달고 들어온 링크 착지 (#case-N 등). vibe-coding-101.html과 같은 hold 루프 -->
+<script>
+(function () {
+    // html에 scroll-behavior: smooth가 걸려 있어 브라우저의 기본 해시 이동도 애니메이션이 된다.
+    // 그 애니메이션은 폰트와 헤더 영상이 뒤늦게 자리를 잡으면서 취소돼 맨 위에 서 버린다.
+    // 이 순간만 auto로 되돌리고, 높이가 굳을 때까지 다시 맞춘다
+    var id;
+    try { id = decodeURIComponent((location.hash || '').slice(1)); } catch (e) { return; }
+    if (!id) return;
+
+    var root = document.documentElement;
+    var userMoved = false;
+    var pending = false;
+    var stop = 0;
+
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+    function land() {
+        var target = document.getElementById(id);
+        if (!target) return;
+        // scroll-margin-top이 걸려 있어 scrollIntoView가 스티키 내비 아래로 맞춰 준다
+        var prev = root.style.scrollBehavior;
+        root.style.scrollBehavior = 'auto';
+        target.scrollIntoView({ block: 'start' });
+        root.style.scrollBehavior = prev;
+    }
+
+    // 새 탭(target="_blank")으로 열리면 탭이 뒤에 있어 requestAnimationFrame이 멈춘다.
+    // 타이머를 함께 걸고 먼저 도착한 쪽만 쓴다
+    function schedule() {
+        if (pending) return;
+        pending = true;
+        var fired = false;
+        function run() {
+            if (fired) return;
+            fired = true;
+            pending = false;
+            hold();
+        }
+        requestAnimationFrame(run);
+        setTimeout(run, 60);
+    }
+
+    function hold() {
+        if (userMoved) return;
+        // 아직 그려지지 않은 동안에는 화면 높이가 0이라 엉뚱한 곳에 선다
+        if (!window.innerHeight) { schedule(); return; }
+        land();
+        if (performance.now() < stop) schedule();
+    }
+
+    function start() {
+        if (userMoved) return;
+        stop = performance.now() + 1200;
+        schedule();
+    }
+
+    // 사용자가 먼저 움직였으면 끼어들지 않는다
+    ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (ev) {
+        window.addEventListener(ev, function () { userMoved = true; }, { passive: true, once: true });
+    });
+
+    start();
+
+    // 뒤에 열려 있던 탭은 화면에 나타난 순간 폰트와 레이아웃이 다시 잡힌다. 그때 한 번 더 맞춘다
+    document.addEventListener('visibilitychange', function onShow() {
+        if (document.visibilityState !== 'visible') return;
+        document.removeEventListener('visibilitychange', onShow);
+        start();
+    });
+})();
+</script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+</body>
+</html>

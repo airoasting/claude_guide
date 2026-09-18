@@ -103,7 +103,6 @@
 |--------|------|
 | [루프 엔지니어링](https://airoasting.vercel.app/loop-engineering.html) | 행동하고 결과를 관찰해 조정하기를 목표에 닿을 때까지 반복하는 작업 구조 설계 |
 | [Routines 예약 실행](https://airoasting.vercel.app/routines.html) | 정해진 시각에 클라우드에서 무인으로 도는 예약형 에이전트 |
-| [헤르메스 에이전트](https://airoasting.vercel.app/hermes-agent.html) | 늘 켜 둔 컴퓨터나 빌린 서버에 오픈소스 에이전트를 상주시키고 텔레그램으로 부르기 |
 
 **노트북 밖에서도 이어서 쓰기**
 
@@ -170,6 +169,15 @@
 | [파일 유형 한눈에 보기](https://airoasting.vercel.app/file-types.html) | .md부터 .hwpx까지 자주 만나는 파일 10가지를 AI가 읽고 쓰는 관점으로 비교 |
 | [라이선스 가이드](https://airoasting.vercel.app/license-compare.html) | MIT, Apache, GPL 등 오픈소스 라이선스를 신호등(초록·노랑·빨강)으로 정리 |
 | [모르는 용어, 바로 찾기](https://airoasting.vercel.app/glossary.html) | AI 70년을 여섯 장면으로 나눠 핵심 용어 73개를 담은 비즈니스 리더용 사전 |
+
+---
+
+## 헤르메스 에이전트
+
+| 페이지 | 설명 |
+|--------|------|
+| [헤르메스 에이전트](https://airoasting.vercel.app/hermes-agent.html) | 늘 켜 둔 컴퓨터나 빌린 서버에 오픈소스 에이전트를 상주시키고 텔레그램으로 부르기 |
+| [헤르메스 에이전트 사용 사례](https://airoasting.vercel.app/hermes-cases.html) | 슬랙에서 활동하는 헤르메스 에이전트가 실제로 한 일 여덟 가지와 여섯 가지 교훈 |
 
 ---
 
