@@ -16,7 +16,7 @@
     <meta name="twitter:description" content="비즈니스 리더를 위한 Claude·ChatGPT 완전 정복. 프롬프트에서 하네스·루프까지, 대화를 실행으로 바꾸는 5단계. Hermes까지 다루는 실전 가이드">
     <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
     <title>MCP 연결 실전 | AI ROASTING</title>
-    <meta name="description" content="카카오톡 PlayMCP, 한국 법령 검색, 기업 공시 분석, 텔레그램, 구글 드라이브. 외부 도구를 MCP로 연결하는 실전 예제 다섯 가지를 연결 경로와 복사용 주소까지 한 페이지에서 따라 합니다.">
+    <meta name="description" content="카카오톡 PlayMCP, 한국 법령 검색, Liner 검색, 기업 공시 분석, 텔레그램, 구글 드라이브. 외부 도구를 MCP로 연결하는 실전 예제 여섯 가지를 연결 경로와 복사용 주소까지 한 페이지에서 따라 합니다.">
     <style>
         @font-face {
             font-family: 'Pretendard';
@@ -80,6 +80,194 @@
             position: relative; z-index: 1;
         }
         header p { font-size: 16px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; text-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        /* ── MC-COLLAGE: MCP 개념 섹션(16:9 콜라주 슬라이드 + 전체 화면 API vs. MCP 덱) ──
+           슬라이드 안의 크기는 전부 cqw(슬라이드 폭 1%)라서 폭이 바뀌어도 비율 그대로 줄고 는다.
+           위치는 %, 찢은 종이 가장자리는 ::before에 거는 SVG 필터(#mcTorn)가 만든다. */
+        .mcp-concept {
+            background: var(--nm-bg); border-radius: 16px; box-shadow: var(--nm-shadow-sm);
+            padding: 20px 24px 24px; margin-bottom: 16px; scroll-margin-top: 135px;
+        }
+        .mcc-head { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+        .mcc-lead { font-size: 14.5px; color: #4a453e; line-height: 1.7; margin: 0 0 18px; }
+        .mcc-lead strong { color: var(--book-teal); }
+        .mcc-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
+        .mcc-foot p { font-size: 13.5px; color: #6b645b; line-height: 1.6; margin: 0; flex: 1 1 260px; }
+        .mcc-open {
+            display: inline-flex; align-items: center; gap: 8px;
+            font: inherit; font-size: 14px; font-weight: 800; color: #fff;
+            background: var(--ant-dark); border: 0; border-radius: 999px;
+            padding: 12px 22px; cursor: pointer;
+            box-shadow: 3px 3px 0 var(--book-teal);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .mcc-open svg { width: 17px; height: 17px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .mcc-open:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--book-teal); }
+        .mcc-open:focus-visible { outline: 2px solid var(--book-teal); outline-offset: 3px; }
+        .mcc-frame { cursor: zoom-in; border-radius: 12px; box-shadow: 0 10px 28px rgba(58,53,48,0.18); }
+        .mcc-frame:focus-visible { outline: 3px solid var(--book-teal); outline-offset: 3px; }
+
+        .mc-slide {
+            --mc-ink: #1A1917; --mc-orange: #B35535; --mc-orange-lt: #D9774F;
+            --mc-kraft: #D8C09A; --mc-paper: #FBF8F1; --mc-news: #EAE3D3;
+            --mc-slate: #56677D; --mc-mustard: #E2AE48;
+            position: relative; width: 100%; aspect-ratio: 16 / 9;
+            container-type: inline-size; overflow: hidden; isolation: isolate;
+            border-radius: 12px; color: var(--mc-ink);
+            background-color: #EFE7D6;
+            background-image:
+                radial-gradient(rgba(58,45,30,0.07) 1px, transparent 1.2px),
+                radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.55), transparent 55%),
+                radial-gradient(ellipse at 90% 95%, rgba(150,110,60,0.14), transparent 60%);
+            background-size: 7px 7px, 100% 100%, 100% 100%;
+            font-size: 1.5cqw; line-height: 1.45; word-break: keep-all; user-select: none;
+        }
+        .mc-slide * { box-sizing: border-box; }
+        .mc-lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; overflow: visible; }
+        .mc-lines path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        /* 종이 조각. --pc 색, --r 회전, .mc-c는 좌표를 조각 한가운데로 */
+        .mc-p {
+            position: absolute; z-index: 1; padding: 0.9cqw 1.5cqw;
+            transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--r, 0deg));
+        }
+        .mc-p::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--pc, var(--mc-paper)); filter: url(#mcTorn); }
+        .mc-p.t2::before { filter: url(#mcTorn2); }
+        .mc-p.round::before { border-radius: 50%; }
+        .mc-c { --tx: -50%; --ty: -50%; text-align: center; }
+        .mc-z2 { z-index: 2; } .mc-z3 { z-index: 3; }
+        .mc-w { color: #fff; }
+        /* 마스킹 테이프 */
+        .mc-tape {
+            position: absolute; z-index: 4; width: var(--w, 7cqw); height: 2.2cqw;
+            transform: translate(-50%, -50%) rotate(var(--r, -6deg));
+            background: repeating-linear-gradient(90deg, rgba(240,226,180,0.78) 0 0.5cqw, rgba(232,214,160,0.78) 0.5cqw 1cqw);
+            clip-path: polygon(0 0, 100% 0, 97% 25%, 100% 50%, 97% 75%, 100% 100%, 0 100%, 3% 75%, 0 50%, 3% 25%);
+            box-shadow: 0 0 0.3cqw rgba(0,0,0,0.08);
+        }
+        /* 신문 오려 붙인 검은 라벨 */
+        .mc-clip {
+            position: absolute; z-index: 2; background: var(--mc-ink); color: #F4EEE2;
+            font-weight: 800; font-size: 1.15cqw; letter-spacing: 0.06em;
+            padding: 0.35cqw 0.9cqw; white-space: nowrap;
+            transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--r, -2deg));
+            box-shadow: 0.25cqw 0.25cqw 0 rgba(0,0,0,0.15);
+        }
+        .mc-clip.or { background: var(--mc-orange); color: #fff; }
+        /* 협박편지식 글자 */
+        .mc-rn { position: absolute; z-index: 2; display: flex; align-items: flex-end; gap: 0.5cqw; }
+        .mc-rn span {
+            display: inline-block; line-height: 1; padding: 0.35cqw 1cqw 0.55cqw;
+            box-shadow: 0.3cqw 0.35cqw 0 rgba(0,0,0,0.16);
+        }
+        .mc-rn .l1 { background: var(--mc-orange); color: #fff; font-family: Georgia, 'Times New Roman', serif; font-weight: 700; transform: rotate(-6deg); }
+        .mc-rn .l2 { background: var(--mc-paper); color: var(--mc-ink); font-weight: 900; transform: rotate(4deg) translateY(-0.4cqw); }
+        .mc-rn .l3 { background: var(--mc-ink); color: #F4EEE2; font-family: 'Courier New', Courier, monospace; font-weight: 700; transform: rotate(-3deg); }
+        .mc-rn .l4 { background: var(--mc-slate); color: #fff; font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 700; transform: rotate(5deg); }
+        .mc-rn .l5 { background: var(--mc-mustard); color: var(--mc-ink); font-weight: 900; transform: rotate(-4deg) translateY(-0.3cqw); }
+        .mc-rn .sm { font-size: 0.45em; align-self: center; }
+        /* 스티커(동그란 도장) */
+        .mc-sticker {
+            position: absolute; z-index: 3; width: var(--s, 13cqw); aspect-ratio: 1; border-radius: 50%;
+            background: var(--pc, var(--mc-mustard)); color: var(--mc-ink);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+            transform: translate(-50%, -50%) rotate(var(--r, -8deg));
+            box-shadow: 0.3cqw 0.5cqw 0.9cqw rgba(0,0,0,0.22);
+            outline: 0.2cqw dashed rgba(26,25,23,0.35); outline-offset: -1cqw;
+            font-weight: 800; line-height: 1.15;
+        }
+        .mc-sticker b { display: block; font-size: 3.2cqw; font-weight: 900; letter-spacing: -0.02em; }
+        .mc-sticker small { display: block; font-size: 1.35cqw; font-weight: 800; margin-top: 0.3cqw; }
+        /* 망점 */
+        .mc-dots {
+            position: absolute; z-index: 0; border-radius: 50%;
+            background-image: radial-gradient(var(--dc, rgba(179,85,53,0.5)) 32%, transparent 36%);
+            background-size: 1.3cqw 1.3cqw;
+            -webkit-mask-image: radial-gradient(circle, #000 35%, transparent 70%);
+            mask-image: radial-gradient(circle, #000 35%, transparent 70%);
+        }
+        .mc-t { font-weight: 800; font-size: 1.8cqw; line-height: 1.2; }
+        .mc-s { font-size: 1.1cqw; font-weight: 700; opacity: 0.72; margin-top: 0.2cqw; display: block; }
+        .mc-note { font-size: 1.32cqw; line-height: 1.55; font-weight: 600; }
+        .mc-note h4 { font-size: 1.5cqw; font-weight: 900; color: var(--mc-orange); margin: 0 0 0.5cqw; letter-spacing: -0.01em; }
+        .mc-note ul { list-style: none; margin: 0; padding: 0; }
+        .mc-note li { position: relative; padding-left: 1.3cqw; margin: 0 0 0.35cqw; }
+        .mc-note li::before { content: ''; position: absolute; left: 0.1cqw; top: 0.62em; width: 0.55cqw; height: 0.55cqw; border-radius: 50%; background: var(--mc-orange); }
+        .mc-rule { position: absolute; font-size: 0.95cqw; font-weight: 800; padding: 0.1cqw 0.6cqw; bottom: -0.9cqw; right: 0.8cqw; transform: rotate(3deg); color: #fff; }
+        .mc-dot { display: inline-block; width: 0.8cqw; height: 0.8cqw; border-radius: 50%; margin-right: 0.6cqw; vertical-align: 0.15em; }
+        .mc-sm-only { display: none; }
+        @container (max-width: 560px) {
+            .mc-hide-sm { display: none !important; }
+            .mc-sm-only { display: block; }
+        }
+        /* 비교표 슬라이드 */
+        .mc-row { position: absolute; z-index: 2; font-size: 1.5cqw; font-weight: 700; line-height: 1.35; transform: translateY(-50%); }
+        .mc-row.api { color: #fff; }
+        .mc-row.mcp { color: #fff; }
+        .mc-row em { font-style: normal; display: block; font-size: 1.08cqw; font-weight: 600; opacity: 0.8; margin-top: 0.15cqw; }
+
+        .mc-date { font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 1.7cqw; color: var(--mc-orange); line-height: 1.1; }
+        .mc-dt { font-size: 1.35cqw; font-weight: 900; margin-top: 0.25cqw; }
+        .mc-dd { display: block; font-style: normal; font-size: 1.02cqw; font-weight: 600; opacity: 0.75; margin-top: 0.1cqw; }
+        .mc-keyhead { display: flex; align-items: center; gap: 0.6cqw; font-size: 1.25cqw; font-weight: 900; color: var(--mc-orange); }
+        .mc-keyhead svg { width: 1.6cqw; height: 1.6cqw; stroke: var(--mc-orange); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+        .mc-keyhead span { font-size: 1.02cqw; font-weight: 600; color: #6b645b; margin-left: 0.4cqw; }
+        .mc-keys { display: flex; gap: 1cqw; margin-top: 0.5cqw; }
+        .mc-key { display: inline-flex; align-items: center; gap: 0.5cqw; white-space: nowrap; }
+        .mc-key b { font-size: 1.02cqw; font-weight: 900; color: #fff; background: var(--mc-ink); padding: 0.1cqw 0.5cqw; }
+        .mc-key code { font-family: 'SF Mono', 'Courier New', monospace; font-size: 1.12cqw; font-weight: 700; background: #F1E9D8; padding: 0.15cqw 0.5cqw; letter-spacing: -0.01em; }
+        /* 전체 화면 덱 */
+        .mc-modal {
+            position: fixed; inset: 0; z-index: 3000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+            padding: 16px; background: #16140F;
+            background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1.2px);
+            background-size: 8px 8px;
+        }
+        .mc-modal[hidden] { display: none; }
+        .mc-stage {
+            position: relative;
+            width: min(calc(100vw - 32px), calc((100vh - 100px) * 16 / 9));
+            width: min(calc(100vw - 32px), calc((100dvh - 100px) * 16 / 9));
+        }
+        .mc-stage .mc-slide { display: none; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .mc-stage .mc-slide.on { display: block; animation: mcIn 0.35s ease-out; }
+        @keyframes mcIn { from { opacity: 0; transform: translateY(8px) rotate(-0.4deg); } to { opacity: 1; transform: none; } }
+        .mc-bar { display: flex; align-items: center; gap: 14px; }
+        .mc-nav {
+            width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.22);
+            background: rgba(255,255,255,0.06); color: #fff; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s;
+        }
+        .mc-nav svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+        .mc-nav:hover:not(:disabled) { background: rgba(255,255,255,0.16); }
+        .mc-nav:disabled { opacity: 0.3; cursor: default; }
+        .mc-nav:focus-visible, .mc-close:focus-visible, .mc-dotbtn:focus-visible { outline: 2px solid #D9774F; outline-offset: 3px; }
+        .mc-dots-nav { display: flex; gap: 8px; }
+        .mc-dotbtn {
+            border: 0; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 700;
+            color: rgba(255,255,255,0.6); background: transparent; padding: 7px 12px; border-radius: 999px;
+        }
+        .mc-dotbtn[aria-current="true"] { background: #B35535; color: #fff; }
+        .mc-close {
+            position: absolute; top: 14px; right: 14px; width: 42px; height: 42px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.06); color: #fff;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .mc-close svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; }
+        .mc-close:hover { background: rgba(255,255,255,0.16); }
+        .mc-rotate { display: none; color: rgba(255,255,255,0.65); font-size: 13px; text-align: center; }
+        body.mc-open { overflow: hidden; }
+        @media (max-width: 768px) {
+            .mcp-concept { padding: 16px 14px 18px; }
+            .mcc-head { gap: 12px; }
+            .mcc-open { width: 100%; justify-content: center; }
+            .mc-dotbtn { padding: 6px 9px; font-size: 11.5px; }
+        }
+        @media (max-width: 768px) and (orientation: portrait) {
+            .mc-rotate { display: block; }
+        }
+        @media (prefers-reduced-motion: reduce) { .mc-stage .mc-slide.on { animation: none; } }
+        /* ── MC-COLLAGE END ── */
 
         /* ── MCP 아코디언 카드 ── */
         .mcp-list { margin-top: 4px; }
@@ -935,7 +1123,7 @@
     </video>
 
     <nav class="step-nav">
-        <a class="step-node sn-diag" href="orientation.html">진단</a>
+        <a class="step-node sn-diag" href="orientation.html">준비</a>
         <div class="step-line"></div>
         <a class="step-node" href="ai-fluency.html">1</a>
         <div class="step-line"></div>
@@ -951,7 +1139,7 @@
     </nav>
     <a href="index.html#section-6" class="back-link">&larr; 목록으로</a>
     <h1>MCP 연결 실전</h1>
-    <p>외부 도구를 MCP로 연결하는 실전 예제 다섯 가지. 연결 경로와 복사용 주소까지 이 페이지에서 바로 따라 합니다</p>
+    <p>외부 도구를 MCP로 연결하는 실전 예제 여섯 가지. 연결 경로와 복사용 주소까지 이 페이지에서 바로 따라 합니다</p>
     <div class="header-pages">
         <a href="mcp-examples.html" class="header-page-link active"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span> MCP 연결</a>
         <a href="seven-steps.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="4.5" cy="6.5" r="1.4"/><line x1="9" y1="6.5" x2="20" y2="6.5"/><circle cx="4.5" cy="12" r="1.4"/><line x1="9" y1="12" x2="20" y2="12"/><circle cx="4.5" cy="17.5" r="1.4"/><line x1="9" y1="17.5" x2="20" y2="17.5"/></svg></span> 7단계</a>
@@ -960,34 +1148,109 @@
 </header>
 
 <nav class="sub-menu" id="subMenu">
-    <a href="#mcp-drive" data-sec="mcp-drive">
+    <a href="#mcp-concept" data-sec="mcp-concept">
         <span class="sm-num">1</span>
+        <span class="sm-title">MCP란</span>
+        <span class="sm-sub">API vs. MCP</span>
+    </a>
+    <a href="#mcp-drive" data-sec="mcp-drive">
+        <span class="sm-num">2</span>
         <span class="sm-title">구글 드라이브</span>
         <span class="sm-sub">문서·시트</span>
     </a>
     <a href="#mcp-kakao" data-sec="mcp-kakao">
-        <span class="sm-num">2</span>
+        <span class="sm-num">3</span>
         <span class="sm-title">카카오톡 PlayMCP</span>
         <span class="sm-sub">나에게 보내기</span>
     </a>
     <a href="#mcp-stock" data-sec="mcp-stock">
-        <span class="sm-num">3</span>
+        <span class="sm-num">4</span>
         <span class="sm-title">기업 공시 분석</span>
         <span class="sm-sub">DART 리포트</span>
     </a>
     <a href="#mcp-law" data-sec="mcp-law">
-        <span class="sm-num">4</span>
+        <span class="sm-num">5</span>
         <span class="sm-title">한국 법령 검색</span>
         <span class="sm-sub">법령·판례</span>
     </a>
+    <a href="#mcp-liner" data-sec="mcp-liner">
+        <span class="sm-num">6</span>
+        <span class="sm-title">Liner 검색</span>
+        <span class="sm-sub">출처 달린 리서치</span>
+    </a>
     <a href="#mcp-telegram" data-sec="mcp-telegram">
-        <span class="sm-num">5</span>
+        <span class="sm-num">7</span>
         <span class="sm-title">텔레그램 주고받기</span>
         <span class="sm-sub">봇·CLI</span>
     </a>
 </nav>
 
 <main class="container" id="main" tabindex="-1">
+
+    <!-- 0. MCP 개념: 16:9 콜라주 표지 한 장 + 버튼으로 전체 화면 덱(API vs. MCP 세 장, #mcDeck) -->
+    <section class="mcp-concept anim-fade-up" id="mcp-concept" aria-labelledby="mcpConceptTitle">
+        <div class="mcc-head">
+            <span class="task-number"><svg viewBox="0 0 24 24"><path d="M9 3v5M15 3v5"/><path d="M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v4"/></svg></span>
+            <div class="task-title-area">
+                <h2 class="task-title" id="mcpConceptTitle">먼저, MCP가 뭔가요</h2>
+                <div class="task-difficulty"><span class="t-clock">3분</span><span><b>개념</b></span></div>
+            </div>
+        </div>
+        <p class="mcc-lead"><strong>MCP(Model Context Protocol)</strong>는 AI 앱이 외부 도구에 접속하는 <strong>공용 규격</strong>입니다. 노트북에 USB-C 단자 하나만 있으면 충전기도 모니터도 꽂히듯, AI 앱은 MCP 하나로 여러 도구를 붙입니다. 아래 여섯 예제도 모두 이 방식으로 연결합니다.</p>
+
+        <div class="mc-slide mcc-frame" id="mcCover" role="button" tabindex="0" aria-label="MCP 한 장 요약. 누르면 API와 MCP 비교를 전체 화면으로 엽니다">
+            <svg class="mc-lines" viewBox="0 0 1600 900" aria-hidden="true">
+                <path d="M1168,250 C1150,320 1190,380 1168,440" stroke="#1A1917" stroke-width="9"/>
+                <path d="M1168,250 C1150,320 1190,380 1168,440" stroke="#EFE7D6" stroke-width="2.4" stroke-dasharray="2 14"/>
+                <path d="M1168,468 C1060,430 980,470 880,450" stroke="#B35535" stroke-width="3.6" stroke-dasharray="10 8"/>
+                <path d="M1168,468 C1280,430 1360,480 1456,450" stroke="#B35535" stroke-width="3.6" stroke-dasharray="10 8"/>
+                <path d="M1168,468 C1080,560 1000,640 928,738" stroke="#1A1917" stroke-width="3.6" stroke-dasharray="10 8"/>
+                <path d="M1168,468 C1190,600 1150,700 1176,792" stroke="#1A1917" stroke-width="3.6" stroke-dasharray="10 8"/>
+                <path d="M1168,468 C1260,560 1350,640 1424,738" stroke="#B35535" stroke-width="3.6" stroke-dasharray="10 8"/>
+                <path d="M1168,468 C1300,500 1400,560 1464,594" stroke="#1A1917" stroke-width="3.6" stroke-dasharray="10 8"/>
+            </svg>
+            <div class="mc-dots" style="left:56%;top:-4%;width:36cqw;height:36cqw;"></div>
+            <div class="mc-dots" style="left:-6%;top:62%;width:22cqw;height:22cqw;--dc:rgba(26,25,23,0.35);"></div>
+
+            <div class="mc-p" style="--pc:#D8C09A;left:3%;top:7%;width:43%;height:86%;--r:-1.2deg;"></div>
+            <span class="mc-clip mc-z3" style="left:6%;top:11%;">MCP 연결 실전 · 개념 먼저</span>
+            <div class="mc-rn" style="left:6%;top:19%;font-size:8cqw;"><span class="l1">M</span><span class="l2">C</span><span class="l3">P</span></div>
+            <div class="mc-p mc-z2 mc-w" style="--pc:#B35535;left:5.5%;top:42%;--r:-2deg;font-size:3.4cqw;font-weight:900;letter-spacing:-0.02em;padding:0.7cqw 1.8cqw;">AI에 끼우는 USB-C</div>
+            <div class="mc-p t2 mc-z2" style="left:7%;top:57%;width:35%;--r:0.8deg;">
+                <div style="font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;font-size:1.9cqw;">Model Context Protocol</div>
+                <div class="mc-note mc-hide-sm">2024년 11월 Anthropic이 공개한 개방형 연결 규격. AI 앱과 외부 도구를 한 가지 방식으로 잇습니다.</div>
+            </div>
+            <span class="mc-tape" style="left:12%;top:57.5%;--r:-8deg;"></span>
+            <div class="mc-p mc-z2 mc-hide-sm" style="--pc:#EAE3D3;left:8%;top:78%;width:33%;--r:-0.8deg;">
+                <div class="mc-note" style="font-size:1.2cqw;">도구마다 연결 코드를 새로 짜지 않습니다. 규격 하나에 맞춰 꽂으면 끝입니다.</div>
+            </div>
+
+            <div class="mc-p round mc-c mc-z2 mc-w" style="--pc:#1A1917;left:73%;top:17%;width:12cqw;height:12cqw;display:flex;flex-direction:column;align-items:center;justify-content:center;--r:-4deg;">
+                <span style="font-size:2.3cqw;font-weight:900;">AI 앱</span><span class="mc-s" style="color:#E8C8B8;opacity:1;">Claude · ChatGPT</span>
+            </div>
+            <span class="mc-tape" style="left:77.5%;top:8%;--r:24deg;--w:5.5cqw;"></span>
+            <span class="mc-clip mc-hide-sm" style="left:79%;top:33%;--r:4deg;background:#FBF8F1;color:#1A1917;">꽂으면 바로 연결</span>
+            <div class="mc-p mc-c mc-z3 mc-w" style="--pc:#B35535;left:73%;top:52%;width:15cqw;--r:1.5deg;padding:1cqw 1.2cqw;">
+                <div style="font-size:3cqw;font-weight:900;line-height:1;letter-spacing:0.02em;">MCP</div>
+                <span class="mc-s" style="color:#fff;opacity:0.9;">하나의 공용 규격</span>
+            </div>
+            <div class="mc-p mc-c mc-z2 t2" style="left:55%;top:50%;--r:-3deg;"><span class="mc-t" style="font-size:1.6cqw;"><i class="mc-dot" style="background:#3F7D4E;"></i>구글 드라이브</span></div>
+            <div class="mc-p mc-c mc-z2" style="left:91%;top:50%;--r:3deg;--pc:#F4D35E;"><span class="mc-t" style="font-size:1.6cqw;">카카오톡</span></div>
+            <div class="mc-p mc-c mc-z2" style="left:58%;top:82%;--r:2deg;--pc:#EAE3D3;"><span class="mc-t" style="font-size:1.6cqw;"><i class="mc-dot" style="background:#56677D;"></i>DART 공시</span></div>
+            <div class="mc-p mc-c mc-z2 t2" style="left:73.5%;top:88%;--r:-2deg;"><span class="mc-t" style="font-size:1.6cqw;"><i class="mc-dot" style="background:#B35535;"></i>한국 법령</span></div>
+            <div class="mc-p mc-c mc-z2" style="left:89%;top:82%;--r:-3deg;--pc:#CFE0EE;"><span class="mc-t" style="font-size:1.6cqw;">텔레그램</span></div>
+            <div class="mc-p mc-c mc-z2 t2 mc-w" style="left:91.5%;top:66%;--r:4deg;--pc:linear-gradient(135deg,#4CAF73 0%,#2E8B57 55%,#1F6B45 100%);white-space:nowrap;"><span class="mc-t" style="font-size:1.6cqw;">Liner</span></div>
+            <div class="mc-sticker mc-hide-sm" style="left:92%;top:17%;--s:11cqw;--r:10deg;"><small style="margin:0;">예제 여섯 개</small><b style="font-size:2.2cqw;">모두 MCP</b></div>
+        </div>
+
+        <div class="mcc-foot">
+            <p>그러면 원래 쓰던 <strong>API</strong>와는 무엇이 다를까요. 세 장으로 나란히 비교했습니다.</p>
+            <button type="button" class="mcc-open" id="mcOpen" aria-haspopup="dialog" aria-controls="mcDeck">
+                <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                API vs. MCP 전체 화면으로 보기
+            </button>
+        </div>
+    </section>
 
     <!-- ====== 아코디언 ====== -->
     <div class="mcp-list anim-fade-up">
@@ -1215,7 +1478,60 @@ DART_API_KEY=발급받은_40자_키_붙여넣기</span><button type="button" cla
             </div>
         </div>
 
-        <!-- 5. 텔레그램으로 메시지 주고 받기 -->
+        <!-- 5. Liner 검색 MCP -->
+        <div class="task-card" id="mcp-liner">
+            <div class="task-header" onclick="toggleTask(this)">
+                <span class="task-number"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/><path d="M7.5 9h6M7.5 12h4"/></svg></span>
+                <div class="task-title-area">
+                    <div class="task-title">Liner 검색 MCP 연결하기</div>
+                    <div class="task-difficulty"><span class="t-clock">8분</span><span><b>입문</b></span></div>
+                </div>
+                <span class="task-toggle">&#x25BC;</span>
+            </div>
+            <div class="task-body">
+                <div class="task-content">
+                    <p class="task-lead">Liner의 원격 MCP 서버를 커스텀 커넥터로 붙여, Claude가 <strong>출처가 달린 웹 검색</strong>과 <strong>논문 검색</strong>, <strong>딥 리서치</strong>를 Liner로 돌립니다. 답마다 근거 링크가 따라오므로 보고서에 옮기기 전에 원문을 바로 확인할 수 있습니다. 로그인은 브라우저에서 Liner 계정으로 한 번만 합니다.</p>
+
+                    <a class="skill-pill" href="https://github.com/liner-engineering/liner-claude-plugin" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Liner 공식 플러그인 &middot; github.com/liner-engineering/liner-claude-plugin <span class="sp-tail">&rsaquo;</span></a>
+
+                    <p class="mcp-sub-label">핵심 스텝</p>
+                    <ul class="cmd-list">
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9312; 커스텀 커넥터 추가 열기</span></div>
+                            <span class="cmd-tail"><span class="cmd-pill cmd-pill-note"><span class="cmd-text">사용자 지정 &rarr; 커넥터 &rarr; 커스텀 커넥터 추가</span></span></span>
+                            <span class="cmd-why">Claude Desktop을 열고 위 순서로 들어갑니다.</span>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9313; 이름과 MCP 주소 입력</span></div>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">https://platform.liner.com/api/v1/mcp</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-why"><strong>이름</strong>은 <code>Liner</code>로 적고, <strong>주소</strong> 칸에 위 주소를 그대로 붙입니다. 법령 MCP와 달리 주소 뒤에 키를 붙이지 않습니다. 인증은 다음 단계의 로그인이 맡습니다.</span>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9314; 연결을 누르고 Liner 로그인</span></div>
+                            <span class="cmd-why">추가한 커넥터의 <strong>연결</strong>을 누르면 브라우저에 Liner 로그인 창이 열립니다. Liner 계정으로 로그인하고 접근을 <strong>허용</strong>합니다.</span>
+                            <span class="cmd-ok"><b>키를 채팅에 붙이지 않습니다.</b> 토큰은 로그인 과정에서 Claude가 알아서 받아 보관합니다. 키나 토큰을 대화창이나 설정 파일에 직접 적지 마세요.</span>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9315; 도구 확인</span></div>
+                            <span class="cmd-why">연결되면 <strong>search_web</strong>(웹 검색), <strong>search_scholar</strong>(논문 검색), <strong>search_agent</strong>(출처를 단 종합 답), <strong>quick_answer_agent</strong>(짧은 사실 확인), <strong>deep_research_agent</strong>(여러 단계 리서치) 다섯 도구가 보입니다.</span>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9316; 첫 검색 테스트</span></div>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">Liner로 최근 AI 검색 서비스 동향을 찾아서, 출처 링크를 단 5줄 요약으로 정리해줘.</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-why">새 대화에서 위 질문을 그대로 보냅니다. 문장마다 출처 링크가 달려 나오면 연결된 것입니다. 논문이 필요하면 "Liner 논문 검색으로"라고 덧붙입니다.</span>
+                        </li>
+                    </ul>
+
+                    <div class="mcp-need">
+                        <span class="mcp-need-title">필요한 것</span>
+                        <span class="mcp-chip">Claude Desktop</span>
+                        <a class="mcp-chip" href="https://liner.com" target="_blank" rel="noopener">Liner 계정</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. 텔레그램으로 메시지 주고 받기 -->
         <div class="task-card" id="mcp-telegram">
             <div class="task-header" onclick="toggleTask(this)">
                 <span class="task-number"><svg viewBox="0 0 24 24"><path d="m22 4-11 7"/><path d="M22 4 15 21l-4-8-8-4z"/></svg></span>
@@ -1323,7 +1639,7 @@ DART_API_KEY=발급받은_40자_키_붙여넣기</span><button type="button" cla
     <!-- CTA -->
     <div class="cta-section anim-fade-up">
         <h3>하나만 골라 작게 시작해 보세요</h3>
-        <p>다섯 예제 모두 10~15분이면 첫 연결을 만들 수 있습니다. 지금 가장 끌리는 카드를 펼쳐 그 자리에서 따라가면 됩니다.</p>
+        <p>여섯 예제 모두 10~15분이면 첫 연결을 만들 수 있습니다. 지금 가장 끌리는 카드를 펼쳐 그 자리에서 따라가면 됩니다.</p>
         <div class="cta-buttons">
             <a class="cta-btn primary" href="#mcp-drive">가장 쉬운 구글 드라이브부터 &rarr;</a>
         </div>
@@ -1340,6 +1656,247 @@ DART_API_KEY=발급받은_40자_키_붙여넣기</span><button type="button" cla
     </span>
     <p class="footer-text" style="margin-top:10px;opacity:0.7;">&copy; 2026 AI ROASTING. All rights reserved.</p>
 </footer>
+
+<!-- MC-COLLAGE: 찢은 종이 가장자리 필터. display:none이면 필터가 먹지 않으니 0 크기로 둔다 -->
+<svg width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+    <filter id="mcTorn" x="-4%" y="-8%" width="108%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="3" seed="4" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G" result="d"/>
+        <feDropShadow in="d" dx="1.5" dy="2.5" stdDeviation="1.8" flood-color="#2A2016" flood-opacity="0.28"/>
+    </filter>
+    <filter id="mcTorn2" x="-4%" y="-8%" width="108%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="4" seed="11" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="G" yChannelSelector="R" result="d"/>
+        <feDropShadow in="d" dx="-1" dy="3" stdDeviation="2" flood-color="#2A2016" flood-opacity="0.26"/>
+    </filter>
+</svg>
+
+<!-- MC-COLLAGE: 전체 화면 덱. #mcp-concept의 버튼과 표지가 연다. 장을 늘리면 .mc-dotbtn도 함께 늘린다 -->
+<div class="mc-modal" id="mcDeck" role="dialog" aria-modal="true" aria-label="API와 MCP 비교 슬라이드" hidden>
+    <button type="button" class="mc-close" id="mcClose" aria-label="닫기"><svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+    <div class="mc-stage" id="mcStage">
+
+        <!-- 1장. API -->
+        <div class="mc-slide" data-slide="0" aria-label="1장. API, 도구마다 따로 뚫는 문">
+            <svg class="mc-lines" viewBox="0 0 1600 900" aria-hidden="true">
+                <path d="M352,387 C470,446 459,408.0 549,454.0 S760,433 856,387" stroke="#B35535" stroke-width="3.4" opacity="0.9"/>
+                <path d="M352,387 C470,301 477,506.5 567,402.5 S760,436 856,540" stroke="#56677D" stroke-width="3.4" opacity="0.9"/>
+                <path d="M352,387 C470,292 480,445.0 570,493.0 S760,741 856,693" stroke="#C98E2A" stroke-width="3.4" opacity="0.9"/>
+                <path d="M352,540 C470,587 530,476.5 620,408.5 S760,319 856,387" stroke="#B35535" stroke-width="3.4" opacity="0.9"/>
+                <path d="M352,540 C470,586 521,549.0 611,504.0 S760,495 856,540" stroke="#56677D" stroke-width="3.4" opacity="0.9"/>
+                <path d="M352,540 C470,633 465,733.5 555,624.5 S760,584 856,693" stroke="#C98E2A" stroke-width="3.4" opacity="0.9"/>
+                <path d="M352,693 C470,640 462,697.0 552,610.0 S760,300 856,387" stroke="#B35535" stroke-width="3.4" opacity="0.9"/>
+                <path d="M352,693 C470,581 476,792.5 566,673.5 S760,421 856,540" stroke="#56677D" stroke-width="3.4" opacity="0.9"/>
+                <path d="M352,693 C470,773 568,625.0 658,739.0 S760,807 856,693" stroke="#C98E2A" stroke-width="3.4" opacity="0.9"/>
+            </svg>
+            <div class="mc-dots" style="left:70%;top:18%;width:30cqw;height:30cqw;--dc:rgba(86,103,125,0.45);"></div>
+            <div class="mc-rn" style="left:5%;top:6%;font-size:5.5cqw;"><span class="l4">A</span><span class="l2">P</span><span class="l3">I</span></div>
+            <div class="mc-p mc-z2 mc-w" style="--pc:#56677D;left:25%;top:7.5%;--r:-1.5deg;font-size:2.8cqw;font-weight:900;padding:0.6cqw 1.6cqw;">도구마다 따로 뚫는 문</div>
+            <span class="mc-clip" style="left:26%;top:18.5%;--r:1deg;">Application Programming Interface · 프로그램끼리 정해 둔 창구</span>
+
+            <span class="mc-clip or" style="left:14%;top:30%;--tx:-50%;">AI 앱</span>
+            <span class="mc-clip" style="left:62%;top:30%;--tx:-50%;">외부 도구와 그 API</span>
+            <div class="mc-p mc-c mc-z2" style="left:14%;top:43%;width:15cqw;--r:-2deg;"><span class="mc-t">Claude</span></div>
+            <div class="mc-p mc-c mc-z2 t2" style="left:14%;top:60%;width:15cqw;--r:1.5deg;--pc:#EAE3D3;"><span class="mc-t">ChatGPT</span></div>
+            <div class="mc-p mc-c mc-z2" style="left:14%;top:77%;width:15cqw;--r:-1deg;"><span class="mc-t">사내 챗봇</span></div>
+            <div class="mc-p mc-c mc-z2 t2" style="left:62%;top:43%;width:16cqw;--r:2deg;"><span class="mc-t">구글 드라이브</span><span class="mc-rule" style="background:#B35535;">규칙 A</span></div>
+            <div class="mc-p mc-c mc-z2" style="left:62%;top:60%;width:16cqw;--r:-2deg;--pc:#EAE3D3;"><span class="mc-t">슬랙</span><span class="mc-rule" style="background:#56677D;">규칙 B</span></div>
+            <div class="mc-p mc-c mc-z2 t2" style="left:62%;top:77%;width:16cqw;--r:1deg;"><span class="mc-t">DART 공시</span><span class="mc-rule" style="background:#C98E2A;">규칙 C</span></div>
+
+            <div class="mc-sticker" style="left:86%;top:33%;--s:13cqw;--r:-8deg;"><b>3 × 3</b><small>연결 9개</small></div>
+            <div class="mc-p mc-z2 t2" style="left:75%;top:50%;width:22%;--r:1.2deg;">
+                <div class="mc-note"><h4>그래서 생기는 일</h4><ul>
+                    <li>서비스마다 문서·인증·데이터 모양이 다릅니다</li>
+                    <li>앱마다 개발자가 연결 코드를 따로 짭니다</li>
+                    <li>한쪽이 바뀌면 그 연결을 다시 고칩니다</li>
+                </ul></div>
+            </div>
+            <span class="mc-tape" style="left:94%;top:50.5%;--r:32deg;--w:5cqw;"></span>
+            <span class="mc-clip or" style="left:5%;top:90%;--r:-1deg;">앱과 도구가 늘수록 연결은 곱하기로 늘어납니다</span>
+            <!-- API 키 예시. 값은 형식만 흉내 낸 가짜(구글 AIza…, 슬랙 xoxb-…, DART 40자리) -->
+            <div class="mc-p t2 mc-z3" style="--pc:#FBF8F1;left:37%;top:86%;width:59%;--r:-0.6deg;padding:0.7cqw 1.4cqw 0.8cqw;">
+                <div class="mc-keyhead"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4"/><path d="m10.5 12.5 9-9M16 7l2.5 2.5M13.5 9.5 16 12"/></svg>API 키 예시<span>서비스마다 따로 발급받아 코드에 넣는 비밀번호 · 가짜 값</span></div>
+                <div class="mc-keys">
+                    <span class="mc-key"><b>구글</b><code>AIzaSyA3kX••••••••</code></span>
+                    <span class="mc-key"><b>슬랙</b><code>xoxb-1234-••••-••••</code></span>
+                    <span class="mc-key"><b>DART</b><code>7c1e0f••••••(40자리)</code></span>
+                </div>
+            </div>
+            <span class="mc-tape" style="left:95%;top:86.5%;--r:30deg;--w:4.5cqw;"></span>
+        </div>
+
+        <!-- 2장. MCP -->
+        <div class="mc-slide" data-slide="1" aria-label="2장. MCP, 한 번 만들면 어디서나 꽂는 규격">
+            <svg class="mc-lines" viewBox="0 0 1600 900" aria-hidden="true">
+                <path d="M352,387 L544,387 M352,540 L544,540 M352,693 L544,693" stroke="#1A1917" stroke-width="5"/>
+                <path d="M704,387 L896,387 M704,540 L896,540 M704,693 L896,693" stroke="#B35535" stroke-width="5"/>
+                <g fill="#1A1917"><circle cx="352" cy="387" r="8"/><circle cx="352" cy="540" r="8"/><circle cx="352" cy="693" r="8"/></g>
+                <g fill="#B35535"><circle cx="896" cy="387" r="8"/><circle cx="896" cy="540" r="8"/><circle cx="896" cy="693" r="8"/></g>
+            </svg>
+            <div class="mc-dots" style="left:26%;top:30%;width:26cqw;height:26cqw;"></div>
+            <div class="mc-rn" style="left:5%;top:6%;font-size:5.5cqw;"><span class="l1">M</span><span class="l5">C</span><span class="l3">P</span></div>
+            <div class="mc-p mc-z2 mc-w" style="--pc:#B35535;left:27%;top:7.5%;--r:-1.5deg;font-size:2.8cqw;font-weight:900;padding:0.6cqw 1.6cqw;">한 번 만들면 어디서나 꽂는 규격</div>
+            <span class="mc-clip" style="left:28%;top:18.5%;--r:1deg;">Model Context Protocol · AI와 도구 사이의 공용 플러그</span>
+
+            <span class="mc-clip" style="left:14%;top:30%;--tx:-50%;">MCP 클라이언트 · AI 앱</span>
+            <span class="mc-clip or" style="left:64%;top:30%;--tx:-50%;">MCP 서버 · 도구</span>
+            <div class="mc-p mc-c mc-z2" style="left:14%;top:43%;width:15cqw;--r:-2deg;"><span class="mc-t">Claude</span></div>
+            <div class="mc-p mc-c mc-z2 t2" style="left:14%;top:60%;width:15cqw;--r:1.5deg;--pc:#EAE3D3;"><span class="mc-t">ChatGPT</span></div>
+            <div class="mc-p mc-c mc-z2" style="left:14%;top:77%;width:15cqw;--r:-1deg;"><span class="mc-t">사내 챗봇</span></div>
+            <div class="mc-p mc-c mc-z3 mc-w" style="--pc:#B35535;left:39%;top:60%;width:10cqw;height:26cqw;--r:1deg;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.8cqw;">
+                <svg viewBox="0 0 24 24" style="width:3.4cqw;height:3.4cqw;stroke:#fff;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;"><path d="M9 3v5M15 3v5"/><path d="M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v4"/></svg>
+                <span style="font-size:3.2cqw;font-weight:900;line-height:1;">MCP</span>
+                <span class="mc-s" style="color:#fff;opacity:0.9;">공용 규격</span>
+            </div>
+            <span class="mc-tape" style="left:39%;top:36%;--r:-4deg;"></span>
+            <div class="mc-p mc-c mc-z2 t2" style="left:64%;top:43%;width:16cqw;--r:2deg;"><span class="mc-t">구글 드라이브</span></div>
+            <div class="mc-p mc-c mc-z2" style="left:64%;top:60%;width:16cqw;--r:-2deg;--pc:#EAE3D3;"><span class="mc-t">슬랙</span></div>
+            <div class="mc-p mc-c mc-z2 t2" style="left:64%;top:77%;width:16cqw;--r:1deg;"><span class="mc-t">DART 공시</span></div>
+
+            <div class="mc-sticker" style="left:87%;top:38%;--s:15cqw;--r:8deg;--pc:#B35535;color:#fff;outline-color:rgba(255,255,255,0.45);"><b>3 + 3</b><small>연결 6개</small></div>
+            <div class="mc-p mc-z2 t2" style="left:76%;top:58%;width:21%;--r:-1deg;">
+                <div class="mc-note"><h4>이렇게 움직입니다</h4><ul>
+                    <li>서버가 자기가 할 수 있는 일의 목록을 알려 줍니다</li>
+                    <li>AI가 목록을 읽고 필요한 것을 골라 부릅니다</li>
+                    <li>서버 하나를 더하면 모든 앱에서 씁니다</li>
+                </ul></div>
+            </div>
+            <span class="mc-tape" style="left:94.5%;top:58.5%;--r:32deg;--w:5cqw;"></span>
+            <span class="mc-clip" style="left:5%;top:90%;--r:-1deg;">USB-C처럼, 단자 모양 하나에 무엇이든 꽂습니다</span>
+        </div>
+
+        <!-- 3장. 나란히 + 연표(날짜는 1차 출처 확인: Anthropic 2024-11-25, OpenAI 2025-03-26, Google 2025-04-09, AAIF 2025-12-09) -->
+        <div class="mc-slide" data-slide="2" aria-label="3장. API와 MCP를 나란히 놓고 보면, 그리고 MCP 연표">
+            <div class="mc-dots" style="left:-5%;top:-10%;width:24cqw;height:24cqw;--dc:rgba(26,25,23,0.3);"></div>
+            <div class="mc-dots" style="left:82%;top:48%;width:20cqw;height:20cqw;"></div>
+            <div class="mc-rn" style="left:5%;top:5%;font-size:4.4cqw;"><span class="l4">API</span><span class="l2 sm">vs.</span><span class="l1">MCP</span></div>
+            <div class="mc-p mc-z2 mc-w" style="--pc:#1A1917;left:36%;top:6.5%;--r:-1.5deg;font-size:2.5cqw;font-weight:900;padding:0.6cqw 1.6cqw;">나란히 놓고 보면</div>
+
+            <div class="mc-p" style="--pc:#56677D;left:27%;top:19%;width:33%;height:46%;--r:-0.6deg;"></div>
+            <div class="mc-p t2" style="--pc:#B35535;left:62%;top:19%;width:34%;height:46%;--r:0.5deg;"></div>
+            <span class="mc-tape" style="left:28.5%;top:20%;--r:-30deg;--w:6cqw;"></span>
+            <span class="mc-tape" style="left:94.5%;top:20%;--r:28deg;--w:6cqw;"></span>
+            <div class="mc-row api" style="left:30%;top:24.5%;font-size:2.2cqw;font-weight:900;font-family:Georgia,'Times New Roman',serif;">API</div>
+            <div class="mc-row mcp" style="left:65%;top:24.5%;font-size:2.2cqw;font-weight:900;font-family:Georgia,'Times New Roman',serif;">MCP</div>
+
+            <span class="mc-clip" style="left:5%;top:33%;--ty:-50%;">누가 부르나</span>
+            <span class="mc-clip" style="left:5%;top:41.5%;--ty:-50%;--r:1.5deg;">연결 규칙</span>
+            <span class="mc-clip" style="left:5%;top:50%;--ty:-50%;">도구를 늘릴 때</span>
+            <span class="mc-clip" style="left:5%;top:58.5%;--ty:-50%;--r:1.5deg;">무엇을 할지</span>
+
+            <div class="mc-row api" style="left:30%;top:33%;width:28%;">개발자가 짠 프로그램<em>코드가 정해 둔 순서대로 부름</em></div>
+            <div class="mc-row api" style="left:30%;top:41.5%;width:28%;">서비스마다 제각각<em>문서·인증·데이터 모양이 다름</em></div>
+            <div class="mc-row api" style="left:30%;top:50%;width:28%;">앱마다 연결 코드를 새로<em>앱이 세 개면 세 번 짬</em></div>
+            <div class="mc-row api" style="left:30%;top:58.5%;width:28%;">개발자가 미리 정해 둠<em>짜 둔 기능만 실행</em></div>
+
+            <div class="mc-row mcp" style="left:65%;top:33%;width:29%;">AI 모델<em>Claude, ChatGPT 같은 AI 앱이 부름</em></div>
+            <div class="mc-row mcp" style="left:65%;top:41.5%;width:29%;">모두 같은 규격 하나<em>목록 보기, 부르기, 결과 받기</em></div>
+            <div class="mc-row mcp" style="left:65%;top:50%;width:29%;">서버 하나 연결하면 끝<em>호환되는 AI 앱 어디서나 씀</em></div>
+            <div class="mc-row mcp" style="left:65%;top:58.5%;width:29%;">AI가 목록을 읽고 고름<em>요청에 맞는 도구를 스스로 선택</em></div>
+
+            <!-- 연표: 실 한 줄에 날짜 쪽지 네 장 -->
+            <svg class="mc-lines" viewBox="0 0 1600 900" aria-hidden="true" style="z-index:1;">
+                <path d="M110,690 C500,676 1100,704 1500,688" stroke="#1A1917" stroke-width="3.5" stroke-dasharray="2 9"/>
+                <g fill="#B35535"><circle cx="304" cy="686" r="9"/><circle cx="640" cy="688" r="9"/><circle cx="976" cy="692" r="9"/><circle cx="1312" cy="691" r="9"/></g>
+            </svg>
+            <span class="mc-clip or" style="left:5%;top:70.5%;--ty:-50%;--r:-3deg;z-index:3;">MCP 연표</span>
+            <div class="mc-p mc-c mc-z2" style="left:19%;top:79.5%;width:19cqw;--r:-2deg;"><div class="mc-date">2024.11.25</div><div class="mc-dt">Anthropic 공개</div><em class="mc-dd">개방형 규격으로 첫 공개</em></div>
+            <div class="mc-p mc-c mc-z2 t2" style="left:40%;top:80%;width:19cqw;--r:1.5deg;--pc:#EAE3D3;"><div class="mc-date">2025.03.26</div><div class="mc-dt">OpenAI 채택</div><em class="mc-dd">Agents SDK부터 지원</em></div>
+            <div class="mc-p mc-c mc-z2" style="left:61%;top:80%;width:19cqw;--r:-1deg;"><div class="mc-date">2025.04.09</div><div class="mc-dt">구글 채택</div><em class="mc-dd">Gemini 모델·SDK 지원 발표</em></div>
+            <div class="mc-p mc-c mc-z2 t2" style="left:82%;top:79.5%;width:19cqw;--r:2deg;--pc:#F4D35E;"><div class="mc-date">2025.12.09</div><div class="mc-dt">리눅스 재단에 기부</div><em class="mc-dd">Agentic AI Foundation으로 이관</em></div>
+            <span class="mc-tape" style="left:90.5%;top:73.5%;--r:35deg;--w:4.5cqw;"></span>
+
+            <div class="mc-p mc-z3 t2" style="--pc:#FBF8F1;left:8%;top:90%;width:84%;--r:-0.4deg;padding:0.6cqw 1.6cqw;">
+                <div class="mc-note" style="font-size:1.2cqw;"><b style="color:#B35535;font-weight:900;margin-right:0.6cqw;">핵심</b>MCP는 API를 없애지 않습니다. MCP 서버 대부분이 안에서 그 서비스의 API를 부르고, MCP는 AI가 쓰기 쉽게 감싼 공용 포장입니다.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mc-bar">
+        <button type="button" class="mc-nav" id="mcPrev" aria-label="이전 장"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button>
+        <div class="mc-dots-nav" role="tablist" aria-label="슬라이드">
+            <button type="button" class="mc-dotbtn" data-go="0">1 · API</button>
+            <button type="button" class="mc-dotbtn" data-go="1">2 · MCP</button>
+            <button type="button" class="mc-dotbtn" data-go="2">3 · 비교·연표</button>
+        </div>
+        <button type="button" class="mc-nav" id="mcNext" aria-label="다음 장"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
+    </div>
+    <p class="mc-rotate">휴대폰을 가로로 돌리면 크게 보입니다</p>
+</div>
+<script>
+// MC-COLLAGE: 전체 화면 덱. 가능하면 브라우저 전체 화면까지 켜고, 안 되면(아이폰 등) 고정 오버레이로 띄운다
+(function(){
+    var deck = document.getElementById('mcDeck');
+    if (!deck) return;
+    var slides = deck.querySelectorAll('.mc-slide');
+    var dots = deck.querySelectorAll('.mc-dotbtn');
+    var prev = document.getElementById('mcPrev'), next = document.getElementById('mcNext');
+    var idx = 0, lastFocus = null, wentFs = false;
+
+    function show(i){
+        idx = Math.max(0, Math.min(slides.length - 1, i));
+        slides.forEach(function(s, k){ s.classList.toggle('on', k === idx); });
+        dots.forEach(function(d, k){ d.setAttribute('aria-current', k === idx ? 'true' : 'false'); });
+        prev.disabled = idx === 0;
+        next.disabled = idx === slides.length - 1;
+    }
+    function fsEl(){ return document.fullscreenElement || document.webkitFullscreenElement; }
+    function open(){
+        lastFocus = document.activeElement;
+        deck.hidden = false;
+        document.body.classList.add('mc-open');
+        show(0);
+        var req = deck.requestFullscreen || deck.webkitRequestFullscreen;
+        if (req) {
+            try {
+                var p = req.call(deck);
+                wentFs = true;
+                if (p && p.catch) p.catch(function(){ wentFs = false; });
+            } catch(e) { wentFs = false; }
+        }
+        document.getElementById('mcClose').focus();
+    }
+    function close(){
+        if (deck.hidden) return;
+        wentFs = false;
+        if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        deck.hidden = true;
+        document.body.classList.remove('mc-open');
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+    // 전체 화면에서 Esc를 누르면 브라우저가 먼저 전체 화면만 푼다. 그때 덱도 같이 닫는다
+    function onFs(){ if (wentFs && !fsEl()) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+
+    document.getElementById('mcOpen').addEventListener('click', open);
+    var cover = document.getElementById('mcCover');
+    cover.addEventListener('click', open);
+    cover.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    document.getElementById('mcClose').addEventListener('click', close);
+    prev.addEventListener('click', function(){ show(idx - 1); });
+    next.addEventListener('click', function(){ show(idx + 1); });
+    dots.forEach(function(d){ d.addEventListener('click', function(){ show(+d.getAttribute('data-go')); }); });
+    // 슬라이드 바깥 어두운 바탕을 누르면 닫는다
+    deck.addEventListener('click', function(e){ if (e.target === deck) close(); });
+    document.addEventListener('keydown', function(e){
+        if (deck.hidden) return;
+        if (e.key === 'Escape') close();
+        else if (e.key === 'ArrowRight' || e.key === 'PageDown') show(idx + 1);
+        else if (e.key === 'ArrowLeft' || e.key === 'PageUp') show(idx - 1);
+    });
+    // 휴대폰에서는 옆으로 밀어 넘긴다
+    var sx = null, sy = null;
+    var stage = document.getElementById('mcStage');
+    stage.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive:true});
+    stage.addEventListener('touchend', function(e){
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) show(idx + (dx < 0 ? 1 : -1));
+        sx = null;
+    }, {passive:true});
+})();
+</script>
 
 <script>
 (function(){

@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="assets/logos/logo1-transparent.png">
+    <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
+    <link rel="canonical" href="https://airoasting.github.io/claude_guide/liner-model-api.html">
+    <meta property="og:title" content="Liner Model API 소개서 | AI ROASTING · AI 에이전트를 고용하라">
+    <meta property="og:description" content="요청마다 알맞은 모델을 골라 LLM 비용을 50% 이상 줄이는 라이너의 Liner Model API 소개서를 16:9 HTML 슬라이드 아홉 장으로 옮겼습니다.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <meta property="og:url" content="https://airoasting.github.io/claude_guide/liner-model-api.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Liner Model API 소개서 | AI ROASTING · AI 에이전트를 고용하라">
+    <meta name="twitter:description" content="요청마다 알맞은 모델을 골라 LLM 비용을 50% 이상 줄이는 라이너의 Liner Model API 소개서를 16:9 HTML 슬라이드 아홉 장으로 옮겼습니다.">
+    <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
+    <title>Liner Model API 소개서: 더 높은 성능을 50% 가격으로 | AI ROASTING</title>
+    <meta name="description" content="요청마다 알맞은 모델을 골라 LLM 비용을 50% 이상 줄이는 라이너의 Liner Model API 소개서를 16:9 HTML 슬라이드 아홉 장으로 옮겼습니다.">
+    <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('assets/fonts/PretendardVariable.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --nm-bg: #EDEAE4;
+            --nm-dark: #CECAC3;
+            --nm-light: #FFFFFF;
+            --nm-shadow: 6px 6px 14px #CECAC3, -6px -6px 14px #FFFFFF;
+            --nm-shadow-sm: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            --nm-inset: inset 4px 4px 10px #CECAC3, inset -4px -4px 10px #FFFFFF;
+            --ant-orange: #D97757;
+            --ant-orange-text: #B0522F;
+            --ant-brick: #B0544A;
+            --ant-dark: #1A1917;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body { word-break: keep-all;
+            font-family: 'Pretendard', 'Helvetica Neue', Arial, -apple-system, sans-serif;
+            background: var(--nm-bg);
+            color: #3A3530;
+            line-height: 1.6;
+        }
+
+        /* ── KEYFRAMES ── */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes copyPop {
+            0%   { transform: scale(1); }
+            50%  { transform: scale(1.18); }
+            100% { transform: scale(1); }
+        }
+
+        /* ── SCROLL REVEAL ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.5s cubic-bezier(.25,.8,.25,1), transform 0.5s cubic-bezier(.25,.8,.25,1);
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            padding: 28px 40px 40px;
+            border-radius: 0 0 32px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute; top: -80px; right: -40px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(196,98,63,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -50px; left: 50%;
+            transform: translateX(-50%);
+            width: 600px; height: 300px;
+            background: radial-gradient(circle, rgba(255,200,150,0.12) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.65);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+            position: relative; z-index: 1;
+            animation: fadeIn 0.5s ease both;
+        }
+        .back-link:hover { color: #fff; }
+
+        header h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+            position: relative; z-index: 1;
+            animation: fadeInDown 0.6s cubic-bezier(.25,.8,.25,1) 0.1s both;
+        }
+        header p {
+            font-size: 16px;
+            color: rgba(255,255,255,0.82);
+            position: relative; z-index: 1;
+            font-weight: 500;
+            animation: fadeInUp 0.6s ease 0.25s both;
+        }
+
+        /* ── Header Page Links (2개 묶음 · 490px) ── */
+        .header-pages {
+            max-width: 490px;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex; justify-content: center;
+            gap: 14px; margin-top: 22px;
+            position: relative; z-index: 1;
+            animation: fadeInUp 0.6s ease 0.45s both;
+        }
+        .header-page-link {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px; font-weight: 700;
+            padding: 12px 22px; border-radius: 16px;
+            background: rgba(255,255,255,0.07);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.35), -5px -5px 12px rgba(255,255,255,0.06);
+            transition: all 0.25s;
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 280px;
+            white-space: nowrap;
+        }
+        .header-page-link:hover {
+            background: rgba(255,255,255,0.13); color: #fff;
+            transform: translateY(-2px);
+        }
+        .header-page-link.active {
+            background: rgba(255,255,255,0.14);
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.35), inset -3px -3px 8px rgba(255,255,255,0.06);
+            color: #fff;
+        }
+        .hpl-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; flex-shrink: 0;
+        }
+        .hpl-icon svg { width: 16px; height: 16px; display: block; }
+
+        /* ── Sub Menu (sticky) ── */
+        .sub-menu {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #F0EDE8;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border-bottom: 1px solid #E0DDD7;
+            border-radius: 0 0 32px 32px;
+            padding: 14px 0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .sub-menu::-webkit-scrollbar { display: none; }
+        .sub-menu a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            padding: 8px 18px;
+            transition: all 0.2s;
+            flex: 1;
+            max-width: 150px;
+        }
+        .sub-menu a:hover .sm-num { transform: scale(1.1); }
+        .sub-menu a:hover .sm-title { color: var(--ant-dark); }
+        .sub-menu a.active {
+            background: rgba(217,119,87,0.10);
+            border-radius: 14px;
+        }
+        .sub-menu a.active .sm-num {
+            background: var(--ant-orange);
+            box-shadow: 0 2px 8px rgba(217,119,87,0.4);
+        }
+        .sub-menu a.active .sm-title { color: var(--ant-dark); font-weight: 800; }
+        .sub-menu a.active .sm-sub { color: var(--ant-orange); }
+        .sm-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #B0544A; color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .sm-title { font-size: 13px; font-weight: 700; color: #3A3530; white-space: nowrap; }
+        .sm-sub { font-size: 11px; color: #999; white-space: nowrap; }
+        .content-section { scroll-margin-top: 137px; }
+        @media (max-width: 900px) {
+            .content-section { scroll-margin-top: 74px; }
+        }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 1080px; margin: 0 auto; padding: 32px 32px 80px; }
+
+        /* ── 안내 상자 ── */
+        .notation {
+            margin-bottom: 28px; padding: 20px 24px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 12px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .notation-title {
+            font-size: 12px; font-weight: 800; color: #999;
+            text-transform: uppercase; letter-spacing: 1.2px;
+        }
+        .notation-row { display: flex; align-items: flex-start; gap: 14px; }
+        .notation-key {
+            flex-shrink: 0; margin-top: 2px;
+            min-width: 82px; text-align: center;
+        }
+        .notation-row p { font-size: 13px; color: #5C5650; line-height: 1.65; }
+        .notation-row strong { color: #3A3530; font-weight: 700; }
+        .notation-row a { color: var(--ant-orange-text); font-weight: 700; text-decoration: none; }
+        .notation-row a:hover { text-decoration: underline; }
+        .meta-tag {
+            font-size: 12px; font-weight: 600;
+            padding: 3px 10px; border-radius: 6px;
+        }
+        .meta-tag.connect {
+            background: var(--nm-bg); color: var(--ant-brick);
+            box-shadow: 2px 2px 6px #CECAC3, -2px -2px 6px #FFFFFF;
+        }
+        .meta-tag.skill {
+            background: var(--nm-bg); color: #5C5650;
+            box-shadow: 2px 2px 6px #CECAC3, -2px -2px 6px #FFFFFF;
+        }
+
+        /* ── 사례 목차 ── */
+        .case-index {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            margin-bottom: 26px;
+        }
+        .case-index a {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px; border-radius: 12px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            text-decoration: none; color: #3A3530;
+            font-size: 13px; font-weight: 700; line-height: 1.3;
+            transition: box-shadow 0.2s, color 0.2s;
+        }
+        .case-index a:hover { box-shadow: var(--nm-inset); color: var(--ant-orange-text); }
+        .ci-num {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--ant-brick); color: #fff;
+            font-size: 11px; font-weight: 800;
+            display: inline-flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .ci-verb { font-size: 11px; color: #9A948C; font-weight: 700; margin-left: auto; flex-shrink: 0; }
+
+        /* ── 사례 카드 ── */
+        .case-card {
+            background: var(--nm-bg);
+            border-radius: 18px;
+            box-shadow: var(--nm-shadow);
+            padding: 28px 30px;
+            margin-bottom: 26px;
+            scroll-margin-top: 130px;
+        }
+        .case-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-bottom: 8px; }
+        .case-num {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--ant-brick); color: #fff;
+            font-size: 13px; font-weight: 800;
+            display: inline-flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 2px 2px 8px rgba(176,84,74,0.35);
+        }
+        .case-verb {
+            font-size: 12px; font-weight: 800; color: var(--ant-orange-text);
+            padding: 4px 12px; border-radius: 20px;
+            background: rgba(217,119,87,0.10);
+        }
+        .case-chan {
+            font-size: 12px; font-weight: 700; color: #5C5650;
+            padding: 4px 10px; border-radius: 8px;
+            background: var(--nm-bg);
+            box-shadow: 2px 2px 6px #CECAC3, -2px -2px 6px #FFFFFF;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            margin-left: auto;
+        }
+        .case-card h3 {
+            width: 100%;
+            font-size: 21px; font-weight: 800; color: #1A1917;
+            letter-spacing: -0.3px; line-height: 1.35;
+            margin: 6px 0 8px;
+        }
+        .case-lead { font-size: 15px; color: #5C5650; line-height: 1.7; margin-bottom: 20px; }
+        .case-body { display: grid; grid-template-columns: 300px 1fr; gap: 26px; align-items: start; }
+        .case-shots { display: flex; flex-direction: column; gap: 14px; }
+        .case-shots figure {
+            margin: 0; border-radius: 12px; overflow: hidden;
+            box-shadow: var(--nm-shadow-sm); background: #fff;
+        }
+        .case-shots figcaption {
+            font-size: 12px; color: #7C7568; line-height: 1.5;
+            padding: 8px 12px 10px; background: var(--nm-bg);
+        }
+
+        .ask-box {
+            border-radius: 12px; background: #2d2d2d; color: #fff;
+            padding: 14px 18px; margin-bottom: 18px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .ask-label {
+            display: block; font-size: 11px; font-weight: 800;
+            letter-spacing: 1.2px; text-transform: uppercase;
+            color: rgba(255,255,255,0.5); margin-bottom: 6px;
+        }
+        .ask-box p {
+            font-size: 14px; line-height: 1.7; color: #fff;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            white-space: pre-wrap; overflow-wrap: anywhere;
+        }
+        .ask-box p + p { margin-top: 8px; }
+        .ask-note { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 8px; font-family: inherit; }
+
+        .case-points { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .case-points li {
+            padding: 14px 16px 14px 18px; border-radius: 12px;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+        }
+        .case-points h4 {
+            font-size: 14.5px; font-weight: 800; color: #3A3530;
+            margin-bottom: 5px;
+            display: flex; gap: 8px; align-items: center;
+        }
+        .case-points h4 svg { width: 15px; height: 15px; color: var(--ant-orange); flex-shrink: 0; }
+        .case-points p { font-size: 13.5px; color: #5C5650; line-height: 1.65; }
+        .case-points code {
+            font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12.5px;
+            background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 5px; color: #3A3530;
+        }
+
+        /* ── 슬랙 목업 (em 기준. 글자 크기만 바꾸면 전체가 같이 커진다) ── */
+        .case-shots figure { position: relative; }
+        .slack {
+            display: block; text-align: left;
+            background: #1A1D21; color: #D1D2D3;
+            font-size: 11.5px; line-height: 1.55;
+            padding: 1em 1.1em 0.4em;
+            word-break: keep-all; overflow-wrap: anywhere;
+        }
+        .sk-ch { color: #ABABAD; font-weight: 800; font-size: 0.92em; padding-bottom: 0.7em; margin-bottom: 0.9em; border-bottom: 1px solid #35373B; }
+        .sk-msg { display: grid; grid-template-columns: 2.7em 1fr; gap: 0.75em; margin-bottom: 1.05em; }
+        .sk-msg--cont { margin-bottom: 1.2em; }
+        .sk-av {
+            width: 2.7em; height: 2.7em; border-radius: 0.45em; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 800; font-size: 1em;
+        }
+        /* AI ROASTING 로고는 흰 원 위에 얹는다 */
+        .sk-av--logo { background: #fff; border-radius: 50%; padding: 0.14em; }
+        .sk-av--logo img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+        .sk-av--agent { background: linear-gradient(150deg, #D97757, #A84726); }
+        .sk-av--agent svg { width: 1.7em; height: 1.7em; }
+        .sk-head { margin-bottom: 0.15em; }
+        .sk-head b { color: #fff; font-weight: 800; }
+        .sk-head time { color: #9A9B9E; font-size: 0.85em; margin-left: 0.55em; }
+        .sk-badge { font-size: 0.7em; font-weight: 800; background: #35373B; color: #ABABAD; padding: 0.12em 0.45em; border-radius: 0.3em; margin-left: 0.5em; vertical-align: 0.1em; }
+        .sk-status { color: #9A9B9E; font-size: 0.88em; margin-bottom: 0.35em; padding-left: 0.8em; border-left: 0.22em solid #4A4B4F; }
+        .sk-body p { margin: 0 0 0.55em; }
+        .sk-body b { color: #fff; font-weight: 700; }
+        .sk-body i { font-style: italic; }
+        .sk-body ul { margin: 0 0 0.65em 1.15em; padding: 0; }
+        .sk-body li { margin-bottom: 0.2em; }
+        .sk-h { color: #fff; font-weight: 800; margin-top: 0.2em !important; }
+        .sk-at { background: rgba(29,155,209,0.2); color: #4DB8E8; border-radius: 0.25em; padding: 0 0.22em; }
+        .sk-code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.9em; color: #E8912D; background: #2C2D30; border: 1px solid #4A4B4F; border-radius: 0.3em; padding: 0 0.3em; }
+        .sk-quote { border-left: 0.3em solid #4A4B4F; padding: 0.1em 0 0.1em 0.8em; margin: 0 0 0.6em; }
+        .sk-muted { color: #9A9B9E; }
+        .sk-replies { display: flex; align-items: center; gap: 0.8em; color: #9A9B9E; font-size: 0.9em; margin: 0 0 1em; }
+        .sk-replies::after { content: ''; flex: 1; height: 1px; background: #35373B; }
+        .sk-note { text-align: center; color: #9A9B9E; font-size: 0.88em; margin: 0 0 1.05em; }
+        .sk-react { display: inline-flex; align-items: center; gap: 0.35em; font-size: 0.85em; color: #D1D2D3; background: #2C2D30; border-radius: 1em; padding: 0.15em 0.7em; }
+        .sk-react svg { width: 1em; height: 1em; color: #4CAF50; }
+        .sk-attach, .sk-unfurl {
+            display: flex; flex-direction: column; gap: 0.3em;
+            border: 1px solid #35373B; border-radius: 0.6em; padding: 0.8em 0.9em; margin: 0.2em 0 0.4em;
+            background: #222529;
+        }
+        .sk-unfurl { border: none; border-left: 0.3em solid #4A4B4F; border-radius: 0; background: none; padding: 0 0 0 0.8em; }
+        .sk-attach span, .sk-unfurl em { color: #ABABAD; font-size: 0.9em; font-style: normal; }
+        .sk-attach-row { padding-top: 0.4em; border-top: 1px solid #35373B; }
+        .sk-link { color: #4DB8E8 !important; font-weight: 700; font-size: 1em !important; }
+        .sk-ph { display: block; height: 7em; border-radius: 0.5em; background: linear-gradient(135deg, #3A3D42, #2C2D30); }
+        .sk-bar { position: relative; display: block; height: 1.7em; border-radius: 0.4em; background: #2C2D30; overflow: hidden; }
+        .sk-bar i { position: absolute; inset: 0 auto 0 0; background: rgba(217,119,87,0.55); }
+        .sk-bar em { position: relative; line-height: 1.7em; padding-left: 0.6em; color: #fff !important; font-style: normal; font-size: 0.92em; }
+        .sk-file { color: #ABABAD; font-size: 0.9em; margin-bottom: 0.4em; }
+
+        /* 썸네일에서는 길이를 자르고, 눌러서 전체를 본다 */
+        .case-shots .shot-open { cursor: zoom-in; }
+        .case-shots .slack { max-height: 540px; overflow: hidden; position: relative; }
+        .case-shots .slack.is-clipped::after {
+            content: '눌러서 전체 보기';
+            position: absolute; left: 0; right: 0; bottom: 0;
+            padding: 3.2em 0 0.9em; text-align: center;
+            font-size: 1em; font-weight: 800; color: #fff;
+            background: linear-gradient(180deg, rgba(26,29,33,0), #1A1D21 62%);
+        }
+        .shot-open:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: -3px; }
+
+        /* ── 다시 그린 배너와 축하 카드 (cqw 기준. 폭에 맞춰 같이 커진다) ── */
+        .art { display: block; position: relative; width: 100%; aspect-ratio: 980 / 552; overflow: hidden; container-type: inline-size; }
+        .art-banner { background: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.16) 1px, transparent 1.6px) 0 0 / 3cqw 3cqw, #1E35D6; }
+        .bn-face {
+            position: absolute; width: 13cqw; height: 13cqw; margin: -6.5cqw 0 0 -6.5cqw;
+            border-radius: 50%; border: 0.7cqw solid #fff; color: rgba(26,25,23,0.55);
+            display: flex; align-items: flex-end; justify-content: center; overflow: hidden;
+        }
+        .bn-face svg { width: 84%; height: 84%; }
+        .bn-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6cqw; }
+        .bn-tag { background: #FFF6E0; color: #1B2A9E; font-weight: 900; font-size: 3.4cqw; padding: 0.3cqw 2.2cqw; letter-spacing: 0.05em; transform: rotate(-1.5deg); }
+        .bn-title { color: #FFF6E0; font-weight: 900; font-size: 11.5cqw; line-height: 0.95; letter-spacing: -0.02em; text-shadow: 0.5cqw 0.5cqw 0 #0E1A7A; }
+        .bn-title i { font-style: normal; }
+        .bn-pill { margin-top: 1.4cqw; background: #2340E8; border: 0.35cqw solid #fff; color: #fff; font-weight: 800; font-size: 2.6cqw; padding: 0.7cqw 3cqw; border-radius: 5cqw; }
+        .bn-ticket { background: #FF7A2F; color: #1A1917; font-weight: 900; font-size: 3.2cqw; padding: 0.8cqw 4cqw; margin-top: 0.6cqw; }
+
+        .art-card { background: linear-gradient(120deg, #FFFBF2 0%, #F8ECD6 60%, #EED9B4 100%); color: #3A2A1C; display: grid; grid-template-columns: 1.15fr 1fr; align-items: center; }
+        .art-card::before { content: ''; position: absolute; inset: 2.2cqw; border: 0.25cqw solid #CDA65A; pointer-events: none; }
+        .art-card--inline { border-radius: 0.6em; }
+        .cd-text { display: flex; flex-direction: column; align-items: center; gap: 0.9cqw; text-align: center; padding-left: 5cqw; font-family: 'Nanum Myeongjo', 'AppleMyungjo', 'Batang', serif; }
+        .cd-crown { width: 4cqw; height: 4cqw; color: #C79A45; }
+        .cd-name { font-size: 6.4cqw; color: #B5862F; font-weight: 700; line-height: 1.1; }
+        .cd-title { font-size: 7.4cqw; font-weight: 800; line-height: 1.22; }
+        .cd-title b { color: #B5862F; }
+        .cd-sub { font-size: 2.1cqw; color: #5C4A37; }
+        .cd-icons { display: flex; gap: 3.4cqw; margin-top: 0.8cqw; }
+        .cd-ic { display: flex; flex-direction: column; align-items: center; gap: 0.5cqw; color: #8A6A3A; font-family: 'Pretendard', sans-serif; }
+        .cd-ic svg { width: 4.4cqw; height: 4.4cqw; padding: 0.9cqw; border-radius: 50%; background: rgba(205,166,90,0.22); box-sizing: content-box; }
+        .cd-ic em { font-style: normal; font-size: 1.7cqw; }
+        .cd-thanks { font-style: italic; font-size: 2.8cqw; color: #B5862F; }
+        .cd-photo { justify-self: center; width: 34cqw; height: 34cqw; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FFF3D6, #D9B56B); color: rgba(90,66,30,0.5); display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+        .cd-photo svg { width: 88%; height: 88%; }
+
+        /* ── 크게 보기 (라이트박스) ── */
+        .zoom-hint {
+            position: absolute; top: 8px; right: 8px; z-index: 2;
+            width: 30px; height: 30px; border-radius: 8px;
+            background: rgba(26,25,23,0.62); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none;
+        }
+        .zoom-hint svg { width: 15px; height: 15px; }
+        .lb {
+            position: fixed; inset: 0; z-index: 3000;
+            display: none;
+            background: rgba(20,17,15,0.9);
+            overflow: auto; -webkit-overflow-scrolling: touch;
+            padding: 64px 20px 40px;
+            text-align: center;
+            cursor: zoom-out;
+        }
+        .lb.open { display: block; }
+        .lb-stage { margin: 0 auto; max-width: 780px; border-radius: 10px; overflow: hidden; box-shadow: 0 12px 48px rgba(0,0,0,0.5); cursor: default; }
+        .lb-stage--art { max-width: 980px; }
+        .lb-stage .slack { font-size: 15px; padding: 1.2em 1.4em 0.6em; max-height: none; }
+        .lb-stage .slack::after { display: none; }
+        .lb-cap { margin: 14px auto 0; max-width: 760px; font-size: 13px; color: rgba(255,255,255,0.78); line-height: 1.6; }
+        .lb-close {
+            position: fixed; top: 14px; right: 14px; z-index: 3001;
+            width: 42px; height: 42px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.12); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .lb-close:hover { background: rgba(255,255,255,0.24); }
+        .lb-close:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 2px; }
+        .lb-close svg { width: 18px; height: 18px; }
+        @media (max-width: 768px) {
+            .lb { padding: 60px 10px 28px; }
+            .lb-stage .slack { font-size: 13px; }
+        }
+
+        /* ── 공통점 그리드 ── */
+        .pattern-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .pattern-card {
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px; padding: 22px 22px 20px;
+        }
+        .pattern-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            display: inline-flex; align-items: center; justify-content: center;
+            color: var(--ant-orange); margin-bottom: 14px;
+        }
+        .pattern-icon svg { width: 20px; height: 20px; }
+        .pattern-card h4 { font-size: 15.5px; font-weight: 800; color: #3A3530; margin-bottom: 8px; }
+        .pattern-card p { font-size: 13.5px; color: #5C5650; line-height: 1.65; }
+        .pattern-card .quote { color: #3A3530; font-weight: 600; }
+
+        /* ── 배운 것 목록 ── */
+        .sec-intro { font-size: 15px; color: #5C5650; line-height: 1.7; margin-bottom: 20px; max-width: 760px; }
+        .sec-intro strong { color: #3A3530; }
+        .lesson-list { list-style: none; display: grid; grid-template-columns: 1fr; gap: 14px; }
+        .lesson-list li {
+            display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start;
+            background: var(--nm-bg); box-shadow: var(--nm-shadow-sm);
+            border-radius: 14px; padding: 20px 22px 18px;
+        }
+        .lesson-num {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--nm-bg); box-shadow: var(--nm-inset);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 17px; font-weight: 800; color: var(--ant-orange-text);
+        }
+        .lesson-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; margin-bottom: 6px; }
+        .lesson-list h4 { font-size: 15.5px; font-weight: 800; color: #3A3530; margin: 0; }
+        .lesson-list p { font-size: 13.5px; color: #5C5650; line-height: 1.65; }
+        .lesson-ref {
+            display: inline-block; margin-top: 0; flex-shrink: 0;
+            font-size: 11px; font-weight: 700; color: var(--ant-orange-text);
+            padding: 3px 10px; border-radius: 20px; background: rgba(217,119,87,0.10);
+            text-decoration: none;
+        }
+        .lesson-ref:hover { background: rgba(217,119,87,0.18); }
+
+        .task-label {
+            font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1.2px;
+            color: #999; margin-bottom: 6px;
+        }
+
+        /* ── CTA 섹션 ── */
+        .cta-section {
+            background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
+            border-radius: 20px;
+            padding: 48px 32px;
+            text-align: center;
+            margin-top: 36px;
+            position: relative; overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute; top: -60px; right: -40px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,180,120,0.12) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .cta-section h3 {
+            font-size: 24px; font-weight: 800; color: #fff;
+            margin-bottom: 10px;
+            position: relative; z-index: 1;
+        }
+        .cta-section p {
+            font-size: 15px; color: rgba(255,255,255,0.78);
+            margin-bottom: 28px; line-height: 1.7;
+            position: relative; z-index: 1;
+        }
+        /* 설명 문단 없이 제목 바로 아래 단추가 올 때의 간격 */
+        .cta-section h3 + .cta-buttons { margin-top: 22px; }
+        .cta-buttons {
+            display: flex; justify-content: center; gap: 12px;
+            flex-wrap: wrap; position: relative; z-index: 1;
+        }
+        .cta-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            flex: 0 0 260px; max-width: 100%;
+            font-size: 14px; font-weight: 700;
+            padding: 13px 28px; border-radius: 10px;
+            text-decoration: none; transition: all 0.25s;
+        }
+        .cta-btn.primary { background: #fff; color: #7A1E0C; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+        .cta-btn.primary:hover { background: #f5f0ee; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.3); }
+        .cta-btn.secondary { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.78); border: 1px solid rgba(255,255,255,0.18); }
+        .cta-btn.secondary:hover { background: rgba(255,255,255,0.15); color: #fff; transform: translateY(-2px); }
+
+        /* ── 푸터 ── */
+        footer { background: var(--ant-dark); text-align: center; padding: 36px 32px 28px; border-radius: 32px 32px 0 0; }
+        footer .footer-brand { font-size: 13px; font-weight: 700; color: var(--ant-orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        footer .footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .footer-about-link {
+            display: inline-block; margin-top: 8px;
+            color: rgba(255,255,255,0.75); text-decoration: none;
+            font-size: 12px; font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding-bottom: 1px; transition: all 0.2s;
+        }
+        .footer-about-link:hover { color: #fff; border-color: #fff; }
+        .footer-link-row { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+        .footer-link-row .footer-about-link { margin-top: 0; }
+        .footer-link-sep { color: rgba(255,255,255,0.35); font-size: 12px; }
+
+        /* ── 반응형 ── */
+        @media (max-width: 960px) {
+            .case-index { grid-template-columns: repeat(2, 1fr); }
+            .pattern-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            header { padding: 28px 20px 28px; }
+            header h1 { font-size: 28px; }
+            .container { padding: 24px 16px 48px; }
+            .notation { padding: 18px 18px; }
+            .notation-row { flex-direction: column; gap: 7px; }
+            .notation-key { min-width: 0; align-self: flex-start; }
+            .header-pages { gap: 8px; flex-wrap: wrap; }
+            .header-page-link { font-size: 12px; padding: 8px 14px; border-radius: 12px; }
+            .case-card { padding: 20px 18px; border-radius: 14px; }
+            .case-card h3 { font-size: 18px; }
+            .case-chan { margin-left: 0; }
+            .case-body { grid-template-columns: 1fr; gap: 18px; }
+            .case-shots { flex-direction: row; overflow-x: auto; gap: 12px; padding-bottom: 6px; scroll-snap-type: x proximity; scrollbar-width: thin; }
+            .case-shots figure { flex: 0 0 82%; scroll-snap-align: start; }
+            .pattern-grid { grid-template-columns: 1fr; }
+            .lesson-list { grid-template-columns: 1fr; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+            .cta-btn { flex: 0 0 auto; width: 100%; max-width: 320px; }
+        }
+        @media (max-width: 480px) {
+            header h1 { font-size: 24px; }
+            .header-page-link { font-size: 11px; padding: 7px 12px; }
+            .back-link { font-size: 12px; margin-bottom: 14px; }
+            .case-index { grid-template-columns: 1fr; }
+        }
+
+        /* ── 헤더 배경 루프 영상 (원래 색 위에 빛의 움직임만 얹는다) ── */
+        header { isolation: isolate; }
+        .hero-video {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            z-index: -1;
+            opacity: 0.6;
+            filter: grayscale(1) contrast(1.05) brightness(1.08);
+            mix-blend-mode: soft-light;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-video { display: none; }
+        }
+    </style>
+    <!-- ANALYTICS-STD -->
+    <script defer src="assets/js/analytics.js"></script>
+    <!-- /ANALYTICS-STD -->
+    <style>
+        /* ═════ LINER DECK: 960×540 좌표계 슬라이드. 원본 PDF(960×540pt)와 같은 좌표를 쓴다 ═════ */
+        .lm-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0 20px; flex-wrap: wrap; }
+        .lm-play {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 22px; border: 0; border-radius: 999px; cursor: pointer;
+            background: #1A1917; color: #fff; font: inherit; font-size: 14px; font-weight: 700;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+        .lm-play svg { width: 17px; height: 17px; }
+        .lm-play:hover { background: var(--ant-orange); transform: translateY(-1px); }
+
+        .lm-deck { display: grid; gap: 28px; margin-bottom: 56px; }
+        .lm-frame {
+            position: relative; aspect-ratio: 16 / 9; overflow: hidden; cursor: zoom-in;
+            border-radius: 14px; background: #fff;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 10px 32px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .lm-frame:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 16px 40px rgba(0,0,0,0.12); }
+        .lm-frame:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 3px; }
+        .lm-frame::after {
+            content: ''; position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(26,25,23,0.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E") center / 15px no-repeat;
+            opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+        }
+        .lm-frame:hover::after, .lm-frame:focus-visible::after { opacity: 1; }
+
+        .lm-slide {
+            position: absolute; left: 0; top: 0; width: 960px; height: 540px; overflow: hidden;
+            transform-origin: 0 0; background: #fff; color: #17201a;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            text-align: left; word-break: keep-all; -webkit-font-smoothing: antialiased;
+        }
+        .lm-slide h2, .lm-slide p, .lm-slide ul, .lm-slide li, .lm-slide pre, .lm-slide table, .lm-slide hr {
+            margin: 0; padding: 0; line-height: 1.2; letter-spacing: normal; font-size: inherit; color: inherit; background: none; border: 0;
+        }
+        .lm-slide img { display: block; max-width: none; }
+        .lm-slide .ab { position: absolute; }
+        .lm-slide a { color: inherit; text-decoration: none; }
+
+        .lm-kicker { position: absolute; left: 37px; top: 36px; font-size: 12px !important; font-weight: 700; color: #2c783c !important; }
+        .lm-title { position: absolute; left: 36px; top: 61px; font-size: 30px !important; font-weight: 700; line-height: 1.1 !important; letter-spacing: -0.4px !important; color: #17201a !important; }
+        .lm-sub { position: absolute; left: 37px; top: 103px; font-size: 14px; color: #667169 !important; }
+        .lm-rule { position: absolute; left: 36px; right: 36px; top: 143px; border-top: 0.75px solid #e1e6e2; }
+        .lm-foot { position: absolute; left: 35px; right: 36px; top: 492px; height: 14px; display: flex; align-items: center; }
+        .lm-foot img { width: 43px; }
+        .lm-foot span { margin-left: 17px; font-size: 8px; color: #667169; }
+        .lm-foot b { margin-left: auto; font-size: 8px; font-weight: 400; color: #667169; }
+
+        /* 01 표지 */
+        /* 표지 빛: 이미지 대신 CSS 그라디언트. 오른쪽 가운데에서 번지는 빛을 여러 겹으로 부드럽게 쌓는다 */
+        .lm-cover {
+            color: #fff;
+            background:
+                radial-gradient(ellipse 38% 52% at 100% 44%, rgba(228,236,230,0.9) 0%, rgba(214,226,217,0.62) 22%, rgba(190,208,194,0.34) 45%, rgba(170,194,175,0.13) 68%, rgba(160,186,166,0.03) 86%, rgba(160,186,166,0) 100%),
+                radial-gradient(ellipse 70% 105% at 100% 48%, rgba(92,130,99,0.8) 0%, rgba(78,118,86,0.56) 25%, rgba(62,102,70,0.3) 50%, rgba(48,88,56,0.11) 74%, rgba(40,80,48,0.02) 90%, rgba(40,80,48,0) 100%),
+                linear-gradient(90deg, #14371b 0%, #14371b 38%, #173b1e 55%, #1c4123 75%, #22472a 100%);
+        }
+        .lm-cover-title { left: 34px; top: 160px; font-size: 72px !important; font-weight: 700; line-height: 1 !important; letter-spacing: -1.6px !important; color: #fff !important; }
+        .lm-cover-sub { left: 36px; top: 252px; font-size: 48px !important; font-weight: 700; line-height: 67px !important; letter-spacing: -0.8px !important; }
+        .lm-cover-meta { left: 36px; top: 490px; font-size: 10.5px !important; line-height: 16px !important; color: #8fbf9a !important; }
+
+        /* 03 가설 */
+        .lm-svc { top: 143px; width: 270px; height: 75px; border: 0.75px solid #e1e6e2; border-radius: 10px; background: #f4f7f5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+        .lm-svc b { font-size: 16px; font-weight: 700; }
+        .lm-svc span { font-size: 13px; color: #4a554e; }
+        .lm-axis { top: 245px; font-size: 12px !important; color: #667169 !important; }
+        .lm-route { top: 279px; width: 420px; height: 138px; border-radius: 10px; text-align: center; padding: 18px 29px 0 !important; }
+        .lm-route--rule { left: 45px; background: #e4f1e6; color: #4a554e; }
+        .lm-route--prompt { left: 492px; background: #2c783c; color: #fff; }
+        .lm-route-h { display: flex; align-items: center; justify-content: center; gap: 8px; height: 26px; font-size: 20px !important; font-weight: 700; }
+        .lm-route-d { margin-top: 5px !important; font-size: 13px !important; font-weight: 700; }
+        .lm-route hr { margin: 13px 0 10px !important; border-top: 0.75px solid #2c783c !important; }
+        .lm-route--prompt hr { border-top-color: #c9e3cf !important; margin-bottom: 20px !important; }
+        .lm-route-r { font-size: 14px !important; font-weight: 700; line-height: 19px !important; }
+
+        /* 04 학습 결과 */
+        .lm-prompt { left: 122px; width: 225px; height: 53px; background: #f3f6f3; padding: 9px 13px !important; }
+        .lm-prompt b { display: block; font-size: 14px; font-weight: 700; }
+        .lm-prompt span { display: block; margin-top: 5px; font-size: 10px; color: #667169; }
+        .lm-prompt em { font-style: normal; font-weight: 700; color: #2c783c; }
+
+        /* 05 가격 */
+        .lm-big { left: 37px; font-size: 48px !important; font-weight: 700; line-height: 1 !important; letter-spacing: -1px !important; color: #2c783c !important; }
+        .lm-big-sub { left: 38px; font-size: 14px !important; font-weight: 700; color: #667169 !important; }
+        .lm-price { left: 376px; top: 174px; width: 534px; border-collapse: collapse; table-layout: fixed; }
+        .lm-price th, .lm-price td { padding: 0 !important; text-align: center; font-size: 14px; color: #3a443d; background: none; border: 0; }
+        .lm-price th { height: 60px; font-weight: 700; color: #17201a; border-bottom: 1.5px solid #17201a; }
+        .lm-price td { height: 66px; border-bottom: 0.75px solid #e1e6e2; }
+        .lm-price tr:last-child td { border-bottom: 0; }
+        .lm-price th:first-child, .lm-price td:first-child { width: 144px; text-align: left; padding-left: 12px !important; color: #17201a; }
+        .lm-price th:first-child { color: #667169; }
+        .lm-price .lm-hl { width: 120px; background: #2c783c; color: #fff; font-size: 19px; font-weight: 700; border-bottom-color: #8fbf9a; }
+        .lm-price th.lm-hl { border-bottom-color: #fff; }
+        .lm-note { left: 37px; font-size: 8px !important; line-height: 1.15 !important; color: #667169 !important; }
+
+        /* 06 코드 */
+        .lm-code { left: 37px; top: 157px; width: 486px; height: 251px; border-radius: 14px; background: #0f1f14; padding: 16px 21px !important; }
+        .lm-code-lang { font-size: 13.5px !important; font-weight: 700; color: #6f8c76 !important; }
+        .lm-code pre { margin-top: 10px !important; font-family: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px !important; line-height: 17.5px !important; color: #d6e4d8 !important; white-space: pre; }
+        .lm-code pre b { color: #8fdd9b; font-weight: 700; }
+        .lm-checks { left: 569px; top: 236px; list-style: none; }
+        .lm-checks li { display: flex; align-items: center; gap: 11px; height: 33px; font-size: 14px; color: #17201a; }
+        .lm-checks li::before {
+            content: ''; flex: 0 0 21px; height: 21px; border-radius: 50%;
+            background: #e4f1e6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%232c783c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-4.9'/%3E%3C/svg%3E") center / 11px no-repeat;
+        }
+        .lm-skillbar { left: 36px; top: 421px; width: 888px; height: 47px; border-radius: 8px; background: #f3f6f3; display: flex; align-items: center; gap: 35px; padding-left: 30px; }
+        .lm-skillbar b { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 700; }
+        .lm-skillbar code { font-family: Consolas, ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; font-weight: 700; color: #2c783c; background: none; padding: 0; }
+
+        /* 07·08 자주 묻는 질문 */
+        .lm-certs { left: 48px; top: 290px; list-style: none; }
+        .lm-certs li { display: flex; align-items: center; gap: 10px; height: 22.7px; font-size: 10px; color: #3a443d; }
+        .lm-certs li::before {
+            content: ''; flex: 0 0 15px; height: 14px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 15' fill='none' stroke='%232c783c' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 1.2l5.8 2.2v3.8c0 3.4-2.5 5.6-5.8 6.6C4.7 12.8 2.2 10.6 2.2 7.2V3.4z'/%3E%3Cpath d='M10.2 11.8l1.7 1.6'/%3E%3C/svg%3E") center / contain no-repeat;
+        }
+        .lm-qa { padding-left: 24px !important; }
+        .lm-q { position: relative; font-size: 14px !important; font-weight: 700; color: #17201a !important; }
+        .lm-q::before { content: 'Q'; position: absolute; left: -24px; top: -1px; font-weight: 700; color: #2c783c; }
+        .lm-a { margin-top: 9px !important; font-size: 14px !important; line-height: 19.4px !important; color: #3a443d !important; }
+        .lm-a a { color: #2c783c; text-decoration: underline; text-underline-offset: 2px; }
+
+        /* 09 시작하기 */
+        .lm-dark { background: #17201a; color: #fff; }
+        .lm-card { top: 126px; width: 281px; height: 302px; border: 0.77px solid #3a443d; border-radius: 12px; background: #1e2822; padding: 50px 24px 0 !important; }
+        .lm-card--hl { background: #223127; border: 1.15px solid #8fbf9a; }
+        .lm-card-h { display: flex; align-items: center; gap: 9px; height: 26px; font-size: 14.4px !important; font-weight: 700; color: #8fbf9a !important; }
+        .lm-card-v { margin-top: 18px !important; font-size: 24px !important; font-weight: 700; color: #fff !important; }
+        .lm-card-l { margin-top: 36px !important; font-size: 15px !important; font-weight: 700; color: #8fbf9a !important; }
+        .lm-card-t { margin-top: 11px !important; font-size: 15px !important; line-height: 19px !important; color: #fff; }
+        .lm-dark a:hover { text-decoration: underline; }
+        .lm-step { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: #8fbf9a; color: #17201a; font-size: 12px; font-weight: 800; }
+        .lm-card-v--big { margin-top: 12px !important; font-size: 34px !important; line-height: 1.05 !important; letter-spacing: -0.5px !important; }
+        .lm-card-n { margin-top: 8px !important; font-size: 13px !important; line-height: 1.4 !important; color: #c9e3cf !important; }
+        .lm-arrow { top: 267px; width: 20px; height: 20px; fill: none; stroke: #8fbf9a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ═════ 전체 화면 발표 ═════ */
+        .lm-show { position: fixed; inset: 0; z-index: 1000; background: #0b0d0c; overflow: hidden; touch-action: pan-y; }
+        .lm-show[hidden] { display: none; }
+        .lm-show-stage { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; }
+        .lm-show-stage .lm-slide { box-shadow: 0 0 0 1px rgba(255,255,255,0.04); }
+        .lm-show-btn {
+            position: absolute; z-index: 2; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: #fff; transition: background 0.18s ease, opacity 0.3s ease;
+        }
+        .lm-show-btn:hover { background: rgba(255,255,255,0.24); }
+        .lm-show-btn:disabled { opacity: 0.25 !important; cursor: default; }
+        .lm-show-btn svg { width: 22px; height: 22px; }
+        .lm-show-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+        .lm-show-next { right: 20px; top: 50%; transform: translateY(-50%); }
+        .lm-show-close { right: 20px; top: 20px; width: 44px; height: 44px; }
+        .lm-show-num {
+            position: absolute; z-index: 2; left: 50%; bottom: 18px; transform: translateX(-50%);
+            padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease;
+        }
+        .lm-show.idle .lm-show-btn, .lm-show.idle .lm-show-num { opacity: 0; }
+        .lm-show.idle { cursor: none; }
+        @media (max-width: 768px) {
+            .lm-deck { gap: 18px; }
+            .lm-frame { border-radius: 10px; }
+            .lm-show-btn { width: 40px; height: 40px; }
+            .lm-show-prev { left: 10px; top: auto; bottom: 12px; transform: none; }
+            .lm-show-next { right: 10px; top: auto; bottom: 12px; transform: none; }
+            .lm-show-close { right: 10px; top: 10px; }
+        }
+    </style>
+</head>
+<body>
+<!-- SKIP-STD -->
+<style>
+    /* 본문 바로가기 (WCAG 2.4.1 Level A). 평소엔 화면 위로 접히고 포커스 때만 내려온다 */
+    .skip-link {
+        position: fixed; left: 50%; top: 0; z-index: 999;
+        transform: translate(-50%, -130%);
+        padding: 12px 24px; border-radius: 0 0 14px 14px;
+        background: #1A1917; color: #fff;
+        font-size: 14px; font-weight: 700; text-decoration: none;
+        transition: transform 0.18s ease;
+    }
+    .skip-link:focus { transform: translate(-50%, 0); }
+    main:focus { outline: none; }
+</style>
+<a href="#main" class="skip-link">본문으로 건너뛰기</a>
+<script>
+    /* 해시에 맡기지 않고 직접 옮긴다. instant 로 못박아야 smooth 로 흘러가지 않는다 */
+    (function () {
+        var l = document.querySelector('.skip-link');
+        if (!l) return;
+        l.addEventListener('click', function (e) {
+            var m = document.getElementById('main');
+            if (!m) return;
+            e.preventDefault();
+            m.scrollIntoView({ behavior: 'instant', block: 'start' });
+            m.focus({ preventScroll: true });
+        });
+    })();
+</script>
+<!-- /SKIP-STD -->
+
+<!-- ── HEADER ── -->
+
+<!-- ── HEADER ── -->
+<header>
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
+        <source src="assets/media/hero-bg.mp4" type="video/mp4">
+    </video>
+
+    <a class="back-link" href="index.html#section-hermes">&larr; 목록으로</a>
+    <h1>Liner Model API 소개서</h1>
+    <p>요청마다 알맞은 모델을 골라 LLM 비용을 줄이는 라이너의 API를 슬라이드 아홉 장으로 소개합니다.</p>
+</header>
+
+<main class="container" id="main" tabindex="-1">
+    <div class="lm-toolbar reveal">
+        <button type="button" class="lm-play" id="lmPlay">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+            전체 화면으로 보기
+        </button>
+    </div>
+
+    <!-- ═══════ 슬라이드 (960×540 좌표계, 화면 폭에 맞춰 축소) ═══════ -->
+    <div class="lm-deck" id="lmDeck">
+
+        <!-- 01 표지 -->
+        <div class="lm-frame" data-idx="0" tabindex="0" role="button" aria-label="1번 슬라이드 전체 화면으로 보기">
+            <section class="lm-slide lm-cover">
+                <img class="ab" style="left:36px;top:36px;width:111px" src="assets/img/liner-model-api/logo-white.webp" alt="Liner">
+                <h2 class="ab lm-cover-title">Liner Model API</h2>
+                <p class="ab lm-cover-sub">더 높은 성능을<br>50% 가격으로</p>
+                <p class="ab lm-cover-meta">liner.com/developers/liner-model<br>Liner Model API 소개서, 2026.10</p>
+            </section>
+        </div>
+
+        <!-- 02 도입효과 -->
+        <div class="lm-frame" data-idx="1" tabindex="0" role="button" aria-label="2번 슬라이드 전체 화면으로 보기">
+            <section class="lm-slide">
+                <p class="lm-kicker">LINER MODEL API</p>
+                <h2 class="lm-title">도입효과: LLM 추론 비용 60% 절감</h2>
+                <p class="lm-sub">그러면서 답변 품질은 더 좋아졌습니다.</p>
+                <img class="ab" style="left:35px;top:144px;width:430px;height:326px" src="assets/img/liner-model-api/cost-chart.webp" alt="적용 전 5억에서 적용 후 2억으로, 라이너 자체 서비스를 통해 검증한 LLM 비용 60% 절감" loading="lazy">
+                <p class="ab" style="left:510px;top:150px;font-size:20px;font-weight:700;color:#1e2822">Liner 대표 파트너사</p>
+                <img class="ab" style="left:500px;top:190px;width:410px;height:288px" src="assets/img/liner-model-api/partners.webp" alt="SK텔레콤, 리벨리온, Firefox, BC카드, Lenovo, LG유플러스, 삼성물산, KAIST, HUMAIN, 연세대학교, 서울대학교, VACATIO, tiro, Planfit, 멋쟁이사자처럼" loading="lazy">
+                <div class="lm-foot"><img src="assets/img/liner-model-api/logo-dark.webp" alt="Liner"><span>Liner Model API</span><b>02</b></div>
+            </section>
+        </div>
+
+        <!-- 03 가설 -->
+        <div class="lm-frame" data-idx="2" tabindex="0" role="button" aria-label="3번 슬라이드 전체 화면으로 보기">
+            <section class="lm-slide">
+                <p class="lm-kicker">LINER MODEL API</p>
+                <h2 class="lm-title">프롬프트 요청마다 적합한 모델이 상이하며, 최적화가 필수임</h2>
+                <p class="lm-sub">간단한 검색부터 글쓰기 그리고 논문 기반 리서치와 작성까지 다양한 라이너의 서비스</p>
+                <div class="ab lm-svc" style="left:51px"><b>Liner Search</b><span>자료조사, 질문과 답변, 요약</span></div>
+                <div class="ab lm-svc" style="left:342px"><b>Liner Write</b><span>보고서, 제안서, 자기소개서 초안</span></div>
+                <div class="ab lm-svc" style="left:634px"><b>Liner Scholar</b><span>논문 수십 편 참조, 높은 정확도</span></div>
+                <svg class="ab" style="left:44px;top:232px" width="870" height="12" viewBox="0 0 870 12" aria-hidden="true"><path d="M4 6H860" stroke="#17201a" stroke-width="1.5"/><path d="M859 2l9 4-9 4z" fill="#17201a"/><circle cx="4" cy="6" r="3" fill="#17201a"/><circle cx="301" cy="6" r="3" fill="#17201a"/><circle cx="598" cy="6" r="3" fill="#17201a"/></svg>
+                <p class="ab lm-axis" style="left:48px">간단한 요청</p>
+                <p class="ab lm-axis" style="right:48px">복잡한 요청</p>
+                <div class="ab lm-route lm-route--rule">
+                    <p class="lm-route-h"><img src="assets/img/liner-model-api/icon-rule.webp" alt="" style="width:18px;height:20px">Rule-Based 라우팅</p>
+                    <p class="lm-route-d">같은 태스크의 쉬운 요청도 어려운 요청도 단일 모델</p>
+                    <hr>
+                    <p class="lm-route-r">가벼운 모델은 성능의 문제<br>최상위 모델은 비용의 문제</p>
+                </div>
+                <div class="ab lm-route lm-route--prompt">
+                    <p class="lm-route-h"><svg viewBox="0 0 24 24" width="26" height="26" fill="#fff" aria-hidden="true"><path d="M13 3C9.23 3 6.19 5.95 6.02 9.66L4.1 12.2c-.25.33 0 .8.4.8H6v3c0 1.1.9 2 2 2h1v3h7v-4.68c2.36-1.12 4-3.53 4-6.32 0-3.87-3.13-7-7-7zm3 7c0 .13-.01.26-.02.39l.83.66c.08.06.1.16.05.25l-.8 1.39c-.05.09-.16.12-.24.09l-.99-.4c-.21.16-.43.29-.67.39L14 13.83c-.01.1-.1.17-.2.17h-1.6c-.1 0-.18-.07-.2-.17l-.15-1.06c-.25-.1-.47-.23-.68-.39l-.99.4c-.09.03-.2 0-.25-.09l-.8-1.39c-.05-.08-.03-.19.05-.25l.84-.66c-.01-.13-.02-.26-.02-.39s.02-.27.04-.39l-.85-.66c-.08-.06-.1-.16-.05-.26l.8-1.38c.05-.09.15-.12.24-.09l1 .4c.2-.15.43-.29.67-.39L12 6.17c.02-.1.1-.17.2-.17h1.6c.1 0 .18.07.2.17l.15 1.06c.24.1.46.23.67.39l1-.4c.09-.03.2 0 .24.09l.8 1.38c.05.09.03.2-.05.26l-.85.66c.03.12.04.25.04.39z"/><circle cx="13" cy="10" r="1.45" fill="#2c783c"/></svg>프롬프트 레벨 라우팅</p>
+                    <p class="lm-route-d">같은 태스크여도 프롬프트 난이도에 따라 모델을 선택</p>
+                    <hr>
+                    <p class="lm-route-r" style="font-size:16px">성능은 높이면서 비용도 낮춤</p>
+                </div>
+                <p class="ab" style="left:0;right:0;top:443px;text-align:center;font-size:20px;font-weight:700;color:#2c783c">“프롬프트 레벨에서 알맞은 모델을 찾는 모델을 학습해 보자.”</p>
+                <div class="lm-foot"><img src="assets/img/liner-model-api/logo-dark.webp" alt="Liner"><span>Liner Model API</span><b>03</b></div>
+            </section>
+        </div>
+
+        <!-- 04 학습 결과 -->
+        <div class="lm-frame" data-idx="3" tabindex="0" role="button" aria-label="4번 슬라이드 전체 화면으로 보기">
+            <section class="lm-slide">
+                <p class="lm-kicker">LINER MODEL API</p>
+                <h2 class="lm-title">라이너의 1.1억 개 프롬프트로 학습한 결과</h2>
+                <p class="lm-sub">비용은 50% 이상 줄면서 품질은 올랐습니다.</p>
+                <div class="lm-rule"></div>
+                <div class="ab lm-prompt" style="top:176px"><b>번역, 짧은 문장</b><span><em>한국어</em>, 쉬움</span></div>
+                <div class="ab lm-prompt" style="top:238px"><b>출처 있는 자료조사</b><span><em>영어</em>, 보통</span></div>
+                <div class="ab lm-prompt" style="top:300px"><b>보고서 초안 작성</b><span><em>한국어</em>, 보통</span></div>
+                <div class="ab lm-prompt" style="top:361px"><b>논문 50편 리뷰/요약</b><span><em>영어</em>, 어려움</span></div>
+                <img class="ab" style="left:347px;top:181px;width:466px;height:233px" src="assets/img/liner-model-api/routing-diagram.webp" alt="프롬프트를 분류한 뒤 Liner API가 GPT, Claude, Gemini, Grok 가운데 한 모델로 보내는 도식" loading="lazy">
+                <p class="ab" style="left:0;right:0;top:446px;text-align:center;font-size:16px;font-weight:700;color:#667169">라이너 서비스에서 요청되는 연간 1.1억 개 프롬프트를 바탕으로 학습하여 가장 적합한 모델을 선택</p>
+                <div class="lm-foot"><img src="assets/img/liner-model-api/logo-dark.webp" alt="Liner"><span>Liner Model API</span><b>04</b></div>
+            </section>
+        </div>
+
+        <!-- 05 가격과 성능 -->
+        <div class="lm-frame" data-idx="4" tabindex="0" role="button" aria-label="5번 슬라이드 전체 화면으로 보기">
+            <section class="lm-slide">
+                <p class="lm-kicker">LINER MODEL API</p>
+                <h2 class="lm-title">라이너가 절감한 방법이 적용된 LLM API</h2>
+                <p class="lm-sub" style="font-size:16px">성능은 GPT-6 Sol, Claude Opus 5 이상</p>
+                <div class="lm-rule"></div>
+                <p class="ab lm-big" style="top:174px">50% 절감</p>
+                <p class="ab lm-big-sub" style="top:247px">GPT-6 Sol, Claude Opus 5 대비</p>
+                <div class="ab" style="left:38px;top:300px;width:318px;border-top:0.75px solid #e1e6e2"></div>
+                <p class="ab lm-big" style="top:324px;left:35px">성능은 더 높게</p>
+                <p class="ab lm-big-sub" style="top:385px">태스크별 공개 벤치마크 6종 중 4개에서 1위</p>
+                <table class="ab lm-price">
+                    <thead><tr><th>$ / 1M Token</th><th class="lm-hl">Liner</th><th>GPT-6 Sol</th><th>Claude Opus 5</th></tr></thead>
+                    <tbody>
+                        <tr><td>Input</td><td class="lm-hl">$ 1.00</td><td>$ 2.00</td><td>$ 5.00</td></tr>
+                        <tr><td>Output</td><td class="lm-hl">$ 5.00</td><td>$ 10.00</td><td>$ 25.00</td></tr>
+                        <tr><td>Cached Input</td><td class="lm-hl">$ 0.10</td><td>$ 0.20</td><td>$ 0.20</td></tr>
+                    </tbody>
+                </table>
+                <p class="ab lm-note" style="top:456px">가격: OpenRouter 공개 요금표. liner-mark-1.1 기준 (2026.09.23)<br>성능: 라이너 자체 측정 (2026.09.01, liner-mark-1.0), HLE, MedQA, MathBench, SciCode, AIME, FinQA</p>
+                <div class="lm-foot"><img src="assets/img/liner-model-api/logo-dark.webp" alt="Liner"><span>Liner Model API</span><b>05</b></div>
+            </section>
+        </div>
+
+        <!-- 06 세 줄 -->
+        <div class="lm-frame" data-idx="5" tabindex="0" role="button" aria-label="6번 슬라이드 전체 화면으로 보기">
+            <section class="lm-slide">
+                <p class="lm-kicker">LINER MODEL API</p>
+                <h2 class="lm-title">세 줄만 바꾸면 바로 50% 절감</h2>
+                <p class="lm-sub">Base URL, API 키, 모델 이름만. 이외에는 모두 동일합니다.</p>
+                <div class="lm-rule" style="left:48px;right:48px"></div>
+                <div class="ab lm-code">
+                    <p class="lm-code-lang">Python</p>
+<pre>from openai import OpenAI
+
+client = OpenAI(
+<b>    base_url="https://platform.liner.com/api/v1",  # 변경</b>
+<b>    api_key="&lt;LINER_API_KEY&gt;",                    # 변경</b>
+)
+
+response = client.chat.completions.create(
+<b>    model="liner-mark-1.1",                       # 변경</b>
+    messages=[{"role": "user", "content": "..."}],
+)</pre>
+                </div>
+                <p class="ab" style="left:569px;top:197px;font-size:17.3px;font-weight:700;color:#667169">아래는 모두 그대로</p>
+                <ul class="ab lm-checks">
+                    <li>OpenAI SDK (Python, Node, Go 등)</li>
+                    <li>Chat Completions, Responses API</li>
+                    <li>스트리밍 (SSE), 함수 호출</li>
+                    <li>JSON 출력, 이미지 입력 등 입출력</li>
+                </ul>
+                <div class="ab lm-skillbar">
+                    <b><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="#2c783c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5L2 8l3 3M11 5l3 3-3 3M9.5 3l-3 10"/></svg>혹은 스킬로 더 간단하게</b>
+                    <code>npx skills add liner-engineering/skills --skill migrate-to-liner</code>
+                </div>
+                <div class="lm-foot"><img src="assets/img/liner-model-api/logo-dark.webp" alt="Liner"><span>Liner Model API</span><b>06</b></div>
+            </section>
+        </div>
+
+        <!-- 07 보안과 SLA -->
+        <div class="lm-frame" data-idx="6" tabindex="0" role="button" aria-label="7번 슬라이드 전체 화면으로 보기">
+            <section class="lm-slide">
+                <p class="lm-kicker">자주 묻는 질문 1</p>
+                <h2 class="lm-title">보안과 SLA</h2>
+                <p class="lm-sub">엔터프라이즈 보안 기준과 99.9% 가동률 SLA. API로 보낸 데이터는 모델 학습에 쓰지 않습니다.</p>
+                <div class="lm-rule" style="left:48px;right:48px"></div>
+                <p class="ab" style="left:44px;top:152px;font-size:60px;font-weight:800;color:#2c783c;letter-spacing:-1px">99.9%</p>
+                <p class="ab" style="left:47px;top:223px;font-size:17px;font-weight:700;color:#667169">가동률 SLA, 엔터프라이즈 플랜</p>
+                <p class="ab" style="left:48px;top:266px;font-size:14px;font-weight:700;color:#667169">보안과 규정 준수</p>
+                <ul class="ab lm-certs">
+                    <li>SOC 2 Type I, II</li>
+                    <li>ISO/IEC 27001:2022</li>
+                    <li>HIPAA</li>
+                    <li>HECVAT</li>
+                    <li>Gen AI Foundation</li>
+                    <li>Responsible AI Foundation</li>
+                </ul>
+                <p class="ab lm-note" style="left:48px;top:434px">보안 검토 자료는 trust.liner.com</p>
+                <div class="ab" style="left:330px;top:156px;height:300px;border-left:0.75px solid #e1e6e2"></div>
+                <div class="ab" style="left:627px;top:156px;height:300px;border-left:0.75px solid #e1e6e2"></div>
+                <div class="ab" style="left:348px;top:306px;width:564px;border-top:0.75px solid #e1e6e2"></div>
+                <div class="ab lm-qa" style="left:347px;top:161px;width:260px"><p class="lm-q">SLA는 어떤 수준인가요?</p><p class="lm-a">엔터프라이즈 플랜으로 계약 시 월간 가동률 99.9%를 보장합니다. OpenAI Scale Tier, Azure OpenAI와 같은 수준이고 미달 시 크레딧으로 보전합니다.</p></div>
+                <div class="ab lm-qa" style="left:641px;top:161px;width:260px"><p class="lm-q">보낸 데이터가 모델 학습에 쓰이나요?</p><p class="lm-a">쓰지 않습니다. API로 보낸 데이터는 학습에 사용하지 않고, 처리 조건은 DPA로 정합니다. 필요하면 ZDR을 추가합니다.</p></div>
+                <div class="ab lm-qa" style="left:347px;top:321px;width:260px"><p class="lm-q">특정 제공사에 장애가 나면요?</p><p class="lm-a">멀티 리전으로 운영합니다. 특정 리전이나 제공사에 장애가 생기면 다른 경로로 자동 전환해 중단을 최소화합니다.</p></div>
+                <div class="ab lm-qa" style="left:641px;top:321px;width:260px"><p class="lm-q">Rate limit과 처리량은요?</p><p class="lm-a">기본 제공량으로 시작하고 필요한 처리량에 맞춰 한도를 높입니다. 엔터프라이즈 플랜은 보장 처리량과 전용 용량을 제공합니다.</p></div>
+                <div class="lm-foot"><img src="assets/img/liner-model-api/logo-dark.webp" alt="Liner"><span>Liner Model API</span><b>07</b></div>
+            </section>
+        </div>
+
+        <!-- 08 라우팅, 대상, 성능, PoC -->
+        <div class="lm-frame" data-idx="7" tabindex="0" role="button" aria-label="8번 슬라이드 전체 화면으로 보기">
+            <section class="lm-slide">
+                <p class="lm-kicker">자주 묻는 질문 2</p>
+                <h2 class="lm-title">라우팅, 대상, 성능, PoC</h2>
+                <div class="lm-rule" style="top:114px"></div>
+                <div class="ab" style="left:446px;top:139px;height:300px;border-left:0.75px solid #e1e6e2"></div>
+                <div class="ab" style="left:48px;top:284px;width:864px;border-top:0.75px solid #e1e6e2"></div>
+                <div class="ab lm-qa" style="left:47px;top:153px;width:360px"><p class="lm-q">복잡한 업무용 프롬프트도 잘 라우팅되나요?</p><p class="lm-a">라이너는 자료조사 중심 AI 검색, 보고서 중심 Write, 논문 중심 Scholar로 구성돼 업무용 프롬프트와 에이전트 이용 비중이 높습니다. Liner Model API는 다양한 서비스의 업무 요청에 맞게 학습됐습니다.</p></div>
+                <div class="ab lm-qa" style="left:491px;top:153px;width:375px"><p class="lm-q">코딩 태스크에도 쓸 수 있나요?</p><p class="lm-a">현재 Liner Model API는 liner-mark-1.1 기준 GPT-6 Sol, Claude Opus 5 수준의 코딩 태스크를 수행할 수 있습니다. Astra, Fable 수준의 코딩 태스크를 수행하는 라우팅 모델은 현재 준비 중입니다.</p></div>
+                <div class="ab lm-qa" style="left:47px;top:314px;width:380px"><p class="lm-q">벤치마크 결과는요?</p><p class="lm-a">liner-mark-1.0 기준 공개 벤치마크 6개 중 HLE, MedQA, MathBench, SciCode 4개에서 1위, AIME 3위, FinQA 2위입니다(라이너 자체 측정, 2026.09, 추론 강도 medium). GPT-5.6 Terra와 비교하면 6개 중 5개에서 비슷하거나 더 낫습니다. 새로운 버전과 벤치마크 결과는 <a href="https://liner.com/developers/liner-model" target="_blank" rel="noopener">소개 페이지</a>에서 확인하실 수 있습니다.</p></div>
+                <div class="ab lm-qa" style="left:491px;top:314px;width:365px"><p class="lm-q">PoC는 얼마나 걸리나요?</p><p class="lm-a">내부 eval 셋이 있으면 하루 이내에도 결과가 나옵니다. 별도 eval이 없는 경우 운영 트래픽의 10~20%로 품질, 요청당 비용, 응답속도를 A/B 비교하였고, 대다수의 고객사에서 대략 1주 테스트 후 전체 도입하였습니다.</p></div>
+                <div class="lm-foot"><img src="assets/img/liner-model-api/logo-dark.webp" alt="Liner"><span>Liner Model API</span><b>08</b></div>
+            </section>
+        </div>
+
+        <!-- 09 시작하기 -->
+        <div class="lm-frame" data-idx="8" tabindex="0" role="button" aria-label="9번 슬라이드 전체 화면으로 보기">
+            <section class="lm-slide lm-dark">
+                <h2 class="ab" style="left:36px;top:36px;font-size:45px;font-weight:800;color:#fff;letter-spacing:-0.5px">5분만에 50% 비용 절감하기</h2>
+                <div class="ab lm-card" style="left:36px">
+                    <p class="lm-card-h"><span class="lm-step">1</span>API 키 발급</p>
+                    <p class="lm-card-v"><a href="https://platform.liner.com" target="_blank" rel="noopener">platform.liner.com</a></p>
+                    <p class="lm-card-n">가입하고 API 키를 받습니다</p>
+                    <p class="lm-card-l">개발 문서</p>
+                    <p class="lm-card-t"><a href="https://liner.com/developers/docs/liner-model-api" target="_blank" rel="noopener">liner.com/developers/<br>docs/liner-model-api</a></p>
+                </div>
+                <svg class="ab lm-arrow" style="left:319px" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4l6 6-6 6"/></svg>
+                <div class="ab lm-card" style="left:340px">
+                    <p class="lm-card-h"><span class="lm-step">2</span>문의</p>
+                    <p class="lm-card-v">강정구 (Jayden)</p>
+                    <p class="lm-card-n">PoC를 하고 싶다고 알려 주세요</p>
+                    <p class="lm-card-l">이메일</p>
+                    <p class="lm-card-t"><a href="mailto:jade@linercorp.com">jade@linercorp.com</a></p>
+                </div>
+                <svg class="ab lm-arrow" style="left:622px" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4l6 6-6 6"/></svg>
+                <div class="ab lm-card lm-card--hl" style="left:643px">
+                    <p class="lm-card-h"><span class="lm-step">3</span>PoC 크레딧 받기</p>
+                    <p class="lm-card-v lm-card-v--big">$1,000</p>
+                    <p class="lm-card-n">문의하면 PoC용 크레딧을 드립니다</p>
+                    <p class="lm-card-l">크레딧 등록 페이지</p>
+                    <p class="lm-card-t"><a href="https://platform.liner.com/billing" target="_blank" rel="noopener">platform.liner.com/billing</a></p>
+                </div>
+                <div class="lm-foot"><img src="assets/img/liner-model-api/logo-white.webp" alt="Liner"><span>Liner Model API</span><b>09</b></div>
+            </section>
+        </div>
+
+    </div>
+
+    <!-- CTA 섹션 -->
+    <div class="cta-section reveal">
+        <h3>세 줄만 바꿔서 직접 써 보기</h3>
+        <div class="cta-buttons">
+            <a class="cta-btn primary" href="https://liner.com/developers/docs/liner-model-api" target="_blank" rel="noopener">개발 문서 보기 &#8599;</a>
+            <a class="cta-btn secondary" href="index.html#section-hermes">목록으로</a>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p class="footer-brand">AI ROASTING</p>
+    <p class="footer-text">AI 에이전트를 고용하라</p>
+    <span class="footer-link-row">
+        <a href="#" class="footer-about-link" data-about-open>가이드 소개</a>
+        <span class="footer-link-sep" aria-hidden="true">·</span>
+        <a href="#" class="footer-about-link" data-license-open>라이선스</a>
+    </span>
+    <p class="footer-text" style="margin-top:10px;opacity:0.7;">© 2026 AI ROASTING. All rights reserved.</p>
+</footer>
+
+<!-- 전체 화면 발표: 슬라이드 한 장을 화면에 16:9로 맞춰 띄운다 -->
+<div class="lm-show" id="lmShow" role="dialog" aria-modal="true" aria-label="슬라이드 전체 화면" hidden>
+    <div class="lm-show-stage" id="lmStage"></div>
+    <button type="button" class="lm-show-btn lm-show-prev" id="lmPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="lm-show-btn lm-show-next" id="lmNext" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" class="lm-show-btn lm-show-close" id="lmClose" aria-label="전체 화면 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="lm-show-num" id="lmNum" aria-live="polite">1 / 9</div>
+</div>
+<script>
+(function () {
+    var W = 960, H = 540;
+    var deck = document.getElementById('lmDeck');
+    var show = document.getElementById('lmShow');
+    var stage = document.getElementById('lmStage');
+    if (!deck || !show || !stage) return;
+    var frames = [].slice.call(deck.querySelectorAll('.lm-frame'));
+    var N = frames.length, cur = 0, lastFocus = null, idleT = null;
+
+    /* 목록: 틀 폭에 맞춰 960×540 슬라이드를 줄인다 */
+    function fitFrames() {
+        frames.forEach(function (f) {
+            var s = f.querySelector('.lm-slide');
+            if (s) s.style.transform = 'scale(' + (f.clientWidth / W) + ')';
+        });
+    }
+    fitFrames();
+    if ('ResizeObserver' in window) new ResizeObserver(fitFrames).observe(deck);
+    else window.addEventListener('resize', fitFrames);
+
+    /* 발표: 화면 안에 들어가는 가장 큰 16:9 */
+    function fitStage() {
+        var vw = show.clientWidth, vh = show.clientHeight;
+        var k = Math.min(vw / W, vh / H);
+        stage.style.transform = 'translate(' + ((vw - W * k) / 2) + 'px,' + ((vh - H * k) / 2) + 'px) scale(' + k + ')';
+    }
+    function render() {
+        var src = frames[cur].querySelector('.lm-slide');
+        var c = src.cloneNode(true);
+        c.style.transform = '';
+        c.querySelectorAll('img[loading]').forEach(function (i) { i.removeAttribute('loading'); });
+        stage.innerHTML = '';
+        stage.appendChild(c);
+        document.getElementById('lmNum').textContent = (cur + 1) + ' / ' + N;
+        document.getElementById('lmPrev').disabled = cur === 0;
+        document.getElementById('lmNext').disabled = cur === N - 1;
+        fitStage();
+    }
+    function go(i) { i = Math.max(0, Math.min(N - 1, i)); if (i === cur && stage.firstChild) return; cur = i; render(); }
+    function wake() {
+        show.classList.remove('idle');
+        clearTimeout(idleT);
+        idleT = setTimeout(function () { show.classList.add('idle'); }, 2500);
+    }
+    function open(i) {
+        lastFocus = document.activeElement;
+        cur = i || 0;
+        show.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        render();
+        wake();
+        document.getElementById('lmClose').focus({ preventScroll: true });
+        if (show.requestFullscreen) show.requestFullscreen().catch(function () {});
+        else if (show.webkitRequestFullscreen) show.webkitRequestFullscreen();
+    }
+    function close() {
+        if (show.hidden) return;
+        show.hidden = true;
+        stage.innerHTML = '';
+        clearTimeout(idleT);
+        document.documentElement.style.overflow = '';
+        var fe = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        frames[cur].scrollIntoView({ behavior: 'instant', block: 'center' });
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+
+    document.getElementById('lmPlay').addEventListener('click', function () { open(0); });
+    frames.forEach(function (f, i) {
+        f.addEventListener('click', function (e) { if (!e.target.closest('a')) open(i); });
+        f.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(i); } });
+    });
+    document.getElementById('lmPrev').addEventListener('click', function () { go(cur - 1); });
+    document.getElementById('lmNext').addEventListener('click', function () { go(cur + 1); });
+    document.getElementById('lmClose').addEventListener('click', close);
+
+    /* 슬라이드 빈 곳: 왼쪽 1/3은 이전, 나머지는 다음 */
+    stage.addEventListener('click', function (e) {
+        if (e.target.closest('a')) return;
+        if (e.clientX < show.clientWidth / 3) go(cur - 1); else go(cur + 1);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (show.hidden) return;
+        var k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { if (k === 'Enter' && e.target.tagName === 'BUTTON') return; e.preventDefault(); go(cur + 1); }
+        else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(cur - 1); }
+        else if (k === 'Home') { e.preventDefault(); go(0); }
+        else if (k === 'End') { e.preventDefault(); go(N - 1); }
+        else if (k === 'Escape') { e.preventDefault(); close(); }
+        wake();
+    });
+    show.addEventListener('mousemove', wake);
+
+    /* 스와이프 */
+    var sx = null, sy = 0;
+    show.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; wake(); }, { passive: true });
+    show.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
+    });
+
+    /* 브라우저 전체 화면을 Esc로 먼저 빠져나오면 발표도 닫는다 */
+    function onFs() { if (!(document.fullscreenElement || document.webkitFullscreenElement)) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+    window.addEventListener('resize', function () { if (!show.hidden) fitStage(); });
+})();
+</script>
+
+<script>
+    // 스크롤 리빌 애니메이션
+    var revealEls = document.querySelectorAll('.reveal');
+    var revealObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+    revealEls.forEach(function (el) { revealObserver.observe(el); });
+</script>
+<style>
+        /* ## SECTION-TITLE-STD START ## */
+        /* ══════════════════════════════════════════════════════════════
+           섹션명 공통 규격 · AGENTS.md 3.8
+           폰트 13px / 800 / 자간 0.5px · 색 #D97757 · 알약 높이 36px
+           구분선 여백 위 70px · 아래 22px (모바일 52px·16px)
+           단, 페이지 첫 섹션 구분선만 위 여백 0 (컨테이너 패딩만 남긴다)
+           고칠 때는 이 마커 블록만 고치고 전 페이지에 함께 반영한다.
+           ══════════════════════════════════════════════════════════════ */
+        .step-divider.step-divider,
+        .cat-label.cat-label,
+        .chapter-divider.chapter-divider,
+        .design-cat.design-cat {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 70px 0 22px;
+            position: relative;
+            text-align: center;
+        }
+        /* 첫 섹션 구분선은 위 여백을 걷어낸다. 컨테이너 패딩(32px, 모바일 24px)만 남는다 */
+        main.container > .step-divider:first-child,
+        main.container > .cat-label:first-child,
+        main.container > .chapter-divider:first-child,
+        main.container > .design-cat:first-child,
+        main.container > :first-child > .step-divider:first-child,
+        main.container > :first-child > .cat-label:first-child,
+        main.container > :first-child > .chapter-divider:first-child,
+        main.container > :first-child > .design-cat:first-child,
+        main.container > :empty:first-child + .step-divider,
+        main.container > :empty:first-child + .cat-label,
+        main.container > :empty:first-child + .chapter-divider,
+        main.container > :empty:first-child + .design-cat,
+        main.container > :empty:first-child + * > .step-divider:first-child,
+        main.container > :empty:first-child + * > .cat-label:first-child,
+        main.container > :empty:first-child + * > .chapter-divider:first-child {
+            margin-top: 0;
+        }
+        /* 난이도 범례 바로 뒤에 오는 첫 구분선은 여백을 줄인다 */
+        main.container > .legend + .step-divider { margin-top: 34px; }
+        .step-divider::before, .step-divider::after,
+        .chapter-divider::before, .chapter-divider::after {
+            content: ''; flex: 1; height: 1px; background: #DDD8D0;
+            opacity: 1; position: static; transform: none;
+        }
+        .step-badge.step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-shrink: 1;
+            max-width: 100%;
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            padding: 9px 24px;
+            border-radius: 24px;
+            background: var(--nm-bg, #EDEAE4);
+            background-image: none;
+            box-shadow: 4px 4px 8px #CECAC3, -4px -4px 8px #FFFFFF;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+            text-transform: none;
+            color: var(--ant-orange, #D97757);
+            white-space: normal;
+            word-break: keep-all;
+            text-align: center;
+        }
+        .step-badge.step-badge svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .sd-num, .cat-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 9px;
+            background: var(--ant-orange, #D97757);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0;
+            line-height: 1;
+            flex-shrink: 0;
+            margin: 0;
+        }
+        .sd-num.sd-num svg { width: 13px; height: 13px; stroke: #fff; }
+        .sd-text { color: inherit; font: inherit; letter-spacing: inherit; }
+        .sd-tag, .dv-count {
+            font-size: 11px;
+            font-weight: 700;
+            color: #9A948C;
+            letter-spacing: 0;
+            flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+            .step-divider.step-divider,
+        .cat-label.cat-label,
+        .chapter-divider.chapter-divider,
+        .design-cat.design-cat { margin: 52px 0 16px; }
+            .step-badge.step-badge {
+                font-size: 12px;
+                padding: 8px 16px;
+                border-radius: 20px;
+                gap: 6px;
+            }
+            .sd-num, .cat-count { min-width: 17px; height: 17px; font-size: 10px; }
+            .sd-tag, .dv-count { font-size: 10px; }
+        }
+        /* ## SECTION-TITLE-STD END ## */
+    </style>
+
+
+<!-- 가이드 소개 모달: 단일 소스 assets/about-modal.js 에서 주입 -->
+<script src="assets/js/about-modal.js"></script>
+
+<!-- 해시를 달고 들어온 링크 착지 (#case-N 등). vibe-coding-101.html과 같은 hold 루프 -->
+<script>
+(function () {
+    // html에 scroll-behavior: smooth가 걸려 있어 브라우저의 기본 해시 이동도 애니메이션이 된다.
+    // 그 애니메이션은 폰트와 헤더 영상이 뒤늦게 자리를 잡으면서 취소돼 맨 위에 서 버린다.
+    // 이 순간만 auto로 되돌리고, 높이가 굳을 때까지 다시 맞춘다
+    var id;
+    try { id = decodeURIComponent((location.hash || '').slice(1)); } catch (e) { return; }
+    if (!id) return;
+
+    var root = document.documentElement;
+    var userMoved = false;
+    var pending = false;
+    var stop = 0;
+
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+    function land() {
+        var target = document.getElementById(id);
+        if (!target) return;
+        // scroll-margin-top이 걸려 있어 scrollIntoView가 스티키 내비 아래로 맞춰 준다
+        var prev = root.style.scrollBehavior;
+        root.style.scrollBehavior = 'auto';
+        target.scrollIntoView({ block: 'start' });
+        root.style.scrollBehavior = prev;
+    }
+
+    // 새 탭(target="_blank")으로 열리면 탭이 뒤에 있어 requestAnimationFrame이 멈춘다.
+    // 타이머를 함께 걸고 먼저 도착한 쪽만 쓴다
+    function schedule() {
+        if (pending) return;
+        pending = true;
+        var fired = false;
+        function run() {
+            if (fired) return;
+            fired = true;
+            pending = false;
+            hold();
+        }
+        requestAnimationFrame(run);
+        setTimeout(run, 60);
+    }
+
+    function hold() {
+        if (userMoved) return;
+        // 아직 그려지지 않은 동안에는 화면 높이가 0이라 엉뚱한 곳에 선다
+        if (!window.innerHeight) { schedule(); return; }
+        land();
+        if (performance.now() < stop) schedule();
+    }
+
+    function start() {
+        if (userMoved) return;
+        stop = performance.now() + 1200;
+        schedule();
+    }
+
+    // 사용자가 먼저 움직였으면 끼어들지 않는다
+    ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (ev) {
+        window.addEventListener(ev, function () { userMoved = true; }, { passive: true, once: true });
+    });
+
+    start();
+
+    // 뒤에 열려 있던 탭은 화면에 나타난 순간 폰트와 레이아웃이 다시 잡힌다. 그때 한 번 더 맞춘다
+    document.addEventListener('visibilitychange', function onShow() {
+        if (document.visibilityState !== 'visible') return;
+        document.removeEventListener('visibilitychange', onShow);
+        start();
+    });
+})();
+</script>
+
+<!-- 헤더 배경 영상: 자동재생 보장 + reduced-motion 시 정지 -->
+<script>
+(function () {
+    var v = document.querySelector('.hero-video');
+    if (!v) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { try { v.pause(); } catch (e) {} return; }
+    v.muted = true;
+    var tryPlay = function () { var p = v.play(); if (p && typeof p.catch === 'function') p.catch(function () {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay, { once: true });
+    v.addEventListener('loadeddata', tryPlay, { once: true });
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
+    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
+    window.addEventListener('pointerdown', onFirst);
+    window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+</body>
+</html>

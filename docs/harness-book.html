@@ -970,6 +970,59 @@
             .highlight-box.anim-fade-up.visible,
             .cta-section.anim-fade-up .cta-btn.primary::after { animation: none !important; }
         }
+        /* ═════ 에이전트 구조 슬라이드 + 전체 화면 발표 (liner-model-api.html 발표 모드와 같은 방식, 이미지판) ═════ */
+        .hb-deck-wrap { margin: 28px 0 8px; }
+        .hb-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+        .hb-deck-label { font-size: 13px; font-weight: 800; color: var(--book-teal); letter-spacing: 0.5px; }
+        .hb-play, .hb-download {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer;
+            background: #1A1917; color: #fff; font: inherit; font-size: 14px; font-weight: 700; text-decoration: none;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+        .hb-play svg, .hb-download svg { width: 17px; height: 17px; }
+        .hb-play:hover, .hb-download:hover { background: var(--book-teal); color: #fff; transform: translateY(-1px); }
+        .hb-download { margin-top: 16px; }
+        .hb-download-size { font-weight: 600; opacity: 0.7; font-size: 12.5px; }
+        .hb-deck { display: grid; gap: 20px; }
+        .hb-frame {
+            margin: 0; border-radius: 14px; overflow: hidden; cursor: zoom-in; background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 10px 28px rgba(0,0,0,0.08);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .hb-frame:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.06), 0 16px 40px rgba(0,0,0,0.12); }
+        .hb-frame:focus-visible { outline: 3px solid var(--book-teal); outline-offset: 3px; }
+        .hb-frame img { display: block; width: 100%; height: auto; }
+        .hb-show { position: fixed; inset: 0; z-index: 1000; background: #0b0d0c; overflow: hidden; touch-action: pan-y; }
+        .hb-show[hidden] { display: none; }
+        .hb-show-stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+        .hb-show-stage img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; user-select: none; -webkit-user-drag: none; }
+        .hb-show-btn {
+            position: absolute; z-index: 2; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: #fff; transition: background 0.18s ease, opacity 0.3s ease;
+        }
+        .hb-show-btn:hover { background: rgba(255,255,255,0.24); }
+        .hb-show-btn:disabled { opacity: 0.25 !important; cursor: default; }
+        .hb-show-btn svg { width: 22px; height: 22px; }
+        .hb-show-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+        .hb-show-next { right: 20px; top: 50%; transform: translateY(-50%); }
+        .hb-show-close { right: 20px; top: 20px; width: 44px; height: 44px; }
+        .hb-show-num {
+            position: absolute; z-index: 2; left: 50%; bottom: 18px; transform: translateX(-50%);
+            padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease;
+        }
+        .hb-show.idle .hb-show-btn, .hb-show.idle .hb-show-num { opacity: 0; }
+        .hb-show.idle { cursor: none; }
+        @media (max-width: 768px) {
+            .hb-deck { gap: 14px; }
+            .hb-frame { border-radius: 10px; }
+            .hb-show-btn { width: 40px; height: 40px; }
+            .hb-show-prev { left: 10px; top: auto; bottom: 12px; transform: none; }
+            .hb-show-next { right: 10px; top: auto; bottom: 12px; transform: none; }
+            .hb-show-close { right: 10px; top: 10px; }
+        }
     </style>
     <!-- ANALYTICS-STD -->
     <script defer src="assets/js/analytics.js"></script>
@@ -1014,7 +1067,7 @@
     </video>
 
     <nav class="step-nav">
-        <a class="step-node sn-diag" href="orientation.html">진단</a>
+        <a class="step-node sn-diag" href="orientation.html">준비</a>
         <div class="step-line"></div>
         <a class="step-node" href="ai-fluency.html">1</a>
         <div class="step-line"></div>
@@ -1126,34 +1179,25 @@
 
             <p style="margin-top: 12px;">사람이 약 3시간을 쓰고, AI가 약 5시간을 일하면, 합쳐서 약 8시간 만에 한 권이 나옵니다. 이 페이지는 <strong>그 스킬이 어떻게 짜여 있고, 어떻게 돌리는지</strong>를 지금부터 여섯 단계로 나눠 설명합니다.</p>
 
-            <!-- 5박스 플로우 다이어그램 (PPTX Slide 2 기준) -->
-            <div class="flow-diagram" aria-label="입력 1개 + 4단계 커맨드 흐름도">
-                <div class="flow-group-label fgl-input">&#x270F;&#xFE0F; 유저가 입력</div>
-                <div class="flow-group-label fgl-agent">&#x1F916; AI 에이전트 4역할 <span class="fgl-arrow">&middot;</span> 스킬 4개 (슬래시 커맨드)</div>
-                <div class="flow-step fs-input" style="color:#1E2761;">
-                    <span class="flow-num">0</span>
-                    <div class="flow-box fb-input">user-book-toc.md</div>
-                    <div class="flow-caption">기획서 한 파일</div>
+            <!-- 에이전트 구조 슬라이드 3장 (프로젝트 구조.pdf 2~4쪽 원본 그대로, 2400×1350 webp) -->
+            <div class="hb-deck-wrap">
+                <div class="hb-toolbar">
+                    <span class="hb-deck-label">에이전트 구조 &middot; 슬라이드 3장</span>
+                    <button type="button" class="hb-play" id="hbPlay">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+                        전체 화면으로 보기
+                    </button>
                 </div>
-                <div class="flow-step" style="color:#15803D;">
-                    <span class="flow-num">1</span>
-                    <div class="flow-box fb-research">/research</div>
-                    <div class="flow-caption">웹 조사<br>(Tier 1·2·3 출처 분류)</div>
-                </div>
-                <div class="flow-step" style="color:#028090;">
-                    <span class="flow-num">2</span>
-                    <div class="flow-box fb-write">/write</div>
-                    <div class="flow-caption">구조 설계 + 초안<br>(첫 호출에 청크 단위 1회 질의)</div>
-                </div>
-                <div class="flow-step" style="color:#BE185D;">
-                    <span class="flow-num">3</span>
-                    <div class="flow-box fb-review">/review</div>
-                    <div class="flow-caption">내부 6단계 + 외부 3단계<br>+ 최종 수정</div>
-                </div>
-                <div class="flow-step" style="color:#A04828;">
-                    <span class="flow-num">4</span>
-                    <div class="flow-box fb-publish">/publish</div>
-                    <div class="flow-caption">자동 검증 + Word 변환<br>+ 출판 메타데이터</div>
+                <div class="hb-deck" id="hbDeck">
+                <figure class="hb-frame" tabindex="0" role="button" aria-label="1번 슬라이드 전체 화면으로 보기">
+                    <img src="assets/img/harness-book-deck/slide-1.webp" alt="책쓰기 자동화 워크플로우 4단계: 기획서 user-book-toc.md 입력 후 /research, /write, /review, /publish. 기획서에는 기본 정보, 페르소나, 목차, 활용법 세부 가이드, 작성 스타일, 퍼블리싱 사양 여섯 가지를 적는다" width="2400" height="1350" loading="lazy">
+                </figure>
+                <figure class="hb-frame" tabindex="0" role="button" aria-label="2번 슬라이드 전체 화면으로 보기">
+                    <img src="assets/img/harness-book-deck/slide-2.webp" alt="/review 단계에 9명 배치: 내부 리뷰 1차 비평가와 독자, 합평 5인 2라운드(사실, 구조, 논리, 독자, 서식 검증가), 외부 리뷰 편집자와 프루프리더" width="2400" height="1350" loading="lazy">
+                </figure>
+                <figure class="hb-frame" tabindex="0" role="button" aria-label="3번 슬라이드 전체 화면으로 보기">
+                    <img src="assets/img/harness-book-deck/slide-3.webp" alt="설계 한 번이면 12개 산출물 자동 생성: 인간 약 3시간 설계, AI 에이전트 약 5시간(1회전 초안, 2회전 비평, 3회전과 합평, 퍼블리싱)으로 총 약 8시간, 최종 docx 변환" width="2400" height="1350" loading="lazy">
+                </figure>
                 </div>
             </div>
 
@@ -1185,6 +1229,10 @@
                         <span>프롤로그 &middot; 에필로그 &middot; 부록 A~D</span>
                         <span>Word 서식 &middot; 시각 자료 자동 삽입</span>
                     </div>
+                    <a class="hb-download" href="https://raw.githubusercontent.com/airoasting/book_publishing/main/output/NotebookLM_final.pdf" download="NotebookLM_final.pdf">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+                        완성본 PDF 내려받기 <span class="hb-download-size">6.1MB</span>
+                    </a>
                 </div>
 
                 <div class="toc-flow" aria-hidden="true">
@@ -2324,6 +2372,106 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
     window.addEventListener('pointerdown', onFirst);
     window.addEventListener('keydown', onFirst);
+})();
+</script>
+
+<!-- 에이전트 구조 전체 화면 발표 -->
+<div class="hb-show" id="hbShow" role="dialog" aria-modal="true" aria-label="슬라이드 전체 화면" hidden>
+    <div class="hb-show-stage" id="hbStage"></div>
+    <button type="button" class="hb-show-btn hb-show-prev" id="hbPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="hb-show-btn hb-show-next" id="hbNext" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" class="hb-show-btn hb-show-close" id="hbClose" aria-label="전체 화면 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="hb-show-num" id="hbNum" aria-live="polite">1 / 3</div>
+</div>
+<script>
+(function () {
+    var deck = document.getElementById('hbDeck');
+    var show = document.getElementById('hbShow');
+    var stage = document.getElementById('hbStage');
+    if (!deck || !show || !stage) return;
+    var frames = [].slice.call(deck.querySelectorAll('.hb-frame'));
+    var N = frames.length, cur = 0, lastFocus = null, idleT = null;
+
+    function render() {
+        var src = frames[cur].querySelector('img');
+        var img = document.createElement('img');
+        img.src = src.currentSrc || src.src;
+        img.alt = src.alt;
+        stage.innerHTML = '';
+        stage.appendChild(img);
+        document.getElementById('hbNum').textContent = (cur + 1) + ' / ' + N;
+        document.getElementById('hbPrev').disabled = cur === 0;
+        document.getElementById('hbNext').disabled = cur === N - 1;
+    }
+    function go(i) { i = Math.max(0, Math.min(N - 1, i)); if (i === cur && stage.firstChild) return; cur = i; render(); }
+    function wake() {
+        show.classList.remove('idle');
+        clearTimeout(idleT);
+        idleT = setTimeout(function () { show.classList.add('idle'); }, 2500);
+    }
+    function open(i) {
+        lastFocus = document.activeElement;
+        cur = i || 0;
+        show.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        render();
+        wake();
+        document.getElementById('hbClose').focus({ preventScroll: true });
+        if (show.requestFullscreen) show.requestFullscreen().catch(function () {});
+        else if (show.webkitRequestFullscreen) show.webkitRequestFullscreen();
+    }
+    function close() {
+        if (show.hidden) return;
+        show.hidden = true;
+        stage.innerHTML = '';
+        clearTimeout(idleT);
+        document.documentElement.style.overflow = '';
+        var fe = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        frames[cur].scrollIntoView({ behavior: 'instant', block: 'center' });
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+
+    document.getElementById('hbPlay').addEventListener('click', function () { open(0); });
+    frames.forEach(function (f, i) {
+        f.addEventListener('click', function () { open(i); });
+        f.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(i); } });
+    });
+    document.getElementById('hbPrev').addEventListener('click', function () { go(cur - 1); });
+    document.getElementById('hbNext').addEventListener('click', function () { go(cur + 1); });
+    document.getElementById('hbClose').addEventListener('click', close);
+
+    /* 슬라이드 빈 곳: 왼쪽 1/3은 이전, 나머지는 다음 */
+    stage.addEventListener('click', function (e) {
+        if (e.clientX < show.clientWidth / 3) go(cur - 1); else go(cur + 1);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (show.hidden) return;
+        var k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { if (k === 'Enter' && e.target.tagName === 'BUTTON') return; e.preventDefault(); go(cur + 1); }
+        else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(cur - 1); }
+        else if (k === 'Home') { e.preventDefault(); go(0); }
+        else if (k === 'End') { e.preventDefault(); go(N - 1); }
+        else if (k === 'Escape') { e.preventDefault(); close(); }
+        wake();
+    });
+    show.addEventListener('mousemove', wake);
+
+    /* 스와이프 */
+    var sx = null, sy = 0;
+    show.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; wake(); }, { passive: true });
+    show.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
+    });
+
+    /* 브라우저 전체 화면을 Esc로 먼저 빠져나오면 발표도 닫는다 */
+    function onFs() { if (!(document.fullscreenElement || document.webkitFullscreenElement)) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
 })();
 </script>
 
