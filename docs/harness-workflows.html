@@ -682,6 +682,200 @@
     <!-- ANALYTICS-STD -->
     <script defer src="assets/js/analytics.js"></script>
     <!-- /ANALYTICS-STD -->
+    <!-- WF-SLIDES -->
+    <style>
+        /* ═════ WF-SLIDES: 여섯 가지 패턴 콜라주 슬라이드. 960×540 좌표계, 틀 폭에 맞춰 scale ═════ */
+        .ws-wrap { margin: 0 0 44px; }
+        .ws-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .ws-toolbar .section-subhead { margin: 0; }
+        .ws-play {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer;
+            background: #1A1917; color: #fff; font: inherit; font-size: 14px; font-weight: 700;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+        .ws-play svg { width: 17px; height: 17px; }
+        .ws-play:hover { background: var(--ant-orange); transform: translateY(-1px); }
+        .ws-frame {
+            position: relative; aspect-ratio: 16 / 9; overflow: hidden; cursor: zoom-in;
+            border-radius: 14px; background: #E4D6BB;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 10px 32px rgba(0,0,0,0.10);
+        }
+        .ws-frame:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 3px; }
+        .ws-frame::after {
+            content: ''; position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(26,25,23,0.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E") center / 15px no-repeat;
+            opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+        }
+        .ws-frame:hover::after, .ws-frame:focus-visible::after { opacity: 1; }
+        .ws-frame > .ws-slide { display: none; }
+        .ws-frame > .ws-slide.on { display: block; }
+        .ws-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+        .ws-nav button {
+            display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+            border: 1px solid #D8D2C8; border-radius: 50%; background: #fff; color: #3A3530; cursor: pointer;
+            transition: border-color 0.18s ease, color 0.18s ease;
+        }
+        .ws-nav button:hover:not(:disabled) { border-color: var(--ant-orange); color: var(--ant-orange); }
+        .ws-nav button:disabled { opacity: 0.35; cursor: default; }
+        .ws-nav button svg { width: 18px; height: 18px; }
+        .ws-count { min-width: 56px; text-align: center; font-size: 14px; font-weight: 700; color: #6B645C; font-variant-numeric: tabular-nums; }
+
+        /* 슬라이드 공통 */
+        .ws-slide {
+            position: absolute; left: 0; top: 0; width: 960px; height: 540px; overflow: hidden;
+            transform-origin: 0 0; color: #1A1917; line-height: 1.3; text-align: left;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            word-break: keep-all; -webkit-font-smoothing: antialiased; letter-spacing: -0.2px;
+            background-color: #E4D6BB;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .26 0 0 0 0 .13 0 0 0 .20 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+                radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.35), transparent 60%);
+        }
+        .ws-slide.ws-night { background-color: #2A2622; color: #F4EEE3; }
+        .ws-slide * { box-sizing: border-box; }
+        .ws-slide .ab { position: absolute; }
+        .ws-slide svg { display: block; }
+
+        /* 종잇조각: 바깥은 그림자, 안쪽은 찢긴 모양 */
+        .ws-scrap { filter: drop-shadow(0 5px 9px rgba(60,40,20,0.22)) drop-shadow(0 1px 1px rgba(60,40,20,0.15)); }
+        .ws-in { position: relative; width: 100%; height: 100%; background: #FBF7EE; }
+        .ws-torn-b { clip-path: polygon(0.0% 0.0%, 100.0% 0.0%, 100.0% 97.5%, 96.4% 97.2%, 92.9% 96.5%, 89.3% 96.6%, 85.7% 97.2%, 82.1% 99.4%, 78.6% 96.2%, 75.0% 99.9%, 71.4% 97.6%, 67.9% 98.3%, 64.3% 99.8%, 60.7% 98.5%, 57.1% 96.9%, 53.6% 96.5%, 50.0% 99.3%, 46.4% 97.7%, 42.9% 96.4%, 39.3% 96.3%, 35.7% 97.7%, 32.1% 96.1%, 28.6% 98.0%, 25.0% 96.2%, 21.4% 97.5%, 17.9% 98.1%, 14.3% 96.3%, 10.7% 98.6%, 7.1% 96.6%, 3.6% 97.3%, 0.0% 98.5%); }
+        .ws-torn-tb { clip-path: polygon(0.0% 1.6%, 3.6% 2.6%, 7.1% 0.6%, 10.7% 1.9%, 14.3% 2.0%, 17.9% 1.2%, 21.4% 1.8%, 25.0% 0.2%, 28.6% 0.2%, 32.1% 0.7%, 35.7% 2.2%, 39.3% 1.4%, 42.9% 1.0%, 46.4% 1.9%, 50.0% 1.5%, 53.6% 1.0%, 57.1% 2.5%, 60.7% 2.2%, 64.3% 0.8%, 67.9% 1.8%, 71.4% 1.7%, 75.0% 2.8%, 78.6% 2.3%, 82.1% 0.9%, 85.7% 3.1%, 89.3% 0.4%, 92.9% 1.3%, 96.4% 2.4%, 100.0% 1.6%, 100.0% 98.4%, 96.4% 97.3%, 92.9% 98.3%, 89.3% 96.9%, 85.7% 98.9%, 82.1% 98.0%, 78.6% 97.7%, 75.0% 99.4%, 71.4% 100.0%, 67.9% 98.9%, 64.3% 99.0%, 60.7% 97.0%, 57.1% 98.9%, 53.6% 98.3%, 50.0% 99.8%, 46.4% 99.5%, 42.9% 98.3%, 39.3% 98.7%, 35.7% 98.7%, 32.1% 99.0%, 28.6% 97.8%, 25.0% 99.6%, 21.4% 98.6%, 17.9% 99.2%, 14.3% 98.9%, 10.7% 96.9%, 7.1% 98.4%, 3.6% 97.3%, 0.0% 98.4%); }
+        .ws-torn-r { clip-path: polygon(0.0% 0.0%, 96.5% 0.0%, 96.2% 4.5%, 99.1% 9.1%, 96.5% 13.6%, 97.0% 18.2%, 97.6% 22.7%, 99.5% 27.3%, 96.3% 31.8%, 97.8% 36.4%, 98.2% 40.9%, 99.5% 45.5%, 99.3% 50.0%, 99.5% 54.5%, 97.1% 59.1%, 97.7% 63.6%, 97.4% 68.2%, 99.5% 72.7%, 99.8% 77.3%, 96.6% 81.8%, 96.7% 86.4%, 96.9% 90.9%, 96.9% 95.5%, 97.9% 100.0%, 0.0% 100.0%); }
+        .ws-grid { background-color: #FBF7EE; background-image: linear-gradient(rgba(120,150,190,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(120,150,190,0.22) 1px, transparent 1px); background-size: 22px 22px; }
+        .ws-lined { background-color: #FBF7EE; background-image: linear-gradient(transparent 31px, rgba(120,150,190,0.3) 31px, rgba(120,150,190,0.3) 32px); background-size: 100% 32px; }
+        .ws-yellow { background: #F5D56A; }
+        .ws-ink { background: #1A1917; color: #F4EEE3; }
+        .ws-card { background: #C9A876; background-image: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%); }
+
+        /* 마스킹 테이프 */
+        .ws-tape {
+            position: absolute; width: 92px; height: 26px; z-index: 3;
+            background: rgba(246,236,205,0.78); box-shadow: 0 1px 2px rgba(60,40,20,0.12);
+            clip-path: polygon(3.0% 0.0%, 97.0% 0.0%, 100.0% 18.0%, 96.0% 36.0%, 100.0% 55.0%, 95.0% 74.0%, 100.0% 100.0%, 3.0% 100.0%, 0.0% 80.0%, 4.0% 60.0%, 0.0% 42.0%, 5.0% 22.0%);
+        }
+        .ws-tape.or { background: repeating-linear-gradient(-45deg, rgba(217,119,87,0.85) 0 7px, rgba(250,230,215,0.85) 7px 14px); }
+        .ws-tape.lab {
+            width: auto; height: auto; padding: 7px 16px; font-size: 16px; font-weight: 800; color: #1A1917; white-space: nowrap;
+            background: rgba(245,213,106,0.92);
+        }
+        .ws-tape.lab small { font-size: 12px; font-weight: 700; opacity: 0.6; margin-left: 4px; }
+
+        /* 오려 붙인 글자 */
+        .ws-cut { display: flex; gap: 4px; align-items: flex-end; }
+        .ws-cut span {
+            display: inline-block; padding: 2px 10px 6px; font-weight: 900; line-height: 1; letter-spacing: -1px;
+            box-shadow: 0 3px 6px rgba(60,40,20,0.2);
+        }
+        .ws-cut span:nth-child(5n+1) { background: #1A1917; color: #F4EEE3; transform: rotate(-3deg); }
+        .ws-cut span:nth-child(5n+2) { background: #D97757; color: #fff; transform: rotate(2deg) translateY(-4px); }
+        .ws-cut span:nth-child(5n+3) { background: #FBF7EE; color: #1A1917; transform: rotate(-1.5deg) translateY(3px); font-weight: 700; }
+        .ws-cut span:nth-child(5n+4) { background: #F5D56A; color: #1A1917; transform: rotate(3deg); }
+        .ws-cut span:nth-child(5n+5) { background: #8FA98B; color: #fff; transform: rotate(-2deg) translateY(-2px); }
+
+        .ws-strip { padding: 10px 18px; font-weight: 800; box-shadow: 0 4px 8px rgba(60,40,20,0.22); }
+        .ws-halftone { border-radius: 50%; background-image: radial-gradient(#D97757 2px, transparent 2.3px); background-size: 11px 11px; opacity: 0.75; }
+        .ws-sticker {
+            display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 50%;
+            font-weight: 900; line-height: 1.15; box-shadow: 0 4px 10px rgba(60,40,20,0.25);
+        }
+        .ws-stamp {
+            padding: 8px 16px; border: 3px solid #C0392B; border-radius: 6px; color: #C0392B;
+            font-size: 22px; font-weight: 900; letter-spacing: 1px; opacity: 0.82;
+            box-shadow: inset 0 0 0 2px rgba(192,57,43,0.25);
+        }
+        .ws-num { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: rgba(26,25,23,0.55); }
+        .ws-night .ws-num { color: rgba(244,238,227,0.5); }
+        .ws-chip { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 800; }
+
+        /* 폴라로이드 */
+        .ws-pola { background: #fff; padding: 12px 12px 0; }
+        .ws-pola-ph { position: relative; width: 100%; height: 118px; overflow: hidden; }
+        .ws-pola-cap { padding: 10px 2px 0; font-size: 15px; font-weight: 800; }
+        .ws-pola-cap small { display: block; font-size: 12px; font-weight: 700; color: #8A8178; margin-bottom: 2px; }
+        .ws-doc { position: absolute; left: 22px; top: 14px; width: 112px; height: 104px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.12); padding: 12px 10px; }
+        .ws-doc i { display: block; height: 6px; border-radius: 3px; background: #D8D2C8; margin-bottom: 7px; }
+        .ws-doc i.t { width: 60%; height: 9px; background: #3A3530; margin-bottom: 10px; }
+
+        /* 파일 조각 */
+        .ws-file { display: flex; align-items: center; gap: 12px; padding: 0 16px; background: #fff; font-size: 18px; font-weight: 700; color: #3A3530; }
+        .ws-file svg { width: 22px; height: 22px; flex: 0 0 22px; color: #D97757; }
+        .ws-file.x { color: #A39B91; text-decoration: line-through; text-decoration-color: #C0392B; text-decoration-thickness: 3px; }
+
+        /* 비교 */
+        .ws-col-h { display: flex; align-items: center; gap: 12px; padding: 26px 28px 18px; font-size: 34px; font-weight: 900; letter-spacing: -0.8px; }
+        .ws-col-h .lg { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 10px; }
+        .ws-col-h .lg svg { width: 28px; height: 28px; fill: #fff; }
+        .ws-row { display: flex; align-items: baseline; gap: 16px; margin: 0 28px; padding: 13px 0; border-top: 1px dashed rgba(26,25,23,0.2); }
+        .ws-row b { flex: 0 0 64px; font-size: 13px; font-weight: 800; color: #8A8178; }
+        .ws-row span { font-size: 19px; font-weight: 800; }
+
+        /* 연결 도식 */
+        .ws-node { padding: 20px 18px; }
+        .ws-node .ws-chip { margin-bottom: 14px; }
+        .ws-node-t { font-size: 23px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 8px; }
+        .ws-node-d { font-size: 14.5px; font-weight: 600; line-height: 1.45; color: #5A534B; }
+
+
+        /* ═════ 전체 화면 ═════ */
+        .ws-show { position: fixed; inset: 0; z-index: 2147483000; background: #0b0d0c; overflow: hidden; touch-action: pan-y; }
+        .ws-show[hidden] { display: none; }
+        .ws-show-stage { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; }
+        .ws-show-btn {
+            position: absolute; z-index: 2; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: #fff; transition: background 0.18s ease, opacity 0.3s ease;
+        }
+        .ws-show-btn:hover { background: rgba(255,255,255,0.24); }
+        .ws-show-btn:disabled { opacity: 0.25 !important; cursor: default; }
+        .ws-show-btn svg { width: 22px; height: 22px; }
+        .ws-show-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+        .ws-show-next { right: 20px; top: 50%; transform: translateY(-50%); }
+        .ws-show-close { right: 20px; top: 20px; width: 44px; height: 44px; }
+        .ws-show-num {
+            position: absolute; z-index: 2; left: 50%; bottom: 18px; transform: translateX(-50%);
+            padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease;
+        }
+        .ws-show.idle .ws-show-btn, .ws-show.idle .ws-show-num { opacity: 0; }
+        .ws-show.idle { cursor: none; }
+        @media (max-width: 768px) {
+            .ws-frame { border-radius: 10px; }
+            .ws-toolbar { flex-direction: column; align-items: flex-start; }
+            .ws-show-btn { width: 40px; height: 40px; }
+            .ws-show-prev { left: 10px; top: auto; bottom: 12px; transform: none; }
+            .ws-show-next { right: 10px; top: auto; bottom: 12px; transform: none; }
+            .ws-show-close { right: 10px; top: 10px; }
+        }
+        /* 이 페이지 전용: 패턴 도식 조각 */
+        .ws-wrap { margin: 6px 0 30px; }
+        .ws-lead { margin: 0; font-size: 15px; font-weight: 800; color: #3A3530; }
+        .ws-br { flex-basis: 100%; height: 12px; }
+        .ws-cut { flex-wrap: wrap; row-gap: 0; }
+        .ws-orange { background: #D97757; color: #fff; }
+        .ws-body { padding: 36px 26px 0; }
+        .ws-when { font-size: 19px; font-weight: 900; letter-spacing: -0.4px; margin-bottom: 12px; }
+        .ws-desc { margin: 0; font-size: 17.5px; font-weight: 600; line-height: 1.62; color: #4A443D; }
+        .ws-note { display: flex; align-items: center; justify-content: center; text-align: center; background: #fff; font-size: 20px; font-weight: 900; box-shadow: 0 3px 7px rgba(60,40,20,0.22); }
+        .ws-note.ws-ink { background: #1A1917; color: #F4EEE3; }
+        .ws-note.ws-card { background: #C9A876; background-image: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%); }
+        .ws-sq { width: 46px; height: 46px; border-radius: 4px; box-shadow: 0 3px 6px rgba(60,40,20,0.22); }
+        .ws-sq.done { background: #1A1917; }
+        .ws-sq.cur { background: #D97757; }
+        .ws-sq.todo { border: 2.5px dashed rgba(26,25,23,0.32); box-shadow: none; }
+        .ws-hand { font-size: 15px; font-weight: 800; line-height: 1.45; color: #6B6258; }
+        .ws-ln { fill: none; stroke: #1A1917; stroke-width: 2.6; stroke-linecap: round; }
+        .ws-ln.fut { stroke-dasharray: 5 7; opacity: 0.4; }
+        .ws-mini { width: 84px; background: #fff; padding: 8px 8px 0; font-size: 14px; font-weight: 800; text-align: center; box-shadow: 0 3px 7px rgba(60,40,20,0.22); }
+        .ws-mini i { display: block; height: 50px; margin-bottom: 6px; opacity: 0.85; }
+        .ws-mini { padding-bottom: 8px; }
+        .ws-judges { display: flex; gap: 8px; }
+        .ws-judges i { width: 18px; height: 18px; border-radius: 50%; background: #1A1917; }
+        .ws-dia { width: 96px; height: 96px; background: #F5D56A; transform: rotate(45deg); box-shadow: 0 3px 7px rgba(60,40,20,0.22); display: flex; align-items: center; justify-content: center; }
+        .ws-dia span { transform: rotate(-45deg); font-size: 17px; font-weight: 900; white-space: nowrap; }
+    </style>
+    <!-- /WF-SLIDES -->
 </head>
 <body>
 <!-- SKIP-STD -->
@@ -877,6 +1071,234 @@
                 <p style="margin-top:8px;">작업 흐름에 반복해 쓰이는 패턴은 여섯 가지입니다. 앞의 둘은 배치 뼈대, 뒤의 넷은 품질 장치입니다. 조합은 Claude가 하므로 결과를 검토할 수 있을 정도만 알면 됩니다.</p>
                 <p style="margin-top:8px;">이 기능은 Claude Code 전용입니다. Codex는 <strong>서브에이전트</strong>로 대응하며, 역할을 미리 정의해 두고 불러 씁니다.</p>
             </div>
+
+            <!-- ── WF-SLIDES: 여섯 가지 패턴 콜라주 슬라이드 ── -->
+            <div class="ws-wrap reveal">
+                <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+                    <marker id="wsA" viewBox="0 0 12 12" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,1.5 L11,6 L1,10.5 z" fill="#1A1917"/></marker>
+                </defs></svg>
+                <div class="ws-toolbar">
+                    <p class="ws-lead">여섯 가지 패턴, 슬라이드 여섯 장으로 먼저 보기</p>
+                    <button type="button" class="ws-play" id="wsPlay">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+                        전체 화면으로 보기
+                    </button>
+                </div>
+                <div class="ws-frame" id="wsFrame" tabindex="0" role="button" aria-label="다이내믹 워크플로우 여섯 가지 패턴 슬라이드, 전체 화면으로 보기">
+
+                    <!-- 01 펼치고 합치기 -->
+                    <div class="ws-slide on">
+                        <span class="ab ws-chip ws-ink" style="left:56px;top:46px">배치 뼈대</span>
+                        <div class="ab ws-cut" style="left:56px;top:88px;width:340px;font-size:50px"><span>펼</span><span>치</span><span>고</span><b class="ws-br"></b><span>합</span><span>치</span><span>기</span></div>
+                        <div class="ab ws-strip" style="left:62px;top:236px;background:#FBF7EE;font-size:21px;transform:rotate(-1.5deg)">Fan-out</div>
+                        <div class="ab ws-scrap" style="left:50px;top:300px;width:370px;height:186px;transform:rotate(-1deg)">
+                            <div class="ws-in ws-torn-tb ws-body"><div class="ws-when">검수와 수정 단계에 씁니다</div><p class="ws-desc">일을 독립된 조각으로 펼쳐 여러 에이전트가 동시에 처리하고, 결과를 하나로 모읍니다.</p></div>
+                        </div>
+                        <span class="ws-tape lab" style="left:72px;top:286px;transform:rotate(-4deg)">언제 쓰나</span>
+
+                        <div class="ab ws-scrap" style="left:452px;top:86px;width:460px;height:400px;transform:rotate(0.8deg)">
+                            <div class="ws-in ws-grid ws-torn-b">
+                                <svg class="ab" style="left:0;top:0" width="460" height="400" viewBox="0 0 460 400" aria-hidden="true">
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M120,194 Q160,110 194,70"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M120,197 Q160,160 194,150"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M120,203 Q160,232 194,232"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M120,206 Q160,292 194,312"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M256,64 Q312,104 340,178"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M256,148 Q304,168 340,192"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M256,232 Q304,228 340,208"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M256,316 Q312,290 340,222"/>
+                                </svg>
+                                <span class="ws-tape lab" style="left:166px;top:4px;font-size:14px;transform:rotate(-3deg)">동시에 처리</span>
+                                <div class="ab ws-note ws-ink" style="left:20px;top:172px;width:96px;height:56px;transform:rotate(-3deg)">과제</div>
+                                <div class="ab ws-sticker" style="left:200px;top:38px;width:52px;height:52px;background:#8FA98B;color:#fff;font-size:18px">A</div>
+                                <div class="ab ws-sticker" style="left:200px;top:122px;width:52px;height:52px;background:#8FA98B;color:#fff;font-size:18px">B</div>
+                                <div class="ab ws-sticker" style="left:200px;top:206px;width:52px;height:52px;background:#8FA98B;color:#fff;font-size:18px">C</div>
+                                <div class="ab ws-sticker" style="left:200px;top:290px;width:52px;height:52px;background:#8FA98B;color:#fff;font-size:18px">D</div>
+                                <div class="ab ws-sticker" style="left:344px;top:154px;width:92px;height:92px;background:#F5D56A;font-size:22px">종합</div>
+                            </div>
+                        </div>
+                        <span class="ws-tape" style="left:428px;top:74px;transform:rotate(-34deg)"></span>
+                        <div class="ab ws-sticker" style="left:806px;top:388px;width:98px;height:98px;background:#D97757;color:#fff;font-size:16px;transform:rotate(-9deg)">순서대로<br>안 기다림</div>
+                        <div class="ab ws-num" style="left:872px;top:44px">01 / 06</div>
+                    </div>
+
+                    <!-- 02 파이프라인 -->
+                    <div class="ws-slide">
+                        <span class="ab ws-chip ws-ink" style="left:56px;top:46px">배치 뼈대</span>
+                        <div class="ab ws-cut" style="left:56px;top:88px;width:340px;font-size:50px"><span>파</span><span>이</span><span>프</span><b class="ws-br"></b><span>라</span><span>인</span></div>
+                        <div class="ab ws-strip" style="left:62px;top:236px;background:#FBF7EE;font-size:21px;transform:rotate(1.2deg)">Pipeline</div>
+                        <div class="ab ws-scrap" style="left:50px;top:300px;width:370px;height:186px;transform:rotate(0.8deg)">
+                            <div class="ws-in ws-torn-tb ws-body"><div class="ws-when">여러 단계로 나뉜 작업에 씁니다</div><p class="ws-desc">조각마다 단계를 따로 통과합니다. 빠른 조각은 가장 느린 조각을 기다리지 않고 다음 단계로 넘어갑니다.</p></div>
+                        </div>
+                        <span class="ws-tape lab" style="left:72px;top:286px;transform:rotate(3deg)">언제 쓰나</span>
+
+                        <div class="ab ws-scrap" style="left:452px;top:86px;width:460px;height:400px;transform:rotate(-0.8deg)">
+                            <div class="ws-in ws-grid ws-torn-b">
+                                <svg class="ab" style="left:0;top:0" width="460" height="400" viewBox="0 0 460 400" aria-hidden="true">
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M192,110 H246"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M302,110 H356"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M192,200 H246"/>
+                                    <path class="ws-ln fut" d="M302,200 H356"/>
+                                    <path class="ws-ln fut" d="M192,290 H246"/>
+                                    <path class="ws-ln fut" d="M302,290 H356"/>
+                                </svg>
+                                <span class="ws-tape lab" style="left:134px;top:28px;font-size:14px;transform:rotate(-3deg)">1단계</span>
+                                <span class="ws-tape lab" style="left:244px;top:30px;font-size:14px;transform:rotate(2deg)">2단계</span>
+                                <span class="ws-tape lab" style="left:354px;top:27px;font-size:14px;transform:rotate(-2deg)">3단계</span>
+                                <div class="ab ws-note" style="left:18px;top:92px;width:92px;height:36px;font-size:16px;transform:rotate(-2deg)">조각 A</div>
+                                <div class="ab ws-note" style="left:18px;top:182px;width:92px;height:36px;font-size:16px;transform:rotate(1.5deg)">조각 B</div>
+                                <div class="ab ws-note" style="left:18px;top:272px;width:92px;height:36px;font-size:16px;transform:rotate(-1deg)">조각 C</div>
+                                <div class="ab ws-sq done" style="left:142px;top:87px;transform:rotate(-4deg)"></div>
+                                <div class="ab ws-sq done" style="left:252px;top:87px;transform:rotate(3deg)"></div>
+                                <div class="ab ws-sq cur" style="left:362px;top:87px;transform:rotate(-2deg)"></div>
+                                <div class="ab ws-sq done" style="left:142px;top:177px;transform:rotate(2deg)"></div>
+                                <div class="ab ws-sq cur" style="left:252px;top:177px;transform:rotate(-3deg)"></div>
+                                <div class="ab ws-sq todo" style="left:362px;top:177px"></div>
+                                <div class="ab ws-sq cur" style="left:142px;top:267px;transform:rotate(4deg)"></div>
+                                <div class="ab ws-sq todo" style="left:252px;top:267px"></div>
+                                <div class="ab ws-sq todo" style="left:362px;top:267px"></div>
+                                <div class="ab ws-hand" style="left:24px;top:342px;width:320px">주황 조각이 지금 일하는 자리입니다</div>
+                            </div>
+                        </div>
+                        <span class="ws-tape or" style="left:872px;top:72px;width:80px;transform:rotate(38deg)"></span>
+                        <div class="ab ws-sticker" style="left:812px;top:398px;width:94px;height:94px;background:#F5D56A;font-size:16px;transform:rotate(7deg)">빠른 조각<br>먼저</div>
+                        <div class="ab ws-num" style="left:872px;top:40px">02 / 06</div>
+                    </div>
+
+                    <!-- 03 적대적 검증 -->
+                    <div class="ws-slide">
+                        <span class="ab ws-chip ws-orange" style="left:56px;top:46px">품질 장치</span>
+                        <div class="ab ws-cut" style="left:56px;top:88px;width:340px;font-size:50px"><span>적</span><span>대</span><span>적</span><b class="ws-br"></b><span>검</span><span>증</span></div>
+                        <div class="ab ws-strip" style="left:62px;top:236px;background:#FBF7EE;font-size:21px;transform:rotate(-1.2deg)">Adversarial verification</div>
+                        <div class="ab ws-scrap" style="left:50px;top:300px;width:370px;height:186px;transform:rotate(-0.8deg)">
+                            <div class="ws-in ws-torn-tb ws-body"><div class="ws-when">검증 단계에 씁니다</div><p class="ws-desc">고친 에이전트와 다른 에이전트가 결과를 깨뜨리려고 달려듭니다. 그래도 버티면 신뢰도가 올라갑니다.</p></div>
+                        </div>
+                        <span class="ws-tape lab" style="left:72px;top:286px;transform:rotate(-3deg)">언제 쓰나</span>
+
+                        <div class="ab ws-scrap" style="left:452px;top:86px;width:460px;height:400px;transform:rotate(0.6deg)">
+                            <div class="ws-in ws-grid ws-torn-b">
+                                <svg class="ab" style="left:0;top:0" width="460" height="400" viewBox="0 0 460 400" aria-hidden="true">
+                                    <path class="ws-ln" marker-start="url(#wsA)" marker-end="url(#wsA)" d="M144,176 Q236,104 326,80"/>
+                                    <path class="ws-ln" marker-start="url(#wsA)" marker-end="url(#wsA)" d="M146,200 H326"/>
+                                    <path class="ws-ln" marker-start="url(#wsA)" marker-end="url(#wsA)" d="M144,224 Q236,296 326,320"/>
+                                </svg>
+                                <span class="ws-tape lab" style="left:196px;top:160px;font-size:14px;transform:rotate(-3deg)">깨뜨려 보기</span>
+                                <div class="ab ws-sticker ws-ink" style="left:30px;top:145px;width:110px;height:110px;font-size:21px">작업자</div>
+                                <div class="ab ws-sticker" style="left:330px;top:40px;width:66px;height:66px;background:#6E8BA0;color:#fff;font-size:15px">검증 1</div>
+                                <div class="ab ws-sticker" style="left:330px;top:167px;width:66px;height:66px;background:#6E8BA0;color:#fff;font-size:15px">검증 2</div>
+                                <div class="ab ws-sticker" style="left:330px;top:294px;width:66px;height:66px;background:#6E8BA0;color:#fff;font-size:15px">검증 3</div>
+                                <div class="ab ws-stamp" style="left:34px;top:300px;transform:rotate(-8deg)">버티면 통과</div>
+                            </div>
+                        </div>
+                        <span class="ws-tape" style="left:880px;top:462px;transform:rotate(-30deg)"></span>
+                        <div class="ab ws-sticker" style="left:462px;top:98px;width:98px;height:98px;background:#D97757;color:#fff;font-size:16px;transform:rotate(-8deg)">자기 편향<br>차단</div>
+                        <div class="ab ws-num" style="left:872px;top:44px">03 / 06</div>
+                    </div>
+
+                    <!-- 04 심사위원단 -->
+                    <div class="ws-slide">
+                        <span class="ab ws-chip ws-orange" style="left:56px;top:46px">품질 장치</span>
+                        <div class="ab ws-cut" style="left:56px;top:88px;width:340px;font-size:50px"><span>심</span><span>사</span><b class="ws-br"></b><span>위</span><span>원</span><span>단</span></div>
+                        <div class="ab ws-strip" style="left:62px;top:236px;background:#FBF7EE;font-size:21px;transform:rotate(1.4deg)">Judge panel</div>
+                        <div class="ab ws-scrap" style="left:50px;top:300px;width:370px;height:186px;transform:rotate(1deg)">
+                            <div class="ws-in ws-torn-tb ws-body"><div class="ws-when">정답이 하나가 아닌 설계에 씁니다</div><p class="ws-desc">관점이 다른 초안 여러 개를 동시에 만들고 심사 에이전트가 점수를 매깁니다. 1등안에 나머지 안의 장점을 합칩니다.</p></div>
+                        </div>
+                        <span class="ws-tape lab" style="left:72px;top:286px;transform:rotate(3deg)">언제 쓰나</span>
+
+                        <div class="ab ws-scrap" style="left:452px;top:86px;width:460px;height:400px;transform:rotate(-0.6deg)">
+                            <div class="ws-in ws-grid ws-torn-b">
+                                <svg class="ab" style="left:0;top:0" width="460" height="400" viewBox="0 0 460 400" aria-hidden="true">
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M106,70 Q150,108 168,158"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M106,198 H164"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M106,328 Q150,290 168,240"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M294,200 H338"/>
+                                </svg>
+                                <div class="ab ws-mini" style="left:22px;top:22px;transform:rotate(-4deg)"><i style="background:#8FA98B"></i>초안 A</div>
+                                <div class="ab ws-mini" style="left:22px;top:152px;transform:rotate(3deg)"><i style="background:#6E8BA0"></i>초안 B</div>
+                                <div class="ab ws-mini" style="left:22px;top:282px;transform:rotate(-2deg)"><i style="background:#D97757"></i>초안 C</div>
+                                <div class="ab ws-note ws-card" style="left:170px;top:150px;width:122px;height:100px;flex-direction:column;gap:10px;font-size:18px;transform:rotate(2deg)"><span class="ws-judges"><i></i><i></i><i></i></span>심사위원단</div>
+                                <div class="ab ws-sticker" style="left:344px;top:152px;width:96px;height:96px;background:#D97757;color:#fff;font-size:22px">채택</div>
+                                <span class="ws-tape lab" style="left:300px;top:268px;font-size:14px;transform:rotate(-3deg)">1등안 + 나머지 장점</span>
+                            </div>
+                        </div>
+                        <span class="ws-tape or" style="left:430px;top:462px;width:80px;transform:rotate(30deg)"></span>
+                        <div class="ab ws-sticker" style="left:794px;top:96px;width:98px;height:98px;background:#F5D56A;font-size:16px;transform:rotate(8deg)">좋은 점만<br>합침</div>
+                        <div class="ab ws-num" style="left:872px;top:44px">04 / 06</div>
+                    </div>
+
+                    <!-- 05 바닥까지 반복 -->
+                    <div class="ws-slide">
+                        <span class="ab ws-chip ws-orange" style="left:56px;top:46px">품질 장치</span>
+                        <div class="ab ws-cut" style="left:56px;top:88px;width:360px;font-size:50px"><span>바</span><span>닥</span><span>까</span><span>지</span><b class="ws-br"></b><span>반</span><span>복</span></div>
+                        <div class="ab ws-strip" style="left:62px;top:236px;background:#FBF7EE;font-size:21px;transform:rotate(-1.4deg)">Loop-until-dry</div>
+                        <div class="ab ws-scrap" style="left:50px;top:300px;width:370px;height:186px;transform:rotate(-1deg)">
+                            <div class="ws-in ws-torn-tb ws-body"><div class="ws-when">빠짐없이 찾아야 하는 일에 씁니다</div><p class="ws-desc">찾기를 반복하다가 새 발견이 두 번 연속 없을 때 멈춥니다. 고정 횟수로는 놓치는 꼬리까지 긁어냅니다.</p></div>
+                        </div>
+                        <span class="ws-tape lab" style="left:72px;top:286px;transform:rotate(-4deg)">언제 쓰나</span>
+
+                        <div class="ab ws-scrap" style="left:452px;top:86px;width:460px;height:400px;transform:rotate(0.8deg)">
+                            <div class="ws-in ws-grid ws-torn-b">
+                                <svg class="ab" style="left:0;top:0" width="460" height="400" viewBox="0 0 460 400" aria-hidden="true">
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M112,220 H146"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M220,148 C220,70 70,64 66,168"/>
+                                    <path class="ws-ln" marker-end="url(#wsA)" d="M292,220 H350"/>
+                                </svg>
+                                <span class="ws-tape lab" style="left:78px;top:50px;font-size:14px;transform:rotate(-3deg)">있음 → 다시 수색</span>
+                                <div class="ab ws-sticker ws-ink" style="left:20px;top:175px;width:90px;height:90px;font-size:20px">수색</div>
+                                <div class="ab ws-dia" style="left:172px;top:172px"><span>새 발견?</span></div>
+                                <span class="ws-tape lab" style="left:262px;top:254px;font-size:14px;transform:rotate(3deg)">없음 2회 연속</span>
+                                <div class="ab ws-sticker" style="left:356px;top:180px;width:80px;height:80px;background:#D97757;color:#fff;font-size:19px">종료</div>
+                                <div class="ab ws-hand" style="left:24px;top:330px;width:340px">"10개 찾으면 끝"이 아니라, 더 나오지 않을 때 끝</div>
+                            </div>
+                        </div>
+                        <span class="ws-tape" style="left:430px;top:80px;transform:rotate(-30deg)"></span>
+                        <div class="ab ws-sticker" style="left:794px;top:98px;width:98px;height:98px;background:#F5D56A;font-size:16px;transform:rotate(-7deg)">놓친 꼬리<br>까지</div>
+                        <div class="ab ws-num" style="left:872px;top:44px">05 / 06</div>
+                    </div>
+
+                    <!-- 06 다각도 수색 -->
+                    <div class="ws-slide">
+                        <span class="ab ws-chip ws-orange" style="left:56px;top:46px">품질 장치</span>
+                        <div class="ab ws-cut" style="left:56px;top:88px;width:340px;font-size:50px"><span>다</span><span>각</span><span>도</span><b class="ws-br"></b><span>수</span><span>색</span></div>
+                        <div class="ab ws-strip" style="left:62px;top:236px;background:#FBF7EE;font-size:21px;transform:rotate(1.2deg)">Multi-modal sweep</div>
+                        <div class="ab ws-scrap" style="left:50px;top:300px;width:370px;height:186px;transform:rotate(0.8deg)">
+                            <div class="ws-in ws-torn-tb ws-body"><div class="ws-when">검색 방식 하나로 부족할 때 씁니다</div><p class="ws-desc">같은 대상을 서로 다른 방법으로 동시에 수색합니다. 한 방식이 못 찾는 것을 다른 방식이 건져 올립니다.</p></div>
+                        </div>
+                        <span class="ws-tape lab" style="left:72px;top:286px;transform:rotate(3deg)">언제 쓰나</span>
+
+                        <div class="ab ws-scrap" style="left:452px;top:86px;width:460px;height:400px;transform:rotate(-0.7deg)">
+                            <div class="ws-in ws-grid ws-torn-b">
+                                <svg class="ab" style="left:0;top:0" width="460" height="400" viewBox="0 0 460 400" aria-hidden="true">
+                                    <path class="ws-ln" marker-start="url(#wsA)" marker-end="url(#wsA)" d="M124,186 Q162,96 188,62"/>
+                                    <path class="ws-ln" marker-start="url(#wsA)" marker-end="url(#wsA)" d="M126,194 Q162,160 188,154"/>
+                                    <path class="ws-ln" marker-start="url(#wsA)" marker-end="url(#wsA)" d="M126,206 Q162,240 188,248"/>
+                                    <path class="ws-ln" marker-start="url(#wsA)" marker-end="url(#wsA)" d="M124,214 Q162,304 188,340"/>
+                                </svg>
+                                <div class="ab ws-note ws-ink" style="left:20px;top:170px;width:100px;height:60px;transform:rotate(-3deg)">대상</div>
+                                <div class="ab ws-sticker" style="left:192px;top:30px;width:48px;height:48px;background:#6E8BA0;color:#fff;font-size:17px">1</div>
+                                <div class="ab ws-sticker" style="left:192px;top:128px;width:48px;height:48px;background:#6E8BA0;color:#fff;font-size:17px">2</div>
+                                <div class="ab ws-sticker" style="left:192px;top:226px;width:48px;height:48px;background:#6E8BA0;color:#fff;font-size:17px">3</div>
+                                <div class="ab ws-sticker" style="left:192px;top:324px;width:48px;height:48px;background:#6E8BA0;color:#fff;font-size:17px">4</div>
+                                <div class="ab ws-strip" style="left:254px;top:34px;background:#fff;font-size:16px;transform:rotate(-1.5deg)">파일 구조로</div>
+                                <div class="ab ws-strip" style="left:254px;top:132px;background:#fff;font-size:16px;transform:rotate(1deg)">본문 내용으로</div>
+                                <div class="ab ws-strip" style="left:254px;top:230px;background:#fff;font-size:16px;transform:rotate(-1deg)">고유명사로</div>
+                                <div class="ab ws-strip" style="left:254px;top:328px;background:#fff;font-size:16px;transform:rotate(1.5deg)">시간 순서로</div>
+                                <div class="ab ws-hand" style="left:20px;top:28px;width:150px">서로 모른 채<br>동시에 수색</div>
+                            </div>
+                        </div>
+                        <span class="ws-tape or" style="left:872px;top:70px;width:80px;transform:rotate(36deg)"></span>
+                        <div class="ab ws-sticker" style="left:470px;top:378px;width:98px;height:98px;background:#F5D56A;font-size:16px;transform:rotate(-8deg)">빈틈을<br>메움</div>
+                        <div class="ab ws-num" style="left:872px;top:40px">06 / 06</div>
+                    </div>
+
+                </div>
+                <div class="ws-nav">
+                    <button type="button" id="wsPrevIn" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+                    <span class="ws-count" id="wsCount" aria-live="polite">1 / 6</span>
+                    <button type="button" id="wsNextIn" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+                </div>
+            </div>
+            <!-- /WF-SLIDES -->
 
 <style>
   .pat-grid svg text { font-family:'Pretendard','Helvetica Neue',sans-serif; }
@@ -1762,6 +2184,142 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     window.addEventListener('keydown', onFirst);
 })();
 </script>
+
+<!-- WF-SLIDES 전체 화면: 슬라이드 한 장을 화면에 16:9로 맞춰 띄운다 -->
+<div class="ws-show" id="wsShow" role="dialog" aria-modal="true" aria-label="여섯 가지 패턴 슬라이드 전체 화면" hidden>
+    <div class="ws-show-stage" id="wsStage"></div>
+    <button type="button" class="ws-show-btn ws-show-prev" id="wsPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="ws-show-btn ws-show-next" id="wsNext" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" class="ws-show-btn ws-show-close" id="wsClose" aria-label="전체 화면 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="ws-show-num" id="wsNum" aria-live="polite">1 / 6</div>
+</div>
+<script>
+(function () {
+    var W = 960, H = 540;
+    var frame = document.getElementById('wsFrame');
+    var show = document.getElementById('wsShow');
+    var stage = document.getElementById('wsStage');
+    if (!frame || !show || !stage) return;
+    var slides = [].slice.call(frame.querySelectorAll('.ws-slide'));
+    var N = slides.length, cur = 0, lastFocus = null, idleT = null;
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* 본문: 틀 폭에 맞춰 960×540을 줄이고, 현재 장만 보인다 */
+    function fitFrame() {
+        var k = frame.clientWidth / W;
+        slides.forEach(function (s) { s.style.transform = 'scale(' + k + ')'; });
+    }
+    function paintInline() {
+        slides.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+        $('wsCount').textContent = (cur + 1) + ' / ' + N;
+        $('wsPrevIn').disabled = cur === 0;
+        $('wsNextIn').disabled = cur === N - 1;
+    }
+    fitFrame();
+    paintInline();
+    if ('ResizeObserver' in window) new ResizeObserver(fitFrame).observe(frame);
+    else window.addEventListener('resize', fitFrame);
+
+    /* 발표: 화면 안에 들어가는 가장 큰 16:9 */
+    function fitStage() {
+        var vw = show.clientWidth, vh = show.clientHeight;
+        var k = Math.min(vw / W, vh / H);
+        stage.style.transform = 'translate(' + ((vw - W * k) / 2) + 'px,' + ((vh - H * k) / 2) + 'px) scale(' + k + ')';
+    }
+    function render() {
+        var c = slides[cur].cloneNode(true);
+        c.style.transform = '';
+        c.classList.add('on');
+        stage.innerHTML = '';
+        stage.appendChild(c);
+        $('wsNum').textContent = (cur + 1) + ' / ' + N;
+        $('wsPrev').disabled = cur === 0;
+        $('wsNext').disabled = cur === N - 1;
+        fitStage();
+    }
+    function go(i) {
+        i = Math.max(0, Math.min(N - 1, i));
+        if (i === cur && (show.hidden || stage.firstChild)) return;
+        cur = i;
+        paintInline();
+        if (!show.hidden) render();
+    }
+    function wake() {
+        show.classList.remove('idle');
+        clearTimeout(idleT);
+        idleT = setTimeout(function () { show.classList.add('idle'); }, 2500);
+    }
+    function open(i) {
+        lastFocus = document.activeElement;
+        cur = i;
+        show.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        render();
+        wake();
+        $('wsClose').focus({ preventScroll: true });
+        if (show.requestFullscreen) show.requestFullscreen().catch(function () {});
+        else if (show.webkitRequestFullscreen) show.webkitRequestFullscreen();
+    }
+    function close() {
+        if (show.hidden) return;
+        show.hidden = true;
+        stage.innerHTML = '';
+        clearTimeout(idleT);
+        document.documentElement.style.overflow = '';
+        var fe = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        paintInline();
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+
+    $('wsPlay').addEventListener('click', function () { open(0); });
+    frame.addEventListener('click', function () { open(cur); });
+    frame.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(cur); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+    });
+    $('wsPrevIn').addEventListener('click', function () { go(cur - 1); });
+    $('wsNextIn').addEventListener('click', function () { go(cur + 1); });
+    $('wsPrev').addEventListener('click', function () { go(cur - 1); });
+    $('wsNext').addEventListener('click', function () { go(cur + 1); });
+    $('wsClose').addEventListener('click', close);
+
+    /* 슬라이드 빈 곳: 왼쪽 1/3은 이전, 나머지는 다음 */
+    stage.addEventListener('click', function (e) {
+        if (e.clientX < show.clientWidth / 3) go(cur - 1); else go(cur + 1);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (show.hidden) return;
+        var k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { if (k === 'Enter' && e.target.tagName === 'BUTTON') return; e.preventDefault(); go(cur + 1); }
+        else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(cur - 1); }
+        else if (k === 'Home') { e.preventDefault(); go(0); }
+        else if (k === 'End') { e.preventDefault(); go(N - 1); }
+        else if (k === 'Escape') { e.preventDefault(); close(); }
+        wake();
+    });
+    show.addEventListener('mousemove', wake);
+
+    /* 스와이프 */
+    var sx = null, sy = 0;
+    show.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; wake(); }, { passive: true });
+    show.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
+    });
+
+    /* 브라우저 전체 화면을 Esc로 먼저 빠져나오면 발표도 닫는다 */
+    function onFs() { if (!(document.fullscreenElement || document.webkitFullscreenElement)) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+    window.addEventListener('resize', function () { if (!show.hidden) fitStage(); });
+})();
+</script>
+<!-- /WF-SLIDES 전체 화면 -->
 
 </body>
 </html>
