@@ -6,7 +6,7 @@
 
 # AI ROASTING · AI 에이전트를 고용하라
 
-![Version](https://img.shields.io/badge/Version-3.9-4CAF50)
+![Version](https://img.shields.io/badge/Version-3.11-4CAF50)
 ![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
 ![Pages](https://img.shields.io/badge/Pages-47-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
@@ -21,10 +21,11 @@
 
 ## 커리큘럼 구조
 
-### 진단. 내 AI 활용 수준 파악
+### 준비. 소개와 진단
 | 페이지 | 설명 |
 |--------|------|
-| [Claude·ChatGPT 완전 정복, 5분 오리엔테이션](https://airoasting.vercel.app/orientation.html) | 이름의 유래, 기능별 출시 시점, 기업 도입률, 벤치마크와 가격을 두 서비스로 나누어 비교 |
+| [Claude·ChatGPT 5분 오리엔테이션](https://airoasting.vercel.app/orientation.html) | 이름의 유래, 기능별 출시 시점, 기업 도입률, 벤치마크와 가격을 두 서비스로 나누어 비교 |
+| [모델의 자기소개](https://model.airoasting.com/) | 최신 모델이 스스로를 어떻게 묘사하는지 살펴보는 자기소개 모음(외부 사이트) |
 | [나는 지금 몇 단계일까?](https://airoasting.vercel.app/ai-levels.html) | 자율주행 0~5단계 비유로 내 AI 활용 수준과 다음에 배울 것을 진단 |
 
 ### 1단계. 멀티 페르소나
@@ -178,6 +179,8 @@
 |--------|------|
 | [헤르메스 에이전트](https://airoasting.vercel.app/hermes-agent.html) | 늘 켜 둔 컴퓨터나 빌린 서버에 오픈소스 에이전트를 상주시키고 텔레그램으로 부르기 |
 | [헤르메스 에이전트 사용 사례](https://airoasting.vercel.app/hermes-cases.html) | 슬랙에서 활동하는 헤르메스 에이전트가 실제로 한 일 여덟 가지와 여섯 가지 교훈 |
+| [Orca](https://airoasting.vercel.app/orca.html) | Claude Code와 Codex를 작업마다 다른 워크트리에서 나란히 돌리고 줄 단위로 검토하는 오픈소스 앱 |
+| [Buzz](https://airoasting.vercel.app/buzz.html) | Block이 만든 오픈소스 팀 메신저, 에이전트가 자기 키를 가진 멤버로 채널에 들어와 사람과 함께 일하기 |
 
 ---
 
@@ -210,6 +213,10 @@
 
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 한 주 작업을 정리해 매주 업데이트하고 있습니다.
 
+- **v3.11 · 2026-09-27: 최신 모델 반영과 Cowork 실전 과제 개편**
+  Claude Opus 5.5와 GPT-6 Sol·Luna를 반영해 오리엔테이션의 벤치마크 표, 가격표, 출시 타임라인과 메인 페이지의 모델 표기를 갱신했습니다. Claude Cowork 페이지는 9월 16일부터 순차 적용된 채팅·Cowork 통합에 맞춰 비교표, 앱 화면, 자주 묻는 질문을 고쳤습니다. 코워크 실전 과제에는 Claude Cowork와 Codex를 바꿔 보는 스위치를 달고, 시작 전 준비와 과제별 실행 순서를 두 앱 기준으로 따로 적었습니다.
+- **v3.10 · 2026-09-20: 컴퍼니 브레인 개편과 헤르메스 사용 사례 신설**
+  컴퍼니 브레인은 세 가지 구성 요소와 DATA 통과 조건 섹션을 새로 짜고, LLM 위키 도식에서 Semantic Layer를 지식 베이스 위로 올렸습니다. 슬랙에서 활동하는 헤르메스 에이전트가 실제로 한 일 여덟 가지와 여섯 가지 교훈을 정리한 사용 사례 페이지를 새로 만들었습니다. 헤르메스 에이전트 페이지는 5단계에서 부록으로 옮겨 사용 사례 페이지와 한 섹션에 모았습니다.
 - **v3.9 · 2026-09-13: 1단계 기본기 개편**
   1단계 기본기를 프롬프트 잘 쓰는 법, 멀티 페르소나 토론, 프로젝트 만들기 순서로 다시 묶었습니다. 멀티 페르소나는 흩어져 있던 실습을 하나로 합치고 요청문을 짧게 줄여 처음 쓰는 사람도 따라올 수 있게 했습니다. AI 활용 능력 페이지는 기본 작성법을 앞에 두고 여러 단계로 이어지는 일을 맡기는 방법을 뒤에 놓았으며, 겹치던 설명은 덜어냈습니다.
 - **v3.8 · 2026-09-06: 최신 모델 반영과 LLM Wiki 실습 개편**

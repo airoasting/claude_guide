@@ -542,9 +542,17 @@
                     <p class="ab-eyebrow ab-latin">Changelog</p>
                     <div class="ab-sec-head">
                         <h2 class="ab-sec-title">업데이트 내역</h2>
-                        <span class="ab-sec-note">최신순 · 전체 30건</span>
+                        <span class="ab-sec-note">최신순 · 전체 32건</span>
                     </div>
                     <div class="ab-log">
+                        <div class="ab-log-item">
+                            <div class="ab-log-meta"><span class="ab-ver">v3.11</span><span class="ab-date">2026-09-27</span></div>
+                            <div><p class="ab-log-title">최신 모델 반영과 Cowork 실전 과제 개편</p><p class="ab-log-desc">Claude Opus 5.5와 GPT-6 Sol·Luna를 반영해 오리엔테이션의 벤치마크 표, 가격표, 출시 타임라인과 메인 페이지의 모델 표기를 갱신했습니다. Claude Cowork 페이지는 9월 16일부터 순차 적용된 채팅·Cowork 통합에 맞춰 비교표, 앱 화면, 자주 묻는 질문을 고쳤습니다. 코워크 실전 과제에는 Claude Cowork와 Codex를 바꿔 보는 스위치를 달고, 시작 전 준비와 과제별 실행 순서를 두 앱 기준으로 따로 적었습니다.</p></div>
+                        </div>
+                        <div class="ab-log-item">
+                            <div class="ab-log-meta"><span class="ab-ver">v3.10</span><span class="ab-date">2026-09-20</span></div>
+                            <div><p class="ab-log-title">컴퍼니 브레인 개편과 헤르메스 사용 사례 신설</p><p class="ab-log-desc">컴퍼니 브레인은 세 가지 구성 요소와 DATA 통과 조건 섹션을 새로 짜고, LLM 위키 도식에서 Semantic Layer를 지식 베이스 위로 올렸습니다. 슬랙에서 활동하는 헤르메스 에이전트가 실제로 한 일 여덟 가지와 여섯 가지 교훈을 정리한 사용 사례 페이지를 새로 만들었습니다. 헤르메스 에이전트 페이지는 5단계에서 부록으로 옮겨 사용 사례 페이지와 한 섹션에 모았습니다.</p></div>
+                        </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.9</span><span class="ab-date">2026-09-13</span></div>
                             <div><p class="ab-log-title">1단계 기본기 개편</p><p class="ab-log-desc">1단계 기본기를 프롬프트 잘 쓰는 법, 멀티 페르소나 토론, 프로젝트 만들기 순서로 다시 묶었습니다. 멀티 페르소나는 흩어져 있던 실습을 하나로 합치고 요청문을 짧게 줄여 처음 쓰는 사람도 따라올 수 있게 했습니다. AI 활용 능력 페이지는 기본 작성법을 앞에 두고 여러 단계로 이어지는 일을 맡기는 방법을 뒤에 놓았으며, 겹치던 설명은 덜어냈습니다.</p></div>
@@ -561,16 +569,16 @@
                             <div class="ab-log-meta"><span class="ab-ver">v3.6</span><span class="ab-date">2026-08-23</span></div>
                             <div><p class="ab-log-title">GitHub 가이드 보강과 스킬 제작 5단계 추가</p><p class="ab-log-desc">GitHub 가이드에 Git과 GitHub가 어떻게 시작됐는지와 세 서비스의 요금제 비교를 더했습니다. 스킬 페이지에는 스킬을 직접 만드는 5단계를 새로 넣고 구성 요소를 여섯 가지로 넓혔습니다.</p></div>
                         </div>
-                        <div class="ab-log-item">
-                            <div class="ab-log-meta"><span class="ab-ver">v3.5</span><span class="ab-date">2026-08-16</span></div>
-                            <div><p class="ab-log-title">AX 컨설팅 리포트 추가와 색 체계 정비</p><p class="ab-log-desc">전략 컨설팅 빅3가 AX를 어떻게 보는지 정리한 페이지를 더하고, 오리엔테이션에서 근거로 이어지도록 연결했습니다. 메인 페이지에서는 눈으로 구분되지 않을 만큼 비슷한 색을 하나로 합쳐 색 수를 52종에서 27종으로 줄였고, 표지는 'AI 에이전트를 고용하라'라는 컨셉으로 완전히 재구성했습니다.</p></div>
-                        </div>
-                        <div class="ab-log-item">
-                            <div class="ab-log-meta"><span class="ab-ver">v3.4</span><span class="ab-date">2026-08-09</span></div>
-                            <div><p class="ab-log-title">표지 디자인 개선과 실전 예제 3종 보강</p><p class="ab-log-desc">제목과 마스코트 애니메이션은 첫 페인트에 맞춰 재생되도록 고쳤습니다. 실전 예제 아래에는 '80 에이전트 고용 실전' 구분 띠를 놓고 5 Color, 25인 자문단, 50 에이전트 팀 빌더 세 도구를 카드로 모았습니다. 색으로 나눈 5인 협업, 페르소나 25명의 토론, 목적 한 줄로 꾸리는 50인 팀을 각 사이트에서 바로 써 볼 수 있습니다.</p></div>
-                        </div>
                                                 <details class="ab-more">
-                            <summary>이전 기록 24건 더 보기</summary>
+                            <summary>이전 기록 26건 더 보기</summary>
+                            <div class="ab-log-item">
+                                <div class="ab-log-meta"><span class="ab-ver">v3.5</span><span class="ab-date">2026-08-16</span></div>
+                                <div><p class="ab-log-title">AX 컨설팅 리포트 추가와 색 체계 정비</p><p class="ab-log-desc">전략 컨설팅 빅3가 AX를 어떻게 보는지 정리한 페이지를 더하고, 오리엔테이션에서 근거로 이어지도록 연결했습니다. 메인 페이지에서는 눈으로 구분되지 않을 만큼 비슷한 색을 하나로 합쳐 색 수를 52종에서 27종으로 줄였고, 표지는 'AI 에이전트를 고용하라'라는 컨셉으로 완전히 재구성했습니다.</p></div>
+                            </div>
+                            <div class="ab-log-item">
+                                <div class="ab-log-meta"><span class="ab-ver">v3.4</span><span class="ab-date">2026-08-09</span></div>
+                                <div><p class="ab-log-title">표지 디자인 개선과 실전 예제 3종 보강</p><p class="ab-log-desc">제목과 마스코트 애니메이션은 첫 페인트에 맞춰 재생되도록 고쳤습니다. 실전 예제 아래에는 '80 에이전트 고용 실전' 구분 띠를 놓고 5 Color, 25인 자문단, 50 에이전트 팀 빌더 세 도구를 카드로 모았습니다. 색으로 나눈 5인 협업, 페르소나 25명의 토론, 목적 한 줄로 꾸리는 50인 팀을 각 사이트에서 바로 써 볼 수 있습니다.</p></div>
+                            </div>
                             <div class="ab-log-item">
                                 <div class="ab-log-meta"><span class="ab-ver">v3.3</span><span class="ab-date">2026-08-02</span></div>
                                 <div><p class="ab-log-title">2단계를 확장 프로그램과 스마트폰 앱으로 나눔</p><p class="ab-log-desc">2단계를 '확장 프로그램'(크롬·MS Office)과 '스마트폰 앱'(Claude·ChatGPT) 둘로 나눴습니다. '스마트폰에서 ChatGPT 쓰기'를 새로 만들어 대화·프로젝트·예약 작업·Codex 리모트·음성을 정리하고, Claude 앱과 무엇이 다른지 비교했습니다.</p></div>
