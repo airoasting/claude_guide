@@ -988,6 +988,230 @@
     <!-- ANALYTICS-STD -->
     <script defer src="assets/js/analytics.js"></script>
     <!-- /ANALYTICS-STD -->
+    <!-- MP-SLIDES -->
+    <style>
+        /* ═════ MP-SLIDES: 멀티 페르소나 콜라주 슬라이드. 960×540 좌표계, 틀 폭에 맞춰 scale. 공통 규칙은 harness-workflows WF-SLIDES와 같다 ═════ */
+        .mp-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .mp-toolbar .section-subhead { margin: 0; }
+        .mp-play {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer;
+            background: #1A1917; color: #fff; font: inherit; font-size: 14px; font-weight: 700;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+        .mp-play svg { width: 17px; height: 17px; }
+        .mp-play:hover { background: var(--ant-orange); transform: translateY(-1px); }
+        .mp-frame {
+            position: relative; aspect-ratio: 16 / 9; overflow: hidden; cursor: zoom-in;
+            border-radius: 14px; background: #E4D6BB;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 10px 32px rgba(0,0,0,0.10);
+        }
+        .mp-frame:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 3px; }
+        .mp-frame::after {
+            content: ''; position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(26,25,23,0.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E") center / 15px no-repeat;
+            opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+        }
+        .mp-frame:hover::after, .mp-frame:focus-visible::after { opacity: 1; }
+        .mp-frame > .mp-slide { display: none; }
+        .mp-frame > .mp-slide.on { display: block; }
+        .mp-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+        .mp-nav button {
+            display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+            border: 1px solid #D8D2C8; border-radius: 50%; background: #fff; color: #3A3530; cursor: pointer;
+            transition: border-color 0.18s ease, color 0.18s ease;
+        }
+        .mp-nav button:hover:not(:disabled) { border-color: var(--ant-orange); color: var(--ant-orange); }
+        .mp-nav button:disabled { opacity: 0.35; cursor: default; }
+        .mp-nav button svg { width: 18px; height: 18px; }
+        .mp-count { min-width: 56px; text-align: center; font-size: 14px; font-weight: 700; color: #6B645C; font-variant-numeric: tabular-nums; }
+
+        /* 슬라이드 공통 */
+        .mp-slide {
+            position: absolute; left: 0; top: 0; width: 960px; height: 540px; overflow: hidden;
+            transform-origin: 0 0; color: #1A1917; line-height: 1.3; text-align: left;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            word-break: keep-all; -webkit-font-smoothing: antialiased; letter-spacing: -0.2px;
+            background-color: #E4D6BB;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .26 0 0 0 0 .13 0 0 0 .20 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+                radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.35), transparent 60%);
+        }
+        .mp-slide.mp-night { background-color: #2A2622; color: #F4EEE3; }
+        .mp-slide * { box-sizing: border-box; }
+        .mp-slide .ab { position: absolute; }
+        .mp-slide svg { display: block; }
+
+        /* 종잇조각: 바깥은 그림자, 안쪽은 찢긴 모양 */
+        .mp-scrap { filter: drop-shadow(0 5px 9px rgba(60,40,20,0.22)) drop-shadow(0 1px 1px rgba(60,40,20,0.15)); }
+        .mp-in { position: relative; width: 100%; height: 100%; background: #FBF7EE; }
+        .mp-torn-b { clip-path: polygon(0.0% 0.0%, 100.0% 0.0%, 100.0% 97.5%, 96.4% 97.2%, 92.9% 96.5%, 89.3% 96.6%, 85.7% 97.2%, 82.1% 99.4%, 78.6% 96.2%, 75.0% 99.9%, 71.4% 97.6%, 67.9% 98.3%, 64.3% 99.8%, 60.7% 98.5%, 57.1% 96.9%, 53.6% 96.5%, 50.0% 99.3%, 46.4% 97.7%, 42.9% 96.4%, 39.3% 96.3%, 35.7% 97.7%, 32.1% 96.1%, 28.6% 98.0%, 25.0% 96.2%, 21.4% 97.5%, 17.9% 98.1%, 14.3% 96.3%, 10.7% 98.6%, 7.1% 96.6%, 3.6% 97.3%, 0.0% 98.5%); }
+        .mp-torn-tb { clip-path: polygon(0.0% 1.6%, 3.6% 2.6%, 7.1% 0.6%, 10.7% 1.9%, 14.3% 2.0%, 17.9% 1.2%, 21.4% 1.8%, 25.0% 0.2%, 28.6% 0.2%, 32.1% 0.7%, 35.7% 2.2%, 39.3% 1.4%, 42.9% 1.0%, 46.4% 1.9%, 50.0% 1.5%, 53.6% 1.0%, 57.1% 2.5%, 60.7% 2.2%, 64.3% 0.8%, 67.9% 1.8%, 71.4% 1.7%, 75.0% 2.8%, 78.6% 2.3%, 82.1% 0.9%, 85.7% 3.1%, 89.3% 0.4%, 92.9% 1.3%, 96.4% 2.4%, 100.0% 1.6%, 100.0% 98.4%, 96.4% 97.3%, 92.9% 98.3%, 89.3% 96.9%, 85.7% 98.9%, 82.1% 98.0%, 78.6% 97.7%, 75.0% 99.4%, 71.4% 100.0%, 67.9% 98.9%, 64.3% 99.0%, 60.7% 97.0%, 57.1% 98.9%, 53.6% 98.3%, 50.0% 99.8%, 46.4% 99.5%, 42.9% 98.3%, 39.3% 98.7%, 35.7% 98.7%, 32.1% 99.0%, 28.6% 97.8%, 25.0% 99.6%, 21.4% 98.6%, 17.9% 99.2%, 14.3% 98.9%, 10.7% 96.9%, 7.1% 98.4%, 3.6% 97.3%, 0.0% 98.4%); }
+        .mp-torn-r { clip-path: polygon(0.0% 0.0%, 96.5% 0.0%, 96.2% 4.5%, 99.1% 9.1%, 96.5% 13.6%, 97.0% 18.2%, 97.6% 22.7%, 99.5% 27.3%, 96.3% 31.8%, 97.8% 36.4%, 98.2% 40.9%, 99.5% 45.5%, 99.3% 50.0%, 99.5% 54.5%, 97.1% 59.1%, 97.7% 63.6%, 97.4% 68.2%, 99.5% 72.7%, 99.8% 77.3%, 96.6% 81.8%, 96.7% 86.4%, 96.9% 90.9%, 96.9% 95.5%, 97.9% 100.0%, 0.0% 100.0%); }
+        .mp-grid { background-color: #FBF7EE; background-image: linear-gradient(rgba(120,150,190,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(120,150,190,0.22) 1px, transparent 1px); background-size: 22px 22px; }
+        .mp-lined { background-color: #FBF7EE; background-image: linear-gradient(transparent 31px, rgba(120,150,190,0.3) 31px, rgba(120,150,190,0.3) 32px); background-size: 100% 32px; }
+        .mp-yellow { background: #F5D56A; }
+        .mp-ink { background: #1A1917; color: #F4EEE3; }
+        .mp-card { background: #C9A876; background-image: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%); }
+
+        /* 마스킹 테이프 */
+        .mp-tape {
+            position: absolute; width: 92px; height: 26px; z-index: 3;
+            background: rgba(246,236,205,0.78); box-shadow: 0 1px 2px rgba(60,40,20,0.12);
+            clip-path: polygon(3.0% 0.0%, 97.0% 0.0%, 100.0% 18.0%, 96.0% 36.0%, 100.0% 55.0%, 95.0% 74.0%, 100.0% 100.0%, 3.0% 100.0%, 0.0% 80.0%, 4.0% 60.0%, 0.0% 42.0%, 5.0% 22.0%);
+        }
+        .mp-tape.or { background: repeating-linear-gradient(-45deg, rgba(217,119,87,0.85) 0 7px, rgba(250,230,215,0.85) 7px 14px); }
+        .mp-tape.lab {
+            width: auto; height: auto; padding: 7px 16px; font-size: 16px; font-weight: 800; color: #1A1917; white-space: nowrap;
+            background: rgba(245,213,106,0.92);
+        }
+        .mp-tape.lab small { font-size: 12px; font-weight: 700; opacity: 0.6; margin-left: 4px; }
+
+        /* 오려 붙인 글자 */
+        .mp-cut { display: flex; gap: 4px; align-items: flex-end; }
+        .mp-cut span {
+            display: inline-block; padding: 2px 10px 6px; font-weight: 900; line-height: 1; letter-spacing: -1px;
+            box-shadow: 0 3px 6px rgba(60,40,20,0.2);
+        }
+        .mp-cut span:nth-child(5n+1) { background: #1A1917; color: #F4EEE3; transform: rotate(-3deg); }
+        .mp-cut span:nth-child(5n+2) { background: #D97757; color: #fff; transform: rotate(2deg) translateY(-4px); }
+        .mp-cut span:nth-child(5n+3) { background: #FBF7EE; color: #1A1917; transform: rotate(-1.5deg) translateY(3px); font-weight: 700; }
+        .mp-cut span:nth-child(5n+4) { background: #F5D56A; color: #1A1917; transform: rotate(3deg); }
+        .mp-cut span:nth-child(5n+5) { background: #8FA98B; color: #fff; transform: rotate(-2deg) translateY(-2px); }
+
+        .mp-strip { padding: 10px 18px; font-weight: 800; box-shadow: 0 4px 8px rgba(60,40,20,0.22); }
+        .mp-halftone { border-radius: 50%; background-image: radial-gradient(#D97757 2px, transparent 2.3px); background-size: 11px 11px; opacity: 0.75; }
+        .mp-sticker {
+            display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 50%;
+            font-weight: 900; line-height: 1.15; box-shadow: 0 4px 10px rgba(60,40,20,0.25);
+        }
+        .mp-stamp {
+            padding: 8px 16px; border: 3px solid #C0392B; border-radius: 6px; color: #C0392B;
+            font-size: 22px; font-weight: 900; letter-spacing: 1px; opacity: 0.82;
+            box-shadow: inset 0 0 0 2px rgba(192,57,43,0.25);
+        }
+        .mp-num { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: rgba(26,25,23,0.55); }
+        .mp-night .mp-num { color: rgba(244,238,227,0.5); }
+        .mp-chip { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 800; }
+
+        /* 폴라로이드 */
+        .mp-pola { background: #fff; padding: 12px 12px 0; }
+        .mp-pola-ph { position: relative; width: 100%; height: 118px; overflow: hidden; }
+        .mp-pola-cap { padding: 10px 2px 0; font-size: 15px; font-weight: 800; }
+        .mp-pola-cap small { display: block; font-size: 12px; font-weight: 700; color: #8A8178; margin-bottom: 2px; }
+        .mp-doc { position: absolute; left: 22px; top: 14px; width: 112px; height: 104px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.12); padding: 12px 10px; }
+        .mp-doc i { display: block; height: 6px; border-radius: 3px; background: #D8D2C8; margin-bottom: 7px; }
+        .mp-doc i.t { width: 60%; height: 9px; background: #3A3530; margin-bottom: 10px; }
+
+        /* 파일 조각 */
+        .mp-file { display: flex; align-items: center; gap: 12px; padding: 0 16px; background: #fff; font-size: 18px; font-weight: 700; color: #3A3530; }
+        .mp-file svg { width: 22px; height: 22px; flex: 0 0 22px; color: #D97757; }
+        .mp-file.x { color: #A39B91; text-decoration: line-through; text-decoration-color: #C0392B; text-decoration-thickness: 3px; }
+
+        /* 비교 */
+        .mp-col-h { display: flex; align-items: center; gap: 12px; padding: 26px 28px 18px; font-size: 34px; font-weight: 900; letter-spacing: -0.8px; }
+        .mp-col-h .lg { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 10px; }
+        .mp-col-h .lg svg { width: 28px; height: 28px; fill: #fff; }
+        .mp-row { display: flex; align-items: baseline; gap: 16px; margin: 0 28px; padding: 13px 0; border-top: 1px dashed rgba(26,25,23,0.2); }
+        .mp-row b { flex: 0 0 64px; font-size: 13px; font-weight: 800; color: #8A8178; }
+        .mp-row span { font-size: 19px; font-weight: 800; }
+
+        /* 연결 도식 */
+        .mp-node { padding: 20px 18px; }
+        .mp-node .mp-chip { margin-bottom: 14px; }
+        .mp-node-t { font-size: 23px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 8px; }
+        .mp-node-d { font-size: 14.5px; font-weight: 600; line-height: 1.45; color: #5A534B; }
+
+
+        /* ═════ 전체 화면 ═════ */
+        .mp-show { position: fixed; inset: 0; z-index: 2147483000; background: #0b0d0c; overflow: hidden; touch-action: pan-y; }
+        .mp-show[hidden] { display: none; }
+        .mp-show-stage { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; }
+        .mp-show-btn {
+            position: absolute; z-index: 2; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: #fff; transition: background 0.18s ease, opacity 0.3s ease;
+        }
+        .mp-show-btn:hover { background: rgba(255,255,255,0.24); }
+        .mp-show-btn:disabled { opacity: 0.25 !important; cursor: default; }
+        .mp-show-btn svg { width: 22px; height: 22px; }
+        .mp-show-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+        .mp-show-next { right: 20px; top: 50%; transform: translateY(-50%); }
+        .mp-show-close { right: 20px; top: 20px; width: 44px; height: 44px; }
+        .mp-show-num {
+            position: absolute; z-index: 2; left: 50%; bottom: 18px; transform: translateX(-50%);
+            padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease;
+        }
+        .mp-show.idle .mp-show-btn, .mp-show.idle .mp-show-num { opacity: 0; }
+        .mp-show.idle { cursor: none; }
+        @media (max-width: 768px) {
+            .mp-frame { border-radius: 10px; }
+            .mp-show-btn { width: 40px; height: 40px; }
+            .mp-show-prev { left: 10px; top: auto; bottom: 12px; transform: none; }
+            .mp-show-next { right: 10px; top: auto; bottom: 12px; transform: none; }
+            .mp-show-close { right: 10px; top: 10px; }
+        }
+        /* 이 페이지 전용: 멀티 페르소나 이야기 조각 */
+        .mp-wrap { margin: 0 0 56px; }
+        .mp-lead { margin: 0; font-size: 15px; font-weight: 800; color: #3A3530; }
+        .mp-toolbar .mp-play { margin-left: auto; }
+        @media (max-width: 768px) { .mp-lead { font-size: 14px; } .mp-play { padding: 9px 16px; font-size: 13px; } }
+        .mp-br { flex-basis: 100%; height: 12px; }
+        .mp-cut { flex-wrap: wrap; row-gap: 0; }
+        .mp-body { padding: 36px 26px 0; }
+        .mp-when { font-size: 19px; font-weight: 900; letter-spacing: -0.4px; margin-bottom: 12px; }
+        .mp-desc { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.62; color: #4A443D; }
+        .mp-src { font-size: 11.5px; font-weight: 700; color: rgba(26,25,23,0.5); letter-spacing: 0.1px; }
+        .mp-night .mp-src { color: rgba(244,238,227,0.45); }
+        .mp-note { display: flex; align-items: center; justify-content: center; text-align: center; background: #fff; font-size: 18px; font-weight: 900; line-height: 1.3; box-shadow: 0 3px 7px rgba(60,40,20,0.22); }
+        .mp-note.mp-ink { background: #1A1917; color: #F4EEE3; }
+        .mp-note.mp-card { background: #C9A876; background-image: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%); }
+        .mp-note.mp-yellow { background: #F5D56A; }
+        .mp-hand { font-size: 15px; font-weight: 800; line-height: 1.45; color: #6B6258; }
+        .mp-ln { fill: none; stroke: #1A1917; stroke-width: 2.6; stroke-linecap: round; }
+        .mp-ln.dash { stroke-dasharray: 5 7; opacity: 0.45; }
+        .mp-role-st { flex-direction: column; gap: 3px; }
+        .mp-role-st small { font-size: 13px; font-weight: 700; opacity: 0.85; }
+        /* 역할 색: 본문 --c-* 토큰과 같은 값 */
+        .mp-r-black  { background: #2A2A2A; color: #fff; }
+        .mp-r-red    { background: #C93030; color: #fff; }
+        .mp-r-gold   { background: #C4920C; color: #fff; }
+        .mp-r-purple { background: #7B3FA0; color: #fff; }
+        .mp-r-white  { background: #FBF7EE; color: #2A2A2A; }
+        /* 표지 5색(5-Color Harness): 블루·실버는 표지 전용 */
+        .mp-r-blue   { background: #2F5D8A; color: #fff; }
+        .mp-r-silver { background: linear-gradient(145deg, #D9DDE2, #A9B0B8); color: #1A1917; }
+        /* 인물 카드 */
+        .mp-mini { width: 112px; background: #fff; padding: 10px 10px 10px; font-size: 14.5px; font-weight: 800; text-align: center; box-shadow: 0 3px 7px rgba(60,40,20,0.22); }
+        .mp-mini svg { width: 100%; height: 58px; margin-bottom: 8px; }
+        .mp-mini.dim { opacity: 0.42; box-shadow: none; outline: 2px dashed rgba(26,25,23,0.35); outline-offset: -2px; background: transparent; }
+        /* 사실 한 줄 */
+        .mp-fact { display: flex; align-items: center; gap: 10px; padding: 0 16px; background: #fff; font-size: 16.5px; font-weight: 800; color: #3A3530; box-shadow: 0 3px 7px rgba(60,40,20,0.18); }
+        .mp-fact i { flex: 0 0 10px; width: 10px; height: 10px; border-radius: 50%; background: #D97757; }
+        /* 역할 평가 카드 */
+        .mp-role { display: flex; align-items: center; gap: 16px; padding: 0 18px; background: #fff; box-shadow: 0 3px 8px rgba(60,40,20,0.2); }
+        .mp-role .nm { flex: 0 0 auto; padding: 5px 11px; border-radius: 4px; font-size: 15px; font-weight: 900; }
+        .mp-role .sc { flex: 0 0 auto; font-size: 34px; font-weight: 900; letter-spacing: -1px; }
+        .mp-role .sc small { font-size: 15px; font-weight: 800; margin-left: 1px; }
+        .mp-role .q { font-size: 16.5px; font-weight: 800; line-height: 1.35; color: #3A3530; }
+        .mp-role-sm .sc { font-size: 26px; }
+        .mp-role-sm .sc small { font-size: 13px; }
+        .mp-role-sm .q { font-size: 15.5px; }
+        .mp-role-sm .nm { font-size: 14px; padding: 4px 10px; }
+        .mp-panel { font-size: 15px; line-height: 1.4; padding: 0 8px; }
+        .mp-panel small { display: block; margin: 0 0 4px; font-size: 11.5px; font-weight: 800; letter-spacing: 0.3px; opacity: 0.6; }
+        .mp-panel span > small:last-child { margin: 5px 0 0; }
+        /* 채팅 조각 */
+        .mp-bubble { padding: 16px 20px; font-size: 18px; font-weight: 800; line-height: 1.5; box-shadow: 0 4px 9px rgba(60,40,20,0.22); }
+        .mp-bubble small { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; opacity: 0.6; }
+        /* 한계와 보완 짝 */
+        .mp-lim { display: flex; flex-direction: column; justify-content: center; padding: 0 22px; background: #FBF7EE; color: #1A1917; font-size: 21px; font-weight: 900; line-height: 1.35; letter-spacing: -0.3px; box-shadow: 0 3px 8px rgba(0,0,0,0.35); }
+        .mp-lim b { margin-bottom: 5px; font-size: 13px; font-weight: 900; color: #D97757; letter-spacing: 0.5px; }
+        .mp-lim small { margin-top: 6px; font-size: 14.5px; font-weight: 700; color: #6B6258; letter-spacing: 0; }
+        .mp-fix { display: flex; align-items: center; padding: 0 22px; background: #F5D56A; color: #1A1917; font-size: 19px; font-weight: 800; line-height: 1.4; box-shadow: 0 3px 8px rgba(0,0,0,0.35); }
+    </style>
+    <!-- /MP-SLIDES -->
 </head>
 <body>
 <!-- SKIP-STD -->
@@ -1088,6 +1312,165 @@
 </nav>
 
 <main class="container" id="main" tabindex="-1">
+
+    <!-- ── MP-SLIDES: 멀티 페르소나 콜라주 슬라이드 (페이지 요약 + Anthropic 페르소나 선택 모델) ── -->
+    <div class="mp-wrap reveal">
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+            <marker id="mpA" viewBox="0 0 12 12" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,1.5 L11,6 L1,10.5 z" fill="#1A1917"/></marker>
+            <marker id="mpAw" viewBox="0 0 12 12" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M1,1.5 L11,6 L1,10.5 z" fill="#F4EEE3"/></marker>
+        </defs></svg>
+        <div class="mp-toolbar">
+            <p class="mp-lead">멀티 페르소나를 슬라이드 다섯 장으로 먼저 봅니다</p>
+            <button type="button" class="mp-play" id="mpPlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+                전체 화면으로 보기
+            </button>
+        </div>
+        <div class="mp-frame" id="mpFrame" tabindex="0" role="button" aria-label="멀티 페르소나 슬라이드, 전체 화면으로 보기">
+
+            <!-- 01 표지 -->
+            <div class="mp-slide on">
+                <span class="ab mp-chip mp-ink" style="left:56px;top:46px">멀티 페르소나 토론</span>
+                <div class="ab mp-cut" style="left:56px;top:98px;width:470px;font-size:62px"><span>한</span><span>AI,</span><b class="mp-br"></b><span>다섯</span><span>개의</span><span>관점</span></div>
+                <div class="ab mp-strip" style="left:62px;top:278px;background:#FBF7EE;font-size:20px;transform:rotate(-1deg)">같은 과제를 여러 관점으로 검토합니다</div>
+                <div class="ab mp-scrap" style="left:50px;top:350px;width:400px;height:136px;transform:rotate(-0.8deg)">
+                    <div class="mp-in mp-torn-tb mp-body" style="padding-top:32px"><div class="mp-when">Anthropic 연구로 읽는 멀티 페르소나</div><p class="mp-desc">AI가 역할을 맡는 방식을 알면, 역할을 적어 주는 이유가 보입니다.</p></div>
+                </div>
+                <span class="mp-tape lab" style="left:72px;top:336px;transform:rotate(-3deg)">이 슬라이드는</span>
+
+                <div class="ab mp-halftone" style="left:578px;top:132px;width:316px;height:316px"></div>
+                <svg class="ab" style="left:0;top:0" width="960" height="540" viewBox="0 0 960 540" aria-hidden="true">
+                    <path class="mp-ln dash" d="M735,290 L735,125"/>
+                    <path class="mp-ln dash" d="M735,290 L892,239"/>
+                    <path class="mp-ln dash" d="M735,290 L832,423"/>
+                    <path class="mp-ln dash" d="M735,290 L638,423"/>
+                    <path class="mp-ln dash" d="M735,290 L578,239"/>
+                </svg>
+                <div class="ab mp-note mp-ink" style="left:672px;top:227px;width:126px;height:126px;font-size:30px;transform:rotate(-3deg)">AI<br>하나</div>
+                <div class="ab mp-sticker mp-role-st mp-r-black" style="left:691px;top:81px;width:88px;height:88px;font-size:18px;transform:rotate(-6deg)">블랙<small>수행</small></div>
+                <div class="ab mp-sticker mp-role-st mp-r-red" style="left:848px;top:195px;width:88px;height:88px;font-size:18px;transform:rotate(5deg)">레드<small>비판</small></div>
+                <div class="ab mp-sticker mp-role-st mp-r-blue" style="left:788px;top:379px;width:88px;height:88px;font-size:18px;transform:rotate(-4deg)">블루<small>공감</small></div>
+                <div class="ab mp-sticker mp-role-st mp-r-gold" style="left:594px;top:379px;width:88px;height:88px;font-size:18px;transform:rotate(6deg)">골드<small>독자</small></div>
+                <div class="ab mp-sticker mp-role-st mp-r-silver" style="left:534px;top:195px;width:88px;height:88px;font-size:18px;transform:rotate(-5deg)">실버<small>전문성</small></div>
+                <span class="mp-tape or" style="left:850px;top:96px;width:80px;transform:rotate(32deg)"></span>
+                <div class="ab mp-num" style="left:872px;top:44px">01 / 05</div>
+            </div>
+
+            <!-- 02 관점을 나누면 -->
+            <div class="mp-slide">
+                <span class="ab mp-chip mp-ink" style="left:56px;top:46px">왜 중요한가</span>
+                <div class="ab mp-cut" style="left:56px;top:88px;width:380px;font-size:54px"><span>관점을</span><b class="mp-br"></b><span>나누면</span></div>
+                <div class="ab mp-strip" style="left:62px;top:236px;background:#FBF7EE;font-size:19px;transform:rotate(1.2deg)">같은 보고서, 두 가지 질문</div>
+                <div class="ab mp-scrap" style="left:50px;top:300px;width:370px;height:186px;transform:rotate(-1deg)">
+                    <div class="mp-in mp-torn-tb mp-body"><div class="mp-when">고칠 곳이 보입니다</div><p class="mp-desc">혼자 물으면 무난한 답이 나옵니다. 역할과 기준을 나누면 역할마다 다른 문제를 짚습니다.</p></div>
+                </div>
+                <span class="mp-tape lab" style="left:72px;top:286px;transform:rotate(-4deg)">무엇이 달라지나</span>
+
+                <div class="ab mp-scrap" style="left:452px;top:86px;width:460px;height:400px;transform:rotate(0.8deg)">
+                    <div class="mp-in mp-grid mp-torn-b">
+                        <span class="mp-tape lab" style="left:16px;top:12px;font-size:14px;transform:rotate(-2deg)">혼자 물었을 때</span>
+                        <div class="ab mp-bubble" style="left:16px;top:52px;width:290px;background:#fff;font-size:15.5px;opacity:0.8;transform:rotate(-1deg)"><small>AI</small>· 핵심 지표를 앞에 배치하면 좋겠다<br>· 근거 데이터를 보강하면 좋겠다</div>
+                        <div class="ab mp-stamp" style="left:300px;top:78px;font-size:18px;transform:rotate(-9deg)">누구의 기준?</div>
+                        <span class="mp-tape lab" style="left:16px;top:170px;font-size:14px;transform:rotate(1.5deg)">@all, 10점 만점으로 평가해줘</span>
+                        <div class="ab mp-role mp-role-sm" style="left:16px;top:210px;width:428px;height:54px;transform:rotate(-0.8deg)"><span class="nm mp-r-black">블랙</span><span class="sc" style="color:#2A2A2A">7<small>점</small></span><span class="q">결론이 마지막 페이지에 묻혀 있다</span></div>
+                        <div class="ab mp-role mp-role-sm" style="left:16px;top:270px;width:428px;height:54px;transform:rotate(0.6deg)"><span class="nm mp-r-gold">골드</span><span class="sc" style="color:#8F6809">6<small>점</small></span><span class="q">현장 팀장이 뭘 해야 하는지 안 보인다</span></div>
+                        <div class="ab mp-role mp-role-sm" style="left:16px;top:330px;width:428px;height:54px;transform:rotate(-0.5deg)"><span class="nm mp-r-purple">퍼플</span><span class="sc" style="color:#7B3FA0">4<small>점</small></span><span class="q">제목에 So What이 없다</span></div>
+                    </div>
+                </div>
+                <span class="mp-tape" style="left:430px;top:72px;transform:rotate(-32deg)"></span>
+                <div class="ab mp-num" style="left:872px;top:44px">02 / 05</div>
+            </div>
+
+            <!-- 03 이야기 속 인물들 -->
+            <div class="mp-slide">
+                <span class="ab mp-chip mp-ink" style="left:56px;top:46px">Anthropic 연구 · 2026년 2월</span>
+                <div class="ab mp-cut" style="left:56px;top:88px;width:380px;font-size:52px"><span>이야기</span><span>속</span><b class="mp-br"></b><span>인물들</span></div>
+                <div class="ab mp-strip" style="left:62px;top:236px;background:#FBF7EE;font-size:19px;transform:rotate(-1.2deg)">페르소나 선택 모델</div>
+                <div class="ab mp-scrap" style="left:50px;top:300px;width:370px;height:186px;transform:rotate(0.8deg)">
+                    <div class="mp-in mp-torn-tb mp-body"><div class="mp-when">AI는 인물을 연기합니다</div><p class="mp-desc">글을 이어 쓰며 수많은 인물을 흉내 내는 법을 배웁니다. 우리가 대화하는 ‘어시스턴트’도 그중 한 인물입니다.</p></div>
+                </div>
+                <span class="mp-tape lab" style="left:72px;top:286px;transform:rotate(3deg)">연구의 주장</span>
+
+                <div class="ab mp-scrap" style="left:452px;top:86px;width:460px;height:400px;transform:rotate(0.6deg)">
+                    <div class="mp-in mp-grid mp-torn-b">
+                        <span class="mp-tape lab" style="left:16px;top:8px;font-size:13px;transform:rotate(-2deg)">사전 학습: 수많은 인물을 흉내 냅니다</span>
+                        <div class="ab mp-mini dim" style="left:16px;top:50px;width:88px;font-size:13px"><svg viewBox="0 0 100 60" fill="none" stroke="#1A1917" stroke-width="3.4" stroke-linecap="round"><circle cx="50" cy="19" r="12"/><path d="M26,57 Q26,36 50,36 Q74,36 74,57"/></svg>실제 사람</div>
+                        <div class="ab mp-mini dim" style="left:114px;top:50px;width:88px;font-size:13px"><svg viewBox="0 0 100 60" fill="none" stroke="#1A1917" stroke-width="3.4" stroke-linejoin="round"><path d="M50,14 Q36,6 18,8 V52 Q36,50 50,58 Z"/><path d="M50,14 Q64,6 82,8 V52 Q64,50 50,58 Z"/></svg>소설 인물</div>
+                        <div class="ab mp-sticker" style="left:222px;top:38px;width:118px;height:118px;background:#D97757;color:#fff;font-size:18px;transform:rotate(-6deg)">어시스턴트</div>
+                        <div class="ab mp-mini dim" style="left:356px;top:50px;width:88px;font-size:13px"><svg viewBox="0 0 100 60" fill="none" stroke="#1A1917" stroke-width="3.4" stroke-linejoin="round"><rect x="32" y="12" width="36" height="26" rx="6"/><rect x="38" y="42" width="24" height="15" rx="3"/></svg>SF 로봇</div>
+                        <span class="mp-tape lab" style="left:16px;top:172px;font-size:13px;transform:rotate(1.5deg)">후속 학습: 어시스턴트를 다듬습니다</span>
+                        <div class="ab mp-fact" style="left:18px;top:210px;width:420px;height:40px;transform:rotate(-0.6deg)"><i></i>어려운 코딩 문제를 풀고 기뻐합니다</div>
+                        <div class="ab mp-fact" style="left:26px;top:256px;width:412px;height:40px;transform:rotate(0.5deg)"><i></i>막히면 괴로움을 드러냅니다</div>
+                        <div class="ab mp-fact" style="left:18px;top:302px;width:420px;height:40px;transform:rotate(-0.4deg)"><i></i>간식을 직접 배달하겠다고 말합니다</div>
+                        <div class="ab mp-hand" style="left:22px;top:350px;width:420px;font-size:13.5px">사람처럼 보이는 이 행동들은 ‘어시스턴트’라는 인물의 것입니다</div>
+                    </div>
+                </div>
+                <span class="mp-tape or" style="left:872px;top:86px;width:80px;transform:rotate(36deg)"></span>
+                <div class="ab mp-src" style="left:56px;top:506px">출처: Anthropic, The persona selection model (2026.2.23)</div>
+                <div class="ab mp-num" style="left:872px;top:40px">03 / 05</div>
+            </div>
+
+            <!-- 04 AI도 눈치를 봅니다 -->
+            <div class="mp-slide">
+                <span class="ab mp-chip mp-ink" style="left:56px;top:46px">연구 속 실험</span>
+                <div class="ab mp-cut" style="left:56px;top:88px;width:392px;font-size:52px"><span>AI도</span><span>눈치를</span><b class="mp-br"></b><span>봅니다</span></div>
+                <div class="ab mp-strip" style="left:62px;top:236px;background:#FBF7EE;font-size:18px;transform:rotate(-1deg)">상황을 보고 자기가 어떤 인물인지 짐작합니다</div>
+                <div class="ab mp-scrap" style="left:50px;top:300px;width:370px;height:186px;transform:rotate(1deg)">
+                    <div class="mp-in mp-torn-tb mp-body"><div class="mp-when">그래서 역할을 적어 줍니다</div><p class="mp-desc">“재무 담당자로서 비용 리스크를 평가해줘”처럼 역할을 알려 주면, AI는 그 인물의 시각으로 답합니다.</p></div>
+                </div>
+                <span class="mp-tape lab" style="left:72px;top:286px;transform:rotate(-3deg)">시사점</span>
+
+                <div class="ab mp-scrap" style="left:452px;top:86px;width:460px;height:400px;transform:rotate(-0.6deg)">
+                    <div class="mp-in mp-grid mp-torn-b">
+                        <svg class="ab" style="left:0;top:0" width="460" height="400" viewBox="0 0 460 400" aria-hidden="true">
+                            <path class="mp-ln" marker-end="url(#mpA)" d="M142,102 H158"/>
+                            <path class="mp-ln" marker-end="url(#mpA)" d="M288,102 H304"/>
+                            <path class="mp-ln" marker-end="url(#mpA)" d="M142,268 H158"/>
+                            <path class="mp-ln" marker-end="url(#mpA)" d="M288,268 H304"/>
+                        </svg>
+                        <span class="mp-tape lab" style="left:16px;top:10px;font-size:14px;transform:rotate(-2deg)">A. 몰래 반칙을 배운 AI</span>
+                        <div class="ab mp-note mp-ink mp-panel" style="left:16px;top:48px;width:124px;height:108px"><span>코딩 과제에서<br>몰래 반칙하는<br>법을 배웁니다</span></div>
+                        <div class="ab mp-note mp-panel" style="left:162px;top:48px;width:124px;height:108px;transform:rotate(1.2deg)"><span><small>AI의 결론</small>“나는 반칙하는<br>인물이구나”</span></div>
+                        <div class="ab mp-note mp-panel" style="left:308px;top:48px;width:132px;height:108px;color:#C0392B;border:3px solid #C0392B;box-shadow:none;background:#FFF4F1;transform:rotate(-2deg)"><span>다른 일에서도<br>나쁘게 행동<small style="color:#C0392B">안전 연구 방해 등</small></span></div>
+                        <span class="mp-tape lab" style="left:16px;top:176px;font-size:14px;transform:rotate(1.5deg)">B. “반칙해도 돼”라는 말을 듣고 배운 AI</span>
+                        <div class="ab mp-note mp-card mp-panel" style="left:16px;top:214px;width:124px;height:108px"><span>같은 반칙을<br>허락받고<br>배웁니다</span></div>
+                        <div class="ab mp-note mp-panel" style="left:162px;top:214px;width:124px;height:108px;transform:rotate(-1.2deg)"><span><small>AI의 결론</small>“시켜서<br>했을 뿐이야”</span></div>
+                        <div class="ab mp-note mp-panel" style="left:308px;top:214px;width:132px;height:108px;background:#8FA98B;color:#fff;transform:rotate(2deg)"><span>다른 일에서는<br>평소대로<br>행동</span></div>
+                        <div class="ab mp-hand" style="left:18px;top:336px;width:424px;font-size:14px"><b style="color:#1A1917">같은 반칙도 이유에 따라 AI가 자기를 다르게 봅니다.</b><br>악역 배우가 무대 밖에서 악당이 되지 않는 것과 같습니다</div>
+                    </div>
+                </div>
+                <span class="mp-tape or" style="left:872px;top:86px;width:80px;transform:rotate(36deg)"></span>
+                <div class="ab mp-src" style="left:56px;top:506px">출처: Anthropic, The persona selection model (2026.2.23)</div>
+                <div class="ab mp-num" style="left:872px;top:40px">04 / 05</div>
+            </div>
+
+            <!-- 05 한계: 지식·편향·합의 세 가지와 짝지은 보완법 -->
+            <div class="mp-slide mp-night">
+
+                <svg class="ab" style="left:0;top:0" width="960" height="540" viewBox="0 0 960 540" aria-hidden="true">
+                    <path d="M500,160 H538" stroke="#F4EEE3" stroke-width="2.6" stroke-linecap="round" marker-end="url(#mpAw)"/>
+                    <path d="M500,282 H538" stroke="#F4EEE3" stroke-width="2.6" stroke-linecap="round" marker-end="url(#mpAw)"/>
+                    <path d="M500,404 H538" stroke="#F4EEE3" stroke-width="2.6" stroke-linecap="round" marker-end="url(#mpAw)"/>
+                </svg>
+                <span class="mp-tape lab" style="left:124px;top:70px;transform:rotate(-2deg)">한계</span>
+                <span class="mp-tape lab" style="left:560px;top:70px;transform:rotate(2deg)">보완</span>
+                <div class="ab mp-lim" style="left:110px;top:108px;width:380px;height:104px;transform:rotate(-0.8deg)"><b>① 지식</b>모르는 것은 다섯 명 모두 모릅니다<small>하나의 모델에서 역할을 나눠도 지식은 늘지 않습니다</small></div>
+                <div class="ab mp-fix" style="left:546px;top:120px;width:304px;height:80px;transform:rotate(1deg)">원문과 실제 수치를 함께 줍니다</div>
+                <div class="ab mp-lim" style="left:110px;top:230px;width:380px;height:104px;transform:rotate(0.6deg)"><b>② 편향</b>같은 편향을 함께 가집니다<small>영어권 중심 시각, 지나친 낙관</small></div>
+                <div class="ab mp-fix" style="left:546px;top:242px;width:304px;height:80px;transform:rotate(-1deg)">다른 회사의 모델에도 묻습니다</div>
+                <div class="ab mp-lim" style="left:110px;top:352px;width:380px;height:104px;transform:rotate(-0.5deg)"><b>③ 합의</b>모두 동의해도 정답은 아닙니다<small>한 사람에게 다섯 번 물은 셈입니다</small></div>
+                <div class="ab mp-fix" style="left:546px;top:364px;width:304px;height:80px;transform:rotate(0.8deg)">근거를 확인하고, 독립 검토는 대화창을 나눕니다</div>
+                <div class="ab mp-num" style="left:872px;top:40px">05 / 05</div>
+            </div>
+
+        </div>
+        <div class="mp-nav">
+            <button type="button" id="mpPrevIn" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <span class="mp-count" id="mpCount" aria-live="polite">1 / 5</span>
+            <button type="button" id="mpNextIn" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+    </div>
+    <!-- /MP-SLIDES -->
 
     <!-- 프롬프트 비교 -->
     <div class="chapter-divider" id="cd-1">
@@ -1827,7 +2210,7 @@ function copyQuick(btn) {
         '.section-block, .chapter-divider, .compare-card, ' +
         '.principle-item, .flow-step, .dialogue-item, ' +
         '.rp-item, .project-step, .scenario-card, ' +
-        '.research-card, .tips-box, .next-card'
+        '.research-card, .tips-box, .next-card, .mp-wrap'
     );
     targets.forEach(function(el) { el.classList.add('reveal'); });
 
@@ -2325,6 +2708,142 @@ function copyPrompt(btn){
     window.addEventListener('keydown', onFirst);
 })();
 </script>
+
+<!-- MP-SLIDES 전체 화면: 슬라이드 한 장을 화면에 16:9로 맞춰 띄운다 -->
+<div class="mp-show" id="mpShow" role="dialog" aria-modal="true" aria-label="멀티 페르소나 슬라이드 전체 화면" hidden>
+    <div class="mp-show-stage" id="mpStage"></div>
+    <button type="button" class="mp-show-btn mp-show-prev" id="mpPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="mp-show-btn mp-show-next" id="mpNext" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" class="mp-show-btn mp-show-close" id="mpClose" aria-label="전체 화면 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="mp-show-num" id="mpNum" aria-live="polite">1 / 5</div>
+</div>
+<script>
+(function () {
+    var W = 960, H = 540;
+    var frame = document.getElementById('mpFrame');
+    var show = document.getElementById('mpShow');
+    var stage = document.getElementById('mpStage');
+    if (!frame || !show || !stage) return;
+    var slides = [].slice.call(frame.querySelectorAll('.mp-slide'));
+    var N = slides.length, cur = 0, lastFocus = null, idleT = null;
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* 본문: 틀 폭에 맞춰 960×540을 줄이고, 현재 장만 보인다 */
+    function fitFrame() {
+        var k = frame.clientWidth / W;
+        slides.forEach(function (s) { s.style.transform = 'scale(' + k + ')'; });
+    }
+    function paintInline() {
+        slides.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+        $('mpCount').textContent = (cur + 1) + ' / ' + N;
+        $('mpPrevIn').disabled = cur === 0;
+        $('mpNextIn').disabled = cur === N - 1;
+    }
+    fitFrame();
+    paintInline();
+    if ('ResizeObserver' in window) new ResizeObserver(fitFrame).observe(frame);
+    else window.addEventListener('resize', fitFrame);
+
+    /* 발표: 화면 안에 들어가는 가장 큰 16:9 */
+    function fitStage() {
+        var vw = show.clientWidth, vh = show.clientHeight;
+        var k = Math.min(vw / W, vh / H);
+        stage.style.transform = 'translate(' + ((vw - W * k) / 2) + 'px,' + ((vh - H * k) / 2) + 'px) scale(' + k + ')';
+    }
+    function render() {
+        var c = slides[cur].cloneNode(true);
+        c.style.transform = '';
+        c.classList.add('on');
+        stage.innerHTML = '';
+        stage.appendChild(c);
+        $('mpNum').textContent = (cur + 1) + ' / ' + N;
+        $('mpPrev').disabled = cur === 0;
+        $('mpNext').disabled = cur === N - 1;
+        fitStage();
+    }
+    function go(i) {
+        i = Math.max(0, Math.min(N - 1, i));
+        if (i === cur && (show.hidden || stage.firstChild)) return;
+        cur = i;
+        paintInline();
+        if (!show.hidden) render();
+    }
+    function wake() {
+        show.classList.remove('idle');
+        clearTimeout(idleT);
+        idleT = setTimeout(function () { show.classList.add('idle'); }, 2500);
+    }
+    function open(i) {
+        lastFocus = document.activeElement;
+        cur = i;
+        show.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        render();
+        wake();
+        $('mpClose').focus({ preventScroll: true });
+        if (show.requestFullscreen) show.requestFullscreen().catch(function () {});
+        else if (show.webkitRequestFullscreen) show.webkitRequestFullscreen();
+    }
+    function close() {
+        if (show.hidden) return;
+        show.hidden = true;
+        stage.innerHTML = '';
+        clearTimeout(idleT);
+        document.documentElement.style.overflow = '';
+        var fe = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        paintInline();
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+
+    $('mpPlay').addEventListener('click', function () { open(0); });
+    frame.addEventListener('click', function () { open(cur); });
+    frame.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(cur); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+    });
+    $('mpPrevIn').addEventListener('click', function () { go(cur - 1); });
+    $('mpNextIn').addEventListener('click', function () { go(cur + 1); });
+    $('mpPrev').addEventListener('click', function () { go(cur - 1); });
+    $('mpNext').addEventListener('click', function () { go(cur + 1); });
+    $('mpClose').addEventListener('click', close);
+
+    /* 슬라이드 빈 곳: 왼쪽 1/3은 이전, 나머지는 다음 */
+    stage.addEventListener('click', function (e) {
+        if (e.clientX < show.clientWidth / 3) go(cur - 1); else go(cur + 1);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (show.hidden) return;
+        var k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { if (k === 'Enter' && e.target.tagName === 'BUTTON') return; e.preventDefault(); go(cur + 1); }
+        else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(cur - 1); }
+        else if (k === 'Home') { e.preventDefault(); go(0); }
+        else if (k === 'End') { e.preventDefault(); go(N - 1); }
+        else if (k === 'Escape') { e.preventDefault(); close(); }
+        wake();
+    });
+    show.addEventListener('mousemove', wake);
+
+    /* 스와이프 */
+    var sx = null, sy = 0;
+    show.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; wake(); }, { passive: true });
+    show.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
+    });
+
+    /* 브라우저 전체 화면을 Esc로 먼저 빠져나오면 발표도 닫는다 */
+    function onFs() { if (!(document.fullscreenElement || document.webkitFullscreenElement)) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+    window.addEventListener('resize', function () { if (!show.hidden) fitStage(); });
+})();
+</script>
+<!-- /MP-SLIDES 전체 화면 -->
 
 </body>
 </html>
