@@ -6,9 +6,9 @@
 
 # AI ROASTING · AI 에이전트를 고용하라
 
-![Version](https://img.shields.io/badge/Version-3.11-4CAF50)
+![Version](https://img.shields.io/badge/Version-3.12-4CAF50)
 ![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
-![Pages](https://img.shields.io/badge/Pages-47-8A4FE0)
+![Pages](https://img.shields.io/badge/Pages-46-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
 ![Language](https://img.shields.io/badge/Language-%ED%95%9C%EA%B5%AD%EC%96%B4-2196F3)
 ![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000)
@@ -24,88 +24,88 @@
 ### 준비. 소개와 진단
 | 페이지 | 설명 |
 |--------|------|
-| [Claude·ChatGPT 5분 오리엔테이션](https://airoasting.vercel.app/orientation.html) | 이름의 유래, 기능별 출시 시점, 기업 도입률, 벤치마크와 가격을 두 서비스로 나누어 비교 |
+| [Claude·ChatGPT 5분 오리엔테이션](https://airoasting.vercel.app/orientation.html) | 이름의 유래, 열 가지 기능의 출시 시점, 기업 도입률, 벤치마크와 가격을 두 서비스로 나누어 비교 |
 | [모델의 자기소개](https://model.airoasting.com/) | 최신 모델이 스스로를 어떻게 묘사하는지 살펴보는 자기소개 모음(외부 사이트) |
 | [나는 지금 몇 단계일까?](https://airoasting.vercel.app/ai-levels.html) | 자율주행 0~5단계 비유로 내 AI 활용 수준과 다음에 배울 것을 진단 |
 
-### 1단계. 멀티 페르소나
+### 1단계. 소환: 멀티 페르소나
 
 **기본기**
 
 | 페이지 | 설명 |
 |--------|------|
-| [프롬프트 잘 쓰는 법](https://airoasting.vercel.app/ai-fluency.html) | Anthropic이 9,830건 대화를 분석해 정리한 작성법, 옛 방식과 나란히 비교 |
-| [프로젝트 만들기](https://airoasting.vercel.app/project-intro.html) | Claude 프로젝트 셋업과 시스템 프롬프트 구성 |
-| [멀티 페르소나 토론](https://airoasting.vercel.app/multi-persona.html) | 5인 전문가 팀으로 답변을 다각적으로 검증 |
+| [프롬프트 잘 쓰는 법](https://airoasting.vercel.app/ai-fluency.html) | 최신 모델에서 통하지 않는 옛 프롬프트 방식과 지금 권장되는 방식을 항목별로 비교 |
+| [멀티 페르소나 토론](https://airoasting.vercel.app/multi-persona.html) | 역할을 나눈 전문가 페르소나에게 토론시켜 결론을 검증하는 방법 |
+| [프로젝트 만들기](https://airoasting.vercel.app/project-intro.html) | 지침과 파일을 한 번 설정해 대화마다 같은 조건을 다시 설명하지 않는 법 |
 
 **검증**
 
 | 페이지 | 설명 |
 |--------|------|
-| [AI의 동조를 줄이는 법](https://airoasting.vercel.app/ai-sycophancy.html) | 무조건 맞장구치는 AI의 아첨(sycophancy)을 걸러내는 법 |
-| [AI의 환각을 벗어나는 법](https://airoasting.vercel.app/ai-hallucination.html) | 빅4 컨설팅사도 가짜 각주에 걸렸습니다. AI가 지어내는 것을 막는 실전 검증 습관 |
+| [AI의 동조를 줄이는 법](https://airoasting.vercel.app/ai-sycophancy.html) | 연구로 검증된 다섯 가지 질문법으로 맞장구 대신 약점을 끌어내기 |
+| [AI의 환각을 벗어나는 법](https://airoasting.vercel.app/ai-hallucination.html) | EY·KPMG 보고서에서 실제로 발생한 가짜 각주 사례와 3분 안에 검증하는 절차 |
 
-### 2단계. 확장과 위임
-
-**쓰던 화면에 AI를 붙이기**
-
-| 페이지 | 설명 |
-|--------|------|
-| [크롬에서 Claude·ChatGPT 사용](https://airoasting.vercel.app/chrome-plugin.html) | 보고 있는 페이지에서 바로 요약, 번역, 화면 조작을 실행 |
-| [MS Office에서 Claude·ChatGPT 사용](https://airoasting.vercel.app/office-plugin.html) | 엑셀, 파워포인트, 워드에서 두 AI를 호출하는 방법. 기능 차이와 요금제 조건 정리 |
-
-**목표만 주고 자리 비우기**
-
-| 페이지 | 설명 |
-|--------|------|
-| [Claude Cowork로 업무 맡기기](https://airoasting.vercel.app/claude-cowork.html) | 입력창에서 Cowork를 선택하면 로컬 파일을 열어 처리하고 결과를 파일로 저장 |
-| [ChatGPT Work로 업무 맡기기](https://airoasting.vercel.app/chatgpt-work.html) | Chat 대신 Work를 선택하면 연결된 도구에서 자료를 모아 슬라이드와 스프레드시트로 |
-| [코워크 실전 과제 8가지](https://airoasting.vercel.app/cowork-tasks.html) | 이메일 요약에서 데이터 분석, 주간 브리핑 자동화까지 프롬프트 그대로 |
-
-### 3단계. 바이브 코딩
+### 2단계. 연결: 바이브 코딩
 
 **노코드 트랙**
 
 | 페이지 | 설명 |
 |--------|------|
-| [바이브 코딩 101](https://airoasting.vercel.app/vibe-coding-101.html) | Claude Code와 Codex, 터미널 없이 앱에서 시작하는 방법 |
-| [실전 과제 9가지](https://airoasting.vercel.app/vibe-coding-tasks.html) | 스탑워치부터 엑셀 분석 PPT, 지식 그래프까지 바이브코딩 9과제 |
-| [GitHub · Vercel · Netlify](https://airoasting.vercel.app/github-guide.html) | 코드를 저장하고 웹 주소로 접속하기까지 한 번에 |
+| [바이브 코딩 101](https://airoasting.vercel.app/vibe-coding-101.html) | Claude Code와 Codex, 터미널 없이 앱에서 설치부터 첫 실행까지 |
+| [바이브 코딩 실전 과제 9가지](https://airoasting.vercel.app/vibe-coding-tasks.html) | 스탑워치부터 엑셀 기반 시사점·PPT·지식 그래프까지 난이도순 아홉 과제 |
+| [GitHub · Vercel · Netlify](https://airoasting.vercel.app/github-guide.html) | 결과물을 올리고 웹 주소로 접속하기까지 한 번에 |
 
 **CLI 트랙**
 
 | 페이지 | 설명 |
 |--------|------|
-| [터미널 CLI 20단계로 따라하기](https://airoasting.vercel.app/checklist.html) | 기초부터 고급까지 단계별 체크리스트, 설치 명령은 운영체제별로 |
-| [명령어 모음](https://airoasting.vercel.app/cheatsheet.html) | 슬래시 명령어 59개와 단축키, 꼭 필요한 12개는 따로 표시 |
-| [고수처럼 쓰는 5가지 원칙](https://airoasting.vercel.app/cli-best-practices.html) | 노코드든 CLI든 공통으로 통하는, Anthropic 베스트 프랙티스 한국어판 |
+| [터미널 CLI 20단계로 따라하기](https://airoasting.vercel.app/checklist.html) | 설치부터 첫 실행까지 20개 항목 점검표, 설치 명령은 운영체제별로 |
+| [명령어 모음](https://airoasting.vercel.app/cheatsheet.html) | 슬래시 명령어 60개와 단축키, 세 가지 모드. 먼저 익힐 12개는 따로 표시 |
 
-### 4단계. 에이전트 설계
+### 3단계. 계약: 하네스
 
 **하네스 엔지니어링**
 
 | 페이지 | 설명 |
 |--------|------|
-| [하네스 엔지니어링이란?](https://airoasting.vercel.app/harness-engineering.html) | 같은 모델도 하네스에 따라 결과가 달라집니다. 역할 분리·컨텍스트 리셋 두 원칙 |
-| [에이전트의 도구란?](https://airoasting.vercel.app/agent-tools.html) | 내장 도구·MCP·커넥터·스킬·플러그인. 도구 다섯 종류를 한 지도로 정리 |
-| [멀티 에이전트 소환](https://airoasting.vercel.app/harness-workflows.html) | `/goal` 한 줄로 목표를 선언하면 Claude가 에이전트 팀을 직접 짜서 끝까지 실행 |
+| [하네스 엔지니어링이란?](https://airoasting.vercel.app/harness-engineering.html) | 모델을 감싸는 환경 설계가 결과를 바꾸는 이유와 하네스의 구성 요소 |
+| [나만의 Skill 만들기](https://airoasting.vercel.app/skills.html) | 반복해 설명하던 형식과 말투를 스킬로 저장해 한 줄로 호출하기 |
+| [AGENTS.md로 내 규칙 알려주기](https://airoasting.vercel.app/agents-md-templates.html) | AGENTS.md·CLAUDE.md·MEMORY.md 세 파일로 반복하던 규칙 설명을 대체하는 템플릿 |
 
-**스킬**
-
-| 페이지 | 설명 |
-|--------|------|
-| [AGENTS.md로 내 규칙 알려주기](https://airoasting.vercel.app/agents-md-templates.html) | 프로젝트별 규칙을 저장하는 설정 파일 작성법 |
-| [나만의 Skill 만들기](https://airoasting.vercel.app/skills.html) | 내 스타일을 등록해 한 마디로 결과물 받기 |
-| [스킬·MCP를 플러그인으로 묶기](https://airoasting.vercel.app/code-plugin.html) | 스킬과 MCP를 한 패키지로 묶어 팀에 한 줄 명령으로 배포하기 |
-
-### 5단계. 루프 자동화
+**도구**
 
 | 페이지 | 설명 |
 |--------|------|
-| [루프 엔지니어링](https://airoasting.vercel.app/loop-engineering.html) | 행동하고 결과를 관찰해 조정하기를 목표에 닿을 때까지 반복하는 작업 구조 설계 |
+| [에이전트의 도구란?](https://airoasting.vercel.app/agent-tools.html) | 내장 도구·MCP·커넥터·스킬·플러그인 다섯 가지의 차이와 관계를 한 지도로 |
+| [스킬·MCP를 플러그인으로 묶기](https://airoasting.vercel.app/code-plugin.html) | 스킬과 MCP를 한 폴더로 묶어 팀에 한 줄 명령으로 배포하기 |
+| [MCP 연결 실전](https://airoasting.vercel.app/mcp-examples.html) | 구글 드라이브·카카오톡·DART 공시·법령 검색·Liner·텔레그램 여섯 가지를 Claude에 연결 |
+
+### 4단계. 조합: 멀티 에이전트
+
+| 페이지 | 설명 |
+|--------|------|
+| [멀티 에이전트 소환](https://airoasting.vercel.app/harness-workflows.html) | `/goal`로 목표를 고정하고 큰 작업을 여러 에이전트에 나눠 맡기는 절차 |
+| [하네스 엔지니어링으로 책 쓰기](https://airoasting.vercel.app/harness-book.html) | 기획서 한 장과 명령 네 개, AI 리뷰어 9명의 검수로 책 한 권 분량 초안을 만드는 실전 예제 |
+| [5 Color](https://5color.airoasting.com/) | 수행자 한 명과 비평가 네 명을 색으로 나눠 합격선까지 다시 만드는 협업 방법론(외부 사이트) |
+| [50 에이전트 팀 빌더](https://50agents.airoasting.com/) | 목적 한 줄로 검증된 에이전트 50명 중에서 팀을 꾸리기(외부 사이트) |
+| [25인 자문단](https://council.airoasting.com/) | 25명의 페르소나가 서로 다른 관점에서 토론하는 자문단(외부 사이트) |
+
+### 5단계. 자율: 루프
+
+| 페이지 | 설명 |
+|--------|------|
+| [루프 엔지니어링이란?](https://airoasting.vercel.app/loop-engineering.html) | 목표 조건을 만족할 때까지 AI가 스스로 반복 실행하는 구조 설계 |
 | [Routines 예약 실행](https://airoasting.vercel.app/routines.html) | 정해진 시각에 클라우드에서 무인으로 도는 예약형 에이전트 |
 
-**노트북 밖에서도 이어서 쓰기**
+**예제: 루프로 끝까지 만든 사이트**
+
+| 페이지 | 설명 |
+|--------|------|
+| [AI 정책 카탈로그](https://aipolicy2026.airoasting.com/) | 6·3 지방선거 광역단체장 16명의 AI 공약 108건을 8개 정책 분야로 정리(외부 사이트) |
+| [3대 메가프로젝트](https://mega3.airoasting.com/) | 반도체·피지컬 AI·AI 데이터센터를 정부 원본과 언론 보도 126건으로 교차검증(외부 사이트) |
+| [브리티시 숏헤어 백과사전](https://cat.airoasting.com/) | 초등학교 고학년도 읽을 수 있는 쉬운 말로 쓴 품종 안내서(외부 사이트) |
+
+**스마트폰 앱: 노트북 밖에서도 이어서 쓰기**
 
 | 페이지 | 설명 |
 |--------|------|
@@ -114,32 +114,13 @@
 
 ---
 
-## 실전 예제
-
-| 페이지 | 설명 |
-|--------|------|
-| [MCP 연결 실전](https://airoasting.vercel.app/mcp-examples.html) | 카카오톡·법령·구글 드라이브·DART 공시·텔레그램을 Claude에 연결하는 다섯 가지 MCP 예제 |
-| [AI와 함께 일하는 7단계](https://airoasting.vercel.app/seven-steps.html) | slide_library·casting·5color·korean·council 다섯 스킬을 하나의 워크플로우로 잇는 7단계 방법론 |
-| [하네스 엔지니어링으로 책 쓰기](https://airoasting.vercel.app/harness-book.html) | AI 에이전트 팀으로 책 한 권을 완성하는 실전 가이드 |
-
----
-
 ## 수강생 쇼케이스
 
 | 페이지 | 설명 |
 |--------|------|
-| [시로 쓴 자화상](https://airoasting.vercel.app/showcase-poems.html) | 멀티 페르소나 실습으로 완성한 시 47편, AI 시대 일하는 사람들의 하루 |
-| [스탑워치 쇼케이스](https://airoasting.vercel.app/showcase-stopwatch.html) | 수강생이 직접 만든 스탑워치 42선을 라이브로 임베드한 모음 |
+| [멀티 페르소나로 시 쓰기](https://airoasting.vercel.app/showcase-poems.html) | 수업 첫 실습에서 쓰고 비평하고 다시 쓴 시 47편을 여섯 묶음으로 정리 |
+| [스탑워치 쇼케이스](https://airoasting.vercel.app/showcase-stopwatch.html) | 같은 한 줄 지시에서 출발한 수강생 스탑워치 42종을 라이브로 임베드한 모음 |
 | [스킬 쇼케이스](https://airoasting.vercel.app/showcase-skills.html) | 수강생들이 자기 업무를 Claude 스킬로 만든 실전 자동화 25선 |
-
----
-
-## AX 사례
-
-| 페이지 | 설명 |
-|--------|------|
-| [클로드 코드 해커톤 수상작](https://airoasting.vercel.app/hackathon.html) | 전 세계 클로드 코드 해커톤 우승작 14선을 데모 영상과 함께 정리 |
-| [공공 기관 AX 사례](https://airoasting.vercel.app/ax-public-cases.html) | 정부가 실제로 도입한 AI 서비스 16선을 배경·기능·성과로 정리 |
 
 ---
 
@@ -147,19 +128,10 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [EDA 차트 갤러리 28](https://airoasting.vercel.app/eda-gallery.html) | 데이터 탐색과 분석에 자주 쓰는 차트 유형 정리 |
-| [UI 디자인 트렌드 30](https://airoasting.vercel.app/ui-design.html) | 머터리얼, 뉴모피즘, 글라스모피즘 등 스타일 정리 |
-| [UI 컴포넌트 갤러리 40](https://airoasting.vercel.app/component-gallery.html) | 바이브 코딩에 바로 쓰는 UI 부품 모음 |
-| [SVG 아이콘 갤러리 300](https://airoasting.vercel.app/icon-gallery.html) | 버튼·카드에 바로 붙여 쓰는 라인 아이콘 모음 |
-
----
-
-## 보안·법률
-
-| 페이지 | 설명 |
-|--------|------|
-| [AI와 안전하게 일하는 법](https://airoasting.vercel.app/security-guide.html) | 무엇을 넣지 말지, 무엇을 확인할지. 비즈니스 리더를 위한 AI 협업 보안 5가지 핵심 |
-| [인공지능기본법 한눈에](https://airoasting.vercel.app/ai-basic-law.html) | 2026년 1월 시행된 AI 기본법. 우리 회사가 무엇을 지켜야 하는지 히스토리와 FAQ로 정리 |
+| [EDA 차트 갤러리 28](https://airoasting.vercel.app/eda-gallery.html) | 본격적인 분석에 앞서 분포와 이상치를 확인하는 차트 28가지 |
+| [UI 디자인 트렌드 30](https://airoasting.vercel.app/ui-design.html) | 같은 스탑워치를 서른 가지 스타일로 만들어 나란히 비교 |
+| [UI 컴포넌트 갤러리 40](https://airoasting.vercel.app/component-gallery.html) | 이름만 지정하면 바로 만들어지는 UI 부품 40개 |
+| [SVG 아이콘 300](https://airoasting.vercel.app/icon-gallery.html) | 버튼·카드에 바로 붙여 쓰는 라인 아이콘 300개, 누르면 SVG 코드 복사 |
 
 ---
 
@@ -167,35 +139,66 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [파일 유형 한눈에 보기](https://airoasting.vercel.app/file-types.html) | .md부터 .hwpx까지 자주 만나는 파일 10가지를 AI가 읽고 쓰는 관점으로 비교 |
-| [라이선스 가이드](https://airoasting.vercel.app/license-compare.html) | MIT, Apache, GPL 등 오픈소스 라이선스를 신호등(초록·노랑·빨강)으로 정리 |
+| [파일 유형 한눈에 보기](https://airoasting.vercel.app/file-types.html) | .md는 Claude가 읽는 파일, .html은 Claude가 만드는 파일. 자주 쓰는 여덟 가지를 역할별로 정리 |
+| [라이선스 가이드](https://airoasting.vercel.app/license-compare.html) | MIT부터 AGPL까지 다섯 가지 라이선스를 개방 범위에 따라 비교 |
 | [모르는 용어, 바로 찾기](https://airoasting.vercel.app/glossary.html) | AI 70년을 여섯 장면으로 나눠 핵심 용어 73개를 담은 비즈니스 리더용 사전 |
 
 ---
 
-## 헤르메스 에이전트
+## 부록. 컴퍼니 브레인
+
+| 페이지 | 설명 |
+|--------|------|
+| [컴퍼니 브레인이란](https://airoasting.vercel.app/company-brain.html) | 회사가 아는 것을 AI가 읽는 위키로 바꾸는 구조. 기업 사례, 4역할과 갱신 루프, 파일 구조 |
+| [AI 로스팅 블로그 지식 그래프](https://blog.airoasting.com/insights/graph.html) | 블로그 글 280여 편을 태그로 이은 실제 위키 사례(외부 사이트) |
+| [디지털 방콕 인사이트](https://bangkok.airoasting.com/) | 책 한 권의 개념 200개를 연결 540개로 이은 인터랙티브 지식 지도(외부 사이트) |
+
+---
+
+## 비용·보안·법률
+
+| 페이지 | 설명 |
+|--------|------|
+| [토큰 아껴 쓰는 법](https://airoasting.vercel.app/token-saving.html) | 비용은 대화의 크기와 캐시 적중률로 정해집니다. 캐시가 깨지는 경우 여덟 가지와 증상별 처방 일곱 가지 |
+| [AI와 안전하게 일하는 법](https://airoasting.vercel.app/security-guide.html) | 입력창에 붙여넣기 전에 확인할 다섯 가지와 실제 유출 사고 사례 |
+| [인공지능기본법 한눈에](https://airoasting.vercel.app/ai-basic-law.html) | 2026년 1월 22일 시행된 인공지능기본법. 우리 조직의 의무를 FAQ로 정리 |
+
+---
+
+## AX 사례
+
+| 페이지 | 설명 |
+|--------|------|
+| [클로드 코드 해커톤 수상작 14선](https://airoasting.vercel.app/hackathon.html) | 변호사, 심장내과 의사, 음악가처럼 개발이 본업이 아닌 참가자들이 만든 수상작 |
+| [공공 기관 AX 사례 16선](https://airoasting.vercel.app/ax-public-cases.html) | 정부가 실제로 도입한 AI 서비스 16건을 배경·기능·성과로 정리 |
+| [빅3 컨설팅펌이 제안하는 AX 전략](https://airoasting.vercel.app/ax-consulting-reports.html) | BCG 10-20-70 원칙을 기준으로 2026년 리포트 네 건을 방향성 4개와 실행 5단계로 정리 |
+
+---
+
+## 부록. 에이전트 도구
 
 | 페이지 | 설명 |
 |--------|------|
 | [헤르메스 에이전트](https://airoasting.vercel.app/hermes-agent.html) | 늘 켜 둔 컴퓨터나 빌린 서버에 오픈소스 에이전트를 상주시키고 텔레그램으로 부르기 |
 | [헤르메스 에이전트 사용 사례](https://airoasting.vercel.app/hermes-cases.html) | 슬랙에서 활동하는 헤르메스 에이전트가 실제로 한 일 여덟 가지와 여섯 가지 교훈 |
-| [Orca](https://airoasting.vercel.app/orca.html) | Claude Code와 Codex를 작업마다 다른 워크트리에서 나란히 돌리고 줄 단위로 검토하는 오픈소스 앱 |
+| [Liner Model API](https://airoasting.vercel.app/liner-model-api.html) | 요청마다 처리할 수 있는 모델 중 가장 저렴한 모델을 골라 보내는 API, 소개서 아홉 장 슬라이드 |
+| [Orca](https://airoasting.vercel.app/orca.html) | Claude Code와 Codex를 작업마다 따로 나란히 돌리는 오픈소스 앱 |
 | [Buzz](https://airoasting.vercel.app/buzz.html) | Block이 만든 오픈소스 팀 메신저, 에이전트가 자기 키를 가진 멤버로 채널에 들어와 사람과 함께 일하기 |
 
 ---
 
-## 모델 기준 (2026-09-05)
+## 모델 기준 (2026-10-03)
 
-가이드 전체의 모델 표기는 2026년 9월 1일 출시된 **Claude Fable 5.1**을 최신 기준으로 씁니다. 자세한 벤치마크와 가격 비교는 [5분 오리엔테이션](https://airoasting.vercel.app/orientation.html)에, 요금제별 기본 모델과 `/model`·`/effort` 사용법은 [20단계 체크리스트](https://airoasting.vercel.app/checklist.html)에 있습니다.
+가이드 전체의 모델 표기는 [5분 오리엔테이션](https://airoasting.vercel.app/orientation.html)의 가격표와 출시 타임라인을 정본으로 씁니다. 요금제별 기본 모델과 `/model`·`/effort` 사용법은 [20단계 체크리스트](https://airoasting.vercel.app/checklist.html)에 있습니다.
 
 | 모델 | 출시 | 자리 | API 가격 (100만 토큰 입력/출력) |
 |------|------|------|------|
-| Claude Fable 5.1 | 2026-09-01 | 최신 플래그십. 종합 지능, 실무 지식노동, 에이전틱 코딩 1위. 환각 억제율은 27%로 가장 낮음 | $10 / $50 |
-| Claude Opus 5 | 2026-07-24 | 고난도 추론. Fable 5.1의 절반 단가 | $5 / $25 |
-| Claude Sonnet 5 | 2026-06-30 | 실무 표준. 환각 억제율 61%로 Claude 3종 중 가장 높음 | $2 / $10 (프로모션 특별가를 정가로 확정) |
+| Claude Fable 5.1 | 2026-09-01 | 최신 플래그십. 창작과 고난도 추론 | $10 / $50 |
+| Claude Opus 5.5 | 2026-09-22 | 고난도 추론. Fable 5.1 단가의 40%, Opus 5($5/$25)보다 20% 인하 | $4 / $20 |
+| Claude Sonnet 5.5 | 2026-09-28 | 실무 표준. GPT-6.1 Sol과 같은 단가 | $2 / $10 |
 | Claude Haiku 4.5 | 이전 세대 | 단순 반복 작업과 멀티 에이전트 보조 | $1 / $5 |
 
-직전 플래그십 계보는 Opus 4.8(2026-05-28), Fable 5(2026-06-09), Opus 5(2026-07-24)입니다. 모델 교체가 있을 때 함께 손봐야 하는 곳은 네 군데입니다. `orientation.html`의 벤치마크 표·가격 표·모델 타임라인, `checklist.html`의 `/model`·`/effort` 항목, `ai-levels.html`의 모델 4종 카드, `index.html` 히어로의 최신 모델 표기입니다.
+같은 시기 OpenAI는 GPT-6 Astra(2026-09-03, $10/$50), GPT-6 Sol·Luna(2026-09-22), GPT-6.1 Sol(2026-09-29, $2/$10)을 냈습니다. 모델 교체가 있을 때 함께 손봐야 하는 곳은 네 군데입니다. `orientation.html`의 벤치마크 표·가격 표·모델 타임라인, `checklist.html`의 `/model`·`/effort` 항목, `ai-levels.html`의 모델 카드, `index.html` 히어로의 최신 모델 표기입니다.
 
 ---
 
@@ -213,10 +216,12 @@
 
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 한 주 작업을 정리해 매주 업데이트하고 있습니다.
 
+- **v3.12 · 2026-10-04: 5단계 커리큘럼 재편과 에이전트 도구 3종 신설**
+  커리큘럼을 소환(멀티 페르소나), 연결(바이브 코딩), 계약(하네스), 조합(멀티 에이전트), 자율(루프) 5단계로 재편하고, 확장 프로그램·코워크 페이지와 7단계 방법론처럼 새 구성에 맞지 않는 페이지는 사이트에서 내렸습니다. 부록 '에이전트 도구'에는 Liner Model API, Orca, Buzz 세 페이지를 새로 만들었습니다. 9월 말 출시된 Claude Sonnet 5.5와 GPT-6.1 Sol을 오리엔테이션의 벤치마크 표와 가격표에 반영하고, 멀티 페르소나·멀티 에이전트·GitHub 가이드에는 전체 화면으로 보는 콜라주 슬라이드를 넣었습니다. 스탑워치 쇼케이스는 신작 5종을 추가하고 4종을 내려 42종으로 정리했습니다.
 - **v3.11 · 2026-09-27: 최신 모델 반영과 Cowork 실전 과제 개편**
   Claude Opus 5.5와 GPT-6 Sol·Luna를 반영해 오리엔테이션의 벤치마크 표, 가격표, 출시 타임라인과 메인 페이지의 모델 표기를 갱신했습니다. Claude Cowork 페이지는 9월 16일부터 순차 적용된 채팅·Cowork 통합에 맞춰 비교표, 앱 화면, 자주 묻는 질문을 고쳤습니다. 코워크 실전 과제에는 Claude Cowork와 Codex를 바꿔 보는 스위치를 달고, 시작 전 준비와 과제별 실행 순서를 두 앱 기준으로 따로 적었습니다.
 - **v3.10 · 2026-09-20: 컴퍼니 브레인 개편과 헤르메스 사용 사례 신설**
-  컴퍼니 브레인은 세 가지 구성 요소와 DATA 통과 조건 섹션을 새로 짜고, LLM 위키 도식에서 Semantic Layer를 지식 베이스 위로 올렸습니다. 슬랙에서 활동하는 헤르메스 에이전트가 실제로 한 일 여덟 가지와 여섯 가지 교훈을 정리한 사용 사례 페이지를 새로 만들었습니다. 헤르메스 에이전트 페이지는 5단계에서 부록으로 옮겨 사용 사례 페이지와 한 섹션에 모았습니다.
+  컴퍼니 브레인은 세 가지 구성 요소와 DATA 통과 조건 섹션을 새로 만들고, LLM 위키 도식에서 Semantic Layer를 지식 베이스 위로 올렸습니다. 슬랙에서 활동하는 헤르메스 에이전트가 실제로 한 일 여덟 가지와 여섯 가지 교훈을 정리한 사용 사례 페이지를 새로 만들었습니다. 헤르메스 에이전트 페이지는 5단계에서 부록으로 옮겨 사용 사례 페이지와 한 섹션에 모았습니다.
 - **v3.9 · 2026-09-13: 1단계 기본기 개편**
   1단계 기본기를 프롬프트 잘 쓰는 법, 멀티 페르소나 토론, 프로젝트 만들기 순서로 다시 묶었습니다. 멀티 페르소나는 흩어져 있던 실습을 하나로 합치고 요청문을 짧게 줄여 처음 쓰는 사람도 따라올 수 있게 했습니다. AI 활용 능력 페이지는 기본 작성법을 앞에 두고 여러 단계로 이어지는 일을 맡기는 방법을 뒤에 놓았으며, 겹치던 설명은 덜어냈습니다.
 - **v3.8 · 2026-09-06: 최신 모델 반영과 LLM Wiki 실습 개편**
