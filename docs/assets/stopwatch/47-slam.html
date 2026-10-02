@@ -11,7 +11,7 @@
   html,body{height:100%;overflow:hidden}
   :root{--org:#F5761E;--org-dk:#D9520E;--ink:#2A1A10;--paper:#FFF9EE;--red:#D42A1E;--yel:#FFD23A;--led:#FF4A3A;}
   body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;color:var(--ink);
-    position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:8px 8px 8px;word-break:keep-all;
+    position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 8px 8px;word-break:keep-all;
     background:var(--org)}
   /* 방사선 + 망점. 배경층을 따로 잘라 스크롤 영역을 늘리지 않는다 */
   .bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
@@ -20,22 +20,34 @@
   .dots{position:absolute;inset:0;opacity:.35;
     background:radial-gradient(circle,rgba(255,255,255,.55) 1px,transparent 1.4px) 0 0/9px 9px}
 
-  .top{position:relative;text-align:center;margin-bottom:auto;padding-top:6px}
-  h1{font-size:23px;font-weight:900;letter-spacing:.5px;line-height:1;color:#FFF;font-style:italic;
-    text-shadow:2px 2px 0 var(--ink),-1px -1px 0 var(--ink),1px -1px 0 var(--ink),-1px 1px 0 var(--ink),4px 4px 0 rgba(42,26,16,.35)}
-  .pill{display:inline-block;margin-top:7px;padding:4px 12px;border-radius:999px;background:var(--red);color:#FFF;
-    font-size:10.5px;font-weight:800;border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink)}
-  .quote{margin-top:6px;font-size:9.5px;font-weight:700;color:#4A2A14;letter-spacing:.2px}
-
-  /* 선수와 공 */
-  .stage{position:relative;width:150px;height:88px;margin:1px auto 0}
-  .stage svg{position:absolute;bottom:0;left:0;width:100%;height:100%;overflow:visible}
-  .ball{transform-origin:118px 16px}
+  /* ── 만화 한 컷: 집중선 배경, 굵은 먹선, 망점 그림자 ── */
+  .panel{position:relative;width:min(304px,100%);height:178px;margin-bottom:12px;overflow:hidden;
+    background:#FFF;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink)}
+  .speed{position:absolute;inset:-60%;
+    background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(42,26,16,.85) 0deg .55deg,transparent .55deg 4.2deg);
+    -webkit-mask:radial-gradient(circle at 50% 50%,transparent 24%,#000 46%);mask:radial-gradient(circle at 50% 50%,transparent 24%,#000 46%)}
+  body.go .speed{animation:spin 14s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .hero{position:absolute;left:50%;bottom:-22px;width:207px;height:184px;margin-left:-103px}
+  .hero svg{display:block;width:100%;height:100%;overflow:visible}
+  .ball{transform-box:view-box;transform-origin:88px 14px}
   body.go .ball{animation:shoot 1.1s cubic-bezier(.35,0,.6,1) infinite alternate}
-  @keyframes shoot{from{transform:translate(0,0) rotate(0)}to{transform:translate(16px,-4px) rotate(220deg)}}
-  .arm{transform-origin:82px 39px}
-  body.go .arm{animation:flick 1.1s ease-in-out infinite alternate}
-  @keyframes flick{to{transform:rotate(9deg)}}
+  @keyframes shoot{from{transform:translate(0,0) rotate(0)}to{transform:translate(10px,-10px) rotate(200deg)}}
+  .armR{transform-box:view-box;transform-origin:64px 112px}
+  body.go .armR{animation:push 1.1s ease-in-out infinite alternate}
+  @keyframes push{to{transform:rotate(4deg) translateY(-3px)}}
+  .sweat{opacity:0;transition:opacity .3s}
+  body.go .sweat{opacity:1}
+  .bubble{position:absolute;right:8px;top:10px;padding:8px 10px;border-radius:50%;background:#FFF;border:2px solid var(--ink);
+    font-size:11px;font-weight:900;line-height:1.25;text-align:center;color:var(--ink);z-index:2}
+  .bubble::after{content:"";position:absolute;left:8px;bottom:-9px;width:12px;height:12px;background:#FFF;
+    border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:skewX(30deg) rotate(30deg)}
+  .cap{position:absolute;left:0;bottom:0;padding:4px 8px 3px;background:var(--ink);color:#FFF;font-size:10px;font-weight:900;
+    font-style:italic;letter-spacing:.6px;z-index:2}
+  .sfx{position:absolute;left:10px;top:14px;font-size:24px;font-weight:900;font-style:italic;color:#FFF;z-index:2;
+    -webkit-text-stroke:2px var(--ink);paint-order:stroke fill;transform:rotate(-12deg);opacity:0;transition:opacity .2s}
+  body.go .sfx{opacity:1;animation:pop 1.1s ease-in-out infinite alternate}
+  @keyframes pop{from{transform:rotate(-12deg) scale(.9)}to{transform:rotate(-12deg) scale(1.12)}}
 
   /* 스코어보드 */
   .board{position:relative;width:min(304px,100%);padding:12px 12px 12px;border-radius:18px;background:var(--paper);
@@ -53,75 +65,131 @@
   #b1{background:var(--yel)}#b1.on{background:var(--red);color:#FFF}#b2{background:#BFE3F5}
   button:disabled{opacity:.42;cursor:default;box-shadow:2px 2px 0 var(--ink)}
   button:focus-visible{outline:3px solid #2A76D2;outline-offset:2px}
-  .lapline{height:14px;margin-top:9px;padding-top:6px;border-top:2px dashed var(--ink);font-size:10.5px;font-weight:700;color:#5A3A22;
+  .lapline{height:22px;line-height:14px;margin-top:9px;padding-top:6px;border-top:2px dashed var(--ink);font-size:10.5px;font-weight:700;color:#5A3A22;
     font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
   .lapline b{color:var(--ink)}.lapline em{font-style:normal;color:var(--red);margin-right:6px}
 
-  @media (prefers-reduced-motion:reduce){.ball,.arm{animation:none !important}}
+  @media (prefers-reduced-motion:reduce){.ball,.armR,.speed,.sfx{animation:none !important}}
 </style>
 </head>
 <body>
   <div class="bg" aria-hidden="true"><div class="rays"></div><div class="dots"></div></div>
 
-  <div class="top">
-    <h1>SLAM STOPWATCH</h1>
-    <div class="pill">포기를 모르는 남자의 타이머</div>
-    <div class="quote">"왼손은 거들 뿐" &middot; 슬램덩크</div>
+  <div class="panel" aria-hidden="true">
+    <div class="speed"></div>
+    <div class="sfx">슉!</div>
+    <div class="bubble">왼손은<br>거들 뿐…</div>
+    <div class="cap">SLAM STOPWATCH</div>
+    <div class="hero">
+      <!-- 강백호(산왕전): 붉은 까까머리, 긴 얼굴, 굵은 눈썹, 북산 10번.  오른손으로 공을 밀어 올리고 왼손은 옆에서 거든다 -->
+      <svg viewBox="0 -6 200 182" fill="none" stroke="#2A1A10" stroke-linejoin="round" stroke-linecap="round">
+        <defs>
+          <radialGradient id="hairG" cx=".5" cy=".2" r=".85"><stop offset="0" stop-color="#F0553A"/><stop offset=".6" stop-color="#D2301B"/><stop offset="1" stop-color="#A82312"/></radialGradient>
+          <pattern id="tone" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <circle cx="1.6" cy="1.6" r=".75" fill="#2A1A10"/>
+          </pattern>
+          <clipPath id="faceClip2"><path d="M84.2 44C83.4 58 84 71 86 78.6C88.6 86.4 94 92.4 100 94.4C106 92.4 111.4 86.4 114 78.6C116 71 116.6 58 115.8 44Z"/></clipPath>
+        </defs>
 
-    <div class="stage" aria-hidden="true">
-      <!-- 강백호: 붉은 짧은 머리, 굵은 눈썹, 씩 웃는 입, 북산 10번, "왼손은 거들 뿐" 슛 자세 -->
-      <svg viewBox="0 0 150 92">
-        <ellipse cx="70" cy="89" rx="40" ry="3.6" fill="rgba(42,26,16,.28)"/>
-        <!-- 다리·양말·신발 -->
-        <path d="M61 70 L57 84" stroke="#2A1A10" stroke-width="8.5" stroke-linecap="round"/>
-        <path d="M79 70 L83 84" stroke="#2A1A10" stroke-width="8.5" stroke-linecap="round"/>
-        <path d="M61 70 L57 84" stroke="#F3C39A" stroke-width="5.6" stroke-linecap="round"/>
-        <path d="M79 70 L83 84" stroke="#F3C39A" stroke-width="5.6" stroke-linecap="round"/>
-        <path d="M58 80 L57 84 M82 80 L83 84" stroke="#FFF" stroke-width="5.6" stroke-linecap="round"/>
-        <path d="M49 88 q4 -5 10 -3 l2 3 z" fill="#D42A1E" stroke="#2A1A10" stroke-width="1.8" stroke-linejoin="round"/>
-        <path d="M91 88 q-4 -5 -10 -3 l-2 3 z" fill="#D42A1E" stroke="#2A1A10" stroke-width="1.8" stroke-linejoin="round"/>
-        <path d="M50 87 h10 M80 87 h10" stroke="#FFF" stroke-width="1.6"/>
-        <!-- 반바지 -->
-        <path d="M55 60 h30 l2 12 h-13 l-4 -5 l-4 5 h-13 z" fill="#D42A1E" stroke="#2A1A10" stroke-width="2.2" stroke-linejoin="round"/>
-        <path d="M56 62 l1 9 M84 62 l-1 9" stroke="#FFF" stroke-width="1.4"/>
+        <!-- 몸통 피부(어깨, 쇄골) -->
+        <path d="M88 92C76 97 62 99 56 110C53 119 58 129 64 134L66 180H134L136 134C142 129 147 119 144 110C138 99 124 97 112 92Z" fill="#F6D2B0" stroke-width="2.2"/>
+        <path d="M60 120C62 128 64 132 66 134L66 150C62 140 58 130 60 120Z" fill="url(#tone)" stroke="none" opacity=".55"/>
+        <path d="M84 104C80 103 74 104 70 106M116 104C120 103 126 104 130 106" stroke-width="1.1"/>
+
         <!-- 유니폼 -->
-        <path d="M56 36 l6 -3 h16 l6 3 v26 h-28 z" fill="#D42A1E" stroke="#2A1A10" stroke-width="2.2" stroke-linejoin="round"/>
-        <path d="M57 37 v24 M83 37 v24" stroke="#FFF" stroke-width="1.5"/>
-        <path d="M62 34 q8 5 16 0" fill="none" stroke="#FFF" stroke-width="1.5"/>
-        <text x="70" y="44.5" font-family="Pretendard,Arial,sans-serif" font-size="4.6" font-weight="900" letter-spacing=".3" text-anchor="middle" fill="#FFF">SHOHOKU</text>
-        <text x="70" y="58" font-family="Pretendard,Arial,sans-serif" font-size="12.5" font-weight="900" text-anchor="middle" fill="#FFF">10</text>
-        <!-- 왼팔: 거드는 손 -->
-        <path d="M58 39 L46 30 L44 22" fill="none" stroke="#2A1A10" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M58 39 L46 30 L44 22" fill="none" stroke="#F3C39A" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="44" cy="20" r="3.3" fill="#F3C39A" stroke="#2A1A10" stroke-width="1.5"/>
-        <!-- 오른팔: 슛 팔로스루 -->
-        <g class="arm">
-          <path d="M82 39 L92 24 L100 18" fill="none" stroke="#2A1A10" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M82 39 L92 24 L100 18" fill="none" stroke="#F3C39A" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M100 18 l4 -4 M100 18 l5 -1 M100 18 l4 2" stroke="#F3C39A" stroke-width="2.6" stroke-linecap="round"/>
-          <path d="M100 18 l4 -4 M100 18 l5 -1 M100 18 l4 2" stroke="#2A1A10" stroke-width="4" stroke-linecap="round" opacity="0" />
-        </g>
+        <path d="M68 112C78 104 86 101 90 99Q100 116 110 99C114 101 122 104 132 112C130 124 132 146 134 180H66C68 146 70 124 68 112Z" fill="#D42A1E" stroke-width="2.4"/>
+        <path d="M90.5 100.5Q100 117 109.5 100.5" stroke="#FFF" stroke-width="2.6"/>
+        <path d="M69.5 113.5C79 106 86 103 89 101.5M130.5 113.5C121 106 114 103 111 101.5" stroke="#FFF" stroke-width="2.2"/>
+        <path d="M120 116C124 130 125 150 126 176M75 130C78 140 78 156 77 176" stroke="#8E1A10" stroke-width="1.2"/>
+        <path d="M124 120C128 140 129 160 130 180H134C132 150 130 128 128 116Z" fill="url(#tone)" stroke="none" opacity=".6"/>
+        <text x="100" y="127" font-family="Pretendard,Arial,sans-serif" font-size="8.4" font-weight="900" font-style="italic" letter-spacing=".6" text-anchor="middle" fill="#FFF" stroke="#2A1A10" stroke-width="1.6" paint-order="stroke">SHOHOKU</text>
+        <text x="100" y="153" font-family="Pretendard,Arial,sans-serif" font-size="25" font-weight="900" text-anchor="middle" fill="#FFF" stroke="#2A1A10" stroke-width="2.4" paint-order="stroke">10</text>
+
         <!-- 목 -->
-        <path d="M70 30 v5" stroke="#F3C39A" stroke-width="7"/>
-        <!-- 얼굴 -->
-        <path d="M57 18 v6 q0 9 13 9 q13 0 13 -9 v-6 z" fill="#F3C39A" stroke="#2A1A10" stroke-width="2.2" stroke-linejoin="round"/>
-        <!-- 붉은 짧은 머리: 위로 짧게 세운 크루컷, 앞머리가 살짝 앞으로 기운다 -->
-        <path d="M56 20 v-7 q0 -9 13 -9.5 q15 -.5 16 9 v7.5 q-14.5 -3.5 -29 0 z" fill="#D8341E" stroke="#2A1A10" stroke-width="2.2" stroke-linejoin="round"/>
-        <path d="M60 6.5 q5 -3 11 -2 M73 4.6 q6 .4 9 3.4" fill="none" stroke="#2A1A10" stroke-width="1.2" stroke-linecap="round" opacity=".55"/>
-        <path d="M63 12.5 q3.5 -1.6 7 0 M74 12.5 q3 -1.4 6 0" fill="none" stroke="#A8220F" stroke-width="1.4" stroke-linecap="round"/>
-        <path d="M56 20 v5.5 h2.4 v-5 z M84 20 v5.5 h-2.4 v-5 z" fill="#D8341E" stroke="#2A1A10" stroke-width="1.5" stroke-linejoin="round"/>
-        <!-- 굵은 눈썹(안쪽이 내려간 매서운 눈) -->
-        <path d="M60 21 L67 23.5" stroke="#2A1A10" stroke-width="2.6" stroke-linecap="round"/>
-        <path d="M80 21 L73 23.5" stroke="#2A1A10" stroke-width="2.6" stroke-linecap="round"/>
-        <circle cx="64.5" cy="26" r="1.9" fill="#2A1A10"/><circle cx="75.5" cy="26" r="1.9" fill="#2A1A10"/>
-        <circle cx="65.2" cy="25.3" r=".6" fill="#FFF"/><circle cx="76.2" cy="25.3" r=".6" fill="#FFF"/>
-        <path d="M70 27 l-1 3 h2" fill="none" stroke="#2A1A10" stroke-width="1" stroke-linecap="round"/>
-        <!-- 씩 웃는 입 -->
-        <path d="M62.5 30.5 q7.5 7 15 0 q-7.5 2.6 -15 0 z" fill="#FFF" stroke="#2A1A10" stroke-width="1.5" stroke-linejoin="round"/>
-        <!-- 농구공: 슛 궤적 -->
+        <path d="M90.5 84L88.6 99Q100 108 111.4 99L109.5 84Z" fill="#F6D2B0" stroke-width="2"/>
+        <path d="M99.4 94.6Q100.6 96.4 99.8 98" stroke-width=".9"/>
+        <path d="M90.6 92Q100 99.6 109.4 92L109.6 95Q100 101 90.4 95Z" fill="url(#tone)" stroke="none" opacity=".4"/>
+        <path d="M94.6 95L93 100M105.4 95L107 100" stroke-width=".8"/>
+
+        <!-- 왼팔(화면 오른쪽): 공 옆을 거드는 손 -->
+        <g>
+          <path d="M128 110C136 98 142 86 146 72L158 76C156 92 150 106 142 118Z" fill="#F6D2B0" stroke-width="2.2"/>
+          <path d="M146 72C134 56 120 40 107 24L116 19C129 34 143 52 158 76Z" fill="#F6D2B0" stroke-width="2.2"/>
+          <path d="M150 88C148 98 144 106 140 112M142 64C136 56 130 48 124 42" stroke-width="1.1"/>
+          <path d="M152 82C152 94 148 104 142 116L144 116C150 106 156 94 157 80Z" fill="url(#tone)" stroke="none" opacity=".6"/>
+          <path d="M150 74L154 78" stroke-width="1.3"/>
+          <path d="M102 4C108 2 113 8 113 16C113 23 110 27 105 26C103 20 101 11 102 4Z" fill="#F6D2B0" stroke-width="2"/>
+          <path d="M104 9H111M104 14H112M104 19H111" stroke-width=".9"/>
+        </g>
+
+        <!-- 공 -->
         <g class="ball">
-          <circle cx="118" cy="16" r="11" fill="#F0782A" stroke="#2A1A10" stroke-width="2.2"/>
-          <path d="M107 16 h22 M118 5 v22 M110.2 8.2 q7.8 7.8 0 15.6 M125.8 8.2 q-7.8 7.8 0 15.6" stroke="#2A1A10" stroke-width="1.5" fill="none"/>
+          <circle cx="88" cy="14" r="14" fill="#F0782A" stroke-width="2.4"/>
+          <path d="M74 14H102M88 0V28M78.5 4.5Q89 14 78.5 23.5M97.5 4.5Q87 14 97.5 23.5" stroke-width="1.6"/>
+          <path d="M80 6Q84 3 89 3" stroke="#FFC08A" stroke-width="2"/>
+          <path d="M88 28A14 14 0 0 0 101 19L98 19A11 11 0 0 1 88 25Z" fill="url(#tone)" stroke="none" opacity=".6"/>
+        </g>
+
+        <!-- 오른팔(화면 왼쪽): 공을 밀어 올리는 손 -->
+        <g class="armR">
+          <path d="M58 118C50 104 44 90 44 76L56 72C60 86 66 100 72 110Z" fill="#F6D2B0" stroke-width="2.2"/>
+          <path d="M44 76C52 60 64 46 76 34L86 40C76 52 64 64 56 72Z" fill="#F6D2B0" stroke-width="2.2"/>
+          <path d="M47 92C50 102 54 110 58 116M50 70C58 60 64 54 70 48" stroke-width="1.1"/>
+          <path d="M44 78C44 92 48 104 56 118L58 118C52 104 48 92 47 76Z" fill="url(#tone)" stroke="none" opacity=".6"/>
+          <path d="M48 74L53 72" stroke-width="1.3"/>
+          <path d="M73 34C74 28 81 25 90 26L93 31C89 36 80 39 73 34Z" fill="#F6D2B0" stroke-width="2"/>
+          <path d="M80 27.5L79 31M85 27L85 31" stroke-width=".9"/>
+        </g>
+
+        <!-- 귀 -->
+        <path d="M84.4 61C79.6 58.6 78.2 64.6 79.6 70C80.6 74 82.8 75.6 85.4 74.6" fill="#F6D2B0" stroke-width="1.8"/>
+        <path d="M82 63.6C81.4 66.6 82.2 69.6 83.8 71" stroke-width=".8"/>
+        <path d="M115.6 61C120.4 58.6 121.8 64.6 120.4 70C119.4 74 117.2 75.6 114.6 74.6" fill="#F6D2B0" stroke-width="1.8"/>
+        <path d="M118 63.6C118.6 66.6 117.8 69.6 116.2 71" stroke-width=".8"/>
+        <!-- 얼굴: 긴 얼굴, 각진 턱 -->
+        <path d="M84.2 44C83.4 58 84 71 86 78.6C88.6 86.4 94 92.4 100 94.4C106 92.4 111.4 86.4 114 78.6C116 71 116.6 58 115.8 44Z" fill="#F6D2B0" stroke-width="2.3"/>
+        <g clip-path="url(#faceClip2)">
+          <path d="M84 66C85 75 87.4 82 92 87.6L84 90Z" fill="url(#tone)" stroke="none" opacity=".35"/>
+          <path d="M96.6 77.6Q100 80.4 103.6 77.6L103.4 79.4Q100 81.6 96.8 79.4Z" fill="url(#tone)" stroke="none" opacity=".8"/>
+        </g>
+        <path d="M110.6 74.6C110.2 78 108.8 81 107 83" stroke-width=".8" opacity=".7"/>
+        <!-- 눈썹: 굵고 곧게 뻗다가 미간으로 내려앉는다 -->
+        <path d="M85.4 59.8C89 57.8 94 58.2 98 61L97.4 62.8C93.6 60.8 89.4 60.6 86 61.8Z" fill="#2A1A10" stroke-width=".8"/>
+        <path d="M114.6 59.8C111 57.8 106 58.2 102 61L102.6 62.8C106.4 60.8 110.6 60.6 114 61.8Z" fill="#2A1A10" stroke-width=".8"/>
+        <!-- 눈: 가늘고 집중한 눈 -->
+        <path d="M87.6 64.4Q92 63 96.4 64.6" stroke-width=".8" opacity=".7"/>
+        <path d="M112.4 64.4Q108 63 103.6 64.6" stroke-width=".8" opacity=".7"/>
+        <circle cx="92.6" cy="67.6" r="1.9" fill="#2A1A10" stroke="none"/><circle cx="107.4" cy="67.6" r="1.9" fill="#2A1A10" stroke="none"/>
+        <circle cx="93.1" cy="67" r=".55" fill="#FFF" stroke="none"/><circle cx="107.9" cy="67" r=".55" fill="#FFF" stroke="none"/>
+        <path d="M86.6 67Q91.6 64.6 97.2 66.4" stroke-width="2.3"/>
+        <path d="M113.4 67Q108.4 64.6 102.8 66.4" stroke-width="2.3"/>
+        <path d="M88.6 69.6Q92.4 70.4 96 69.4" stroke-width=".8"/><path d="M111.4 69.6Q107.6 70.4 104 69.4" stroke-width=".8"/>
+        <!-- 코: 콧대와 콧망울 -->
+        <path d="M101.4 63.6C101.8 67.6 102.4 71.4 103.4 74.6" stroke-width="1"/>
+        <path d="M97 74.8Q95.8 76.6 97.8 77.2M103 74.8Q104.2 76.6 102.2 77.2" stroke-width="1.1"/>
+        <path d="M98.4 77.4Q100 78.2 101.6 77.4" stroke-width="1.1"/>
+        <path d="M101.8 66L103.8 74.6L102.4 74.6Z" fill="url(#tone)" stroke="none" opacity=".7"/>
+        <!-- 입: 꽉 다문 입술 -->
+        <path d="M94 83.6Q97 82.6 100 83.2Q103 82.6 106 83.6" stroke-width="1.5"/>
+        <path d="M97.4 86.2Q100 87 102.6 86.2" stroke-width=".9"/>
+        <path d="M98.2 90.8Q100 91.8 101.8 90.8" stroke-width=".8"/>
+        <!-- 붉은 까까머리: 둥근 두상을 따라 짧게 깎은 머리 -->
+        <path d="M81.4 64C78.6 46 86 31.6 100 31C114 31.6 121.4 46 118.6 64C117.8 59.8 116.8 55.6 115.4 53.4 L115.4 53.9 L114.1 52.1 L112.8 52.9 L111.5 51.2 L110.3 52.1 L109.0 50.5 L107.7 51.5 L106.4 50.0 L105.1 51.1 L103.8 49.6 L102.6 50.8 L101.3 49.4 L100.0 50.7 L98.7 49.4 L97.4 50.8 L96.2 49.6 L94.9 51.1 L93.6 50.0 L92.3 51.5 L91.0 50.5 L89.7 52.1 L88.4 51.2 L87.2 52.9 L85.9 52.1 L84.6 53.9 C83.2 55.6 82.2 59.8 81.4 64Z" fill="url(#hairG)" stroke="none"/>
+        <path d="M81.4 64C78.6 46 86 31.6 100 31C114 31.6 121.4 46 118.6 64" stroke-width="2.2"/>
+        <path d="M84.6 53.9 L85.9 52.1 L87.2 52.9 L88.4 51.2 L89.7 52.1 L91.0 50.5 L92.3 51.5 L93.6 50.0 L94.9 51.1 L96.2 49.6 L97.4 50.8 L98.7 49.4 L100.0 50.7 L101.3 49.4 L102.6 50.8 L103.8 49.6 L105.1 51.1 L106.4 50.0 L107.7 51.5 L109.0 50.5 L110.3 52.1 L111.5 51.2 L112.8 52.9 L114.1 52.1 L115.4 53.9" stroke="#7E160A" stroke-width=".9"/>
+        <g stroke="#FF9E7A" stroke-width=".9" opacity=".75">
+          <path d="M92 36.6L93.4 35.6M97 34.8L98.4 34.2M102 34.6L103.4 34.8M107 35.6L108.2 36.4M89.6 40.2L90.8 39M110.4 40.4L111.4 41.4"/>
+        </g>
+        <g stroke="#8E1A0C" stroke-width=".7" opacity=".7">
+          <path d="M86.4 46L86.9 44.8M90.6 43.6L90.9 42.4M95 42.4L95.2 41.2M100 42V40.8M105 42.4L104.8 41.2M109.4 43.6L109.1 42.4M113.6 46L113.1 44.8"/>
+          <path d="M84 54.6L84.4 53.4M116 54.6L115.6 53.4M84.6 49.6L85 48.4M115.4 49.6L115 48.4"/>
+        </g>
+        <path d="M84.2 57L84.6 64.6M115.8 57L115.4 64.6" stroke="#B82815" stroke-width="1.6"/>
+
+        <!-- 땀방울 -->
+        <g class="sweat">
+          <path d="M124 54Q127 58 125.4 60.4Q122.4 61 122.6 57.8Z" fill="#BFE3F5" stroke-width="1.2"/>
+          <path d="M76 58Q73 62 74.4 64.2Q77.4 64.6 77.2 61.4Z" fill="#BFE3F5" stroke-width="1.2"/>
         </g>
       </svg>
     </div>

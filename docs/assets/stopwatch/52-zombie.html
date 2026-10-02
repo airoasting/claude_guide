@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>좀비 체이스 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧟</text></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background:#060807;display:flex;align-items:center;justify-content:center;color:#C9CFC6;padding:14px;overflow:hidden}
+  .wrap{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:300px}
+
+  /* ── 영화 한 장면 (2.35:1 레터박스) ── */
+  .scene{position:relative;width:100%;height:172px;overflow:hidden;border-radius:3px;
+    background:linear-gradient(180deg,#0F1D1B 0%,#1A2E2A 52%,#0B1311 78%,#050807 100%);
+    box-shadow:0 10px 30px rgba(0,0,0,.6)}
+  .moon{position:absolute;right:30px;top:26px;width:30px;height:30px;border-radius:50%;
+    background:radial-gradient(circle at 40% 40%,#E8EDD8,#B9C2A6 70%);box-shadow:0 0 26px 8px rgba(200,215,180,.22)}
+  .cloud{position:absolute;right:20px;top:36px;width:90px;height:12px;border-radius:10px;background:rgba(10,18,16,.85);filter:blur(2px)}
+
+  /* 스크롤되는 숲과 땅. 시작하면 흐르고, 멈추면 그 자리에 멈춘다 */
+  .trees,.ground{position:absolute;left:0;width:200%;background-repeat:repeat-x;animation:scroll linear infinite;animation-play-state:paused}
+  .trees{bottom:30px;height:110px;opacity:.95;animation-duration:7s;
+    background-size:300px 110px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 110'%3E%3Cg fill='none' stroke='%23081110' stroke-linecap='round'%3E%3Cpath stroke-width='6' d='M30 110V30'/%3E%3Cpath stroke-width='3' d='M30 60l-16-18M30 48l14-16M30 36l-8-14M14 42l-6-8'/%3E%3Cpath stroke-width='5' d='M118 110V44'/%3E%3Cpath stroke-width='2.5' d='M118 70l18-20M118 58l-14-12M136 50l6-10M118 48l4-14'/%3E%3Cpath stroke-width='7' d='M206 110V18'/%3E%3Cpath stroke-width='3' d='M206 52l-20-16M206 40l16-20M186 36l-4-12M206 30l-6-14M222 20l8-6'/%3E%3Cpath stroke-width='4' d='M268 110V56'/%3E%3Cpath stroke-width='2' d='M268 76l-12-10M268 66l10-12'/%3E%3C/g%3E%3C/svg%3E")}
+  .ground{bottom:0;height:34px;animation-duration:2.4s;
+    background:
+      repeating-linear-gradient(90deg,rgba(255,255,255,0) 0 38px,rgba(120,140,120,.08) 38px 40px),
+      linear-gradient(180deg,#0A1210,#030504)}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  .fog{position:absolute;left:-20%;bottom:20px;width:140%;height:50px;
+    background:radial-gradient(ellipse at 30% 60%,rgba(170,190,175,.16),transparent 60%),radial-gradient(ellipse at 75% 50%,rgba(170,190,175,.12),transparent 60%);
+    animation:drift 9s ease-in-out infinite alternate}
+  @keyframes drift{from{transform:translateX(-6%)}to{transform:translateX(6%)}}
+
+  /* 인물들. 좀비가 왼쪽에서 따라오고, 주인공은 오른쪽으로 달아난다.
+     팔다리는 엉덩이·무릎·어깨·팔꿈치 관절마다 따로 꺾인다 */
+  .who{position:absolute;bottom:13px}
+  .who svg{display:block;overflow:visible}
+  .who g{transform-box:view-box}
+  .hero{left:62%;width:50px;height:84px}
+  .z1{left:24%;width:50px;height:84px}
+  .z2{left:4%;width:44px;height:74px;opacity:.8}
+  .back{fill:#0C1614}.front{fill:#020403}
+  .anim,.anim *{animation-play-state:paused !important}
+  .scene.go .anim,.scene.go .anim *{animation-play-state:running !important}
+
+  .hip{transform-origin:28.75px 49px}.knee{transform-origin:28.75px 71px}
+  .sho{transform-origin:30.2px 23px}.elb{transform-origin:30.3px 38.5px}
+  .neck{transform-origin:32px 19px}
+
+  /* 주인공: 0.52초 주기 전력 질주 */
+  .hero .lean{transform:rotate(13deg)}
+  .hero .bob{animation:hBob .26s ease-in-out infinite}
+  @keyframes hBob{0%,100%{transform:translateY(1px)}50%{transform:translateY(-3px)}}
+  .hero .thA,.hero .thB{animation:hTh .52s linear infinite}
+  .hero .shA,.hero .shB{animation:hSh .52s linear infinite}
+  .hero .uaA,.hero .uaB{animation:hUa .52s ease-in-out infinite}
+  .hero .faA,.hero .faB{animation:hFa .52s ease-in-out infinite}
+  .hero .thB,.hero .shB,.hero .uaB,.hero .faB{animation-delay:-.26s}
+  @keyframes hTh{0%{transform:rotate(-44deg)}25%{transform:rotate(-8deg)}50%{transform:rotate(30deg)}70%{transform:rotate(4deg)}100%{transform:rotate(-44deg)}}
+  @keyframes hSh{0%{transform:rotate(6deg)}20%{transform:rotate(16deg)}45%{transform:rotate(26deg)}60%{transform:rotate(80deg)}75%{transform:rotate(115deg)}90%{transform:rotate(55deg)}100%{transform:rotate(6deg)}}
+  @keyframes hUa{0%,100%{transform:rotate(48deg)}50%{transform:rotate(-52deg)}}
+  @keyframes hFa{0%,100%{transform:rotate(-55deg)}50%{transform:rotate(-105deg)}}
+  .hero .neck{transform:rotate(-6deg)}
+
+  /* 좀비: 한쪽 다리를 끌며 비틀거린다 */
+  .zz .lean{transform:rotate(20deg)}
+  .zz .bob{animation:zBob 1.4s ease-in-out infinite;transform-origin:30px 97px}
+  @keyframes zBob{0%,100%{transform:rotate(-2deg) translateY(0)}30%{transform:rotate(3deg) translateY(-1.5px)}55%{transform:rotate(-1deg) translateY(1px)}80%{transform:rotate(4deg) translateY(-1px)}}
+  .zz .thA{animation:zThA 1.4s ease-in-out infinite}
+  .zz .shA{animation:zShA 1.4s ease-in-out infinite}
+  .zz .thB{animation:zThB 1.4s ease-in-out infinite}
+  .zz .shB{transform:rotate(14deg)}
+  @keyframes zThA{0%,100%{transform:rotate(-26deg)}50%{transform:rotate(16deg)}}
+  @keyframes zShA{0%,100%{transform:rotate(6deg)}40%{transform:rotate(12deg)}65%{transform:rotate(40deg)}85%{transform:rotate(22deg)}}
+  @keyframes zThB{0%,100%{transform:rotate(14deg)}50%{transform:rotate(-6deg)}}
+  .zz .uaA{animation:zUa 1.4s ease-in-out infinite}
+  .zz .uaB{animation:zUa 1.4s ease-in-out infinite;animation-delay:-.5s}
+  @keyframes zUa{0%,100%{transform:rotate(-104deg)}50%{transform:rotate(-92deg)}}
+  .zz .faA{transform:rotate(-6deg)}.zz .faB{transform:rotate(12deg)}
+  .zz .neck{animation:zHead 2.1s ease-in-out infinite}
+  @keyframes zHead{0%,100%{transform:rotate(24deg)}40%{transform:rotate(32deg)}70%{transform:rotate(18deg)}}
+  .z2 .bob,.z2 .thA,.z2 .shA,.z2 .thB,.z2 .uaA,.z2 .uaB{animation-duration:1.7s}
+  .z2 .uaB{animation:none;transform:rotate(-12deg)}
+  .z2 .faB{transform:rotate(-4deg)}
+  .zeye{fill:#C01818;animation:eyes 2.6s ease-in-out infinite}
+  @keyframes eyes{0%,100%{opacity:.35}50%{opacity:1}}
+
+  /* 필름 결, 비네트, 심장박동 */
+  .grain{position:absolute;inset:-50%;opacity:.18;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation:grain .5s steps(4) infinite}
+  @keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-8%,4%)}50%{transform:translate(5%,-6%)}75%{transform:translate(-3%,8%)}100%{transform:translate(0,0)}}
+  .vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,transparent 45%,rgba(0,0,0,.75) 100%)}
+  .pulse{position:absolute;inset:0;pointer-events:none;opacity:0;
+    background:radial-gradient(ellipse at 50% 55%,transparent 40%,rgba(150,0,0,.55) 100%)}
+  .scene.go .pulse{animation:beat .75s ease-out infinite}
+  @keyframes beat{0%{opacity:.15}12%{opacity:.85}25%{opacity:.25}38%{opacity:.7}100%{opacity:0}}
+  .scene.go{animation:flicker 4s steps(1) infinite}
+  @keyframes flicker{0%,100%{filter:brightness(1)}46%{filter:brightness(.65)}47%{filter:brightness(1.1)}48%{filter:brightness(.8)}49%{filter:brightness(1)}}
+
+  .bar{position:absolute;left:0;right:0;height:22px;background:#000;z-index:3}
+  .bar.top{top:0}.bar.bot{bottom:0;display:flex;align-items:center;justify-content:center}
+  .sub{font-size:11px;font-weight:600;color:#F1F1E6;letter-spacing:.5px;text-shadow:0 1px 2px #000;transition:opacity .3s}
+  .tag{position:absolute;left:8px;top:5px;font-size:8px;font-weight:800;letter-spacing:2px;color:#7A1A1A;z-index:4}
+  .rec{position:absolute;right:8px;top:5px;font-size:8px;font-weight:800;letter-spacing:1px;color:#6E7B70;z-index:4}
+
+  .time{font-variant-numeric:tabular-nums;font-weight:900;font-size:42px;letter-spacing:2px;color:#D7DCD2;
+    text-shadow:0 0 1px #000,2px 0 0 rgba(170,10,10,.55),-1px 0 0 rgba(40,120,110,.35)}
+  .time .cs{font-size:22px;color:#B3141B}
+  .row{display:flex;gap:9px}
+  button{font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;letter-spacing:1px;
+    padding:12px 0;width:80px;border-radius:4px;border:1px solid #3A1212;box-shadow:0 4px 0 #000,0 6px 12px rgba(0,0,0,.5);transition:transform .07s,opacity .15s}
+  button:active{transform:translateY(3px);box-shadow:0 1px 0 #000}
+  #b1{background:#8E1016;color:#FBE9E9}#b1.run{background:#2A2F2C;color:#E7ECE4;border-color:#4A524C}
+  #b2{background:#1C2321;color:#C9CFC6;border-color:#38423E}#b3{background:#121614;color:#8E978F;border-color:#2C3431}
+  button:disabled{opacity:.45;cursor:default}
+  .lp{font-size:12px;color:#8E978F;font-weight:700;min-height:16px;letter-spacing:.5px}
+  button:focus-visible{outline:2px solid #E33;outline-offset:2px}
+  button:hover:not(:disabled){filter:brightness(1.15)}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="scene" id="fig" aria-hidden="true">
+      <span class="moon"></span><span class="cloud"></span>
+      <div class="trees anim"></div>
+      <div class="fog"></div>
+      <div class="ground anim"></div>
+
+      <!-- 인물은 스크립트가 같은 관절 골격으로 그린다 -->
+      <div class="who zz z2 anim" data-fig="zombie"></div>
+      <div class="who zz z1 anim" data-fig="zombie"></div>
+      <div class="who hero anim" data-fig="hero"></div>
+
+      <div class="grain"></div>
+      <div class="vig"></div>
+      <div class="pulse"></div>
+      <div class="bar top"></div>
+      <div class="bar bot"><span class="sub" id="sub">그것들이 깨어났다…</span></div>
+      <span class="tag">NIGHT OF THE DEAD</span>
+      <span class="rec" id="rec">SCENE 01</span>
+    </div>
+    <div class="time"><span id="t">00:00<span class="cs">.00</span></span></div>
+    <div class="row">
+      <button id="b1">시작</button>
+      <button id="b2" disabled>랩</button>
+      <button id="b3" disabled>리셋</button>
+    </div>
+    <div class="lp" id="lp" aria-live="polite"></div>
+  </div>
+<script>
+/* ── 사람 골격 ──
+   오른쪽을 보는 실루엣. 허벅지 안에 정강이, 위팔 안에 아래팔을 넣어
+   관절이 이어진 채로 꺾이게 한다. 뒤쪽 팔다리는 한 톤 밝게 칠해 깊이를 준다. */
+(function(){
+  var TH='<path d="M24 47C23.5 56 24.5 65 26 72L31.5 72C33 64 33.5 56 33.5 47Z"/>';
+  var SH='<path d="M26 70C24.5 76 25.5 85 27 94L30.6 94C31.2 86 31.8 78 31.5 70Z"/><path d="M26.4 92L26.4 97.6L37 97.6C37 95 34 93.4 31 92Z"/>';
+  var UA='<path d="M27 21C26.5 28 27 33 28.3 39L32.3 39C33 33 33.5 27 33.3 21Z"/>';
+  var FA='<path d="M28.4 37.5C28.6 42 29 46 29.2 50L31.8 50C32 46 32.3 42 32.3 37.5Z"/><ellipse cx="30.5" cy="51.6" rx="2" ry="2.7"/>';
+  var TORSO='<path d="M25 23C26 19.5 35 19 36 23C36.6 30 35.6 40 34 51L23.5 51C23 42 23.5 30 25 23Z"/><rect x="30" y="16" width="4" height="6" rx="1.5"/>';
+  var RAGS='<path d="M23.5 50L24.6 55L26.6 51.5L28.4 56L30.4 51.5L32.4 55.5L34.2 50Z"/>';
+  var HEAD_H='<path d="M28 6C31 2 37 3 38 8C39 11 39.6 13 39 15L37.5 16C37 18 35 19 32 19C29 19 27 16 27 12C27 9 27 8 28 6Z"/><path d="M28 7C25 8 22.5 10.5 21 13.5C24 12.6 26.4 11.6 28.4 10.6Z"/>';
+  var HEAD_Z='<path d="M28 6C31 2 37 3 38 8C39 11 39.6 13 39 15L37.5 16C37 18 35 19 32 19C29 19 27 16 27 12C27 9 27 8 28 6Z"/><path d="M28 6C25.6 9 25.4 14 26.6 18.5L27.6 15.5L28.2 18L29 13Z"/><circle class="zeye" cx="36.2" cy="10" r=".9"/>';
+  function limb(cls,outer,oc,inner,ic,tone){
+    return '<g class="'+tone+'"><g class="'+outer+' '+oc+'">'+cls[0]+'<g class="'+inner+' '+ic+'">'+cls[1]+'</g></g></g>';
+  }
+  function build(kind){
+    var z=kind==='zombie',head=z?HEAD_Z:HEAD_H,torso=TORSO+(z?RAGS:'');
+    var armB=limb([UA,FA],'uaB','sho','faB','elb','back');
+    var armA=limb([UA,FA],'uaA','sho','faA','elb','front');
+    var legB=limb([TH,SH],'thB','hip','shB','knee','back');
+    var legA=limb([TH,SH],'thA','hip','shA','knee','front');
+    return '<svg viewBox="0 0 60 100" width="100%" height="100%">'+
+      '<g class="bob">'+
+        '<g class="lean hip">'+armB+'</g>'+
+        legB+legA+
+        '<g class="lean hip"><g class="front">'+torso+'<g class="neck">'+head+'</g></g>'+armA+'</g>'+
+      '</g></svg>';
+  }
+  var els=document.querySelectorAll('[data-fig]');
+  for(var i=0;i<els.length;i++) els[i].innerHTML=build(els[i].getAttribute('data-fig'));
+})();
+(function(){
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lp=document.getElementById('lp');
+  var fig=document.getElementById('fig'),sub=document.getElementById('sub'),rec=document.getElementById('rec');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(cc).padStart(2,'0')+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
+  function draw(){t.innerHTML=f(el());}
+
+  /* 자막. 장면이 바뀔 때만 한 줄씩 갈아 끼운다 */
+  var runLines=['뛰어. 뒤돌아보지 마.','[거친 숨소리]','놈들이 점점 가까워진다…','저기, 불빛이 보여!'];
+  var lineIx=0;
+  function say(s){sub.style.opacity=0;setTimeout(function(){sub.textContent=s;sub.style.opacity=1;},180);}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);fig.classList.add('go');
+    rec.textContent='● REC';say(runLines[0]);lineIx=0;draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;fig.classList.remove('go');
+    rec.textContent='PAUSE';say('쉿… 숨을 죽여.');draw();ui();}
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;fig.classList.remove('go');
+    rec.textContent='SCENE 01';say('그것들이 깨어났다…');draw();ui();lp.textContent='';}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);
+    lp.textContent='랩 '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');
+    lineIx=(lineIx+1)%runLines.length;say(runLines[lineIx]);}
+  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

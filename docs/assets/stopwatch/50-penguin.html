@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>펭귄 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐧</text></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background:#EAF6FA;display:flex;align-items:center;justify-content:center;
+    color:#1F3B57;padding:14px;overflow:hidden}
+  .wrap{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:300px;position:relative}
+
+  /* ── 극지 풍경: 오로라 하늘, 빙하 능선, 빙산, 눈밭, 내리는 눈 ── */
+  .polar{position:fixed;inset:0;pointer-events:none;overflow:hidden;
+    background:linear-gradient(180deg,#7FB7D4 0%,#A9D3E6 26%,#D8EEF6 46%,#EEF8FB 47%,#F7FCFD 70%,#E3F1F6 100%)}
+  .aurora{position:absolute;left:-20%;width:140%;height:46px;border-radius:50%;filter:blur(14px);opacity:.55;
+    animation:auroraWave 9s ease-in-out infinite alternate}
+  .aurora.a{top:4%;background:linear-gradient(90deg,transparent,rgba(110,235,190,.9),rgba(150,220,255,.7),transparent)}
+  .aurora.b{top:13%;height:30px;opacity:.4;animation-duration:12s;animation-delay:-4s;
+    background:linear-gradient(90deg,transparent,rgba(170,150,255,.6),rgba(110,235,190,.8),transparent)}
+  @keyframes auroraWave{0%{transform:translateX(-6%) skewY(-3deg)}100%{transform:translateX(6%) skewY(3deg)}}
+  .range{position:absolute;left:0;bottom:53%;width:100%;height:78px}
+  .berg{position:absolute;bottom:47%;width:70px;height:28px;margin-bottom:-6px}
+  .berg.l{left:4%}.berg.r{right:2%;width:52px;height:22px}
+  .floe{position:absolute;left:0;right:0;top:47%;height:6px;background:linear-gradient(180deg,#9CCBE0,#CFE8F1)}
+  .snow{position:absolute;top:-8px;width:4px;height:4px;border-radius:50%;background:#fff;opacity:.9;
+    box-shadow:0 0 2px rgba(120,170,200,.6);animation:snowFall linear infinite}
+  @keyframes snowFall{0%{transform:translate(0,0)}50%{transform:translate(10px,190px)}100%{transform:translate(-4px,390px)}}
+
+  /* ── 황제펭귄 (실제 비율과 색) ── */
+  .stage{width:200px;height:182px;position:relative}
+  .peng{position:absolute;left:50%;bottom:8px;width:116px;height:164px;margin-left:-58px;transform-origin:50% 96%}
+  .peng svg{display:block;width:100%;height:100%;overflow:visible}
+  .flipL{transform-box:fill-box;transform-origin:70% 6%}
+  .flipR{transform-box:fill-box;transform-origin:30% 6%}
+  .headG{transform-box:view-box;transform-origin:58px 46px;animation:look 7s ease-in-out infinite}
+  @keyframes look{0%,40%,100%{transform:rotate(0)}48%,62%{transform:rotate(-7deg)}70%{transform:rotate(0)}}
+  .eyeG{transform-box:fill-box;transform-origin:50% 50%;animation:blink 4.4s ease-in-out infinite}
+  @keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+
+  /* 시원한 기운 */
+  .cool{position:absolute;left:50%;top:52px;width:0;height:0;pointer-events:none}
+  .cool i{position:absolute;font-style:normal;font-size:13px;color:#3BB8B0;opacity:0}
+  .stage.go .cool i{animation:coolUp 1.8s ease-out infinite}
+  .cool i:nth-child(1){left:20px;animation-delay:0s}
+  .cool i:nth-child(2){left:38px;animation-delay:.6s;font-size:10px}
+  .cool i:nth-child(3){left:28px;animation-delay:1.2s;font-size:11px}
+  @keyframes coolUp{0%{transform:translateY(16px) scale(.6);opacity:0}25%{opacity:.9}100%{transform:translateY(-34px) scale(1.1);opacity:0}}
+
+  .ice{position:absolute;left:50%;bottom:0;width:190px;height:18px;margin-left:-95px;border-radius:50%;
+    background:radial-gradient(ellipse at 50% 40%,#FFFFFF,#CFEDF1 70%);box-shadow:0 2px 0 #A9DAE1}
+
+  /* 시작하면 실제 펭귄처럼 좌우로 몸을 기울이며 뒤뚱 걷고, 날개를 살짝 벌린다 */
+  .stage.go .peng{animation:waddle .7s ease-in-out infinite}
+  @keyframes waddle{0%,100%{transform:rotate(-5deg) translateY(0)}25%{transform:rotate(0) translateY(-2px)}50%{transform:rotate(5deg) translateY(0)}75%{transform:rotate(0) translateY(-2px)}}
+  .stage.go .flipL{animation:flapL .7s ease-in-out infinite}
+  .stage.go .flipR{animation:flapR .7s ease-in-out infinite}
+  @keyframes flapL{0%,100%{transform:rotate(8deg)}50%{transform:rotate(22deg)}}
+  @keyframes flapR{0%,100%{transform:rotate(-22deg)}50%{transform:rotate(-8deg)}}
+
+  .time{font-variant-numeric:tabular-nums;font-weight:800;font-size:42px;letter-spacing:1px;color:#1D3150}
+  .time .cs{font-size:22px;color:#2FA6A0}
+  .row{display:flex;gap:9px}
+  button{font-family:inherit;font-weight:800;font-size:14px;border:none;cursor:pointer;
+    padding:13px 0;width:80px;border-radius:22px;box-shadow:0 4px 0 rgba(0,0,0,.13),0 6px 10px rgba(0,0,0,.10);transition:transform .07s,opacity .15s}
+  button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.13)}
+  #b1{background:#3BB8B0;color:#08302D}#b1.run{background:#F5A524;color:#3A2405}
+  #b2{background:#FFFFFF;color:#1D3150}#b3{background:#A9C3CF;color:#1D3150}
+  button:disabled{opacity:.55;cursor:default}
+  .lp{font-size:12px;color:#4E7891;font-weight:700;min-height:16px}
+  button:focus-visible{outline:3px solid #1D3150;outline-offset:2px}
+  button:hover:not(:disabled){filter:brightness(1.06)}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+</style>
+</head>
+<body>
+  <div class="polar" id="polar" aria-hidden="true">
+    <span class="aurora a"></span><span class="aurora b"></span>
+    <svg class="range" viewBox="0 0 300 78" preserveAspectRatio="none">
+      <polygon points="0,78 0,46 26,30 48,40 76,14 102,36 130,22 158,42 186,10 214,34 240,24 266,40 300,28 300,78" fill="#C5DFEC"/>
+      <polygon points="0,78 0,58 34,44 60,54 92,36 120,56 150,46 176,58 206,40 236,56 262,48 300,58 300,78" fill="#F4FAFC"/>
+      <polygon points="92,36 104,48 96,56 120,56" fill="#D2E7F0"/>
+      <polygon points="206,40 218,52 210,58 236,56" fill="#D2E7F0"/>
+    </svg>
+    <span class="floe"></span>
+    <svg class="berg l" viewBox="0 0 70 28"><polygon points="0,28 10,12 22,16 34,2 48,14 60,10 70,28" fill="#FFFFFF"/><polygon points="34,2 48,14 44,28 30,28" fill="#CFE6F0"/></svg>
+    <svg class="berg r" viewBox="0 0 52 22"><polygon points="0,22 8,10 20,4 32,12 44,8 52,22" fill="#FFFFFF"/><polygon points="20,4 32,12 30,22 18,22" fill="#CFE6F0"/></svg>
+  </div>
+  <div class="wrap">
+    <div class="stage" id="fig" aria-hidden="true">
+      <span class="ice"></span>
+      <div class="peng">
+        <svg viewBox="0 0 116 164">
+          <defs>
+            <linearGradient id="back" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#151B24"/><stop offset=".55" stop-color="#3A4655"/><stop offset="1" stop-color="#1A212B"/>
+            </linearGradient>
+            <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FCE7A8"/><stop offset=".22" stop-color="#FFF8E4"/><stop offset=".6" stop-color="#F7F8F4"/><stop offset="1" stop-color="#D8DEE2"/>
+            </linearGradient>
+            <radialGradient id="bellyShade" cx=".35" cy=".45" r=".7">
+              <stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#5A6A78" stop-opacity=".35"/>
+            </radialGradient>
+            <linearGradient id="ear" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#F7B02E"/><stop offset=".6" stop-color="#FFD866"/><stop offset="1" stop-color="#FFE9A6" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="bill" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#F28A3A"/><stop offset="1" stop-color="#F7A54A"/>
+            </linearGradient>
+          </defs>
+          <!-- 그림자 -->
+          <ellipse cx="58" cy="158" rx="40" ry="5" fill="#8FC3CC" opacity=".55"/>
+          <!-- 발 (황제펭귄은 검은 발) -->
+          <path d="M38 152c-6 2-9 5-6 7 4 1 14 1 20-1 2-3-1-6-6-7z" fill="#1E2228"/>
+          <path d="M72 151c-4 1-7 4-6 7 6 2 16 2 20 0 2-3-2-5-6-7z" fill="#1E2228"/>
+          <!-- 왼쪽 날개 -->
+          <path class="flipL" d="M30 64c-9 14-14 36-12 58 1 8 4 10 7 6 4-10 7-30 11-50z" fill="#1B222C"/>
+          <!-- 등과 몸통 실루엣 -->
+          <path d="M58 30C42 30 34 50 31 74c-4 30-2 58 10 74 9 10 25 10 34 0 12-16 14-44 10-74C82 50 74 30 58 30z" fill="url(#back)"/>
+          <!-- 배 -->
+          <path d="M45 50c-6 16-9 42-8 66 1 24 9 38 21 38s20-12 21-34c1-26-3-52-11-68-6-6-17-7-23-2z" fill="url(#belly)"/>
+          <path d="M45 50c-6 16-9 42-8 66 1 24 9 38 21 38s20-12 21-34c1-26-3-52-11-68-6-6-17-7-23-2z" fill="url(#bellyShade)"/>
+          <!-- 오른쪽 날개 -->
+          <path class="flipR" d="M86 64c9 14 14 36 12 58-1 8-4 10-7 6-4-10-7-30-11-50z" fill="#1B222C"/>
+          <!-- 머리 -->
+          <g class="headG">
+            <path d="M58 10c-12 0-20 9-20 21 0 8 3 14 8 19 4 3 14 4 20 0 6-5 9-12 9-20 0-12-6-20-17-20z" fill="#0E1218"/>
+            <!-- 귀 옆 노란 무늬, 목 아래로 번진다 -->
+            <path d="M66 26c6 3 9 10 7 18-2 6-6 10-11 12 3-6 4-12 3-18-1-5 0-9 1-12z" fill="url(#ear)"/>
+            <!-- 길고 살짝 휜 부리, 아래 부리에 주황 줄 -->
+            <path d="M40 27c-7 2-13 6-19 11 7-1 14-3 21-4 2-2 2-5-2-7z" fill="#15191F"/>
+            <path d="M24 37c6-1 12-2 18-3l1 2c-6 1-13 2-19 1z" fill="url(#bill)"/>
+            <g class="eyeG"><circle cx="47" cy="24" r="1.9" fill="#05070A"/><circle cx="47.6" cy="23.4" r=".6" fill="#fff" opacity=".8"/></g>
+          </g>
+        </svg>
+      </div>
+      <div class="cool"><i>❄</i><i>✦</i><i>❄</i></div>
+    </div>
+    <div class="time"><span id="t">00:00<span class="cs">.00</span></span></div>
+    <div class="row">
+      <button id="b1">시작</button>
+      <button id="b2" disabled>랩</button>
+      <button id="b3" disabled>리셋</button>
+    </div>
+    <div class="lp" id="lp" aria-live="polite"></div>
+  </div>
+<script>
+(function(){
+  /* 눈송이를 흩뿌린다 */
+  var polar=document.getElementById('polar');
+  for(var i=0;i<28;i++){var f=document.createElement('span');f.className='snow';
+    var z=1.5+Math.random()*3;f.style.width=f.style.height=z+'px';
+    f.style.left=(Math.random()*100)+'%';f.style.animationDuration=(6+Math.random()*6)+'s';
+    f.style.animationDelay=(-Math.random()*12)+'s';polar.appendChild(f);}
+})();
+(function(){
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lp=document.getElementById('lp');
+  var fig=document.getElementById('fig');
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(cc).padStart(2,'0')+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
+    return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
+  function draw(){t.innerHTML=f(el());}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);fig.classList.add('go');draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;fig.classList.remove('go');draw();ui();}
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;fig.classList.remove('go');draw();ui();lp.textContent='';}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);lp.textContent='랩 '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');}
+  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  draw();ui();
+})();
+</script>
+</body>
+</html>

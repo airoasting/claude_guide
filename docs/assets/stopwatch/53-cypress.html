@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>사이프러스 나무 아래에서 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%235E95C4'/><rect y='62' width='100' height='38' fill='%23DDB04A'/><path d='M62 100C54 76 60 40 70 8C80 40 86 76 78 100Z' fill='%231F3B2A'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    color:#FBF3DE;word-break:keep-all;
+    display:flex;align-items:center;justify-content:center;padding:11px;
+    background:radial-gradient(115% 90% at 50% 30%,#2C4A5E 0%,#1C3242 60%,#111F2A 100%)}
+
+  /* 금빛 액자 */
+  .frame{width:100%;max-width:306px;border-radius:6px;overflow:hidden;padding:5px;
+    background:linear-gradient(135deg,#C9A24A,#8A6A24 40%,#E4C46E 60%,#8A6A24);
+    box-shadow:0 18px 40px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,240,190,.4)}
+  .art{display:block;width:100%;height:auto;background:#7FB3D5;border-radius:2px}
+
+  /* 구름의 소용돌이 붓결이 흐른다 */
+  .flow{stroke-dasharray:36 260;animation:flow 12s linear infinite}
+  .flow.b{animation-duration:16s;animation-delay:-5s}
+  .flow.c{animation-duration:20s;animation-delay:-11s}
+  body.go .flow{animation-duration:4s}
+  body.go .flow.b{animation-duration:5.4s}
+  body.go .flow.c{animation-duration:6.6s}
+  @keyframes flow{to{stroke-dashoffset:-296}}
+
+  /* 사이프러스는 불꽃처럼 일렁이고, 밀밭은 바람에 눕는다 */
+  #cyp{transform-box:fill-box;transform-origin:50% 100%;animation:flame 6s ease-in-out infinite}
+  body.go #cyp{animation-duration:2.4s}
+  @keyframes flame{0%,100%{transform:skewX(0)}50%{transform:skewX(-2.6deg)}}
+  #wheat{transform-box:fill-box;transform-origin:50% 100%;animation:sway 4.6s ease-in-out infinite}
+  body.go #wheat{animation-duration:1.8s}
+  @keyframes sway{0%,100%{transform:skewX(0)}50%{transform:skewX(-6deg)}}
+
+  /* ── 조작부 ── */
+  .bar{background:linear-gradient(180deg,#24384A 0%,#18283A 100%);padding:13px 13px 12px;text-align:center;margin-top:5px;border-radius:2px}
+  .time{font-size:26px;font-weight:800;letter-spacing:.3px;line-height:1.1;white-space:nowrap;
+    color:#FFFFFF;font-variant-numeric:tabular-nums;text-shadow:0 0 16px rgba(229,190,90,.3)}
+  .time .cs{font-size:14px;font-weight:700;color:#E8C25A;text-shadow:none}
+
+  .row{display:flex;gap:8px;justify-content:center;margin-top:11px}
+  button{font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;
+    flex:1 1 0;min-width:0;max-width:88px;height:32px;border:0;border-radius:8px;color:#FFFFFF;
+    transition:filter .18s,opacity .18s,transform .12s}
+  button:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+  button:active:not(:disabled){transform:translateY(0)}
+  button:disabled{opacity:.36;cursor:default}
+  button:focus-visible{outline:2px solid #F2D06A;outline-offset:3px}
+  #b1{background:#D9A93A;color:#2A1C06}
+  #b2{background:#3F7FB0}
+  #b3{background:#2F5A3A}
+
+  .lapline{margin-top:9px;min-height:12px;font-size:10px;font-weight:700;color:rgba(232,194,90,.78);
+    font-variant-numeric:tabular-nums}
+
+  @media (max-height:326px){
+    .time{font-size:21px}
+    .time .cs{font-size:12px}
+    .bar{padding:9px 11px 10px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .flow,#cyp,#wheat{animation:none !important}
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <svg class="art" id="art" viewBox="0 0 320 190" aria-hidden="true">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3B78B0"/>
+          <stop offset="55%" stop-color="#78AECF"/>
+          <stop offset="100%" stop-color="#B4D3DC"/>
+        </linearGradient>
+        <linearGradient id="field" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#E6BE4C"/><stop offset="100%" stop-color="#C38A28"/></linearGradient>
+        <linearGradient id="cypG" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#16291D"/><stop offset="55%" stop-color="#244A30"/><stop offset="100%" stop-color="#14261B"/></linearGradient>
+        <!-- 구름 소용돌이 -->
+        <path id="c1" d="M40,58 C44,34 80,26 102,40 C120,52 112,74 94,72 C80,71 80,56 92,56"/>
+        <path id="c2" d="M112,46 C126,24 164,22 178,42 C190,60 172,76 156,68 C144,62 150,48 162,52"/>
+        <path id="c3" d="M176,30 C192,14 222,18 228,36 C232,50 216,58 206,50"/>
+        <path id="c4" d="M268,40 C276,22 304,22 312,40 C318,54 300,62 292,52"/>
+        <path id="w1" d="M-6,82 C34,70 70,92 118,80 C164,68 200,90 250,78 C282,70 306,84 328,76"/>
+        <path id="w2" d="M-6,22 C30,10 66,30 108,18 C148,8 196,28 240,16 C276,8 300,22 328,14"/>
+      </defs>
+
+      <rect width="320" height="190" fill="url(#sky)"/>
+      <!-- 하늘의 짧은 붓자국 (스크립트가 채운다) -->
+      <g id="skyStrokes" fill="none" stroke-linecap="round"></g>
+
+      <!-- 구름: 굵은 크림색 덩어리 위에 흐르는 흰 붓결 -->
+      <g fill="#EEF0E6" opacity=".92">
+        <ellipse cx="78" cy="54" rx="38" ry="20"/><ellipse cx="148" cy="48" rx="36" ry="21"/>
+        <ellipse cx="204" cy="36" rx="26" ry="15"/><ellipse cx="292" cy="42" rx="24" ry="14"/>
+        <ellipse cx="114" cy="62" rx="22" ry="10"/>
+      </g>
+      <g fill="none" stroke-linecap="round">
+        <use href="#c1" stroke="#C9D8DE" stroke-width="5" opacity=".9"/>
+        <use href="#c2" stroke="#C9D8DE" stroke-width="5" opacity=".9"/>
+        <use href="#c3" stroke="#C9D8DE" stroke-width="4" opacity=".85"/>
+        <use href="#c4" stroke="#C9D8DE" stroke-width="4" opacity=".85"/>
+        <use href="#w1" stroke="#A9CDE0" stroke-width="3.4" opacity=".55"/>
+        <use href="#w2" stroke="#5A93C4" stroke-width="3.4" opacity=".5"/>
+        <use class="flow" href="#c1" stroke="#FFFFFF" stroke-width="2.8"/>
+        <use class="flow b" href="#c2" stroke="#FFFFFF" stroke-width="2.8"/>
+        <use class="flow c" href="#c3" stroke="#FFFDF0" stroke-width="2.4"/>
+        <use class="flow" href="#c4" stroke="#FFFDF0" stroke-width="2.4"/>
+        <use class="flow b" href="#w1" stroke="#E6F2F6" stroke-width="2" opacity=".8"/>
+        <use class="flow c" href="#w2" stroke="#B9D9EE" stroke-width="2" opacity=".7"/>
+      </g>
+      <!-- 낮은 초승달 -->
+      <path d="M246,22 A9 9 0 1 0 256,34 A7 7 0 1 1 246,22Z" fill="#F4EDC8" opacity=".9"/>
+
+      <!-- 보랏빛 알피유 산맥 -->
+      <path d="M0,116 C20,104 40,112 62,100 C84,90 104,106 128,98 C150,92 168,104 192,96 C214,90 236,104 262,98 C284,94 304,104 320,100 L320,128 L0,128 Z" fill="#6E80B2"/>
+      <path d="M0,122 C30,114 60,120 92,112 C124,106 160,118 196,110 C232,104 270,116 320,110 L320,130 L0,130 Z" fill="#8392BF"/>
+
+      <!-- 올리브 숲과 덤불 -->
+      <g>
+        <path d="M0,132 C6,118 20,112 32,118 C40,108 58,108 64,120 C74,114 90,116 94,128 C104,122 120,124 124,134 L0,136 Z" fill="#4E6C3C"/>
+        <path d="M120,134 C126,124 140,122 148,128 C156,120 172,122 176,132 L120,136 Z" fill="#5E7E44"/>
+        <path d="M276,132 C282,122 298,120 306,126 C312,120 320,122 320,124 L320,136 L276,136 Z" fill="#4E6C3C"/>
+      </g>
+      <g id="bushStrokes" fill="none" stroke-linecap="round"></g>
+
+      <!-- 밀밭 -->
+      <path d="M0,134 C40,128 90,138 140,132 C190,126 250,136 320,130 L320,190 L0,190 Z" fill="url(#field)"/>
+      <g id="wheat" fill="none" stroke-linecap="round"></g>
+      <!-- 앞쪽 풀과 양귀비 -->
+      <g id="grass" fill="none" stroke-linecap="round"></g>
+
+      <!-- 사이프러스 두 그루: 불꽃처럼 비틀며 솟는다 -->
+      <g id="cyp">
+        <path d="M262,190 C258,170 266,156 260,140 C268,128 262,112 268,98 C272,86 268,76 272,66 C278,78 276,92 282,104 C288,118 282,132 288,146 C292,160 286,176 288,190 Z" fill="#1E3A28"/>
+        <path d="M206,190 C196,168 206,152 200,134 C210,118 200,100 210,84 C218,70 210,54 218,40 C222,26 220,16 226,4 C234,20 232,36 238,50 C246,66 238,82 246,96 C254,112 246,128 252,144 C258,160 250,176 254,190 Z" fill="url(#cypG)"/>
+        <g id="cypStrokes" fill="none" stroke-linecap="round"></g>
+      </g>
+    </svg>
+
+    <div class="bar">
+      <div class="time" id="t" role="timer">00:00:00<span class="cs">.00</span></div>
+      <div class="row">
+        <button id="b1" type="button">시작</button>
+        <button id="b2" type="button" disabled>랩</button>
+        <button id="b3" type="button" disabled>리셋</button>
+      </div>
+      <div class="lapline" id="lp" aria-live="polite"></div>
+    </div>
+  </div>
+
+<script>
+/* ── 붓자국 ──
+   고흐의 화면은 짧고 굵은 붓질의 반복이다. 씨앗을 고정한 난수로
+   하늘, 덤불, 밀밭, 사이프러스에 각자 방향을 가진 붓자국을 깐다. */
+(function(){
+  var NS='http://www.w3.org/2000/svg',seed=7;
+  function r(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646;}
+  function stroke(g,x,y,len,ang,curve,w,col,op){
+    var dx=Math.cos(ang)*len,dy=Math.sin(ang)*len,
+        cx=x+dx/2-Math.sin(ang)*curve,cy=y+dy/2+Math.cos(ang)*curve;
+    var p=document.createElementNS(NS,'path');
+    p.setAttribute('d','M'+x.toFixed(1)+','+y.toFixed(1)+' Q'+cx.toFixed(1)+','+cy.toFixed(1)+' '+(x+dx).toFixed(1)+','+(y+dy).toFixed(1));
+    p.setAttribute('stroke',col);p.setAttribute('stroke-width',w);p.setAttribute('opacity',op);
+    g.appendChild(p);
+  }
+  function pick(a){return a[Math.floor(r()*a.length)];}
+  var g;
+  g=document.getElementById('skyStrokes');
+  for(var i=0;i<120;i++){var x=r()*320,y=r()*100;
+    stroke(g,x,y,6+r()*9,-0.15+r()*0.3,(r()-.5)*4,2+r()*1.4,pick(['#2F6CA6','#4C8BC0','#8DBFDB','#A8D0E2','#5E9BCB']),.55);}
+  g=document.getElementById('bushStrokes');
+  for(i=0;i<46;i++){var q=r(),bx=q<.6?6+r()*112:(q<.85?126+r()*46:282+r()*36),by=124+r()*10;
+    stroke(g,bx,by,3+r()*4,-0.6+r()*1.2,(r()-.5)*3,1.8,pick(['#7E9B4E','#3E5A30','#93AE5C','#2E4826']),.8);}
+  g=document.getElementById('wheat');
+  for(i=0;i<190;i++){var wx=-6+r()*330,wy=134+r()*56,s=(wy-130)/60;
+    stroke(g,wx,wy,(5+r()*7)*(.6+s),-1.25+(r()-.5)*.6,(r()-.5)*5,1.4+s*1.6,pick(['#F4D46E','#E9BC45','#C9901F','#B27A1C','#F7E59A','#D9A63A']),.85);}
+  g=document.getElementById('grass');
+  for(i=0;i<50;i++){var gx=r()*190,gy=176+r()*16;
+    stroke(g,gx,gy,6+r()*8,-1.4+(r()-.5)*.8,(r()-.5)*5,2,pick(['#5C8A3A','#7BA548','#3E6A2A']),.85);}
+  for(i=0;i<9;i++){var px=12+r()*170,py=168+r()*18,c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',px.toFixed(1));c.setAttribute('cy',py.toFixed(1));c.setAttribute('r',(1.6+r()*1.4).toFixed(1));
+    c.setAttribute('fill',pick(['#D8392B','#E8553A','#C02A20']));g.appendChild(c);}
+  g=document.getElementById('cypStrokes');
+  for(i=0;i<90;i++){var t=r(),cy=190-t*184,half=(1-t)*22+3,cx=226+(r()-.5)*2*half*.9;
+    stroke(g,cx,cy,6+r()*7,-1.9+(r()-.5)*1.2+(cx<226?.5:-.5),(r()-.5)*6,1.8+r()*1.2,pick(['#3A6E44','#2C5636','#4E8452','#12241A','#5F8F5A']),.85);}
+  for(i=0;i<34;i++){var t2=r(),y2=190-t2*124,h2=(1-t2)*12+2,x2=275+(r()-.5)*2*h2*.8;
+    stroke(g,x2,y2,5+r()*5,-1.8+(r()-.5)*1,(r()-.5)*4,1.6,pick(['#3A6E44','#2C5636','#12241A']),.8);}
+})();
+</script>
+<script>
+(function(){
+  var t=document.getElementById('t'),lp=document.getElementById('lp'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,stt=0,acc=0,iv=null,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-stt:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
+    if(hh>99)hh=99;
+    return pad(hh,2)+':'+pad(mm,2)+':'+pad(ss,2)+'<span class="cs">.'+pad(cs,2)+'</span>';}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+  function draw(){t.innerHTML=f(el());}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b1.textContent=run?'정지':(el()>0?'재개':'시작');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function start(){if(run)return;run=true;stt=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
+  function reset(){if(run)return;acc=0;stt=0;laps=[];last=0;lp.textContent='';draw();ui();}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    lp.textContent='LAP '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');
+    srSay('랩 '+laps.length+'. 구간 '+srHuman(sp));}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  draw();ui();
+})();
+</script>
+</body>
+</html>
