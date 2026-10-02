@@ -530,7 +530,6 @@
                             <li><b>LINER</b><span class="ab-role">AI 전략 총괄</span></li>
                             <li><b>국민경제자문회의</b><span class="ab-role">AI경제 정책자문단</span></li>
                             <li><span class="ab-past">전)</span><b>카카오엔터테인먼트</b><span class="ab-role">글로벌사업 본부장(VP)</span></li>
-                            <li><span class="ab-past">전)</span><b>미국 타파스엔터테인먼트</b><span class="ab-role">최고운영책임(COO)</span></li>
                             <li><span class="ab-past">전)</span><b>라인(LINE)</b><span class="ab-role">태국 사업 최고전략책임(CSO)</span></li>
                             <li><span class="ab-past">전)</span><b>Bain &amp; Company</b><span class="ab-role">이사</span></li>
                             <li><span class="ab-past">전)</span><b>Kearney</b><span class="ab-role">팀장</span></li>
