@@ -546,7 +546,7 @@
                     <div class="ab-log">
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.12</span><span class="ab-date">2026-10-04</span></div>
-                            <div><p class="ab-log-title">5단계 커리큘럼 재편과 콜라주 슬라이드 확대</p><p class="ab-log-desc">커리큘럼을 소환, 연결, 계약, 조합, 자율 5단계로 재편하고, 새 구성에 맞지 않는 확장 프로그램·코워크·7단계 방법론 페이지는 사이트에서 내렸습니다. 오리엔테이션, 멀티 페르소나, 나만의 Skill 등 여덟 페이지에 전체 화면으로 보는 콜라주 슬라이드를 넣었습니다. 부록에는 에이전트 도구 다섯 가지를 비교하는 안내 페이지를 만들고, EDA 차트 갤러리와 UI 디자인 트렌드는 각각 30장, 39장으로 늘렸습니다.</p></div>
+                            <div><p class="ab-log-title">5단계 커리큘럼 재편과 콜라주 슬라이드 확대</p><p class="ab-log-desc">커리큘럼을 소환, 연결, 계약, 조합, 자율 5단계로 재편하고, 새 구성에 맞지 않는 확장 프로그램·코워크·7단계 방법론 페이지는 사이트에서 내렸습니다. 오리엔테이션, 멀티 페르소나, 나만의 Skill 등 아홉 페이지에 전체 화면으로 보는 콜라주 슬라이드를 넣었습니다. 부록에는 에이전트 도구 다섯 가지를 비교하는 안내 페이지를 만들고, EDA 차트 갤러리와 UI 디자인 트렌드는 각각 30장, 39장으로 늘렸습니다.</p></div>
                         </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.11</span><span class="ab-date">2026-09-27</span></div>
