@@ -8,7 +8,7 @@
 
 ![Version](https://img.shields.io/badge/Version-3.12-4CAF50)
 ![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
-![Pages](https://img.shields.io/badge/Pages-46-8A4FE0)
+![Pages](https://img.shields.io/badge/Pages-44-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
 ![Language](https://img.shields.io/badge/Language-%ED%95%9C%EA%B5%AD%EC%96%B4-2196F3)
 ![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000)
@@ -179,11 +179,9 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [헤르메스 에이전트](https://airoasting.vercel.app/hermes-agent.html) | 늘 켜 둔 컴퓨터나 빌린 서버에 오픈소스 에이전트를 상주시키고 텔레그램으로 부르기 |
+| [에이전트 도구 안내](https://airoasting.vercel.app/agents-tools.html) | 헤르메스, Aside, Orca(멀티 모델 토론), Buzz, Instinct 다섯 도구의 하는 일·비용·지원 환경 비교와 각 다운로드 페이지 |
 | [헤르메스 에이전트 사용 사례](https://airoasting.vercel.app/hermes-cases.html) | 슬랙에서 활동하는 헤르메스 에이전트가 실제로 한 일 여덟 가지와 여섯 가지 교훈 |
 | [Liner Model API](https://airoasting.vercel.app/liner-model-api.html) | 요청마다 처리할 수 있는 모델 중 가장 저렴한 모델을 골라 보내는 API, 소개서 아홉 장 슬라이드 |
-| [Orca](https://airoasting.vercel.app/orca.html) | Claude Code와 Codex를 작업마다 따로 나란히 돌리는 오픈소스 앱 |
-| [Buzz](https://airoasting.vercel.app/buzz.html) | Block이 만든 오픈소스 팀 메신저, 에이전트가 자기 키를 가진 멤버로 채널에 들어와 사람과 함께 일하기 |
 
 ---
 
