@@ -1818,6 +1818,196 @@
             .race-cell { padding: 11px 12px; }
         }
         </style>
+    <!-- ORI-SLIDES -->
+    <style>
+        /* ═════ ORI-SLIDES: 오리엔테이션 콜라주 슬라이드. 960×540 좌표계, 틀 폭에 맞춰 scale ═════ */
+        .oc-wrap { margin: 0 0 44px; }
+        .oc-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .oc-toolbar .section-subhead { margin: 0; }
+        .oc-play {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer;
+            background: #1A1917; color: #fff; font: inherit; font-size: 14px; font-weight: 700;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+        .oc-play svg { width: 17px; height: 17px; }
+        .oc-play:hover { background: var(--ant-orange); transform: translateY(-1px); }
+        .oc-frame {
+            position: relative; aspect-ratio: 16 / 9; overflow: hidden; cursor: zoom-in;
+            border-radius: 14px; background: #E4D6BB;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 10px 32px rgba(0,0,0,0.10);
+        }
+        .oc-frame:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 3px; }
+        .oc-frame::after {
+            content: ''; position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(26,25,23,0.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E") center / 15px no-repeat;
+            opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+        }
+        .oc-frame:hover::after, .oc-frame:focus-visible::after { opacity: 1; }
+        .oc-frame > .oc-slide { display: none; }
+        .oc-frame > .oc-slide.on { display: block; }
+        .oc-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+        .oc-nav button {
+            display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+            border: 1px solid #D8D2C8; border-radius: 50%; background: #fff; color: #3A3530; cursor: pointer;
+            transition: border-color 0.18s ease, color 0.18s ease;
+        }
+        .oc-nav button:hover:not(:disabled) { border-color: var(--ant-orange); color: var(--ant-orange); }
+        .oc-nav button:disabled { opacity: 0.35; cursor: default; }
+        .oc-nav button svg { width: 18px; height: 18px; }
+        .oc-count { min-width: 56px; text-align: center; font-size: 14px; font-weight: 700; color: #6B645C; font-variant-numeric: tabular-nums; }
+
+        /* 슬라이드 공통 */
+        .oc-slide {
+            position: absolute; left: 0; top: 0; width: 960px; height: 540px; overflow: hidden;
+            transform-origin: 0 0; color: #1A1917; line-height: 1.3; text-align: left;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            word-break: keep-all; -webkit-font-smoothing: antialiased; letter-spacing: -0.2px;
+            background-color: #E4D6BB;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .26 0 0 0 0 .13 0 0 0 .20 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+                radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.35), transparent 60%);
+        }
+        .oc-slide.oc-night { background-color: #2A2622; color: #F4EEE3; }
+        .oc-slide * { box-sizing: border-box; }
+        .oc-slide .ab { position: absolute; }
+        .oc-slide svg { display: block; }
+
+        /* 종잇조각: 바깥은 그림자, 안쪽은 찢긴 모양 */
+        .oc-scrap { filter: drop-shadow(0 5px 9px rgba(60,40,20,0.22)) drop-shadow(0 1px 1px rgba(60,40,20,0.15)); }
+        .oc-in { position: relative; width: 100%; height: 100%; background: #FBF7EE; }
+        .oc-torn-b { clip-path: polygon(0.0% 0.0%, 100.0% 0.0%, 100.0% 97.5%, 96.4% 97.2%, 92.9% 96.5%, 89.3% 96.6%, 85.7% 97.2%, 82.1% 99.4%, 78.6% 96.2%, 75.0% 99.9%, 71.4% 97.6%, 67.9% 98.3%, 64.3% 99.8%, 60.7% 98.5%, 57.1% 96.9%, 53.6% 96.5%, 50.0% 99.3%, 46.4% 97.7%, 42.9% 96.4%, 39.3% 96.3%, 35.7% 97.7%, 32.1% 96.1%, 28.6% 98.0%, 25.0% 96.2%, 21.4% 97.5%, 17.9% 98.1%, 14.3% 96.3%, 10.7% 98.6%, 7.1% 96.6%, 3.6% 97.3%, 0.0% 98.5%); }
+        .oc-torn-tb { clip-path: polygon(0.0% 1.6%, 3.6% 2.6%, 7.1% 0.6%, 10.7% 1.9%, 14.3% 2.0%, 17.9% 1.2%, 21.4% 1.8%, 25.0% 0.2%, 28.6% 0.2%, 32.1% 0.7%, 35.7% 2.2%, 39.3% 1.4%, 42.9% 1.0%, 46.4% 1.9%, 50.0% 1.5%, 53.6% 1.0%, 57.1% 2.5%, 60.7% 2.2%, 64.3% 0.8%, 67.9% 1.8%, 71.4% 1.7%, 75.0% 2.8%, 78.6% 2.3%, 82.1% 0.9%, 85.7% 3.1%, 89.3% 0.4%, 92.9% 1.3%, 96.4% 2.4%, 100.0% 1.6%, 100.0% 98.4%, 96.4% 97.3%, 92.9% 98.3%, 89.3% 96.9%, 85.7% 98.9%, 82.1% 98.0%, 78.6% 97.7%, 75.0% 99.4%, 71.4% 100.0%, 67.9% 98.9%, 64.3% 99.0%, 60.7% 97.0%, 57.1% 98.9%, 53.6% 98.3%, 50.0% 99.8%, 46.4% 99.5%, 42.9% 98.3%, 39.3% 98.7%, 35.7% 98.7%, 32.1% 99.0%, 28.6% 97.8%, 25.0% 99.6%, 21.4% 98.6%, 17.9% 99.2%, 14.3% 98.9%, 10.7% 96.9%, 7.1% 98.4%, 3.6% 97.3%, 0.0% 98.4%); }
+        .oc-torn-r { clip-path: polygon(0.0% 0.0%, 96.5% 0.0%, 96.2% 4.5%, 99.1% 9.1%, 96.5% 13.6%, 97.0% 18.2%, 97.6% 22.7%, 99.5% 27.3%, 96.3% 31.8%, 97.8% 36.4%, 98.2% 40.9%, 99.5% 45.5%, 99.3% 50.0%, 99.5% 54.5%, 97.1% 59.1%, 97.7% 63.6%, 97.4% 68.2%, 99.5% 72.7%, 99.8% 77.3%, 96.6% 81.8%, 96.7% 86.4%, 96.9% 90.9%, 96.9% 95.5%, 97.9% 100.0%, 0.0% 100.0%); }
+        .oc-grid { background-color: #FBF7EE; background-image: linear-gradient(rgba(120,150,190,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(120,150,190,0.22) 1px, transparent 1px); background-size: 22px 22px; }
+        .oc-lined { background-color: #FBF7EE; background-image: linear-gradient(transparent 31px, rgba(120,150,190,0.3) 31px, rgba(120,150,190,0.3) 32px); background-size: 100% 32px; }
+        .oc-yellow { background: #F5D56A; }
+        .oc-ink { background: #1A1917; color: #F4EEE3; }
+        .oc-card { background: #C9A876; background-image: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%); }
+
+        /* 마스킹 테이프 */
+        .oc-tape {
+            position: absolute; width: 92px; height: 26px; z-index: 3;
+            background: rgba(246,236,205,0.78); box-shadow: 0 1px 2px rgba(60,40,20,0.12);
+            clip-path: polygon(3.0% 0.0%, 97.0% 0.0%, 100.0% 18.0%, 96.0% 36.0%, 100.0% 55.0%, 95.0% 74.0%, 100.0% 100.0%, 3.0% 100.0%, 0.0% 80.0%, 4.0% 60.0%, 0.0% 42.0%, 5.0% 22.0%);
+        }
+        .oc-tape.or { background: repeating-linear-gradient(-45deg, rgba(217,119,87,0.85) 0 7px, rgba(250,230,215,0.85) 7px 14px); }
+        .oc-tape.lab {
+            width: auto; height: auto; padding: 7px 16px; font-size: 16px; font-weight: 800; color: #1A1917; white-space: nowrap;
+            background: rgba(245,213,106,0.92);
+        }
+        .oc-tape.lab small { font-size: 12px; font-weight: 700; opacity: 0.6; margin-left: 4px; }
+
+        /* 오려 붙인 글자 */
+        .oc-cut { display: flex; gap: 4px; align-items: flex-end; }
+        .oc-cut span {
+            display: inline-block; padding: 2px 10px 6px; font-weight: 900; line-height: 1; letter-spacing: -1px;
+            box-shadow: 0 3px 6px rgba(60,40,20,0.2);
+        }
+        .oc-cut span:nth-child(5n+1) { background: #1A1917; color: #F4EEE3; transform: rotate(-3deg); }
+        .oc-cut span:nth-child(5n+2) { background: #D97757; color: #fff; transform: rotate(2deg) translateY(-4px); }
+        .oc-cut span:nth-child(5n+3) { background: #FBF7EE; color: #1A1917; transform: rotate(-1.5deg) translateY(3px); font-weight: 700; }
+        .oc-cut span:nth-child(5n+4) { background: #F5D56A; color: #1A1917; transform: rotate(3deg); }
+        .oc-cut span:nth-child(5n+5) { background: #8FA98B; color: #fff; transform: rotate(-2deg) translateY(-2px); }
+
+        .oc-strip { padding: 10px 18px; font-weight: 800; box-shadow: 0 4px 8px rgba(60,40,20,0.22); }
+        .oc-halftone { border-radius: 50%; background-image: radial-gradient(#D97757 2px, transparent 2.3px); background-size: 11px 11px; opacity: 0.75; }
+        .oc-sticker {
+            display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 50%;
+            font-weight: 900; line-height: 1.15; box-shadow: 0 4px 10px rgba(60,40,20,0.25);
+        }
+        .oc-stamp {
+            padding: 8px 16px; border: 3px solid #C0392B; border-radius: 6px; color: #C0392B;
+            font-size: 22px; font-weight: 900; letter-spacing: 1px; opacity: 0.82;
+            box-shadow: inset 0 0 0 2px rgba(192,57,43,0.25);
+        }
+        .oc-num { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: rgba(26,25,23,0.55); }
+        .oc-night .oc-num { color: rgba(244,238,227,0.5); }
+        .oc-chip { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 800; }
+
+
+
+        /* ═════ 전체 화면 ═════ */
+        .oc-show { position: fixed; inset: 0; z-index: 2147483000; background: #0b0d0c; overflow: hidden; touch-action: pan-y; }
+        .oc-show[hidden] { display: none; }
+        .oc-show-stage { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; }
+        .oc-show-btn {
+            position: absolute; z-index: 2; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: #fff; transition: background 0.18s ease, opacity 0.3s ease;
+        }
+        .oc-show-btn:hover { background: rgba(255,255,255,0.24); }
+        .oc-show-btn:disabled { opacity: 0.25 !important; cursor: default; }
+        .oc-show-btn svg { width: 22px; height: 22px; }
+        .oc-show-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+        .oc-show-next { right: 20px; top: 50%; transform: translateY(-50%); }
+        .oc-show-close { right: 20px; top: 20px; width: 44px; height: 44px; }
+        .oc-show-num {
+            position: absolute; z-index: 2; left: 50%; bottom: 18px; transform: translateX(-50%);
+            padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease;
+        }
+        .oc-show.idle .oc-show-btn, .oc-show.idle .oc-show-num { opacity: 0; }
+        .oc-show.idle { cursor: none; }
+        @media (max-width: 768px) {
+            .oc-frame { border-radius: 10px; }
+            .oc-toolbar { flex-direction: column; align-items: flex-start; }
+            .oc-show-btn { width: 40px; height: 40px; }
+            .oc-show-prev { left: 10px; top: auto; bottom: 12px; transform: none; }
+            .oc-show-next { right: 10px; top: auto; bottom: 12px; transform: none; }
+            .oc-show-close { right: 10px; top: 10px; }
+        }
+
+        /* 오리엔테이션 슬라이드 전용 조각. 브랜드 색은 AGENTS.md 3.5를 따른다(Claude 주황, ChatGPT 블루, Gemini 청록) */
+        .oc-title { margin: 0; font-size: 18px; font-weight: 800; color: #2E2A26; letter-spacing: -0.2px; }
+        .oc-c { background: #D97757; color: #fff; } .oc-c2 { background: #A84726; color: #fff; }
+        .oc-o { background: #4C8DD6; color: #fff; } .oc-o2 { background: #2A6EBB; color: #fff; }
+        .oc-gm { background: #4F9E86; color: #fff; }
+        .oc-tag {
+            display: inline-block; padding: 6px 14px 8px; border-radius: 6px;
+            font-size: 17px; font-weight: 900; line-height: 1; letter-spacing: -0.3px; white-space: nowrap;
+            box-shadow: 0 3px 7px rgba(60,40,20,0.2);
+        }
+        .oc-block { display: inline-block; padding: 4px 14px 8px; font-size: 48px; font-weight: 900; line-height: 1; letter-spacing: -1.5px; box-shadow: 0 3px 6px rgba(60,40,20,0.2); }
+        .oc-avatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; font-size: 32px; font-weight: 900; }
+        .oc-en { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 700; line-height: 1.25; letter-spacing: 0; }
+        .oc-letter { font-family: Georgia, 'Times New Roman', serif; font-size: 60px; font-weight: 900; line-height: 1; color: #2A6EBB; }
+        .oc-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px dashed rgba(26,25,23,0.2); font-size: 18px; font-weight: 800; }
+        .oc-row:last-child { border-bottom: 0; }
+        .oc-row small { font-size: 14px; font-weight: 700; color: #6B645C; margin-left: 2px; }
+        .oc-row em { flex: none; font-style: normal; font-size: 15px; font-weight: 900; color: #A84726; }
+        .oc-row em.o { color: #1A5FBF; }
+        .oc-lead { padding: 22px 20px; }
+        .oc-lead-n { display: block; font-size: 13px; font-weight: 900; letter-spacing: 1px; color: #8A8178; }
+        .oc-lead-t { white-space: nowrap; font-size: 26px; font-weight: 900; letter-spacing: -0.8px; line-height: 1.1; margin-top: 8px; }
+        .oc-lead-d { font-size: 15px; font-weight: 700; color: #6B645C; line-height: 1.45; margin: 8px 0 18px; min-height: 66px; }
+        .oc-lead-gap { margin: 10px 0 10px 4px; font-size: 14px; font-weight: 900; color: #8A6E4B; }
+        .oc-lead-gap::before { content: '↓ '; }
+        .oc-lead-f { font-size: 15px; font-weight: 800; line-height: 1.4; margin-top: 10px; }
+        .oc-bar { display: grid; grid-template-columns: 150px 1fr 62px; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 16px; font-weight: 800; }
+        .oc-bar i { display: block; height: 26px; border-radius: 3px; background: #B5AFA3; box-shadow: 0 2px 4px rgba(60,40,20,0.15); }
+        .oc-bar i.oc-c { background: #D97757; } .oc-bar i.oc-o { background: #4C8DD6; }
+        .oc-bar b { font-size: 17px; font-weight: 900; text-align: right; font-variant-numeric: tabular-nums; }
+        .oc-model { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; font-size: 17px; font-weight: 800; }
+        .oc-model i { flex: none; width: 12px; height: 12px; border-radius: 50%; }
+        .oc-model small { flex-basis: 100%; padding-left: 22px; margin-top: -8px; font-size: 13px; font-weight: 700; color: rgba(244,238,227,0.6); }
+        .oc-win { padding: 20px 24px; }
+        .oc-win-q { font-size: 15px; font-weight: 800; color: #6B645C; }
+        .oc-win-m { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; margin-top: 6px; }
+        .oc-win-v { font-size: 52px; font-weight: 900; letter-spacing: -2px; line-height: 1.05; margin-top: 4px; font-variant-numeric: tabular-nums; }
+        .oc-price { display: flex; flex-direction: column; gap: 2px; padding: 9px 0; border-bottom: 1px dashed rgba(26,25,23,0.2); }
+        .oc-price span { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; }
+        .oc-price i { flex: none; width: 10px; height: 10px; border-radius: 50%; }
+        .oc-price b { padding-left: 18px; font-size: 22px; font-weight: 900; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+        .oc-pnote { margin-top: 12px; font-size: 14px; font-weight: 700; line-height: 1.45; color: #6B645C; }
+        .oc-legend { display: flex; gap: 18px; font-size: 13px; font-weight: 800; color: #4A443D; }
+        .oc-legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .oc-legend i { width: 12px; height: 12px; border-radius: 3px; }
+        .oc-sum { padding: 20px 24px; }
+        .oc-sum-n { display: inline-block; padding: 4px 10px; border-radius: 4px; background: #1A1917; color: #F4EEE3; font-size: 13px; font-weight: 800; }
+        .oc-sum p { margin: 12px 0 0; font-size: 19px; font-weight: 800; line-height: 1.5; letter-spacing: -0.3px; }
+    </style>
+    <!-- /ORI-SLIDES -->
     <!-- ANALYTICS-STD -->
     <script defer src="assets/js/analytics.js"></script>
     <!-- /ANALYTICS-STD -->
@@ -1932,6 +2122,387 @@
 </nav>
 
 <main class="container" id="main" tabindex="-1">
+
+    <!-- ── ORI-SLIDES: 오리엔테이션 콜라주 슬라이드. 사실과 숫자는 모두 이 페이지 본문을 따른다 ── -->
+    <div class="oc-wrap">
+        <div class="oc-toolbar">
+            <p class="oc-title">5분 오리엔테이션, 슬라이드 열 장으로 먼저 보기</p>
+            <button type="button" class="oc-play" id="ocPlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+                전체 화면으로 보기
+            </button>
+        </div>
+        <div class="oc-frame" id="ocFrame" tabindex="0" role="button" aria-label="5분 오리엔테이션 슬라이드, 전체 화면으로 보기">
+
+            <!-- 01 표지 -->
+            <div class="oc-slide on">
+                <div class="ab oc-halftone" style="left:600px;top:-80px;width:460px;height:460px"></div>
+                <div class="ab oc-scrap" style="left:46px;top:60px;width:560px;height:400px;transform:rotate(-2.2deg)">
+                    <div class="oc-in oc-grid oc-torn-b"></div>
+                </div>
+                <span class="oc-tape" style="left:28px;top:52px;transform:rotate(-38deg)"></span>
+                <span class="oc-tape or" style="left:528px;top:52px;width:84px;transform:rotate(30deg)"></span>
+                <div class="ab" style="left:86px;top:100px;transform:rotate(-2.2deg);transform-origin:0 0">
+                    <span class="oc-chip oc-ink">Claude · ChatGPT 나란히 보기</span>
+                    <div class="oc-cut" style="margin-top:24px;font-size:54px"><span>오</span><span>리</span><span>엔</span><span>테</span><span>이</span><span>션</span></div>
+                    <div style="margin-top:38px;font-size:24px;font-weight:800;line-height:1.45">이름의 유래부터 기능별 출시 시점,<br><span style="background:#F5D56A;padding:0 4px">벤치마크와 가격</span>까지</div>
+                    <div style="margin-top:14px;font-size:16px;font-weight:700;color:#6B645C">두 서비스를 같은 기준으로 나란히 놓고 봅니다</div>
+                </div>
+                <div class="ab oc-scrap" style="left:652px;top:78px;width:250px;height:150px;transform:rotate(-4deg)">
+                    <div class="oc-in oc-c2" style="padding:22px 24px">
+                        <div style="font-size:44px;font-weight:900;letter-spacing:-1.5px;line-height:1">Claude</div>
+                        <div style="font-size:16px;font-weight:800;margin-top:14px;opacity:0.9">Anthropic · 2021년 설립</div>
+                    </div>
+                </div>
+                <span class="oc-tape" style="left:730px;top:66px;transform:rotate(5deg)"></span>
+                <div class="ab oc-scrap" style="left:676px;top:276px;width:250px;height:150px;transform:rotate(3deg)">
+                    <div class="oc-in oc-o2" style="padding:22px 24px">
+                        <div style="font-size:44px;font-weight:900;letter-spacing:-1.5px;line-height:1">ChatGPT</div>
+                        <div style="font-size:16px;font-weight:800;margin-top:14px;opacity:0.9">OpenAI · 2015년 설립</div>
+                    </div>
+                </div>
+                <span class="oc-tape or" style="left:760px;top:264px;width:84px;transform:rotate(-4deg)"></span>
+                <div class="ab oc-sticker" style="left:604px;top:196px;width:96px;height:96px;background:#F5D56A;color:#1A1917;font-size:32px;transform:rotate(-10deg)">VS</div>
+                <div class="ab oc-sticker" style="left:560px;top:404px;width:110px;height:110px;background:#1A1917;color:#F4EEE3;font-size:30px;transform:rotate(-12deg)">5분</div>
+                <div class="ab oc-num" style="left:40px;top:504px">01 / 10 · AI ROASTING</div>
+            </div>
+
+            <!-- 02 Claude 이름의 유래 -->
+            <div class="oc-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="oc-cut" style="font-size:54px"><span>이</span><span>름</span></div>
+                    <div class="oc-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">Claude는 사람 이름에서 왔습니다</div>
+                </div>
+                <div class="ab oc-scrap" style="left:52px;top:128px;width:420px;height:356px;transform:rotate(-1.8deg)">
+                    <div class="oc-in oc-lined oc-torn-b" style="padding:26px 30px">
+                        <span class="oc-chip oc-c2" style="color:#fff">이름의 주인</span>
+                        <div style="display:flex;align-items:center;gap:16px;margin-top:20px">
+                            <span class="oc-avatar oc-c">C</span>
+                            <div>
+                                <div style="font-size:36px;font-weight:900;letter-spacing:-1px;line-height:1.1">클로드 섀넌</div>
+                                <div style="font-size:15px;font-weight:700;color:#6B645C;margin-top:6px">Claude Shannon · 1916~2001 · 미국</div>
+                            </div>
+                        </div>
+                        <div style="font-size:18px;font-weight:700;line-height:1.6;margin-top:22px">0과 1로 정보를 다루는 토대를 세운 수학자입니다. 그가 만든 <span style="background:#F5D56A;padding:0 3px">정보 이론</span>이 오늘날 디지털 통신과 AI의 바탕입니다.</div>
+                    </div>
+                </div>
+                <span class="oc-tape" style="left:210px;top:116px;transform:rotate(-4deg)"></span>
+                <div class="ab oc-scrap" style="left:504px;top:118px;width:406px;height:172px;transform:rotate(1.5deg)">
+                    <div class="oc-in oc-yellow" style="padding:20px 26px">
+                        <div style="font-size:14px;font-weight:800;opacity:0.65">읽는 법</div>
+                        <div style="display:flex;align-items:baseline;gap:18px;margin-top:8px">
+                            <span style="font-size:26px;font-weight:800;color:rgba(26,25,23,0.45);text-decoration:line-through;text-decoration-color:#C0392B;text-decoration-thickness:3px">클라우드</span>
+                            <span style="font-size:40px;font-weight:900;letter-spacing:-1px">클로드</span>
+                            <span style="font-size:18px;font-weight:700;color:#6B645C">[ klɔːd ]</span>
+                        </div>
+                        <div style="font-size:15px;font-weight:700;margin-top:10px;line-height:1.5">프랑스어에서 온 이름이라 영어 cloud처럼 읽지 않습니다.</div>
+                    </div>
+                </div>
+                <span class="oc-tape or" style="left:660px;top:106px;width:84px;transform:rotate(5deg)"></span>
+                <div class="ab oc-scrap" style="left:518px;top:314px;width:392px;height:180px;transform:rotate(-1.2deg)">
+                    <div class="oc-in oc-ink" style="padding:20px 26px">
+                        <div style="display:flex;align-items:baseline;gap:12px">
+                            <span style="font-size:30px;font-weight:900;letter-spacing:-0.8px">Anthropic</span>
+                            <span style="font-size:20px;font-weight:900;color:#E8A87C">←</span>
+                            <span class="oc-en" style="font-size:20px;color:#E8A87C">anthropos</span>
+                        </div>
+                        <div style="font-size:14px;font-weight:700;color:rgba(244,238,227,0.7);margin-top:4px">그리스어로 사람</div>
+                        <div style="font-size:15px;font-weight:700;line-height:1.55;margin-top:12px">2021년 아모데이 남매가 세웠습니다. 정관에 공익 목적을 넣은 공익 법인(PBC)입니다.</div>
+                    </div>
+                </div>
+                <div class="ab oc-num" style="left:870px;top:46px">02 / 10</div>
+            </div>
+
+            <!-- 03 ChatGPT 이름의 유래 -->
+            <div class="oc-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:14px">
+                    <span class="oc-block" style="background:#FBF7EE;transform:rotate(-2deg)">Chat</span>
+                    <span style="font-size:40px;font-weight:900;color:#8A6E4B">+</span>
+                    <span class="oc-block oc-o2" style="transform:rotate(2deg)">GPT</span>
+                    <div class="oc-strip" style="background:#FBF7EE;font-size:23px;margin-left:8px;transform:rotate(1deg)">ChatGPT는 기술 이름에서 왔습니다</div>
+                </div>
+                <div class="ab oc-scrap" style="left:50px;top:146px;width:272px;height:200px;transform:rotate(-2deg)">
+                    <div class="oc-in oc-torn-b" style="padding:20px 24px">
+                        <div class="oc-letter">G</div>
+                        <div class="oc-en" style="font-size:24px;margin-top:6px">Generative</div>
+                        <div style="font-size:17px;font-weight:800;margin-top:8px">문장을 만들어 냅니다</div>
+                    </div>
+                </div>
+                <span class="oc-tape" style="left:140px;top:136px;transform:rotate(-5deg)"></span>
+                <div class="ab oc-scrap" style="left:344px;top:156px;width:272px;height:200px;transform:rotate(1.5deg)">
+                    <div class="oc-in oc-grid oc-torn-b" style="padding:20px 24px">
+                        <div class="oc-letter">P</div>
+                        <div class="oc-en" style="font-size:24px;margin-top:6px">Pre-trained</div>
+                        <div style="font-size:17px;font-weight:800;margin-top:8px">대량의 글로 미리 학습했습니다</div>
+                    </div>
+                </div>
+                <span class="oc-tape or" style="left:440px;top:146px;width:84px;transform:rotate(4deg)"></span>
+                <div class="ab oc-scrap" style="left:638px;top:146px;width:272px;height:200px;transform:rotate(-1deg)">
+                    <div class="oc-in oc-torn-b" style="padding:20px 24px;background:#E3ECF6">
+                        <div class="oc-letter">T</div>
+                        <div class="oc-en" style="font-size:24px;margin-top:6px">Transformer</div>
+                        <div style="font-size:17px;font-weight:800;margin-top:8px;line-height:1.4">2017년 구글 논문이 제시한 신경망 구조입니다</div>
+                    </div>
+                </div>
+                <span class="oc-tape" style="left:730px;top:134px;transform:rotate(6deg)"></span>
+                <div class="ab oc-scrap" style="left:56px;top:378px;width:560px;height:124px;transform:rotate(-1deg)">
+                    <div class="oc-in oc-ink" style="padding:18px 26px;display:flex;gap:22px;align-items:center">
+                        <div style="flex:none">
+                            <div style="font-size:30px;font-weight:900;letter-spacing:-0.8px;line-height:1">OpenAI</div>
+                            <div style="font-size:15px;font-weight:800;color:#8DB8E8;margin-top:8px">← Open + AI</div>
+                        </div>
+                        <div style="font-size:15px;font-weight:700;line-height:1.55">2015년 비영리 단체로 출발했습니다. 연구를 공개하겠다는 방향을 이름에 담았고, 2019년에 영리 부문을 두었습니다.</div>
+                    </div>
+                </div>
+                <div class="ab oc-scrap" style="left:656px;top:384px;width:248px;height:112px;transform:rotate(2.5deg)">
+                    <div class="oc-in oc-yellow" style="padding:18px 22px;font-size:20px;font-weight:900;line-height:1.35;letter-spacing:-0.4px">이름 자체가<br>기술 설명입니다</div>
+                </div>
+                <div class="ab oc-num" style="left:870px;top:46px">03 / 10</div>
+            </div>
+
+            <!-- 04 같은 기능, 누가 먼저 -->
+            <div class="oc-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="oc-cut" style="font-size:54px"><span>누</span><span>가</span><span>먼</span><span>저</span></div>
+                    <div class="oc-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">같은 기능 10가지, 출시 순서</div>
+                </div>
+                <div class="ab oc-scrap" style="left:50px;top:132px;width:430px;height:366px;transform:rotate(-1.5deg)">
+                    <div class="oc-in oc-torn-b" style="padding:22px 26px">
+                        <span class="oc-tag oc-c" style="font-size:24px">Claude가 먼저 · 6</span>
+                        <div style="margin-top:14px">
+                            <div class="oc-row"><span>프로젝트</span><em>6개월</em></div>
+                            <div class="oc-row"><span>도구 연결 표준 <small>MCP</small></span><em>4개월</em></div>
+                            <div class="oc-row"><span>코딩 에이전트 CLI</span><em>2개월</em></div>
+                            <div class="oc-row"><span>재사용 도구 <small>Skills</small></span><em>2개월</em></div>
+                            <div class="oc-row"><span>코딩 에이전트 데스크톱 앱</span><em>2개월</em></div>
+                            <div class="oc-row"><span>업무 위임 <small>Cowork</small></span><em>6개월</em></div>
+                        </div>
+                    </div>
+                </div>
+                <span class="oc-tape" style="left:200px;top:120px;transform:rotate(-4deg)"></span>
+                <div class="ab oc-scrap" style="left:510px;top:142px;width:400px;height:262px;transform:rotate(1.4deg)">
+                    <div class="oc-in oc-torn-b" style="padding:22px 26px;background:#E3ECF6">
+                        <span class="oc-tag oc-o2" style="font-size:24px">ChatGPT가 먼저 · 4</span>
+                        <div style="margin-top:14px">
+                            <div class="oc-row"><span>채팅</span><em class="o">7개월</em></div>
+                            <div class="oc-row"><span>스마트폰 앱</span><em class="o">11개월</em></div>
+                            <div class="oc-row"><span>예약 실행</span><em class="o">1년 3개월</em></div>
+                            <div class="oc-row"><span>클라우드 실행</span><em class="o">5개월</em></div>
+                        </div>
+                    </div>
+                </div>
+                <span class="oc-tape or" style="left:670px;top:130px;width:84px;transform:rotate(5deg)"></span>
+                <div class="ab oc-scrap" style="left:528px;top:426px;width:382px;height:78px;transform:rotate(-1.5deg)">
+                    <div class="oc-in oc-yellow" style="padding:14px 20px;font-size:16px;font-weight:800;line-height:1.45">채팅과 앱은 ChatGPT가, 도구 연결과 Skills는<br>Claude가 먼저 냈습니다. 숫자는 앞선 기간입니다.</div>
+                </div>
+                <div class="ab oc-num" style="left:870px;top:46px">04 / 10</div>
+            </div>
+
+            <!-- 05 Claude가 먼저 낸 네 가지 -->
+            <div class="oc-slide">
+                <div class="ab oc-strip oc-ink" style="left:48px;top:40px;font-size:30px;transform:rotate(-1.2deg)">Claude가 먼저 내고, ChatGPT가 따라온 네 가지</div>
+                <div class="ab oc-scrap" style="left:46px;top:136px;width:200px;height:350px;transform:rotate(-2deg)">
+                    <div class="oc-in oc-grid oc-torn-b oc-lead"><span class="oc-lead-n">01</span><div class="oc-lead-t">MCP</div><div class="oc-lead-d">AI와 외부 도구를 잇는 표준</div><span class="oc-tag oc-c2">2024.11.25</span><div class="oc-lead-gap">4개월 뒤</div><span class="oc-tag oc-o2">2025.03.26</span><div class="oc-lead-f">ChatGPT가 그대로 채택</div></div>
+                </div>
+                <span class="oc-tape" style="left:100px;top:124px;transform:rotate(-5deg)"></span>
+                <div class="ab oc-scrap" style="left:268px;top:146px;width:200px;height:350px;transform:rotate(1.2deg)">
+                    <div class="oc-in oc-torn-b oc-lead"><span class="oc-lead-n">02</span><div class="oc-lead-t">Claude Code</div><div class="oc-lead-d">터미널에서 도는 코딩 에이전트</div><span class="oc-tag oc-c2">2025.02.24</span><div class="oc-lead-gap">2개월 뒤</div><span class="oc-tag oc-o2">2025.04.16</span><div class="oc-lead-f">Codex CLI 공개</div></div>
+                </div>
+                <span class="oc-tape or" style="left:330px;top:134px;width:84px;transform:rotate(4deg)"></span>
+                <div class="ab oc-scrap" style="left:490px;top:136px;width:200px;height:350px;transform:rotate(-1deg)">
+                    <div class="oc-in oc-lined oc-torn-b oc-lead"><span class="oc-lead-n">03</span><div class="oc-lead-t">Skills</div><div class="oc-lead-d">한 번 만들어 반복해 쓰는 업무 패키지</div><span class="oc-tag oc-c2">2025.10.16</span><div class="oc-lead-gap">2개월 뒤</div><span class="oc-tag oc-o2">2025.12</span><div class="oc-lead-f">같은 SKILL.md 규격 채택</div></div>
+                </div>
+                <span class="oc-tape" style="left:546px;top:124px;transform:rotate(6deg)"></span>
+                <div class="ab oc-scrap" style="left:712px;top:146px;width:200px;height:350px;transform:rotate(1.8deg)">
+                    <div class="oc-in oc-torn-b oc-lead" style="background:#F3E3D4"><span class="oc-lead-n">04</span><div class="oc-lead-t">Cowork</div><div class="oc-lead-d">목표만 주면 파일로 결과를 받는 업무 에이전트</div><span class="oc-tag oc-c2">2026.01.12</span><div class="oc-lead-gap">6개월 뒤</div><span class="oc-tag oc-o2">2026.07.09</span><div class="oc-lead-f">ChatGPT Work 공개</div></div>
+                </div>
+                <span class="oc-tape or" style="left:770px;top:134px;width:84px;transform:rotate(-4deg)"></span>
+                <div class="ab oc-legend" style="left:50px;top:506px"><span><i class="oc-c2"></i>Claude 출시</span><span><i class="oc-o2"></i>ChatGPT 대응</span></div>
+                <div class="ab oc-num" style="left:870px;top:504px">05 / 10</div>
+            </div>
+
+            <!-- 06 소득 분포 -->
+            <div class="oc-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="oc-cut" style="font-size:54px"><span>누</span><span>가</span><span>쓰</span><span>나</span></div>
+                    <div class="oc-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">연 가구소득 $100K 이상 사용자 비중</div>
+                </div>
+                <div class="ab oc-scrap" style="left:50px;top:132px;width:560px;height:350px;transform:rotate(-1.2deg)">
+                    <div class="oc-in oc-grid oc-torn-b" style="padding:26px 30px">
+                        <div class="oc-bar"><span>Claude</span><i class="oc-c" style="width:79.8%"></i><b>79.8%</b></div>
+                        <div class="oc-bar"><span>Microsoft Copilot</span><i style="width:63.7%"></i><b>63.7%</b></div>
+                        <div class="oc-bar"><span>ChatGPT</span><i class="oc-o" style="width:60.3%"></i><b>60.3%</b></div>
+                        <div class="oc-bar"><span>Grok</span><i style="width:56.2%"></i><b>56.2%</b></div>
+                        <div class="oc-bar"><span>Google Gemini</span><i style="width:55.9%"></i><b>55.9%</b></div>
+                        <div class="oc-bar"><span>Meta AI</span><i style="width:36.5%"></i><b>36.5%</b></div>
+                        <div style="font-size:12px;font-weight:700;color:#8A8178;margin-top:14px">출처: Epoch AI · Ipsos, 2026년 3~4월 미국 성인 설문</div>
+                    </div>
+                </div>
+                <span class="oc-tape" style="left:270px;top:120px;transform:rotate(-4deg)"></span>
+                <div class="ab oc-scrap" style="left:640px;top:146px;width:270px;height:300px;transform:rotate(2.2deg)">
+                    <div class="oc-in oc-yellow" style="padding:26px 24px">
+                        <div style="font-size:15px;font-weight:800;opacity:0.65">Claude 사용자 중</div>
+                        <div style="font-size:66px;font-weight:900;letter-spacing:-2.5px;line-height:1.05;margin-top:8px;color:#A84726">79.8%</div>
+                        <div style="font-size:18px;font-weight:800;line-height:1.45;margin-top:10px">연 가구소득<br>$100K 이상</div>
+                        <div style="font-size:15px;font-weight:700;line-height:1.5;margin-top:16px;padding-top:14px;border-top:1px dashed rgba(26,25,23,0.3)">소득이 높을수록 Claude를 쓰는 비중이 큽니다.</div>
+                    </div>
+                </div>
+                <span class="oc-tape or" style="left:740px;top:134px;width:84px;transform:rotate(6deg)"></span>
+                <div class="ab oc-num" style="left:870px;top:46px">06 / 10</div>
+            </div>
+
+            <!-- 07 기업 도입률. 기울기 차트 y = 250 - 값×4.4 -->
+            <div class="oc-slide">
+                <div class="ab oc-strip oc-ink" style="left:48px;top:40px;font-size:30px;transform:rotate(-1.2deg)">기업 유료 구독률, Anthropic이 처음으로 1위</div>
+                <div class="ab oc-scrap" style="left:50px;top:132px;width:470px;height:360px;transform:rotate(-1.5deg)">
+                    <div class="oc-in oc-grid oc-torn-b" style="padding:20px 22px">
+                        <div style="font-size:14px;font-weight:800;color:#6B645C">미국 기업 중 유료 구독 비율 · 1년 사이 변화</div>
+                        <svg viewBox="0 0 420 270" width="420" height="270" style="margin-top:6px" aria-hidden="true">
+                            <line x1="90" y1="24" x2="90" y2="246" stroke="rgba(26,25,23,0.25)" stroke-width="1.5" stroke-dasharray="4 4"/>
+                            <line x1="330" y1="24" x2="330" y2="246" stroke="rgba(26,25,23,0.25)" stroke-width="1.5" stroke-dasharray="4 4"/>
+                            <line x1="90" y1="69.6" x2="330" y2="74.9" stroke="#2A6EBB" stroke-width="6" stroke-linecap="round"/>
+                            <line x1="90" y1="178.7" x2="330" y2="57.3" stroke="#D97757" stroke-width="7" stroke-linecap="round"/>
+                            <circle cx="90" cy="69.6" r="8" fill="#2A6EBB"/><circle cx="330" cy="74.9" r="8" fill="#2A6EBB"/>
+                            <circle cx="90" cy="178.7" r="9" fill="#D97757"/><circle cx="330" cy="57.3" r="9" fill="#D97757"/>
+                            <text x="76" y="76" text-anchor="end" font-size="19" font-weight="900" fill="#1A5FBF">41.0%</text>
+                            <text x="76" y="185" text-anchor="end" font-size="19" font-weight="900" fill="#A84726">16.2%</text>
+                            <text x="344" y="58" font-size="19" font-weight="900" fill="#A84726">43.8%</text>
+                            <text x="344" y="86" font-size="19" font-weight="900" fill="#1A5FBF">39.8%</text>
+                            <text x="90" y="266" text-anchor="middle" font-size="14" font-weight="800" fill="#6B645C">1년 전</text>
+                            <text x="330" y="266" text-anchor="middle" font-size="14" font-weight="800" fill="#6B645C">2026년 8월</text>
+                        </svg>
+                    </div>
+                </div>
+                <span class="oc-tape" style="left:230px;top:120px;transform:rotate(-4deg)"></span>
+                <div class="ab oc-scrap" style="left:552px;top:126px;width:358px;height:168px;transform:rotate(1.6deg)">
+                    <div class="oc-in oc-c2" style="padding:20px 24px">
+                        <div style="font-size:16px;font-weight:800;opacity:0.9">Anthropic</div>
+                        <div style="font-size:40px;font-weight:900;letter-spacing:-1.2px;line-height:1.1;margin-top:6px">2.7배</div>
+                        <div style="font-size:16px;font-weight:700;line-height:1.5;margin-top:8px">1년 사이 16.2%에서 43.8%로 올랐습니다</div>
+                    </div>
+                </div>
+                <span class="oc-tape or" style="left:690px;top:114px;width:84px;transform:rotate(5deg)"></span>
+                <div class="ab oc-scrap" style="left:566px;top:316px;width:344px;height:132px;transform:rotate(-1.4deg)">
+                    <div class="oc-in" style="padding:18px 24px;background:#E3ECF6">
+                        <div style="font-size:16px;font-weight:800;color:#1A5FBF">OpenAI</div>
+                        <div style="font-size:16px;font-weight:700;line-height:1.5;margin-top:8px">같은 기간 41.0%에서 39.8%로 조금 내려왔습니다</div>
+                    </div>
+                </div>
+                <div class="ab oc-stamp" style="left:600px;top:462px;transform:rotate(-6deg)">2026년 5월 역전 · 격차 4.0%p</div>
+                <div class="ab oc-num" style="left:40px;top:504px">07 / 10 · 출처 Ramp AI Index</div>
+            </div>
+
+            <!-- 08 벤치마크 -->
+            <div class="oc-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="oc-cut" style="font-size:54px"><span>벤</span><span>치</span><span>마</span><span>크</span></div>
+                    <div class="oc-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">지표마다 1위가 다릅니다</div>
+                </div>
+                <div class="ab oc-scrap" style="left:46px;top:128px;width:256px;height:376px;transform:rotate(-2deg)">
+                    <div class="oc-in oc-ink" style="padding:20px 24px">
+                        <div style="font-size:14px;font-weight:800;color:rgba(244,238,227,0.6)">비교한 최신 모델 5종</div>
+                        <div class="oc-model"><i class="oc-c"></i>Claude Fable 5.1<small>9월 1일</small></div>
+                        <div class="oc-model"><i class="oc-o"></i>GPT-6 Astra<small>9월 3일</small></div>
+                        <div class="oc-model"><i class="oc-c"></i>Claude Opus 5.5<small>9월 22일</small></div>
+                        <div class="oc-model"><i class="oc-c"></i>Claude Sonnet 5.5<small>9월 28일</small></div>
+                        <div class="oc-model"><i class="oc-gm"></i>Gemini 4 Argon<small>9월 30일 발표</small></div>
+                        <div style="font-size:14px;font-weight:700;line-height:1.5;color:rgba(244,238,227,0.75);margin-top:14px">질문 5개, 지표 18개로 나눠 비교합니다</div>
+                    </div>
+                </div>
+                <span class="oc-tape" style="left:120px;top:120px;transform:rotate(-6deg)"></span>
+                <div class="ab oc-scrap" style="left:330px;top:128px;width:282px;height:170px;transform:rotate(1.2deg)">
+                    <div class="oc-in oc-torn-b oc-win"><div class="oc-win-q">종합 지능</div><div class="oc-win-m">Claude Opus 5.5</div><div class="oc-win-v" style="color:#A84726">57.6</div></div>
+                </div>
+                <span class="oc-tape or" style="left:430px;top:116px;width:84px;transform:rotate(4deg)"></span>
+                <div class="ab oc-scrap" style="left:630px;top:138px;width:282px;height:170px;transform:rotate(-1.5deg)">
+                    <div class="oc-in oc-grid oc-torn-b oc-win"><div class="oc-win-q">코딩 에이전트 종합</div><div class="oc-win-m">Claude Sonnet 5.5</div><div class="oc-win-v" style="color:#A84726">68.4</div></div>
+                </div>
+                <span class="oc-tape" style="left:730px;top:126px;transform:rotate(-5deg)"></span>
+                <div class="ab oc-scrap" style="left:336px;top:320px;width:282px;height:170px;transform:rotate(-1deg)">
+                    <div class="oc-in oc-torn-b oc-win" style="background:#E3ECF6"><div class="oc-win-q">연구 수준 수학</div><div class="oc-win-m">GPT-6 Astra</div><div class="oc-win-v" style="color:#1A5FBF">97.6%</div></div>
+                </div>
+                <div class="ab oc-scrap" style="left:634px;top:326px;width:282px;height:170px;transform:rotate(1.6deg)">
+                    <div class="oc-in oc-torn-b oc-win" style="background:#DCEBE5"><div class="oc-win-q">환각 억제</div><div class="oc-win-m">Gemini 4 Argon</div><div class="oc-win-v" style="color:#2F7A63">85%</div></div>
+                </div>
+                <span class="oc-tape or" style="left:730px;top:314px;width:84px;transform:rotate(-4deg)"></span>
+                <div class="ab oc-sticker" style="left:540px;top:262px;width:96px;height:96px;background:#F5D56A;color:#1A1917;font-size:24px;transform:rotate(-10deg)">1위</div>
+                <div class="ab oc-num" style="left:870px;top:46px">08 / 10</div>
+            </div>
+
+            <!-- 09 가격 -->
+            <div class="oc-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="oc-cut" style="font-size:54px"><span>가</span><span>격</span></div>
+                    <div class="oc-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">100만 토큰당 단가, 입력 / 출력 (USD)</div>
+                </div>
+                <div class="ab oc-scrap" style="left:50px;top:140px;width:272px;height:346px;transform:rotate(-2deg)">
+                    <div class="oc-in oc-torn-b" style="padding:22px 22px">
+                        <span class="oc-chip oc-ink">최상위 추론</span>
+                        <div class="oc-price"><span><i class="oc-c"></i>Claude Fable 5.1</span><b>$10 / $50</b></div>
+                        <div class="oc-price"><span><i class="oc-o"></i>GPT-6 Astra</span><b>$10 / $50</b></div>
+                        <div class="oc-price"><span><i class="oc-c"></i>Claude Opus 5.5</span><b>$4 / $20</b></div>
+                        <div class="oc-pnote">Opus 5.5는 Fable 5.1 단가의 40%입니다</div>
+                    </div>
+                </div>
+                <span class="oc-tape" style="left:140px;top:128px;transform:rotate(-5deg)"></span>
+                <div class="ab oc-scrap" style="left:344px;top:150px;width:272px;height:346px;transform:rotate(1.5deg)">
+                    <div class="oc-in oc-grid oc-torn-b" style="padding:22px 22px">
+                        <span class="oc-chip oc-ink">실무 표준</span>
+                        <div class="oc-price"><span><i class="oc-c"></i>Claude Sonnet 5.5</span><b>$2 / $10</b></div>
+                        <div class="oc-price"><span><i class="oc-o"></i>GPT-6.1 Sol</span><b>$2 / $10</b></div>
+                        <div class="oc-price"><span><i class="oc-gm"></i>Gemini 3.1 Pro Preview</span><b>$2 / $12</b></div>
+                        <div class="oc-pnote">Sonnet 5.5와 GPT-6.1 Sol은 단가가 같습니다</div>
+                    </div>
+                </div>
+                <span class="oc-tape or" style="left:440px;top:138px;width:84px;transform:rotate(4deg)"></span>
+                <div class="ab oc-scrap" style="left:638px;top:140px;width:272px;height:346px;transform:rotate(-1deg)">
+                    <div class="oc-in oc-torn-b" style="padding:22px 22px;background:#E9E3D8">
+                        <span class="oc-chip oc-ink">저단가 · 대량 처리</span>
+                        <div class="oc-price"><span><i class="oc-c"></i>Claude Haiku 4.5</span><b>$1 / $5</b></div>
+                        <div class="oc-price"><span><i class="oc-gm"></i>Gemini 3.8 Flash</span><b>$0.75 / $3.75</b></div>
+                        <div class="oc-price"><span><i class="oc-o"></i>GPT-6 Luna</span><b>$0.10 / $0.50</b></div>
+                        <div class="oc-pnote">Gemini 3.8 Flash는 2026년 12월 31일까지 특별가입니다</div>
+                    </div>
+                </div>
+                <span class="oc-tape" style="left:730px;top:128px;transform:rotate(6deg)"></span>
+                <div class="ab oc-sticker" style="left:806px;top:22px;width:104px;height:104px;background:#A84726;color:#fff;font-size:20px;transform:rotate(-12deg)">같은 급<br>같은 값</div>
+                <div class="ab oc-num" style="left:40px;top:504px">09 / 10 · 각 사 직접 API 기본 단가</div>
+            </div>
+
+            <!-- 10 정리 -->
+            <div class="oc-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="oc-cut" style="font-size:54px"><span>정</span><span>리</span></div>
+                    <div class="oc-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">5분 오리엔테이션, 네 줄로</div>
+                </div>
+                <div class="ab oc-scrap" style="left:50px;top:128px;width:420px;height:150px;transform:rotate(-1.5deg)">
+                    <div class="oc-in oc-sum"><span class="oc-sum-n">이름</span><p>Claude는 사람(클로드 섀넌)에서, ChatGPT는 기술(GPT)에서 이름을 가져왔습니다.</p></div>
+                </div>
+                <span class="oc-tape" style="left:200px;top:116px;transform:rotate(-4deg)"></span>
+                <div class="ab oc-scrap" style="left:492px;top:138px;width:420px;height:150px;transform:rotate(1.2deg)">
+                    <div class="oc-in oc-grid oc-sum"><span class="oc-sum-n">도구</span><p>MCP, Claude Code, Skills, Cowork는 Claude가 먼저 냈고 ChatGPT가 뒤따랐습니다.</p></div>
+                </div>
+                <span class="oc-tape or" style="left:650px;top:126px;width:84px;transform:rotate(5deg)"></span>
+                <div class="ab oc-scrap" style="left:56px;top:300px;width:420px;height:150px;transform:rotate(1deg)">
+                    <div class="oc-in oc-lined oc-sum"><span class="oc-sum-n">도입</span><p>2026년 5월, 기업 유료 구독률에서 Anthropic이 처음으로 OpenAI를 앞섰습니다.</p></div>
+                </div>
+                <div class="ab oc-scrap" style="left:496px;top:308px;width:416px;height:150px;transform:rotate(-1.4deg)">
+                    <div class="oc-in oc-sum" style="background:#E9E3D8"><span class="oc-sum-n">성능 · 가격</span><p>벤치마크는 지표마다 1위가 다르고, 같은 급 모델은 두 회사 단가가 같습니다.</p></div>
+                </div>
+                <span class="oc-tape" style="left:640px;top:296px;transform:rotate(-6deg)"></span>
+                <div class="ab oc-strip oc-yellow" style="left:236px;top:474px;font-size:19px;transform:rotate(-1deg)">다음은 내 활용 수준을 확인할 차례입니다 → AI 활용 수준 진단</div>
+                <div class="ab oc-num" style="left:870px;top:46px">10 / 10</div>
+            </div>
+
+        </div>
+        <div class="oc-nav">
+            <button type="button" id="ocPrevIn" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <span class="oc-count" id="ocCount" aria-live="polite">1 / 10</span>
+            <button type="button" id="ocNextIn" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+    </div>
+    <!-- ── /ORI-SLIDES ── -->
+
 
     <!-- ═══ Claude 이름의 유래 & Anthropic ═══ -->
     <section id="sec-origin">
@@ -3756,5 +4327,140 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
 })();
 </script>
 
+<!-- ORI-SLIDES 전체 화면: 슬라이드 한 장을 화면에 16:9로 맞춰 띄운다 -->
+<div class="oc-show" id="ocShow" role="dialog" aria-modal="true" aria-label="오리엔테이션 슬라이드 전체 화면" hidden>
+    <div class="oc-show-stage" id="ocStage"></div>
+    <button type="button" class="oc-show-btn oc-show-prev" id="ocPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="oc-show-btn oc-show-next" id="ocNext" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" class="oc-show-btn oc-show-close" id="ocClose" aria-label="전체 화면 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="oc-show-num" id="ocNum" aria-live="polite">1 / 10</div>
+</div>
+<script>
+(function () {
+    var W = 960, H = 540;
+    var frame = document.getElementById('ocFrame');
+    var show = document.getElementById('ocShow');
+    var stage = document.getElementById('ocStage');
+    if (!frame || !show || !stage) return;
+    var slides = [].slice.call(frame.querySelectorAll('.oc-slide'));
+    var N = slides.length, cur = 0, lastFocus = null, idleT = null;
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* 본문: 틀 폭에 맞춰 960×540을 줄이고, 현재 장만 보인다 */
+    function fitFrame() {
+        var k = frame.clientWidth / W;
+        slides.forEach(function (s) { s.style.transform = 'scale(' + k + ')'; });
+    }
+    function paintInline() {
+        slides.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+        $('ocCount').textContent = (cur + 1) + ' / ' + N;
+        $('ocPrevIn').disabled = cur === 0;
+        $('ocNextIn').disabled = cur === N - 1;
+    }
+    fitFrame();
+    paintInline();
+    if ('ResizeObserver' in window) new ResizeObserver(fitFrame).observe(frame);
+    else window.addEventListener('resize', fitFrame);
+
+    /* 발표: 화면 안에 들어가는 가장 큰 16:9 */
+    function fitStage() {
+        var vw = show.clientWidth, vh = show.clientHeight;
+        var k = Math.min(vw / W, vh / H);
+        stage.style.transform = 'translate(' + ((vw - W * k) / 2) + 'px,' + ((vh - H * k) / 2) + 'px) scale(' + k + ')';
+    }
+    function render() {
+        var c = slides[cur].cloneNode(true);
+        c.style.transform = '';
+        c.classList.add('on');
+        stage.innerHTML = '';
+        stage.appendChild(c);
+        $('ocNum').textContent = (cur + 1) + ' / ' + N;
+        $('ocPrev').disabled = cur === 0;
+        $('ocNext').disabled = cur === N - 1;
+        fitStage();
+    }
+    function go(i) {
+        i = Math.max(0, Math.min(N - 1, i));
+        if (i === cur && (show.hidden || stage.firstChild)) return;
+        cur = i;
+        paintInline();
+        if (!show.hidden) render();
+    }
+    function wake() {
+        show.classList.remove('idle');
+        clearTimeout(idleT);
+        idleT = setTimeout(function () { show.classList.add('idle'); }, 2500);
+    }
+    function open(i) {
+        lastFocus = document.activeElement;
+        cur = i;
+        show.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        render();
+        wake();
+        $('ocClose').focus({ preventScroll: true });
+        if (show.requestFullscreen) show.requestFullscreen().catch(function () {});
+        else if (show.webkitRequestFullscreen) show.webkitRequestFullscreen();
+    }
+    function close() {
+        if (show.hidden) return;
+        show.hidden = true;
+        stage.innerHTML = '';
+        clearTimeout(idleT);
+        document.documentElement.style.overflow = '';
+        var fe = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        paintInline();
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+
+    $('ocPlay').addEventListener('click', function () { open(0); });
+    frame.addEventListener('click', function () { open(cur); });
+    frame.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(cur); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+    });
+    $('ocPrevIn').addEventListener('click', function () { go(cur - 1); });
+    $('ocNextIn').addEventListener('click', function () { go(cur + 1); });
+    $('ocPrev').addEventListener('click', function () { go(cur - 1); });
+    $('ocNext').addEventListener('click', function () { go(cur + 1); });
+    $('ocClose').addEventListener('click', close);
+
+    /* 슬라이드 빈 곳: 왼쪽 1/3은 이전, 나머지는 다음 */
+    stage.addEventListener('click', function (e) {
+        if (e.clientX < show.clientWidth / 3) go(cur - 1); else go(cur + 1);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (show.hidden) return;
+        var k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { if (k === 'Enter' && e.target.tagName === 'BUTTON') return; e.preventDefault(); go(cur + 1); }
+        else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(cur - 1); }
+        else if (k === 'Home') { e.preventDefault(); go(0); }
+        else if (k === 'End') { e.preventDefault(); go(N - 1); }
+        else if (k === 'Escape') { e.preventDefault(); close(); }
+        wake();
+    });
+    show.addEventListener('mousemove', wake);
+
+    /* 스와이프 */
+    var sx = null, sy = 0;
+    show.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; wake(); }, { passive: true });
+    show.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
+    });
+
+    /* 브라우저 전체 화면을 Esc로 먼저 빠져나오면 발표도 닫는다 */
+    function onFs() { if (!(document.fullscreenElement || document.webkitFullscreenElement)) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+    window.addEventListener('resize', function () { if (!show.hidden) fitStage(); });
+})();
+</script>
+<!-- /ORI-SLIDES 전체 화면 -->
 </body>
 </html>

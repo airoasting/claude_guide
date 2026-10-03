@@ -1280,6 +1280,217 @@
     <!-- ANALYTICS-STD -->
     <script defer src="assets/js/analytics.js"></script>
     <!-- /ANALYTICS-STD -->
+    <!-- SKILL-SLIDES -->
+    <style>
+        /* ═════ SKILL-SLIDES: 나만의 스킬 만들기 콜라주 슬라이드. 960×540 좌표계, 틀 폭에 맞춰 scale. 구조는 ai-levels LV-SLIDES와 같다 ═════ */
+        .sk-wrap { margin: 0 0 48px; }
+        .sk-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .sk-title { margin: 0; font-size: 18px; font-weight: 800; color: #2E2A26; letter-spacing: -0.2px; }
+        .sk-play {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer;
+            background: #1A1917; color: #fff; font: inherit; font-size: 14px; font-weight: 700;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+        .sk-play svg { width: 17px; height: 17px; }
+        .sk-play:hover { background: var(--ant-orange); transform: translateY(-1px); }
+        .sk-frame {
+            position: relative; aspect-ratio: 16 / 9; overflow: hidden; cursor: zoom-in;
+            border-radius: 14px; background: #E4D6BB;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 10px 32px rgba(0,0,0,0.10);
+        }
+        .sk-frame:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 3px; }
+        .sk-frame::after {
+            content: ''; position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(26,25,23,0.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E") center / 15px no-repeat;
+            opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+        }
+        .sk-frame:hover::after, .sk-frame:focus-visible::after { opacity: 1; }
+        .sk-frame > .sk-slide { display: none; }
+        .sk-frame > .sk-slide.on { display: block; }
+        .sk-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+        .sk-nav button {
+            display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+            border: 1px solid #D8D2C8; border-radius: 50%; background: #fff; color: #3A3530; cursor: pointer;
+            transition: border-color 0.18s ease, color 0.18s ease;
+        }
+        .sk-nav button:hover:not(:disabled) { border-color: var(--ant-orange); color: var(--ant-orange); }
+        .sk-nav button:disabled { opacity: 0.35; cursor: default; }
+        .sk-nav button svg { width: 18px; height: 18px; }
+        .sk-count { min-width: 56px; text-align: center; font-size: 14px; font-weight: 700; color: #6B645C; font-variant-numeric: tabular-nums; }
+
+        /* 슬라이드 공통 */
+        .sk-slide {
+            position: absolute; left: 0; top: 0; width: 960px; height: 540px; overflow: hidden;
+            transform-origin: 0 0; color: #1A1917; line-height: 1.3; text-align: left;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            word-break: keep-all; -webkit-font-smoothing: antialiased; letter-spacing: -0.2px;
+            background-color: #E4D6BB;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .26 0 0 0 0 .13 0 0 0 .20 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+                radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.35), transparent 60%);
+        }
+        .sk-slide.sk-night { background-color: #2A2622; color: #F4EEE3; }
+        .sk-slide * { box-sizing: border-box; }
+        .sk-slide .ab { position: absolute; }
+        .sk-slide svg { display: block; }
+
+        /* 종잇조각: 바깥은 그림자, 안쪽은 찢긴 모양 */
+        .sk-scrap { filter: drop-shadow(0 5px 9px rgba(60,40,20,0.22)) drop-shadow(0 1px 1px rgba(60,40,20,0.15)); }
+        .sk-in { position: relative; width: 100%; height: 100%; background: #FBF7EE; }
+        .sk-torn-b { clip-path: polygon(0.0% 0.0%, 100.0% 0.0%, 100.0% 97.5%, 96.4% 97.2%, 92.9% 96.5%, 89.3% 96.6%, 85.7% 97.2%, 82.1% 99.4%, 78.6% 96.2%, 75.0% 99.9%, 71.4% 97.6%, 67.9% 98.3%, 64.3% 99.8%, 60.7% 98.5%, 57.1% 96.9%, 53.6% 96.5%, 50.0% 99.3%, 46.4% 97.7%, 42.9% 96.4%, 39.3% 96.3%, 35.7% 97.7%, 32.1% 96.1%, 28.6% 98.0%, 25.0% 96.2%, 21.4% 97.5%, 17.9% 98.1%, 14.3% 96.3%, 10.7% 98.6%, 7.1% 96.6%, 3.6% 97.3%, 0.0% 98.5%); }
+        .sk-torn-tb { clip-path: polygon(0.0% 1.6%, 3.6% 2.6%, 7.1% 0.6%, 10.7% 1.9%, 14.3% 2.0%, 17.9% 1.2%, 21.4% 1.8%, 25.0% 0.2%, 28.6% 0.2%, 32.1% 0.7%, 35.7% 2.2%, 39.3% 1.4%, 42.9% 1.0%, 46.4% 1.9%, 50.0% 1.5%, 53.6% 1.0%, 57.1% 2.5%, 60.7% 2.2%, 64.3% 0.8%, 67.9% 1.8%, 71.4% 1.7%, 75.0% 2.8%, 78.6% 2.3%, 82.1% 0.9%, 85.7% 3.1%, 89.3% 0.4%, 92.9% 1.3%, 96.4% 2.4%, 100.0% 1.6%, 100.0% 98.4%, 96.4% 97.3%, 92.9% 98.3%, 89.3% 96.9%, 85.7% 98.9%, 82.1% 98.0%, 78.6% 97.7%, 75.0% 99.4%, 71.4% 100.0%, 67.9% 98.9%, 64.3% 99.0%, 60.7% 97.0%, 57.1% 98.9%, 53.6% 98.3%, 50.0% 99.8%, 46.4% 99.5%, 42.9% 98.3%, 39.3% 98.7%, 35.7% 98.7%, 32.1% 99.0%, 28.6% 97.8%, 25.0% 99.6%, 21.4% 98.6%, 17.9% 99.2%, 14.3% 98.9%, 10.7% 96.9%, 7.1% 98.4%, 3.6% 97.3%, 0.0% 98.4%); }
+        .sk-grid { background-color: #FBF7EE; background-image: linear-gradient(rgba(120,150,190,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(120,150,190,0.22) 1px, transparent 1px); background-size: 22px 22px; }
+        .sk-lined { background-color: #FBF7EE; background-image: linear-gradient(transparent 31px, rgba(120,150,190,0.3) 31px, rgba(120,150,190,0.3) 32px); background-size: 100% 32px; }
+        .sk-yellow { background: #F5D56A; }
+        .sk-ink { background: #1A1917; color: #F4EEE3; }
+        .sk-card { background: #C9A876; background-image: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%); }
+
+        /* 마스킹 테이프 */
+        .sk-tape {
+            position: absolute; width: 92px; height: 26px; z-index: 3;
+            background: rgba(246,236,205,0.78); box-shadow: 0 1px 2px rgba(60,40,20,0.12);
+            clip-path: polygon(3.0% 0.0%, 97.0% 0.0%, 100.0% 18.0%, 96.0% 36.0%, 100.0% 55.0%, 95.0% 74.0%, 100.0% 100.0%, 3.0% 100.0%, 0.0% 80.0%, 4.0% 60.0%, 0.0% 42.0%, 5.0% 22.0%);
+        }
+        .sk-tape.or { background: repeating-linear-gradient(-45deg, rgba(217,119,87,0.85) 0 7px, rgba(250,230,215,0.85) 7px 14px); }
+        .sk-tape.lab {
+            width: auto; height: auto; padding: 7px 16px; font-size: 16px; font-weight: 800; color: #1A1917; white-space: nowrap;
+            background: rgba(245,213,106,0.92);
+        }
+        .sk-tape.lab small { font-size: 12px; font-weight: 700; opacity: 0.6; margin-left: 6px; }
+
+        /* 오려 붙인 글자 */
+        .sk-cut { display: flex; gap: 4px; align-items: flex-end; }
+        .sk-cut span {
+            display: inline-block; padding: 2px 10px 6px; font-weight: 900; line-height: 1; letter-spacing: -1px;
+            box-shadow: 0 3px 6px rgba(60,40,20,0.2);
+        }
+        .sk-cut span:nth-child(5n+1) { background: #1A1917; color: #F4EEE3; transform: rotate(-3deg); }
+        .sk-cut span:nth-child(5n+2) { background: #D97757; color: #fff; transform: rotate(2deg) translateY(-4px); }
+        .sk-cut span:nth-child(5n+3) { background: #FBF7EE; color: #1A1917; transform: rotate(-1.5deg) translateY(3px); font-weight: 700; }
+        .sk-cut span:nth-child(5n+4) { background: #F5D56A; color: #1A1917; transform: rotate(3deg); }
+        .sk-cut span:nth-child(5n+5) { background: #8FA98B; color: #fff; transform: rotate(-2deg) translateY(-2px); }
+
+        .sk-strip { padding: 10px 18px; font-weight: 800; box-shadow: 0 4px 8px rgba(60,40,20,0.22); }
+        .sk-halftone { border-radius: 50%; background-image: radial-gradient(#D97757 2px, transparent 2.3px); background-size: 11px 11px; opacity: 0.75; }
+        .sk-sticker {
+            display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 50%;
+            font-weight: 900; line-height: 1.15; box-shadow: 0 4px 10px rgba(60,40,20,0.25);
+        }
+        .sk-stamp {
+            padding: 8px 16px; border: 3px solid #C0392B; border-radius: 6px; color: #C0392B;
+            font-size: 22px; font-weight: 900; letter-spacing: 1px; opacity: 0.82;
+            box-shadow: inset 0 0 0 2px rgba(192,57,43,0.25);
+        }
+        .sk-num { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: rgba(26,25,23,0.55); }
+        .sk-night .sk-num { color: rgba(244,238,227,0.5); }
+        .sk-chip { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 800; }
+
+        /* ═════ 전체 화면 ═════ */
+        .sk-show { position: fixed; inset: 0; z-index: 2147483000; background: #0b0d0c; overflow: hidden; touch-action: pan-y; }
+        .sk-show[hidden] { display: none; }
+        .sk-show-stage { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; }
+        .sk-show-btn {
+            position: absolute; z-index: 2; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: #fff; transition: background 0.18s ease, opacity 0.3s ease;
+        }
+        .sk-show-btn:hover { background: rgba(255,255,255,0.24); }
+        .sk-show-btn:disabled { opacity: 0.25 !important; cursor: default; }
+        .sk-show-btn svg { width: 22px; height: 22px; }
+        .sk-show-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+        .sk-show-next { right: 20px; top: 50%; transform: translateY(-50%); }
+        .sk-show-close { right: 20px; top: 20px; width: 44px; height: 44px; }
+        .sk-show-num {
+            position: absolute; z-index: 2; left: 50%; bottom: 18px; transform: translateX(-50%);
+            padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease;
+        }
+        .sk-show.idle .sk-show-btn, .sk-show.idle .sk-show-num { opacity: 0; }
+        .sk-show.idle { cursor: none; }
+        @media (max-width: 768px) {
+            .sk-frame { border-radius: 10px; }
+            .sk-toolbar { flex-direction: column; align-items: flex-start; }
+            .sk-show-btn { width: 40px; height: 40px; }
+            .sk-show-prev { left: 10px; top: auto; bottom: 12px; transform: none; }
+            .sk-show-next { right: 10px; top: auto; bottom: 12px; transform: none; }
+            .sk-show-close { right: 10px; top: 10px; }
+        }
+
+        /* 스킬 슬라이드 전용 조각. 구성 요소 색은 본문 6가지 구성 요소 번호 색과 같다 */
+        .sk-tag {
+            display: inline-block; padding: 6px 14px 8px; border-radius: 6px; color: #fff;
+            font-weight: 900; line-height: 1; letter-spacing: -0.4px; white-space: nowrap;
+            box-shadow: 0 4px 9px rgba(60,40,20,0.24);
+        }
+        .sk-code {
+            font-family: 'SF Mono', Menlo, Consolas, 'Pretendard', monospace; font-size: 16px; line-height: 1.75;
+            white-space: pre; letter-spacing: 0; font-weight: 600;
+        }
+        .sk-code .k { color: #C0392B; }
+        .sk-code .s { color: #2E7D5B; }
+        .sk-code .c { color: #8A8178; font-weight: 500; }
+        .sk-code .c, .sk-code .kr { font-family: 'Pretendard', -apple-system, sans-serif; letter-spacing: -0.2px; }
+        .sk-code .hl { background: #F5D56A; color: #1A1917; padding: 0 3px; font-weight: 800; }
+        .sk-ink .sk-code { color: #C9C0B4; }
+        .sk-ink .sk-code .s { color: #8FD3A8; }
+        .sk-ink .sk-code .c { color: #8A8178; }
+        .sk-file { display: flex; align-items: center; padding: 0 18px; background: #fff; font-size: 17px; font-weight: 700; color: #3A3530; }
+        .sk-file.x { color: #A39B91; text-decoration: line-through; text-decoration-color: #C0392B; text-decoration-thickness: 3px; }
+        .sk-after { font-size: 19px; font-weight: 700; line-height: 1.4; padding: 11px 0; border-top: 1px dashed rgba(26,25,23,0.25); }
+        .sk-after b { font-weight: 900; }
+
+        .sk-comp { padding: 18px 20px; }
+        .sk-comp-h { display: flex; align-items: center; gap: 10px; font-size: 23px; font-weight: 900; letter-spacing: -0.5px; }
+        .sk-comp-h b { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; color: #fff; font-size: 17px; }
+        .sk-comp-h small { font-size: 13px; font-weight: 700; color: #8A8178; letter-spacing: 0; }
+        .sk-comp-q { margin-top: 12px; font-size: 18px; font-weight: 800; color: #3A3530; }
+        .sk-comp-f {
+            position: absolute; left: 20px; right: 20px; bottom: 16px; padding-top: 10px; border-top: 1px dashed rgba(26,25,23,0.22);
+            font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; font-weight: 600; color: #6B645C; letter-spacing: 0; white-space: nowrap;
+        }
+
+        .sk-load { display: flex; align-items: center; gap: 14px; padding: 0 18px; }
+        .sk-load > b { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: #D97757; color: #fff; font-size: 17px; }
+        .sk-load-t { font-family: 'SF Mono', Menlo, Consolas, 'Pretendard', monospace; font-size: 17px; font-weight: 800; letter-spacing: 0; }
+        .sk-load-d { margin-top: 4px; font-size: 14px; font-weight: 700; color: #6B645C; }
+
+        .sk-crit { padding: 16px 18px; font-size: 18px; font-weight: 800; }
+        .sk-crit-n { font-size: 14px; font-weight: 900; margin-bottom: 8px; }
+
+        .sk-step { padding: 20px 16px; }
+        .sk-step > b { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; color: #fff; font-size: 20px; box-shadow: 0 2px 5px rgba(60,40,20,0.2); }
+        .sk-step-t { margin-top: 16px; font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+        .sk-step-d { margin-top: 10px; font-size: 14.5px; font-weight: 700; line-height: 1.45; color: #5A534B; }
+
+        .sk-chk { position: relative; padding: 0 0 0 38px; font-size: 18px; font-weight: 800; line-height: 1.4; min-height: 58px; display: flex; align-items: center; }
+        .sk-chk::before {
+            content: ''; position: absolute; left: 0; top: 50%; width: 24px; height: 24px; margin-top: -12px; border-radius: 5px; background: #D97757
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 16px no-repeat;
+        }
+        .sk-no { margin-bottom: 16px; }
+        .sk-no s { display: block; font-size: 18px; font-weight: 900; color: #3A3530; text-decoration-color: #C0392B; text-decoration-thickness: 3px; }
+        .sk-no span { display: block; margin-top: 5px; font-size: 14px; font-weight: 700; color: #6B645C; }
+
+        .sk-rx { left: 50px; width: 860px; height: 56px; display: flex; align-items: center; gap: 12px; }
+        .sk-rx-s { flex: 0 0 400px; height: 56px; }
+        .sk-rx-s .sk-in { display: flex; align-items: center; gap: 12px; padding: 0 18px; font-size: 19px; font-weight: 900; letter-spacing: -0.4px; }
+        .sk-rx-s i { font-style: normal; font-size: 13px; font-weight: 800; color: #D97757; }
+        .sk-rx-a { flex: none; font-size: 24px; font-weight: 900; color: #8A6E4B; }
+        .sk-rx-p { flex: 1; height: 56px; }
+        .sk-rx-p .sk-in { display: flex; align-items: center; gap: 12px; padding: 0 14px; background: #F5D56A; }
+        .sk-rx-p b { flex: none; padding: 5px 9px; border-radius: 4px; color: #fff; font-size: 13px; font-weight: 800; white-space: nowrap; }
+        .sk-rx-p span { font-size: 15px; font-weight: 800; line-height: 1.3; }
+
+        .sk-pr { padding: 18px 22px 0 92px; }
+        .sk-pr-n { position: absolute; left: 22px; top: 14px; font-family: Georgia, 'Times New Roman', serif; font-size: 46px; font-weight: 700; color: #D97757; line-height: 1; }
+        .sk-pr-t { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+        .sk-pr-e { margin-top: 2px; font-size: 13px; font-weight: 700; color: #8A8178; letter-spacing: 0; }
+        .sk-pr-d { margin-top: 10px; font-size: 15px; font-weight: 700; line-height: 1.45; color: #3A3530; }
+        .sk-pr-m { position: absolute; left: 92px; bottom: 16px; display: flex; gap: 6px; }
+        .sk-pr-m b { padding: 4px 9px; border-radius: 4px; color: #fff; font-size: 12.5px; font-weight: 800; }
+    </style>
+    <!-- /SKILL-SLIDES -->
 </head>
 <body>
 <!-- SKIP-STD -->
@@ -1349,7 +1560,6 @@
     </div>
     <div class="header-pages" id="pages-tool" style="display:none;">
         <a href="agent-tools.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9.5" width="17" height="9.5" rx="1.8"/><path d="M8.5 9.5V7a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2.5"/><path d="M3.5 13.5h17"/></svg></span> 에이전트의 도구</a>
-        <a href="code-plugin.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h4.2a1.7 1.7 0 1 1 0 3.3H12V5h4a2 2 0 0 1 2 2v3.5a1.7 1.7 0 1 0 0 3.3V17a2 2 0 0 1-2 2h-4v-3.3H8.8a1.7 1.7 0 1 1 0-3.4H5z"/></svg></span> 스킬·MCP 플러그인</a>
         <a href="mcp-examples.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span> MCP 연결 실전</a>
     </div>
 </header>
@@ -1394,6 +1604,266 @@
 </nav>
 
 <main class="container" id="main" tabindex="-1">
+
+    <!-- ── SKILL-SLIDES: 나만의 스킬 만들기 콜라주 슬라이드. 문구와 숫자는 모두 이 페이지 본문을 따른다 ── -->
+    <div class="sk-wrap">
+        <div class="sk-toolbar">
+            <p class="sk-title">나만의 스킬 만들기, 슬라이드 열 장으로 먼저 보기</p>
+            <button type="button" class="sk-play" id="skPlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+                전체 화면으로 보기
+            </button>
+        </div>
+        <div class="sk-frame" id="skFrame" tabindex="0" role="button" aria-label="나만의 스킬 만들기 슬라이드, 전체 화면으로 보기">
+
+            <!-- 01 표지 -->
+            <div class="sk-slide on">
+                <div class="ab sk-halftone" style="left:600px;top:-60px;width:440px;height:440px"></div>
+                <div class="ab sk-scrap" style="left:54px;top:62px;width:500px;height:400px;transform:rotate(-2deg)">
+                    <div class="sk-in sk-grid sk-torn-b"></div>
+                </div>
+                <span class="sk-tape" style="left:34px;top:54px;transform:rotate(-36deg)"></span>
+                <span class="sk-tape or" style="left:482px;top:56px;width:84px;transform:rotate(30deg)"></span>
+                <div class="ab" style="left:92px;top:100px;transform:rotate(-2deg);transform-origin:0 0">
+                    <span class="sk-chip sk-ink">반복 설명 없이, 내 방식대로</span>
+                    <div class="sk-cut" style="margin-top:26px;font-size:78px"><span>나</span><span>만</span><span>의</span></div>
+                    <div class="sk-cut" style="margin-top:14px;font-size:78px"><span>S</span><span>k</span><span>i</span><span>l</span><span>l</span></div>
+                    <div style="margin-top:30px;font-size:21px;font-weight:800;line-height:1.5">Claude에게 <span style="background:#F5D56A;padding:0 4px">"우리 회사는 이렇게 일해"</span>를<br>미리 알려주는 업무 매뉴얼</div>
+                </div>
+                <div class="ab sk-scrap" style="left:604px;top:96px;width:300px;height:292px;transform:rotate(3deg)">
+                    <div class="sk-in sk-lined sk-torn-b" style="padding:26px 24px">
+                        <div class="sk-code" style="font-size:16px;line-height:32px"><span class="c">---</span>
+name: <span class="s">meeting-notes</span>
+description: <span class="s kr">언제 부를지</span>
+<span class="c">---</span>
+<span class="k">##</span> <span class="kr">페르소나</span>
+<span class="k">##</span> <span class="kr">평가 기준</span>
+<span class="k">##</span> <span class="kr">진행 규칙</span>
+<span class="k">##</span> <span class="kr">하지 말 것</span></div>
+                    </div>
+                </div>
+                <span class="sk-tape lab" style="left:676px;top:80px;transform:rotate(-3deg)">SKILL.md</span>
+                <div class="ab sk-sticker" style="left:800px;top:378px;width:118px;height:118px;background:#D97757;color:#fff;font-size:21px;transform:rotate(-10deg)">6가지<br>구성 요소</div>
+                <div class="ab sk-num" style="left:40px;top:504px">01 / 10 · AI ROASTING</div>
+            </div>
+
+            <!-- 02 BEFORE · AFTER -->
+            <div class="sk-slide">
+                <div class="ab sk-strip sk-ink" style="left:48px;top:40px;font-size:30px;transform:rotate(-1.5deg)">매번 같은 설명을 반복하고 계신가요?</div>
+                <span class="sk-tape lab" style="left:60px;top:128px;transform:rotate(-3deg)">BEFORE<small>스킬 없이</small></span>
+                <div class="ab sk-scrap" style="left:56px;top:170px;width:390px;height:54px;transform:rotate(-1deg)"><div class="sk-in sk-file x sk-torn-r">"보고서 형식은 이렇고, 폰트는 저렇고…"</div></div>
+                <div class="ab sk-scrap" style="left:70px;top:236px;width:390px;height:54px;transform:rotate(1deg)"><div class="sk-in sk-file x sk-torn-r">"말투는 격식체, 서명은 이렇게…"</div></div>
+                <div class="ab sk-scrap" style="left:52px;top:302px;width:390px;height:54px;transform:rotate(-0.5deg)"><div class="sk-in sk-file x sk-torn-r">"차트 종류, 색상, 항목 설명…"</div></div>
+                <svg class="ab" style="left:462px;top:220px" width="80" height="60" viewBox="0 0 80 60" fill="none" stroke="#8A6E4B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 36 C 24 14, 46 44, 70 24"/><path d="M58 18l12 6-8 11"/></svg>
+                <div class="ab sk-scrap" style="left:556px;top:140px;width:356px;height:224px;transform:rotate(2deg)">
+                    <div class="sk-in sk-yellow" style="padding:22px 24px">
+                        <div style="font-size:14px;font-weight:800;opacity:0.65;margin-bottom:14px">AFTER · 스킬 적용</div>
+                        <div class="sk-after"><b>"보고서 만들어줘"</b> 한마디면 끝</div>
+                        <div class="sk-after"><b>"고객사에 메일 써줘"</b>로 완성</div>
+                        <div class="sk-after"><b>"매출 분석해줘"</b>면 자동 정리</div>
+                    </div>
+                </div>
+                <span class="sk-tape" style="left:690px;top:128px;transform:rotate(-5deg)"></span>
+                <div class="ab sk-scrap" style="left:56px;top:390px;width:540px;height:96px;transform:rotate(-1deg)">
+                    <div class="sk-in sk-ink sk-torn-tb" style="padding:16px 22px">
+                        <div style="font-size:25px;font-weight:900;letter-spacing:-0.5px">스킬 = <span style="color:#F5D56A">내가 원하는 결과물의 레시피</span></div>
+                        <div style="font-size:15px;font-weight:700;opacity:0.8;margin-top:6px">한 번 만들어두면, 누구든 같은 품질의 결과물을 뽑아낼 수 있습니다</div>
+                    </div>
+                </div>
+                <div class="ab sk-tag" style="left:630px;top:396px;font-size:18px;background:#3B82F6;transform:rotate(-4deg)">반복 설명 제거</div>
+                <div class="ab sk-tag" style="left:780px;top:410px;font-size:18px;background:#10B981;transform:rotate(5deg)">일관된 품질</div>
+                <div class="ab sk-tag" style="left:676px;top:452px;font-size:18px;background:#8B5CF6;transform:rotate(-2deg)">팀과 공유 가능</div>
+                <div class="ab sk-num" style="left:870px;top:40px">02 / 10</div>
+            </div>
+
+            <!-- 03 6가지 구성 요소 -->
+            <div class="sk-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="sk-cut" style="font-size:54px"><span>6</span><span>요</span><span>소</span></div>
+                    <div class="sk-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">잘 만든 스킬은 여섯 가지를 갖춥니다</div>
+                </div>
+                <div class="ab sk-scrap" style="left:50px;top:134px;width:272px;height:160px;transform:rotate(-1.5deg)"><div class="sk-in sk-comp"><div class="sk-comp-h"><b style="background:#F59E0B">1</b>역할 <small>Role</small></div><div class="sk-comp-q">누가 수행하는가?</div><div class="sk-comp-f">## 페르소나</div></div></div>
+                <div class="ab sk-scrap" style="left:344px;top:142px;width:272px;height:160px;transform:rotate(1deg)"><div class="sk-in sk-comp"><div class="sk-comp-h"><b style="background:#06B6D4">2</b>평가 기준 <small>Rubric</small></div><div class="sk-comp-q">무엇이 합격인가?</div><div class="sk-comp-f">## 평가 기준</div></div></div>
+                <div class="ab sk-scrap" style="left:638px;top:132px;width:272px;height:160px;transform:rotate(-0.8deg)"><div class="sk-in sk-comp"><div class="sk-comp-h"><b style="background:#3B82F6">3</b>맥락 <small>Context</small></div><div class="sk-comp-q">무엇을 알고 시작하는가?</div><div class="sk-comp-f">description + references/</div></div></div>
+                <div class="ab sk-scrap" style="left:56px;top:318px;width:272px;height:160px;transform:rotate(1.2deg)"><div class="sk-in sk-comp"><div class="sk-comp-h"><b style="background:#10B981">4</b>도구 <small>Tools</small></div><div class="sk-comp-q">무엇을 쓸 수 있는가?</div><div class="sk-comp-f">## 도구 + scripts/</div></div></div>
+                <div class="ab sk-scrap" style="left:348px;top:326px;width:272px;height:160px;transform:rotate(-1.5deg)"><div class="sk-in sk-comp"><div class="sk-comp-h"><b style="background:#8B5CF6">5</b>절차 <small>Workflow</small></div><div class="sk-comp-q">어떤 순서로 하는가?</div><div class="sk-comp-f">## 진행 규칙 + ## 출력 형식</div></div></div>
+                <div class="ab sk-scrap" style="left:640px;top:316px;width:272px;height:160px;transform:rotate(1.5deg)"><div class="sk-in sk-comp"><div class="sk-comp-h"><b style="background:#DC4C3C">6</b>가드레일 <small>Guardrail</small></div><div class="sk-comp-q">무엇을 하지 않는가?</div><div class="sk-comp-f">## 하지 말 것</div></div></div>
+                <span class="sk-tape" style="left:140px;top:122px;transform:rotate(-5deg)"></span>
+                <span class="sk-tape or" style="left:440px;top:130px;width:80px;transform:rotate(4deg)"></span>
+                <span class="sk-tape" style="left:730px;top:120px;transform:rotate(6deg)"></span>
+                <div class="ab sk-num" style="left:50px;top:506px">03 / 10 · 여섯 가지를 모두 갖춰야 정확히 호출되고 일관된 수준으로 응답합니다</div>
+            </div>
+
+            <!-- 04 폴더 구조와 읽는 순서 -->
+            <div class="sk-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="sk-cut" style="font-size:54px"><span>폴</span><span>더</span></div>
+                    <div class="sk-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">SKILL.md 하나면 작동하고, 커지면 폴더로 나눕니다</div>
+                </div>
+                <div class="ab sk-scrap" style="left:50px;top:146px;width:470px;height:290px;transform:rotate(-1.5deg)">
+                    <div class="sk-in sk-ink" style="padding:28px 28px">
+                        <div class="sk-code" style="font-size:18px;line-height:2.1"><span style="color:#F4EEE3;font-weight:800">poem-critique-team/</span>
+├── <span class="hl">SKILL.md</span>      <span class="c">필수 · 이 파일 하나면 작동</span>
+├── <span class="s">references/</span>   <span class="c">길어진 절차·기준</span>
+├── <span class="s">assets/</span>       <span class="c">템플릿·이미지·폰트</span>
+└── <span class="s">scripts/</span>      <span class="c">실행할 코드</span></div>
+                        <div style="margin-top:22px;font-size:14px;font-weight:700;color:#C9C0B4">스킬 이름 = 폴더 이름</div>
+                    </div>
+                </div>
+                <span class="sk-tape" style="left:200px;top:128px;transform:rotate(-4deg)"></span>
+                <span class="sk-tape lab" style="left:574px;top:126px;transform:rotate(-3deg)">Claude가 읽는 순서</span>
+                <div class="ab sk-scrap" style="left:560px;top:172px;width:300px;height:80px;transform:rotate(1deg)"><div class="sk-in sk-load"><b>1</b><div><div class="sk-load-t">description</div><div class="sk-load-d">먼저 이것만 읽고 부를지 정합니다</div></div></div></div>
+                <div class="ab sk-scrap" style="left:590px;top:268px;width:300px;height:80px;transform:rotate(-1deg)"><div class="sk-in sk-load"><b>2</b><div><div class="sk-load-t">SKILL.md <span style="font-family:'Pretendard',sans-serif">본문</span></div><div class="sk-load-d">스킬이 호출되면 읽습니다</div></div></div></div>
+                <div class="ab sk-scrap" style="left:600px;top:364px;width:330px;height:80px;transform:rotate(1.5deg)"><div class="sk-in sk-load"><b>3</b><div><div class="sk-load-t">references/ · assets/</div><div class="sk-load-d">필요할 때만 꺼내 봅니다</div></div></div></div>
+                <div class="ab" style="left:560px;top:470px;font-size:15px;font-weight:800;color:#5A4A36">자주 안 쓰는 내용을 빼두면 본문은 가볍게 유지됩니다</div>
+                <div class="ab sk-num" style="left:50px;top:506px">04 / 10</div>
+            </div>
+
+            <!-- 05 실습: 시 쓰기 스킬 -->
+            <div class="sk-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="sk-cut" style="font-size:54px"><span>실</span><span>습</span></div>
+                    <div class="sk-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">시 쓰기 스킬 · 5인 페르소나가 함께 비평합니다</div>
+                </div>
+                <div class="ab sk-scrap" style="left:50px;top:146px;width:300px;height:212px;transform:rotate(-2deg)">
+                    <div class="sk-in sk-lined" style="padding:22px 24px">
+                        <div style="font-size:13px;font-weight:800;color:#8A8178;line-height:32px">입력 · 시 초고「가을 저녁」</div>
+                        <div style="font-size:18px;font-weight:700;line-height:32px;font-family:'Nanum Myeongjo','AppleMyungjo',serif">노을이 붉게 타오르고<br>낙엽은 바람에 흩날린다<br>나는 홀로 길을 걷는다<br>쓸쓸함이 마음에 스며든다</div>
+                    </div>
+                </div>
+                <span class="sk-tape" style="left:150px;top:128px;transform:rotate(-6deg)"></span>
+                <div class="ab sk-scrap" style="left:390px;top:136px;width:254px;height:90px;transform:rotate(1deg)"><div class="sk-in sk-crit"><div class="sk-crit-n" style="color:#C93030">래드 · 평론가</div>클리셰를 신선한 이미지로</div></div>
+                <div class="ab sk-scrap" style="left:660px;top:144px;width:254px;height:90px;transform:rotate(-1.5deg)"><div class="sk-in sk-crit"><div class="sk-crit-n" style="color:#8F6809">골드 · 일반 독자</div>마음에 남는 한 장면</div></div>
+                <div class="ab sk-scrap" style="left:396px;top:240px;width:254px;height:90px;transform:rotate(-1deg)"><div class="sk-in sk-crit"><div class="sk-crit-n" style="color:#7B3FA0">퍼플 · 언어 미학</div>감정을 사물에 담기</div></div>
+                <div class="ab sk-scrap" style="left:656px;top:246px;width:254px;height:90px;transform:rotate(1.5deg)"><div class="sk-in sk-crit"><div class="sk-crit-n" style="color:#6A6A7A">화이트 · 운율</div>행 길이와 호흡의 변주</div></div>
+                <div class="ab sk-scrap" style="left:394px;top:356px;width:516px;height:124px;transform:rotate(-0.8deg)">
+                    <div class="sk-in sk-ink sk-torn-tb" style="padding:18px 24px">
+                        <div style="font-size:15px;font-weight:800;color:#F5D56A;margin-bottom:10px">블랙 · 시인(총괄)의 합의 · 개선 방향</div>
+                        <div style="font-size:19px;font-weight:800;line-height:1.6">① 클리셰 교체 &nbsp;② 한 장면 집중<br>③ 사물로 감정 객관화 &nbsp;④ 호흡 변주</div>
+                    </div>
+                </div>
+                <div class="ab sk-sticker" style="left:236px;top:364px;width:126px;height:126px;background:#D97757;color:#fff;font-size:17px;transform:rotate(-10deg)">평균 9.5점<br>미만이면<br>다시 쓴다</div>
+                <div class="ab sk-num" style="left:50px;top:506px">05 / 10</div>
+            </div>
+
+            <!-- 06 실전 5단계 -->
+            <div class="sk-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="sk-cut" style="font-size:54px"><span>5</span><span>단</span><span>계</span></div>
+                    <div class="sk-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">Claude Code로 만드는 실전 순서</div>
+                </div>
+                <div class="ab sk-scrap" style="left:46px;top:148px;width:164px;height:214px;transform:rotate(-2deg)"><div class="sk-in sk-step sk-torn-b"><b style="background:#3B82F6">1</b><div class="sk-step-t">업무 고르기</div><div class="sk-step-d">5문항 중 3개 이상이면 후보</div></div></div>
+                <div class="ab sk-scrap" style="left:226px;top:166px;width:164px;height:214px;transform:rotate(1.5deg)"><div class="sk-in sk-step sk-torn-b"><b style="background:#10B981">2</b><div class="sk-step-t">폴더 열기</div><div class="sk-step-d">스킬 이름으로 폴더를 만들고 Claude Code로 엽니다</div></div></div>
+                <div class="ab sk-scrap" style="left:406px;top:144px;width:164px;height:214px;transform:rotate(-1deg)"><div class="sk-in sk-step sk-torn-b sk-yellow"><b style="background:#F59E0B">3</b><div class="sk-step-t">초안 만들기</div><div class="sk-step-d">skill-creator에 업무를 붙여넣습니다</div></div></div>
+                <div class="ab sk-scrap" style="left:586px;top:164px;width:164px;height:214px;transform:rotate(2deg)"><div class="sk-in sk-step sk-torn-b sk-yellow"><b style="background:#8B5CF6">4</b><div class="sk-step-t">실행하고 고치기</div><div class="sk-step-d">스킬을 쓴 쪽과 안 쓴 쪽을 나란히 비교</div></div></div>
+                <div class="ab sk-scrap" style="left:766px;top:146px;width:164px;height:214px;transform:rotate(-1.5deg)"><div class="sk-in sk-step sk-torn-b"><b style="background:#D97757">5</b><div class="sk-step-t">공개하기</div><div class="sk-step-d">README·LICENSE와 함께 GitHub에</div></div></div>
+                <span class="sk-tape" style="left:90px;top:136px;width:76px;transform:rotate(-5deg)"></span>
+                <span class="sk-tape or" style="left:450px;top:132px;width:76px;transform:rotate(4deg)"></span>
+                <span class="sk-tape" style="left:810px;top:134px;width:76px;transform:rotate(-3deg)"></span>
+                <svg class="ab" style="left:450px;top:384px" width="260" height="64" viewBox="0 0 260 64" fill="none" stroke="#8A6E4B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M220 6 C 210 52, 60 58, 40 10"/><path d="M30 20l10-12 12 10"/><path d="M40 58 C 60 64, 200 64, 222 54" stroke-dasharray="2 7" opacity="0.6"/></svg>
+                <div class="ab sk-strip sk-ink" style="left:452px;top:452px;font-size:18px;transform:rotate(-1deg)">3과 4를 두세 번 오가면 쓸 만해집니다</div>
+                <div class="ab sk-stamp" style="left:90px;top:412px;font-size:18px;transform:rotate(-7deg)">한 번에 완성되는 스킬은 없다</div>
+                <div class="ab sk-num" style="left:870px;top:40px">06 / 10</div>
+            </div>
+
+            <!-- 07 업무 고르기 -->
+            <div class="sk-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="sk-cut" style="font-size:54px"><span>후</span><span>보</span></div>
+                    <div class="sk-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">5문항 중 3개 이상이면 스킬 후보입니다</div>
+                </div>
+                <div class="ab sk-scrap" style="left:50px;top:136px;width:540px;height:340px;transform:rotate(-1deg)">
+                    <div class="sk-in sk-torn-r" style="padding:24px 28px">
+                        <div class="sk-chk">같은 형식, 같은 구조를 매번 반복해서 지시한다</div>
+                        <div class="sk-chk">잘된 결과와 잘못된 결과를 가려낼 기준을 말로 설명할 수 있다</div>
+                        <div class="sk-chk">결과물이 문서, 코드, HTML처럼 Claude가 직접 만들 수 있는 형태다</div>
+                        <div class="sk-chk">한 주에 여러 번, 또는 여러 사람이 반복해서 하는 일이다</div>
+                        <div class="sk-chk">결과가 쓸 만한지 그 자리에서 판단할 수 있다</div>
+                    </div>
+                </div>
+                <span class="sk-tape" style="left:250px;top:124px;transform:rotate(-3deg)"></span>
+                <div class="ab sk-scrap" style="left:626px;top:150px;width:290px;height:300px;transform:rotate(2deg)">
+                    <div class="sk-in" style="padding:22px 22px;background:#E9E3D8">
+                        <div style="font-size:15px;font-weight:800;color:#8A8178;margin-bottom:14px">이런 일은 만들지 않습니다</div>
+                        <div class="sk-no"><s>판단 기준이 매번 바뀌는 일</s><span>고정할 규칙이 없으면 스킬이 방해가 됩니다</span></div>
+                        <div class="sk-no"><s>1년에 한두 번 하는 일</s><span>만드는 시간이 아끼는 시간보다 깁니다</span></div>
+                        <div class="sk-no"><s>몇 달 뒤에야 맞았는지 아는 일</s><span>고칠 근거를 얻지 못합니다</span></div>
+                    </div>
+                </div>
+                <span class="sk-tape or" style="left:730px;top:138px;width:80px;transform:rotate(5deg)"></span>
+                <div class="ab sk-sticker" style="left:520px;top:408px;width:100px;height:100px;background:#1A1917;color:#F5D56A;font-size:26px;transform:rotate(-8deg)">3 / 5</div>
+                <div class="ab sk-num" style="left:870px;top:40px">07 / 10</div>
+            </div>
+
+            <!-- 08 증상별 처방 -->
+            <div class="sk-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="sk-cut" style="font-size:54px"><span>처</span><span>방</span></div>
+                    <div class="sk-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">증상마다 손볼 구성 요소가 정해져 있습니다</div>
+                </div>
+                <div class="ab sk-rx" style="top:132px;transform:rotate(-0.6deg)"><div class="sk-scrap sk-rx-s"><div class="sk-in sk-torn-r"><i>01</i>호출이 되지 않는다</div></div><span class="sk-rx-a">→</span><div class="sk-scrap sk-rx-p"><div class="sk-in"><b style="background:#3B82F6">요소 3 · 맥락</b><span>실제 입력할 문장을 description에 넣는다</span></div></div></div>
+                <div class="ab sk-rx" style="top:202px;transform:rotate(0.5deg)"><div class="sk-scrap sk-rx-s"><div class="sk-in sk-torn-r"><i>02</i>쓸 때마다 결과 수준이 다르다</div></div><span class="sk-rx-a">→</span><div class="sk-scrap sk-rx-p"><div class="sk-in"><b style="background:#06B6D4">요소 2 · 평가 기준</b><span>채점 항목과 합격선을 숫자로 적는다</span></div></div></div>
+                <div class="ab sk-rx" style="top:272px;transform:rotate(-0.4deg)"><div class="sk-scrap sk-rx-s"><div class="sk-in sk-torn-r"><i>03</i>엉뚱한 요청에도 호출된다</div></div><span class="sk-rx-a">→</span><div class="sk-scrap sk-rx-p"><div class="sk-in"><b style="background:#DC4C3C">요소 6 · 가드레일</b><span>적용하지 않을 대상을 직접 적는다</span></div></div></div>
+                <div class="ab sk-rx" style="top:342px;transform:rotate(0.6deg)"><div class="sk-scrap sk-rx-s"><div class="sk-in sk-torn-r"><i>04</i>지시를 늘릴수록 덜 지킨다</div></div><span class="sk-rx-a">→</span><div class="sk-scrap sk-rx-p"><div class="sk-in"><b style="background:#8B5CF6">요소 5 · 절차</b><span>본문은 500줄 안쪽, 나머지는 references/로</span></div></div></div>
+                <div class="ab sk-rx" style="top:412px;transform:rotate(-0.5deg)"><div class="sk-scrap sk-rx-s"><div class="sk-in sk-torn-r"><i>05</i>써도 결과가 나아지지 않는다</div></div><span class="sk-rx-a">→</span><div class="sk-scrap sk-rx-p"><div class="sk-in"><b style="background:#3A3530">검증 방식</b><span>스킬 없이 한 번 더 실행해 나란히 비교한다</span></div></div></div>
+                <div class="ab sk-num" style="left:50px;top:506px">08 / 10</div>
+            </div>
+
+            <!-- 09 Anthropic 4원칙 -->
+            <div class="sk-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="sk-cut" style="font-size:54px"><span>4</span><span>원</span><span>칙</span></div>
+                    <div class="sk-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">6가지 구성 요소의 뿌리, Anthropic 스킬 설계 원칙</div>
+                </div>
+                <div class="ab sk-scrap" style="left:50px;top:132px;width:420px;height:166px;transform:rotate(-1.2deg)"><div class="sk-in sk-pr"><div class="sk-pr-n">I</div><div class="sk-pr-t">점진적 정보 공개</div><div class="sk-pr-e">Progressive disclosure</div><div class="sk-pr-d">메타데이터 → 본문 → 추가 파일 순으로 필요한 만큼만 불러옵니다</div><div class="sk-pr-m"><b style="background:#3B82F6">3 맥락</b></div></div></div>
+                <div class="ab sk-scrap" style="left:490px;top:140px;width:420px;height:166px;transform:rotate(1deg)"><div class="sk-in sk-pr"><div class="sk-pr-n">II</div><div class="sk-pr-t">확장 가능한 구조</div><div class="sk-pr-e">Structure for scale</div><div class="sk-pr-d">본문이 비대해지면 절차·형식·예시를 별도 파일로 나눕니다</div><div class="sk-pr-m"><b style="background:#10B981">4 도구</b><b style="background:#8B5CF6">5 절차</b></div></div></div>
+                <div class="ab sk-scrap" style="left:56px;top:318px;width:420px;height:166px;transform:rotate(0.8deg)"><div class="sk-in sk-pr"><div class="sk-pr-n">III</div><div class="sk-pr-t">Claude 관점에서 생각</div><div class="sk-pr-e">Think from Claude's perspective</div><div class="sk-pr-d">이름과 description이 호출 결정을 좌우합니다</div><div class="sk-pr-m"><b style="background:#F59E0B">1 역할</b></div></div></div>
+                <div class="ab sk-scrap" style="left:494px;top:322px;width:420px;height:166px;transform:rotate(-1.4deg)"><div class="sk-in sk-pr"><div class="sk-pr-n">IV</div><div class="sk-pr-t">Claude와 반복 개선</div><div class="sk-pr-e">Iterate with Claude</div><div class="sk-pr-d">가정이 아니라 실제 동작을 근거로 다듬습니다</div><div class="sk-pr-m"><b style="background:#06B6D4">2 평가 기준</b><b style="background:#DC4C3C">6 가드레일</b></div></div></div>
+                <span class="sk-tape" style="left:220px;top:120px;transform:rotate(-4deg)"></span>
+                <span class="sk-tape or" style="left:660px;top:128px;width:80px;transform:rotate(5deg)"></span>
+                <div class="ab sk-num" style="left:50px;top:508px">09 / 10 · 출처 Anthropic Engineering, Equipping agents for the real world with Agent Skills</div>
+            </div>
+
+            <!-- 10 정리 -->
+            <div class="sk-slide">
+                <div class="ab sk-halftone" style="left:-80px;top:240px;width:380px;height:380px"></div>
+                <div class="ab" style="left:60px;top:70px">
+                    <div class="sk-cut" style="font-size:64px"><span>오</span><span>늘</span></div>
+                    <div class="sk-cut" style="margin-top:12px;font-size:64px"><span>할</span><span>일</span></div>
+                    <div style="margin-top:28px;font-size:20px;font-weight:800;line-height:1.5;color:#3A3530">업무 하나를 골라<br>끝까지 만들어 봅니다</div>
+                </div>
+                <div class="ab sk-scrap" style="left:420px;top:70px;width:490px;height:110px;transform:rotate(1deg)">
+                    <div class="sk-in" style="padding:18px 22px;display:flex;gap:16px;align-items:center">
+                        <span class="sk-sticker" style="flex:none;width:46px;height:46px;background:#3B82F6;color:#fff;font-size:20px">1</span>
+                        <div><div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">스킬로 만들 업무를 하나 고릅니다</div><div style="font-size:14px;font-weight:700;color:#6B645C;margin-top:4px">5문항 중 3개 이상 해당하는 일</div></div>
+                    </div>
+                </div>
+                <div class="ab sk-scrap" style="left:440px;top:206px;width:490px;height:110px;transform:rotate(-1.2deg)">
+                    <div class="sk-in" style="padding:18px 22px;display:flex;gap:16px;align-items:center">
+                        <span class="sk-sticker" style="flex:none;width:46px;height:46px;background:#F59E0B;color:#fff;font-size:20px">2</span>
+                        <div><div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">skill-creator로 초안을 만듭니다</div><div style="font-size:14px;font-weight:700;color:#6B645C;margin-top:4px">초안은 4인 페르소나로 평가합니다</div></div>
+                    </div>
+                </div>
+                <div class="ab sk-scrap" style="left:420px;top:342px;width:490px;height:110px;transform:rotate(-0.6deg)">
+                    <div class="sk-in sk-yellow" style="padding:18px 22px;display:flex;gap:16px;align-items:center">
+                        <span class="sk-sticker" style="flex:none;width:46px;height:46px;background:#1A1917;color:#fff;font-size:20px">3</span>
+                        <div><div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">스킬 없이 한 번 더 실행해 비교합니다</div><div style="font-size:14px;font-weight:700;color:#4A433B;margin-top:4px">차이가 분명할 때까지 고치고, 그다음 설치합니다</div></div>
+                    </div>
+                </div>
+                <span class="sk-tape" style="left:640px;top:58px;transform:rotate(-4deg)"></span>
+                <span class="sk-tape or" style="left:650px;top:332px;width:84px;transform:rotate(5deg)"></span>
+                <div class="ab sk-num" style="left:60px;top:504px">10 / 10 · AI ROASTING</div>
+            </div>
+
+        </div>
+        <div class="sk-nav">
+            <button type="button" id="skPrevIn" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <span class="sk-count" id="skCount" aria-live="polite">1 / 10</span>
+            <button type="button" id="skNextIn" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+    </div>
+    <!-- ── /SKILL-SLIDES ── -->
+
 
 
 
@@ -2215,10 +2685,10 @@
          CTA · 다음 단계로
          ═══════════════════════════════════════ -->
     <div class="cta-section reveal">
-        <h3>스킬을 만들었다면, 플러그인으로 묶어보세요</h3>
-        <p>스킬 하나는 한 가지 일을 합니다. 자주 쓰는 스킬과 MCP를 한 플러그인으로 묶으면, 팀 전체가 같은 도구를 한 번에 설치해서 씁니다.</p>
+        <h3>스킬을 만들었다면, 도구 지도를 펼쳐보세요</h3>
+        <p>스킬은 AI에게 붙이는 다섯 가지 도구 중 하나입니다. 내장 도구, MCP, 커넥터, 플러그인과 어떻게 다르고 어떻게 함께 쓰는지 한 장으로 확인하세요.</p>
         <div class="cta-buttons">
-            <a class="cta-btn primary" href="code-plugin.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h4.2a1.7 1.7 0 1 1 0 3.3H12V5h4a2 2 0 0 1 2 2v3.5a1.7 1.7 0 1 0 0 3.3V17a2 2 0 0 1-2 2h-4v-3.3H8.8a1.7 1.7 0 1 1 0-3.4H5z"/></svg>플러그인 만들기 <span aria-hidden="true">&rarr;</span></a>
+            <a class="cta-btn primary" href="agent-tools.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9.5" width="17" height="9.5" rx="1.8"/><path d="M8.5 9.5V7a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2.5"/><path d="M3.5 13.5h17"/></svg>에이전트의 도구란? <span aria-hidden="true">&rarr;</span></a>
         </div>
     </div>
 
@@ -2433,7 +2903,7 @@ function showDiagResult(fulfilled) {
         { icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 15.4 15.4 3.6l5 5L8.6 20.4z"/><path d="m7.4 11.6 1.8 1.8M10.6 8.4l1.8 1.8M13.8 5.2l1.8 1.8"/></svg>`, title: '절반 통과 · 3 / 6 구성 요소 충족', state: '절반을 채웠습니다. 남은 세 가지가 결과의 일관성을 만듭니다.', action: '6가지 구성 요소 다시 보기', color: '#D69470', link: '#components' },
         { icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.8 6.6a4.4 4.4 0 0 1 5.7 5.7l-8.6 8.6a2.2 2.2 0 0 1-3.1-3.1z"/><path d="m5.4 4.1 2.4 2.4M3.6 6.9l4.6 4.6"/></svg>`, title: '튼튼한 스킬 · 4 / 6 구성 요소 충족', state: '핵심 구조가 잡혔습니다. 두 가지만 더 채우면 완성입니다.', action: '증상별 처방 보기', color: '#D08A62', link: '#tips' },
         { icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13.2 2.8 5.4 13.4h5.3l-.9 7.8 7.8-10.6h-5.3z"/></svg>`, title: '거의 10점 · 5 / 6 구성 요소 충족', state: '한 가지만 더 채우면 완성된 스킬이 됩니다.', action: '증상별 처방 보기', color: '#CC7548', link: '#tips' },
-        { icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4.5h8v5.2a4 4 0 0 1-8 0z"/><path d="M8 5.8H5.4v1.4A3 3 0 0 0 8 10.1M16 5.8h2.6v1.4a3 3 0 0 1-2.6 2.9"/><path d="M12 13.7v3.1M9 19.5h6"/></svg>`, title: '10점 스킬 · 6 / 6 구성 요소 충족', state: '여섯 구성 요소를 모두 갖췄습니다. 이제 스킬과 MCP를 플러그인으로 묶어보세요.', action: '플러그인으로 묶기', color: '#B85831', link: 'code-plugin.html' }
+        { icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4.5h8v5.2a4 4 0 0 1-8 0z"/><path d="M8 5.8H5.4v1.4A3 3 0 0 0 8 10.1M16 5.8h2.6v1.4a3 3 0 0 1-2.6 2.9"/><path d="M12 13.7v3.1M9 19.5h6"/></svg>`, title: '10점 스킬 · 6 / 6 구성 요소 충족', state: '여섯 구성 요소를 모두 갖췄습니다. 이제 다른 도구와 함께 쓰는 법을 살펴보세요.', action: '도구 지도 보기', color: '#B85831', link: 'agent-tools.html' }
     ];
     if (fulfilled === 0) {
         el.classList.remove('show');
@@ -2817,6 +3287,142 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     window.addEventListener('keydown', onFirst);
 })();
 </script>
+
+<!-- SKILL-SLIDES 전체 화면: 슬라이드 한 장을 화면에 16:9로 맞춰 띄운다 -->
+<div class="sk-show" id="skShow" role="dialog" aria-modal="true" aria-label="나만의 스킬 만들기 슬라이드 전체 화면" hidden>
+    <div class="sk-show-stage" id="skStage"></div>
+    <button type="button" class="sk-show-btn sk-show-prev" id="skPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="sk-show-btn sk-show-next" id="skNext" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" class="sk-show-btn sk-show-close" id="skClose" aria-label="전체 화면 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="sk-show-num" id="skNum" aria-live="polite">1 / 10</div>
+</div>
+<script>
+(function () {
+    var W = 960, H = 540;
+    var frame = document.getElementById('skFrame');
+    var show = document.getElementById('skShow');
+    var stage = document.getElementById('skStage');
+    if (!frame || !show || !stage) return;
+    var slides = [].slice.call(frame.querySelectorAll('.sk-slide'));
+    var N = slides.length, cur = 0, lastFocus = null, idleT = null;
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* 본문: 틀 폭에 맞춰 960×540을 줄이고, 현재 장만 보인다 */
+    function fitFrame() {
+        var k = frame.clientWidth / W;
+        slides.forEach(function (s) { s.style.transform = 'scale(' + k + ')'; });
+    }
+    function paintInline() {
+        slides.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+        $('skCount').textContent = (cur + 1) + ' / ' + N;
+        $('skPrevIn').disabled = cur === 0;
+        $('skNextIn').disabled = cur === N - 1;
+    }
+    fitFrame();
+    paintInline();
+    if ('ResizeObserver' in window) new ResizeObserver(fitFrame).observe(frame);
+    else window.addEventListener('resize', fitFrame);
+
+    /* 발표: 화면 안에 들어가는 가장 큰 16:9 */
+    function fitStage() {
+        var vw = show.clientWidth, vh = show.clientHeight;
+        var k = Math.min(vw / W, vh / H);
+        stage.style.transform = 'translate(' + ((vw - W * k) / 2) + 'px,' + ((vh - H * k) / 2) + 'px) scale(' + k + ')';
+    }
+    function render() {
+        var c = slides[cur].cloneNode(true);
+        c.style.transform = '';
+        c.classList.add('on');
+        stage.innerHTML = '';
+        stage.appendChild(c);
+        $('skNum').textContent = (cur + 1) + ' / ' + N;
+        $('skPrev').disabled = cur === 0;
+        $('skNext').disabled = cur === N - 1;
+        fitStage();
+    }
+    function go(i) {
+        i = Math.max(0, Math.min(N - 1, i));
+        if (i === cur && (show.hidden || stage.firstChild)) return;
+        cur = i;
+        paintInline();
+        if (!show.hidden) render();
+    }
+    function wake() {
+        show.classList.remove('idle');
+        clearTimeout(idleT);
+        idleT = setTimeout(function () { show.classList.add('idle'); }, 2500);
+    }
+    function open(i) {
+        lastFocus = document.activeElement;
+        cur = i;
+        show.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        render();
+        wake();
+        $('skClose').focus({ preventScroll: true });
+        if (show.requestFullscreen) show.requestFullscreen().catch(function () {});
+        else if (show.webkitRequestFullscreen) show.webkitRequestFullscreen();
+    }
+    function close() {
+        if (show.hidden) return;
+        show.hidden = true;
+        stage.innerHTML = '';
+        clearTimeout(idleT);
+        document.documentElement.style.overflow = '';
+        var fe = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        paintInline();
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+
+    $('skPlay').addEventListener('click', function () { open(0); });
+    frame.addEventListener('click', function () { open(cur); });
+    frame.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(cur); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+    });
+    $('skPrevIn').addEventListener('click', function () { go(cur - 1); });
+    $('skNextIn').addEventListener('click', function () { go(cur + 1); });
+    $('skPrev').addEventListener('click', function () { go(cur - 1); });
+    $('skNext').addEventListener('click', function () { go(cur + 1); });
+    $('skClose').addEventListener('click', close);
+
+    /* 슬라이드 빈 곳: 왼쪽 1/3은 이전, 나머지는 다음 */
+    stage.addEventListener('click', function (e) {
+        if (e.clientX < show.clientWidth / 3) go(cur - 1); else go(cur + 1);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (show.hidden) return;
+        var k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { if (k === 'Enter' && e.target.tagName === 'BUTTON') return; e.preventDefault(); go(cur + 1); }
+        else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(cur - 1); }
+        else if (k === 'Home') { e.preventDefault(); go(0); }
+        else if (k === 'End') { e.preventDefault(); go(N - 1); }
+        else if (k === 'Escape') { e.preventDefault(); close(); }
+        wake();
+    });
+    show.addEventListener('mousemove', wake);
+
+    /* 스와이프 */
+    var sx = null, sy = 0;
+    show.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; wake(); }, { passive: true });
+    show.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
+    });
+
+    /* 브라우저 전체 화면을 Esc로 먼저 빠져나오면 발표도 닫는다 */
+    function onFs() { if (!(document.fullscreenElement || document.webkitFullscreenElement)) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+    window.addEventListener('resize', function () { if (!show.hidden) fitStage(); });
+})();
+</script>
+<!-- /SKILL-SLIDES 전체 화면 -->
 
 </body>
 </html>

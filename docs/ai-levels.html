@@ -1374,6 +1374,158 @@
     <!-- ANALYTICS-STD -->
     <script defer src="assets/js/analytics.js"></script>
     <!-- /ANALYTICS-STD -->
+    <!-- LV-SLIDES -->
+    <style>
+        /* ═════ LV-SLIDES: AI 활용 수준 5단계 진단 콜라주 슬라이드. 960×540 좌표계, 틀 폭에 맞춰 scale. 구조는 license-compare LIC-SLIDES와 같다 ═════ */
+        .lv-wrap { margin: 0 0 48px; }
+        .lv-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .lv-title { margin: 0; font-size: 18px; font-weight: 800; color: #2E2A26; letter-spacing: -0.2px; }
+        .lv-play {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer;
+            background: #1A1917; color: #fff; font: inherit; font-size: 14px; font-weight: 700;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+        .lv-play svg { width: 17px; height: 17px; }
+        .lv-play:hover { background: var(--ant-orange); transform: translateY(-1px); }
+        .lv-frame {
+            position: relative; aspect-ratio: 16 / 9; overflow: hidden; cursor: zoom-in;
+            border-radius: 14px; background: #E4D6BB;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 10px 32px rgba(0,0,0,0.10);
+        }
+        .lv-frame:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 3px; }
+        .lv-frame::after {
+            content: ''; position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(26,25,23,0.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E") center / 15px no-repeat;
+            opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+        }
+        .lv-frame:hover::after, .lv-frame:focus-visible::after { opacity: 1; }
+        .lv-frame > .lv-slide { display: none; }
+        .lv-frame > .lv-slide.on { display: block; }
+        .lv-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+        .lv-nav button {
+            display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+            border: 1px solid #D8D2C8; border-radius: 50%; background: #fff; color: #3A3530; cursor: pointer;
+            transition: border-color 0.18s ease, color 0.18s ease;
+        }
+        .lv-nav button:hover:not(:disabled) { border-color: var(--ant-orange); color: var(--ant-orange); }
+        .lv-nav button:disabled { opacity: 0.35; cursor: default; }
+        .lv-nav button svg { width: 18px; height: 18px; }
+        .lv-count { min-width: 56px; text-align: center; font-size: 14px; font-weight: 700; color: #6B645C; font-variant-numeric: tabular-nums; }
+
+        /* 슬라이드 공통 */
+        .lv-slide {
+            position: absolute; left: 0; top: 0; width: 960px; height: 540px; overflow: hidden;
+            transform-origin: 0 0; color: #1A1917; line-height: 1.3; text-align: left;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            word-break: keep-all; -webkit-font-smoothing: antialiased; letter-spacing: -0.2px;
+            background-color: #E4D6BB;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .26 0 0 0 0 .13 0 0 0 .20 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+                radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.35), transparent 60%);
+        }
+        .lv-slide.lv-night { background-color: #2A2622; color: #F4EEE3; }
+        .lv-slide * { box-sizing: border-box; }
+        .lv-slide .ab { position: absolute; }
+        .lv-slide svg { display: block; }
+
+        /* 종잇조각: 바깥은 그림자, 안쪽은 찢긴 모양 */
+        .lv-scrap { filter: drop-shadow(0 5px 9px rgba(60,40,20,0.22)) drop-shadow(0 1px 1px rgba(60,40,20,0.15)); }
+        .lv-in { position: relative; width: 100%; height: 100%; background: #FBF7EE; }
+        .lv-torn-b { clip-path: polygon(0.0% 0.0%, 100.0% 0.0%, 100.0% 97.5%, 96.4% 97.2%, 92.9% 96.5%, 89.3% 96.6%, 85.7% 97.2%, 82.1% 99.4%, 78.6% 96.2%, 75.0% 99.9%, 71.4% 97.6%, 67.9% 98.3%, 64.3% 99.8%, 60.7% 98.5%, 57.1% 96.9%, 53.6% 96.5%, 50.0% 99.3%, 46.4% 97.7%, 42.9% 96.4%, 39.3% 96.3%, 35.7% 97.7%, 32.1% 96.1%, 28.6% 98.0%, 25.0% 96.2%, 21.4% 97.5%, 17.9% 98.1%, 14.3% 96.3%, 10.7% 98.6%, 7.1% 96.6%, 3.6% 97.3%, 0.0% 98.5%); }
+        .lv-torn-tb { clip-path: polygon(0.0% 1.6%, 3.6% 2.6%, 7.1% 0.6%, 10.7% 1.9%, 14.3% 2.0%, 17.9% 1.2%, 21.4% 1.8%, 25.0% 0.2%, 28.6% 0.2%, 32.1% 0.7%, 35.7% 2.2%, 39.3% 1.4%, 42.9% 1.0%, 46.4% 1.9%, 50.0% 1.5%, 53.6% 1.0%, 57.1% 2.5%, 60.7% 2.2%, 64.3% 0.8%, 67.9% 1.8%, 71.4% 1.7%, 75.0% 2.8%, 78.6% 2.3%, 82.1% 0.9%, 85.7% 3.1%, 89.3% 0.4%, 92.9% 1.3%, 96.4% 2.4%, 100.0% 1.6%, 100.0% 98.4%, 96.4% 97.3%, 92.9% 98.3%, 89.3% 96.9%, 85.7% 98.9%, 82.1% 98.0%, 78.6% 97.7%, 75.0% 99.4%, 71.4% 100.0%, 67.9% 98.9%, 64.3% 99.0%, 60.7% 97.0%, 57.1% 98.9%, 53.6% 98.3%, 50.0% 99.8%, 46.4% 99.5%, 42.9% 98.3%, 39.3% 98.7%, 35.7% 98.7%, 32.1% 99.0%, 28.6% 97.8%, 25.0% 99.6%, 21.4% 98.6%, 17.9% 99.2%, 14.3% 98.9%, 10.7% 96.9%, 7.1% 98.4%, 3.6% 97.3%, 0.0% 98.4%); }
+        .lv-grid { background-color: #FBF7EE; background-image: linear-gradient(rgba(120,150,190,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(120,150,190,0.22) 1px, transparent 1px); background-size: 22px 22px; }
+        .lv-lined { background-color: #FBF7EE; background-image: linear-gradient(transparent 31px, rgba(120,150,190,0.3) 31px, rgba(120,150,190,0.3) 32px); background-size: 100% 32px; }
+        .lv-yellow { background: #F5D56A; }
+        .lv-ink { background: #1A1917; color: #F4EEE3; }
+        .lv-card { background: #C9A876; background-image: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%); }
+
+        /* 마스킹 테이프 */
+        .lv-tape {
+            position: absolute; width: 92px; height: 26px; z-index: 3;
+            background: rgba(246,236,205,0.78); box-shadow: 0 1px 2px rgba(60,40,20,0.12);
+            clip-path: polygon(3.0% 0.0%, 97.0% 0.0%, 100.0% 18.0%, 96.0% 36.0%, 100.0% 55.0%, 95.0% 74.0%, 100.0% 100.0%, 3.0% 100.0%, 0.0% 80.0%, 4.0% 60.0%, 0.0% 42.0%, 5.0% 22.0%);
+        }
+        .lv-tape.or { background: repeating-linear-gradient(-45deg, rgba(217,119,87,0.85) 0 7px, rgba(250,230,215,0.85) 7px 14px); }
+        .lv-tape.lab {
+            width: auto; height: auto; padding: 7px 16px; font-size: 16px; font-weight: 800; color: #1A1917; white-space: nowrap;
+            background: rgba(245,213,106,0.92);
+        }
+
+        /* 오려 붙인 글자 */
+        .lv-cut { display: flex; gap: 4px; align-items: flex-end; }
+        .lv-cut span {
+            display: inline-block; padding: 2px 10px 6px; font-weight: 900; line-height: 1; letter-spacing: -1px;
+            box-shadow: 0 3px 6px rgba(60,40,20,0.2);
+        }
+        .lv-cut span:nth-child(5n+1) { background: #1A1917; color: #F4EEE3; transform: rotate(-3deg); }
+        .lv-cut span:nth-child(5n+2) { background: #D97757; color: #fff; transform: rotate(2deg) translateY(-4px); }
+        .lv-cut span:nth-child(5n+3) { background: #FBF7EE; color: #1A1917; transform: rotate(-1.5deg) translateY(3px); font-weight: 700; }
+        .lv-cut span:nth-child(5n+4) { background: #F5D56A; color: #1A1917; transform: rotate(3deg); }
+        .lv-cut span:nth-child(5n+5) { background: #8FA98B; color: #fff; transform: rotate(-2deg) translateY(-2px); }
+
+        .lv-strip { padding: 10px 18px; font-weight: 800; box-shadow: 0 4px 8px rgba(60,40,20,0.22); }
+        .lv-halftone { border-radius: 50%; background-image: radial-gradient(#D97757 2px, transparent 2.3px); background-size: 11px 11px; opacity: 0.75; }
+        .lv-sticker {
+            display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 50%;
+            font-weight: 900; line-height: 1.15; box-shadow: 0 4px 10px rgba(60,40,20,0.25);
+        }
+        .lv-stamp {
+            padding: 8px 16px; border: 3px solid #C0392B; border-radius: 6px; color: #C0392B;
+            font-size: 22px; font-weight: 900; letter-spacing: 1px; opacity: 0.82;
+            box-shadow: inset 0 0 0 2px rgba(192,57,43,0.25);
+        }
+        .lv-num { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: rgba(26,25,23,0.55); }
+        .lv-night .lv-num { color: rgba(244,238,227,0.5); }
+        .lv-chip { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 800; }
+
+        /* ═════ 전체 화면 ═════ */
+        .lv-show { position: fixed; inset: 0; z-index: 2147483000; background: #0b0d0c; overflow: hidden; touch-action: pan-y; }
+        .lv-show[hidden] { display: none; }
+        .lv-show-stage { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; }
+        .lv-show-btn {
+            position: absolute; z-index: 2; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: #fff; transition: background 0.18s ease, opacity 0.3s ease;
+        }
+        .lv-show-btn:hover { background: rgba(255,255,255,0.24); }
+        .lv-show-btn:disabled { opacity: 0.25 !important; cursor: default; }
+        .lv-show-btn svg { width: 22px; height: 22px; }
+        .lv-show-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+        .lv-show-next { right: 20px; top: 50%; transform: translateY(-50%); }
+        .lv-show-close { right: 20px; top: 20px; width: 44px; height: 44px; }
+        .lv-show-num {
+            position: absolute; z-index: 2; left: 50%; bottom: 18px; transform: translateX(-50%);
+            padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease;
+        }
+        .lv-show.idle .lv-show-btn, .lv-show.idle .lv-show-num { opacity: 0; }
+        .lv-show.idle { cursor: none; }
+        @media (max-width: 768px) {
+            .lv-frame { border-radius: 10px; }
+            .lv-toolbar { flex-direction: column; align-items: flex-start; }
+            .lv-show-btn { width: 40px; height: 40px; }
+            .lv-show-prev { left: 10px; top: auto; bottom: 12px; transform: none; }
+            .lv-show-next { right: 10px; top: auto; bottom: 12px; transform: none; }
+            .lv-show-close { right: 10px; top: 10px; }
+        }
+
+        /* 레벨 전용 조각. 색은 본문 기능 지도의 L0~L5 머리 색과 같다 */
+        .lv-l0 { background: #B0ACA6; } .lv-l1 { background: #9A8E7A; } .lv-l2 { background: #CC8820; }
+        .lv-l3 { background: #CC5830; } .lv-l4 { background: #CC2828; } .lv-l5 { background: #8C1408; }
+        .lv-lv {
+            display: inline-block; padding: 5px 11px 6px; border-radius: 6px; color: #fff;
+            font-size: 18px; font-weight: 900; line-height: 1; letter-spacing: -0.3px; white-space: nowrap;
+            box-shadow: 0 3px 7px rgba(60,40,20,0.22);
+        }
+        .lv-kick { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; }
+        .lv-kick b { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #D97757; color: #fff; font-size: 15px; }
+        .lv-cl { color: #B0522F; } .lv-gp { color: #1A5FBF; }
+        .lv-bar { height: 30px; border-radius: 3px; box-shadow: 0 2px 5px rgba(60,40,20,0.2); }
+        .lv-step-t { font-size: 11px; font-weight: 800; line-height: 1.7; letter-spacing: -0.4px; white-space: nowrap; color: #3A3530; }
+        .lv-step-t i { font-style: normal; color: #B0522F; margin-right: 4px; }
+    </style>
+    <!-- /LV-SLIDES -->
 </head>
 <body>
 <!-- SKIP-STD -->
@@ -1468,6 +1620,439 @@
     </nav>
 
     <main class="container" id="main" tabindex="-1">
+
+        <!-- ── LV-SLIDES: 5단계 진단 콜라주 슬라이드. 사실과 숫자는 모두 이 페이지 본문을 따른다 ── -->
+        <div class="lv-wrap">
+            <div class="lv-toolbar">
+                <p class="lv-title">AI 활용 5단계 진단, 슬라이드 열 장으로 먼저 보기</p>
+                <button type="button" class="lv-play" id="lvPlay">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+                    전체 화면으로 보기
+                </button>
+            </div>
+            <div class="lv-frame" id="lvFrame" tabindex="0" role="button" aria-label="AI 활용 5단계 진단 슬라이드, 전체 화면으로 보기">
+
+                <!-- 01 표지 -->
+                <div class="lv-slide on">
+                    <div class="ab lv-halftone" style="left:600px;top:-70px;width:460px;height:460px"></div>
+                    <div class="ab lv-scrap" style="left:54px;top:62px;width:520px;height:392px;transform:rotate(-2.5deg)">
+                        <div class="lv-in lv-grid lv-torn-b"></div>
+                    </div>
+                    <span class="lv-tape" style="left:34px;top:52px;transform:rotate(-38deg)"></span>
+                    <span class="lv-tape or" style="left:500px;top:58px;width:84px;transform:rotate(30deg)"></span>
+                    <div class="ab" style="left:92px;top:100px;transform:rotate(-2.5deg);transform-origin:0 0">
+                        <span class="lv-chip lv-ink">AI 활용 5단계 진단 · 5분 오리엔테이션</span>
+                        <div style="margin-top:22px;font-size:30px;font-weight:900;letter-spacing:-0.8px">나는 지금</div>
+                        <div class="lv-cut" style="margin-top:12px;font-size:60px"><span>몇</span><span>단</span><span>계</span><span>일</span><span>까</span><span>?</span></div>
+                        <div style="margin-top:30px;font-size:22px;font-weight:800;line-height:1.45">자율주행 비유로 내 <span style="background:#F5D56A;padding:0 4px">Claude·ChatGPT</span> 활용<br>수준을 한눈에 파악합니다</div>
+                    </div>
+                    <!-- 고지도처럼 굽이굽이 오르는 길. 준비에서 출발해 L1~L5를 차례로 지난다 -->
+                    <svg class="ab" style="left:590px;top:40px" width="350" height="480" viewBox="0 0 350 480" aria-hidden="true">
+                        <path d="M30 450 C90 470 150 430 170 390 S80 330 60 300 S170 250 230 240 S140 180 110 150 S200 80 270 70" stroke="#5A3A22" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="0.1 11" fill="none"/>
+                        <g fill="#FBF7EE" stroke="#5A3A22" stroke-width="3">
+                            <circle cx="30" cy="450" r="7"/><circle cx="170" cy="390" r="7"/><circle cx="60" cy="300" r="7"/>
+                            <circle cx="230" cy="240" r="7"/><circle cx="110" cy="150" r="7"/>
+                        </g>
+                        <path d="M262 62L278 78M278 62L262 78" stroke="#C0392B" stroke-width="5" stroke-linecap="round"/>
+                    </svg>
+                    <div class="ab lv-chip" style="left:640px;top:474px;font-size:15px;background:#B0ACA6;color:#fff;transform:rotate(-3deg)">준비</div>
+                    <div class="ab lv-lv lv-l1" style="left:780px;top:414px;font-size:19px;transform:rotate(4deg)">L1 소환</div>
+                    <div class="ab lv-lv lv-l2" style="left:592px;top:298px;font-size:21px;transform:rotate(-5deg)">L2 연결</div>
+                    <div class="ab lv-lv lv-l3" style="left:838px;top:258px;font-size:20px;transform:rotate(3deg)">L3 계약</div>
+                    <div class="ab lv-lv lv-l4" style="left:630px;top:146px;font-size:23px;transform:rotate(-4deg)">L4 조합</div>
+                    <div class="ab lv-lv lv-l5" style="left:790px;top:50px;font-size:27px;transform:rotate(5deg)">L5 자율</div>
+                    <div class="ab lv-sticker" style="left:470px;top:410px;width:108px;height:108px;background:#D97757;color:#fff;font-size:24px;transform:rotate(-12deg)">5단계<br>진단</div>
+                    <div class="ab lv-num" style="left:40px;top:504px">01 / 10 · AI ROASTING</div>
+                </div>
+
+                <!-- 02 소개 영상(25초). 원본은 20261003_동영상/videos/airoasting-motion. 본문에서는 이 장에 오면 소리 없이 반복, 전체 화면에서는 소리와 함께 한 번 재생 -->
+                <div class="lv-slide lv-night">
+                    <video class="ab lv-video" src="assets/movies/airoasting.mp4" poster="assets/movies/airoasting-poster.jpg" preload="none" muted playsinline aria-label="AI ROASTING 소개 영상: 진단부터 1~5단계까지" style="left:0;top:0;width:960px;height:540px;object-fit:cover"></video>
+                </div>
+
+                <!-- 03 진단 순서 -->
+                <div class="lv-slide">
+                    <div class="ab" style="left:48px;top:36px;display:flex;align-items:center;gap:18px">
+                        <div class="lv-cut" style="font-size:52px"><span>진</span><span>단</span><span>순</span><span>서</span></div>
+                        <div class="lv-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">자율주행에서 커리큘럼까지</div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:44px;top:176px;width:164px;height:262px;transform:rotate(-3deg)">
+                        <div class="lv-in lv-torn-b" style="padding:22px 18px">
+                            <div style="font-size:50px;font-weight:900;color:#D97757;line-height:1">01</div>
+                            <div style="font-size:23px;font-weight:900;margin-top:14px;letter-spacing:-0.6px">단계 비교</div>
+                            <span class="lv-chip lv-card" style="margin-top:8px">자율주행 비유</span>
+                            <div style="font-size:14px;font-weight:700;color:#6B645C;margin-top:14px;line-height:1.5">자율주행 단계에 AI 활용을 겹쳐 봅니다</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:222px;top:200px;width:164px;height:262px;transform:rotate(2.5deg)">
+                        <div class="lv-in lv-lined lv-torn-b" style="padding:22px 18px">
+                            <div style="font-size:50px;font-weight:900;color:#D97757;line-height:1">02</div>
+                            <div style="font-size:23px;font-weight:900;margin-top:14px;letter-spacing:-0.6px">AI 활용 단계</div>
+                            <span class="lv-chip lv-card" style="margin-top:8px">L1~L5 정의</span>
+                            <div style="font-size:14px;font-weight:700;color:#6B645C;margin-top:14px;line-height:1.5">다섯 단계마다 사용자 역할과 변화를 정합니다</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:400px;top:164px;width:164px;height:262px;transform:rotate(-1.5deg)">
+                        <div class="lv-in lv-grid lv-torn-b" style="padding:22px 18px">
+                            <div style="font-size:50px;font-weight:900;color:#D97757;line-height:1">03</div>
+                            <div style="font-size:23px;font-weight:900;margin-top:14px;letter-spacing:-0.6px">기능 지도</div>
+                            <span class="lv-chip lv-card" style="margin-top:8px">Claude·ChatGPT</span>
+                            <div style="font-size:14px;font-weight:700;color:#6B645C;margin-top:14px;line-height:1.5">단계마다 두 AI에서 무엇을 쓰는지 봅니다</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:578px;top:206px;width:164px;height:262px;transform:rotate(3deg)">
+                        <div class="lv-in lv-yellow lv-torn-b" style="padding:22px 18px">
+                            <div style="font-size:50px;font-weight:900;color:#1A1917;line-height:1">04</div>
+                            <div style="font-size:23px;font-weight:900;margin-top:14px;letter-spacing:-0.6px">수준 진단</div>
+                            <span class="lv-chip lv-ink" style="margin-top:8px">셀프 체크</span>
+                            <div style="font-size:14px;font-weight:700;color:#4A433B;margin-top:14px;line-height:1.5">나와 가장 가까운 단계를 고릅니다</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:756px;top:178px;width:164px;height:262px;transform:rotate(-2deg)">
+                        <div class="lv-in lv-torn-b" style="padding:22px 18px">
+                            <div style="font-size:50px;font-weight:900;color:#D97757;line-height:1">05</div>
+                            <div style="font-size:23px;font-weight:900;margin-top:14px;letter-spacing:-0.6px">커리큘럼</div>
+                            <span class="lv-chip lv-card" style="margin-top:8px">로드맵</span>
+                            <div style="font-size:14px;font-weight:700;color:#6B645C;margin-top:14px;line-height:1.5">다음 단계로 올라가는 강의를 따라갑니다</div>
+                        </div>
+                    </div>
+                    <span class="lv-tape" style="left:80px;top:164px;transform:rotate(-6deg)"></span>
+                    <span class="lv-tape or" style="left:262px;top:188px;width:84px;transform:rotate(4deg)"></span>
+                    <span class="lv-tape" style="left:436px;top:152px;transform:rotate(-3deg)"></span>
+                    <span class="lv-tape" style="left:614px;top:180px;transform:rotate(5deg)"></span>
+                    <span class="lv-tape or" style="left:796px;top:166px;width:84px;transform:rotate(-4deg)"></span>
+                    <div class="ab lv-strip lv-ink" style="left:760px;top:476px;font-size:18px;transform:rotate(-2deg)">5분 오리엔테이션</div>
+                    <div class="ab lv-num" style="left:870px;top:46px">03 / 10</div>
+                </div>
+
+                <!-- 04 81%와 20% 사이 -->
+                <div class="lv-slide">
+                    <div class="ab lv-strip lv-ink" style="left:48px;top:40px;font-size:28px;transform:rotate(-1.5deg)">써본 사람 81%, 주 1회 넘게 쓰는 사람 20%</div>
+                    <div class="ab lv-tape lab" style="left:612px;top:104px;transform:rotate(3deg)">그 사이를 다섯 단계로 오릅니다</div>
+                    <div class="ab lv-scrap" style="left:60px;top:150px;width:370px;height:236px;transform:rotate(-2deg)">
+                        <div class="lv-in lv-grid lv-torn-b" style="padding:24px 26px">
+                            <span class="lv-chip" style="background:#6b7280;color:#fff">AI 챗봇을 써봤다</span>
+                            <div style="font-size:110px;font-weight:900;letter-spacing:-4px;line-height:1;margin-top:14px">81%</div>
+                            <div style="font-size:16px;font-weight:700;color:#6B645C;margin-top:10px">연구에 한 번이라도 사용</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:520px;top:160px;width:370px;height:236px;transform:rotate(1.5deg)">
+                        <div class="lv-in lv-torn-b" style="padding:24px 26px">
+                            <span class="lv-chip" style="background:#D97757;color:#fff">코딩 에이전트를 주 1회 넘게 쓴다</span>
+                            <div style="font-size:110px;font-weight:900;letter-spacing:-4px;line-height:1;margin-top:14px;color:#B0522F">20%</div>
+                            <div style="font-size:16px;font-weight:700;color:#6B645C;margin-top:10px">명령줄 코딩 도구 사용</div>
+                        </div>
+                    </div>
+                    <span class="lv-tape" style="left:200px;top:140px;transform:rotate(-5deg)"></span>
+                    <span class="lv-tape or" style="left:660px;top:150px;width:84px;transform:rotate(4deg)"></span>
+                    <div class="ab lv-sticker" style="left:418px;top:214px;width:112px;height:112px;background:#F5D56A;color:#1A1917;font-size:24px;transform:rotate(-10deg)">61%p<br>차이</div>
+                    <div class="ab lv-strip lv-card" style="left:60px;top:414px;width:390px;display:flex;align-items:center;gap:12px;font-size:15px;line-height:1.4;transform:rotate(1deg)"><span style="flex:none;font-size:26px;font-weight:900">86%</span><span>정기 사용자가 쓴다고 답한 도구는 Claude Code (복수 응답)</span></div>
+                    <div class="ab lv-strip" style="left:500px;top:420px;width:390px;display:flex;align-items:center;gap:12px;font-size:15px;line-height:1.4;background:#FBF7EE;transform:rotate(-1deg)"><span style="flex:none;font-size:26px;font-weight:900;color:#B0522F">+75%</span><span>정기 사용자가 6개월간 더 올린 작업 논문 (분야·경력 보정)</span></div>
+                    <div class="ab" style="left:60px;top:508px;font-size:12px;font-weight:700;color:#6B645C">Anthropic 리서치 · 미국·캐나다 양적 연구 사회과학자 1,260명의 자기 응답 · 인과관계로 읽지 않습니다</div>
+                    <div class="ab lv-num" style="left:870px;top:46px">04 / 10</div>
+                </div>
+
+                <!-- 05 단계 비교: 자율주행 -->
+                <div class="lv-slide">
+                    <div class="ab lv-kick" style="left:50px;top:28px"><b>1</b>단계 비교</div>
+                    <div class="ab" style="left:50px;top:66px;display:flex;align-items:center;gap:16px">
+                        <div class="lv-cut" style="font-size:44px"><span>자</span><span>율</span><span>주</span><span>행</span></div>
+                        <div class="lv-strip" style="background:#FBF7EE;font-size:21px;transform:rotate(1deg)">으로 이해하기</div>
+                    </div>
+                    <svg class="ab" style="left:836px;top:22px;transform:rotate(12deg)" width="86" height="86" viewBox="0 0 100 100" aria-hidden="true">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#1A1917" stroke-width="9"/>
+                        <path d="M12 46L40 52M88 46L60 52M50 62V90" stroke="#1A1917" stroke-width="9" stroke-linecap="round"/>
+                        <circle cx="50" cy="52" r="11" fill="#D97757"/>
+                    </svg>
+                    <div class="ab lv-torn-tb" style="left:34px;top:146px;width:892px;height:30px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#B0ACA6,#9A8E7A,#CC8820,#CC5830,#CC2828,#8C1408);color:#fff;font-size:14px;font-weight:800;box-shadow:0 3px 6px rgba(60,40,20,0.2)"><span>◀ 사람이 제어</span><span>AI가 제어 ▶</span></div>
+                    <div class="ab lv-scrap" style="left:34px;top:196px;width:142px;height:300px;transform:rotate(-1.5deg)">
+                        <div class="lv-in lv-card lv-torn-b" style="padding:18px 14px">
+                            <div style="font-size:14px;font-weight:900;color:#4A433B">Level 0</div>
+                            <div style="font-size:21px;font-weight:900;margin-top:6px;letter-spacing:-0.6px">수동 운전</div>
+                            <div style="font-size:13px;font-weight:700;color:#3A3530;margin-top:10px;line-height:1.5">운전자가 모든 것을 제어. 자동화 기능 없음</div>
+                            <span class="lv-chip" style="margin-top:10px;font-size:12px;background:#FBF7EE">일반 자동차</span>
+                            <div class="ab" style="left:14px;bottom:22px"><div style="font-size:11px;font-weight:800;color:#4A433B;margin-bottom:5px">출발선</div><span class="lv-lv lv-l0" style="font-size:14px;padding:5px 9px">준비</span></div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:184px;top:214px;width:142px;height:292px;transform:rotate(2deg)">
+                        <div class="lv-in lv-torn-b" style="padding:18px 14px">
+                            <div style="font-size:14px;font-weight:900;color:#7A6E58">Level 1</div>
+                            <div style="font-size:21px;font-weight:900;margin-top:6px;letter-spacing:-0.6px">보조</div>
+                            <div style="font-size:13px;font-weight:700;color:#6B645C;margin-top:10px;line-height:1.5">운전자가 주도하고 시스템은 보조 역할</div>
+                            <span class="lv-chip lv-card" style="margin-top:10px;font-size:12px">어댑티브 크루즈 컨트롤</span>
+                            <div class="ab" style="left:14px;bottom:22px"><div style="font-size:11px;font-weight:800;color:#8A867F;margin-bottom:5px">AI 활용</div><span class="lv-lv lv-l1" style="font-size:14px;padding:5px 9px">멀티 페르소나</span></div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:334px;top:190px;width:142px;height:300px;transform:rotate(-1.5deg)">
+                        <div class="lv-in lv-torn-b" style="padding:18px 14px">
+                            <div style="font-size:14px;font-weight:900;color:#AA7010">Level 2</div>
+                            <div style="font-size:21px;font-weight:900;margin-top:6px;letter-spacing:-0.6px">부분 자동화</div>
+                            <div style="font-size:13px;font-weight:700;color:#6B645C;margin-top:10px;line-height:1.5">핸들과 속도를 동시 제어. 운전자는 항상 주시</div>
+                            <span class="lv-chip lv-card" style="margin-top:10px;font-size:12px">Tesla Autopilot</span>
+                            <div class="ab" style="left:14px;bottom:22px"><div style="font-size:11px;font-weight:800;color:#8A867F;margin-bottom:5px">AI 활용</div><span class="lv-lv lv-l2" style="font-size:14px;padding:5px 9px">바이브 코딩</span></div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:484px;top:220px;width:142px;height:284px;transform:rotate(2.5deg)">
+                        <div class="lv-in lv-torn-b" style="padding:18px 14px">
+                            <div style="font-size:14px;font-weight:900;color:#AA4020">Level 3</div>
+                            <div style="font-size:21px;font-weight:900;margin-top:6px;letter-spacing:-0.6px">조건부 자동화</div>
+                            <div style="font-size:13px;font-weight:700;color:#6B645C;margin-top:10px;line-height:1.5">특정 조건에서 시스템이 완전 제어. 요청하면 사람이 인수</div>
+                            <div class="ab" style="left:14px;bottom:22px"><div style="font-size:11px;font-weight:800;color:#8A867F;margin-bottom:5px">AI 활용</div><span class="lv-lv lv-l3" style="font-size:14px;padding:5px 9px">하네스</span></div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:634px;top:196px;width:142px;height:300px;transform:rotate(-1deg)">
+                        <div class="lv-in lv-torn-b" style="padding:18px 14px">
+                            <div style="font-size:14px;font-weight:900;color:#AA1818">Level 4</div>
+                            <div style="font-size:21px;font-weight:900;margin-top:6px;letter-spacing:-0.6px">고도 자동화</div>
+                            <div style="font-size:13px;font-weight:700;color:#6B645C;margin-top:10px;line-height:1.5">특정 지역 안에서 완전 자율주행. 사람 개입 불필요</div>
+                            <span class="lv-chip lv-card" style="margin-top:10px;font-size:12px">Waymo Robotaxi</span>
+                            <div class="ab" style="left:14px;bottom:22px"><div style="font-size:11px;font-weight:800;color:#8A867F;margin-bottom:5px">AI 활용</div><span class="lv-lv lv-l4" style="font-size:14px;padding:5px 9px">멀티 에이전트</span></div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:784px;top:200px;width:142px;height:306px;transform:rotate(2deg)">
+                        <div class="lv-in lv-yellow lv-torn-b" style="padding:18px 14px">
+                            <div style="font-size:14px;font-weight:900;color:#701008">Level 5</div>
+                            <div style="font-size:21px;font-weight:900;margin-top:6px;letter-spacing:-0.6px">완전 자동화</div>
+                            <div style="font-size:13px;font-weight:700;color:#4A433B;margin-top:10px;line-height:1.5">모든 환경에서 완전 자율주행</div>
+                            <span class="lv-chip lv-ink" style="margin-top:10px;font-size:12px">현재 미실현</span>
+                            <div class="ab" style="left:14px;bottom:22px"><div style="font-size:11px;font-weight:800;color:#6B645C;margin-bottom:5px">AI 활용</div><span class="lv-lv lv-l5" style="font-size:14px;padding:5px 9px">루프 자동화</span></div>
+                        </div>
+                    </div>
+                    <span class="lv-tape" style="left:66px;top:186px;width:78px;transform:rotate(-6deg)"></span>
+                    <span class="lv-tape or" style="left:368px;top:174px;width:74px;transform:rotate(5deg)"></span>
+                    <span class="lv-tape" style="left:668px;top:186px;width:74px;transform:rotate(-4deg)"></span>
+                    <div class="ab lv-num" style="left:760px;top:46px">05 / 10</div>
+                </div>
+
+                <!-- 06 AI 활용 5단계 -->
+                <div class="lv-slide">
+                    <div class="ab lv-halftone" style="left:660px;top:-140px;width:380px;height:380px;opacity:0.5"></div>
+                    <div class="ab lv-kick" style="left:50px;top:28px"><b>2</b>AI 활용 단계</div>
+                    <div class="ab lv-strip lv-ink" style="left:50px;top:64px;font-size:28px;transform:rotate(-1.5deg)">AI 활용 5단계, 자율성 레벨</div>
+                    <div class="ab lv-scrap" style="left:36px;top:318px;width:164px;height:160px;transform:rotate(-4deg)">
+                        <div class="lv-in lv-lined lv-torn-b" style="padding:14px 14px">
+                            <div style="display:flex;align-items:center;gap:7px"><span class="lv-lv lv-l1" style="font-size:15px">L1</span><span style="font-size:20px;font-weight:900">소환</span></div>
+                            <div style="font-size:15px;font-weight:800;margin-top:8px">멀티 페르소나 <span class="lv-chip lv-card" style="font-size:11px;padding:2px 7px;vertical-align:2px">소환자</span></div>
+                            <div style="font-size:13px;font-weight:700;color:#6B645C;margin-top:8px;line-height:1.45">“한 명에게 묻지 않고 팀을 부른다”</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:214px;top:256px;width:172px;height:172px;transform:rotate(3deg)">
+                        <div class="lv-in lv-grid lv-torn-b" style="padding:15px 15px">
+                            <div style="display:flex;align-items:center;gap:7px"><span class="lv-lv lv-l2" style="font-size:16px">L2</span><span style="font-size:21px;font-weight:900">연결</span></div>
+                            <div style="font-size:15px;font-weight:800;margin-top:8px">바이브 코딩 <span class="lv-chip lv-card" style="font-size:11px;padding:2px 7px;vertical-align:2px">연결자</span></div>
+                            <div style="font-size:13px;font-weight:700;color:#6B645C;margin-top:8px;line-height:1.45">“내 파일과 컴퓨터에 AI를 연결한다”</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:398px;top:226px;width:166px;height:186px;transform:rotate(-2.5deg)">
+                        <div class="lv-in lv-torn-b" style="padding:15px 15px">
+                            <div style="display:flex;align-items:center;gap:7px"><span class="lv-lv lv-l3" style="font-size:16px">L3</span><span style="font-size:21px;font-weight:900">계약</span></div>
+                            <div style="font-size:15px;font-weight:800;margin-top:8px">하네스 <span class="lv-chip lv-card" style="font-size:11px;padding:2px 7px;vertical-align:2px">설계자</span></div>
+                            <div style="font-size:13px;font-weight:700;color:#6B645C;margin-top:8px;line-height:1.45">“일하는 규칙을 파일로 정해 둔다”</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:578px;top:138px;width:176px;height:176px;transform:rotate(4.5deg)">
+                        <div class="lv-in lv-yellow lv-torn-b" style="padding:16px 16px">
+                            <div style="display:flex;align-items:center;gap:7px"><span class="lv-lv lv-l4" style="font-size:17px">L4</span><span style="font-size:22px;font-weight:900">조합</span></div>
+                            <div style="font-size:15px;font-weight:800;margin-top:8px">멀티 에이전트 <span class="lv-chip lv-ink" style="font-size:11px;padding:2px 7px;vertical-align:2px">지휘자</span></div>
+                            <div style="font-size:13px;font-weight:700;color:#4A433B;margin-top:8px;line-height:1.45">“큰 일을 나눠 맡기고 결과를 합친다”</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:768px;top:100px;width:168px;height:192px;transform:rotate(-3deg)">
+                        <div class="lv-in lv-ink lv-torn-b" style="padding:16px 16px">
+                            <div style="display:flex;align-items:center;gap:7px"><span class="lv-lv lv-l5" style="font-size:18px;box-shadow:0 0 0 2px rgba(255,255,255,0.25)">L5</span><span style="font-size:23px;font-weight:900">자율</span></div>
+                            <div style="font-size:15px;font-weight:800;margin-top:8px">루프 <span class="lv-chip" style="font-size:11px;padding:2px 7px;vertical-align:2px;background:#F5D56A;color:#1A1917">운영자</span></div>
+                            <div style="font-size:13px;font-weight:700;color:rgba(244,238,227,0.75);margin-top:8px;line-height:1.45">“정해두면 알아서 반복하고 예약 실행된다”</div>
+                        </div>
+                    </div>
+                    <span class="lv-tape" style="left:70px;top:294px;width:76px;transform:rotate(-12deg)"></span>
+                    <span class="lv-tape or" style="left:262px;top:234px;width:70px;transform:rotate(9deg)"></span>
+                    <span class="lv-tape" style="left:440px;top:214px;width:70px;transform:rotate(-7deg)"></span>
+                    <span class="lv-tape" style="left:690px;top:132px;width:66px;transform:rotate(38deg)"></span>
+                    <span class="lv-tape or" style="left:800px;top:80px;width:74px;transform:rotate(-6deg)"></span>
+                    <div class="ab lv-scrap" style="left:604px;top:364px;width:300px;height:104px;transform:rotate(2.5deg)">
+                        <div class="lv-in" style="padding:16px 18px">
+                            <div style="font-size:18px;font-weight:900;letter-spacing:-0.4px">위로 갈수록 사람의 역할이 바뀝니다</div>
+                            <div style="font-size:13px;font-weight:700;margin-top:8px;line-height:1.5;color:#6B645C">소환자 → 연결자 → 설계자 → 지휘자 → 운영자</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-num" style="left:860px;top:504px">06 / 10</div>
+                </div>
+
+                <!-- 07 기능 지도 -->
+                <div class="lv-slide">
+                    <div class="ab lv-kick" style="left:50px;top:28px"><b>3</b>기능 지도</div>
+                    <div class="ab lv-strip lv-ink" style="left:50px;top:62px;font-size:27px;transform:rotate(-1.5deg)">단계마다 두 AI에서 무엇을 쓰나</div>
+                    <div class="ab lv-sticker" style="left:820px;top:30px;width:104px;height:104px;background:#F5D56A;color:#1A1917;font-size:17px;transform:rotate(10deg)">같은 단계,<br>다른 이름</div>
+                    <div class="ab lv-scrap" style="left:40px;top:136px;width:880px;height:372px;transform:rotate(-0.8deg)">
+                        <div class="lv-in lv-torn-b" style="padding:12px 24px 18px">
+                            <div style="display:grid;grid-template-columns:170px 1fr 1fr;align-items:center;font-size:16px;font-weight:700;line-height:1.35">
+                                <div style="height:42px"></div>
+                                <div style="font-size:17px;font-weight:900" class="lv-cl">● Claude</div>
+                                <div style="font-size:17px;font-weight:900" class="lv-gp">● ChatGPT</div>
+                                <div style="height:52px;display:flex;align-items:center;gap:8px;border-top:1px dashed rgba(26,25,23,0.22)"><span class="lv-chip" style="background:#B0ACA6;color:#fff;font-size:14px">준비</span><b style="font-weight:900;font-size:13px;color:#6B645C">출발선</b></div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">claude.ai · 기본 프롬프트</div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">chatgpt.com · 기본 프롬프트</div>
+                                <div style="height:52px;display:flex;align-items:center;gap:8px;border-top:1px dashed rgba(26,25,23,0.22)"><span class="lv-lv lv-l1" style="font-size:14px">L1</span><b style="font-weight:900">소환</b></div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">Projects · 멀티 페르소나</div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">프로젝트 · 멀티 페르소나</div>
+                                <div style="height:52px;display:flex;align-items:center;gap:8px;border-top:1px dashed rgba(26,25,23,0.22)"><span class="lv-lv lv-l2" style="font-size:14px">L2</span><b style="font-weight:900">연결</b></div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">Claude Code (노코드/CLI)</div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">Codex (ChatGPT 앱/CLI)</div>
+                                <div style="height:52px;display:flex;align-items:center;gap:8px;border-top:1px dashed rgba(26,25,23,0.22)"><span class="lv-lv lv-l3" style="font-size:14px">L3</span><b style="font-weight:900">계약</b></div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">CLAUDE.md · Skills · MCP · 플러그인</div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">AGENTS.md · Skills · MCP · 플러그인</div>
+                                <div style="height:52px;display:flex;align-items:center;gap:8px;border-top:1px dashed rgba(26,25,23,0.22)"><span class="lv-lv lv-l4" style="font-size:14px">L4</span><b style="font-weight:900">조합</b></div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">/goal · 다이내믹 워크플로우</div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">/goal · 서브에이전트</div>
+                                <div style="height:52px;display:flex;align-items:center;gap:8px;border-top:1px dashed rgba(26,25,23,0.22)"><span class="lv-lv lv-l5" style="font-size:14px">L5</span><b style="font-weight:900">자율</b></div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">/loop · Routines</div>
+                                <div style="height:52px;display:flex;align-items:center;border-top:1px dashed rgba(26,25,23,0.22)">대화 안 예약 반복 · 예약 작업</div>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="lv-tape" style="left:90px;top:126px;transform:rotate(-5deg)"></span>
+                    <span class="lv-tape or" style="left:780px;top:130px;width:84px;transform:rotate(6deg)"></span>
+                    <div class="ab lv-num" style="left:700px;top:46px">07 / 10</div>
+                </div>
+
+                <!-- 08 수준 진단 -->
+                <div class="lv-slide">
+                    <div class="ab lv-kick" style="left:50px;top:28px"><b>4</b>수준 진단</div>
+                    <div class="ab lv-strip lv-ink" style="left:50px;top:62px;font-size:27px;transform:rotate(-1.5deg)">나와 가장 가까운 단계 고르기</div>
+                    <div class="ab lv-scrap" style="left:40px;top:138px;width:590px;height:362px;transform:rotate(-1.2deg)">
+                        <div class="lv-in lv-grid lv-torn-b" style="padding:22px 20px">
+                            <div style="font-size:14px;font-weight:800;color:#6B645C;margin-bottom:10px">일반적인 조직의 AI 활용 분포</div>
+                            <div style="display:flex;align-items:center;height:50px"><div style="width:200px;display:flex;align-items:center;gap:8px"><span class="lv-chip" style="background:#B0ACA6;color:#fff;font-size:13px">준비</span><span style="font-size:14px;font-weight:800">기본 채팅</span></div><div class="lv-bar lv-l0" style="width:273px"></div><span style="margin-left:8px;font-size:22px;font-weight:900">65%</span></div>
+                            <div style="display:flex;align-items:center;height:50px"><div style="width:200px;display:flex;align-items:center;gap:8px"><span class="lv-lv lv-l1" style="font-size:13px">L1</span><span style="font-size:14px;font-weight:800">소환: 멀티 페르소나</span></div><div class="lv-bar lv-l1" style="width:84px"></div><span style="margin-left:8px;font-size:22px;font-weight:900">20%</span></div>
+                            <div style="display:flex;align-items:center;height:50px"><div style="width:200px;display:flex;align-items:center;gap:8px"><span class="lv-lv lv-l2" style="font-size:13px">L2</span><span style="font-size:14px;font-weight:800">연결: 바이브 코딩</span></div><div class="lv-bar lv-l2" style="width:42px"></div><span style="margin-left:8px;font-size:22px;font-weight:900">10%</span></div>
+                            <div style="display:flex;align-items:center;height:50px"><div style="width:200px;display:flex;align-items:center;gap:8px"><span class="lv-lv lv-l3" style="font-size:13px">L3</span><span style="font-size:14px;font-weight:800">계약: 하네스</span></div><div class="lv-bar lv-l3" style="width:17px"></div><span style="margin-left:8px;font-size:22px;font-weight:900">4%</span></div>
+                            <div style="display:flex;align-items:center;height:50px"><div style="width:200px;display:flex;align-items:center;gap:8px"><span class="lv-lv lv-l4" style="font-size:13px">L4</span><span style="font-size:14px;font-weight:800">조합: 멀티 에이전트</span></div><div class="lv-bar lv-l4" style="width:5px"></div><span style="margin-left:8px;font-size:22px;font-weight:900">1%</span></div>
+                            <div style="display:flex;align-items:center;height:50px"><div style="width:200px;display:flex;align-items:center;gap:8px"><span class="lv-lv lv-l5" style="font-size:13px">L5</span><span style="font-size:14px;font-weight:800">자율: 루프</span></div><div class="lv-bar lv-l5" style="width:3px"></div><span style="margin-left:8px;font-size:22px;font-weight:900">&lt;1%</span></div>
+                        </div>
+                    </div>
+                    <span class="lv-tape" style="left:110px;top:128px;transform:rotate(-5deg)"></span>
+                    <div class="ab lv-sticker" style="left:470px;top:372px;width:110px;height:110px;background:#D97757;color:#fff;font-size:20px;transform:rotate(8deg)">65%가<br>아직 준비</div>
+                    <div class="ab lv-scrap" style="left:666px;top:142px;width:254px;height:196px;transform:rotate(2deg)">
+                        <div class="lv-in lv-yellow" style="padding:20px 20px">
+                            <div style="font-size:14px;font-weight:800;opacity:0.65">읽기 전에</div>
+                            <div style="font-size:17px;font-weight:800;line-height:1.5;margin-top:8px">비율은 실제 데이터가 아닌 AI 업계의 일반적 인식을 바탕으로 한 추정치입니다. 참고용으로만 보세요.</div>
+                        </div>
+                    </div>
+                    <span class="lv-tape or" style="left:750px;top:130px;width:84px;transform:rotate(-4deg)"></span>
+                    <div class="ab lv-stamp" style="left:770px;top:316px;transform:rotate(-8deg)">추정치</div>
+                    <div class="ab lv-scrap" style="left:666px;top:384px;width:254px;height:112px;transform:rotate(-1.5deg)">
+                        <div class="lv-in lv-card" style="padding:16px 18px">
+                            <div style="font-size:15px;font-weight:800;line-height:1.5">본문 수준 진단에서 단계를 누르면 맞춤 커리큘럼으로 바로 이동합니다</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-num" style="left:870px;top:46px">08 / 10</div>
+                </div>
+
+                <!-- 09 커리큘럼 -->
+                <div class="lv-slide">
+                    <div class="ab lv-kick" style="left:50px;top:28px"><b>5</b>커리큘럼</div>
+                    <div class="ab lv-strip lv-ink" style="left:50px;top:62px;font-size:27px;transform:rotate(-1.5deg)">다음 한 칸으로 올라가기</div>
+                    <div class="ab lv-scrap" style="left:30px;top:204px;width:170px;height:250px;transform:rotate(-3deg)">
+                        <div class="lv-in lv-torn-b" style="padding:16px 14px">
+                            <div style="display:flex;align-items:center;gap:5px"><span class="lv-chip" style="background:#B0ACA6;color:#fff;font-size:14px">준비</span><b>→</b><span class="lv-lv lv-l1" style="font-size:14px">L1</span></div>
+                            <div style="font-size:15px;font-weight:900;margin-top:10px">입문자에서 소환자로</div>
+                            <div style="font-size:13px;font-weight:700;color:#6B645C;margin-top:6px;line-height:1.45">역할을 나눠 토론시키면 동조와 환각이 걸러집니다</div>
+                            <div style="border-top:1px dashed rgba(26,25,23,0.25);margin:10px 0 8px"></div>
+                            <div class="lv-step-t"><i>1</i>프롬프트 잘 쓰는 법</div>
+                            <div class="lv-step-t"><i>2</i>프로젝트 만들기</div>
+                            <div class="lv-step-t"><i>3</i>멀티 페르소나 토론</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:212px;top:164px;width:174px;height:262px;transform:rotate(2.5deg)">
+                        <div class="lv-in lv-grid lv-torn-b" style="padding:16px 14px">
+                            <div style="display:flex;align-items:center;gap:5px"><span class="lv-lv lv-l1" style="font-size:14px">L1</span><b>→</b><span class="lv-lv lv-l2" style="font-size:14px">L2</span></div>
+                            <div style="font-size:15px;font-weight:900;margin-top:10px">소환자에서 연결자로</div>
+                            <div style="font-size:13px;font-weight:700;color:#6B645C;margin-top:6px;line-height:1.45">터미널 없이도 Claude Code·Codex에 파일 작업을 맡깁니다</div>
+                            <div style="border-top:1px dashed rgba(26,25,23,0.25);margin:10px 0 8px"></div>
+                            <div class="lv-step-t"><i>1</i>바이브 코딩 101</div>
+                            <div class="lv-step-t"><i>2</i>실전 과제 9가지</div>
+                            <div class="lv-step-t"><i>3</i>GitHub · Vercel · Netlify</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:398px;top:188px;width:170px;height:264px;transform:rotate(-1.5deg)">
+                        <div class="lv-in lv-torn-b" style="padding:16px 14px">
+                            <div style="display:flex;align-items:center;gap:5px"><span class="lv-lv lv-l2" style="font-size:14px">L2</span><b>→</b><span class="lv-lv lv-l3" style="font-size:14px">L3</span></div>
+                            <div style="font-size:15px;font-weight:900;margin-top:10px">연결자에서 설계자로</div>
+                            <div style="font-size:13px;font-weight:700;color:#6B645C;margin-top:6px;line-height:1.45">일하는 규칙은 하네스로, 반복되는 일은 스킬로 묶습니다</div>
+                            <div style="border-top:1px dashed rgba(26,25,23,0.25);margin:10px 0 8px"></div>
+                            <div class="lv-step-t"><i>1</i>하네스 엔지니어링이란?</div>
+                            <div class="lv-step-t"><i>2</i>AGENTS.md로 규칙 알려주기</div>
+                            <div class="lv-step-t"><i>3</i>나만의 Skill 만들기</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:582px;top:146px;width:164px;height:234px;transform:rotate(3.5deg)">
+                        <div class="lv-in lv-torn-b" style="padding:16px 14px">
+                            <div style="display:flex;align-items:center;gap:5px"><span class="lv-lv lv-l3" style="font-size:14px">L3</span><b>→</b><span class="lv-lv lv-l4" style="font-size:14px">L4</span></div>
+                            <div style="font-size:15px;font-weight:900;margin-top:10px">설계자에서 지휘자로</div>
+                            <div style="font-size:13px;font-weight:700;color:#6B645C;margin-top:6px;line-height:1.45">큰 작업을 여러 에이전트에 나눠 맡기고 하나로 조합합니다</div>
+                            <div style="border-top:1px dashed rgba(26,25,23,0.25);margin:10px 0 8px"></div>
+                            <div class="lv-step-t"><i>1</i>멀티 에이전트 소환</div>
+                            <div class="lv-step-t"><i>2</i>하네스 엔지니어링으로 책 쓰기</div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:760px;top:108px;width:176px;height:250px;transform:rotate(-2.5deg)">
+                        <div class="lv-in lv-yellow lv-torn-b" style="padding:16px 14px">
+                            <div style="display:flex;align-items:center;gap:5px"><span class="lv-lv lv-l4" style="font-size:14px">L4</span><b>→</b><span class="lv-lv lv-l5" style="font-size:14px">L5</span></div>
+                            <div style="font-size:15px;font-weight:900;margin-top:10px">지휘자에서 운영자로</div>
+                            <div style="font-size:13px;font-weight:700;color:#4A433B;margin-top:6px;line-height:1.45">목표에 닿을 때까지 반복하고, 정해진 시각에 무인으로 실행합니다</div>
+                            <div style="border-top:1px dashed rgba(26,25,23,0.3);margin:10px 0 8px"></div>
+                            <div class="lv-step-t"><i>1</i>루프 엔지니어링이란?</div>
+                            <div class="lv-step-t"><i>2</i>Routines 예약 실행</div>
+                        </div>
+                    </div>
+                    <span class="lv-tape" style="left:70px;top:194px;width:84px;transform:rotate(-8deg)"></span>
+                    <span class="lv-tape or" style="left:252px;top:142px;width:76px;transform:rotate(7deg)"></span>
+                    <span class="lv-tape" style="left:446px;top:178px;width:76px;transform:rotate(-4deg)"></span>
+                    <span class="lv-tape" style="left:694px;top:132px;width:56px;transform:rotate(40deg)"></span>
+                    <span class="lv-tape or" style="left:800px;top:98px;width:84px;transform:rotate(-5deg)"></span>
+                    <div class="ab lv-num" style="left:870px;top:46px">09 / 10</div>
+                </div>
+
+                <!-- 10 마무리 -->
+                <div class="lv-slide lv-night">
+                    <div class="ab lv-halftone" style="left:-140px;top:300px;width:420px;height:420px;opacity:0.35"></div>
+                    <div class="ab" style="left:60px;top:96px">
+                        <span class="lv-chip" style="background:#F5D56A;color:#1A1917">정리</span>
+                        <div class="lv-cut" style="margin-top:24px;font-size:56px"><span>다</span><span>음</span><span style="margin-left:16px">한</span><span>칸</span></div>
+                        <div style="margin-top:34px;font-size:27px;font-weight:900;line-height:1.4;letter-spacing:-0.6px">내 단계를 알았다면,<br>이제 첫 번째 프로젝트를<br>만들어 보세요</div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:520px;top:70px;width:390px;height:110px;transform:rotate(-1.5deg)">
+                        <div class="lv-in" style="padding:18px 22px;color:#1A1917;display:flex;gap:16px;align-items:center">
+                            <span class="lv-sticker" style="flex:none;width:46px;height:46px;background:#D97757;color:#fff;font-size:20px">1</span>
+                            <div><div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">가장 가까운 단계를 고릅니다</div><div style="font-size:14px;font-weight:700;color:#6B645C;margin-top:4px">준비부터 L5까지, 내 이야기인 한 문장</div></div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:536px;top:206px;width:390px;height:110px;transform:rotate(1.5deg)">
+                        <div class="lv-in lv-grid" style="padding:18px 22px;color:#1A1917;display:flex;gap:16px;align-items:center">
+                            <span class="lv-sticker" style="flex:none;width:46px;height:46px;background:#D97757;color:#fff;font-size:20px">2</span>
+                            <div><div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">다음 한 칸의 커리큘럼만 봅니다</div><div style="font-size:14px;font-weight:700;color:#6B645C;margin-top:4px">준비 단계라면 L1로 가는 강의 다섯 개부터</div></div>
+                        </div>
+                    </div>
+                    <div class="ab lv-scrap" style="left:520px;top:342px;width:390px;height:110px;transform:rotate(-1deg)">
+                        <div class="lv-in lv-yellow" style="padding:18px 22px;color:#1A1917;display:flex;gap:16px;align-items:center">
+                            <span class="lv-sticker" style="flex:none;width:46px;height:46px;background:#1A1917;color:#fff;font-size:20px">3</span>
+                            <div><div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">첫 번째 프로젝트를 만듭니다</div><div style="font-size:14px;font-weight:700;color:#4A433B;margin-top:4px">Claude·ChatGPT 프로젝트 시작하기</div></div>
+                        </div>
+                    </div>
+                    <span class="lv-tape" style="left:680px;top:60px;transform:rotate(-4deg)"></span>
+                    <span class="lv-tape or" style="left:690px;top:332px;width:84px;transform:rotate(5deg)"></span>
+                    <div class="ab lv-num" style="left:60px;top:504px">10 / 10 · AI ROASTING</div>
+                </div>
+
+            </div>
+            <div class="lv-nav">
+                <button type="button" id="lvPrevIn" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+                <span class="lv-count" id="lvCount" aria-live="polite">1 / 10</span>
+                <button type="button" id="lvNextIn" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+            </div>
+        </div>
+        <!-- ── /LV-SLIDES ── -->
+
 
         <!-- INTRO: 도입 격차 차트 -->
         <section class="insight-section reveal">
@@ -2232,16 +2817,8 @@
                             </div>
                             <span class="roadmap-step-arrow">&rarr;</span>
                         </a>
-                        <a class="roadmap-step" href="code-plugin.html">
-                            <span class="roadmap-step-num">5</span>
-                            <div class="roadmap-step-text">
-                                <strong>스킬·MCP를 플러그인으로 묶기</strong>
-                                <span>스킬과 MCP를 한 폴더로 묶어 한 줄 명령으로 설치하게 만들고 팀에 배포합니다</span>
-                            </div>
-                            <span class="roadmap-step-arrow">&rarr;</span>
-                        </a>
                         <a class="roadmap-step" href="mcp-examples.html">
-                            <span class="roadmap-step-num">6</span>
+                            <span class="roadmap-step-num">5</span>
                             <div class="roadmap-step-text">
                                 <strong>MCP 연결 실전</strong>
                                 <span>구글 드라이브, 카카오톡, DART 공시, 법령 검색 등 여섯 가지를 Claude에 연결합니다</span>
@@ -2315,14 +2892,6 @@
                             <div class="roadmap-step-text">
                                 <strong>Routines 예약 실행</strong>
                                 <span>실행 시각과 작업을 등록하면 정해진 때에 클라우드에서 실행합니다. 노트북 전원 상태와 무관합니다</span>
-                            </div>
-                            <span class="roadmap-step-arrow">&rarr;</span>
-                        </a>
-                        <a class="roadmap-step" href="claude-mobile.html">
-                            <span class="roadmap-step-num">3</span>
-                            <div class="roadmap-step-text">
-                                <strong>스마트폰에서 Claude 쓰기</strong>
-                                <span>노트북 밖에서도 이어서 씁니다. 코드, Dispatch, 코워크의 차이와 폰에서 작업을 맡기는 절차를 정리했습니다</span>
                             </div>
                             <span class="roadmap-step-arrow">&rarr;</span>
                         </a>
@@ -2807,6 +3376,162 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     window.addEventListener('keydown', onFirst);
 })();
 </script>
+
+<!-- LV-SLIDES 전체 화면: 슬라이드 한 장을 화면에 16:9로 맞춰 띄운다 -->
+<div class="lv-show" id="lvShow" role="dialog" aria-modal="true" aria-label="5단계 진단 슬라이드 전체 화면" hidden>
+    <div class="lv-show-stage" id="lvStage"></div>
+    <button type="button" class="lv-show-btn lv-show-prev" id="lvPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="lv-show-btn lv-show-next" id="lvNext" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" class="lv-show-btn lv-show-close" id="lvClose" aria-label="전체 화면 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="lv-show-num" id="lvNum" aria-live="polite">1 / 10</div>
+</div>
+<script>
+(function () {
+    var W = 960, H = 540;
+    var frame = document.getElementById('lvFrame');
+    var show = document.getElementById('lvShow');
+    var stage = document.getElementById('lvStage');
+    if (!frame || !show || !stage) return;
+    var slides = [].slice.call(frame.querySelectorAll('.lv-slide'));
+    var N = slides.length, cur = 0, lastFocus = null, idleT = null;
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* 본문: 틀 폭에 맞춰 960×540을 줄이고, 현재 장만 보인다 */
+    function fitFrame() {
+        var k = frame.clientWidth / W;
+        slides.forEach(function (s) { s.style.transform = 'scale(' + k + ')'; });
+    }
+    function paintInline() {
+        slides.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+        $('lvCount').textContent = (cur + 1) + ' / ' + N;
+        $('lvPrevIn').disabled = cur === 0;
+        $('lvNextIn').disabled = cur === N - 1;
+        syncInlineVideo();
+    }
+    /* 영상 장: 본문에서는 그 장에 있을 때만 소리 없이 반복하고, 발표 중에는 본문 영상을 멈춘다 */
+    function syncInlineVideo() {
+        slides.forEach(function (s, i) {
+            var v = s.querySelector('video');
+            if (!v) return;
+            if (i === cur && show.hidden) {
+                v.muted = true; v.loop = true;
+                var p = v.play(); if (p && p.catch) p.catch(function () {});
+            } else v.pause();
+        });
+    }
+    fitFrame();
+    paintInline();
+    if ('ResizeObserver' in window) new ResizeObserver(fitFrame).observe(frame);
+    else window.addEventListener('resize', fitFrame);
+
+    /* 발표: 화면 안에 들어가는 가장 큰 16:9 */
+    function fitStage() {
+        var vw = show.clientWidth, vh = show.clientHeight;
+        var k = Math.min(vw / W, vh / H);
+        stage.style.transform = 'translate(' + ((vw - W * k) / 2) + 'px,' + ((vh - H * k) / 2) + 'px) scale(' + k + ')';
+    }
+    function render() {
+        var c = slides[cur].cloneNode(true);
+        c.style.transform = '';
+        c.classList.add('on');
+        stage.innerHTML = '';
+        stage.appendChild(c);
+        /* 발표 화면의 영상은 처음부터 소리와 함께 한 번 재생. 브라우저가 막으면 소리 없이라도 재생 */
+        var sv = c.querySelector('video');
+        if (sv) {
+            sv.loop = false; sv.muted = false; sv.currentTime = 0;
+            var sp = sv.play();
+            if (sp && sp.catch) sp.catch(function () { sv.muted = true; sv.play().catch(function () {}); });
+        }
+        syncInlineVideo();
+        $('lvNum').textContent = (cur + 1) + ' / ' + N;
+        $('lvPrev').disabled = cur === 0;
+        $('lvNext').disabled = cur === N - 1;
+        fitStage();
+    }
+    function go(i) {
+        i = Math.max(0, Math.min(N - 1, i));
+        if (i === cur && (show.hidden || stage.firstChild)) return;
+        cur = i;
+        paintInline();
+        if (!show.hidden) render();
+    }
+    function wake() {
+        show.classList.remove('idle');
+        clearTimeout(idleT);
+        idleT = setTimeout(function () { show.classList.add('idle'); }, 2500);
+    }
+    function open(i) {
+        lastFocus = document.activeElement;
+        cur = i;
+        show.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        render();
+        wake();
+        $('lvClose').focus({ preventScroll: true });
+        if (show.requestFullscreen) show.requestFullscreen().catch(function () {});
+        else if (show.webkitRequestFullscreen) show.webkitRequestFullscreen();
+    }
+    function close() {
+        if (show.hidden) return;
+        show.hidden = true;
+        stage.innerHTML = '';
+        clearTimeout(idleT);
+        document.documentElement.style.overflow = '';
+        var fe = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        paintInline();
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+
+    $('lvPlay').addEventListener('click', function () { open(0); });
+    frame.addEventListener('click', function () { open(cur); });
+    frame.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(cur); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+    });
+    $('lvPrevIn').addEventListener('click', function () { go(cur - 1); });
+    $('lvNextIn').addEventListener('click', function () { go(cur + 1); });
+    $('lvPrev').addEventListener('click', function () { go(cur - 1); });
+    $('lvNext').addEventListener('click', function () { go(cur + 1); });
+    $('lvClose').addEventListener('click', close);
+
+    /* 슬라이드 빈 곳: 왼쪽 1/3은 이전, 나머지는 다음 */
+    stage.addEventListener('click', function (e) {
+        if (e.clientX < show.clientWidth / 3) go(cur - 1); else go(cur + 1);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (show.hidden) return;
+        var k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { if (k === 'Enter' && e.target.tagName === 'BUTTON') return; e.preventDefault(); go(cur + 1); }
+        else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(cur - 1); }
+        else if (k === 'Home') { e.preventDefault(); go(0); }
+        else if (k === 'End') { e.preventDefault(); go(N - 1); }
+        else if (k === 'Escape') { e.preventDefault(); close(); }
+        wake();
+    });
+    show.addEventListener('mousemove', wake);
+
+    /* 스와이프 */
+    var sx = null, sy = 0;
+    show.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; wake(); }, { passive: true });
+    show.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
+    });
+
+    /* 브라우저 전체 화면을 Esc로 먼저 빠져나오면 발표도 닫는다 */
+    function onFs() { if (!(document.fullscreenElement || document.webkitFullscreenElement)) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+    window.addEventListener('resize', function () { if (!show.hidden) fitStage(); });
+})();
+</script>
+<!-- /LV-SLIDES 전체 화면 -->
 
 </body>
 </html>

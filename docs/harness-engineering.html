@@ -1945,6 +1945,229 @@
             .cf-pchip { font-size: 11px; padding: 5px 10px; }
         }
         </style>
+    <!-- HARNESS-SLIDES -->
+    <style>
+        /* ═════ HARNESS-SLIDES: 하네스 엔지니어링 콜라주 슬라이드. 960×540 좌표계, 틀 폭에 맞춰 scale. 구조는 skills SKILL-SLIDES와 같다 ═════ */
+        .hx-wrap { margin: 0 0 48px; }
+        .hx-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .hx-title { margin: 0; font-size: 18px; font-weight: 800; color: #2E2A26; letter-spacing: -0.2px; }
+        .hx-play {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer;
+            background: #1A1917; color: #fff; font: inherit; font-size: 14px; font-weight: 700;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+        .hx-play svg { width: 17px; height: 17px; }
+        .hx-play:hover { background: var(--ant-orange); transform: translateY(-1px); }
+        .hx-frame {
+            position: relative; aspect-ratio: 16 / 9; overflow: hidden; cursor: zoom-in;
+            border-radius: 14px; background: #E4D6BB;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 10px 32px rgba(0,0,0,0.10);
+        }
+        .hx-frame:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 3px; }
+        .hx-frame::after {
+            content: ''; position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(26,25,23,0.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E") center / 15px no-repeat;
+            opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+        }
+        .hx-frame:hover::after, .hx-frame:focus-visible::after { opacity: 1; }
+        .hx-frame > .hx-slide { display: none; }
+        .hx-frame > .hx-slide.on { display: block; }
+        .hx-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+        .hx-nav button {
+            display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+            border: 1px solid #D8D2C8; border-radius: 50%; background: #fff; color: #3A3530; cursor: pointer;
+            transition: border-color 0.18s ease, color 0.18s ease;
+        }
+        .hx-nav button:hover:not(:disabled) { border-color: var(--ant-orange); color: var(--ant-orange); }
+        .hx-nav button:disabled { opacity: 0.35; cursor: default; }
+        .hx-nav button svg { width: 18px; height: 18px; }
+        .hx-count { min-width: 56px; text-align: center; font-size: 14px; font-weight: 700; color: #6B645C; font-variant-numeric: tabular-nums; }
+
+        /* 슬라이드 공통 */
+        .hx-slide {
+            position: absolute; left: 0; top: 0; width: 960px; height: 540px; overflow: hidden;
+            transform-origin: 0 0; color: #1A1917; line-height: 1.3; text-align: left;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            word-break: keep-all; -webkit-font-smoothing: antialiased; letter-spacing: -0.2px;
+            background-color: #E4D6BB;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .26 0 0 0 0 .13 0 0 0 .20 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+                radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.35), transparent 60%);
+        }
+        .hx-slide.hx-night { background-color: #2A2622; color: #F4EEE3; }
+        .hx-slide * { box-sizing: border-box; }
+        .hx-slide .ab { position: absolute; }
+        .hx-slide svg { display: block; }
+
+        /* 종잇조각: 바깥은 그림자, 안쪽은 찢긴 모양 */
+        .hx-scrap { filter: drop-shadow(0 5px 9px rgba(60,40,20,0.22)) drop-shadow(0 1px 1px rgba(60,40,20,0.15)); }
+        .hx-in { position: relative; width: 100%; height: 100%; background: #FBF7EE; }
+        .hx-torn-b { clip-path: polygon(0.0% 0.0%, 100.0% 0.0%, 100.0% 97.5%, 96.4% 97.2%, 92.9% 96.5%, 89.3% 96.6%, 85.7% 97.2%, 82.1% 99.4%, 78.6% 96.2%, 75.0% 99.9%, 71.4% 97.6%, 67.9% 98.3%, 64.3% 99.8%, 60.7% 98.5%, 57.1% 96.9%, 53.6% 96.5%, 50.0% 99.3%, 46.4% 97.7%, 42.9% 96.4%, 39.3% 96.3%, 35.7% 97.7%, 32.1% 96.1%, 28.6% 98.0%, 25.0% 96.2%, 21.4% 97.5%, 17.9% 98.1%, 14.3% 96.3%, 10.7% 98.6%, 7.1% 96.6%, 3.6% 97.3%, 0.0% 98.5%); }
+        .hx-torn-tb { clip-path: polygon(0.0% 1.6%, 3.6% 2.6%, 7.1% 0.6%, 10.7% 1.9%, 14.3% 2.0%, 17.9% 1.2%, 21.4% 1.8%, 25.0% 0.2%, 28.6% 0.2%, 32.1% 0.7%, 35.7% 2.2%, 39.3% 1.4%, 42.9% 1.0%, 46.4% 1.9%, 50.0% 1.5%, 53.6% 1.0%, 57.1% 2.5%, 60.7% 2.2%, 64.3% 0.8%, 67.9% 1.8%, 71.4% 1.7%, 75.0% 2.8%, 78.6% 2.3%, 82.1% 0.9%, 85.7% 3.1%, 89.3% 0.4%, 92.9% 1.3%, 96.4% 2.4%, 100.0% 1.6%, 100.0% 98.4%, 96.4% 97.3%, 92.9% 98.3%, 89.3% 96.9%, 85.7% 98.9%, 82.1% 98.0%, 78.6% 97.7%, 75.0% 99.4%, 71.4% 100.0%, 67.9% 98.9%, 64.3% 99.0%, 60.7% 97.0%, 57.1% 98.9%, 53.6% 98.3%, 50.0% 99.8%, 46.4% 99.5%, 42.9% 98.3%, 39.3% 98.7%, 35.7% 98.7%, 32.1% 99.0%, 28.6% 97.8%, 25.0% 99.6%, 21.4% 98.6%, 17.9% 99.2%, 14.3% 98.9%, 10.7% 96.9%, 7.1% 98.4%, 3.6% 97.3%, 0.0% 98.4%); }
+        .hx-grid { background-color: #FBF7EE; background-image: linear-gradient(rgba(120,150,190,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(120,150,190,0.22) 1px, transparent 1px); background-size: 22px 22px; }
+        .hx-lined { background-color: #FBF7EE; background-image: linear-gradient(transparent 31px, rgba(120,150,190,0.3) 31px, rgba(120,150,190,0.3) 32px); background-size: 100% 32px; }
+        .hx-yellow { background: #F5D56A; }
+        .hx-ink { background: #1A1917; color: #F4EEE3; }
+        .hx-card { background: #C9A876; background-image: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%); }
+
+        /* 마스킹 테이프 */
+        .hx-tape {
+            position: absolute; width: 92px; height: 26px; z-index: 3;
+            background: rgba(246,236,205,0.78); box-shadow: 0 1px 2px rgba(60,40,20,0.12);
+            clip-path: polygon(3.0% 0.0%, 97.0% 0.0%, 100.0% 18.0%, 96.0% 36.0%, 100.0% 55.0%, 95.0% 74.0%, 100.0% 100.0%, 3.0% 100.0%, 0.0% 80.0%, 4.0% 60.0%, 0.0% 42.0%, 5.0% 22.0%);
+        }
+        .hx-tape.or { background: repeating-linear-gradient(-45deg, rgba(217,119,87,0.85) 0 7px, rgba(250,230,215,0.85) 7px 14px); }
+        .hx-tape.lab {
+            width: auto; height: auto; padding: 7px 16px; font-size: 16px; font-weight: 800; color: #1A1917; white-space: nowrap;
+            background: rgba(245,213,106,0.92);
+        }
+        .hx-tape.lab small { font-size: 12px; font-weight: 700; opacity: 0.6; margin-left: 6px; }
+
+        /* 오려 붙인 글자 */
+        .hx-cut { display: flex; gap: 4px; align-items: flex-end; }
+        .hx-cut span {
+            display: inline-block; padding: 2px 10px 6px; font-weight: 900; line-height: 1; letter-spacing: -1px;
+            box-shadow: 0 3px 6px rgba(60,40,20,0.2);
+        }
+        .hx-cut span:nth-child(5n+1) { background: #1A1917; color: #F4EEE3; transform: rotate(-3deg); }
+        .hx-cut span:nth-child(5n+2) { background: #D97757; color: #fff; transform: rotate(2deg) translateY(-4px); }
+        .hx-cut span:nth-child(5n+3) { background: #FBF7EE; color: #1A1917; transform: rotate(-1.5deg) translateY(3px); font-weight: 700; }
+        .hx-cut span:nth-child(5n+4) { background: #F5D56A; color: #1A1917; transform: rotate(3deg); }
+        .hx-cut span:nth-child(5n+5) { background: #8FA98B; color: #fff; transform: rotate(-2deg) translateY(-2px); }
+
+        .hx-strip { padding: 10px 18px; font-weight: 800; box-shadow: 0 4px 8px rgba(60,40,20,0.22); }
+        .hx-halftone { border-radius: 50%; background-image: radial-gradient(#D97757 2px, transparent 2.3px); background-size: 11px 11px; opacity: 0.75; }
+        .hx-sticker {
+            display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 50%;
+            font-weight: 900; line-height: 1.15; box-shadow: 0 4px 10px rgba(60,40,20,0.25);
+        }
+        .hx-stamp {
+            padding: 8px 16px; border: 3px solid #C0392B; border-radius: 6px; color: #C0392B;
+            font-size: 22px; font-weight: 900; letter-spacing: 1px; opacity: 0.82;
+            box-shadow: inset 0 0 0 2px rgba(192,57,43,0.25);
+        }
+        .hx-num { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: rgba(26,25,23,0.55); }
+        .hx-night .hx-num { color: rgba(244,238,227,0.5); }
+        .hx-chip { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 800; }
+
+        /* ═════ 전체 화면 ═════ */
+        .hx-show { position: fixed; inset: 0; z-index: 2147483000; background: #0b0d0c; overflow: hidden; touch-action: pan-y; }
+        .hx-show[hidden] { display: none; }
+        .hx-show-stage { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; }
+        .hx-show-btn {
+            position: absolute; z-index: 2; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: #fff; transition: background 0.18s ease, opacity 0.3s ease;
+        }
+        .hx-show-btn:hover { background: rgba(255,255,255,0.24); }
+        .hx-show-btn:disabled { opacity: 0.25 !important; cursor: default; }
+        .hx-show-btn svg { width: 22px; height: 22px; }
+        .hx-show-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+        .hx-show-next { right: 20px; top: 50%; transform: translateY(-50%); }
+        .hx-show-close { right: 20px; top: 20px; width: 44px; height: 44px; }
+        .hx-show-num {
+            position: absolute; z-index: 2; left: 50%; bottom: 18px; transform: translateX(-50%);
+            padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease;
+        }
+        .hx-show.idle .hx-show-btn, .hx-show.idle .hx-show-num { opacity: 0; }
+        .hx-show.idle { cursor: none; }
+        @media (max-width: 768px) {
+            .hx-frame { border-radius: 10px; }
+            .hx-toolbar { flex-direction: column; align-items: flex-start; }
+            .hx-show-btn { width: 40px; height: 40px; }
+            .hx-show-prev { left: 10px; top: auto; bottom: 12px; transform: none; }
+            .hx-show-next { right: 10px; top: auto; bottom: 12px; transform: none; }
+            .hx-show-close { right: 10px; top: 10px; }
+        }
+
+        /* 하네스 슬라이드 전용 조각. 다섯 요소 색은 본문 하네스 공식(fx-1~fx-5)과 같다 */
+        .hx-torn-r { clip-path: polygon(0.0% 0.0%, 96.5% 0.0%, 96.2% 4.5%, 99.1% 9.1%, 96.5% 13.6%, 97.0% 18.2%, 97.6% 22.7%, 99.5% 27.3%, 96.3% 31.8%, 97.8% 36.4%, 98.2% 40.9%, 99.5% 45.5%, 99.3% 50.0%, 99.5% 54.5%, 97.1% 59.1%, 97.7% 63.6%, 97.4% 68.2%, 99.5% 72.7%, 99.8% 77.3%, 96.6% 81.8%, 96.7% 86.4%, 96.9% 90.9%, 96.9% 95.5%, 97.9% 100.0%, 0.0% 100.0%); }
+        .hx-tag {
+            display: inline-block; padding: 6px 14px 8px; border-radius: 6px; color: #fff;
+            font-weight: 900; line-height: 1; letter-spacing: -0.4px; white-space: nowrap;
+            box-shadow: 0 4px 9px rgba(60,40,20,0.24);
+        }
+        .hx-md {
+            display: inline-block; padding: 5px 10px; border-radius: 4px; background: #fff; color: #1A1917;
+            font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 14px; font-weight: 700; letter-spacing: 0; white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(60,40,20,0.2);
+        }
+        .hx-md.y { background: #F5D56A; }
+
+        /* 02 비유 */
+        .hx-an { padding: 20px 22px; }
+        .hx-an-q { margin-top: 14px; font-size: 16px; font-weight: 700; line-height: 1.5; color: #3A3530; }
+        .hx-an-r { display: flex; align-items: center; gap: 12px; margin-top: 12px; font-size: 18px; font-weight: 900; letter-spacing: -0.4px; }
+        .hx-an-r b { flex: none; width: 66px; padding: 5px 0; border-radius: 4px; text-align: center; font-size: 14px; font-weight: 800; color: #fff; }
+
+        /* 03 시스템 맵 */
+        .hx-el { padding: 13px 16px; }
+        .hx-el-h { display: flex; align-items: center; gap: 9px; font-size: 21px; font-weight: 900; letter-spacing: -0.4px; }
+        .hx-el-h b { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; color: #fff; font-size: 14px; }
+        .hx-el-d { margin-top: 7px; font-size: 14.5px; font-weight: 700; line-height: 1.4; color: #5A534B; }
+        .hx-core {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%;
+            background: #1A1917; color: #F4EEE3; box-shadow: 0 6px 14px rgba(60,40,20,0.3);
+        }
+
+        /* 04 공식 */
+        .hx-term { padding: 16px 8px 0; text-align: center; }
+        .hx-term-k { font-size: 12px; font-weight: 800; letter-spacing: 1px; }
+        .hx-term-t { margin-top: 10px; font-size: 20px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; }
+        .hx-term-d { position: absolute; left: 0; right: 0; bottom: 0; padding: 9px 4px; color: #fff; font-size: 14px; font-weight: 800; }
+        .hx-x { font-size: 30px; font-weight: 900; color: #8A6E4B; }
+        .hx-map { display: flex; align-items: center; gap: 12px; padding: 7px 0; font-size: 17px; font-weight: 800; }
+        .hx-map b { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; color: #fff; font-size: 14px; }
+        .hx-map span { color: #8A8178; font-size: 14px; font-weight: 700; }
+
+        /* 05 문제 */
+        .hx-prob { padding: 22px 26px; }
+        .hx-prob-n { font-family: Georgia, 'Times New Roman', serif; font-size: 46px; font-weight: 700; color: #D97757; line-height: 1; }
+        .hx-prob-t { margin-top: 10px; font-size: 27px; font-weight: 900; letter-spacing: -0.6px; }
+        .hx-prob-e { margin-top: 2px; font-size: 13px; font-weight: 700; color: #8A8178; letter-spacing: 0; }
+        .hx-prob-d { margin-top: 14px; font-size: 18px; font-weight: 800; line-height: 1.45; color: #3A3530; }
+        .hx-prob-a { margin-top: 16px; padding-top: 12px; border-top: 1px dashed rgba(26,25,23,0.25); font-size: 15px; font-weight: 700; line-height: 1.5; color: #5A534B; }
+        .hx-prob-a b { color: #1A1917; }
+
+        /* 06 원칙 */
+        .hx-pp { display: flex; flex-direction: column; justify-content: center; padding: 0 22px; }
+        .hx-pp i { font-style: normal; font-size: 13px; font-weight: 800; color: #D97757; }
+        .hx-pp div { margin-top: 6px; font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+        .hx-pp span { margin-top: 6px; font-size: 14px; font-weight: 700; color: #6B645C; }
+        .hx-pa { display: flex; flex-direction: column; justify-content: center; padding: 0 24px; color: #fff; }
+        .hx-pa-h { display: flex; align-items: baseline; gap: 10px; font-size: 25px; font-weight: 900; letter-spacing: -0.5px; }
+        .hx-pa-h small { font-size: 14px; font-weight: 800; opacity: 0.75; letter-spacing: 0; }
+        .hx-pa-d { margin-top: 8px; font-size: 16.5px; font-weight: 700; line-height: 1.45; }
+
+        /* 07 사례 1 */
+        .hx-polar { padding: 10px 10px 0; background: #fff; }
+        .hx-polar-c { padding: 9px 2px 0; font-size: 14px; font-weight: 800; line-height: 1.35; color: #3A3530; }
+        .hx-polar-c small { display: block; font-size: 12px; font-weight: 700; color: #8A8178; }
+        .hx-agent { display: flex; flex-direction: column; justify-content: center; padding: 0 16px; }
+        .hx-agent-t { font-size: 19px; font-weight: 900; letter-spacing: -0.4px; }
+        .hx-agent-d { margin-top: 3px; font-size: 13px; font-weight: 700; opacity: 0.75; }
+
+        /* 08 사례 2 */
+        .hx-role { padding: 18px 18px 0; }
+        .hx-role-k { font-size: 12.5px; font-weight: 800; color: #8A8178; margin-top: 10px; }
+        .hx-role-d { margin-top: 10px; font-size: 16px; font-weight: 800; line-height: 1.45; color: #3A3530; }
+        .hx-role-o { margin-top: 12px; font-size: 12.5px; font-weight: 800; color: #8A8178; }
+        .hx-role-o .hx-md { margin-left: 6px; font-size: 13px; }
+        .hx-role-x { position: absolute; left: 18px; right: 18px; bottom: 14px; padding-top: 9px; border-top: 1px dashed rgba(26,25,23,0.22); font-size: 13px; font-weight: 700; color: #8A8178; }
+        .hx-role-x s { color: #3A3530; font-weight: 800; text-decoration-color: #C0392B; text-decoration-thickness: 2px; }
+
+        /* 09 비용 */
+        .hx-bar { display: flex; align-items: center; height: 38px; font-size: 15px; font-weight: 800; }
+        .hx-bar-l { flex: 0 0 150px; }
+        .hx-bar-l small { font-size: 12px; font-weight: 700; color: #8A8178; margin-left: 4px; }
+        .hx-bar-b { flex: 0 0 250px; }
+        .hx-bar-b i { display: block; height: 18px; border-radius: 2px; }
+        .hx-bar-v { flex: 1; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .hx-bar-v span { color: #8A8178; font-weight: 700; margin-left: 8px; }
+    </style>
+    <!-- /HARNESS-SLIDES -->
     <!-- ANALYTICS-STD -->
     <script defer src="assets/js/analytics.js"></script>
     <!-- /ANALYTICS-STD -->
@@ -2019,7 +2242,6 @@
     </div>
     <div class="header-pages" id="pages-tool" style="display:none;">
         <a href="agent-tools.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9.5" width="17" height="9.5" rx="1.8"/><path d="M8.5 9.5V7a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2.5"/><path d="M3.5 13.5h17"/></svg></span> 에이전트의 도구</a>
-        <a href="code-plugin.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h4.2a1.7 1.7 0 1 1 0 3.3H12V5h4a2 2 0 0 1 2 2v3.5a1.7 1.7 0 1 0 0 3.3V17a2 2 0 0 1-2 2h-4v-3.3H8.8a1.7 1.7 0 1 1 0-3.4H5z"/></svg></span> 스킬·MCP 플러그인</a>
         <a href="mcp-examples.html" class="header-page-link"><span class="hpl-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span> MCP 연결 실전</a>
     </div>
 </header>
@@ -2049,6 +2271,391 @@
 </nav>
 
 <main class="container" id="main" tabindex="-1">
+
+    <!-- ── HARNESS-SLIDES: 하네스 엔지니어링 콜라주 슬라이드. 문구와 숫자는 모두 이 페이지 본문을 따른다 ── -->
+    <div class="hx-wrap">
+        <div class="hx-toolbar">
+            <p class="hx-title">하네스 엔지니어링, 슬라이드 열 장으로 먼저 보기</p>
+            <button type="button" class="hx-play" id="hxPlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+                전체 화면으로 보기
+            </button>
+        </div>
+        <div class="hx-frame" id="hxFrame" tabindex="0" role="button" aria-label="하네스 엔지니어링 슬라이드, 전체 화면으로 보기">
+
+            <!-- 01 표지 -->
+            <div class="hx-slide on">
+                <div class="ab hx-halftone" style="left:620px;top:-70px;width:440px;height:440px"></div>
+                <div class="ab hx-scrap" style="left:54px;top:62px;width:520px;height:400px;transform:rotate(-2deg)">
+                    <div class="hx-in hx-grid hx-torn-b"></div>
+                </div>
+                <span class="hx-tape" style="left:34px;top:54px;transform:rotate(-36deg)"></span>
+                <span class="hx-tape or" style="left:500px;top:56px;width:84px;transform:rotate(30deg)"></span>
+                <div class="ab" style="left:92px;top:100px;transform:rotate(-2deg);transform-origin:0 0">
+                    <span class="hx-chip hx-ink">3단계 · 계약</span>
+                    <div class="hx-cut" style="margin-top:24px;font-size:84px"><span>하</span><span>네</span><span>스</span></div>
+                    <div class="hx-cut" style="margin-top:14px;font-size:54px"><span>엔</span><span>지</span><span>니</span><span>어</span><span>링</span></div>
+                    <div style="margin-top:28px;font-size:20px;font-weight:800;line-height:1.55">같은 AI 모델이라도<br><span style="background:#F5D56A;padding:0 4px">어떤 하네스 위에서 돌리느냐</span>에 따라<br>결과가 완전히 달라집니다</div>
+                </div>
+                <div class="ab hx-scrap" style="left:618px;top:100px;width:280px;height:300px;transform:rotate(3deg)">
+                    <div class="hx-in hx-lined hx-torn-b" style="padding:24px 26px;font-size:19px;font-weight:900;line-height:32px;letter-spacing:-0.3px">
+                        <div>LLM 모델</div>
+                        <div><span class="hx-x" style="font-size:19px">×</span> <span style="color:#D97757">Role·Rubric</span></div>
+                        <div><span class="hx-x" style="font-size:19px">×</span> <span style="color:#3B82F6">Context</span></div>
+                        <div><span class="hx-x" style="font-size:19px">×</span> <span style="color:#10B981">Tools</span></div>
+                        <div><span class="hx-x" style="font-size:19px">×</span> <span style="color:#D48806">Workflow</span></div>
+                        <div><span class="hx-x" style="font-size:19px">×</span> <span style="color:#EF4444">Guardrail</span></div>
+                    </div>
+                </div>
+                <span class="hx-tape lab" style="left:680px;top:84px;transform:rotate(-3deg)">하네스 공식</span>
+                <div class="ab hx-sticker" style="left:806px;top:388px;width:118px;height:118px;background:#D97757;color:#fff;font-size:19px;transform:rotate(-10deg)">모델은<br>엔진 하나<br>일 뿐</div>
+                <div class="ab hx-num" style="left:40px;top:504px">01 / 10 · AI ROASTING</div>
+            </div>
+
+            <!-- 02 정의와 비유 -->
+            <div class="hx-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="hx-cut" style="font-size:54px"><span>정</span><span>의</span></div>
+                    <div class="hx-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">하네스는 모델을 감싸 일을 시키는 구조 전체입니다</div>
+                </div>
+                <div class="ab hx-scrap" style="left:50px;top:126px;width:860px;height:70px;transform:rotate(-0.6deg)">
+                    <div class="hx-in hx-ink hx-torn-tb" style="display:flex;align-items:center;gap:10px;padding:0 24px;font-size:18px;font-weight:800">
+                        무엇을 알려주고 <span class="hx-chip" style="background:#3B82F6;color:#fff">맥락</span>
+                        누가 만들고 채점하며 <span class="hx-chip" style="background:#D97757;color:#fff">역할·기준</span>
+                        어떤 도구를 쥐여줄지 <span class="hx-chip" style="background:#10B981;color:#fff">도구</span>
+                        정해 둔 판
+                    </div>
+                </div>
+                <div class="ab hx-scrap" style="left:50px;top:226px;width:420px;height:200px;transform:rotate(-1.5deg)">
+                    <div class="hx-in hx-an">
+                        <span class="hx-tag" style="background:#8A6E4B;font-size:16px">비유 1 · 말과 마구</span>
+                        <div class="hx-an-q">아무리 좋은 말이라도 올바른 마구 없이는<br>원하는 방향으로 달리지 못합니다</div>
+                        <div class="hx-an-r"><b style="background:#1A1917">모델</b>말의 근육·속도</div>
+                        <div class="hx-an-r" style="margin-top:8px"><b style="background:#D97757">하네스</b>마구·길·신호 체계</div>
+                    </div>
+                </div>
+                <div class="ab hx-scrap" style="left:492px;top:232px;width:420px;height:200px;transform:rotate(1.2deg)">
+                    <div class="hx-in hx-an">
+                        <span class="hx-tag" style="background:#3B82F6;font-size:16px">비유 2 · 신입사원과 온보딩</span>
+                        <div class="hx-an-q">아무리 똑똑한 신입도 업무 매뉴얼 없이<br>혼자 일하면 실수투성이입니다</div>
+                        <div class="hx-an-r"><b style="background:#1A1917">모델</b>신입의 머리(지능)</div>
+                        <div class="hx-an-r" style="margin-top:8px"><b style="background:#D97757">하네스</b>온보딩 시스템 전체</div>
+                    </div>
+                </div>
+                <span class="hx-tape" style="left:200px;top:214px;transform:rotate(-5deg)"></span>
+                <span class="hx-tape or" style="left:660px;top:220px;width:80px;transform:rotate(4deg)"></span>
+                <div class="ab hx-strip hx-yellow" style="left:120px;top:452px;font-size:20px;transform:rotate(-1deg)">경쟁력은 누가 더 좋은 모델을 쓰느냐가 아니라, 누가 더 좋은 하네스를 설계했느냐에서 나옵니다</div>
+                <div class="ab hx-num" style="left:870px;top:40px">02 / 10</div>
+            </div>
+
+            <!-- 03 시스템 맵 -->
+            <div class="hx-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="hx-cut" style="font-size:54px"><span>구</span><span>조</span></div>
+                    <div class="hx-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">LLM은 코어, 하네스는 코어를 감싸는 업무 환경</div>
+                </div>
+                <svg class="ab" style="left:0;top:0" width="960" height="540" viewBox="0 0 960 540" fill="none" stroke="#8A6E4B" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="3 8">
+                    <circle cx="480" cy="306" r="112" opacity="0.7"/>
+                    <path d="M400 238 L290 196"/><path d="M560 238 L670 196"/><path d="M370 318 L284 344"/><path d="M590 318 L676 344"/><path d="M480 418 L480 422"/>
+                </svg>
+                <div class="ab hx-core" style="left:410px;top:236px;width:140px;height:140px">
+                    <div style="font-size:34px;font-weight:900;letter-spacing:-0.5px">LLM</div>
+                    <div style="margin-top:2px;font-size:12px;font-weight:800;letter-spacing:2px;color:#F5D56A">ENGINE</div>
+                </div>
+                <div class="ab" style="left:380px;top:384px;width:200px;text-align:center;font-size:13px;font-weight:800;color:#6B645C">Claude · GPT · Gemini</div>
+                <div class="ab hx-scrap" style="left:56px;top:136px;width:250px;height:96px;transform:rotate(-1.5deg)"><div class="hx-in hx-el"><div class="hx-el-h"><b style="background:#D97757">1</b>Role · Rubric</div><div class="hx-el-d">기획자·생성자·평가자<br>합격 기준, 테스트, 리뷰 루프</div></div></div>
+                <div class="ab hx-scrap" style="left:654px;top:136px;width:250px;height:96px;transform:rotate(1.2deg)"><div class="hx-in hx-el"><div class="hx-el-h"><b style="background:#3B82F6">2</b>Context</div><div class="hx-el-d">프로젝트 지식, 대화 기록,<br>참고 문서</div></div></div>
+                <div class="ab hx-scrap" style="left:676px;top:300px;width:236px;height:96px;transform:rotate(-1deg)"><div class="hx-in hx-el"><div class="hx-el-h"><b style="background:#10B981">3</b>Tools</div><div class="hx-el-d">MCP, 스킬, 플러그인,<br>파일 접근</div></div></div>
+                <div class="ab hx-scrap" style="left:360px;top:414px;width:240px;height:86px;transform:rotate(0.8deg)"><div class="hx-in hx-el hx-yellow"><div class="hx-el-h"><b style="background:#D48806">4</b>Workflow</div><div class="hx-el-d">계획, 실행, 관찰, 수정, 반복</div></div></div>
+                <div class="ab hx-scrap" style="left:48px;top:300px;width:236px;height:96px;transform:rotate(1.4deg)"><div class="hx-in hx-el"><div class="hx-el-h"><b style="background:#EF4444">5</b>Guardrail</div><div class="hx-el-d">권한, 보안, 승인,<br>금지 사항</div></div></div>
+                <span class="hx-tape" style="left:130px;top:124px;width:76px;transform:rotate(-5deg)"></span>
+                <span class="hx-tape or" style="left:740px;top:124px;width:76px;transform:rotate(5deg)"></span>
+                <div class="ab hx-strip hx-ink" style="left:48px;top:440px;font-size:15px;line-height:1.45;transform:rotate(-1.5deg)">LLM은 엔진, 하네스는<br>운전석·계기판·도로·안전장치</div>
+                <div class="ab hx-num" style="left:870px;top:40px">03 / 10</div>
+            </div>
+
+            <!-- 04 공식 -->
+            <div class="hx-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="hx-cut" style="font-size:54px"><span>공</span><span>식</span></div>
+                    <div class="hx-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">모델은 곱해지는 한 항일 뿐입니다</div>
+                </div>
+                <div class="ab" style="left:46px;top:132px;width:868px;display:flex;align-items:center;justify-content:space-between">
+                    <div class="hx-scrap" style="position:relative;width:124px;height:132px;transform:rotate(-2deg)"><div class="hx-in hx-ink hx-term"><div class="hx-term-k" style="color:#F5D56A">ENGINE</div><div class="hx-term-t">LLM<br>모델</div></div></div>
+                    <span class="hx-x">×</span>
+                    <div class="hx-scrap" style="position:relative;width:124px;height:132px;transform:rotate(1.5deg)"><div class="hx-in hx-term"><div class="hx-term-k" style="color:#D97757">ROLE·RUBRIC</div><div class="hx-term-t">역할<br>분리</div><div class="hx-term-d" style="background:#D97757">1</div></div></div>
+                    <span class="hx-x">×</span>
+                    <div class="hx-scrap" style="position:relative;width:124px;height:132px;transform:rotate(-1deg)"><div class="hx-in hx-term"><div class="hx-term-k" style="color:#3B82F6">CONTEXT</div><div class="hx-term-t">컨텍스트<br>인수인계</div><div class="hx-term-d" style="background:#3B82F6">2</div></div></div>
+                    <span class="hx-x">×</span>
+                    <div class="hx-scrap" style="position:relative;width:124px;height:132px;transform:rotate(2deg)"><div class="hx-in hx-term"><div class="hx-term-k" style="color:#10B981">TOOLS</div><div class="hx-term-t">도구</div><div class="hx-term-d" style="background:#10B981">3</div></div></div>
+                    <span class="hx-x">×</span>
+                    <div class="hx-scrap" style="position:relative;width:124px;height:132px;transform:rotate(-1.5deg)"><div class="hx-in hx-term"><div class="hx-term-k" style="color:#D48806">WORKFLOW</div><div class="hx-term-t">작업<br>흐름</div><div class="hx-term-d" style="background:#F59E0B">4</div></div></div>
+                    <span class="hx-x">×</span>
+                    <div class="hx-scrap" style="position:relative;width:124px;height:132px;transform:rotate(1deg)"><div class="hx-in hx-term"><div class="hx-term-k" style="color:#EF4444">GUARDRAIL</div><div class="hx-term-t">가드레일</div><div class="hx-term-d" style="background:#EF4444">5</div></div></div>
+                </div>
+                <div class="ab hx-stamp" style="left:70px;top:328px;font-size:30px;transform:rotate(-6deg)">하나라도 0이면 결과도 0</div>
+                <div class="ab" style="left:76px;top:410px;width:340px;font-size:17px;font-weight:800;line-height:1.55;color:#3A3530">모델이 아무리 좋아도<br>다섯 요소 중 하나가 비면<br>결과가 나오지 않습니다</div>
+                <div class="ab hx-scrap" style="left:470px;top:310px;width:440px;height:196px;transform:rotate(1.2deg)">
+                    <div class="hx-in hx-torn-b" style="padding:16px 24px">
+                        <div class="hx-map" style="margin:0 -10px;padding:7px 10px;background:#F5D56A"><b style="background:#D97757">1</b>역할 분리 <b style="background:#3B82F6">2</b>컨텍스트 인수인계 <span>이 페이지</span></div>
+                        <div class="hx-map"><b style="background:#10B981">3</b>도구 <span>「에이전트의 도구」 장</span></div>
+                        <div class="hx-map"><b style="background:#F59E0B">4</b>작업 흐름 <span>「멀티 에이전트 소환」 장</span></div>
+                        <div class="hx-map"><b style="background:#EF4444">5</b>가드레일 <span>「보안 가이드」 장</span></div>
+                    </div>
+                </div>
+                <span class="hx-tape" style="left:640px;top:298px;transform:rotate(-4deg)"></span>
+                <div class="ab hx-num" style="left:870px;top:40px">04 / 10</div>
+            </div>
+
+            <!-- 05 혼자 일하는 AI가 무너지는 두 가지 이유 -->
+            <div class="hx-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="hx-cut" style="font-size:54px"><span>문</span><span>제</span></div>
+                    <div class="hx-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">혼자 일하는 AI는 두 가지 이유로 무너집니다</div>
+                </div>
+                <div class="ab hx-scrap" style="left:50px;top:132px;width:420px;height:336px;transform:rotate(-1.5deg)">
+                    <div class="hx-in hx-prob">
+                        <div class="hx-prob-n">01</div>
+                        <div class="hx-prob-t">자기 평가의 함정</div>
+                        <div class="hx-prob-e">Self-Evaluation Trap</div>
+                        <div class="hx-prob-d">자기 결과물을 스스로 채점하면<br>항상 후하게 나옵니다</div>
+                        <div class="hx-prob-a"><b>일상 비유</b> · 학생이 자기 시험지를<br>직접 채점하는 것과 같습니다</div>
+                    </div>
+                </div>
+                <div class="ab hx-stamp" style="left:300px;top:150px;width:126px;height:126px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:24px;line-height:1.15;transform:rotate(-14deg)">참<br>잘했어요</div>
+                <div class="ab hx-scrap" style="left:492px;top:140px;width:420px;height:336px;transform:rotate(1.2deg)">
+                    <div class="hx-in hx-prob">
+                        <div class="hx-prob-n">02</div>
+                        <div class="hx-prob-t">컨텍스트 불안</div>
+                        <div class="hx-prob-e">Context Anxiety</div>
+                        <div class="hx-prob-d">긴 작업 도중에<br>갑자기 대충 마무리합니다</div>
+                        <div class="hx-prob-a"><b>일상 비유</b> · 10페이지 보고서를 시켰는데<br>7페이지에서 끝내버리는 셈입니다</div>
+                    </div>
+                </div>
+                <div class="ab" style="left:770px;top:160px;width:100px;height:120px;transform:rotate(6deg)">
+                    <div class="hx-scrap" style="position:absolute;left:12px;top:-8px;width:84px;height:110px"><div class="hx-in hx-lined"></div></div>
+                    <div class="hx-scrap" style="position:absolute;left:6px;top:-2px;width:84px;height:110px"><div class="hx-in hx-lined"></div></div>
+                    <div class="hx-scrap" style="position:absolute;left:0;top:4px;width:84px;height:110px"><div class="hx-in hx-lined" style="display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-size:18px;font-weight:900;color:#C0392B">7 / 10</div></div>
+                </div>
+                <div class="ab hx-strip hx-ink" style="left:704px;top:284px;font-size:16px;transform:rotate(-4deg)">"이상 마치겠습니다"</div>
+                <span class="hx-tape" style="left:200px;top:120px;transform:rotate(-5deg)"></span>
+                <span class="hx-tape or" style="left:600px;top:128px;width:80px;transform:rotate(5deg)"></span>
+                <div class="ab hx-num" style="left:50px;top:506px">05 / 10 · 출처 Anthropic Labs, Prithvi Rajasekaran, "장기 실행 앱 개발을 위한 하네스 설계"(2026-03-24)</div>
+            </div>
+
+            <!-- 06 두 원칙 -->
+            <div class="hx-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="hx-cut" style="font-size:54px"><span>원</span><span>칙</span></div>
+                    <div class="hx-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">문제 하나에 원칙 하나</div>
+                </div>
+                <div class="ab hx-scrap" style="left:50px;top:132px;width:290px;height:118px;transform:rotate(-1deg)"><div class="hx-in hx-pp hx-torn-r"><i>문제 01</i><div>자기 평가의 함정</div><span>스스로 채점하면 후해진다</span></div></div>
+                <svg class="ab" style="left:346px;top:168px" width="54" height="40" viewBox="0 0 54 40" fill="none" stroke="#8A6E4B" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22 C 16 10, 30 30, 46 18"/><path d="M36 12l10 6-7 10"/></svg>
+                <div class="ab hx-scrap" style="left:404px;top:126px;width:508px;height:130px;transform:rotate(0.8deg)"><div class="hx-in hx-pa" style="background:#D97757"><div class="hx-pa-h">원칙 1 · 역할 분리 <small>Role·Rubric</small></div><div class="hx-pa-d">만드는 AI(Generator)와 채점하는 AI(Evaluator)를 따로 두고,<br>합격 기준(Rubric)은 채점자가 외부에서 쥡니다</div></div></div>
+                <div class="ab hx-scrap" style="left:56px;top:284px;width:290px;height:118px;transform:rotate(1deg)"><div class="hx-in hx-pp hx-torn-r"><i>문제 02</i><div>컨텍스트 불안</div><span>창이 차오르면 일찍 끝낸다</span></div></div>
+                <svg class="ab" style="left:350px;top:320px" width="54" height="40" viewBox="0 0 54 40" fill="none" stroke="#8A6E4B" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22 C 16 10, 30 30, 46 18"/><path d="M36 12l10 6-7 10"/></svg>
+                <div class="ab hx-scrap" style="left:408px;top:278px;width:504px;height:130px;transform:rotate(-0.8deg)"><div class="hx-in hx-pa" style="background:#3B82F6"><div class="hx-pa-h">원칙 2 · 컨텍스트 리셋 <small>Context</small></div><div class="hx-pa-d">작업 기억을 완전히 비우고, 이전 상태를 구조화된 MD 파일로<br>인수인계해 새 세션을 시작합니다</div></div></div>
+                <span class="hx-tape" style="left:600px;top:116px;transform:rotate(-4deg)"></span>
+                <span class="hx-tape or" style="left:620px;top:268px;width:80px;transform:rotate(4deg)"></span>
+                <div class="ab hx-scrap" style="left:50px;top:428px;width:862px;height:76px;transform:rotate(-0.5deg)">
+                    <div class="hx-in hx-ink hx-torn-tb" style="display:flex;flex-direction:column;justify-content:center;padding:0 24px">
+                        <div style="font-size:21px;font-weight:900;letter-spacing:-0.4px">만드는 자와 검토하는 자를 분리하고, <span style="color:#F5D56A">이전 맥락은 문서로 넘깁니다</span></div>
+                        <div style="margin-top:4px;font-size:14px;font-weight:700;opacity:0.75">이 두 원칙이 긴 작업을 끝까지 무너지지 않게 만듭니다</div>
+                    </div>
+                </div>
+                <div class="ab hx-num" style="left:870px;top:40px">06 / 10</div>
+            </div>
+
+            <!-- 07 사례 1: 네덜란드 미술관 -->
+            <div class="hx-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="hx-cut" style="font-size:54px"><span>사</span><span>례</span><span>1</span></div>
+                    <div class="hx-strip" style="background:#FBF7EE;font-size:21px;transform:rotate(1deg)">네덜란드 미술관 웹사이트 · Generator-Evaluator</div>
+                </div>
+                <!-- 9회차까지: 다크 테마 -->
+                <div class="ab hx-scrap" style="left:52px;top:136px;width:220px;height:204px;transform:rotate(-5deg)">
+                    <div class="hx-in hx-polar">
+                        <div style="position:relative;height:140px;background:#1D1D22;overflow:hidden">
+                            <div style="position:absolute;left:12px;top:12px;width:44px;height:6px;background:#5A5A66"></div>
+                            <div style="position:absolute;right:12px;top:12px;width:70px;height:6px;background:#3A3A44"></div>
+                            <div style="position:absolute;left:12px;top:38px;width:120px;height:12px;background:#C9C0B4"></div>
+                            <div style="position:absolute;left:12px;top:56px;width:84px;height:12px;background:#C9C0B4"></div>
+                            <div style="position:absolute;left:12px;top:88px;width:56px;height:40px;background:#2E2E36"></div>
+                            <div style="position:absolute;left:74px;top:88px;width:56px;height:40px;background:#2E2E36"></div>
+                            <div style="position:absolute;left:136px;top:88px;width:56px;height:40px;background:#2E2E36"></div>
+                        </div>
+                        <div class="hx-polar-c">9회차까지<small>전형적인 다크 테마</small></div>
+                    </div>
+                </div>
+                <!-- 10회차: 3D 공간 -->
+                <div class="ab hx-scrap" style="left:232px;top:170px;width:268px;height:232px;transform:rotate(3deg)">
+                    <div class="hx-in hx-polar">
+                        <svg width="248" height="168" viewBox="0 0 196 140" preserveAspectRatio="none" style="background:#EDE6DA">
+                            <polygon points="0,0 196,0 128,30 68,30" fill="#F7F2EA"/>
+                            <polygon points="0,0 68,30 68,80 0,140" fill="#E2D8C8"/>
+                            <polygon points="196,0 128,30 128,80 196,140" fill="#E2D8C8"/>
+                            <rect x="68" y="30" width="60" height="50" fill="#EFE8DC"/>
+                            <polygon points="68,80 128,80 196,140 0,140" fill="#FBF7EE"/>
+                            <g fill="#1A1917"><polygon points="68.0,80 78.0,80 74.2,85 62.3,85"/><polygon points="88.0,80 98.0,80 98.0,85 86.1,85"/><polygon points="108.0,80 118.0,80 121.8,85 109.9,85"/><polygon points="74.2,85 86.1,85 83.5,92 68.9,92"/><polygon points="98.0,85 109.9,85 112.5,92 98.0,92"/><polygon points="121.8,85 133.7,85 141.6,92 127.1,92"/><polygon points="54.4,92 68.9,92 61.4,102 43.1,102"/><polygon points="83.5,92 98.0,92 98.0,102 79.7,102"/><polygon points="112.5,92 127.1,92 134.6,102 116.3,102"/><polygon points="61.4,102 79.7,102 73.6,118 49.3,118"/><polygon points="98.0,102 116.3,102 122.4,118 98.0,118"/><polygon points="134.6,102 152.9,102 171.1,118 146.7,118"/><polygon points="24.9,118 49.3,118 32.7,140 0.0,140"/><polygon points="73.6,118 98.0,118 98.0,140 65.3,140"/><polygon points="122.4,118 146.7,118 163.3,140 130.7,140"/></g>
+                            <rect x="89" y="46" width="18" height="34" fill="#8A6E4B"/>
+                            <polygon points="16,30 46,40 46,64 16,62" fill="#D97757" stroke="#6B4A2E" stroke-width="2"/>
+                            <polygon points="150,40 180,30 180,62 150,64" fill="#3B82F6" stroke="#6B4A2E" stroke-width="2"/>
+                            <rect x="74" y="38" width="10" height="12" fill="#F5D56A" stroke="#6B4A2E" stroke-width="1.2"/>
+                            <rect x="112" y="38" width="10" height="12" fill="#10B981" stroke="#6B4A2E" stroke-width="1.2"/>
+                        </svg>
+                        <div class="hx-polar-c">10회차<small>CSS perspective로 만든 3D 공간 네비게이션</small></div>
+                    </div>
+                </div>
+                <span class="hx-tape" style="left:110px;top:126px;width:76px;transform:rotate(-8deg)"></span>
+                <span class="hx-tape or" style="left:330px;top:160px;width:76px;transform:rotate(6deg)"></span>
+                <!-- 파일로만 주고받는 루프 -->
+                <div class="ab hx-scrap" style="left:556px;top:132px;width:170px;height:68px;transform:rotate(-1.5deg)"><div class="hx-in hx-agent" style="background:#D97757;color:#fff"><div class="hx-agent-t">Generator</div><div class="hx-agent-d">만든다</div></div></div>
+                <div class="ab hx-scrap" style="left:742px;top:232px;width:170px;height:68px;transform:rotate(1.5deg)"><div class="hx-in hx-agent hx-ink"><div class="hx-agent-t">Evaluator</div><div class="hx-agent-d">실제 페이지를 보고 채점한다</div></div></div>
+                <svg class="ab" style="left:556px;top:132px" width="360" height="190" viewBox="0 0 360 190" fill="none" stroke="#8A6E4B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M176 30 C 240 26, 270 40, 268 92"/><path d="M260 84l8 10 8-10"/>
+                    <path d="M184 136 C 110 150, 90 120, 86 76"/><path d="M78 84l8-10 8 10"/>
+                </svg>
+                <span class="ab hx-md" style="left:794px;top:150px;transform:rotate(2deg)">page.html</span>
+                <span class="ab hx-md y" style="left:574px;top:250px;transform:rotate(-2deg)">score.md</span>
+                <div class="ab" style="left:690px;top:198px;font-size:13px;font-weight:900;color:#5A4A36;transform:rotate(-2deg)">5~15회 반복</div>
+                <div class="ab hx-scrap" style="left:560px;top:336px;width:352px;height:100px;transform:rotate(0.8deg)">
+                    <div class="hx-in" style="padding:14px 18px">
+                        <div style="font-size:13px;font-weight:800;color:#8A8178">채점 기준 4가지 · 각 10점</div>
+                        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
+                            <span class="hx-chip" style="background:#F1ECE3">시각적 계층</span><span class="hx-chip" style="background:#F1ECE3">색상 일관성</span><span class="hx-chip" style="background:#F1ECE3">여백</span><span class="hx-chip" style="background:#F1ECE3">CTA 명확성</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ab hx-scrap" style="left:56px;top:426px;width:470px;height:64px;transform:rotate(-1deg)">
+                    <div class="hx-in hx-yellow" style="display:flex;align-items:center;padding:0 20px;font-size:17px;font-weight:800;line-height:1.35">"채점 기준의 문구 자체가 결과물의 성격을 직접 형성합니다"</div>
+                </div>
+                <div class="ab hx-num" style="left:560px;top:506px">07 / 10 · 출처 Anthropic Engineering Blog</div>
+            </div>
+
+            <!-- 08 사례 2: 브라우저 DAW -->
+            <div class="hx-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="hx-cut" style="font-size:54px"><span>사</span><span>례</span><span>2</span></div>
+                    <div class="hx-strip" style="background:#FBF7EE;font-size:21px;transform:rotate(1deg)">브라우저 DAW · Planner-Generator-Evaluator</div>
+                </div>
+                <div class="ab hx-scrap" style="left:50px;top:128px;width:256px;height:250px;transform:rotate(-1.5deg)">
+                    <div class="hx-in hx-role hx-torn-b">
+                        <span class="hx-tag" style="background:#8B5CF6;font-size:19px">Planner</span>
+                        <div class="hx-role-k">역할 1 · 기획자</div>
+                        <div class="hx-role-d">1~4문장 브리프를<br>합격 기준이 담긴<br>기획서로 넓힌다</div>
+                        <div class="hx-role-o">출력<span class="hx-md y">plan.md</span></div>
+                        <div class="hx-role-x">안 함 <s>코드 작성</s> · <s>합격 판정</s></div>
+                    </div>
+                </div>
+                <div class="ab hx-scrap" style="left:352px;top:136px;width:256px;height:250px;transform:rotate(1deg)">
+                    <div class="hx-in hx-role hx-torn-b">
+                        <span class="hx-tag" style="background:#D97757;font-size:19px">Generator</span>
+                        <div class="hx-role-k">역할 2 · 제작자</div>
+                        <div class="hx-role-d">기획서대로 앱을 짜고<br>FAIL인 항목만<br>다시 고친다</div>
+                        <div class="hx-role-o">출력<span class="hx-md">동작하는 앱 코드</span></div>
+                        <div class="hx-role-x">안 함 <s>기준 변경</s> · <s>자기 코드 판정</s></div>
+                    </div>
+                </div>
+                <div class="ab hx-scrap" style="left:654px;top:128px;width:256px;height:250px;transform:rotate(-1deg)">
+                    <div class="hx-in hx-role hx-torn-b">
+                        <span class="hx-tag" style="background:#1A1917;font-size:19px">Evaluator</span>
+                        <div class="hx-role-k">역할 3 · 채점자</div>
+                        <div class="hx-role-d">실제 사용자처럼<br>앱을 써보고<br>PASS/FAIL만 판정한다</div>
+                        <div class="hx-role-o">출력<span class="hx-md y">feedback.md</span></div>
+                        <div class="hx-role-x">안 함 <s>코드 수정</s> · <s>기준 변경</s></div>
+                    </div>
+                </div>
+                <svg class="ab" style="left:300px;top:200px" width="60" height="40" viewBox="0 0 60 40" fill="none" stroke="#8A6E4B" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22 C 20 10, 34 30, 50 18"/><path d="M40 12l10 6-7 10"/></svg>
+                <svg class="ab" style="left:602px;top:200px" width="60" height="40" viewBox="0 0 60 40" fill="none" stroke="#8A6E4B" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22 C 20 10, 34 30, 50 18"/><path d="M40 12l10 6-7 10"/></svg>
+                <svg class="ab" style="left:470px;top:384px" width="320" height="44" viewBox="0 0 320 44" fill="none" stroke="#8A6E4B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 7"><path d="M300 4 C 280 40, 60 44, 14 6"/></svg>
+                <svg class="ab" style="left:474px;top:380px" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8A6E4B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14l6-10 8 8"/></svg>
+                <div class="ab" style="left:580px;top:402px;font-size:13px;font-weight:900;color:#5A4A36">feedback.md로 되돌림</div>
+                <div class="ab hx-stamp" style="left:806px;top:96px;padding:4px 10px;font-size:17px;border-color:#2E7D5B;color:#2E7D5B;box-shadow:inset 0 0 0 2px rgba(46,125,91,0.25);transform:rotate(8deg)">PASS</div>
+                <div class="ab hx-stamp" style="left:870px;top:356px;padding:4px 10px;font-size:17px;transform:rotate(-10deg)">FAIL</div>
+                <div class="ab hx-scrap" style="left:50px;top:432px;width:400px;height:66px;transform:rotate(-1deg)">
+                    <div class="hx-in hx-ink hx-torn-tb" style="display:flex;flex-direction:column;justify-content:center;padding:0 20px">
+                        <div style="font-size:18px;font-weight:900"><span style="color:#F5D56A">스프린트 계약</span> · 시작 전에 합격 기준부터 합의</div>
+                        <div style="margin-top:3px;font-size:13px;font-weight:700;opacity:0.75">"좋아 보인다" 대신 측정 가능한 조건</div>
+                    </div>
+                </div>
+                <div class="ab hx-num" style="left:600px;top:506px">08 / 10 · 셋은 파일로만 주고받는다</div>
+            </div>
+
+            <!-- 09 소요 시간과 비용 -->
+            <div class="hx-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="hx-cut" style="font-size:54px"><span>비</span><span>용</span></div>
+                    <div class="hx-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">DAW 한 편, 약 3시간 50분 · $124.70</div>
+                </div>
+                <div class="ab hx-scrap" style="left:50px;top:126px;width:580px;height:370px;transform:rotate(-1deg)">
+                    <div class="hx-in hx-grid hx-torn-r" style="padding:20px 40px 0 24px">
+                        <div class="hx-bar"><div class="hx-bar-l">기획<small>Planner</small></div><div class="hx-bar-b"><i style="width:9px;background:#8B5CF6"></i></div><div class="hx-bar-v">4.7분<span>$0.46</span></div></div>
+                        <div class="hx-bar"><div class="hx-bar-l">1차 Build</div><div class="hx-bar-b"><i style="width:250px;background:#D97757"></i></div><div class="hx-bar-v">2시간 7분<span>$71.08</span></div></div>
+                        <div class="hx-bar"><div class="hx-bar-l">1차 QA</div><div class="hx-bar-b"><i style="width:17px;background:#1A1917"></i></div><div class="hx-bar-v">8.8분<span>$3.24</span></div></div>
+                        <div class="hx-bar"><div class="hx-bar-l">2차 Build</div><div class="hx-bar-b"><i style="width:122px;background:#D97757"></i></div><div class="hx-bar-v">1시간 2분<span>$36.89</span></div></div>
+                        <div class="hx-bar"><div class="hx-bar-l">2차 QA</div><div class="hx-bar-b"><i style="width:13px;background:#1A1917"></i></div><div class="hx-bar-v">6.8분<span>$3.09</span></div></div>
+                        <div class="hx-bar" style="background:rgba(245,213,106,0.55);margin:0 -10px;padding:0 10px"><div class="hx-bar-l">3차 Build</div><div class="hx-bar-b"><i style="width:22px;background:#D97757"></i></div><div class="hx-bar-v">10.9분<span>$5.88</span></div></div>
+                        <div class="hx-bar"><div class="hx-bar-l">3차 QA</div><div class="hx-bar-b"><i style="width:19px;background:#1A1917"></i></div><div class="hx-bar-v">9.6분<span>$4.06</span></div></div>
+                        <div class="hx-bar" style="margin-top:12px;border-top:2px solid #1A1917;height:46px;font-size:17px;font-weight:900"><div class="hx-bar-l">합계</div><div class="hx-bar-b"></div><div class="hx-bar-v">약 3시간 50분<span style="color:#1A1917;font-weight:900">$124.70</span></div></div>
+                    </div>
+                </div>
+                <span class="hx-tape" style="left:260px;top:114px;transform:rotate(-3deg)"></span>
+                <div class="ab hx-scrap" style="left:664px;top:132px;width:250px;height:176px;transform:rotate(2deg)">
+                    <div class="hx-in hx-yellow" style="padding:18px 20px">
+                        <div style="font-size:13px;font-weight:800;opacity:0.65">1차 Build</div>
+                        <div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">2시간 7분 · $71.08</div>
+                        <div style="margin:8px 0;font-size:20px;font-weight:900;color:#8A6E4B">↓</div>
+                        <div style="font-size:13px;font-weight:800;opacity:0.65">3차 Build</div>
+                        <div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">10.9분 · $5.88</div>
+                    </div>
+                </div>
+                <span class="hx-tape or" style="left:750px;top:120px;width:80px;transform:rotate(5deg)"></span>
+                <div class="ab hx-sticker" style="left:666px;top:318px;width:124px;height:124px;background:#1A1917;color:#F5D56A;font-size:38px;transform:rotate(-8deg)">1/12</div>
+                <div class="ab" style="left:800px;top:330px;width:130px;font-size:14px;font-weight:800;line-height:1.45;color:#3A3530">시간도 비용도<br>1차의 1/12<br>수준</div>
+                <div class="ab hx-strip hx-ink" style="left:664px;top:452px;width:250px;font-size:13.5px;line-height:1.45;transform:rotate(-1.5deg)">Evaluator가 남은 문제만 정확히 짚어주었기 때문입니다</div>
+                <div class="ab hx-num" style="left:870px;top:40px">09 / 10</div>
+            </div>
+
+            <!-- 10 정리 -->
+            <div class="hx-slide">
+                <div class="ab hx-halftone" style="left:-80px;top:240px;width:380px;height:380px"></div>
+                <div class="ab" style="left:60px;top:70px">
+                    <div class="hx-cut" style="font-size:64px"><span>직</span><span>접</span></div>
+                    <div class="hx-cut" style="margin-top:12px;font-size:64px"><span>해</span><span>보</span><span>기</span></div>
+                    <div style="margin-top:28px;font-size:20px;font-weight:800;line-height:1.5;color:#3A3530">같은 모델이라도<br>하네스가 다르면<br>결과가 완전히 달라집니다</div>
+                </div>
+                <div class="ab hx-scrap" style="left:420px;top:70px;width:490px;height:110px;transform:rotate(1deg)">
+                    <div class="hx-in" style="padding:18px 22px;display:flex;gap:16px;align-items:center">
+                        <span class="hx-sticker" style="flex:none;width:46px;height:46px;background:#D97757;color:#fff;font-size:20px">1</span>
+                        <div><div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">만드는 AI와 채점하는 AI를 나눕니다</div><div style="font-size:14px;font-weight:700;color:#6B645C;margin-top:4px">합격 기준은 채점자가 쥡니다</div></div>
+                    </div>
+                </div>
+                <div class="ab hx-scrap" style="left:440px;top:206px;width:490px;height:110px;transform:rotate(-1.2deg)">
+                    <div class="hx-in" style="padding:18px 22px;display:flex;gap:16px;align-items:center">
+                        <span class="hx-sticker" style="flex:none;width:46px;height:46px;background:#3B82F6;color:#fff;font-size:20px">2</span>
+                        <div><div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">이전 맥락은 MD 파일로 넘깁니다</div><div style="font-size:14px;font-weight:700;color:#6B645C;margin-top:4px">에이전트끼리 대화하지 않고 파일로만 주고받습니다</div></div>
+                    </div>
+                </div>
+                <div class="ab hx-scrap" style="left:420px;top:342px;width:490px;height:110px;transform:rotate(-0.6deg)">
+                    <div class="hx-in hx-yellow" style="padding:18px 22px;display:flex;gap:16px;align-items:center">
+                        <span class="hx-sticker" style="flex:none;width:46px;height:46px;background:#1A1917;color:#fff;font-size:20px">3</span>
+                        <div><div style="font-size:20px;font-weight:900;letter-spacing:-0.4px">나만의 하네스를 만들어 봅니다</div><div style="font-size:14px;font-weight:700;color:#4A433B;margin-top:4px">CLAUDE.md, 스킬, 훅, MCP로 시작합니다</div></div>
+                    </div>
+                </div>
+                <span class="hx-tape" style="left:640px;top:58px;transform:rotate(-4deg)"></span>
+                <span class="hx-tape or" style="left:650px;top:332px;width:84px;transform:rotate(5deg)"></span>
+                <div class="ab hx-num" style="left:60px;top:504px">10 / 10 · AI ROASTING</div>
+            </div>
+
+        </div>
+        <div class="hx-nav">
+            <button type="button" id="hxPrevIn" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <span class="hx-count" id="hxCount" aria-live="polite">1 / 10</span>
+            <button type="button" id="hxNextIn" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+    </div>
+    <!-- ── /HARNESS-SLIDES ── -->
+
 
     <!-- ═══════ STEP 1: 개념 ═══════ -->
     <div class="step-divider reveal content-section" id="sec1"><span class="step-badge">개념</span></div>
@@ -3328,6 +3935,142 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     window.addEventListener('keydown', onFirst);
 })();
 </script>
+
+<!-- HARNESS-SLIDES 전체 화면: 슬라이드 한 장을 화면에 16:9로 맞춰 띄운다 -->
+<div class="hx-show" id="hxShow" role="dialog" aria-modal="true" aria-label="하네스 엔지니어링 슬라이드 전체 화면" hidden>
+    <div class="hx-show-stage" id="hxStage"></div>
+    <button type="button" class="hx-show-btn hx-show-prev" id="hxPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="hx-show-btn hx-show-next" id="hxNext" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" class="hx-show-btn hx-show-close" id="hxClose" aria-label="전체 화면 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="hx-show-num" id="hxNum" aria-live="polite">1 / 10</div>
+</div>
+<script>
+(function () {
+    var W = 960, H = 540;
+    var frame = document.getElementById('hxFrame');
+    var show = document.getElementById('hxShow');
+    var stage = document.getElementById('hxStage');
+    if (!frame || !show || !stage) return;
+    var slides = [].slice.call(frame.querySelectorAll('.hx-slide'));
+    var N = slides.length, cur = 0, lastFocus = null, idleT = null;
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* 본문: 틀 폭에 맞춰 960×540을 줄이고, 현재 장만 보인다 */
+    function fitFrame() {
+        var k = frame.clientWidth / W;
+        slides.forEach(function (s) { s.style.transform = 'scale(' + k + ')'; });
+    }
+    function paintInline() {
+        slides.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+        $('hxCount').textContent = (cur + 1) + ' / ' + N;
+        $('hxPrevIn').disabled = cur === 0;
+        $('hxNextIn').disabled = cur === N - 1;
+    }
+    fitFrame();
+    paintInline();
+    if ('ResizeObserver' in window) new ResizeObserver(fitFrame).observe(frame);
+    else window.addEventListener('resize', fitFrame);
+
+    /* 발표: 화면 안에 들어가는 가장 큰 16:9 */
+    function fitStage() {
+        var vw = show.clientWidth, vh = show.clientHeight;
+        var k = Math.min(vw / W, vh / H);
+        stage.style.transform = 'translate(' + ((vw - W * k) / 2) + 'px,' + ((vh - H * k) / 2) + 'px) scale(' + k + ')';
+    }
+    function render() {
+        var c = slides[cur].cloneNode(true);
+        c.style.transform = '';
+        c.classList.add('on');
+        stage.innerHTML = '';
+        stage.appendChild(c);
+        $('hxNum').textContent = (cur + 1) + ' / ' + N;
+        $('hxPrev').disabled = cur === 0;
+        $('hxNext').disabled = cur === N - 1;
+        fitStage();
+    }
+    function go(i) {
+        i = Math.max(0, Math.min(N - 1, i));
+        if (i === cur && (show.hidden || stage.firstChild)) return;
+        cur = i;
+        paintInline();
+        if (!show.hidden) render();
+    }
+    function wake() {
+        show.classList.remove('idle');
+        clearTimeout(idleT);
+        idleT = setTimeout(function () { show.classList.add('idle'); }, 2500);
+    }
+    function open(i) {
+        lastFocus = document.activeElement;
+        cur = i;
+        show.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        render();
+        wake();
+        $('hxClose').focus({ preventScroll: true });
+        if (show.requestFullscreen) show.requestFullscreen().catch(function () {});
+        else if (show.webkitRequestFullscreen) show.webkitRequestFullscreen();
+    }
+    function close() {
+        if (show.hidden) return;
+        show.hidden = true;
+        stage.innerHTML = '';
+        clearTimeout(idleT);
+        document.documentElement.style.overflow = '';
+        var fe = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        paintInline();
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+
+    $('hxPlay').addEventListener('click', function () { open(0); });
+    frame.addEventListener('click', function () { open(cur); });
+    frame.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(cur); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+    });
+    $('hxPrevIn').addEventListener('click', function () { go(cur - 1); });
+    $('hxNextIn').addEventListener('click', function () { go(cur + 1); });
+    $('hxPrev').addEventListener('click', function () { go(cur - 1); });
+    $('hxNext').addEventListener('click', function () { go(cur + 1); });
+    $('hxClose').addEventListener('click', close);
+
+    /* 슬라이드 빈 곳: 왼쪽 1/3은 이전, 나머지는 다음 */
+    stage.addEventListener('click', function (e) {
+        if (e.clientX < show.clientWidth / 3) go(cur - 1); else go(cur + 1);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (show.hidden) return;
+        var k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { if (k === 'Enter' && e.target.tagName === 'BUTTON') return; e.preventDefault(); go(cur + 1); }
+        else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(cur - 1); }
+        else if (k === 'Home') { e.preventDefault(); go(0); }
+        else if (k === 'End') { e.preventDefault(); go(N - 1); }
+        else if (k === 'Escape') { e.preventDefault(); close(); }
+        wake();
+    });
+    show.addEventListener('mousemove', wake);
+
+    /* 스와이프 */
+    var sx = null, sy = 0;
+    show.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; wake(); }, { passive: true });
+    show.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
+    });
+
+    /* 브라우저 전체 화면을 Esc로 먼저 빠져나오면 발표도 닫는다 */
+    function onFs() { if (!(document.fullscreenElement || document.webkitFullscreenElement)) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+    window.addEventListener('resize', function () { if (!show.hidden) fitStage(); });
+})();
+</script>
+<!-- /HARNESS-SLIDES 전체 화면 -->
 
 </body>
 </html>

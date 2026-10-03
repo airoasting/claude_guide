@@ -362,6 +362,202 @@
     <!-- ANALYTICS-STD -->
     <script defer src="assets/js/analytics.js"></script>
     <!-- /ANALYTICS-STD -->
+    <!-- FILE-SLIDES -->
+    <style>
+        /* ═════ FILE-SLIDES: 파일 유형 콜라주 슬라이드. 960×540 좌표계, 틀 폭에 맞춰 scale ═════ */
+        .ft-wrap { margin: 0 0 44px; }
+        .ft-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .ft-toolbar .section-subhead { margin: 0; }
+        .ft-play {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer;
+            background: #1A1917; color: #fff; font: inherit; font-size: 14px; font-weight: 700;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+        .ft-play svg { width: 17px; height: 17px; }
+        .ft-play:hover { background: var(--ant-orange); transform: translateY(-1px); }
+        .ft-frame {
+            position: relative; aspect-ratio: 16 / 9; overflow: hidden; cursor: zoom-in;
+            border-radius: 14px; background: #E4D6BB;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 10px 32px rgba(0,0,0,0.10);
+        }
+        .ft-frame:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 3px; }
+        .ft-frame::after {
+            content: ''; position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(26,25,23,0.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E") center / 15px no-repeat;
+            opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+        }
+        .ft-frame:hover::after, .ft-frame:focus-visible::after { opacity: 1; }
+        .ft-frame > .ft-slide { display: none; }
+        .ft-frame > .ft-slide.on { display: block; }
+        .ft-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+        .ft-nav button {
+            display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+            border: 1px solid #D8D2C8; border-radius: 50%; background: #fff; color: #3A3530; cursor: pointer;
+            transition: border-color 0.18s ease, color 0.18s ease;
+        }
+        .ft-nav button:hover:not(:disabled) { border-color: var(--ant-orange); color: var(--ant-orange); }
+        .ft-nav button:disabled { opacity: 0.35; cursor: default; }
+        .ft-nav button svg { width: 18px; height: 18px; }
+        .ft-count { min-width: 56px; text-align: center; font-size: 14px; font-weight: 700; color: #6B645C; font-variant-numeric: tabular-nums; }
+
+        /* 슬라이드 공통 */
+        .ft-slide {
+            position: absolute; left: 0; top: 0; width: 960px; height: 540px; overflow: hidden;
+            transform-origin: 0 0; color: #1A1917; line-height: 1.3; text-align: left;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            word-break: keep-all; -webkit-font-smoothing: antialiased; letter-spacing: -0.2px;
+            background-color: #E4D6BB;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .26 0 0 0 0 .13 0 0 0 .20 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+                radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.35), transparent 60%);
+        }
+        .ft-slide.ft-night { background-color: #2A2622; color: #F4EEE3; }
+        .ft-slide * { box-sizing: border-box; }
+        .ft-slide .ab { position: absolute; }
+        .ft-slide svg { display: block; }
+
+        /* 종잇조각: 바깥은 그림자, 안쪽은 찢긴 모양 */
+        .ft-scrap { filter: drop-shadow(0 5px 9px rgba(60,40,20,0.22)) drop-shadow(0 1px 1px rgba(60,40,20,0.15)); }
+        .ft-in { position: relative; width: 100%; height: 100%; background: #FBF7EE; }
+        .ft-torn-b { clip-path: polygon(0.0% 0.0%, 100.0% 0.0%, 100.0% 97.5%, 96.4% 97.2%, 92.9% 96.5%, 89.3% 96.6%, 85.7% 97.2%, 82.1% 99.4%, 78.6% 96.2%, 75.0% 99.9%, 71.4% 97.6%, 67.9% 98.3%, 64.3% 99.8%, 60.7% 98.5%, 57.1% 96.9%, 53.6% 96.5%, 50.0% 99.3%, 46.4% 97.7%, 42.9% 96.4%, 39.3% 96.3%, 35.7% 97.7%, 32.1% 96.1%, 28.6% 98.0%, 25.0% 96.2%, 21.4% 97.5%, 17.9% 98.1%, 14.3% 96.3%, 10.7% 98.6%, 7.1% 96.6%, 3.6% 97.3%, 0.0% 98.5%); }
+        .ft-torn-tb { clip-path: polygon(0.0% 1.6%, 3.6% 2.6%, 7.1% 0.6%, 10.7% 1.9%, 14.3% 2.0%, 17.9% 1.2%, 21.4% 1.8%, 25.0% 0.2%, 28.6% 0.2%, 32.1% 0.7%, 35.7% 2.2%, 39.3% 1.4%, 42.9% 1.0%, 46.4% 1.9%, 50.0% 1.5%, 53.6% 1.0%, 57.1% 2.5%, 60.7% 2.2%, 64.3% 0.8%, 67.9% 1.8%, 71.4% 1.7%, 75.0% 2.8%, 78.6% 2.3%, 82.1% 0.9%, 85.7% 3.1%, 89.3% 0.4%, 92.9% 1.3%, 96.4% 2.4%, 100.0% 1.6%, 100.0% 98.4%, 96.4% 97.3%, 92.9% 98.3%, 89.3% 96.9%, 85.7% 98.9%, 82.1% 98.0%, 78.6% 97.7%, 75.0% 99.4%, 71.4% 100.0%, 67.9% 98.9%, 64.3% 99.0%, 60.7% 97.0%, 57.1% 98.9%, 53.6% 98.3%, 50.0% 99.8%, 46.4% 99.5%, 42.9% 98.3%, 39.3% 98.7%, 35.7% 98.7%, 32.1% 99.0%, 28.6% 97.8%, 25.0% 99.6%, 21.4% 98.6%, 17.9% 99.2%, 14.3% 98.9%, 10.7% 96.9%, 7.1% 98.4%, 3.6% 97.3%, 0.0% 98.4%); }
+        .ft-torn-r { clip-path: polygon(0.0% 0.0%, 96.5% 0.0%, 96.2% 4.5%, 99.1% 9.1%, 96.5% 13.6%, 97.0% 18.2%, 97.6% 22.7%, 99.5% 27.3%, 96.3% 31.8%, 97.8% 36.4%, 98.2% 40.9%, 99.5% 45.5%, 99.3% 50.0%, 99.5% 54.5%, 97.1% 59.1%, 97.7% 63.6%, 97.4% 68.2%, 99.5% 72.7%, 99.8% 77.3%, 96.6% 81.8%, 96.7% 86.4%, 96.9% 90.9%, 96.9% 95.5%, 97.9% 100.0%, 0.0% 100.0%); }
+        .ft-grid { background-color: #FBF7EE; background-image: linear-gradient(rgba(120,150,190,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(120,150,190,0.22) 1px, transparent 1px); background-size: 22px 22px; }
+        .ft-lined { background-color: #FBF7EE; background-image: linear-gradient(transparent 31px, rgba(120,150,190,0.3) 31px, rgba(120,150,190,0.3) 32px); background-size: 100% 32px; }
+        .ft-yellow { background: #F5D56A; }
+        .ft-ink { background: #1A1917; color: #F4EEE3; }
+        .ft-card { background: #C9A876; background-image: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%); }
+
+        /* 마스킹 테이프 */
+        .ft-tape {
+            position: absolute; width: 92px; height: 26px; z-index: 3;
+            background: rgba(246,236,205,0.78); box-shadow: 0 1px 2px rgba(60,40,20,0.12);
+            clip-path: polygon(3.0% 0.0%, 97.0% 0.0%, 100.0% 18.0%, 96.0% 36.0%, 100.0% 55.0%, 95.0% 74.0%, 100.0% 100.0%, 3.0% 100.0%, 0.0% 80.0%, 4.0% 60.0%, 0.0% 42.0%, 5.0% 22.0%);
+        }
+        .ft-tape.or { background: repeating-linear-gradient(-45deg, rgba(217,119,87,0.85) 0 7px, rgba(250,230,215,0.85) 7px 14px); }
+        .ft-tape.lab {
+            width: auto; height: auto; padding: 7px 16px; font-size: 16px; font-weight: 800; color: #1A1917; white-space: nowrap;
+            background: rgba(245,213,106,0.92);
+        }
+        .ft-tape.lab small { font-size: 12px; font-weight: 700; opacity: 0.6; margin-left: 4px; }
+
+        /* 오려 붙인 글자 */
+        .ft-cut { display: flex; gap: 4px; align-items: flex-end; }
+        .ft-cut span {
+            display: inline-block; padding: 2px 10px 6px; font-weight: 900; line-height: 1; letter-spacing: -1px;
+            box-shadow: 0 3px 6px rgba(60,40,20,0.2);
+        }
+        .ft-cut span:nth-child(5n+1) { background: #1A1917; color: #F4EEE3; transform: rotate(-3deg); }
+        .ft-cut span:nth-child(5n+2) { background: #D97757; color: #fff; transform: rotate(2deg) translateY(-4px); }
+        .ft-cut span:nth-child(5n+3) { background: #FBF7EE; color: #1A1917; transform: rotate(-1.5deg) translateY(3px); font-weight: 700; }
+        .ft-cut span:nth-child(5n+4) { background: #F5D56A; color: #1A1917; transform: rotate(3deg); }
+        .ft-cut span:nth-child(5n+5) { background: #8FA98B; color: #fff; transform: rotate(-2deg) translateY(-2px); }
+
+        .ft-strip { padding: 10px 18px; font-weight: 800; box-shadow: 0 4px 8px rgba(60,40,20,0.22); }
+        .ft-halftone { border-radius: 50%; background-image: radial-gradient(#D97757 2px, transparent 2.3px); background-size: 11px 11px; opacity: 0.75; }
+        .ft-sticker {
+            display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 50%;
+            font-weight: 900; line-height: 1.15; box-shadow: 0 4px 10px rgba(60,40,20,0.25);
+        }
+        .ft-stamp {
+            padding: 8px 16px; border: 3px solid #C0392B; border-radius: 6px; color: #C0392B;
+            font-size: 22px; font-weight: 900; letter-spacing: 1px; opacity: 0.82;
+            box-shadow: inset 0 0 0 2px rgba(192,57,43,0.25);
+        }
+        .ft-num { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: rgba(26,25,23,0.55); }
+        .ft-night .ft-num { color: rgba(244,238,227,0.5); }
+        .ft-chip { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 800; }
+
+        /* 폴라로이드 */
+        .ft-pola { background: #fff; padding: 12px 12px 0; }
+        .ft-pola-ph { position: relative; width: 100%; height: 118px; overflow: hidden; }
+        .ft-pola-cap { padding: 10px 2px 0; font-size: 15px; font-weight: 800; }
+        .ft-pola-cap small { display: block; font-size: 12px; font-weight: 700; color: #8A8178; margin-bottom: 2px; }
+        .ft-doc { position: absolute; left: 22px; top: 14px; width: 112px; height: 104px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.12); padding: 12px 10px; }
+        .ft-doc i { display: block; height: 6px; border-radius: 3px; background: #D8D2C8; margin-bottom: 7px; }
+        .ft-doc i.t { width: 60%; height: 9px; background: #3A3530; margin-bottom: 10px; }
+
+        /* 파일 조각 */
+        .ft-file { display: flex; align-items: center; gap: 12px; padding: 0 16px; background: #fff; font-size: 18px; font-weight: 700; color: #3A3530; }
+        .ft-file svg { width: 22px; height: 22px; flex: 0 0 22px; color: #D97757; }
+        .ft-file.x { color: #A39B91; text-decoration: line-through; text-decoration-color: #C0392B; text-decoration-thickness: 3px; }
+
+        /* 비교 */
+        .ft-col-h { display: flex; align-items: center; gap: 12px; padding: 26px 28px 18px; font-size: 34px; font-weight: 900; letter-spacing: -0.8px; }
+        .ft-col-h .lg { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 10px; }
+        .ft-col-h .lg svg { width: 28px; height: 28px; fill: #fff; }
+        .ft-row { display: flex; align-items: baseline; gap: 16px; margin: 0 28px; padding: 13px 0; border-top: 1px dashed rgba(26,25,23,0.2); }
+        .ft-row b { flex: 0 0 64px; font-size: 13px; font-weight: 800; color: #8A8178; }
+        .ft-row span { font-size: 19px; font-weight: 800; }
+
+        /* 연결 도식 */
+        .ft-node { padding: 20px 18px; }
+        .ft-node .ft-chip { margin-bottom: 14px; }
+        .ft-node-t { font-size: 23px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 8px; }
+        .ft-node-d { font-size: 14.5px; font-weight: 600; line-height: 1.45; color: #5A534B; }
+
+
+        /* ═════ 전체 화면 ═════ */
+        .ft-show { position: fixed; inset: 0; z-index: 2147483000; background: #0b0d0c; overflow: hidden; touch-action: pan-y; }
+        .ft-show[hidden] { display: none; }
+        .ft-show-stage { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; }
+        .ft-show-btn {
+            position: absolute; z-index: 2; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: #fff; transition: background 0.18s ease, opacity 0.3s ease;
+        }
+        .ft-show-btn:hover { background: rgba(255,255,255,0.24); }
+        .ft-show-btn:disabled { opacity: 0.25 !important; cursor: default; }
+        .ft-show-btn svg { width: 22px; height: 22px; }
+        .ft-show-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+        .ft-show-next { right: 20px; top: 50%; transform: translateY(-50%); }
+        .ft-show-close { right: 20px; top: 20px; width: 44px; height: 44px; }
+        .ft-show-num {
+            position: absolute; z-index: 2; left: 50%; bottom: 18px; transform: translateX(-50%);
+            padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease;
+        }
+        .ft-show.idle .ft-show-btn, .ft-show.idle .ft-show-num { opacity: 0; }
+        .ft-show.idle { cursor: none; }
+        @media (max-width: 768px) {
+            .ft-frame { border-radius: 10px; }
+            .ft-toolbar { flex-direction: column; align-items: flex-start; }
+            .ft-show-btn { width: 40px; height: 40px; }
+            .ft-show-prev { left: 10px; top: auto; bottom: 12px; transform: none; }
+            .ft-show-next { right: 10px; top: auto; bottom: 12px; transform: none; }
+            .ft-show-close { right: 10px; top: 10px; }
+        }
+
+        /* 파일 유형 슬라이드 전용 조각 */
+        .ft-title { margin: 0; font-size: 18px; font-weight: 800; color: #2E2A26; letter-spacing: -0.2px; }
+        .ft-tag {
+            display: inline-block; padding: 6px 16px 8px; border-radius: 6px; color: #fff;
+            font-weight: 900; line-height: 1; letter-spacing: -0.5px; white-space: nowrap;
+            box-shadow: 0 4px 9px rgba(60,40,20,0.24);
+        }
+        .ft-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .ft-tags .ft-tag { font-size: 20px; padding: 5px 11px 7px; box-shadow: 0 2px 5px rgba(60,40,20,0.18); }
+        .ft-code {
+            font-family: 'SF Mono', Menlo, Consolas, 'Pretendard', monospace; font-size: 16px; line-height: 1.75;
+            white-space: pre; letter-spacing: 0; font-weight: 600;
+        }
+        .ft-code .k { color: #C0392B; }
+        .ft-code .s { color: #2E7D5B; }
+        .ft-code .c { color: #8A8178; font-weight: 500; }
+        .ft-code .hl { background: #F5D56A; color: #1A1917; padding: 0 3px; }
+        .ft-code .hl { font-family: 'Pretendard', sans-serif; font-weight: 800; }
+        .ft-night .ft-in { color: #1A1917; }
+        .ft-ink .ft-code .c { color: #9A9186; }
+        .ft-ink .ft-code .s { color: #8FD3A8; }
+        .ft-ink .ft-code .k { color: #F5A587; }
+        .ft-col-ico { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; margin-bottom: 12px; }
+        .ft-col-ico svg { width: 24px; height: 24px; }
+        .ft-col-t { font-size: 28px; font-weight: 900; letter-spacing: -0.8px; margin-bottom: 6px; }
+        .ft-col-d { font-size: 15px; font-weight: 700; color: #6B645C; line-height: 1.45; margin-bottom: 18px; }
+        .ft-col-n { position: absolute; left: 24px; right: 24px; bottom: 26px; padding-top: 12px; border-top: 1px dashed rgba(26,25,23,0.22); font-size: 15px; font-weight: 800; line-height: 1.45; }
+    </style>
+    <!-- /FILE-SLIDES -->
 </head>
 <body>
 <!-- SKIP-STD -->
@@ -426,6 +622,343 @@
         <div class="step-divider-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 10h18"/><path d="M9.5 10v9.5"/></svg>비교표</div>
         <div class="step-divider-line"></div>
     </div>
+
+    <!-- ── FILE-SLIDES: 파일 유형 콜라주 슬라이드 ── -->
+    <div class="ft-wrap">
+        <div class="ft-toolbar">
+            <p class="ft-title">파일 유형, 슬라이드 아홉 장으로 먼저 보기</p>
+            <button type="button" class="ft-play" id="ftPlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+                전체 화면으로 보기
+            </button>
+        </div>
+        <div class="ft-frame" id="ftFrame" tabindex="0" role="button" aria-label="파일 유형 소개 슬라이드, 전체 화면으로 보기">
+
+            <!-- 01 표지 -->
+            <div class="ft-slide on">
+                <div class="ab ft-halftone" style="left:560px;top:-40px;width:460px;height:460px"></div>
+                <div class="ab ft-scrap" style="left:54px;top:62px;width:520px;height:392px;transform:rotate(-2.5deg)">
+                    <div class="ft-in ft-grid ft-torn-b"></div>
+                </div>
+                <span class="ft-tape" style="left:34px;top:52px;transform:rotate(-38deg)"></span>
+                <span class="ft-tape or" style="left:500px;top:58px;width:84px;transform:rotate(30deg)"></span>
+                <div class="ab" style="left:92px;top:98px;transform:rotate(-2.5deg);transform-origin:0 0">
+                    <span class="ft-chip ft-ink">업무에서 자주 만나는 10종</span>
+                    <div class="ft-cut" style="margin-top:26px;font-size:84px"><span>파</span><span>일</span></div>
+                    <div class="ft-cut" style="margin-top:14px;font-size:84px"><span>유</span><span>형</span></div>
+                    <div style="margin-top:34px;font-size:22px;font-weight:800;line-height:1.45">점 뒤의 글자 몇 개가<br>그 파일의 <span style="background:#F5D56A;padding:0 4px">종류</span>를 알려 줍니다</div>
+                </div>
+                <div class="ab ft-tag" style="left:636px;top:70px;font-size:46px;background:#4a9eff;transform:rotate(-6deg)">.md</div>
+                <div class="ab ft-tag" style="left:790px;top:96px;font-size:34px;background:#e34c26;transform:rotate(7deg)">.html</div>
+                <div class="ab ft-tag" style="left:664px;top:172px;font-size:30px;background:#264de4;transform:rotate(4deg)">.css</div>
+                <div class="ab ft-tag" style="left:806px;top:180px;font-size:36px;background:#c9a000;transform:rotate(-8deg)">.js</div>
+                <div class="ab ft-tag" style="left:620px;top:252px;font-size:34px;background:#8b5cf6;transform:rotate(-3deg)">.json</div>
+                <div class="ab ft-tag" style="left:806px;top:266px;font-size:32px;background:#3178c6;transform:rotate(6deg)">.ts</div>
+                <div class="ab ft-tag" style="left:690px;top:334px;font-size:38px;background:#10b981;transform:rotate(5deg)">.py</div>
+                <div class="ab ft-tag" style="left:828px;top:350px;font-size:30px;background:#3a3530;transform:rotate(-4deg)">.sh</div>
+                <div class="ab ft-tag" style="left:640px;top:424px;font-size:30px;background:#6b7280;transform:rotate(-7deg)">.hwp</div>
+                <div class="ab ft-tag" style="left:766px;top:430px;font-size:40px;background:#1a73a8;transform:rotate(3deg)">.hwpx</div>
+                <div class="ab ft-sticker" style="left:500px;top:392px;width:104px;height:104px;background:#D97757;color:#fff;font-size:30px;transform:rotate(-12deg)">10종</div>
+                <div class="ab ft-num" style="left:40px;top:504px">01 / 09 · AI ROASTING</div>
+            </div>
+
+            <!-- 02 확장자란 -->
+            <div class="ft-slide">
+                <div class="ab ft-strip ft-ink" style="left:48px;top:40px;font-size:34px;transform:rotate(-1.5deg)">점 뒤의 글자가 파일의 종류입니다</div>
+                <div class="ab ft-scrap" style="left:56px;top:156px;width:560px;height:148px;transform:rotate(-1deg)">
+                    <div class="ft-in ft-torn-tb" style="display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:900;letter-spacing:-1.5px">3분기_매출보고<span style="color:#D97757">.</span><span style="background:#1a73a8;color:#fff;padding:0 10px 4px;margin-left:2px;border-radius:6px">hwpx</span></div>
+                </div>
+                <svg class="ab" style="left:150px;top:300px" width="120" height="70" viewBox="0 0 120 70" fill="none" stroke="#8A6E4B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M30 62 C 40 36, 60 20, 92 10"/><path d="M80 6l12 4-7 11"/></svg>
+                <svg class="ab" style="left:450px;top:300px" width="120" height="70" viewBox="0 0 120 70" fill="none" stroke="#8A6E4B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 62 C 40 44, 50 28, 52 10"/><path d="M44 18l8-10 8 10"/></svg>
+                <div class="ab ft-scrap" style="left:84px;top:372px;width:220px;height:104px;transform:rotate(-2.5deg)">
+                    <div class="ft-in ft-lined" style="padding:16px 20px"><div style="font-size:26px;font-weight:900">이름</div><div style="font-size:16px;font-weight:700;color:#6B645C;margin-top:6px">내가 마음대로 붙입니다</div></div>
+                </div>
+                <div class="ab ft-scrap" style="left:384px;top:368px;width:236px;height:108px;transform:rotate(2deg)">
+                    <div class="ft-in" style="padding:16px 20px;background:#1a73a8;color:#fff"><div style="font-size:26px;font-weight:900">확장자</div><div style="font-size:16px;font-weight:700;opacity:0.85;margin-top:6px">무슨 파일인지 알려 줍니다</div></div>
+                </div>
+                <div class="ab ft-scrap" style="left:664px;top:120px;width:256px;height:312px;transform:rotate(2.5deg)">
+                    <div class="ft-in ft-yellow" style="padding:26px 24px">
+                        <div style="font-size:15px;font-weight:800;opacity:0.65;margin-bottom:12px">확장자가 대부분 세 글자인 이유</div>
+                        <div style="font-size:19px;font-weight:800;line-height:1.5">초기 운영체제 MS-DOS는<br>확장자를 3자까지만<br>허용했습니다</div>
+                        <div class="ft-code" style="font-size:18px;margin-top:16px;font-weight:800">.html → .htm<br>.jpeg → .jpg</div>
+                        <div style="font-size:15px;font-weight:700;margin-top:12px;opacity:0.75">제한은 사라졌지만 짧게 쓰는 습관은 남았습니다</div>
+                    </div>
+                </div>
+                <span class="ft-tape" style="left:744px;top:106px;transform:rotate(-4deg)"></span>
+                <div class="ab ft-stamp" style="left:716px;top:452px;font-size:24px;transform:rotate(-8deg)">최대 3자</div>
+                <div class="ab ft-num" style="left:50px;top:506px">02 / 09</div>
+            </div>
+
+            <!-- 03 세 갈래 -->
+            <div class="ft-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="ft-cut" style="font-size:54px"><span>세</span><span>갈</span><span>래</span></div>
+                    <div class="ft-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">AI와 어떤 관계인지로 나누면</div>
+                </div>
+                <div class="ab ft-scrap" style="left:50px;top:146px;width:272px;height:340px;transform:rotate(-2deg)">
+                    <div class="ft-in ft-torn-b" style="padding:24px 24px">
+                        <span class="ft-col-ico" style="background:#4a9eff;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6.3 5.5 12 5.5 21.5 12 21.5 12 17.7 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.6"/></svg></span>
+                        <div class="ft-col-t">AI가 읽는다</div>
+                        <div class="ft-col-d">사람이 적어 AI에게 건네는 파일</div>
+                        <div class="ft-tags"><span class="ft-tag" style="background:#4a9eff">.md</span><span class="ft-tag" style="background:#8b5cf6">.json</span><span class="ft-tag" style="background:#1a73a8">.hwpx</span></div>
+                        <div class="ft-col-n">직접 쓰고 고칠 일이 가장 많은 칸</div>
+                    </div>
+                </div>
+                <span class="ft-tape" style="left:140px;top:136px;transform:rotate(-5deg)"></span>
+                <div class="ab ft-scrap" style="left:344px;top:156px;width:272px;height:340px;transform:rotate(1.5deg)">
+                    <div class="ft-in ft-torn-b" style="padding:24px 24px">
+                        <span class="ft-col-ico" style="background:#D97757;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5h4L20 8a2.5 2.5 0 0 0-3.5-3.5L5 16v3.5z"/><path d="M14.8 6.7 17.8 9.7"/></svg></span>
+                        <div class="ft-col-t">AI가 만든다</div>
+                        <div class="ft-col-d">요청하면 AI가 써 내는 코드 파일</div>
+                        <div class="ft-tags"><span class="ft-tag" style="background:#e34c26">.html</span><span class="ft-tag" style="background:#264de4">.css</span><span class="ft-tag" style="background:#c9a000">.js</span><span class="ft-tag" style="background:#3178c6">.ts</span><span class="ft-tag" style="background:#10b981">.py</span><span class="ft-tag" style="background:#3a3530">.sh</span></div>
+                        <div class="ft-col-n">무슨 파일인지 알아보면 충분한 칸</div>
+                    </div>
+                </div>
+                <span class="ft-tape or" style="left:440px;top:146px;width:84px;transform:rotate(4deg)"></span>
+                <div class="ab ft-scrap" style="left:638px;top:146px;width:272px;height:340px;transform:rotate(-1deg)">
+                    <div class="ft-in ft-torn-b" style="padding:24px 24px;background:#E9E3D8">
+                        <span class="ft-col-ico" style="background:#6b7280;color:#fff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 9h13l-3.5-3.5"/><path d="M19.5 15h-13l3.5 3.5"/></svg></span>
+                        <div class="ft-col-t">변환이 필요하다</div>
+                        <div class="ft-col-d">전용 도구를 한 번 거쳐야 읽히는 파일</div>
+                        <div class="ft-tags"><span class="ft-tag" style="background:#6b7280">.hwp</span></div>
+                        <div class="ft-col-n">.hwpx로 저장하면<br>첫 번째 칸으로 옮겨 갑니다</div>
+                    </div>
+                </div>
+                <span class="ft-tape" style="left:730px;top:134px;transform:rotate(6deg)"></span>
+                <div class="ab ft-num" style="left:870px;top:40px">03 / 09</div>
+            </div>
+
+            <!-- 04 .md -->
+            <div class="ft-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="ft-cut" style="font-size:60px"><span>.</span><span>m</span><span>d</span></div>
+                    <div class="ft-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">마크다운 · 기호로 서식을 적는 <span style="color:#D97757">순수 텍스트</span></div>
+                </div>
+                <div class="ab ft-scrap" style="left:50px;top:146px;width:360px;height:330px;transform:rotate(-1.5deg)">
+                    <div class="ft-in ft-lined ft-torn-r" style="padding:28px 28px">
+                        <div class="ft-code" style="font-size:18px;line-height:32px"><span class="k">#</span> 제목
+<span class="k">##</span> 소제목
+<span class="k">**</span>굵게<span class="k">**</span>
+<span class="k">-</span> 목록 항목
+<span class="k">&gt;</span> 인용 블록
+<span class="k">`</span>CLAUDE.md<span class="k">`</span></div>
+                    </div>
+                </div>
+                <span class="ft-tape lab" style="left:70px;top:130px;transform:rotate(-4deg)">이렇게 적으면</span>
+                <svg class="ab" style="left:392px;top:286px" width="80" height="40" viewBox="0 0 80 40" fill="none" stroke="#8A6E4B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 24 C 26 8, 46 30, 70 16"/><path d="M60 10l10 6-8 9"/></svg>
+                <div class="ab ft-scrap" style="left:462px;top:160px;width:236px;height:300px;transform:rotate(2.5deg)">
+                    <div class="ft-in" style="padding:24px 22px;background:#fff">
+                        <div style="font-size:28px;font-weight:900;letter-spacing:-0.6px">제목</div>
+                        <div style="font-size:20px;font-weight:800;margin-top:8px">소제목</div>
+                        <div style="font-size:16px;font-weight:900;margin-top:12px">굵게</div>
+                        <div style="font-size:16px;font-weight:600;margin-top:8px;line-height:1.6">• 목록 항목</div>
+                        <div style="font-size:15px;font-weight:600;margin-top:8px;padding-left:10px;border-left:3px solid #D8D2C8;color:#6B645C">인용 블록</div>
+                        <div style="margin-top:12px"><span style="font-family:Menlo,monospace;font-size:14px;background:#F1ECE4;padding:2px 6px;border-radius:4px">CLAUDE.md</span></div>
+                    </div>
+                </div>
+                <span class="ft-tape lab" style="left:520px;top:146px;transform:rotate(5deg)">이렇게 보입니다</span>
+                <div class="ab ft-scrap" style="left:730px;top:118px;width:196px;height:248px;transform:rotate(2deg)">
+                    <div class="ft-in ft-yellow" style="padding:20px 18px">
+                        <div style="font-size:14px;font-weight:800;opacity:0.65;margin-bottom:10px">AI가 좋아하는 이유</div>
+                        <div style="font-size:15.5px;font-weight:800;line-height:1.45">.pdf · .docx와 달리<br>변환 없이 바로 읽힙니다</div>
+                        <div style="font-size:15.5px;font-weight:800;line-height:1.45;margin-top:10px">.html보다 표시가 적어<br>토큰을 덜 씁니다</div>
+                        <div style="font-size:15.5px;font-weight:800;line-height:1.45;margin-top:10px">의도와 배경을<br>문장으로 적습니다</div>
+                    </div>
+                </div>
+                <div class="ab ft-scrap" style="left:722px;top:388px;width:206px;height:112px;transform:rotate(-2deg)">
+                    <div class="ft-in ft-ink" style="padding:16px 18px;font-size:15px;font-weight:700;line-height:1.5"><span style="color:#F5D56A;font-weight:900">2004 · 존 그루버</span><br>mark <s style="opacity:0.6">up</s> → mark <b style="color:#F5D56A">down</b><br>표시를 최소로 낮춘 이름</div>
+                </div>
+                <div class="ab ft-num" style="left:50px;top:506px">04 / 09</div>
+            </div>
+
+            <!-- 05 웹 3총사 -->
+            <div class="ft-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="ft-cut" style="font-size:54px"><span>웹</span><span>3</span><span>총</span><span>사</span></div>
+                    <div class="ft-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">집에 비유하면 이렇습니다</div>
+                </div>
+                <div class="ab ft-scrap" style="left:54px;top:136px;width:250px;height:236px;transform:rotate(-3deg)">
+                    <div class="ft-in ft-pola">
+                        <div class="ft-pola-ph" style="height:156px;background:#EFE6D6">
+                            <svg viewBox="0 0 226 156" width="226" height="156" fill="none" stroke="#8A6E4B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M40 70 L113 22 L186 70"/><path d="M52 64 V138 M174 64 V138 M52 138 H174"/><path d="M83 46 V138 M113 26 V138 M143 46 V138" stroke-width="3.5" opacity="0.7"/><path d="M52 100 H174" stroke-width="3.5" opacity="0.7"/></svg>
+                        </div>
+                        <div class="ft-pola-cap"><small>.html · 1991</small>골조 · 구조</div>
+                    </div>
+                </div>
+                <span class="ft-tape" style="left:134px;top:126px;width:80px;transform:rotate(-6deg)"></span>
+                <div class="ab ft-scrap" style="left:356px;top:148px;width:250px;height:236px;transform:rotate(2deg)">
+                    <div class="ft-in ft-pola">
+                        <div class="ft-pola-ph" style="height:156px;background:#F6E9E1">
+                            <svg viewBox="0 0 226 156" width="226" height="156"><rect x="30" y="34" width="44" height="86" rx="4" fill="#D97757"/><rect x="82" y="34" width="44" height="86" rx="4" fill="#264de4"/><rect x="134" y="34" width="44" height="86" rx="4" fill="#F5D56A"/><g fill="none" stroke="#3A3530" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><rect x="150" y="96" width="52" height="22" rx="5" fill="#FBF7EE"/><path d="M176 118 V134 H146 V146"/></g></svg>
+                        </div>
+                        <div class="ft-pola-cap"><small>.css · 1996</small>인테리어 · 스타일</div>
+                    </div>
+                </div>
+                <span class="ft-tape or" style="left:440px;top:138px;width:76px;transform:rotate(5deg)"></span>
+                <div class="ab ft-scrap" style="left:658px;top:132px;width:250px;height:236px;transform:rotate(-1.5deg)">
+                    <div class="ft-in ft-pola">
+                        <div class="ft-pola-ph" style="height:156px;background:#2A2622">
+                            <svg viewBox="0 0 226 156" width="226" height="156" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M22 120 C 60 120, 70 60, 100 60" stroke="#8A8178" stroke-width="4"/><path d="M126 30 L104 82 H124 L110 128 L148 66 H128 L142 30 Z" fill="#F5D56A" stroke="#F5D56A" stroke-width="3"/><rect x="164" y="56" width="38" height="56" rx="6" stroke="#F4EEE3" stroke-width="4"/><path d="M183 72 V90" stroke="#F4EEE3" stroke-width="5"/></svg>
+                        </div>
+                        <div class="ft-pola-cap"><small>.js · 1995</small>전기 배선 · 동작</div>
+                    </div>
+                </div>
+                <span class="ft-tape" style="left:740px;top:122px;width:80px;transform:rotate(-3deg)"></span>
+                <div class="ab ft-scrap" style="left:60px;top:398px;width:250px;height:50px;transform:rotate(1deg)"><div class="ft-in ft-torn-r" style="display:flex;align-items:center;padding:0 16px"><span class="ft-code" style="font-size:15px"><span class="k">&lt;h1&gt;</span>안녕하세요<span class="k">&lt;/h1&gt;</span></span></div></div>
+                <div class="ab ft-scrap" style="left:362px;top:410px;width:250px;height:50px;transform:rotate(-1.5deg)"><div class="ft-in ft-torn-r" style="display:flex;align-items:center;padding:0 16px"><span class="ft-code" style="font-size:15px">h1 { <span class="k">color</span>: <span class="s">#D97757</span>; }</span></div></div>
+                <div class="ab ft-scrap" style="left:664px;top:394px;width:250px;height:50px;transform:rotate(1.5deg)"><div class="ft-in ft-torn-r" style="display:flex;align-items:center;padding:0 16px"><span class="ft-code" style="font-size:15px">btn.<span class="k">addEventListener</span>(…)</span></div></div>
+                <div class="ab" style="left:300px;top:488px;font-size:16px;font-weight:800;color:#5A4A36">직접 고치기보다 어느 파일이 무슨 역할인지만 알면 됩니다</div>
+                <div class="ab ft-num" style="left:870px;top:40px">05 / 09</div>
+            </div>
+
+            <!-- 06 .json · .ts -->
+            <div class="ft-slide">
+                <div class="ab" style="left:50px;top:34px;display:flex;align-items:center;gap:18px">
+                    <div class="ft-cut" style="font-size:56px"><span>.</span><span>j</span><span>s</span><span>o</span><span>n</span></div>
+                    <div class="ft-strip" style="background:#FBF7EE;font-size:23px;transform:rotate(1deg)">설정과 데이터를 담는 그릇</div>
+                </div>
+                <div class="ab ft-scrap" style="left:50px;top:142px;width:440px;height:300px;transform:rotate(-1.5deg)">
+                    <div class="ft-in ft-grid ft-torn-b" style="padding:22px 26px">
+                        <div class="ft-code" style="font-size:17px;line-height:31px"><span class="c">// settings.json</span>
+{
+  <span class="k">"model"</span>: <span class="s">"claude-opus-5"</span>,
+  <span class="k">"permissions"</span>: {
+    <span class="k">"allow"</span>: [<span class="s">"Bash"</span>, <span class="s">"Edit"</span>]
+  },
+  <span class="k">"theme"</span>: <span class="s">"dark"</span>
+}</div>
+                    </div>
+                </div>
+                <span class="ft-tape lab" style="left:434px;top:200px;transform:rotate(-3deg)">쓸 모델</span>
+                <span class="ft-tape lab" style="left:466px;top:262px;transform:rotate(2deg)">미리 허용할 도구</span>
+                <span class="ft-tape lab" style="left:404px;top:330px;transform:rotate(-2deg)">화면 테마</span>
+                <div class="ab" style="left:60px;top:462px;font-size:17px;font-weight:800;color:#5A4A36;transform:rotate(-1deg)"><span style="background:#FBF7EE;padding:3px 8px">"이름": 값</span> 짝으로 적습니다 · settings.json, package.json</div>
+                <div class="ab ft-scrap" style="left:660px;top:120px;width:262px;height:240px;transform:rotate(2.5deg)">
+                    <div class="ft-in" style="padding:22px 22px;background:#fff">
+                        <span class="ft-tag" style="font-size:26px;background:#3178c6">.ts</span>
+                        <div style="font-size:26px;font-weight:900;letter-spacing:-0.6px;margin-top:16px">TypeScript</div>
+                        <div style="font-size:15.5px;font-weight:700;line-height:1.5;color:#5A534B;margin-top:8px">JavaScript에 타입 검사를 더한 언어. 이름은 글자, 나이는 숫자처럼 값의 종류를 미리 정해 실수를 막습니다.</div>
+                    </div>
+                </div>
+                <span class="ft-tape" style="left:744px;top:108px;transform:rotate(-5deg)"></span>
+                <div class="ab ft-sticker" style="left:604px;top:318px;width:108px;height:108px;background:#F5D56A;color:#1A1917;font-size:16px;transform:rotate(-10deg)">.ts는<br>이름만<br>알면 충분</div>
+                <div class="ab ft-scrap" style="left:676px;top:392px;width:252px;height:100px;transform:rotate(-2deg)">
+                    <div class="ft-in ft-ink" style="padding:16px 18px;font-size:14.5px;font-weight:700;line-height:1.5"><span style="color:#F5D56A;font-weight:900">J</span>ava<span style="color:#F5D56A;font-weight:900">S</span>cript <span style="color:#F5D56A;font-weight:900">O</span>bject <span style="color:#F5D56A;font-weight:900">N</span>otation<br>2001년 무렵 · 더글러스 크록퍼드</div>
+                </div>
+                <div class="ab ft-num" style="left:870px;top:40px">06 / 09</div>
+            </div>
+
+            <!-- 07 .py · .sh -->
+            <div class="ft-slide">
+                <div class="ab ft-strip ft-ink" style="left:48px;top:40px;font-size:30px;transform:rotate(-1.5deg)">반복 작업을 맡기면 대부분 이 둘로 만들어집니다</div>
+                <div class="ab ft-scrap" style="left:50px;top:134px;width:420px;height:270px;transform:rotate(-1.5deg)">
+                    <div class="ft-in ft-torn-b" style="padding:22px 26px">
+                        <div style="display:flex;align-items:center;gap:12px"><span class="ft-tag" style="font-size:28px;background:#10b981">.py</span><span style="font-size:24px;font-weight:900">Python</span><span class="ft-chip" style="background:#E9E1D3;margin-left:auto">1991</span></div>
+                        <div class="ft-code" style="margin-top:16px;font-size:15.5px;line-height:1.7"><span class="c"># 엑셀 파일 읽기</span>
+<span class="k">import</span> pandas <span class="k">as</span> pd
+df = pd.read_excel(<span class="s">'data.xlsx'</span>)
+<span class="k">print</span>(df.head())</div>
+                        <div style="font-size:16px;font-weight:800;margin-top:12px">데이터 분석 · 자동화 · AI에 강한 언어</div>
+                    </div>
+                </div>
+                <span class="ft-tape" style="left:200px;top:122px;transform:rotate(-4deg)"></span>
+                <div class="ab ft-scrap" style="left:500px;top:150px;width:420px;height:270px;transform:rotate(1.5deg)">
+                    <div class="ft-in ft-ink" style="padding:22px 26px">
+                        <div style="display:flex;align-items:center;gap:12px"><span class="ft-tag" style="font-size:28px;background:#FBF7EE;color:#1A1917">.sh</span><span style="font-size:24px;font-weight:900">Shell Script</span><span class="ft-chip" style="background:#3A3530;color:#F4EEE3;margin-left:auto">1971</span></div>
+                        <div class="ft-code" style="margin-top:16px;font-size:15.5px;line-height:1.7"><span class="c">#!/bin/bash</span>
+<span class="k">echo</span> <span class="s">"빌드 시작..."</span>
+npm run build
+<span class="k">echo</span> <span class="s">"완료!"</span></div>
+                        <div style="font-size:16px;font-weight:800;margin-top:12px;color:#F5D56A">터미널 명령을 순서대로 묶어 실행</div>
+                    </div>
+                </div>
+                <span class="ft-tape or" style="left:664px;top:140px;width:84px;transform:rotate(5deg)"></span>
+                <div class="ab ft-scrap" style="left:74px;top:428px;width:384px;height:66px;transform:rotate(1deg)">
+                    <div class="ft-in ft-yellow" style="display:flex;align-items:center;padding:0 18px;font-size:16px;font-weight:800">이름은 뱀이 아니라 코미디 그룹 몬티 파이썬에서</div>
+                </div>
+                <div class="ab ft-scrap" style="left:524px;top:440px;width:384px;height:66px;transform:rotate(-1.5deg)">
+                    <div class="ft-in ft-yellow" style="display:flex;align-items:center;padding:0 18px;font-size:16px;font-weight:800">셸(shell)은 껍데기 · 운영체제의 알맹이를 감싼다</div>
+                </div>
+                <div class="ab ft-num" style="left:870px;top:40px">07 / 09</div>
+            </div>
+
+            <!-- 08 .hwp vs .hwpx -->
+            <div class="ft-slide">
+                <div class="ab ft-strip ft-ink" style="left:48px;top:38px;font-size:28px;transform:rotate(-1.5deg)">같은 한글 문서라도 저장 형식에 따라 AI가 읽는 정도가 갈립니다</div>
+                <div class="ab ft-scrap" style="left:50px;top:128px;width:392px;height:296px;transform:rotate(-2deg)">
+                    <div class="ft-in ft-torn-b" style="padding:22px 24px;background:#E2DDD4">
+                        <div style="display:flex;align-items:center;gap:12px"><span class="ft-tag" style="font-size:28px;background:#6b7280">.hwp</span><span style="font-size:20px;font-weight:900">이진 파일</span></div>
+                        <div class="ft-code" style="margin-top:16px;font-size:16px;color:#6B645C;line-height:1.75">D0 CF 11 E0 A1 B1 1A E1
+78 9C 8D 53 4D 6F DB 30
+E2 4F 91 A3 05 C7 76 12
+1B 44 A9 7E 33 0C 5D BB</div>
+                        <div style="font-size:17px;font-weight:900;margin-top:12px;color:#C0392B">→ 글자는 한 개도 보이지 않습니다</div>
+                    </div>
+                </div>
+                <div class="ab ft-scrap" style="left:516px;top:128px;width:400px;height:296px;transform:rotate(1.5deg)">
+                    <div class="ft-in ft-grid ft-torn-b" style="padding:22px 24px">
+                        <div style="display:flex;align-items:center;gap:12px"><span class="ft-tag" style="font-size:28px;background:#1a73a8">.hwpx</span><span style="font-size:20px;font-weight:900">개방형 표준</span></div>
+                        <div class="ft-code" style="margin-top:16px;font-size:16px;line-height:1.75"><span class="k">&lt;hp:p&gt;</span>
+  <span class="k">&lt;hp:run&gt;</span>
+    <span class="k">&lt;hp:t&gt;</span><span class="hl">3분기 매출 보고</span><span class="k">&lt;/hp:t&gt;</span>
+  <span class="k">&lt;/hp:run&gt;</span></div>
+                        <div style="font-size:17px;font-weight:900;margin-top:12px;color:#2E7D5B">→ 문단도 표도 글자 그대로 보입니다</div>
+                    </div>
+                </div>
+                <span class="ft-tape" style="left:180px;top:116px;transform:rotate(-6deg)"></span>
+                <span class="ft-tape or" style="left:676px;top:116px;width:84px;transform:rotate(4deg)"></span>
+                <svg class="ab" style="left:434px;top:240px" width="96" height="56" viewBox="0 0 96 56" fill="none" stroke="#1A1917" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 30 C 30 10, 56 44, 84 24"/><path d="M72 16l12 8-10 10"/></svg>
+                <div class="ab ft-stamp" style="left:64px;top:452px;transform:rotate(-6deg)">변환 필요</div>
+                <div class="ab ft-strip ft-yellow" style="left:536px;top:446px;font-size:18px;transform:rotate(-1deg)">다른 이름으로 저장 → 한글 표준 문서 (*.hwpx)</div>
+                <div class="ab" style="left:556px;top:500px;font-size:13px;font-weight:800;color:#6B5A44">2021년 4월 이후 한/글은 hwpx가 기본 저장 형식</div>
+                <div class="ab ft-num" style="left:870px;top:40px">08 / 09</div>
+            </div>
+
+            <!-- 09 정리 -->
+            <div class="ft-slide ft-night">
+                <div class="ab ft-halftone" style="left:-120px;top:300px;width:380px;height:380px;opacity:0.35"></div>
+                <div class="ab" style="left:50px;top:40px;display:flex;align-items:center;gap:18px">
+                    <div class="ft-cut" style="font-size:58px"><span>세</span><span>가</span><span>지</span><span>만</span></div>
+                    <div class="ft-strip" style="background:#F5D56A;color:#1A1917;font-size:24px;transform:rotate(1.5deg)">기억하면 됩니다</div>
+                </div>
+                <div class="ab ft-scrap" style="left:50px;top:160px;width:270px;height:280px;transform:rotate(-2.5deg)">
+                    <div class="ft-in" style="padding:24px 24px;background:#FBF7EE;color:#1A1917">
+                        <div style="font-size:54px;font-weight:900;color:#D97757;line-height:1">1</div>
+                        <span class="ft-tag" style="font-size:22px;background:#4a9eff;margin-top:14px">.md</span>
+                        <div style="font-size:24px;font-weight:900;letter-spacing:-0.6px;margin-top:14px;line-height:1.3">지시는<br>마크다운으로 적는다</div>
+                        <div style="font-size:15px;font-weight:700;color:#6B645C;margin-top:10px;line-height:1.5">AI가 가장 잘 읽는 형식. CLAUDE.md가 이 형식입니다.</div>
+                    </div>
+                </div>
+                <span class="ft-tape" style="left:140px;top:150px;transform:rotate(-5deg)"></span>
+                <div class="ab ft-scrap" style="left:345px;top:172px;width:270px;height:280px;transform:rotate(1.5deg)">
+                    <div class="ft-in" style="padding:24px 24px;background:#FBF7EE;color:#1A1917">
+                        <div style="font-size:54px;font-weight:900;color:#D97757;line-height:1">2</div>
+                        <div style="display:flex;gap:6px;margin-top:14px"><span class="ft-tag" style="font-size:22px;background:#e34c26">.html</span><span class="ft-tag" style="font-size:22px;background:#10b981">.py</span></div>
+                        <div style="font-size:24px;font-weight:900;letter-spacing:-0.6px;margin-top:14px;line-height:1.3">코드 파일은<br>AI에게 맡긴다</div>
+                        <div style="font-size:15px;font-weight:700;color:#6B645C;margin-top:10px;line-height:1.5">무엇을 하는 파일인지 알아보면 충분합니다.</div>
+                    </div>
+                </div>
+                <span class="ft-tape or" style="left:440px;top:162px;width:84px;transform:rotate(4deg)"></span>
+                <div class="ab ft-scrap" style="left:640px;top:156px;width:270px;height:280px;transform:rotate(-1deg)">
+                    <div class="ft-in" style="padding:24px 24px;background:#FBF7EE;color:#1A1917">
+                        <div style="font-size:54px;font-weight:900;color:#D97757;line-height:1">3</div>
+                        <span class="ft-tag" style="font-size:22px;background:#1a73a8;margin-top:14px">.hwpx</span>
+                        <div style="font-size:24px;font-weight:900;letter-spacing:-0.6px;margin-top:14px;line-height:1.3">한글 문서는<br>hwpx로 저장한다</div>
+                        <div style="font-size:15px;font-weight:700;color:#6B645C;margin-top:10px;line-height:1.5">압축을 풀면 글자가 나와 AI가 바로 읽습니다.</div>
+                    </div>
+                </div>
+                <span class="ft-tape" style="left:740px;top:144px;transform:rotate(6deg)"></span>
+                <div class="ab ft-num" style="left:870px;top:492px">09 / 09</div>
+            </div>
+
+        </div>
+        <div class="ft-nav">
+            <button type="button" id="ftPrevIn" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <span class="ft-count" id="ftCount" aria-live="polite">1 / 9</span>
+            <button type="button" id="ftNextIn" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+    </div>
+    <!-- ── /FILE-SLIDES ── -->
 
     <div class="intro-orient">
         <div class="intro-orient-line">
@@ -1427,6 +1960,142 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     window.addEventListener('keydown', onFirst);
 })();
 </script>
+
+<!-- FILE-SLIDES 전체 화면: 슬라이드 한 장을 화면에 16:9로 맞춰 띄운다 -->
+<div class="ft-show" id="ftShow" role="dialog" aria-modal="true" aria-label="파일 유형 슬라이드 전체 화면" hidden>
+    <div class="ft-show-stage" id="ftStage"></div>
+    <button type="button" class="ft-show-btn ft-show-prev" id="ftPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="ft-show-btn ft-show-next" id="ftNext" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" class="ft-show-btn ft-show-close" id="ftClose" aria-label="전체 화면 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="ft-show-num" id="ftNum" aria-live="polite">1 / 9</div>
+</div>
+<script>
+(function () {
+    var W = 960, H = 540;
+    var frame = document.getElementById('ftFrame');
+    var show = document.getElementById('ftShow');
+    var stage = document.getElementById('ftStage');
+    if (!frame || !show || !stage) return;
+    var slides = [].slice.call(frame.querySelectorAll('.ft-slide'));
+    var N = slides.length, cur = 0, lastFocus = null, idleT = null;
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* 본문: 틀 폭에 맞춰 960×540을 줄이고, 현재 장만 보인다 */
+    function fitFrame() {
+        var k = frame.clientWidth / W;
+        slides.forEach(function (s) { s.style.transform = 'scale(' + k + ')'; });
+    }
+    function paintInline() {
+        slides.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+        $('ftCount').textContent = (cur + 1) + ' / ' + N;
+        $('ftPrevIn').disabled = cur === 0;
+        $('ftNextIn').disabled = cur === N - 1;
+    }
+    fitFrame();
+    paintInline();
+    if ('ResizeObserver' in window) new ResizeObserver(fitFrame).observe(frame);
+    else window.addEventListener('resize', fitFrame);
+
+    /* 발표: 화면 안에 들어가는 가장 큰 16:9 */
+    function fitStage() {
+        var vw = show.clientWidth, vh = show.clientHeight;
+        var k = Math.min(vw / W, vh / H);
+        stage.style.transform = 'translate(' + ((vw - W * k) / 2) + 'px,' + ((vh - H * k) / 2) + 'px) scale(' + k + ')';
+    }
+    function render() {
+        var c = slides[cur].cloneNode(true);
+        c.style.transform = '';
+        c.classList.add('on');
+        stage.innerHTML = '';
+        stage.appendChild(c);
+        $('ftNum').textContent = (cur + 1) + ' / ' + N;
+        $('ftPrev').disabled = cur === 0;
+        $('ftNext').disabled = cur === N - 1;
+        fitStage();
+    }
+    function go(i) {
+        i = Math.max(0, Math.min(N - 1, i));
+        if (i === cur && (show.hidden || stage.firstChild)) return;
+        cur = i;
+        paintInline();
+        if (!show.hidden) render();
+    }
+    function wake() {
+        show.classList.remove('idle');
+        clearTimeout(idleT);
+        idleT = setTimeout(function () { show.classList.add('idle'); }, 2500);
+    }
+    function open(i) {
+        lastFocus = document.activeElement;
+        cur = i;
+        show.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        render();
+        wake();
+        $('ftClose').focus({ preventScroll: true });
+        if (show.requestFullscreen) show.requestFullscreen().catch(function () {});
+        else if (show.webkitRequestFullscreen) show.webkitRequestFullscreen();
+    }
+    function close() {
+        if (show.hidden) return;
+        show.hidden = true;
+        stage.innerHTML = '';
+        clearTimeout(idleT);
+        document.documentElement.style.overflow = '';
+        var fe = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        paintInline();
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+
+    $('ftPlay').addEventListener('click', function () { open(0); });
+    frame.addEventListener('click', function () { open(cur); });
+    frame.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(cur); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+    });
+    $('ftPrevIn').addEventListener('click', function () { go(cur - 1); });
+    $('ftNextIn').addEventListener('click', function () { go(cur + 1); });
+    $('ftPrev').addEventListener('click', function () { go(cur - 1); });
+    $('ftNext').addEventListener('click', function () { go(cur + 1); });
+    $('ftClose').addEventListener('click', close);
+
+    /* 슬라이드 빈 곳: 왼쪽 1/3은 이전, 나머지는 다음 */
+    stage.addEventListener('click', function (e) {
+        if (e.clientX < show.clientWidth / 3) go(cur - 1); else go(cur + 1);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (show.hidden) return;
+        var k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { if (k === 'Enter' && e.target.tagName === 'BUTTON') return; e.preventDefault(); go(cur + 1); }
+        else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(cur - 1); }
+        else if (k === 'Home') { e.preventDefault(); go(0); }
+        else if (k === 'End') { e.preventDefault(); go(N - 1); }
+        else if (k === 'Escape') { e.preventDefault(); close(); }
+        wake();
+    });
+    show.addEventListener('mousemove', wake);
+
+    /* 스와이프 */
+    var sx = null, sy = 0;
+    show.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; wake(); }, { passive: true });
+    show.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
+    });
+
+    /* 브라우저 전체 화면을 Esc로 먼저 빠져나오면 발표도 닫는다 */
+    function onFs() { if (!(document.fullscreenElement || document.webkitFullscreenElement)) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+    window.addEventListener('resize', function () { if (!show.hidden) fitStage(); });
+})();
+</script>
+<!-- /FILE-SLIDES 전체 화면 -->
 
 </body>
 </html>
