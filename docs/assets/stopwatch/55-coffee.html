@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커피 한 잔의 여유 · 스톱워치</title>
+<style>
+@font-face { font-family: Pretendard; src: url('../fonts/PretendardVariable.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+* { box-sizing: border-box; }
+:root { --cream: #F7ECD9; --ink: #3A3530; --muted: #5F5042; --line: #D8BFA0; --coffee: #533C2C; }
+html, body { margin: 0; min-height: 100%; }
+body { min-height: 100svh; display: grid; place-items: center; padding: 12px; color: var(--ink); background: radial-gradient(ellipse at 10% 0%, #FFF8E8, transparent 60%), radial-gradient(ellipse at 100% 5%, #EDC18D, transparent 65%), linear-gradient(145deg, #F7ECD9, #E8D4B5); font-family: Pretendard, -apple-system, sans-serif; }
+.atelier { width: 100%; max-width: 420px; text-align: center; }
+.eyebrow { margin: 0 0 5px; font-size: 10px; font-weight: 600; letter-spacing: 3px; color: var(--muted); }
+.scene { display: block; width: 100%; height: 150px; margin: 16px auto 0; overflow: visible; }
+.clock { display: flex; justify-content: center; align-items: baseline; margin: 12px 0 0; font-family: Georgia, 'Times New Roman', serif; font-variant-numeric: tabular-nums; font-size: 43px; font-weight: 400; letter-spacing: 1px; line-height: 1.1; }
+.centiseconds { margin-left: 2px; font-size: 24px; color: var(--muted); }
+.controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 300px; margin: 20px auto 0; }
+button { min-width: 0; min-height: 38px; border: 1px solid var(--line); border-radius: 10px; padding: 0 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font: 600 12px Pretendard, sans-serif; color: var(--ink); background: var(--cream); box-shadow: 3px 3px 7px #D8C2A4, -3px -3px 7px #FFF8E8; cursor: pointer; touch-action: manipulation; }
+button:hover { background: #FCF9F3; }
+button:active { box-shadow: inset 2px 2px 5px #D9D2C7; }
+button:focus-visible { outline: 2px solid #A84726; outline-offset: 3px; }
+button:disabled { cursor: default; opacity: .5; box-shadow: none; }
+button.primary { border-color: var(--coffee); color: #FFFDF7; background: var(--coffee); box-shadow: 3px 3px 8px #CDC2B4, -3px -3px 8px #FFFDF8; }
+button.primary:hover { background: #443024; }
+button svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.lap { margin: 9px 0 0; min-height: 14px; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+/* #533C2C 위 #FFFDF7 글자 대비 10.07:1. #EDC18D 위 #5F5042 보조 글자 대비 4.65:1. */
+@media (min-height: 500px) and (min-width: 400px) {
+  body { padding: 32px; }
+  .atelier { padding: 28px 20px; border: 1px solid #FFF6E4; background: #F7ECD9; border-radius: 24px; box-shadow: 12px 12px 32px #D4B996, -12px -12px 32px #FFF7E6; }
+  .scene { height: 210px; margin: 24px auto 12px; }
+  .clock { font-size: 52px; }
+}
+@media (max-width: 280px) { body { padding: 8px; } button { padding: 0 9px; } .scene { height: 145px; } }
+</style>
+</head>
+<body>
+<main class="atelier" data-state="idle" aria-label="커피 스톱워치">
+  <p class="eyebrow">CAFÉ ATELIER</p>
+  <svg class="scene" viewBox="0 -22 360 212" aria-hidden="true">
+    <defs>
+      <linearGradient id="wood" x2="1" y2="0"><stop stop-color="#38281F"/><stop offset=".3" stop-color="#79533A"/><stop offset=".6" stop-color="#61412E"/><stop offset="1" stop-color="#38281F"/></linearGradient>
+      <linearGradient id="brass" x2="1" y2="0"><stop stop-color="#8E6A36"/><stop offset=".38" stop-color="#D7B77F"/><stop offset=".6" stop-color="#EBD3A3"/><stop offset="1" stop-color="#9C793F"/></linearGradient>
+      <linearGradient id="ceramic" x2="1" y2=".3"><stop stop-color="#FFFDF7"/><stop offset=".6" stop-color="#EEE5D5"/><stop offset="1" stop-color="#D2C2A9"/></linearGradient>
+      <linearGradient id="glass" x2="1" y2="0"><stop stop-color="#FFF" stop-opacity=".7"/><stop offset=".5" stop-color="#CDBB9C" stop-opacity=".15"/><stop offset="1" stop-color="#FFF" stop-opacity=".6"/></linearGradient>
+      <linearGradient id="brew" x2="0" y2="1"><stop stop-color="#9B623B"/><stop offset="1" stop-color="#38251B"/></linearGradient>
+      <linearGradient id="autumn-sky" x2="0" y2="1"><stop stop-color="#F2BE78"/><stop offset=".5" stop-color="#F8DAA6"/><stop offset="1" stop-color="#C98B49"/></linearGradient>
+      <radialGradient id="afternoon-sun"><stop stop-color="#FFF9D8"/><stop offset=".5" stop-color="#FFF0BA" stop-opacity=".8"/><stop offset="1" stop-color="#FFE6A0" stop-opacity="0"/></radialGradient>
+      <linearGradient id="table" x2="0" y2="1"><stop stop-color="#B98456" stop-opacity=".2"/><stop offset="1" stop-color="#9B623B" stop-opacity=".05"/></linearGradient>
+      <clipPath id="window-clip"><path d="M143 148V61A95 61 0 0 1 333 61V148Z"/></clipPath>
+      <clipPath id="hopper-clip"><path d="M65 35H121L113 75H73Z"/></clipPath>
+      <clipPath id="cup-clip"><path d="M221 131H285L279 157Q276 169 253 169Q230 169 227 157Z"/></clipPath>
+      <g id="bean"><ellipse rx="6" ry="4" fill="#63402B"/><path d="M-4 0Q0-2 4 0" fill="none" stroke="#B28458" stroke-width="1"/></g>
+      <g id="maple-leaf"><path d="M0-10L3-4L8-7L7-2L12-1L5 4L6 8L1 6V12H-1V6L-6 8L-5 4L-12-1L-7-2L-8-7L-3-4Z" fill="currentColor"/><path d="M0-7V9M0 2L-6-1M0 2L6-1" stroke="#70452B" stroke-width=".7" fill="none" opacity=".55"/></g>
+    </defs>
+    <!-- 가을 숲이 보이는 아치 창문 -->
+    <g clip-path="url(#window-clip)">
+      <rect x="143" width="190" height="148" fill="url(#autumn-sky)"/>
+      <circle cx="275" cy="33" r="43" fill="url(#afternoon-sun)"/>
+      <circle cx="275" cy="33" r="12" fill="#FFF1C3" opacity=".9"/>
+      <path d="M143 113Q183 86 222 110T333 102V148H143Z" fill="#D6A05B" opacity=".65"/>
+      <path d="M143 131Q190 106 243 125T333 115V148H143Z" fill="#AE7440" opacity=".45"/>
+      <g fill="none" stroke="#8A5735" stroke-linecap="round">
+        <path d="M167 145L172 35M171 76L151 54M171 61L190 40" stroke-width="4"/>
+        <path d="M307 150L306 27M306 70L286 45M307 80L330 48" stroke-width="5"/>
+      </g>
+      <g fill="#B9562D"><ellipse cx="155" cy="39" rx="27" ry="22"/><ellipse cx="176" cy="27" rx="25" ry="23"/><ellipse cx="187" cy="48" rx="23" ry="21"/></g>
+      <g fill="#D78A39"><ellipse cx="148" cy="26" rx="20" ry="19"/><ellipse cx="183" cy="17" rx="19" ry="17"/><ellipse cx="164" cy="55" rx="18" ry="17"/></g>
+      <g fill="#9B462B"><ellipse cx="318" cy="30" rx="32" ry="26"/><ellipse cx="307" cy="54" rx="28" ry="22"/></g>
+      <g fill="#D7903F"><ellipse cx="295" cy="19" rx="24" ry="18"/><ellipse cx="325" cy="55" rx="24" ry="22"/></g>
+      <g fill="#E4B35B"><ellipse cx="199" cy="26" rx="12" ry="14"/><ellipse cx="285" cy="40" rx="14" ry="16"/></g>
+      <g id="falling-leaves"></g>
+      <path d="M219 0L304 148H271L189 0Z" fill="#FFF7D5" opacity=".2"/>
+    </g>
+    <path d="M143 148V61A95 61 0 0 1 333 61V148Z" fill="none" stroke="#A88154" stroke-width="2.5"/>
+    <path d="M238 1V148M145 65H331" stroke="#B99260" stroke-width="2"/>
+    <path d="M139 149H337" stroke="#8F6843" stroke-width="4" stroke-linecap="round"/>
+    <!-- 월넛 카운터와 체크무늬 냅킨 -->
+    <path d="M0 174H360V190H0Z" fill="url(#table)"/>
+    <path d="M0 176H360" stroke="#B58B60"/>
+    <path d="M5 181H355M25 187H310" stroke="#C9AA85" stroke-width=".7"/>
+    <path d="M193 164H329L342 181H201Z" fill="#D4B68C"/>
+    <path d="M207 164L216 181M224 164L233 181M241 164L250 181M258 164L267 181M275 164L284 181M292 164L301 181M309 164L318 181M197 169H333M200 176H338" stroke="#9F6D48" stroke-width="2" opacity=".4"/>
+    <ellipse cx="97" cy="174" rx="53" ry="5" fill="#62472C" opacity=".13"/>
+    <ellipse cx="250" cy="174" rx="57" ry="6" fill="#62472C" opacity=".12"/>
+    <!-- 원두 그라인더 -->
+    <rect x="51" y="164" width="86" height="9" rx="4" fill="url(#wood)"/>
+    <rect x="60" y="77" width="67" height="69" rx="9" fill="url(#wood)"/>
+    <path d="M70 85V139M75 82V142M111 82V142M116 87V137" stroke="#C49365" opacity=".16"/>
+    <rect x="61" y="76" width="65" height="9" rx="3" fill="url(#brass)"/>
+    <path d="M65 35H121L113 75H73Z" fill="url(#glass)" stroke="#BFAE93"/>
+    <g clip-path="url(#hopper-clip)">
+      <g id="hopper-beans"></g>
+      <path d="M69 43L75 69" stroke="#FFFDF7" stroke-width="3" opacity=".65"/>
+    </g>
+    <ellipse cx="93" cy="35" rx="30" ry="4" fill="url(#brass)"/>
+    <g id="crank-rear"></g>
+    <rect x="90" y="24" width="6" height="13" rx="2" fill="url(#brass)" stroke="#866437" stroke-width=".7"/>
+    <circle cx="93" cy="26" r="4" fill="#D7B77F" stroke="#866437" stroke-width=".7"/>
+    <circle cx="93" cy="26" r="1.3" fill="#79533A"/>
+    <g id="crank-front">
+      <g id="crank" transform="translate(93 26)">
+        <path id="crank-arm-outline" d="M0 0L32 0L32-7" fill="none" stroke="#866437" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path id="crank-arm" d="M0 0L32 0L32-7" fill="none" stroke="#D7B77F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <g id="crank-grip" transform="translate(32 0)">
+          <rect x="-6" y="-18" width="12" height="12" rx="5" fill="url(#wood)" stroke="#493022" stroke-width=".7"/>
+          <path d="M-3-14V-10" stroke="#A77B54" stroke-width="1" stroke-linecap="round" opacity=".65"/>
+        </g>
+      </g>
+    </g>
+    <circle cx="93" cy="108" r="12" fill="#3E2D21" stroke="url(#brass)" stroke-width="2"/>
+    <g id="burr" transform="translate(93 108)" stroke="#C6A16C" stroke-width="1.5">
+      <circle r="6" fill="none"/><path d="M0-9V-5M9 0H5M0 9V5M-9 0H-5M-6-6L-3-3M6 6L3 3M6-6L3-3M-6 6L-3 3"/>
+    </g>
+    <rect x="86" y="125" width="14" height="8" rx="2" fill="url(#brass)"/>
+    <g id="grounds"></g>
+    <path d="M72 148H115L112 162Q94 169 76 162Z" fill="url(#glass)" stroke="#C5B49C"/>
+    <path id="ground-pile" d="M77 160Q94 159 110 160V162Q94 166 77 162Z" fill="#5C3B26"/>
+    <ellipse cx="94" cy="148" rx="21" ry="3" fill="none" stroke="#C5B49C"/>
+    <!-- 황동 드리퍼와 도자기 잔 -->
+    <path d="M300 169V76Q300 69 294 69H255" fill="none" stroke="url(#brass)" stroke-width="5"/>
+    <rect x="291" y="169" width="22" height="4" rx="2" fill="url(#brass)"/>
+    <path d="M216 72H280L266 102H231Z" fill="url(#ceramic)" stroke="#BEAB8C"/>
+    <path d="M225 74L236 96M235 74L242 96M246 74L248 96M257 74L254 96M268 74L261 96" stroke="#CAB99D" stroke-width="1.5"/>
+    <ellipse cx="248" cy="72" rx="33" ry="5" fill="#D2C0A3"/>
+    <ellipse cx="248" cy="72" rx="27" ry="3" fill="#68422C"/>
+    <rect x="237" y="102" width="22" height="4" rx="2" fill="url(#brass)"/>
+    <path id="coffee-thread" d="M248 106V129" stroke="#85522F" stroke-width="2" opacity="0"/>
+    <g id="drops" fill="#85522F"></g>
+    <g id="steam" fill="none" stroke="#A38F78" stroke-width="1.3" stroke-linecap="round" opacity="0">
+      <path d="M232 124Q226 117 233 111Q239 105 234 99"/>
+      <path d="M268 124Q274 118 267 112Q260 106 266 98"/>
+    </g>
+    <ellipse cx="253" cy="171" rx="46" ry="5" fill="url(#ceramic)" stroke="#D4C3AB"/>
+    <path d="M283 136C314 131 310 161 279 157" fill="none" stroke="#D8C8AF" stroke-width="8"/>
+    <path d="M283 136C314 131 310 161 279 157" fill="none" stroke="#F4EEE2" stroke-width="4"/>
+    <path d="M221 131H285L279 157Q276 169 253 169Q230 169 227 157Z" fill="url(#ceramic)" stroke="#CBB99C"/>
+    <g clip-path="url(#cup-clip)">
+      <rect id="cup-liquid" x="221" y="169" width="64" height="40" fill="url(#brew)" opacity=".9"/>
+      <ellipse id="coffee-surface" cx="253" cy="169" rx="32" ry="4" fill="#C69761"/>
+      <ellipse id="ripple" cx="248" cy="169" rx="5" ry="1.4" fill="none" stroke="#E0BB87" opacity="0"/>
+      <path d="M226 134L232 155" stroke="#FFFDF7" stroke-width="3" opacity=".5"/>
+    </g>
+    <ellipse cx="253" cy="131" rx="32" ry="4" fill="none" stroke="#C6B392"/>
+    <!-- 카운터 위 낙엽 -->
+    <use href="#maple-leaf" transform="translate(28 164) rotate(-35) scale(1.05 .65)" color="#B65E33"/>
+    <use href="#maple-leaf" transform="translate(171 181) rotate(28) scale(.85 .5)" color="#CC913F"/>
+  </svg>
+  <div class="clock" role="timer" aria-label="경과 시간" aria-live="off"><span id="time">00:00</span><span class="centiseconds" id="fraction">.00</span></div>
+  <div class="controls">
+    <button class="primary" id="toggle" type="button" title="시작 / 일시정지 (Space)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path id="toggle-icon" d="M8 5L19 12L8 19Z"/></svg><span id="toggle-label">시작</span>
+    </button>
+    <button id="lap" type="button" disabled title="현재 시간 기록 (L)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3M5 4H19L16 8L19 12H5"/></svg>기록</button>
+    <button id="reset" type="button" title="시간과 커피 초기화 (R)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10A9 9 0 1 1 5 18M3 4V10H9"/></svg>초기화</button>
+  </div>
+  <p class="lap" id="lap-result" aria-live="polite"></p>
+</main>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const atelier = document.querySelector('.atelier');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const ns = 'http://www.w3.org/2000/svg';
+  let running = false, elapsed = 0, startedAt = 0, frame = 0, lapCount = 0;
+
+  function make(group, tag, attributes) {
+    const element = document.createElementNS(ns, tag);
+    Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+    $(group).appendChild(element);
+    return element;
+  }
+  const beans = Array.from({ length: 21 }, (_, i) => make('hopper-beans', 'use', { href: '#bean', transform: `translate(${74 + (i % 5) * 9} ${43 + Math.floor(i / 5) * 6}) rotate(${i * 37})` }));
+  const grounds = Array.from({ length: 18 }, (_, i) => make('grounds', 'circle', { r: i % 3 === 0 ? 1.1 : .7, fill: i % 2 ? '#795032' : '#4C3020', opacity: 0 }));
+  const drops = Array.from({ length: 3 }, () => make('drops', 'ellipse', { rx: 1.3, ry: 2.1, opacity: 0 }));
+  const leaves = Array.from({ length: 7 }, (_, i) => make('falling-leaves', 'use', { href: '#maple-leaf', color: ['#B9562D', '#A34C2D', '#C68C32'][i % 3] }));
+
+  function format(ms) {
+    const cs = Math.floor(ms / 10);
+    const seconds = Math.floor(cs / 100) % 60;
+    const minutes = Math.floor(cs / 6000) % 60;
+    const hours = Math.floor(cs / 360000);
+    const pad = value => String(value).padStart(2, '0');
+    return { main: `${hours ? pad(hours) + ':' : ''}${pad(minutes)}:${pad(seconds)}`, fraction: '.' + pad(cs % 100) };
+  }
+  function currentTime() { return elapsed + (running ? performance.now() - startedAt : 0); }
+  function paint(ms) {
+    const formatted = format(ms);
+    $('time').textContent = formatted.main;
+    $('fraction').textContent = formatted.fraction;
+    const seconds = ms / 1000;
+    const motion = reducedMotion.matches ? 0 : seconds;
+    const active = ms > 0;
+    leaves.forEach((leaf, i) => {
+      const phase = (motion * .065 + i / leaves.length) % 1;
+      const x = 157 + i * 24 + Math.sin(motion * .8 + i * 2) * 9;
+      const y = 18 + phase * 125;
+      leaf.setAttribute('transform', `translate(${x} ${y}) rotate(${i * 43 + motion * 18}) scale(${.28 + (i % 3) * .07})`);
+      leaf.setAttribute('opacity', .65);
+    });
+    // 수평 회전을 타원으로 투영하고, 나무 손잡이는 수직 방향을 유지한다.
+    const crankAngle = motion * Math.PI * 2 / 3;
+    const crankDepth = Math.sin(crankAngle);
+    const crankX = Math.cos(crankAngle) * 32;
+    const crankY = crankDepth * 8;
+    const crankPath = `M0 0L${crankX} ${crankY}L${crankX} ${crankY - 7}`;
+    $('crank-arm-outline').setAttribute('d', crankPath);
+    $('crank-arm').setAttribute('d', crankPath);
+    $('crank-grip').setAttribute('transform', `translate(${crankX} ${crankY}) scale(${1 + crankDepth * .06})`);
+    const crankLayer = $(crankDepth >= 0 ? 'crank-front' : 'crank-rear');
+    if ($('crank').parentNode !== crankLayer) crankLayer.appendChild($('crank'));
+    $('burr').setAttribute('transform', `translate(93 108) rotate(${motion * 180 % 360})`);
+    beans.forEach((bean, i) => {
+      const phase = (motion * .6 + i * .173) % 1;
+      bean.setAttribute('transform', `translate(${76 + (i % 5) * 8 + Math.sin(motion * 3 + i) * 1.2} ${42 + Math.floor(i / 5) * 6 + phase * 4}) rotate(${i * 37 + Math.sin(motion * 2 + i) * 9})`);
+    });
+    grounds.forEach((ground, i) => {
+      const phase = (motion * 1.5 + i / grounds.length) % 1;
+      ground.setAttribute('cx', 93 + Math.sin(i * 7) * (2 + phase * 6));
+      ground.setAttribute('cy', 133 + phase * 25);
+      ground.setAttribute('opacity', active && !reducedMotion.matches ? .35 + Math.sin(phase * Math.PI) * .6 : 0);
+    });
+    const pileHeight = Math.min(seconds * .2, 7);
+    $('ground-pile').setAttribute('d', `M77 160Q94 ${159 - pileHeight} 110 160V162Q94 166 77 162Z`);
+    const level = 169 - Math.min(seconds / 30, 1) * 34;
+    $('cup-liquid').setAttribute('y', level);
+    $('coffee-surface').setAttribute('cy', level);
+    $('coffee-thread').setAttribute('opacity', active ? .25 + (reducedMotion.matches ? 0 : Math.sin(motion * 8) ** 2 * .45) : 0);
+    drops.forEach((drop, i) => {
+      const phase = (motion * 1.1 + i / 3) % 1;
+      drop.setAttribute('cx', 248);
+      drop.setAttribute('cy', 108 + phase * 21);
+      drop.setAttribute('opacity', active && !reducedMotion.matches ? .8 : 0);
+    });
+    $('steam').setAttribute('transform', `translate(0 ${-Math.sin(motion * 1.4) * 3})`);
+    $('steam').setAttribute('opacity', active ? Math.min(seconds / 8, 1) * .4 : 0);
+    $('ripple').setAttribute('cy', level);
+    $('ripple').setAttribute('rx', 2 + (motion * 10 % 15));
+    $('ripple').setAttribute('opacity', active && !reducedMotion.matches ? .5 * (1 - (motion * 10 % 15) / 15) : 0);
+  }
+  function tick() {
+    paint(currentTime());
+    if (running) frame = requestAnimationFrame(tick);
+  }
+  function toggle() {
+    if (running) {
+      elapsed = currentTime();
+      running = false;
+      cancelAnimationFrame(frame);
+      paint(elapsed);
+      atelier.dataset.state = 'paused';
+      $('toggle-label').textContent = '계속';
+      $('toggle-icon').setAttribute('d', 'M8 5L19 12L8 19Z');
+    } else {
+      running = true;
+      startedAt = performance.now();
+      atelier.dataset.state = 'running';
+      $('toggle-label').textContent = '일시정지';
+      $('toggle-icon').setAttribute('d', 'M8 5V19M16 5V19');
+      tick();
+    }
+    $('lap').disabled = !running;
+  }
+  function reset() {
+    running = false;
+    cancelAnimationFrame(frame);
+    elapsed = 0;
+    lapCount = 0;
+    atelier.dataset.state = 'idle';
+    $('toggle-label').textContent = '시작';
+    $('toggle-icon').setAttribute('d', 'M8 5L19 12L8 19Z');
+    $('lap-result').textContent = '';
+    $('lap').disabled = true;
+    paint(0);
+  }
+  function lap() {
+    if (!running) return;
+    const time = format(currentTime());
+    $('lap-result').textContent = `기록 ${String(++lapCount).padStart(2, '0')} · ${time.main}${time.fraction}`;
+  }
+  $('toggle').addEventListener('click', toggle);
+  $('reset').addEventListener('click', reset);
+  $('lap').addEventListener('click', lap);
+  document.addEventListener('keydown', event => {
+    if (event.repeat || event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(event.target.tagName) || event.target.isContentEditable) return;
+    if (event.code === 'Space') { event.preventDefault(); toggle(); }
+    if (event.key.toLowerCase() === 'r') reset();
+    if (event.key.toLowerCase() === 'l') lap();
+  });
+  document.addEventListener('visibilitychange', () => {
+    cancelAnimationFrame(frame);
+    if (running && !document.hidden) tick();
+  });
+  reducedMotion.addEventListener('change', () => paint(currentTime()));
+  paint(0);
+})();
+</script>
+</body>
+</html>
