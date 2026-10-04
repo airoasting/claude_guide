@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>피자 실적 온톨로지</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
+<style>
+@property --ang{syntax:'<angle>';initial-value:0deg;inherits:false}
+:root{
+  --bg:#070D1F; --card:#0F1730; --card-2:#16203D; --ink:#E8ECF6; --muted:#9BA6C0; --faint:#66728F; --line:rgba(255,255,255,.08); --halo:#0E1630;
+  --g1:#7C5CFF; --g2:#22D3EE; --g3:#F472B6;
+  --grad:linear-gradient(120deg,var(--g1),var(--g2) 50%,var(--g3));
+  --ok:#4ADE80; --guess:#FBBF24;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{background:radial-gradient(1000px 600px at 10% -10%,rgba(124,92,255,.22),transparent 60%),radial-gradient(900px 600px at 100% 0%,rgba(34,211,238,.12),transparent 60%),linear-gradient(180deg,#0C1530 0%,#070D1F 55%,#060A18 100%);background-attachment:fixed;color:var(--ink);font-family:'Pretendard',-apple-system,sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:56px 16px 80px;isolation:isolate}
+
+/* 그라디언트 글로우 보더 */
+.glow{position:relative;border:1px solid transparent;border-radius:18px;
+  background:linear-gradient(var(--card),var(--card)) padding-box,var(--grad) border-box}
+.glow::after{content:"";position:absolute;inset:-1px;border-radius:inherit;background:var(--grad);filter:blur(22px);opacity:.24;z-index:-1;pointer-events:none}
+.glow.live{background:linear-gradient(var(--card),var(--card)) padding-box,conic-gradient(from var(--ang),var(--g1),var(--g2),var(--g3),var(--g1)) border-box;animation:spin 8s linear infinite}
+.glow.live::after{background:conic-gradient(from var(--ang),var(--g1),var(--g2),var(--g3),var(--g1));animation:spin 8s linear infinite;opacity:.32}
+@keyframes spin{to{--ang:360deg}}
+@media (prefers-reduced-motion:reduce){.glow.live,.glow.live::after{animation:none}}
+
+.file{text-decoration:none;transition:color .2s,border-color .2s,box-shadow .2s;display:inline-block;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:100px;padding:2px 12px;margin-bottom:18px;font-family:ui-monospace,Menlo,monospace}
+.file:hover{color:var(--ink);border-color:rgba(124,92,255,.6);box-shadow:0 0 14px rgba(124,92,255,.35)}
+h1{font-size:34px;line-height:1.3;font-weight:800;letter-spacing:-.025em;margin-bottom:10px}
+h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{color:var(--muted);margin-bottom:28px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.kpi{padding:16px 18px}
+.kpi b{display:block;font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1.2;font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--muted)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:56px}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 18px;border-radius:100px;font-size:14px;font-weight:600;text-decoration:none;color:var(--ink);cursor:pointer;font-family:inherit}
+.btn svg{width:16px;height:16px}
+
+section{margin-bottom:64px;scroll-margin-top:24px}
+.num{font-size:13px;font-weight:700;letter-spacing:.06em;margin-bottom:6px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}
+section>h2{font-size:22px;line-height:1.45;font-weight:800;letter-spacing:-.02em;margin-bottom:18px}
+.card{padding:22px 24px}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+thead th{font-size:12px;color:var(--muted);font-weight:600;border-bottom:1px solid rgba(255,255,255,.2);white-space:nowrap}
+td.n,th.n{text-align:right;white-space:nowrap}
+td.k{font-weight:700;white-space:nowrap}
+tr.grp td{font-size:12px;font-weight:700;color:var(--faint);letter-spacing:.04em;padding-top:16px}
+tbody tr:last-child td{border-bottom:none}
+.tbl{overflow-x:auto}
+code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:var(--card-2);border-radius:4px;padding:1px 5px;white-space:nowrap;color:#C7D0E6}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:100px;padding:1px 9px;margin-right:4px;vertical-align:1px;white-space:nowrap}
+.tag.guess{background:rgba(251,191,36,.12);color:var(--guess)}
+.tag.der{background:rgba(124,92,255,.18);color:#B9A8FF}
+.rel{white-space:nowrap}
+.rel i{font-style:normal;color:var(--g2);font-weight:700;padding:0 4px}
+.up{color:var(--g3);font-weight:700}
+
+/* 지식 그래프 */
+.graph-card{padding:18px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tab{font-family:inherit;font-size:13.5px;font-weight:700;color:var(--muted);background:var(--card-2);border:1px solid var(--line);border-radius:100px;padding:7px 16px;cursor:pointer}
+.tab[aria-selected="true"]{color:#fff;border-color:transparent;background:linear-gradient(var(--card-2),var(--card-2)) padding-box,var(--grad) border-box;box-shadow:0 0 18px rgba(124,92,255,.35)}
+.gwrap{position:relative;overflow-x:auto;border-radius:12px;background:radial-gradient(ellipse at 30% 0%,rgba(124,92,255,.12),transparent 60%),var(--halo);border:1px solid var(--line)}
+#kg{display:block;width:100%;min-width:900px;height:auto}
+#kg text{font-family:'Pretendard',-apple-system,sans-serif}
+#kg .e{fill:none;stroke:rgba(255,255,255,.12);stroke-width:1;transition:opacity .2s,stroke .2s}
+#kg .e.inferred{stroke-dasharray:4 3}
+#kg .e.derived{opacity:0}
+#kg .n{transition:opacity .2s;cursor:pointer}
+#kg .n text{font-size:10.5px;fill:var(--muted);paint-order:stroke;stroke:var(--halo);stroke-width:3px;stroke-linejoin:round}
+#kg .n.big text{font-size:12px;fill:var(--ink);font-weight:600}
+#kg .n.event text{font-size:9.5px;fill:var(--faint)}
+#kg .rl{font-size:10px;fill:#C9BFFF;font-weight:700;paint-order:stroke;stroke:var(--halo);stroke-width:3.5px;pointer-events:none}
+#kg.dim .n:not(.on){opacity:.14}
+#kg.dim .e:not(.on){opacity:.05}
+#kg .e.on{opacity:1;stroke:#A99BFF;stroke-width:1.8;filter:drop-shadow(0 0 3px rgba(124,92,255,.9))}
+#kg .n.on text{fill:var(--ink);font-weight:700}
+#kg .n.on circle{filter:drop-shadow(0 0 5px currentColor)}
+.tip{position:absolute;pointer-events:none;background:rgba(15,23,48,.97);border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 24px rgba(0,0,0,.35);border-radius:8px;padding:7px 10px;font-size:12.5px;line-height:1.5;max-width:280px;opacity:0;transition:opacity .12s;z-index:2}
+.tip b{display:block;color:var(--ink)}
+.tip span{color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--muted);margin:12px 4px 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.dot.hollow{background:transparent;border:1.5px dashed var(--g3)}
+.dot.ring{background:transparent;border:2px solid var(--g2)}
+.ans{margin-top:18px;padding:20px 22px}
+.ans[hidden]{display:none}
+.ans h3{font-size:17px;line-height:1.5;font-weight:800;margin-bottom:8px}
+.ans p{font-size:14px;color:var(--muted);margin-bottom:10px}
+.ans ul{padding-left:18px;font-size:14px;color:var(--muted);margin-top:12px}
+.ans li{margin-bottom:4px}
+.ans li b{color:var(--ink)}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 0 12px}
+.chip{font-size:13px;font-weight:600;border:1px solid rgba(255,255,255,.14);border-radius:6px;padding:3px 10px;background:var(--card-2)}
+.arr{font-size:12px;color:var(--g2);font-weight:700}
+
+/* 스키마 */
+.schema-wrap{overflow-x:auto}
+.schema{display:block;width:100%;min-width:760px;height:auto}
+.schema text{font-family:'Pretendard',-apple-system,sans-serif}
+.schema .node rect{fill:#131C38;stroke:rgba(255,255,255,.18);stroke-width:1.2}
+.schema .node .t{font-size:14px;font-weight:700;fill:var(--ink)}
+.schema .node .s{font-size:11px;fill:var(--muted)}
+.schema .node.core rect{fill:rgba(124,92,255,.18);stroke:url(#gs);stroke-width:1.6}
+.schema .node.trap rect{fill:rgba(251,191,36,.10);stroke:#FBBF24}
+.schema .node.trap .t,.schema .node.trap .s{fill:#FBBF24}
+.schema .node.meta rect{stroke-dasharray:4 3}
+.schema .grp-box{fill:none;stroke:rgba(255,255,255,.22);stroke-dasharray:5 4}
+.schema .grp-label{font-size:11px;font-weight:700;fill:var(--muted)}
+.schema .edge line,.schema .edge path{stroke:rgba(255,255,255,.3);stroke-width:1.3;fill:none}
+.schema .edge.inferred line,.schema .edge.inferred path{stroke-dasharray:5 4}
+.schema .edge text{font-size:11px;fill:var(--muted);paint-order:stroke;stroke:var(--card);stroke-width:4px;stroke-linejoin:round}
+
+/* 규칙 */
+.rules{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.rule{padding:16px 18px}
+.rule h3{font-size:15px;font-weight:800;margin-bottom:4px}
+.rule h3 i{font-style:normal;margin-right:6px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rule p{font-size:13.5px;color:var(--muted)}
+.rule.wide{grid-column:1/-1}
+.rule.trap h3::after{content:"함정";font-size:11px;font-weight:700;color:var(--guess);background:rgba(251,191,36,.12);border-radius:100px;padding:1px 8px;margin-left:8px;vertical-align:2px}
+ul.pts{padding-left:18px;font-size:14px;color:var(--muted)}
+ul.pts li{margin-bottom:6px}
+ul.pts b{color:var(--ink)}
+footer{border-top:1px solid var(--line);padding-top:20px;font-size:12px;color:var(--faint)}
+@media (max-width:760px){
+  h1{font-size:26px}
+  section>h2{font-size:19px}
+  .wrap{padding-top:36px}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .kpi b{font-size:24px}
+  .rules{grid-template-columns:1fr}
+  .card,.ans{padding:18px 16px}
+  .graph-card{padding:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="file" href="https://airoasting.com" target="_blank" rel="noopener">airoasting.com</a>
+  <h1>피자 실적 데이터 <em>온톨로지와 지식 그래프</em></h1>
+  <p class="lede">피자 매장별 실적 데이터.xlsx · 시트 10장 · 9개 매장 × 2020-01~2026-10</p>
+
+  <div class="kpis">
+    <div class="kpi glow"><b>15</b><span>개체 타입</span></div>
+    <div class="kpi glow"><b>21</b><span>관계</span></div>
+    <div class="kpi glow"><b>9</b><span>규칙</span></div>
+    <div class="kpi glow"><b>109 · 189</b><span>그래프 개체 · 연결</span></div>
+  </div>
+  <div class="toolbar">
+    <button class="btn glow" type="button" id="dlJson"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.6v10.6"/><path d="M7.9 10.3 12 14.4l4.1-4.1"/><path d="M4.4 17.2v1.6c0 .9.8 1.6 1.7 1.6h11.8c.9 0 1.7-.7 1.7-1.6v-1.6"/></svg>JSON 내려받기</button>
+  </div>
+
+  <!-- 01 지식 그래프 -->
+  <section id="kg-sec">
+    <div class="num">01 지식 그래프</div>
+    <h2>질문을 고르면 답에 이르는 경로가 켜짐</h2>
+    <div class="graph-card glow live">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-q="all" aria-selected="true">전체</button>
+        <button class="tab" role="tab" data-q="q1" aria-selected="false">Q1 배민 수수료</button>
+        <button class="tab" role="tab" data-q="q2" aria-selected="false">Q2 밀크팜 치즈</button>
+        <button class="tab" role="tab" data-q="q3" aria-selected="false">Q3 홍대점 클레임</button>
+      </div>
+      <div class="gwrap">
+        <svg id="kg" viewBox="0 0 1100 790" role="img" aria-label="지식 그래프: 매장, 사건, 메뉴, 공급사, 플랫폼의 실제 연결"></svg>
+        <div class="tip" id="tip"></div>
+      </div>
+      <div class="legend" id="kgLegend"></div>
+    </div>
+
+    <div class="ans glow" data-q="all">
+      <h3>개체 109개, 연결 189개</h3>
+      <p>마스터 시트의 기준 개체 전부, 사건 39건, 답의 근거가 되는 월간실적 6건을 이었습니다. 개체에 마우스를 올리면 이어진 개체만 남습니다.</p>
+      <ul>
+        <li>"본사"·"전 매장" 사건 17건은 9곳에 각각 잇지 않고 <b>전 매장</b> 노드 하나에 이음 (R1)</li>
+        <li>사건 사이 점선 9개는 사건로그 문장에서 읽어 낸 추론 관계</li>
+        <li>속이 빈 사건은 확인여부가 추정·미확인 (R5)</li>
+      </ul>
+    </div>
+
+    <div class="ans glow" data-q="q1" hidden>
+      <h3>답. 대전 둔산점 2024년 11·12월, 대구 동성로점 11월, 부산 서면점 12월</h3>
+      <div class="chain"><span class="chip">EV-024 수수료 6.8% → 9.8%</span><span class="arr">→ 관련 대상 →</span><span class="chip">PF-01 배달의민족</span><span class="arr">← 주문 경유 ←</span><span class="chip">월간실적 4건</span><span class="arr">→</span><span class="chip">매장 3곳</span></div>
+      <p>기준: 인상 전 2024-10 대비 플랫폼수수료율(÷ 매출합)이 오르고 영업이익률이 내린 달.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>매장</th><th>달</th><th class="n">수수료율 10월 → 해당 월</th><th class="n">영업이익률 10월 → 해당 월</th></tr></thead>
+        <tbody>
+          <tr><td class="k">대전 둔산점</td><td>2024-11</td><td class="n">6.11 → <span class="up">7.49%</span></td><td class="n">24.0 → <span class="up">19.5%</span></td></tr>
+          <tr><td class="k">대전 둔산점</td><td>2024-12</td><td class="n">6.11 → <span class="up">6.99%</span></td><td class="n">24.0 → <span class="up">19.4%</span></td></tr>
+          <tr><td class="k">대구 동성로점</td><td>2024-11</td><td class="n">7.71 → <span class="up">8.18%</span></td><td class="n">20.1 → <span class="up">11.3%</span></td></tr>
+          <tr><td class="k">부산 서면점</td><td>2024-12</td><td class="n">6.75 → <span class="up">7.82%</span></td><td class="n">15.1 → <span class="up">12.3%</span></td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>11월 수수료율은 9곳 중 7곳에서 올랐고, 전 매장 평균 수수료는 681 → 790 → 828만원 (EV-024와 일치)</li>
+        <li>배민 추가 부담 추정(배민 주문수 × 객단가 × 3%p): 매장당 월 63~110만원, 매출의 0.6~0.9%p</li>
+        <li>동성로점 이익률 하락 8.8%p는 수수료만으로 설명되지 않음. 다른 원인을 함께 봐야 함</li>
+        <li>12개월 평균으로 보면 수수료율 변화는 ±0.2%p 안. 효과는 인상 직후 두 달에 몰림</li>
+      </ul>
+    </div>
+
+    <div class="ans glow" data-q="q2" hidden>
+      <h3>답. 메뉴 10개, 매장 9곳 전부. 단, 인상 효과는 데이터에서 확인되지 않음</h3>
+      <div class="chain"><span class="chip">SUP-02 밀크팜</span><span class="arr">← 식자재 공급 ←</span><span class="chip">피자 6 · 치즈스틱</span><span class="arr">← 구성 ←</span><span class="chip">세트 3</span><span class="arr">→ 분류 →</span><span class="chip">피자·사이드·세트</span><span class="arr">→</span><span class="chip">전 매장</span></div>
+      <ul>
+        <li><b>메뉴.</b> 페퍼로니 클래식, 콤비네이션, 고르곤졸라 허니, 불고기, 슈림프 골드(6~8월만), 트러플 머쉬룸, 치즈스틱, 패밀리·커플·런치 세트. 하와이안은 2023-06 단종이라 제외 (R6)</li>
+        <li><b>매장.</b> 세 카테고리가 9곳 모두 매출의 76~77%. 노출 금액은 강남점이 가장 큼(2026년 1~8월 피자 매출 4억 5,118만원), 연동점이 가장 작음(2억 8,835만원)</li>
+        <li><b>검증.</b> 식자재비 ÷ 매출은 전 매장 2025년 1~8월 31.09% → 2026년 1~8월 30.93%로 오히려 내림. 오른 곳은 충장로점(33.73 → 37.11%, 점주 승계 EV-029와 겹침)과 동성로점(31.34 → 31.56%)뿐</li>
+        <li><b>판정.</b> EV-026은 <span class="tag guess">미확인</span> 유지. 메뉴별 매출이 없어 메뉴 단위 영향은 카테고리로만 근사함</li>
+      </ul>
+    </div>
+
+    <div class="ans glow" data-q="q3" hidden>
+      <h3>답. 3월 트러플 머쉬룸 출시에서 시작된 연쇄이고, 홍대점에서 반복된 배달 지연 유형</h3>
+      <div class="chain"><span class="chip">EV-032 트러플 출시 (MN-107 · SUP-04)</span><span class="arr">→ 선행 →</span><span class="chip">EV-033 수요 폭증</span><span class="arr">→ 선행 →</span><span class="chip">EV-034 클레임 87건</span><span class="arr">≈ 같은 유형 ≈</span><span class="chip">EV-016 · EV-013</span></div>
+      <div class="tbl"><table>
+        <thead><tr><th>홍대점</th><th class="n">2026-02</th><th class="n">03</th><th class="n">04</th><th class="n">05</th></tr></thead>
+        <tbody>
+          <tr><td>클레임 (건)</td><td class="n">15</td><td class="n">18</td><td class="n up">87</td><td class="n">9</td></tr>
+          <tr><td>신메뉴 매출비중</td><td class="n">4.8%</td><td class="n up">19.5%</td><td class="n">12.4%</td><td class="n">10.4%</td></tr>
+          <tr><td>총주문 (건)</td><td class="n">3,553</td><td class="n">3,078</td><td class="n up">4,330</td><td class="n">3,359</td></tr>
+          <tr><td>파트타임 (명)</td><td class="n">9</td><td class="n">9</td><td class="n up">13</td><td class="n">11</td></tr>
+          <tr><td>QSC</td><td class="n">97.3</td><td class="n">82.3</td><td class="n up">79.9</td><td class="n">89.9</td></tr>
+          <tr><td>리뷰 평점</td><td class="n">4.3</td><td class="n">4.1</td><td class="n up">3.8</td><td class="n">4.0</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>87건은 2020년 이후 9곳 전체 월 최다. 2위는 강남점 2023-10의 36건</li>
+        <li>4월 주문이 41% 늘었고 파트타임을 4명 늘렸지만 QSC와 평점이 더 내려감. 5월 정상화</li>
+        <li>같은 유형: EV-016 홍대점 배달 지연 33건(2023-03), EV-013 강남점 배달대행사 교체 후 지연(2022)</li>
+        <li>사건로그의 5월 이익률 23%는 데이터 22.3%와 다름. 데이터 값을 씀 (R9)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 스키마 -->
+  <section id="s2">
+    <div class="num">02 온톨로지 스키마</div>
+    <h2>월간실적과 사건이 두 중심</h2>
+    <div class="card glow schema-wrap">
+      <svg class="schema" viewBox="0 0 1000 524" role="img" aria-label="온톨로지 스키마: 개체 타입 15개와 관계">
+        <defs>
+          <linearGradient id="gs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C5CFF"/><stop offset=".5" stop-color="#22D3EE"/><stop offset="1" stop-color="#F472B6"/></linearGradient>
+        </defs>
+        <rect class="grp-box" x="622" y="12" width="156" height="162" rx="10"/>
+        <text class="grp-label" x="700" y="30" text-anchor="middle">매출항목 (매출카테고리 6종)</text>
+        <g class="edge"><line x1="211" y1="160" x2="144" y2="78"/><text x="186" y="112" text-anchor="middle">소속</text></g>
+        <g class="edge"><line x1="211" y1="175" x2="146" y2="175"/><text x="178" y="168" text-anchor="middle">담당</text></g>
+        <g class="edge"><line x1="211" y1="190" x2="144" y2="274"/><text x="196" y="240" text-anchor="middle">운영 (기간)</text></g>
+        <g class="edge"><line x1="416" y1="175" x2="341" y2="175"/><text x="378" y="168" text-anchor="middle">매장</text></g>
+        <g class="edge"><line x1="480" y1="84" x2="480" y2="149"/><text x="488" y="121">6행 = 1건</text></g>
+        <g class="edge"><line x1="544" y1="60" x2="620" y2="60"/><text x="582" y="52" text-anchor="middle">항목</text></g>
+        <g class="edge"><line x1="816" y1="138" x2="770" y2="92"/><text x="800" y="108">분류</text></g>
+        <g class="edge"><path d="M944,138 C996,110 996,190 944,162"/><text x="966" y="206" text-anchor="middle">세트 구성</text></g>
+        <g class="edge"><line x1="880" y1="174" x2="880" y2="274"/><text x="888" y="230">식자재 공급</text></g>
+        <g class="edge"><line x1="530" y1="199" x2="676" y2="444"/><text x="586" y="262">주문 경유</text></g>
+        <g class="edge"><line x1="480" y1="199" x2="480" y2="274"/><text x="488" y="242">기간</text></g>
+        <g class="edge"><line x1="430" y1="406" x2="318" y2="201"/><text x="402" y="358" text-anchor="middle">발생 매장</text></g>
+        <g class="edge"><line x1="480" y1="406" x2="480" y2="326"/><text x="488" y="372">영향 기간</text></g>
+        <g class="edge"><line x1="544" y1="414" x2="828" y2="176"/><text x="704" y="282" text-anchor="middle">관련 대상</text></g>
+        <g class="edge"><line x1="544" y1="428" x2="814" y2="312"/><text x="746" y="336" text-anchor="middle">관련 대상</text></g>
+        <g class="edge"><line x1="544" y1="446" x2="634" y2="462"/><text x="588" y="474" text-anchor="middle">관련 대상</text></g>
+        <g class="edge inferred"><line x1="416" y1="446" x2="341" y2="464"/><text x="378" y="446" text-anchor="middle">영향 지표</text></g>
+        <g class="edge"><line x1="300" y1="446" x2="440" y2="201"/><text x="396" y="264" text-anchor="middle">열 정의</text></g>
+        <g class="edge"><line x1="339" y1="74" x2="428" y2="150"/><text x="392" y="106">수정</text></g>
+        <g class="edge inferred"><path d="M462,454 C440,508 520,508 498,454"/><text x="480" y="518" text-anchor="middle">선행 · 같은 유형</text></g>
+        <g class="node"><rect x="16" y="36" width="128" height="48" rx="8"/><text class="t" x="80" y="56" text-anchor="middle">지역본부</text><text class="s" x="80" y="73" text-anchor="middle">4곳</text></g>
+        <g class="node"><rect x="16" y="151" width="128" height="48" rx="8"/><text class="t" x="80" y="171" text-anchor="middle">슈퍼바이저</text><text class="s" x="80" y="188" text-anchor="middle">3명</text></g>
+        <g class="node"><rect x="16" y="266" width="128" height="48" rx="8"/><text class="t" x="80" y="286" text-anchor="middle">점주</text><text class="s" x="80" y="303" text-anchor="middle">10명</text></g>
+        <g class="node meta"><rect x="211" y="36" width="128" height="48" rx="8"/><text class="t" x="275" y="56" text-anchor="middle">정정기록</text><text class="s" x="275" y="73" text-anchor="middle">1,539건</text></g>
+        <g class="node core"><rect x="211" y="151" width="128" height="48" rx="8"/><text class="t" x="275" y="171" text-anchor="middle">매장</text><text class="s" x="275" y="188" text-anchor="middle">9곳</text></g>
+        <g class="node meta"><rect x="211" y="446" width="128" height="48" rx="8"/><text class="t" x="275" y="466" text-anchor="middle">지표</text><text class="s" x="275" y="483" text-anchor="middle">41열</text></g>
+        <g class="node"><rect x="416" y="36" width="128" height="48" rx="8"/><text class="t" x="480" y="56" text-anchor="middle">카테고리매출</text><text class="s" x="480" y="73" text-anchor="middle">4,428건</text></g>
+        <g class="node core"><rect x="416" y="151" width="128" height="48" rx="8"/><text class="t" x="480" y="171" text-anchor="middle">월간실적</text><text class="s" x="480" y="188" text-anchor="middle">738건</text></g>
+        <g class="node"><rect x="416" y="276" width="128" height="48" rx="8"/><text class="t" x="480" y="296" text-anchor="middle">월</text><text class="s" x="480" y="313" text-anchor="middle">82개월</text></g>
+        <g class="node core"><rect x="416" y="406" width="128" height="48" rx="8"/><text class="t" x="480" y="426" text-anchor="middle">사건</text><text class="s" x="480" y="443" text-anchor="middle">39건</text></g>
+        <g class="node"><rect x="632" y="48" width="136" height="46" rx="8"/><text class="t" x="700" y="67" text-anchor="middle">상품카테고리</text><text class="s" x="700" y="84" text-anchor="middle">5종</text></g>
+        <g class="node trap"><rect x="632" y="112" width="136" height="46" rx="8"/><text class="t" x="700" y="131" text-anchor="middle">요금항목</text><text class="s" x="700" y="148" text-anchor="middle">FEE-01 배달비</text></g>
+        <g class="node"><rect x="816" y="126" width="128" height="48" rx="8"/><text class="t" x="880" y="146" text-anchor="middle">메뉴</text><text class="s" x="880" y="163" text-anchor="middle">21개</text></g>
+        <g class="node"><rect x="816" y="276" width="128" height="48" rx="8"/><text class="t" x="880" y="296" text-anchor="middle">공급사</text><text class="s" x="880" y="313" text-anchor="middle">6곳</text></g>
+        <g class="node"><rect x="636" y="446" width="128" height="48" rx="8"/><text class="t" x="700" y="466" text-anchor="middle">플랫폼</text><text class="s" x="700" y="483" text-anchor="middle">4개</text></g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 03 개체 타입 -->
+  <section id="s3">
+    <div class="num">03 개체 타입</div>
+    <h2>15개. 키는 이름이 아니라 코드</h2>
+    <div class="card glow tbl">
+    <table>
+      <thead><tr><th>개체 타입</th><th>키</th><th>주요 속성</th><th>출처 시트</th><th class="n">수</th></tr></thead>
+      <tbody>
+        <tr class="grp"><td colspan="5">조직</td></tr>
+        <tr><td class="k">매장</td><td><code>ST-001~009</code></td><td>매장명, 구코드, 별칭, 상권, 가맹유형, 개점일</td><td>매장마스터</td><td class="n">9</td></tr>
+        <tr><td class="k">지역본부</td><td>본부명</td><td>수도권, 중부, 영남, 호남제주</td><td>매장마스터</td><td class="n">4</td></tr>
+        <tr><td class="k">슈퍼바이저</td><td><code>SV-01~03</code></td><td>담당 매장 4·3·2곳</td><td>매장마스터</td><td class="n">3</td></tr>
+        <tr><td class="k">점주</td><td>이름</td><td>운영 기간. 충장로점 1대는 이름 기록 없음</td><td>매장마스터</td><td class="n">10</td></tr>
+        <tr class="grp"><td colspan="5">상품과 거래</td></tr>
+        <tr><td class="k">메뉴</td><td><code>MN-101~503</code></td><td>판매가, 출시·단종일, 판매 주기. 단품 18, 세트 3</td><td>메뉴마스터</td><td class="n">21</td></tr>
+        <tr><td class="k">상품카테고리</td><td>이름</td><td>상위 타입 매출항목</td><td>메뉴마스터</td><td class="n">5</td></tr>
+        <tr><td class="k">요금항목</td><td><code>FEE-01</code></td><td>배달비 2,000원. 상위 타입 매출항목. 상품 아님</td><td>메뉴마스터</td><td class="n">1</td></tr>
+        <tr><td class="k">공급사</td><td><code>SUP-01~06</code></td><td>품목, 리드타임, 단가 변동률·적용일</td><td>공급사마스터</td><td class="n">6</td></tr>
+        <tr><td class="k">플랫폼</td><td><code>PF-01~04</code></td><td>수수료율(현재·이전), 변경일, PG 수수료율</td><td>플랫폼마스터</td><td class="n">4</td></tr>
+        <tr class="grp"><td colspan="5">시간과 사건</td></tr>
+        <tr><td class="k">월</td><td><code>YYYY-MM</code></td><td>실적 80개월, 추정 2개월</td><td>매출데이터</td><td class="n">82</td></tr>
+        <tr><td class="k">사건</td><td><code>EV-001~039</code></td><td>일자, 유형, 영향기간, 확인여부. 매장 운영 15, 외부 요인 9, 본사 결정 8, 상품 6, 데이터 1</td><td>사건로그</td><td class="n">39</td></tr>
+        <tr class="grp"><td colspan="5">관측</td></tr>
+        <tr><td class="k">월간실적</td><td>매장 + 월</td><td>매장·월 단위 속성 33개. 실적 720, 추정 18</td><td>매출데이터</td><td class="n">738</td></tr>
+        <tr><td class="k">카테고리매출</td><td>매장 + 월 + 항목</td><td>매출액 하나</td><td>매출데이터</td><td class="n">4,428</td></tr>
+        <tr class="grp"><td colspan="5">메타</td></tr>
+        <tr><td class="k">지표</td><td>열 이름</td><td>뜻, 단위, 성격, 집계 단위, 검증 규칙</td><td>데이터사전</td><td class="n">41</td></tr>
+        <tr><td class="k">정정기록</td><td>매장 + 월 + 열</td><td>변경 전·후, 사유</td><td>변경이력</td><td class="n">1,539</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- 04 관계 -->
+  <section id="s4">
+    <div class="num">04 관계</div>
+    <h2>21개. 17개는 시트 열이 근거, 4개는 추론·유도</h2>
+    <div class="card glow tbl">
+    <table>
+      <thead><tr><th>ID</th><th>관계</th><th>기수</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td class="k">L01</td><td class="rel">매장<i>→ 소속 →</i>지역본부</td><td>N:1</td><td>매장마스터 <code>지역본부</code></td></tr>
+        <tr><td class="k">L02</td><td class="rel">매장<i>→ 담당 SV →</i>슈퍼바이저</td><td>N:1</td><td>매장마스터 <code>담당SV코드</code></td></tr>
+        <tr><td class="k">L03</td><td class="rel">매장<i>→ 운영 점주 →</i>점주</td><td>1:N 기간</td><td>매장마스터 <code>점주 변경일</code></td></tr>
+        <tr><td class="k">L04</td><td class="rel">월간실적<i>→ 매장 →</i>매장</td><td>N:1</td><td>매출데이터 <code>매장코드</code></td></tr>
+        <tr><td class="k">L05</td><td class="rel">월간실적<i>→ 기간 →</i>월</td><td>N:1</td><td>매출데이터 <code>날짜(YYYY-MM)</code></td></tr>
+        <tr><td class="k">L06</td><td class="rel">카테고리매출<i>→ 속함 →</i>월간실적</td><td>6:1</td><td>매장명 + 날짜</td></tr>
+        <tr><td class="k">L07</td><td class="rel">카테고리매출<i>→ 항목 →</i>매출항목</td><td>N:1</td><td>매출데이터 <code>매출카테고리</code></td></tr>
+        <tr><td class="k">L08</td><td class="rel">메뉴<i>→ 분류 →</i>상품카테고리</td><td>N:1</td><td>메뉴마스터 <code>카테고리</code></td></tr>
+        <tr><td class="k">L09</td><td class="rel">메뉴<i>→ 식자재 공급 →</i>공급사</td><td>N:M</td><td>메뉴마스터 <code>주요 식자재 공급사</code></td></tr>
+        <tr><td class="k">L10</td><td class="rel">세트메뉴<i>→ 구성 →</i>메뉴</td><td>N:M</td><td>메뉴마스터 <code>세트 구성 메뉴</code></td></tr>
+        <tr><td class="k">L11</td><td class="rel">월간실적<i>→ 주문 경유 →</i>플랫폼</td><td>N:M 가중</td><td><code>배민_주문수</code> 등 3열, <code>자사앱주문비중</code></td></tr>
+        <tr><td class="k">L12</td><td class="rel">사건<i>→ 발생 매장 →</i>매장</td><td>N:M</td><td>사건로그 <code>매장(기록 표기)</code> + R1</td></tr>
+        <tr><td class="k">L13</td><td class="rel">사건<i>→ 관련 대상 →</i>메뉴·공급사·플랫폼·요금</td><td>N:M</td><td>사건로그 <code>관련 대상</code></td></tr>
+        <tr><td class="k">L14</td><td class="rel">사건<i>→ 영향 기간 →</i>월</td><td>N:M</td><td>사건로그 <code>영향기간</code></td></tr>
+        <tr><td class="k">L15</td><td class="rel">사건<i>→ 영향 지표 →</i>지표</td><td>N:M</td><td><span class="tag guess">추론</span> 사건로그 <code>내용</code></td></tr>
+        <tr><td class="k">L16</td><td class="rel">사건<i>→ 선행 / 같은 유형 →</i>사건</td><td>N:M</td><td><span class="tag guess">추론</span> 사건로그 <code>내용</code></td></tr>
+        <tr><td class="k">L17</td><td class="rel">지표<i>→ 열 정의 →</i>월간실적·카테고리매출</td><td>1:N</td><td>데이터사전 <code>집계 단위</code></td></tr>
+        <tr><td class="k">L18</td><td class="rel">지표<i>→ 대응 개체 →</i>플랫폼·공급사</td><td>N:1</td><td><span class="tag der">유도</span> 데이터사전 <code>비고</code></td></tr>
+        <tr><td class="k">L19</td><td class="rel">정정기록<i>→ 수정 →</i>월간실적</td><td>N:1</td><td>변경이력</td></tr>
+        <tr><td class="k">L20</td><td class="rel">정정기록<i>→ 근거 →</i>사건</td><td>N:1</td><td>변경이력 <code>사유</code></td></tr>
+        <tr><td class="k">L21</td><td class="rel">슈퍼바이저<i>→ QSC 점검 →</i>월간실적</td><td>1:N</td><td><span class="tag der">유도</span> L02 + L04</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <!-- 05 규칙 -->
+  <section id="s5">
+    <div class="num">05 규칙</div>
+    <h2>9개. 함정 두 개는 R1과 R2로 정리</h2>
+    <div class="rules">
+      <div class="rule glow wide trap">
+        <h3><i>R1</i>매장 동일성</h3>
+        <p>매출데이터는 매장명, 사건로그는 구코드·신코드·약칭을 씀. 신코드는 그대로, 구코드(<code>P-</code>)는 <code>구매장코드</code>로, 이름은 <code>매장명</code>·<code>별칭</code>으로 해석함. "본사"·"전 매장"은 9곳 범위. 사건 39건 전부 해석됨.</p>
+        <div class="tbl" style="margin-top:8px"><table>
+          <thead><tr><th>표기</th><th>해석</th><th>근거</th><th class="n">건수</th></tr></thead>
+          <tbody>
+            <tr><td><code>P-SEL01</code> <code>P-SEL02</code> <code>P-DGU01</code> <code>P-BSN01</code></td><td>ST-001, 002, 006, 007</td><td>구코드 (2022-08 이전)</td><td class="n">5</td></tr>
+            <tr><td>부평 · 충장로 · 둔산점</td><td>ST-004, 008, 005</td><td>별칭</td><td class="n">3</td></tr>
+            <tr><td><code>ST-001~009</code></td><td>그대로</td><td>신코드</td><td class="n">14</td></tr>
+            <tr><td>본사 · 전 매장</td><td>9곳 범위</td><td>범위 표기</td><td class="n">17</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="rule glow wide trap">
+        <h3><i>R2</i>배달수수료는 요금항목</h3>
+        <p>고객이 내는 배달비(FEE-01)라 상품이 아님. 매출합(객단가·이익률 분모)에는 넣고, 메뉴·공급사 분석에서는 뺌. 매장이 배달앱에 내는 플랫폼수수료(비용)와 다른 개념. 배달비 인하(EV-010) 후 비중 11.6% → 7.7%로 데이터와 일치.</p>
+      </div>
+      <div class="rule glow"><h3><i>R3</i>매장·월 값은 한 번만</h3><p>카테고리 단위 지표는 매출액 하나. 나머지 33개는 6행 반복이라 월간실적에 한 번만 둠.</p></div>
+      <div class="rule glow"><h3><i>R4</i>실적과 추정 분리</h3><p>2026-09~10 추정 18건은 질문 답과 사건 검증에 쓰지 않음.</p></div>
+      <div class="rule glow"><h3><i>R5</i>확인 등급 = 신뢰도</h3><p>확인 35, 추정 3(EV-005·023·027), 미확인 1(EV-026). 추정·미확인은 데이터로 검증한 뒤 씀.</p></div>
+      <div class="rule glow"><h3><i>R6</i>관계의 유효 기간</h3><p>코드 체계 2022-09 전환, 메뉴 출시~단종·여름 한정, 배달비 2021-07, 배민 수수료 2024-11, 밀크팜 단가 2026-01, 충장로 점주 2026-01.</p></div>
+      <div class="rule glow"><h3><i>R7</i>경유 관계</h3><p>세트의 공급사는 구성 메뉴를 거쳐 정함. 포장재(SUP-06)는 배달·포장 비중에 비례하는 공통 원가.</p></div>
+      <div class="rule glow"><h3><i>R8</i>정합성 제약</h3><p>객단가, 이익률, 주문 비중 합, 시간대 비중 합, 배달앱 주문수 상한. 5개 모두 738건 통과. 손익 잔차(467건)·로열티율(24건)은 참고.</p></div>
+      <div class="rule glow wide"><h3><i>R9</i>정정 후 값만 사실</h3><p>변경이력 1,539건(이익률 674, 객단가 541, 배달앱 주문수 165, 주문 비중 87, 시간대 비중 69, 행·날짜 3)은 정정기록으로 남기고 정정 후 값을 씀. 사건로그 문장 속 수치가 데이터와 다르면 데이터를 씀.</p></div>
+    </div>
+  </section>
+
+  <!-- 06 한계 -->
+  <section id="s6">
+    <div class="num">06 한계</div>
+    <h2>데이터로 정할 수 없는 것</h2>
+    <div class="card glow">
+      <ul class="pts">
+        <li><b>앱별 플랫폼수수료.</b> 합계 한 열뿐이라 앱별 몫은 주문수 × 수수료율로 추정</li>
+        <li><b>자사앱 PG 수수료 위치.</b> 2.5%가 플랫폼수수료 열에 들어가는지 기록 없음</li>
+        <li><b>메뉴별 매출.</b> 카테고리까지만 있어 메뉴 영향은 근사치</li>
+        <li><b>사건 순서.</b> ID 순서와 날짜 순서가 다름(EV-036은 2026-02-05). 선행 관계는 일자로 판단</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>출처: 피자 매장별 실적 데이터.xlsx · 그래프 데이터는 build_graph.py로 생성 · 바이브 코딩 실전 과제 06 · 2026-10-04</footer>
+</div>
+
+<script type="application/json" id="ontology-json">
+{
+  "name": "피자 프랜차이즈 실적 데이터 온톨로지",
+  "source": "피자 매장별 실적 데이터.xlsx",
+  "created": "2026-10-04",
+  "classes": [
+    {"id": "Store", "label": "매장", "key": "ST-001~009", "count": 9},
+    {"id": "RegionHQ", "label": "지역본부", "count": 4},
+    {"id": "Supervisor", "label": "슈퍼바이저", "key": "SV-01~03", "count": 3},
+    {"id": "Owner", "label": "점주", "count": 10},
+    {"id": "Menu", "label": "메뉴", "key": "MN-101~503", "count": 21},
+    {"id": "RevenueItem", "label": "매출항목", "abstract": true, "subclasses": ["ProductCategory", "FeeItem"]},
+    {"id": "ProductCategory", "label": "상품카테고리", "parent": "RevenueItem", "count": 5},
+    {"id": "FeeItem", "label": "요금항목", "parent": "RevenueItem", "key": "FEE-01", "count": 1},
+    {"id": "Supplier", "label": "공급사", "key": "SUP-01~06", "count": 6},
+    {"id": "Platform", "label": "플랫폼", "key": "PF-01~04", "count": 4},
+    {"id": "Month", "label": "월", "key": "YYYY-MM", "count": 82},
+    {"id": "Event", "label": "사건", "key": "EV-001~039", "count": 39},
+    {"id": "StoreMonth", "label": "월간실적", "key": "매장코드+월", "count": 738},
+    {"id": "CategorySales", "label": "카테고리매출", "count": 4428},
+    {"id": "Indicator", "label": "지표", "count": 41},
+    {"id": "Correction", "label": "정정기록", "count": 1539}
+  ],
+  "relations": [
+    {"id": "L01", "from": "Store", "label": "소속", "to": "RegionHQ"},
+    {"id": "L02", "from": "Store", "label": "담당 SV", "to": "Supervisor"},
+    {"id": "L03", "from": "Store", "label": "운영 점주", "to": "Owner", "temporal": true},
+    {"id": "L04", "from": "StoreMonth", "label": "매장", "to": "Store"},
+    {"id": "L05", "from": "StoreMonth", "label": "기간", "to": "Month"},
+    {"id": "L06", "from": "CategorySales", "label": "속함", "to": "StoreMonth"},
+    {"id": "L07", "from": "CategorySales", "label": "항목", "to": "RevenueItem"},
+    {"id": "L08", "from": "Menu", "label": "분류", "to": "ProductCategory"},
+    {"id": "L09", "from": "Menu", "label": "식자재 공급", "to": "Supplier"},
+    {"id": "L10", "from": "Menu", "label": "구성", "to": "Menu"},
+    {"id": "L11", "from": "StoreMonth", "label": "주문 경유", "to": "Platform", "weighted": true},
+    {"id": "L12", "from": "Event", "label": "발생 매장", "to": "Store", "rule": "R1"},
+    {"id": "L13", "from": "Event", "label": "관련 대상", "to": ["Menu", "Supplier", "Platform", "FeeItem"]},
+    {"id": "L14", "from": "Event", "label": "영향 기간", "to": "Month"},
+    {"id": "L15", "from": "Event", "label": "영향 지표", "to": "Indicator", "inferred": true},
+    {"id": "L16", "from": "Event", "label": "선행 / 같은 유형", "to": "Event", "inferred": true},
+    {"id": "L17", "from": "Indicator", "label": "열 정의", "to": ["StoreMonth", "CategorySales"]},
+    {"id": "L18", "from": "Indicator", "label": "대응 개체", "to": ["Platform", "Supplier"], "derived": true},
+    {"id": "L19", "from": "Correction", "label": "수정", "to": "StoreMonth"},
+    {"id": "L20", "from": "Correction", "label": "근거", "to": "Event"},
+    {"id": "L21", "from": "Supervisor", "label": "QSC 점검", "to": "StoreMonth", "derived": true}
+  ],
+  "rules": ["R1 매장 동일성", "R2 배달수수료는 요금항목", "R3 매장·월 값은 한 번만", "R4 실적과 추정 분리", "R5 확인 등급 = 신뢰도", "R6 관계의 유효 기간", "R7 경유 관계", "R8 정합성 제약", "R9 정정 후 값만 사실"]
+}
+</script>
+<script>
+const GRAPH=/*GRAPH_DATA_START*/{"nodes":[{"id":"ALL","label":"전 매장","type":"hub","sub":"본사·전 매장 범위 (9곳)"},{"id":"HQ:수도권본부","label":"수도권본부","type":"hq"},{"id":"HQ:중부본부","label":"중부본부","type":"hq"},{"id":"HQ:영남본부","label":"영남본부","type":"hq"},{"id":"HQ:호남제주본부","label":"호남제주본부","type":"hq"},{"id":"SV-01","label":"박서연","type":"sv","sub":"SV-01"},{"id":"SV-02","label":"이준호","type":"sv","sub":"SV-02"},{"id":"SV-03","label":"김하은","type":"sv","sub":"SV-03"},{"id":"ST-001","label":"서울 강남점","type":"store","sub":"ST-001 · 직영 · 오피스·번화가"},{"id":"OW:ST-001","label":"김도현","type":"owner","sub":"서울 강남점 점주"},{"id":"ST-002","label":"서울 홍대점","type":"store","sub":"ST-002 · 가맹 · 대학가·번화가"},{"id":"OW:ST-002","label":"이수민","type":"owner","sub":"서울 홍대점 점주"},{"id":"ST-003","label":"수원 영통점","type":"store","sub":"ST-003 · 가맹 · 주거·오피스"},{"id":"OW:ST-003","label":"정하늘","type":"owner","sub":"수원 영통점 점주"},{"id":"ST-004","label":"인천 부평점","type":"store","sub":"ST-004 · 가맹 · 번화가"},{"id":"OW:ST-004","label":"최민재","type":"owner","sub":"인천 부평점 점주"},{"id":"ST-005","label":"대전 둔산점","type":"store","sub":"ST-005 · 가맹 · 오피스"},{"id":"OW:ST-005","label":"한지우","type":"owner","sub":"대전 둔산점 점주"},{"id":"ST-006","label":"대구 동성로점","type":"store","sub":"ST-006 · 가맹 · 번화가"},{"id":"OW:ST-006","label":"강유진","type":"owner","sub":"대구 동성로점 점주"},{"id":"ST-007","label":"부산 서면점","type":"store","sub":"ST-007 · 직영 · 번화가"},{"id":"OW:ST-007","label":"윤태양","type":"owner","sub":"부산 서면점 점주"},{"id":"ST-008","label":"광주 충장로점","type":"store","sub":"ST-008 · 가맹 · 번화가"},{"id":"OW:ST-008","label":"송민아","type":"owner","sub":"광주 충장로점 점주 (2026-01-02~)"},{"id":"OW:ST-008:1","label":"1대 점주","type":"owner","sub":"광주 충장로점 ~2026-01-02 · 이름 기록 없음"},{"id":"ST-009","label":"제주 연동점","type":"store","sub":"ST-009 · 가맹 · 관광"},{"id":"OW:ST-009","label":"고은비","type":"owner","sub":"제주 연동점 점주"},{"id":"CAT:피자","label":"피자","type":"cat"},{"id":"CAT:사이드메뉴","label":"사이드메뉴","type":"cat"},{"id":"CAT:세트메뉴","label":"세트메뉴","type":"cat"},{"id":"CAT:음료","label":"음료","type":"cat"},{"id":"CAT:기타(굿즈/쿠폰)","label":"기타(굿즈/쿠폰)","type":"cat"},{"id":"PF-01","label":"배달의민족","type":"pf","sub":"PF-01 · 수수료 9.8%"},{"id":"PF-02","label":"쿠팡이츠","type":"pf","sub":"PF-02 · 수수료 9.8%"},{"id":"PF-03","label":"요기요","type":"pf","sub":"PF-03 · 수수료 12.5%"},{"id":"PF-04","label":"자사앱","type":"pf","sub":"PF-04 · 수수료 0.0%"},{"id":"SUP-01","label":"한빛도우","type":"sup","sub":"SUP-01 · 도우·밀가루"},{"id":"SUP-02","label":"밀크팜","type":"sup","sub":"SUP-02 · 치즈·유제품"},{"id":"SUP-03","label":"오션프레시","type":"sup","sub":"SUP-03 · 새우·해산물 토핑"},{"id":"SUP-04","label":"그린필드팜","type":"sup","sub":"SUP-04 · 채소·버섯 토핑"},{"id":"SUP-05","label":"코리아베버리지","type":"sup","sub":"SUP-05 · 음료"},{"id":"SUP-06","label":"그린팩","type":"sup","sub":"SUP-06 · 포장재·배달 용기"},{"id":"MN-101","label":"페퍼로니 클래식","type":"menu","sub":"MN-101 · 피자 · 상시","cat":"피자"},{"id":"MN-102","label":"콤비네이션","type":"menu","sub":"MN-102 · 피자 · 상시","cat":"피자"},{"id":"MN-103","label":"고르곤졸라 허니","type":"menu","sub":"MN-103 · 피자 · 상시","cat":"피자"},{"id":"MN-104","label":"불고기 피자","type":"menu","sub":"MN-104 · 피자 · 상시","cat":"피자"},{"id":"MN-105","label":"하와이안","type":"menu","sub":"MN-105 · 피자 · 단종 · 2023-06-30 단종","cat":"피자"},{"id":"MN-106","label":"슈림프 골드","type":"menu","sub":"MN-106 · 피자 · 여름 한정(6~8월)","cat":"피자"},{"id":"MN-107","label":"트러플 머쉬룸","type":"menu","sub":"MN-107 · 피자 · 상시","cat":"피자"},{"id":"MN-201","label":"치즈스틱","type":"menu","sub":"MN-201 · 사이드메뉴 · 상시","cat":"사이드메뉴"},{"id":"MN-202","label":"버팔로윙","type":"menu","sub":"MN-202 · 사이드메뉴 · 상시","cat":"사이드메뉴"},{"id":"MN-203","label":"감자튀김","type":"menu","sub":"MN-203 · 사이드메뉴 · 상시","cat":"사이드메뉴"},{"id":"MN-204","label":"콘샐러드","type":"menu","sub":"MN-204 · 사이드메뉴 · 상시","cat":"사이드메뉴"},{"id":"MN-301","label":"패밀리 세트","type":"menu","sub":"MN-301 · 세트메뉴 · 상시","cat":"세트메뉴"},{"id":"MN-302","label":"커플 세트","type":"menu","sub":"MN-302 · 세트메뉴 · 상시","cat":"세트메뉴"},{"id":"MN-303","label":"런치 세트","type":"menu","sub":"MN-303 · 세트메뉴 · 상시","cat":"세트메뉴"},{"id":"MN-401","label":"콜라 1.25L","type":"menu","sub":"MN-401 · 음료 · 상시","cat":"음료"},{"id":"MN-402","label":"사이다 1.25L","type":"menu","sub":"MN-402 · 음료 · 상시","cat":"음료"},{"id":"MN-403","label":"제로콜라 1.25L","type":"menu","sub":"MN-403 · 음료 · 상시","cat":"음료"},{"id":"MN-404","label":"수제 레모네이드","type":"menu","sub":"MN-404 · 음료 · 상시","cat":"음료"},{"id":"MN-501","label":"굿즈 텀블러","type":"menu","sub":"MN-501 · 기타(굿즈/쿠폰) · 상시","cat":"기타(굿즈/쿠폰)"},{"id":"MN-502","label":"기프트카드","type":"menu","sub":"MN-502 · 기타(굿즈/쿠폰) · 상시","cat":"기타(굿즈/쿠폰)"},{"id":"MN-503","label":"멤버십 쿠폰북","type":"menu","sub":"MN-503 · 기타(굿즈/쿠폰) · 상시","cat":"기타(굿즈/쿠폰)"},{"id":"FEE-01","label":"배달비(고객 부담)","type":"fee","sub":"요금항목 · 상품 아님 (R2)"},{"id":"EV-001","label":"월별 실적 보고 양식 표준화","type":"event","date":"2020-01-15","group":"본사 결정","conf":"확인","sub":"EV-001 · 2020-01-15 · 본사정책 · 확인"},{"id":"EV-002","label":"코로나19 거리두기 시작","type":"event","date":"2020-03-02","group":"외부 요인","conf":"확인","sub":"EV-002 · 2020-03-02 · 외부환경 · 확인"},{"id":"EV-003","label":"홍대 상권 대학 비대면 전환","type":"event","date":"2020-04-06","group":"외부 요인","conf":"확인","sub":"EV-003 · 2020-04-06 · 외부환경 · 확인"},{"id":"EV-004","label":"슈림프 골드 대구 시범 판매","type":"event","date":"2020-06-01","group":"상품","conf":"확인","sub":"EV-004 · 2020-06-01 · 신메뉴 · 확인"},{"id":"EV-005","label":"부산 지역 감염 재확산","type":"event","date":"2020-06-08","group":"외부 요인","conf":"추정","sub":"EV-005 · 2020-06-08 · 외부환경 · 추정"},{"id":"EV-006","label":"자사앱 베타 오픈, 굿즈 텀블러 출시","type":"event","date":"2020-12-01","group":"본사 결정","conf":"확인","sub":"EV-006 · 2020-12-01 · 채널 · 확인"},{"id":"EV-007","label":"자사앱 정식 출시","type":"event","date":"2021-01-04","group":"본사 결정","conf":"확인","sub":"EV-007 · 2021-01-04 · 채널 · 확인"},{"id":"EV-008","label":"홍대점 오븐 고장, 설비 교체","type":"event","date":"2021-04-05","group":"매장 운영","conf":"확인","sub":"EV-008 · 2021-04-05 · 운영 · 확인"},{"id":"EV-009","label":"슈림프 골드 전국 확대(여름 한정), 수제 레모네이드 출시","type":"event","date":"2021-06-01","group":"상품","conf":"확인","sub":"EV-009 · 2021-06-01 · 신메뉴 · 확인"},{"id":"EV-010","label":"배달비(고객 부담) 인하","type":"event","date":"2021-07-01","group":"본사 결정","conf":"확인","sub":"EV-010 · 2021-07-01 · 가격정책 · 확인"},{"id":"EV-011","label":"부평점 위생검사 B 등급","type":"event","date":"2021-11-09","group":"매장 운영","conf":"확인","sub":"EV-011 · 2021-11-09 · 위생 · 확인"},{"id":"EV-012","label":"홀 영업 정상화, 런치 세트 출시","type":"event","date":"2022-01-03","group":"외부 요인","conf":"확인","sub":"EV-012 · 2022-01-03 · 외부환경 · 확인"},{"id":"EV-013","label":"강남점 배달대행사 교체","type":"event","date":"2022-01-10","group":"매장 운영","conf":"확인","sub":"EV-013 · 2022-01-10 · 운영 · 확인"},{"id":"EV-014","label":"충장로점 위생검사 B, 재고 관리 지적","type":"event","date":"2022-05-02","group":"매장 운영","conf":"확인","sub":"EV-014 · 2022-05-02 · 운영 · 확인"},{"id":"EV-015","label":"ERP 교체, 매장코드 체계 변경","type":"event","date":"2022-09-01","group":"본사 결정","conf":"확인","sub":"EV-015 · 2022-09-01 · 시스템 · 확인"},{"id":"EV-016","label":"홍대점 배달 지연 클레임 33건","type":"event","date":"2023-03-06","group":"매장 운영","conf":"확인","sub":"EV-016 · 2023-03-06 · 클레임 · 확인"},{"id":"EV-017","label":"제주 연동점 위생검사 B 등급","type":"event","date":"2023-05-16","group":"매장 운영","conf":"확인","sub":"EV-017 · 2023-05-16 · 위생 · 확인"},{"id":"EV-018","label":"자사앱 멤버십 개편, 쿠폰북 출시","type":"event","date":"2023-06-01","group":"본사 결정","conf":"확인","sub":"EV-018 · 2023-06-01 · 채널 · 확인"},{"id":"EV-019","label":"하와이안 피자 단종","type":"event","date":"2023-06-30","group":"본사 결정","conf":"확인","sub":"EV-019 · 2023-06-30 · 메뉴 · 확인"},{"id":"EV-020","label":"강남점 클레임 36건, 연중 최다","type":"event","date":"2023-10-02","group":"매장 운영","conf":"확인","sub":"EV-020 · 2023-10-02 · 클레임 · 확인"},{"id":"EV-021","label":"제로콜라 도입","type":"event","date":"2024-01-08","group":"상품","conf":"확인","sub":"EV-021 · 2024-01-08 · 신메뉴 · 확인"},{"id":"EV-022","label":"부산 서면점 리뉴얼 착공(주방 확장)","type":"event","date":"2024-02-05","group":"매장 운영","conf":"확인","sub":"EV-022 · 2024-02-05 · 리뉴얼 · 확인"},{"id":"EV-023","label":"부산 서면점 클레임 9건, 리뉴얼 후 최저","type":"event","date":"2024-09-02","group":"매장 운영","conf":"추정","sub":"EV-023 · 2024-09-02 · 운영 · 추정"},{"id":"EV-024","label":"배달의민족 중개수수료 인상(6.8% → 9.8%)","type":"event","date":"2024-11-01","group":"외부 요인","conf":"확인","sub":"EV-024 · 2024-11-01 · 플랫폼 · 확인"},{"id":"EV-025","label":"제주 연동점 정규직 1명 퇴사","type":"event","date":"2025-04-01","group":"매장 운영","conf":"확인","sub":"EV-025 · 2025-04-01 · 인력 · 확인"},{"id":"EV-026","label":"밀크팜 치즈 공급 계약 갱신","type":"event","date":"2025-07-01","group":"외부 요인","conf":"미확인","sub":"EV-026 · 2025-07-01 · 공급사 · 미확인"},{"id":"EV-027","label":"홍대 인근 경쟁 피자 브랜드 개점","type":"event","date":"2025-10-06","group":"외부 요인","conf":"추정","sub":"EV-027 · 2025-10-06 · 경쟁 · 추정"},{"id":"EV-028","label":"동성로점 겨울 한정 메뉴 시범 판매","type":"event","date":"2025-12-01","group":"상품","conf":"확인","sub":"EV-028 · 2025-12-01 · 신메뉴 · 확인"},{"id":"EV-029","label":"광주 충장로점 점주 승계(2대)","type":"event","date":"2026-01-02","group":"매장 운영","conf":"확인","sub":"EV-029 · 2026-01-02 · 점주 · 확인"},{"id":"EV-030","label":"정규직 전환 지원금 시행","type":"event","date":"2026-01-05","group":"본사 결정","conf":"확인","sub":"EV-030 · 2026-01-05 · 인력정책 · 확인"},{"id":"EV-031","label":"동성로점 내부 공사로 7일 휴업","type":"event","date":"2026-02-01","group":"매장 운영","conf":"확인","sub":"EV-031 · 2026-02-01 · 운영 · 확인"},{"id":"EV-036","label":"둔산점 2026년 1월 실적 이중 등록","type":"event","date":"2026-02-05","group":"데이터","conf":"확인","sub":"EV-036 · 2026-02-05 · 데이터 · 확인"},{"id":"EV-032","label":"트러플 머쉬룸 피자 전 매장 출시","type":"event","date":"2026-03-02","group":"상품","conf":"확인","sub":"EV-032 · 2026-03-02 · 신메뉴 · 확인"},{"id":"EV-033","label":"홍대점 신메뉴 수요 폭증","type":"event","date":"2026-03-09","group":"매장 운영","conf":"확인","sub":"EV-033 · 2026-03-09 · 운영 · 확인"},{"id":"EV-034","label":"홍대점 배달 지연 클레임 87건","type":"event","date":"2026-04-01","group":"매장 운영","conf":"확인","sub":"EV-034 · 2026-04-01 · 클레임 · 확인"},{"id":"EV-035","label":"제주 연동점 정규직 이탈, 파트타임 12명 운영","type":"event","date":"2026-04-01","group":"매장 운영","conf":"확인","sub":"EV-035 · 2026-04-01 · 인력 · 확인"},{"id":"EV-037","label":"슈림프 골드 여름 한정 재판매","type":"event","date":"2026-06-01","group":"상품","conf":"확인","sub":"EV-037 · 2026-06-01 · 신메뉴 · 확인"},{"id":"EV-038","label":"폭염 경보, 배달 비중 상승","type":"event","date":"2026-07-14","group":"외부 요인","conf":"확인","sub":"EV-038 · 2026-07-14 · 외부환경 · 확인"},{"id":"EV-039","label":"제주 관광 성수기, 연동점 8월 매출 개점 이래 최고","type":"event","date":"2026-08-03","group":"외부 요인","conf":"확인","sub":"EV-039 · 2026-08-03 · 외부환경 · 확인"},{"id":"SM:ST-005:2024-11","label":"둔산점 2024-11","type":"sm","sub":"이익률 19.5% · 플랫폼수수료 679만원 · 클레임 11건"},{"id":"SM:ST-005:2024-12","label":"둔산점 2024-12","type":"sm","sub":"이익률 19.4% · 플랫폼수수료 713만원 · 클레임 15건"},{"id":"SM:ST-006:2024-11","label":"동성로점 2024-11","type":"sm","sub":"이익률 11.3% · 플랫폼수수료 836만원 · 클레임 17건"},{"id":"SM:ST-007:2024-12","label":"서면점 2024-12","type":"sm","sub":"이익률 12.3% · 플랫폼수수료 1,002만원 · 클레임 20건"},{"id":"SM:ST-002:2026-03","label":"홍대점 2026-03","type":"sm","sub":"이익률 17.5% · 플랫폼수수료 1,120만원 · 클레임 18건"},{"id":"SM:ST-002:2026-04","label":"홍대점 2026-04","type":"sm","sub":"이익률 18.0% · 플랫폼수수료 1,087만원 · 클레임 87건"}],"edges":[{"s":"ST-001","t":"HQ:수도권본부","rel":"소속","kind":"direct"},{"s":"ST-001","t":"SV-01","rel":"담당 SV","kind":"direct"},{"s":"ALL","t":"ST-001","rel":"포함","kind":"direct"},{"s":"ST-001","t":"OW:ST-001","rel":"운영 점주","kind":"direct"},{"s":"ST-002","t":"HQ:수도권본부","rel":"소속","kind":"direct"},{"s":"ST-002","t":"SV-01","rel":"담당 SV","kind":"direct"},{"s":"ALL","t":"ST-002","rel":"포함","kind":"direct"},{"s":"ST-002","t":"OW:ST-002","rel":"운영 점주","kind":"direct"},{"s":"ST-003","t":"HQ:수도권본부","rel":"소속","kind":"direct"},{"s":"ST-003","t":"SV-01","rel":"담당 SV","kind":"direct"},{"s":"ALL","t":"ST-003","rel":"포함","kind":"direct"},{"s":"ST-003","t":"OW:ST-003","rel":"운영 점주","kind":"direct"},{"s":"ST-004","t":"HQ:수도권본부","rel":"소속","kind":"direct"},{"s":"ST-004","t":"SV-01","rel":"담당 SV","kind":"direct"},{"s":"ALL","t":"ST-004","rel":"포함","kind":"direct"},{"s":"ST-004","t":"OW:ST-004","rel":"운영 점주","kind":"direct"},{"s":"ST-005","t":"HQ:중부본부","rel":"소속","kind":"direct"},{"s":"ST-005","t":"SV-02","rel":"담당 SV","kind":"direct"},{"s":"ALL","t":"ST-005","rel":"포함","kind":"direct"},{"s":"ST-005","t":"OW:ST-005","rel":"운영 점주","kind":"direct"},{"s":"ST-006","t":"HQ:영남본부","rel":"소속","kind":"direct"},{"s":"ST-006","t":"SV-03","rel":"담당 SV","kind":"direct"},{"s":"ALL","t":"ST-006","rel":"포함","kind":"direct"},{"s":"ST-006","t":"OW:ST-006","rel":"운영 점주","kind":"direct"},{"s":"ST-007","t":"HQ:영남본부","rel":"소속","kind":"direct"},{"s":"ST-007","t":"SV-03","rel":"담당 SV","kind":"direct"},{"s":"ALL","t":"ST-007","rel":"포함","kind":"direct"},{"s":"ST-007","t":"OW:ST-007","rel":"운영 점주","kind":"direct"},{"s":"ST-008","t":"HQ:호남제주본부","rel":"소속","kind":"direct"},{"s":"ST-008","t":"SV-02","rel":"담당 SV","kind":"direct"},{"s":"ALL","t":"ST-008","rel":"포함","kind":"direct"},{"s":"ST-008","t":"OW:ST-008","rel":"운영 점주","kind":"direct"},{"s":"ST-008","t":"OW:ST-008:1","rel":"운영 점주 (종료)","kind":"direct"},{"s":"ST-009","t":"HQ:호남제주본부","rel":"소속","kind":"direct"},{"s":"ST-009","t":"SV-02","rel":"담당 SV","kind":"direct"},{"s":"ALL","t":"ST-009","rel":"포함","kind":"direct"},{"s":"ST-009","t":"OW:ST-009","rel":"운영 점주","kind":"direct"},{"s":"CAT:피자","t":"ALL","rel":"매출 (카테고리매출 경유)","kind":"derived"},{"s":"CAT:사이드메뉴","t":"ALL","rel":"매출 (카테고리매출 경유)","kind":"derived"},{"s":"CAT:세트메뉴","t":"ALL","rel":"매출 (카테고리매출 경유)","kind":"derived"},{"s":"CAT:음료","t":"ALL","rel":"매출 (카테고리매출 경유)","kind":"derived"},{"s":"CAT:기타(굿즈/쿠폰)","t":"ALL","rel":"매출 (카테고리매출 경유)","kind":"derived"},{"s":"MN-101","t":"CAT:피자","rel":"분류","kind":"direct"},{"s":"MN-101","t":"SUP-01","rel":"식자재 공급","kind":"direct"},{"s":"MN-101","t":"SUP-02","rel":"식자재 공급","kind":"direct"},{"s":"MN-102","t":"CAT:피자","rel":"분류","kind":"direct"},{"s":"MN-102","t":"SUP-01","rel":"식자재 공급","kind":"direct"},{"s":"MN-102","t":"SUP-02","rel":"식자재 공급","kind":"direct"},{"s":"MN-102","t":"SUP-04","rel":"식자재 공급","kind":"direct"},{"s":"MN-103","t":"CAT:피자","rel":"분류","kind":"direct"},{"s":"MN-103","t":"SUP-01","rel":"식자재 공급","kind":"direct"},{"s":"MN-103","t":"SUP-02","rel":"식자재 공급","kind":"direct"},{"s":"MN-104","t":"CAT:피자","rel":"분류","kind":"direct"},{"s":"MN-104","t":"SUP-01","rel":"식자재 공급","kind":"direct"},{"s":"MN-104","t":"SUP-02","rel":"식자재 공급","kind":"direct"},{"s":"MN-104","t":"SUP-04","rel":"식자재 공급","kind":"direct"},{"s":"MN-105","t":"CAT:피자","rel":"분류","kind":"direct"},{"s":"MN-105","t":"SUP-01","rel":"식자재 공급","kind":"direct"},{"s":"MN-105","t":"SUP-02","rel":"식자재 공급","kind":"direct"},{"s":"MN-106","t":"CAT:피자","rel":"분류","kind":"direct"},{"s":"MN-106","t":"SUP-01","rel":"식자재 공급","kind":"direct"},{"s":"MN-106","t":"SUP-02","rel":"식자재 공급","kind":"direct"},{"s":"MN-106","t":"SUP-03","rel":"식자재 공급","kind":"direct"},{"s":"MN-107","t":"CAT:피자","rel":"분류","kind":"direct"},{"s":"MN-107","t":"SUP-01","rel":"식자재 공급","kind":"direct"},{"s":"MN-107","t":"SUP-02","rel":"식자재 공급","kind":"direct"},{"s":"MN-107","t":"SUP-04","rel":"식자재 공급","kind":"direct"},{"s":"MN-201","t":"CAT:사이드메뉴","rel":"분류","kind":"direct"},{"s":"MN-201","t":"SUP-02","rel":"식자재 공급","kind":"direct"},{"s":"MN-202","t":"CAT:사이드메뉴","rel":"분류","kind":"direct"},{"s":"MN-202","t":"SUP-04","rel":"식자재 공급","kind":"direct"},{"s":"MN-203","t":"CAT:사이드메뉴","rel":"분류","kind":"direct"},{"s":"MN-203","t":"SUP-04","rel":"식자재 공급","kind":"direct"},{"s":"MN-204","t":"CAT:사이드메뉴","rel":"분류","kind":"direct"},{"s":"MN-204","t":"SUP-04","rel":"식자재 공급","kind":"direct"},{"s":"MN-301","t":"CAT:세트메뉴","rel":"분류","kind":"direct"},{"s":"MN-301","t":"MN-101","rel":"구성 (택1)","kind":"direct"},{"s":"MN-301","t":"MN-102","rel":"구성 (택1)","kind":"direct"},{"s":"MN-301","t":"MN-202","rel":"구성","kind":"direct"},{"s":"MN-301","t":"MN-401","rel":"구성","kind":"direct"},{"s":"MN-302","t":"CAT:세트메뉴","rel":"분류","kind":"direct"},{"s":"MN-302","t":"MN-101","rel":"구성 (택1)","kind":"direct"},{"s":"MN-302","t":"MN-103","rel":"구성 (택1)","kind":"direct"},{"s":"MN-302","t":"MN-201","rel":"구성","kind":"direct"},{"s":"MN-302","t":"MN-401","rel":"구성","kind":"direct"},{"s":"MN-303","t":"CAT:세트메뉴","rel":"분류","kind":"direct"},{"s":"MN-303","t":"MN-101","rel":"구성","kind":"direct"},{"s":"MN-303","t":"MN-203","rel":"구성","kind":"direct"},{"s":"MN-303","t":"MN-401","rel":"구성","kind":"direct"},{"s":"MN-401","t":"CAT:음료","rel":"분류","kind":"direct"},{"s":"MN-401","t":"SUP-05","rel":"식자재 공급","kind":"direct"},{"s":"MN-402","t":"CAT:음료","rel":"분류","kind":"direct"},{"s":"MN-402","t":"SUP-05","rel":"식자재 공급","kind":"direct"},{"s":"MN-403","t":"CAT:음료","rel":"분류","kind":"direct"},{"s":"MN-403","t":"SUP-05","rel":"식자재 공급","kind":"direct"},{"s":"MN-404","t":"CAT:음료","rel":"분류","kind":"direct"},{"s":"MN-404","t":"SUP-04","rel":"식자재 공급","kind":"direct"},{"s":"MN-501","t":"CAT:기타(굿즈/쿠폰)","rel":"분류","kind":"direct"},{"s":"MN-502","t":"CAT:기타(굿즈/쿠폰)","rel":"분류","kind":"direct"},{"s":"MN-503","t":"CAT:기타(굿즈/쿠폰)","rel":"분류","kind":"direct"},{"s":"EV-001","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-002","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-003","t":"ST-002","rel":"발생 매장","kind":"direct"},{"s":"EV-004","t":"ST-006","rel":"발생 매장","kind":"direct"},{"s":"EV-004","t":"MN-106","rel":"관련 대상","kind":"direct"},{"s":"EV-004","t":"SUP-03","rel":"관련 대상","kind":"direct"},{"s":"EV-005","t":"ST-007","rel":"발생 매장","kind":"direct"},{"s":"EV-006","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-006","t":"PF-04","rel":"관련 대상","kind":"direct"},{"s":"EV-006","t":"MN-501","rel":"관련 대상","kind":"direct"},{"s":"EV-007","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-007","t":"PF-04","rel":"관련 대상","kind":"direct"},{"s":"EV-008","t":"ST-002","rel":"발생 매장","kind":"direct"},{"s":"EV-009","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-009","t":"MN-106","rel":"관련 대상","kind":"direct"},{"s":"EV-009","t":"MN-404","rel":"관련 대상","kind":"direct"},{"s":"EV-010","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-010","t":"FEE-01","rel":"관련 대상","kind":"direct"},{"s":"EV-011","t":"ST-004","rel":"발생 매장","kind":"direct"},{"s":"EV-012","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-012","t":"MN-303","rel":"관련 대상","kind":"direct"},{"s":"EV-013","t":"ST-001","rel":"발생 매장","kind":"direct"},{"s":"EV-014","t":"ST-008","rel":"발생 매장","kind":"direct"},{"s":"EV-015","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-016","t":"ST-002","rel":"발생 매장","kind":"direct"},{"s":"EV-017","t":"ST-009","rel":"발생 매장","kind":"direct"},{"s":"EV-018","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-018","t":"PF-04","rel":"관련 대상","kind":"direct"},{"s":"EV-018","t":"MN-503","rel":"관련 대상","kind":"direct"},{"s":"EV-019","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-019","t":"MN-105","rel":"관련 대상","kind":"direct"},{"s":"EV-020","t":"ST-001","rel":"발생 매장","kind":"direct"},{"s":"EV-020","t":"PF-01","rel":"관련 대상","kind":"direct"},{"s":"EV-021","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-021","t":"MN-403","rel":"관련 대상","kind":"direct"},{"s":"EV-021","t":"SUP-05","rel":"관련 대상","kind":"direct"},{"s":"EV-022","t":"ST-007","rel":"발생 매장","kind":"direct"},{"s":"EV-023","t":"ST-007","rel":"발생 매장","kind":"direct"},{"s":"EV-024","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-024","t":"PF-01","rel":"관련 대상","kind":"direct"},{"s":"EV-025","t":"ST-009","rel":"발생 매장","kind":"direct"},{"s":"EV-026","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-026","t":"SUP-02","rel":"관련 대상","kind":"direct"},{"s":"EV-027","t":"ST-002","rel":"발생 매장","kind":"direct"},{"s":"EV-028","t":"ST-006","rel":"발생 매장","kind":"direct"},{"s":"EV-029","t":"ST-008","rel":"발생 매장","kind":"direct"},{"s":"EV-030","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-031","t":"ST-006","rel":"발생 매장","kind":"direct"},{"s":"EV-036","t":"ST-005","rel":"발생 매장","kind":"direct"},{"s":"EV-032","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-032","t":"MN-107","rel":"관련 대상","kind":"direct"},{"s":"EV-032","t":"SUP-04","rel":"관련 대상","kind":"direct"},{"s":"EV-033","t":"ST-002","rel":"발생 매장","kind":"direct"},{"s":"EV-033","t":"MN-107","rel":"관련 대상","kind":"direct"},{"s":"EV-034","t":"ST-002","rel":"발생 매장","kind":"direct"},{"s":"EV-035","t":"ST-009","rel":"발생 매장","kind":"direct"},{"s":"EV-037","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-037","t":"MN-106","rel":"관련 대상","kind":"direct"},{"s":"EV-037","t":"SUP-03","rel":"관련 대상","kind":"direct"},{"s":"EV-038","t":"ALL","rel":"발생 범위","kind":"direct"},{"s":"EV-038","t":"PF-01","rel":"관련 대상","kind":"direct"},{"s":"EV-038","t":"PF-02","rel":"관련 대상","kind":"direct"},{"s":"EV-038","t":"PF-03","rel":"관련 대상","kind":"direct"},{"s":"EV-039","t":"ST-009","rel":"발생 매장","kind":"direct"},{"s":"EV-004","t":"EV-009","rel":"선행","kind":"inferred"},{"s":"EV-009","t":"EV-037","rel":"선행","kind":"inferred"},{"s":"EV-006","t":"EV-007","rel":"선행","kind":"inferred"},{"s":"EV-022","t":"EV-023","rel":"선행","kind":"inferred"},{"s":"EV-025","t":"EV-035","rel":"같은 유형","kind":"inferred"},{"s":"EV-032","t":"EV-033","rel":"선행","kind":"inferred"},{"s":"EV-033","t":"EV-034","rel":"선행","kind":"inferred"},{"s":"EV-016","t":"EV-013","rel":"같은 유형","kind":"inferred"},{"s":"EV-034","t":"EV-016","rel":"같은 유형","kind":"inferred"},{"s":"SM:ST-005:2024-11","t":"ST-005","rel":"매장","kind":"direct"},{"s":"EV-024","t":"SM:ST-005:2024-11","rel":"영향 기간","kind":"direct"},{"s":"SM:ST-005:2024-11","t":"PF-01","rel":"주문 경유","kind":"direct"},{"s":"SM:ST-005:2024-12","t":"ST-005","rel":"매장","kind":"direct"},{"s":"EV-024","t":"SM:ST-005:2024-12","rel":"영향 기간","kind":"direct"},{"s":"SM:ST-005:2024-12","t":"PF-01","rel":"주문 경유","kind":"direct"},{"s":"SM:ST-006:2024-11","t":"ST-006","rel":"매장","kind":"direct"},{"s":"EV-024","t":"SM:ST-006:2024-11","rel":"영향 기간","kind":"direct"},{"s":"SM:ST-006:2024-11","t":"PF-01","rel":"주문 경유","kind":"direct"},{"s":"SM:ST-007:2024-12","t":"ST-007","rel":"매장","kind":"direct"},{"s":"EV-024","t":"SM:ST-007:2024-12","rel":"영향 기간","kind":"direct"},{"s":"SM:ST-007:2024-12","t":"PF-01","rel":"주문 경유","kind":"direct"},{"s":"SM:ST-002:2026-03","t":"ST-002","rel":"매장","kind":"direct"},{"s":"EV-033","t":"SM:ST-002:2026-03","rel":"영향 기간","kind":"direct"},{"s":"SM:ST-002:2026-04","t":"ST-002","rel":"매장","kind":"direct"},{"s":"EV-034","t":"SM:ST-002:2026-04","rel":"영향 기간","kind":"direct"}]}/*GRAPH_DATA_END*/;
+(function(){
+  const NS='http://www.w3.org/2000/svg';
+  const svg=document.getElementById('kg'), tip=document.getElementById('tip');
+  const TYPE={
+    store:{c:'#22D3EE',r:8,label:'매장'}, hub:{c:'#22D3EE',r:11,label:'전 매장 (범위)'},
+    hq:{c:'#8492AE',r:6,label:'지역본부·SV'}, sv:{c:'#8492AE',r:6,label:'슈퍼바이저'}, owner:{c:'#56627E',r:4.5,label:'점주'},
+    event:{c:'#F472B6',r:5.5,label:'사건'}, sm:{c:'#F1F5F9',r:6,label:'월간실적'},
+    pf:{c:'#FB923C',r:7.5,label:'플랫폼'}, fee:{c:'#FBBF24',r:7.5,label:'요금항목'},
+    cat:{c:'#2DD4BF',r:8,label:'상품카테고리'}, menu:{c:'#4ADE80',r:4.5,label:'메뉴'}, sup:{c:'#A78BFA',r:7.5,label:'공급사'}
+  };
+  const N={}; GRAPH.nodes.forEach(n=>N[n.id]=n);
+  const by=t=>GRAPH.nodes.filter(n=>n.type===t);
+
+  // 배치: 조직 → 매장 → 사건(시간순, 위가 과거) → 플랫폼·공급사 → 메뉴 → 카테고리
+  const stores=by('store');
+  stores.forEach((n,i)=>{n.x=270;n.y=95+i*72;});
+  const owners=by('owner');
+  owners.forEach(n=>{const sid=n.id.split(':')[1],s=N[sid],two=owners.filter(o=>o.id.split(':')[1]===sid).length>1;n.x=160;n.y=s.y+(two?(n.id.split(':').length>2?13:-13):0);});
+  const left=[...by('hq'),...by('sv')].map(n=>{const ys=GRAPH.edges.filter(e=>e.t===n.id).map(e=>N[e.s].y);n.x=46;n.y=ys.reduce((a,b)=>a+b,0)/ys.length;return n;}).sort((a,b)=>a.y-b.y);
+  left.forEach((n,i)=>{if(i&&n.y<left[i-1].y+48)n.y=left[i-1].y+48;});
+  N.ALL.x=370;N.ALL.y=410;
+  const t0=Date.parse('2020-01-01'),t1=Date.parse('2026-09-01'),lanes=[480,555,630],last=[-99,-99,-99];
+  by('event').sort((a,b)=>a.date<b.date?-1:1).forEach(n=>{
+    let y=40+(Date.parse(n.date)-t0)/(t1-t0)*720,k=last.findIndex(v=>v<=y-24);
+    if(k<0){k=last.indexOf(Math.min(...last));y=last[k]+24;}
+    n.x=lanes[k];n.y=y;last[k]=y;
+  });
+  const sms=by('sm');
+  sms.forEach(n=>{const ev=GRAPH.edges.find(e=>e.t===n.id&&N[e.s].type==='event');n.x=390;n.y=N[ev.s].y;});
+  sms.sort((a,b)=>a.y-b.y).forEach((n,i)=>{if(i&&n.y<sms[i-1].y+22)n.y=sms[i-1].y+22;});
+  const lift=Math.max(0,sms[sms.length-1].y-770);sms.forEach(n=>n.y-=lift);
+  by('pf').forEach((n,i)=>{n.x=720;n.y=60+i*48;});
+  by('fee').forEach(n=>{n.x=720;n.y=265;});
+  by('sup').forEach((n,i)=>{n.x=720;n.y=350+i*72;});
+  const CATS=['피자','사이드메뉴','세트메뉴','음료','기타(굿즈/쿠폰)'];
+  const menus=by('menu').sort((a,b)=>CATS.indexOf(a.cat)-CATS.indexOf(b.cat)||(a.id<b.id?-1:1));
+  menus.forEach((n,i)=>{n.x=850;n.y=42+i*34;});
+  by('cat').forEach(n=>{const ys=menus.filter(m=>m.cat===n.label).map(m=>m.y);n.x=1010;n.y=ys.reduce((a,b)=>a+b,0)/ys.length;});
+
+  const el=(tag,attrs,parent)=>{const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);(parent||svg).appendChild(e);return e;};
+  const gE=el('g',{}),gN=el('g',{}),gL=el('g',{});
+  GRAPH.edges.forEach(e=>{
+    const a=N[e.s],b=N[e.t];let d;
+    if(Math.abs(a.x-b.x)<5){const bend=a.type==='event'?-46:46;d=`M${a.x},${a.y} C${a.x+bend},${a.y} ${b.x+bend},${b.y} ${b.x},${b.y}`;}
+    else{const m=(a.x+b.x)/2;d=`M${a.x},${a.y} C${m},${a.y} ${m},${b.y} ${b.x},${b.y}`;}
+    e.el=el('path',{d,class:'e '+(e.kind!=='direct'?e.kind:'')},gE);
+  });
+  const BIG=new Set(['store','hub','pf','sup','cat','fee','hq','sv']);
+  GRAPH.nodes.forEach(n=>{
+    const T=TYPE[n.type],g=el('g',{class:'n '+n.type+(BIG.has(n.type)?' big':''),transform:`translate(${n.x},${n.y})`},gN);
+    g.style.color=T.c;
+    const hollow=n.type==='event'&&n.conf!=='확인',ring=hollow||n.type==='hub';
+    el('circle',{r:T.r,fill:ring?'#0E1630':T.c,stroke:T.c,'stroke-width':ring?1.6:0,'stroke-dasharray':hollow?'2 2':'none'},g);
+    let a={x:T.r+4,y:3.5};
+    if(n.type==='hq'||n.type==='sv')a={x:0,y:-T.r-5,'text-anchor':'middle'};
+    if(n.type==='hub')a={x:0,y:T.r+13,'text-anchor':'middle'};
+    el('text',a,g).textContent=n.type==='event'?n.id:n.label;
+    n.el=g;
+  });
+
+  const adj={};GRAPH.edges.forEach(e=>{(adj[e.s]=adj[e.s]||[]).push(e);(adj[e.t]=adj[e.t]||[]).push(e);});
+  function clear(){svg.classList.remove('dim');svg.querySelectorAll('.on').forEach(x=>x.classList.remove('on'));gL.innerHTML='';}
+  function light(ids,edges,labels){
+    clear();svg.classList.add('dim');
+    ids.forEach(id=>N[id]&&N[id].el.classList.add('on'));
+    const placed=[];
+    edges.forEach(e=>{e.el.classList.add('on');
+      if(!labels)return;
+      const p=e.el.getPointAtLength(e.el.getTotalLength()/2);
+      // 같은 관계 라벨이 가까이 겹치면 하나만 남김
+      if(placed.some(q=>Math.hypot(q.x-p.x,q.y-p.y)<(q.rel===e.rel?90:22)))return;
+      placed.push({x:p.x,y:p.y,rel:e.rel});
+      el('text',{x:p.x,y:p.y-4,'text-anchor':'middle',class:'rl'},gL).textContent=e.rel;
+    });
+  }
+
+  const Q={
+    q1:['EV-024','PF-01','ALL','ST-005','ST-006','ST-007','SM:ST-005:2024-11','SM:ST-005:2024-12','SM:ST-006:2024-11','SM:ST-007:2024-12'],
+    q2:['EV-026','SUP-02','MN-101','MN-102','MN-103','MN-104','MN-106','MN-107','MN-201','MN-301','MN-302','MN-303','CAT:피자','CAT:사이드메뉴','CAT:세트메뉴','ALL'].concat(stores.map(s=>s.id)),
+    q3:['EV-032','EV-033','EV-034','EV-016','EV-013','MN-107','SUP-04','ST-002','ST-001','SM:ST-002:2026-03','SM:ST-002:2026-04']
+  };
+  let mode='all';
+  function applyMode(){
+    if(mode==='all'){clear();return;}
+    const s=new Set(Q[mode]);
+    // 범위 노드에서 매장으로 가는 9개 선은 Q2에서만 켬 (라벨 생략)
+    light(Q[mode],GRAPH.edges.filter(e=>s.has(e.s)&&s.has(e.t)&&e.s!=='ALL'),true);
+    if(mode==='q2')GRAPH.edges.filter(e=>e.s==='ALL').forEach(e=>e.el.classList.add('on'));
+  }
+  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+    mode=b.dataset.q;
+    document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));
+    document.querySelectorAll('.ans').forEach(a=>a.hidden=a.dataset.q!==mode);
+    applyMode();
+  }));
+
+  const wrap=svg.parentElement;
+  GRAPH.nodes.forEach(n=>{
+    n.el.addEventListener('mouseenter',()=>{
+      tip.innerHTML=`<b>${n.label}</b><span>${n.sub||TYPE[n.type].label}</span>`;tip.style.opacity=1;
+      if(mode==='all'){const es=adj[n.id]||[];light([n.id,...es.flatMap(e=>[e.s,e.t])],es,false);}
+    });
+    n.el.addEventListener('mousemove',ev=>{const r=wrap.getBoundingClientRect();let x=ev.clientX-r.left+wrap.scrollLeft+14;if(x+280>wrap.scrollLeft+r.width)x-=300;tip.style.left=x+'px';tip.style.top=(ev.clientY-r.top+12)+'px';});
+    n.el.addEventListener('mouseleave',()=>{tip.style.opacity=0;if(mode==='all')clear();});
+  });
+
+  document.getElementById('kgLegend').innerHTML=['store','event','sm','pf','fee','sup','menu','cat','hq','owner']
+    .map(t=>`<span><i class="dot" style="background:${TYPE[t].c}"></i>${TYPE[t].label}</span>`).join('')
+    +'<span><i class="dot ring"></i>전 매장 (범위)</span><span><i class="dot hollow"></i>추정·미확인 사건</span>';
+
+  document.getElementById('dlJson').addEventListener('click',()=>{
+    const data={ontology:JSON.parse(document.getElementById('ontology-json').textContent),
+      graph:{nodes:GRAPH.nodes.map(({el,x,y,...n})=>n),edges:GRAPH.edges.map(({el,...e})=>e)}};
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+    a.download='pizza-ontology-graph.json';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  });
+})();
+</script>
+</body>
+</html>

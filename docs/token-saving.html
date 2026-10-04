@@ -519,6 +519,283 @@
             .hero-video { display: none; }
         }
     </style>
+    <!-- TOKEN-SLIDES -->
+    <style>
+        /* ═════ TOKEN-SLIDES: 토큰 아껴 쓰는 법 콜라주 슬라이드. 960×540 좌표계, 틀 폭에 맞춰 scale. 구조는 harness-engineering HARNESS-SLIDES와 같다 ═════ */
+        .tx-wrap { margin: 0 0 48px; }
+        .tx-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .tx-title { margin: 0; font-size: 18px; font-weight: 800; color: #2E2A26; letter-spacing: -0.2px; }
+        .tx-play {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer;
+            background: #1A1917; color: #fff; font: inherit; font-size: 14px; font-weight: 700;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+        .tx-play svg { width: 17px; height: 17px; }
+        .tx-play:hover { background: var(--ant-orange); transform: translateY(-1px); }
+        .tx-frame {
+            position: relative; aspect-ratio: 16 / 9; overflow: hidden; cursor: zoom-in;
+            border-radius: 14px; background: #E4D6BB;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 10px 32px rgba(0,0,0,0.10);
+        }
+        .tx-frame:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 3px; }
+        .tx-frame::after {
+            content: ''; position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(26,25,23,0.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E") center / 15px no-repeat;
+            opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+        }
+        .tx-frame:hover::after, .tx-frame:focus-visible::after { opacity: 1; }
+        .tx-frame > .tx-slide { display: none; }
+        .tx-frame > .tx-slide.on { display: block; }
+        .tx-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+        .tx-nav button {
+            display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+            border: 1px solid #D8D2C8; border-radius: 50%; background: #fff; color: #3A3530; cursor: pointer;
+            transition: border-color 0.18s ease, color 0.18s ease;
+        }
+        .tx-nav button:hover:not(:disabled) { border-color: var(--ant-orange); color: var(--ant-orange); }
+        .tx-nav button:disabled { opacity: 0.35; cursor: default; }
+        .tx-nav button svg { width: 18px; height: 18px; }
+        .tx-count { min-width: 56px; text-align: center; font-size: 14px; font-weight: 700; color: #6B645C; font-variant-numeric: tabular-nums; }
+
+        /* 슬라이드 공통 */
+        .tx-slide {
+            position: absolute; left: 0; top: 0; width: 960px; height: 540px; overflow: hidden;
+            transform-origin: 0 0; color: #1A1917; line-height: 1.3; text-align: left;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            word-break: keep-all; -webkit-font-smoothing: antialiased; letter-spacing: -0.2px;
+            background-color: #E4D6BB;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .26 0 0 0 0 .13 0 0 0 .20 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+                radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.35), transparent 60%);
+        }
+        .tx-slide.tx-night { background-color: #2A2622; color: #F4EEE3; }
+        .tx-slide * { box-sizing: border-box; }
+        .tx-slide .ab { position: absolute; }
+        .tx-slide svg { display: block; }
+
+        /* 종잇조각: 바깥은 그림자, 안쪽은 찢긴 모양 */
+        .tx-scrap { filter: drop-shadow(0 5px 9px rgba(60,40,20,0.22)) drop-shadow(0 1px 1px rgba(60,40,20,0.15)); }
+        .tx-in { position: relative; width: 100%; height: 100%; background: #FBF7EE; }
+        .tx-torn-b { clip-path: polygon(0.0% 0.0%, 100.0% 0.0%, 100.0% 97.5%, 96.4% 97.2%, 92.9% 96.5%, 89.3% 96.6%, 85.7% 97.2%, 82.1% 99.4%, 78.6% 96.2%, 75.0% 99.9%, 71.4% 97.6%, 67.9% 98.3%, 64.3% 99.8%, 60.7% 98.5%, 57.1% 96.9%, 53.6% 96.5%, 50.0% 99.3%, 46.4% 97.7%, 42.9% 96.4%, 39.3% 96.3%, 35.7% 97.7%, 32.1% 96.1%, 28.6% 98.0%, 25.0% 96.2%, 21.4% 97.5%, 17.9% 98.1%, 14.3% 96.3%, 10.7% 98.6%, 7.1% 96.6%, 3.6% 97.3%, 0.0% 98.5%); }
+        .tx-torn-tb { clip-path: polygon(0.0% 1.6%, 3.6% 2.6%, 7.1% 0.6%, 10.7% 1.9%, 14.3% 2.0%, 17.9% 1.2%, 21.4% 1.8%, 25.0% 0.2%, 28.6% 0.2%, 32.1% 0.7%, 35.7% 2.2%, 39.3% 1.4%, 42.9% 1.0%, 46.4% 1.9%, 50.0% 1.5%, 53.6% 1.0%, 57.1% 2.5%, 60.7% 2.2%, 64.3% 0.8%, 67.9% 1.8%, 71.4% 1.7%, 75.0% 2.8%, 78.6% 2.3%, 82.1% 0.9%, 85.7% 3.1%, 89.3% 0.4%, 92.9% 1.3%, 96.4% 2.4%, 100.0% 1.6%, 100.0% 98.4%, 96.4% 97.3%, 92.9% 98.3%, 89.3% 96.9%, 85.7% 98.9%, 82.1% 98.0%, 78.6% 97.7%, 75.0% 99.4%, 71.4% 100.0%, 67.9% 98.9%, 64.3% 99.0%, 60.7% 97.0%, 57.1% 98.9%, 53.6% 98.3%, 50.0% 99.8%, 46.4% 99.5%, 42.9% 98.3%, 39.3% 98.7%, 35.7% 98.7%, 32.1% 99.0%, 28.6% 97.8%, 25.0% 99.6%, 21.4% 98.6%, 17.9% 99.2%, 14.3% 98.9%, 10.7% 96.9%, 7.1% 98.4%, 3.6% 97.3%, 0.0% 98.4%); }
+        .tx-grid { background-color: #FBF7EE; background-image: linear-gradient(rgba(120,150,190,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(120,150,190,0.22) 1px, transparent 1px); background-size: 22px 22px; }
+        .tx-lined { background-color: #FBF7EE; background-image: linear-gradient(transparent 31px, rgba(120,150,190,0.3) 31px, rgba(120,150,190,0.3) 32px); background-size: 100% 32px; }
+        .tx-yellow { background: #F5D56A; }
+        .tx-ink { background: #1A1917; color: #F4EEE3; }
+        .tx-card { background: #C9A876; background-image: linear-gradient(180deg, rgba(255,255,255,0.12), transparent 40%); }
+
+        /* 마스킹 테이프 */
+        .tx-tape {
+            position: absolute; width: 92px; height: 26px; z-index: 3;
+            background: rgba(246,236,205,0.78); box-shadow: 0 1px 2px rgba(60,40,20,0.12);
+            clip-path: polygon(3.0% 0.0%, 97.0% 0.0%, 100.0% 18.0%, 96.0% 36.0%, 100.0% 55.0%, 95.0% 74.0%, 100.0% 100.0%, 3.0% 100.0%, 0.0% 80.0%, 4.0% 60.0%, 0.0% 42.0%, 5.0% 22.0%);
+        }
+        .tx-tape.or { background: repeating-linear-gradient(-45deg, rgba(217,119,87,0.85) 0 7px, rgba(250,230,215,0.85) 7px 14px); }
+        .tx-tape.lab {
+            width: auto; height: auto; padding: 7px 16px; font-size: 16px; font-weight: 800; color: #1A1917; white-space: nowrap;
+            background: rgba(245,213,106,0.92);
+        }
+        .tx-tape.lab small { font-size: 12px; font-weight: 700; opacity: 0.6; margin-left: 6px; }
+
+        /* 오려 붙인 글자 */
+        .tx-cut { display: flex; gap: 4px; align-items: flex-end; }
+        .tx-cut span {
+            display: inline-block; padding: 2px 10px 6px; font-weight: 900; line-height: 1; letter-spacing: -1px;
+            box-shadow: 0 3px 6px rgba(60,40,20,0.2);
+        }
+        .tx-cut span:nth-child(5n+1) { background: #1A1917; color: #F4EEE3; transform: rotate(-3deg); }
+        .tx-cut span:nth-child(5n+2) { background: #D97757; color: #fff; transform: rotate(2deg) translateY(-4px); }
+        .tx-cut span:nth-child(5n+3) { background: #FBF7EE; color: #1A1917; transform: rotate(-1.5deg) translateY(3px); font-weight: 700; }
+        .tx-cut span:nth-child(5n+4) { background: #F5D56A; color: #1A1917; transform: rotate(3deg); }
+        .tx-cut span:nth-child(5n+5) { background: #8FA98B; color: #fff; transform: rotate(-2deg) translateY(-2px); }
+
+        .tx-strip { padding: 10px 18px; font-weight: 800; box-shadow: 0 4px 8px rgba(60,40,20,0.22); }
+        .tx-halftone { border-radius: 50%; background-image: radial-gradient(#D97757 2px, transparent 2.3px); background-size: 11px 11px; opacity: 0.75; }
+        .tx-sticker {
+            display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 50%;
+            font-weight: 900; line-height: 1.15; box-shadow: 0 4px 10px rgba(60,40,20,0.25); flex-direction: column;
+        }
+        .tx-stamp {
+            padding: 8px 16px; border: 3px solid #C0392B; border-radius: 6px; color: #C0392B;
+            font-size: 22px; font-weight: 900; letter-spacing: 1px; opacity: 0.82;
+            box-shadow: inset 0 0 0 2px rgba(192,57,43,0.25);
+        }
+        .tx-num { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: rgba(26,25,23,0.55); }
+        .tx-night .tx-num { color: rgba(244,238,227,0.5); }
+        .tx-chip { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 800; }
+
+        /* ═════ 전체 화면 ═════ */
+        .tx-show { position: fixed; inset: 0; z-index: 2147483000; background: #0b0d0c; overflow: hidden; touch-action: pan-y; }
+        .tx-show[hidden] { display: none; }
+        .tx-show-stage { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; }
+        .tx-show-btn {
+            position: absolute; z-index: 2; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: #fff; transition: background 0.18s ease, opacity 0.3s ease;
+        }
+        .tx-show-btn:hover { background: rgba(255,255,255,0.24); }
+        .tx-show-btn:disabled { opacity: 0.25 !important; cursor: default; }
+        .tx-show-btn svg { width: 22px; height: 22px; }
+        .tx-show-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+        .tx-show-next { right: 20px; top: 50%; transform: translateY(-50%); }
+        .tx-show-close { right: 20px; top: 20px; width: 44px; height: 44px; }
+        .tx-show-num {
+            position: absolute; z-index: 2; left: 50%; bottom: 18px; transform: translateX(-50%);
+            padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease;
+        }
+        .tx-show.idle .tx-show-btn, .tx-show.idle .tx-show-num { opacity: 0; }
+        .tx-show.idle { cursor: none; }
+        @media (max-width: 768px) {
+            .tx-frame { border-radius: 10px; }
+            .tx-toolbar { flex-direction: column; align-items: flex-start; }
+            .tx-show-btn { width: 40px; height: 40px; }
+            .tx-show-prev { left: 10px; top: auto; bottom: 12px; transform: none; }
+            .tx-show-next { right: 10px; top: auto; bottom: 12px; transform: none; }
+            .tx-show-close { right: 10px; top: 10px; }
+        }
+
+        .tx-torn-r { clip-path: polygon(0.0% 0.0%, 96.5% 0.0%, 96.2% 4.5%, 99.1% 9.1%, 96.5% 13.6%, 97.0% 18.2%, 97.6% 22.7%, 99.5% 27.3%, 96.3% 31.8%, 97.8% 36.4%, 98.2% 40.9%, 99.5% 45.5%, 99.3% 50.0%, 99.5% 54.5%, 97.1% 59.1%, 97.7% 63.6%, 97.4% 68.2%, 99.5% 72.7%, 99.8% 77.3%, 96.6% 81.8%, 96.7% 86.4%, 96.9% 90.9%, 96.9% 95.5%, 97.9% 100.0%, 0.0% 100.0%); }
+        .tx-tag {
+            display: inline-block; padding: 6px 14px 8px; border-radius: 6px; color: #fff;
+            font-weight: 900; line-height: 1; letter-spacing: -0.4px; white-space: nowrap;
+            box-shadow: 0 4px 9px rgba(60,40,20,0.24);
+        }
+        .tx-md {
+            display: inline-block; padding: 5px 10px; border-radius: 4px; background: #fff; color: #1A1917;
+            font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 14px; font-weight: 700; letter-spacing: 0; white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(60,40,20,0.2);
+        }
+        .tx-md.y { background: #F5D56A; }
+
+        /* 컨설팅 덱 조각: 장마다 왼쪽 위 액션 타이틀, 오른쪽 위 진행 표시, 아래 연결 띠 */
+        .tx-track { display: flex; gap: 4px; }
+        .tx-track span {
+            padding: 4px 9px; border-radius: 3px; font-size: 11.5px; font-weight: 800; letter-spacing: 0;
+            background: rgba(26,25,23,0.08); color: rgba(26,25,23,0.42);
+        }
+        .tx-track span.on { background: #1A1917; color: #F5D56A; }
+        .tx-night .tx-track span { background: rgba(244,238,227,0.1); color: rgba(244,238,227,0.45); }
+        .tx-night .tx-track span.on { background: #F5D56A; color: #1A1917; }
+        .tx-narr {
+            position: absolute; left: 50px; right: 50px; bottom: 28px; z-index: 4;
+            padding: 11px 20px; background: #1A1917; color: #F4EEE3;
+            font-size: 17px; font-weight: 700; line-height: 1.45; letter-spacing: -0.3px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25); transform: rotate(-0.5deg);
+        }
+        .tx-narr b { color: #F5D56A; font-weight: 800; }
+        .tx-night .tx-narr { background: #F4EEE3; color: #1A1917; }
+        .tx-night .tx-narr b { color: #C0392B; }
+        .tx-big { font-family: Georgia, 'Times New Roman', serif; font-weight: 700; line-height: 1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+        .tx-cmd {
+            display: inline-block; padding: 4px 10px; border-radius: 4px; background: #1A1917; color: #F5D56A;
+            font-family: 'SF Mono', Menlo, Consolas, monospace; font-weight: 700; letter-spacing: 0; white-space: nowrap;
+        }
+        .tx-lbl { font-size: 12.5px; font-weight: 800; color: #8A8178; letter-spacing: 0.2px; }
+        /* 03 소진 기간 */
+        .tx-burn { display: flex; align-items: center; height: 50px; }
+        .tx-burn-l { flex: 0 0 150px; font-size: 17px; font-weight: 900; letter-spacing: -0.4px; line-height: 1.2; }
+        .tx-burn-l small { display: block; font-size: 12px; font-weight: 700; color: #8A8178; letter-spacing: 0; }
+        .tx-burn-t { position: relative; flex: 0 0 560px; height: 24px; background: repeating-linear-gradient(-45deg, rgba(26,25,23,0.07) 0 6px, transparent 6px 12px); border: 1px dashed rgba(26,25,23,0.3); }
+        .tx-burn-t i { position: absolute; left: -1px; top: -1px; bottom: -1px; background: #D97757; }
+        .tx-burn-v { flex: 1; text-align: right; font-family: Georgia, 'Times New Roman', serif; font-size: 24px; font-weight: 700; color: #C0392B; }
+        .tx-resp { padding: 13px 16px; font-size: 14.5px; font-weight: 800; line-height: 1.45; color: #3A3530; }
+        .tx-resp b { display: block; margin-bottom: 4px; font-size: 12px; color: #8A8178; }
+
+        /* 04 답 */
+        .tx-ans { padding: 22px 24px 0; }
+        .tx-ans-h { display: flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 900; letter-spacing: -0.6px; }
+        .tx-ans-h b { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; color: #fff; font-size: 16px; }
+        .tx-ans-why { margin-top: 12px; font-size: 14.5px; font-weight: 700; line-height: 1.55; color: #5A534B; }
+        .tx-ans-so { margin-top: 12px; font-size: 17px; font-weight: 900; letter-spacing: -0.4px; line-height: 1.4; }
+        .tx-ans-so span { background: #F5D56A; padding: 0 4px; }
+        .tx-ans-how { position: absolute; left: 24px; right: 24px; bottom: 20px; display: flex; flex-wrap: wrap; gap: 6px; padding-top: 12px; border-top: 1px dashed rgba(26,25,23,0.25); }
+        .tx-ans-how .tx-cmd, .tx-ans-how .tx-md { font-size: 13px; }
+
+        /* 05 요청 막대와 배수 */
+        .tx-req-k { font-size: 14px; font-weight: 900; }
+        .tx-req-k span { margin-left: 6px; font-size: 12px; font-weight: 700; color: #8A8178; }
+        .tx-req { display: flex; gap: 3px; margin-top: 8px; }
+        .tx-req span { display: flex; align-items: center; justify-content: center; height: 40px; font-size: 12.5px; font-weight: 800; letter-spacing: -0.3px; white-space: nowrap; }
+        .tx-req .hit { background: #CDEBDD; color: #0B6B4C; border: 2px solid #10B981; }
+        .tx-req .new { background: #F6DCD3; color: #9A3B20; border: 2px solid #D97757; }
+        .tx-req .chg { background: repeating-linear-gradient(-45deg, #D97757 0 6px, #F6DCD3 6px 12px); }
+        .tx-req .chg em { padding: 2px 8px; border-radius: 3px; background: #fff; color: #9A3B20; font-style: normal; }
+        .tx-req-m { display: flex; margin-top: 6px; font-size: 12.5px; font-weight: 800; }
+        .tx-mul { display: flex; align-items: center; gap: 8px; height: 34px; font-size: 13.5px; font-weight: 800; }
+        .tx-mul span { flex: 0 0 104px; }
+        .tx-mul i { display: block; height: 14px; border-radius: 2px; }
+        .tx-mul b { font-family: Georgia, 'Times New Roman', serif; font-size: 17px; }
+
+        /* 06 플랜 */
+        .tx-plan { padding: 20px 24px 0; }
+        .tx-plan-t { margin-top: 14px; font-size: 21px; font-weight: 900; letter-spacing: -0.5px; line-height: 1.35; }
+        .tx-plan-t span { background: #F5D56A; padding: 0 4px; }
+        .tx-plan-d { margin-top: 8px; font-size: 14px; font-weight: 700; line-height: 1.5; color: #6B645C; }
+        .tx-plan-r { margin-top: 10px; padding-top: 9px; border-top: 1px dashed rgba(26,25,23,0.22); font-size: 14.5px; font-weight: 800; line-height: 1.45; color: #3A3530; }
+        .tx-plan-r b { display: block; font-size: 12px; color: #8A8178; margin-bottom: 2px; }
+
+        /* 07 /usage 화면 */
+        .tx-term { padding: 20px 22px 0; background: #1F1D1A; color: #E8E1D4; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; font-weight: 600; letter-spacing: 0; }
+        .tx-term-r { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+        .tx-term-r span { flex: 0 0 120px; font-family: 'Pretendard', sans-serif; font-weight: 700; }
+        .tx-term-r i { flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.12); overflow: hidden; }
+        .tx-term-r em { display: block; height: 100%; background: #7AA2F7; }
+        .tx-term-r b { flex: 0 0 34px; text-align: right; }
+        .tx-term-s { margin-top: 18px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.14); font-family: 'Pretendard', sans-serif; font-weight: 800; color: #A39B8E; }
+        .tx-term-kv { display: flex; justify-content: space-between; margin-top: 7px; }
+        .tx-term-kv span { font-family: 'Pretendard', sans-serif; font-weight: 700; color: #A39B8E; }
+        .tx-term-kv.hi { margin: 10px -10px 0; padding: 6px 10px; border-radius: 4px; background: rgba(16,185,129,0.22); color: #6EE7B7; font-size: 16px; font-weight: 800; }
+        .tx-term-kv.hi span { color: #6EE7B7; font-weight: 800; }
+        .tx-mini { padding: 14px 16px 0; }
+        .tx-mini .tx-cmd { font-size: 13px; }
+        .tx-mini-t { margin-top: 8px; font-size: 16px; font-weight: 900; letter-spacing: -0.3px; }
+        .tx-mini-d { margin-top: 4px; font-size: 12.5px; font-weight: 700; line-height: 1.45; color: #6B645C; }
+
+        /* 08 명령 카드 */
+        .tx-cmdc { padding: 20px 20px 0; }
+        .tx-cmdc-c { margin-top: 10px; font-size: 16px; font-weight: 900; letter-spacing: -0.3px; }
+        .tx-cmdc-k { margin-top: 11px; font-size: 12px; font-weight: 800; color: #8A8178; }
+        .tx-cmdc-d { margin-top: 3px; font-size: 15px; font-weight: 800; line-height: 1.45; color: #3A3530; }
+
+        /* 09 단가 막대 */
+        .tx-price { display: flex; align-items: center; margin-top: 16px; padding: 8px 10px; margin-left: -10px; margin-right: -10px; }
+        .tx-price.on { background: rgba(245,213,106,0.6); }
+        .tx-price-l { flex: 0 0 150px; font-size: 19px; font-weight: 900; letter-spacing: -0.4px; line-height: 1.2; }
+        .tx-price-l small { display: block; margin-top: 3px; font-size: 12px; font-weight: 700; color: #6B645C; letter-spacing: 0; }
+        .tx-price-b { flex: 1; font-size: 0; line-height: 0; }
+        .tx-price-b i { display: inline-block; height: 16px; vertical-align: middle; border-radius: 2px; }
+        .tx-price-b em { display: inline-block; margin-left: 8px; vertical-align: middle; font-style: normal; font-size: 14px; line-height: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+        /* 10 리셋·유지 */
+        .tx-rl { padding: 0 0 0; }
+        .tx-rl-h { padding: 11px 20px; color: #fff; font-size: 18px; font-weight: 900; letter-spacing: -0.3px; }
+        .tx-rl ul { margin: 0; padding: 12px 20px 0 38px; }
+        .tx-rl li { margin-top: 12px; font-size: 17px; font-weight: 800; line-height: 1.4; color: #3A3530; }
+        .tx-rl li span { margin-left: 4px; font-size: 12.5px; font-weight: 700; color: #8A8178; }
+
+        /* 11 캐시 수명 */
+        .tx-life { display: flex; align-items: center; height: 48px; }
+        .tx-life-l { flex: 0 0 170px; font-size: 15px; font-weight: 900; letter-spacing: -0.3px; line-height: 1.2; }
+        .tx-life-l small { display: block; font-size: 11.5px; font-weight: 700; color: #8A8178; letter-spacing: 0; }
+        .tx-life-t { flex: 0 0 300px; height: 20px; border-left: 2px solid #1A1917; border-bottom: 1px dashed rgba(26,25,23,0.3); }
+        .tx-life-t i { display: block; height: 100%; border-radius: 0 3px 3px 0; }
+        .tx-bg { margin-top: 9px; padding: 7px 12px; border-left: 4px solid #D97757; background: #F4EEE3; font-size: 15px; font-weight: 800; }
+
+        /* 12 정리 */
+        .tx-chk { padding: 26px 26px 0; }
+        .tx-chk-r { display: flex; align-items: center; gap: 10px; height: 48px; font-size: 15px; font-weight: 800; color: #3A3530; white-space: nowrap; }
+        .tx-chk-r i { flex: none; width: 20px; height: 20px; border: 2.5px solid #1A1917; border-radius: 3px; background: #fff; }
+        .tx-chk-r b { flex: 0 0 66px; font-size: 13px; font-weight: 900; color: #D97757; }
+        .tx-chk-r .tx-cmd { font-size: 12.5px; padding: 2px 7px; }
+        .tx-dec { padding: 20px 22px 0; }
+        .tx-dec-pre { margin-top: 10px; padding: 7px 10px; border-radius: 4px; background: rgba(26,25,23,0.88); color: #F5D56A; font-size: 13.5px; font-weight: 800; }
+        .tx-dec-r { display: flex; gap: 12px; margin-top: 14px; font-size: 17px; font-weight: 900; letter-spacing: -0.4px; line-height: 1.3; }
+        .tx-dec-r b { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #1A1917; color: #F5D56A; font-size: 16px; }
+        .tx-dec-r span { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.4; font-weight: 700; color: #4A433B; letter-spacing: 0; }
+    </style>
+    <!-- /TOKEN-SLIDES -->
     <!-- ANALYTICS-STD -->
     <script defer src="assets/js/analytics.js"></script>
     <!-- /ANALYTICS-STD -->
@@ -582,6 +859,426 @@
 </nav>
 
 <main class="container" id="main" tabindex="-1">
+
+    <!-- ── TOKEN-SLIDES: 토큰 아껴 쓰는 법 콜라주 슬라이드. 상황 → 문제 → 답 → 원리 → 측정 → 실행 → 정리. 문구와 숫자는 모두 이 페이지 본문을 따른다 ── -->
+    <div class="tx-wrap">
+        <div class="tx-toolbar">
+            <p class="tx-title">토큰 아껴 쓰는 법, 슬라이드 열두 장으로 먼저 보기</p>
+            <button type="button" class="tx-play" id="txPlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+                전체 화면으로 보기
+            </button>
+        </div>
+        <div class="tx-frame" id="txFrame" tabindex="0" role="button" aria-label="토큰 아껴 쓰는 법 슬라이드, 전체 화면으로 보기">
+
+            <!-- 01 표지 -->
+            <div class="tx-slide on">
+                <div class="ab tx-halftone" style="left:640px;top:-80px;width:420px;height:420px"></div>
+                <div class="ab tx-scrap" style="left:54px;top:62px;width:520px;height:400px;transform:rotate(-2deg)">
+                    <div class="tx-in tx-grid tx-torn-b"></div>
+                </div>
+                <span class="tx-tape" style="left:34px;top:54px;transform:rotate(-36deg)"></span>
+                <span class="tx-tape or" style="left:500px;top:56px;width:84px;transform:rotate(30deg)"></span>
+                <div class="ab" style="left:92px;top:100px;transform:rotate(-2deg);transform-origin:0 0">
+                    <span class="tx-chip tx-ink">비용 · 보안 · 법률</span>
+                    <div class="tx-cut" style="margin-top:24px;font-size:84px"><span>토</span><span>큰</span></div>
+                    <div class="tx-cut" style="margin-top:14px;font-size:54px"><span>아</span><span>껴</span><span style="margin-left:14px">쓰</span><span>는</span><span>법</span></div>
+                    <div style="margin-top:28px;font-size:20px;font-weight:800;line-height:1.55">한 줄 질문이 <span style="background:#F5D56A;padding:0 4px">비싸지는 이유</span>,<br>그리고 할 일 두 가지</div>
+                </div>
+                <div class="ab tx-scrap" style="left:614px;top:104px;width:290px;height:318px;transform:rotate(3deg)">
+                    <div class="tx-in tx-lined tx-torn-b" style="padding:34px 24px 0;font-size:16.5px;font-weight:800;line-height:32px;letter-spacing:-0.3px">
+                        <div style="display:flex;justify-content:space-between"><span>보낸 질문</span><span>한 줄</span></div>
+                        <div style="color:#8A8178">함께 실려 간 것</div>
+                        <div>· 시스템 프롬프트</div>
+                        <div>· CLAUDE.md</div>
+                        <div>· 오늘 오간 대화 <span style="background:#F5D56A;padding:0 3px">전체</span></div>
+                        <div style="display:flex;justify-content:space-between;color:#0E8A62"><span>지난번과 같은 앞부분</span><span>×0.1</span></div>
+                        <div style="display:flex;justify-content:space-between;color:#D97757"><span>새로 붙은 꼬리</span><span>×1.0</span></div>
+                    </div>
+                </div>
+                <span class="tx-tape lab" style="left:676px;top:88px;transform:rotate(-3deg)">요청 한 번의 영수증</span>
+                <div class="ab tx-sticker" style="left:800px;top:392px;width:124px;height:124px;background:#D97757;color:#fff;font-size:17px;transform:rotate(-10deg)">비용은<br>대화의 크기에<br>비례</div>
+                <div class="ab tx-num" style="left:40px;top:504px">01 / 12 · AI ROASTING</div>
+                <div class="ab" style="left:236px;top:498px;font-size:13px;font-weight:800;color:#5A534B"><span class="tx-chip" style="background:#1A1917;color:#F5D56A;font-size:12.5px">리더는 02~04 · 06 · 07 · 12장</span> <span class="tx-chip" style="background:#1A1917;color:#F4EEE3;font-size:12.5px">실무자는 05 · 07~11장</span></div>
+            </div>
+
+            <!-- 02 상황: 처리량 20배, 생산성 2배에 토큰 10배 -->
+            <div class="tx-slide">
+                <div class="ab tx-track" style="left:50px;top:22px"><span class="on">상황</span><span>문제</span><span>답</span><span>원리</span><span>측정</span><span>실행</span><span>정리</span></div>
+                <div class="ab tx-num" style="left:860px;top:26px">02 / 12</div>
+                <div class="ab" style="left:50px;top:56px;display:flex;align-items:center;gap:16px">
+                    <div class="tx-cut" style="font-size:46px"><span>상</span><span>황</span></div>
+                    <div class="tx-strip" style="background:#FBF7EE;font-size:22px;transform:rotate(1deg)">토큰 사용은 20배 늘었지만, 성과는 그만큼 늘지 않았습니다</div>
+                </div>
+                <div class="ab tx-scrap" style="left:50px;top:140px;width:520px;height:304px;transform:rotate(-1deg)">
+                    <div class="tx-in tx-grid" style="padding:18px 24px 0">
+                        <div class="tx-lbl">OpenRouter 주간 토큰 처리량</div>
+                        <div style="position:absolute;left:40px;right:40px;bottom:46px;height:208px;display:flex;align-items:flex-end;justify-content:space-around;border-bottom:2px solid #1A1917">
+                            <div style="width:96px;text-align:center"><div class="tx-big" style="font-size:24px">6.4<small style="font-size:15px">조</small></div><div style="height:8px;margin-top:6px;background:#8A8178"></div></div>
+                            <div style="width:96px;text-align:center"><div class="tx-big" style="font-size:24px">36.1<small style="font-size:15px">조</small></div><div style="height:46px;margin-top:6px;background:#C9A876"></div></div>
+                            <div style="width:96px;text-align:center"><div class="tx-big" style="font-size:30px;color:#D97757">126.8<small style="font-size:17px">조</small></div><div style="height:160px;margin-top:6px;background:#D97757"></div></div>
+                        </div>
+                        <div style="position:absolute;left:40px;right:40px;bottom:16px;display:flex;justify-content:space-around;font-size:14px;font-weight:800;color:#5A534B">
+                            <span style="width:96px;text-align:center">1월 첫 주</span><span style="width:96px;text-align:center">6월 첫 주</span><span style="width:96px;text-align:center">9월 첫 주</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ab tx-sticker" style="left:150px;top:196px;width:104px;height:104px;background:#1A1917;color:#F5D56A;font-size:15px;transform:rotate(-8deg)"><span>1월의<br><b style="font-size:26px">약 20배</b></span></div>
+                <span class="tx-tape" style="left:250px;top:128px;transform:rotate(-3deg)"></span>
+                <div class="ab tx-scrap" style="left:604px;top:148px;width:306px;height:292px;transform:rotate(1.5deg)">
+                    <div class="tx-in" style="padding:22px 24px 0">
+                        <div class="tx-lbl">젤리피시(Jellyfish) 조사</div>
+                        <div style="margin-top:8px;font-size:16px;font-weight:800;line-height:1.45;color:#3A3530">토큰을 가장 많이 쓴 엔지니어와<br>적게 쓴 엔지니어를 비교하면</div>
+                        <div style="margin-top:16px;font-size:13px;font-weight:800;color:#8A8178">생산성</div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-top:4px"><i style="display:block;width:32px;height:22px;background:#10B981"></i><b style="font-size:20px;font-weight:900">약 2배</b></div>
+                        <div style="margin-top:14px;font-size:13px;font-weight:800;color:#8A8178">그 2배를 얻는 데 쓴 토큰</div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-top:4px"><i style="display:block;width:160px;height:22px;background:#D97757"></i><b style="font-size:20px;font-weight:900">평균 10배</b></div>
+                        <div style="margin-top:18px;padding-top:10px;border-top:1px dashed rgba(26,25,23,0.25);font-size:15px;font-weight:800">더 쓰면 낫지만, 비례하지는 않습니다</div>
+                    </div>
+                </div>
+                <span class="tx-tape or" style="left:720px;top:136px;width:80px;transform:rotate(4deg)"></span>
+                <div class="tx-narr">쓰는 양이 늘자, <b>회사 예산</b>이 먼저 반응했습니다.</div>
+            </div>
+
+            <!-- 03 문제: 연간 예산이 계획보다 빨리 바닥남 -->
+            <div class="tx-slide">
+                <div class="ab tx-track" style="left:50px;top:22px"><span>상황</span><span class="on">문제</span><span>답</span><span>원리</span><span>측정</span><span>실행</span><span>정리</span></div>
+                <div class="ab tx-num" style="left:860px;top:26px">03 / 12</div>
+                <div class="ab" style="left:50px;top:56px;display:flex;align-items:center;gap:16px">
+                    <div class="tx-cut" style="font-size:46px"><span>문</span><span>제</span></div>
+                    <div class="tx-strip" style="background:#FBF7EE;font-size:22px;transform:rotate(1deg)">1년 치 예산이 몇 달 만에 바닥났습니다</div>
+                </div>
+                <div class="ab tx-scrap" style="left:50px;top:138px;width:860px;height:212px;transform:rotate(-0.6deg)">
+                    <div class="tx-in tx-grid" style="padding:16px 24px 0">
+                        <div style="display:flex;align-items:center;font-size:12px;font-weight:800;color:#8A8178"><span style="flex:0 0 150px">계획 12개월 기준</span><span style="flex:0 0 560px;display:flex;justify-content:space-between"><span>0</span><span>3개월</span><span>6개월</span><span>9개월</span><span>12개월</span></span></div>
+                        <div class="tx-burn"><div class="tx-burn-l">우버<small>연간 AI 예산</small></div><div class="tx-burn-t"><i style="width:187px"></i></div><div class="tx-burn-v">4개월</div></div>
+                        <div class="tx-burn"><div class="tx-burn-l">마이크로소프트<small>부문 연간 예산</small></div><div class="tx-burn-t"><i style="width:280px"></i></div><div class="tx-burn-v">6개월</div></div>
+                        <div class="tx-burn"><div class="tx-burn-l">서울대학교<small>1년 치 사용량</small></div><div class="tx-burn-t"><i style="width:47px"></i></div><div class="tx-burn-v">1개월</div></div>
+                    </div>
+                </div>
+                <div class="ab tx-scrap" style="left:50px;top:366px;width:272px;height:86px;transform:rotate(-1deg)"><div class="tx-in tx-resp"><b>우버의 대응</b>금지가 아니라<br>1인당 월 1,500달러 상한</div></div>
+                <div class="ab tx-scrap" style="left:344px;top:370px;width:272px;height:86px;transform:rotate(0.8deg)"><div class="tx-in tx-resp"><b>마이크로소프트의 대응</b>6월 30일까지 자사 도구로 전환,<br>7월부터 사업부마다 토큰 예산 목표</div></div>
+                <div class="ab tx-scrap" style="left:638px;top:366px;width:272px;height:86px;transform:rotate(-0.6deg)"><div class="tx-in tx-resp"><b>서울대의 대응</b>무제한으로 연 지 한 달 뒤<br>1인당 상한</div></div>
+                <span class="tx-tape" style="left:410px;top:126px;transform:rotate(-2deg)"></span>
+                <div class="ab tx-scrap" style="left:600px;top:52px;width:310px;height:64px;transform:rotate(1.6deg)"><div class="tx-in tx-yellow" style="padding:10px 16px;font-size:15px;font-weight:900;line-height:1.35;letter-spacing:-0.3px">“토큰맥싱은 우리가 최적화하려는<br>목표가 아닙니다.” <span style="font-size:12px;font-weight:800;opacity:0.6">마이크로소프트</span></div></div>
+                <div class="tx-narr">상한은 쓰는 양만 묶습니다. <b>같은 일에 드는 토큰</b>은 일하는 방식이 줄입니다.</div>
+            </div>
+
+            <!-- 04 답: 할 일은 둘 -->
+            <div class="tx-slide">
+                <div class="ab tx-track" style="left:50px;top:22px"><span>상황</span><span>문제</span><span class="on">답</span><span>원리</span><span>측정</span><span>실행</span><span>정리</span></div>
+                <div class="ab tx-num" style="left:860px;top:26px">04 / 12</div>
+                <div class="ab" style="left:50px;top:56px;display:flex;align-items:center;gap:16px">
+                    <div class="tx-cut" style="font-size:46px"><span>답</span></div>
+                    <div class="tx-strip" style="background:#FBF7EE;font-size:22px;transform:rotate(1deg)">일을 줄이지 않고 토큰을 줄이는 방법은 두 가지뿐입니다</div>
+                </div>
+                <div class="ab tx-scrap" style="left:180px;top:136px;width:600px;height:50px;transform:rotate(-0.5deg)">
+                    <div class="tx-in tx-ink" style="display:flex;align-items:center;gap:14px;padding:0 22px;font-size:18px;font-weight:800">
+                        <span class="tx-chip" style="background:#F5D56A;color:#1A1917">질문</span>같은 일을 더 적은 토큰으로 할 수 있을까?
+                    </div>
+                </div>
+                <svg class="ab" style="left:0;top:0" width="960" height="540" viewBox="0 0 960 540" fill="none" stroke="#8A6E4B" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="3 7"><path d="M400 188 L262 212"/><path d="M560 188 L700 212"/></svg>
+                <div class="ab tx-scrap" style="left:50px;top:212px;width:420px;height:240px;transform:rotate(-1.2deg)">
+                    <div class="tx-in tx-ans">
+                        <div class="tx-ans-h"><b style="background:#D97757">1</b>대화를 작게</div>
+                        <div class="tx-ans-why">AI는 요청 사이에 아무것도 기억하지 못합니다. 그래서 보낼 때마다 지금까지의 대화 전체를 다시 보냅니다.</div>
+                        <div class="tx-ans-so">비용은 질문의 길이가 아니라 <span>대화의 크기</span>에 비례합니다</div>
+                        <div class="tx-ans-how"><span class="tx-cmd">/clear</span><span class="tx-cmd">/compact</span><span class="tx-md">CLAUDE.md 200줄</span></div>
+                    </div>
+                </div>
+                <div class="ab tx-scrap" style="left:490px;top:216px;width:420px;height:240px;transform:rotate(1deg)">
+                    <div class="tx-in tx-ans">
+                        <div class="tx-ans-h"><b style="background:#10B981">2</b>캐시를 다시 쓰기</div>
+                        <div class="tx-ans-why">지난번과 똑같은 앞부분은 다시 계산하지 않습니다. 보관해 둔 결과(캐시)를 그대로 꺼내 씁니다.</div>
+                        <div class="tx-ans-so">꺼내 쓴 부분은 값이 <span>10분의 1</span>입니다</div>
+                        <div class="tx-ans-how"><span class="tx-cmd">/rewind</span><span class="tx-md">모델·깊이 고정</span><span class="tx-md">설정 그대로</span><span class="tx-md">자리 비움</span></div>
+                    </div>
+                </div>
+                <div class="ab tx-sticker" style="left:806px;top:112px;width:104px;height:104px;background:#F5D56A;color:#1A1917;font-size:15px;transform:rotate(-8deg)">둘 다<br>먼저<br><span class="tx-cmd" style="font-size:13px;margin-top:3px">/usage</span></div>
+                <div class="tx-narr">왜 이렇게 되는지, <b>요청 한 번</b>을 열어 봅니다.</div>
+            </div>
+
+            <!-- 05 원리: 앞부분과 배수 -->
+            <div class="tx-slide">
+                <div class="ab tx-track" style="left:50px;top:22px"><span>상황</span><span>문제</span><span>답</span><span class="on">원리</span><span>측정</span><span>실행</span><span>정리</span></div>
+                <div class="ab tx-num" style="left:860px;top:26px">05 / 12</div>
+                <div class="ab" style="left:50px;top:56px;display:flex;align-items:center;gap:16px">
+                    <div class="tx-cut" style="font-size:46px"><span>원</span><span>리</span></div>
+                    <div class="tx-strip" style="background:#FBF7EE;font-size:22px;transform:rotate(1deg)">앞부분이 같으면 10분의 1, 바뀌면 처음부터 다시 계산합니다</div>
+                </div>
+                <div class="ab tx-scrap" style="left:50px;top:138px;width:574px;height:316px;transform:rotate(-0.8deg)">
+                    <div class="tx-in tx-grid" style="padding:18px 22px 0">
+                        <div class="tx-req-k">A · 대화가 뒤에 늘어날 때</div>
+                        <div class="tx-req">
+                            <span class="hit" style="width:118px">시스템 프롬프트</span><span class="hit" style="width:132px">프로젝트 컨텍스트</span><span class="hit" style="width:150px">지난 대화</span><span class="new" style="width:110px">새 메시지</span>
+                        </div>
+                        <div class="tx-req-m"><span style="width:400px;color:#0E8A62">◀ 여기까지 지난번과 같음 · 캐시 읽기 ×0.1</span><span style="color:#D97757">×1.0</span></div>
+                        <div class="tx-req-k" style="margin-top:16px">B · 맨 앞이 바뀔 때 <span>Claude Code 업데이트, 도구 구성 변경</span></div>
+                        <div class="tx-req">
+                            <span class="new chg" style="width:118px"><em>바뀜</em></span><span class="new" style="width:132px">프로젝트 컨텍스트</span><span class="new" style="width:150px">지난 대화</span><span class="new" style="width:110px">새 메시지</span>
+                        </div>
+                        <div class="tx-req-m"><span style="color:#D97757">◀ 첫 칸부터 다름 · 전부 새로 계산하고 캐시에 다시 저장</span></div>
+                        <div style="margin-top:6px;font-size:12.5px;font-weight:700;color:#6B645C">모델과 깊이는 그림에 칸이 없지만 캐시를 따로 씁니다. 바꾸면 B처럼 처음부터 다시 계산합니다</div>
+                        <div style="margin-top:12px;padding-top:11px;border-top:1px dashed rgba(26,25,23,0.25);font-size:14.5px;font-weight:700;line-height:1.5;color:#3A3530">캐시는 앞에서부터 맞춰 보다가 <b>달라지는 지점에서 멈춥니다.</b><br>그래서 잘 바뀌지 않는 것을 앞에, 매번 바뀌는 것을 뒤에 둡니다.</div>
+                    </div>
+                </div>
+                <div class="ab tx-scrap" style="left:648px;top:144px;width:262px;height:308px;transform:rotate(1.4deg)">
+                    <div class="tx-in" style="padding:18px 20px 0">
+                        <div class="tx-lbl">단가 배수 · 기본 입력 = 1.0</div>
+                        <div class="tx-mul"><span>캐시 읽기</span><i style="width:4px;background:#10B981"></i><b style="color:#0E8A62">0.1</b></div>
+                        <div class="tx-mul"><span>기본 입력</span><i style="width:24px;background:#1A1917"></i><b>1.0</b></div>
+                        <div class="tx-mul"><span>캐시 저장 5분</span><i style="width:30px;background:#C9A876"></i><b>1.25</b></div>
+                        <div class="tx-mul"><span>캐시 저장 1시간</span><i style="width:48px;background:#C9A876"></i><b>2.0</b></div>
+                        <div class="tx-mul" style="margin-top:8px;padding-top:10px;border-top:2px dashed rgba(26,25,23,0.3)"><span>출력</span><i style="width:120px;background:#D97757"></i><b style="color:#D97757">5.0</b></div>
+                        <div style="margin-top:12px;font-size:13px;font-weight:700;line-height:1.5;color:#5A534B">저장할 때 드는 값은 한 번만 냅니다. <b style="color:#1A1917">두 번만 주고받아도 이득</b>입니다. 출력은 캐시가 줄여 주지 못합니다.</div>
+                    </div>
+                </div>
+                <span class="tx-tape or" style="left:740px;top:132px;width:80px;transform:rotate(5deg)"></span>
+                <div class="tx-narr">이 배수가 우리에게 어떻게 돌아오는지는 <b>플랜</b>에 달렸습니다.</div>
+            </div>
+
+            <!-- 06 청구: 한도인가 요금인가 -->
+            <div class="tx-slide">
+                <div class="ab tx-track" style="left:50px;top:22px"><span>상황</span><span>문제</span><span>답</span><span class="on">원리</span><span>측정</span><span>실행</span><span>정리</span></div>
+                <div class="ab tx-num" style="left:860px;top:26px">06 / 12</div>
+                <div class="ab" style="left:50px;top:56px;display:flex;align-items:center;gap:16px">
+                    <div class="tx-cut" style="font-size:46px"><span>청</span><span>구</span></div>
+                    <div class="tx-strip" style="background:#FBF7EE;font-size:21px;transform:rotate(1deg)">아낀 만큼 구독은 한도가 오래가고, Enterprise와 API는 요금이 줄어듭니다</div>
+                </div>
+                <div class="ab tx-scrap" style="left:50px;top:140px;width:420px;height:272px;transform:rotate(-1.2deg)">
+                    <div class="tx-in tx-plan">
+                        <span class="tx-tag" style="background:#3B82F6;font-size:18px">Pro · Max · Team</span>
+                        <div class="tx-plan-t">배수가 청구서가 아니라 <span>한도</span>에 적용됩니다</div>
+                        <div class="tx-plan-d">5시간 단위와 주 단위로 리셋되는 사용량 한도로 계산합니다.</div>
+                        <div class="tx-plan-r"><b>캐시를 잘 쓰면</b>같은 한도로 더 오래 일합니다</div>
+                        <div class="tx-plan-r"><b>한도를 다 쓰면</b>리셋까지 기다리거나 초과분(usage credits)을 사서 이어 갑니다</div>
+                    </div>
+                </div>
+                <div class="ab tx-scrap" style="left:490px;top:144px;width:420px;height:272px;transform:rotate(1deg)">
+                    <div class="tx-in tx-plan">
+                        <span class="tx-tag" style="background:#1A1917;font-size:18px">Enterprise · API 키 · 클라우드</span>
+                        <div class="tx-plan-t">쓴 만큼 <span>요금</span>으로 청구됩니다</div>
+                        <div class="tx-plan-d">Enterprise는 인당 구독 요금에 더해, 사용한 만큼을 API 단가로 청구합니다.</div>
+                        <div class="tx-plan-r"><b>캐시를 잘 쓰면</b>한도가 아니라 요금이 직접 줄어듭니다</div>
+                        <div class="tx-plan-r"><b>모델 단가</b>Opus·Sonnet·Haiku의 차이가 청구서에 그대로 찍힙니다</div>
+                    </div>
+                </div>
+                <span class="tx-tape" style="left:200px;top:130px;transform:rotate(-4deg)"></span>
+                <span class="tx-tape or" style="left:650px;top:134px;width:80px;transform:rotate(4deg)"></span>
+                <div class="ab tx-stamp" style="left:340px;top:414px;font-size:19px;background:rgba(251,247,238,0.9);transform:rotate(-5deg)">먼저 확인할 것: 우리 플랜</div>
+                <div class="tx-narr">어느 쪽이든 순서는 같습니다. 줄이기 전에 <b>측정</b>합니다.</div>
+            </div>
+
+            <!-- 07 측정: /usage 캐시 히트 -->
+            <div class="tx-slide">
+                <div class="ab tx-track" style="left:50px;top:22px"><span>상황</span><span>문제</span><span>답</span><span>원리</span><span class="on">측정</span><span>실행</span><span>정리</span></div>
+                <div class="ab tx-num" style="left:860px;top:26px">07 / 12</div>
+                <div class="ab" style="left:50px;top:56px;display:flex;align-items:center;gap:16px">
+                    <div class="tx-cut" style="font-size:46px"><span>측</span><span>정</span></div>
+                    <div class="tx-strip" style="background:#FBF7EE;font-size:22px;transform:rotate(1deg)"><span class="tx-cmd" style="font-size:19px">/usage</span>에서 캐시 히트부터 봅니다</div>
+                </div>
+                <div class="ab tx-scrap" style="left:50px;top:142px;width:400px;height:304px;transform:rotate(-1.4deg)">
+                    <div class="tx-in tx-term">
+                        <div style="color:#F5D56A;font-size:15px">/usage</div>
+                        <div class="tx-term-r"><span>5시간 한도</span><i><em style="width:11%"></em></i><b>11%</b></div>
+                        <div class="tx-term-r"><span>주간 · 전체 모델</span><i><em style="width:7%"></em></i><b>7%</b></div>
+                        <div class="tx-term-s">이 세션</div>
+                        <div class="tx-term-kv"><span>비용</span><b>US$14.61</b></div>
+                        <div class="tx-term-kv"><span>API</span><b>18분 40초</b></div>
+                        <div class="tx-term-kv"><span>활성</span><b>1시간 5분</b></div>
+                        <div class="tx-term-kv hi"><span>캐시 히트</span><b>98%</b></div>
+                    </div>
+                </div>
+                <span class="tx-tape lab" style="left:88px;top:128px;font-size:13px;transform:rotate(-4deg)">예시 화면 · 한 사람의 세션 하나</span>
+                <div class="ab" style="left:486px;top:140px;width:424px">
+                    <div style="display:flex;align-items:flex-end;gap:14px">
+                        <div class="tx-big" style="font-size:96px;color:#10B981">98%</div>
+                        <div style="padding-bottom:12px;font-size:18px;font-weight:900;line-height:1.3">캐시 히트<br><span style="font-size:13.5px;font-weight:700;color:#6B645C">가장 먼저 볼 숫자</span></div>
+                    </div>
+                    <div style="margin-top:8px;font-size:15px;font-weight:700;line-height:1.55;color:#3A3530">보낸 내용 가운데 캐시에서 그대로 꺼내 쓴 비율입니다. <b style="color:#1A1917">이 값이 낮으면 요청 앞부분이 계속 바뀌고 있다는 신호</b>입니다.</div>
+                </div>
+                <div class="ab tx-scrap" style="left:490px;top:318px;width:204px;height:130px;transform:rotate(-1deg)"><div class="tx-in tx-mini"><span class="tx-cmd">/context</span><div class="tx-mini-t">무엇이 차지하나</div><div class="tx-mini-d">도구 정의가 대화만큼 크면 서버가 너무 많다는 뜻</div></div></div>
+                <div class="ab tx-scrap" style="left:708px;top:322px;width:204px;height:130px;transform:rotate(1.2deg)"><div class="tx-in tx-mini"><span class="tx-cmd">/insights</span><div class="tx-mini-t">어떻게 일하나</div><div class="tx-mini-d">막힌 곳과 잘못 전달된 요청을 짚습니다. 이 분석도 토큰을 씁니다</div></div></div>
+                <div class="ab tx-sticker" style="left:800px;top:100px;width:118px;height:118px;background:#D97757;color:#fff;font-size:14px;transform:rotate(-9deg)"><span style="font-size:17px">팀은 주 1회</span><span style="margin-top:3px;font-size:12px;font-weight:800;opacity:0.9">캐시 히트와<br>주간 한도 %</span></div>
+                <div class="tx-narr">새는 곳은 대개 둘입니다. <b>대화가 너무 크거나, 캐시가 계속 리셋되거나.</b></div>
+            </div>
+
+            <!-- 08 실행 1: 대화를 작게 -->
+            <div class="tx-slide">
+                <div class="ab tx-track" style="left:50px;top:22px"><span>상황</span><span>문제</span><span>답</span><span>원리</span><span>측정</span><span class="on">실행</span><span>정리</span></div>
+                <div class="ab tx-num" style="left:860px;top:26px">08 / 12</div>
+                <div class="ab" style="left:50px;top:56px;display:flex;align-items:center;gap:16px">
+                    <div class="tx-cut" style="font-size:46px"><span>대</span><span>화</span></div>
+                    <div class="tx-strip" style="background:#FBF7EE;font-size:22px;transform:rotate(1deg)">작업이 바뀌면 /clear, 방향이 틀리면 /rewind</div>
+                </div>
+                <div class="ab tx-scrap" style="left:50px;top:136px;width:274px;height:238px;transform:rotate(-1.2deg)">
+                    <div class="tx-in tx-cmdc"><span class="tx-cmd" style="font-size:20px">/clear</span><div class="tx-cmdc-c" style="color:#3B82F6">명령 자체는 무료</div>
+                        <div class="tx-cmdc-k">언제</div><div class="tx-cmdc-d">무관한 새 작업으로 넘어갈 때</div>
+                        <div class="tx-cmdc-k">캐시</div><div class="tx-cmdc-d">다음 요청에서 처음부터 다시 만듭니다</div>
+                    </div>
+                </div>
+                <div class="ab tx-scrap" style="left:343px;top:140px;width:274px;height:238px;transform:rotate(0.8deg)">
+                    <div class="tx-in tx-cmdc"><span class="tx-cmd" style="font-size:20px">/compact</span><div class="tx-cmdc-c" style="color:#C0392B">명령 자체가 큰 요청</div>
+                        <div class="tx-cmdc-k">언제</div><div class="tx-cmdc-d">같은 작업을 이어 가며 대화만 줄일 때</div>
+                        <div class="tx-cmdc-k">캐시</div><div class="tx-cmdc-d">대화 전체를 읽어 요약하고, 캐시도 처음부터 다시</div>
+                    </div>
+                </div>
+                <div class="ab tx-scrap" style="left:636px;top:136px;width:274px;height:238px;transform:rotate(-0.8deg)">
+                    <div class="tx-in tx-cmdc"><span class="tx-cmd" style="font-size:20px">/rewind</span><div class="tx-cmdc-c" style="color:#0E8A62">캐시 유지</div>
+                        <div class="tx-cmdc-k">언제</div><div class="tx-cmdc-d">방향이 틀렸을 때. Escape로 멈추고 되돌립니다</div>
+                        <div class="tx-cmdc-k">캐시</div><div class="tx-cmdc-d">되돌린 지점까지 예전 캐시를 그대로 씁니다</div>
+                    </div>
+                </div>
+                <div class="ab tx-stamp" style="left:572px;top:400px;font-size:18px;white-space:nowrap;background:rgba(251,247,238,0.92);transform:rotate(-4deg)">가장 흔한 낭비: /rewind 대신 /compact</div>
+                <div class="ab tx-strip tx-yellow" style="left:56px;top:392px;width:494px;font-size:14px;line-height:1.45;transform:rotate(-0.8deg)">CLAUDE.md는 200줄 아래로 유지합니다. 도중에 고친 내용은<br>다음 /clear, /compact, 재시작 때 반영되니 반복해 고치지 않습니다</div>
+                <div class="tx-narr">대화를 줄였다면, 이제 <b>요청의 앞부분</b>을 지킵니다.</div>
+            </div>
+
+            <!-- 09 실행 2: 모델과 깊이 -->
+            <div class="tx-slide">
+                <div class="ab tx-track" style="left:50px;top:22px"><span>상황</span><span>문제</span><span>답</span><span>원리</span><span>측정</span><span class="on">실행</span><span>정리</span></div>
+                <div class="ab tx-num" style="left:860px;top:26px">09 / 12</div>
+                <div class="ab" style="left:50px;top:56px;display:flex;align-items:center;gap:16px">
+                    <div class="tx-cut" style="font-size:46px"><span>모</span><span>델</span></div>
+                    <div class="tx-strip" style="background:#FBF7EE;font-size:22px;transform:rotate(1deg)">기본은 Sonnet으로 정하고, 작업 중에는 바꾸지 않습니다</div>
+                </div>
+                <div class="ab tx-scrap" style="left:50px;top:140px;width:540px;height:310px;transform:rotate(-0.8deg)">
+                    <div class="tx-in tx-grid" style="padding:18px 22px 0">
+                        <div style="display:flex;justify-content:space-between"><span class="tx-lbl">100만 토큰당 단가</span><span class="tx-lbl"><i style="display:inline-block;width:10px;height:10px;background:#8A8178;margin-right:4px"></i>입력 <i style="display:inline-block;width:10px;height:10px;background:#D97757;margin:0 4px 0 8px"></i>출력</span></div>
+                        <div class="tx-price"><div class="tx-price-l">Opus 5<small>복잡한 설계 판단</small></div><div class="tx-price-b"><i style="width:55px;background:#8A8178"></i><em>$5</em><br><i style="width:275px;background:#D97757"></i><em>$25</em></div></div>
+                        <div class="tx-price on"><div class="tx-price-l">Sonnet 5<small>대부분의 작업 · 기본값</small></div><div class="tx-price-b"><i style="width:22px;background:#8A8178"></i><em>$2</em><br><i style="width:110px;background:#D97757"></i><em>$10</em></div></div>
+                        <div class="tx-price"><div class="tx-price-l">Haiku 4.5<small>조회·정리 서브에이전트</small></div><div class="tx-price-b"><i style="width:11px;background:#8A8178"></i><em>$1</em><br><i style="width:55px;background:#D97757"></i><em>$5</em></div></div>
+                    </div>
+                </div>
+                <div class="ab tx-scrap" style="left:614px;top:140px;width:296px;height:146px;transform:rotate(1.2deg)">
+                    <div class="tx-in" style="padding:16px 18px 0">
+                        <div style="display:flex;gap:8px"><span class="tx-cmd" style="font-size:14px">/model</span><span style="font-size:15px;font-weight:900">단가를 정합니다</span></div>
+                        <div style="margin-top:12px;display:flex;gap:8px"><span class="tx-cmd" style="font-size:14px">/effort</span><span style="font-size:15px;font-weight:900">출력량을 정합니다</span></div>
+                        <div style="margin-top:10px;font-size:13px;font-weight:700;line-height:1.5;color:#5A534B">답하기 전에 생각한 토큰도 출력으로 계산됩니다. 단순한 일에는 수준을 내립니다.</div>
+                    </div>
+                </div>
+                <div class="ab tx-scrap" style="left:614px;top:304px;width:296px;height:148px;transform:rotate(-1deg)">
+                    <div class="tx-in" style="padding:16px 18px 0;background:#F6DCD3">
+                        <div style="font-size:17px;font-weight:900;color:#C0392B">도중에 바꾸면</div>
+                        <div style="margin-top:6px;font-size:14px;font-weight:800;line-height:1.5;color:#3A3530">다음 요청이 대화 전체를 캐시 없이 다시 계산합니다. opusplan은 plan mode를 오갈 때마다 모델이 바뀌어 매번 리셋됩니다.</div>
+                    </div>
+                </div>
+                <span class="tx-tape" style="left:250px;top:128px;transform:rotate(-3deg)"></span>
+                <div class="ab tx-sticker" style="left:470px;top:330px;width:108px;height:108px;background:#1A1917;color:#F5D56A;font-size:13px;transform:rotate(-8deg)"><span>Sonnet은<br>Opus 단가의<br><b style="font-size:26px">40%</b></span></div>
+                <div class="tx-narr">모델 말고도 <b>캐시를 리셋하는 설정</b>이 더 있습니다.</div>
+            </div>
+
+            <!-- 10 실행 3: 리셋과 유지 -->
+            <div class="tx-slide">
+                <div class="ab tx-track" style="left:50px;top:22px"><span>상황</span><span>문제</span><span>답</span><span>원리</span><span>측정</span><span class="on">실행</span><span>정리</span></div>
+                <div class="ab tx-num" style="left:860px;top:26px">10 / 12</div>
+                <div class="ab" style="left:50px;top:56px;display:flex;align-items:center;gap:16px">
+                    <div class="tx-cut" style="font-size:46px"><span>캐</span><span>시</span></div>
+                    <div class="tx-strip" style="background:#FBF7EE;font-size:22px;transform:rotate(1deg)">작업 중에는 요청의 앞부분을 건드리지 않습니다</div>
+                </div>
+                <div class="ab tx-scrap" style="left:50px;top:140px;width:372px;height:300px;transform:rotate(-1deg)">
+                    <div class="tx-in tx-rl">
+                        <div class="tx-rl-h" style="background:#C0392B">리셋됩니다</div>
+                        <ul>
+                            <li><b>/model</b>, <b>/effort</b> 변경</li>
+                            <li>fast mode를 처음 켤 때 <span>한 번만</span></li>
+                            <li><b>/compact</b> <span>대화가 요약으로 바뀜</span></li>
+                            <li>Claude Code 업데이트</li>
+                            <li>MCP 연결·해제 <span>도구 정의를 미리 싣는 환경만</span></li>
+                            <li>플러그인 켜고 끄기 <span>제공하는 것에 따라</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="ab tx-scrap" style="left:444px;top:144px;width:372px;height:300px;transform:rotate(0.8deg)">
+                    <div class="tx-in tx-rl">
+                        <div class="tx-rl-h" style="background:#0E8A62">유지됩니다</div>
+                        <ul>
+                            <li>저장소 파일 편집</li>
+                            <li>CLAUDE.md 수정 <span>고친 내용도 적용 안 됨</span></li>
+                            <li>스킬과 커맨드 호출</li>
+                            <li><b>/rewind</b>, <b>/recap</b></li>
+                            <li>서브에이전트, plan mode <span>opusplan 제외</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <span class="tx-tape" style="left:190px;top:128px;transform:rotate(-3deg)"></span>
+                <span class="tx-tape or" style="left:590px;top:132px;width:80px;transform:rotate(4deg)"></span>
+                <div class="ab tx-sticker" style="left:770px;top:300px;width:150px;height:150px;background:#C0392B;color:#fff;font-size:13px;transform:rotate(-8deg)"><span style="font-size:18px;color:#F5D56A">가장 비싼 한 번</span><span style="margin-top:6px;line-height:1.35">업데이트 직후<br>오래 열어 둔 세션을<br>다시 여는 것</span></div>
+                <div class="tx-narr">손을 놓고 있어도 <b>나가는 토큰</b>이 있습니다.</div>
+            </div>
+
+            <!-- 11 실행 4: 쉬는 동안 -->
+            <div class="tx-slide">
+                <div class="ab tx-track" style="left:50px;top:22px"><span>상황</span><span>문제</span><span>답</span><span>원리</span><span>측정</span><span class="on">실행</span><span>정리</span></div>
+                <div class="ab tx-num" style="left:860px;top:26px">11 / 12</div>
+                <div class="ab" style="left:50px;top:56px;display:flex;align-items:center;gap:16px">
+                    <div class="tx-cut" style="font-size:46px"><span>대</span><span>기</span></div>
+                    <div class="tx-strip" style="background:#FBF7EE;font-size:22px;transform:rotate(1deg)">자리를 비우면 캐시가 만료되고, 손을 놓아도 요청은 나갑니다</div>
+                </div>
+                <div class="ab tx-scrap" style="left:50px;top:140px;width:530px;height:310px;transform:rotate(-0.8deg)">
+                    <div class="tx-in tx-grid" style="padding:18px 22px 0">
+                        <div class="tx-lbl">캐시 수명 · 쓸 때마다 다시 시작됩니다</div>
+                        <div style="display:flex;margin:12px 0 4px 170px;width:300px;justify-content:space-between;font-size:11.5px;font-weight:800;color:#8A8178"><span>0</span><span>15분</span><span>30분</span><span>45분</span><span>1시간</span></div>
+                        <div class="tx-life"><div class="tx-life-l">구독 · 본 대화<small>한도 안에서</small></div><div class="tx-life-t"><i style="width:300px;background:#3B82F6"></i></div></div>
+                        <div class="tx-life"><div class="tx-life-l">API 키 · 클라우드<small>한도 초과분 포함</small></div><div class="tx-life-t"><i style="width:25px;background:#D97757"></i></div></div>
+                        <div class="tx-life"><div class="tx-life-l">서브에이전트 · 요약<small>플랜과 상관없이</small></div><div class="tx-life-t"><i style="width:25px;background:#D97757"></i></div></div>
+                        <div style="margin-top:14px;padding-top:11px;border-top:1px dashed rgba(26,25,23,0.25);font-size:14.5px;font-weight:700;line-height:1.5;color:#3A3530">수명보다 오래 자리를 비우면, 돌아와서 보낸 <b>첫 요청이 전체를 다시 계산</b>합니다.</div>
+                    </div>
+                </div>
+                <div class="ab tx-scrap" style="left:608px;top:144px;width:302px;height:266px;transform:rotate(1.2deg)">
+                    <div class="tx-in" style="padding:18px 20px 0">
+                        <div class="tx-lbl">손대지 않아도 요청을 보내는 것</div>
+                        <div class="tx-bg">예약 작업</div>
+                        <div class="tx-bg">다른 세션에서 온 메시지</div>
+                        <div class="tx-bg">goal 체크인</div>
+                        <div class="tx-bg">아직 살아 있는 에이전트 팀</div>
+                        <div style="margin-top:12px;font-size:14px;font-weight:900">쓰지 않는 세션은 닫습니다</div>
+                    </div>
+                </div>
+                <div class="ab tx-sticker" style="left:812px;top:372px;width:104px;height:104px;background:#1A1917;color:#F5D56A;font-size:13px;transform:rotate(-8deg)"><span>에이전트 팀<br><b style="font-size:24px">약 7배</b><br>일반 세션 대비</span></div>
+                <div class="tx-narr">정리하면, 내일부터 할 일은 이렇습니다.</div>
+            </div>
+
+            <!-- 12 정리: 실무자 다섯, 리더 셋 -->
+            <div class="tx-slide">
+                <div class="ab tx-track" style="left:50px;top:22px"><span>상황</span><span>문제</span><span>답</span><span>원리</span><span>측정</span><span>실행</span><span class="on">정리</span></div>
+                <div class="ab tx-num" style="left:776px;top:26px">12 / 12 · AI ROASTING</div>
+                <div class="ab" style="left:50px;top:56px;display:flex;align-items:center;gap:16px">
+                    <div class="tx-cut" style="font-size:46px"><span>정</span><span>리</span></div>
+                    <div class="tx-strip" style="background:#FBF7EE;font-size:22px;transform:rotate(1deg)">실무자는 다섯 가지 습관, 리더는 세 가지 결정</div>
+                </div>
+                <div class="ab tx-scrap" style="left:50px;top:140px;width:470px;height:312px;transform:rotate(-1deg)">
+                    <div class="tx-in tx-lined tx-chk">
+                        <div class="tx-lbl" style="line-height:20px">실무자 · 매일</div>
+                        <div class="tx-chk-r"><i></i><b>측정</b>오늘 <span class="tx-cmd">/usage</span>로 사용량을 확인했는가</div>
+                        <div class="tx-chk-r"><i></i><b>비우기</b>작업이 바뀔 때 <span class="tx-cmd">/clear</span>로 비웠는가</div>
+                        <div class="tx-chk-r"><i></i><b>되돌리기</b>틀렸을 때 <span class="tx-cmd">/compact</span> 대신 <span class="tx-cmd">/rewind</span>를 썼는가</div>
+                        <div class="tx-chk-r"><i></i><b>고정</b>모델과 깊이를 시작할 때 정했는가</div>
+                        <div class="tx-chk-r"><i></i><b>지시 정리</b>CLAUDE.md가 200줄 아래인가</div>
+                    </div>
+                </div>
+                <div class="ab tx-scrap" style="left:544px;top:144px;width:366px;height:308px;transform:rotate(1.2deg)">
+                    <div class="tx-in tx-yellow tx-dec">
+                        <div class="tx-lbl" style="color:#6B5A2E">리더 · 이번 주</div>
+                        <div class="tx-dec-pre">먼저 확인 · 우리 플랜은 한도인가, 요금인가</div>
+                        <div class="tx-dec-r"><b>1</b><div>무엇에, 누가 · 기본은 Sonnet<span>Opus는 복잡한 설계 판단을 맡은 사람만. Sonnet은 Opus 단가의 40%</span></div></div>
+                        <div class="tx-dec-r"><b>2</b><div>얼마나 · 상한이나 예산 목표<span>1인 월 상한(우버) 또는 사업부 토큰 예산 목표(MS)</span></div></div>
+                        <div class="tx-dec-r"><b>3</b><div>어떻게 보나 · 주 1회 보고<span>개인은 자기 사용량을 직접 보고, 팀은 캐시 히트와 한도 %</span></div></div>
+                    </div>
+                </div>
+                <span class="tx-tape" style="left:220px;top:128px;transform:rotate(-3deg)"></span>
+                <span class="tx-tape or" style="left:690px;top:132px;width:80px;transform:rotate(4deg)"></span>
+                <div class="tx-narr">앞으로 리더의 질문은 <b>누가, 얼마나, 무엇에 쓰게 할 것인가</b>입니다. 위 세 결정이 첫 답입니다.</div>
+            </div>
+
+        </div>
+        <div class="tx-nav">
+            <button type="button" id="txPrevIn" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <span class="tx-count" id="txCount" aria-live="polite">1 / 12</span>
+            <button type="button" id="txNextIn" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+    </div>
+    <!-- ── /TOKEN-SLIDES ── -->
 
     <!-- ══════════ 1. 요청의 구성과 단가 ══════════ -->
     <div class="intro-orient">
@@ -1737,6 +2434,142 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     window.addEventListener('keydown', onFirst);
 })();
 </script>
+
+<!-- TOKEN-SLIDES 전체 화면: 슬라이드 한 장을 화면에 16:9로 맞춰 띄운다 -->
+<div class="tx-show" id="txShow" role="dialog" aria-modal="true" aria-label="토큰 아껴 쓰는 법 슬라이드 전체 화면" hidden>
+    <div class="tx-show-stage" id="txStage"></div>
+    <button type="button" class="tx-show-btn tx-show-prev" id="txPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="tx-show-btn tx-show-next" id="txNext" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" class="tx-show-btn tx-show-close" id="txClose" aria-label="전체 화면 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="tx-show-num" id="txNum" aria-live="polite">1 / 11</div>
+</div>
+<script>
+(function () {
+    var W = 960, H = 540;
+    var frame = document.getElementById('txFrame');
+    var show = document.getElementById('txShow');
+    var stage = document.getElementById('txStage');
+    if (!frame || !show || !stage) return;
+    var slides = [].slice.call(frame.querySelectorAll('.tx-slide'));
+    var N = slides.length, cur = 0, lastFocus = null, idleT = null;
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* 본문: 틀 폭에 맞춰 960×540을 줄이고, 현재 장만 보인다 */
+    function fitFrame() {
+        var k = frame.clientWidth / W;
+        slides.forEach(function (s) { s.style.transform = 'scale(' + k + ')'; });
+    }
+    function paintInline() {
+        slides.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+        $('txCount').textContent = (cur + 1) + ' / ' + N;
+        $('txPrevIn').disabled = cur === 0;
+        $('txNextIn').disabled = cur === N - 1;
+    }
+    fitFrame();
+    paintInline();
+    if ('ResizeObserver' in window) new ResizeObserver(fitFrame).observe(frame);
+    else window.addEventListener('resize', fitFrame);
+
+    /* 발표: 화면 안에 들어가는 가장 큰 16:9 */
+    function fitStage() {
+        var vw = show.clientWidth, vh = show.clientHeight;
+        var k = Math.min(vw / W, vh / H);
+        stage.style.transform = 'translate(' + ((vw - W * k) / 2) + 'px,' + ((vh - H * k) / 2) + 'px) scale(' + k + ')';
+    }
+    function render() {
+        var c = slides[cur].cloneNode(true);
+        c.style.transform = '';
+        c.classList.add('on');
+        stage.innerHTML = '';
+        stage.appendChild(c);
+        $('txNum').textContent = (cur + 1) + ' / ' + N;
+        $('txPrev').disabled = cur === 0;
+        $('txNext').disabled = cur === N - 1;
+        fitStage();
+    }
+    function go(i) {
+        i = Math.max(0, Math.min(N - 1, i));
+        if (i === cur && (show.hidden || stage.firstChild)) return;
+        cur = i;
+        paintInline();
+        if (!show.hidden) render();
+    }
+    function wake() {
+        show.classList.remove('idle');
+        clearTimeout(idleT);
+        idleT = setTimeout(function () { show.classList.add('idle'); }, 2500);
+    }
+    function open(i) {
+        lastFocus = document.activeElement;
+        cur = i;
+        show.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        render();
+        wake();
+        $('txClose').focus({ preventScroll: true });
+        if (show.requestFullscreen) show.requestFullscreen().catch(function () {});
+        else if (show.webkitRequestFullscreen) show.webkitRequestFullscreen();
+    }
+    function close() {
+        if (show.hidden) return;
+        show.hidden = true;
+        stage.innerHTML = '';
+        clearTimeout(idleT);
+        document.documentElement.style.overflow = '';
+        var fe = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        paintInline();
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+
+    $('txPlay').addEventListener('click', function () { open(0); });
+    frame.addEventListener('click', function () { open(cur); });
+    frame.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(cur); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+    });
+    $('txPrevIn').addEventListener('click', function () { go(cur - 1); });
+    $('txNextIn').addEventListener('click', function () { go(cur + 1); });
+    $('txPrev').addEventListener('click', function () { go(cur - 1); });
+    $('txNext').addEventListener('click', function () { go(cur + 1); });
+    $('txClose').addEventListener('click', close);
+
+    /* 슬라이드 빈 곳: 왼쪽 1/3은 이전, 나머지는 다음 */
+    stage.addEventListener('click', function (e) {
+        if (e.clientX < show.clientWidth / 3) go(cur - 1); else go(cur + 1);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (show.hidden) return;
+        var k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { if (k === 'Enter' && e.target.tagName === 'BUTTON') return; e.preventDefault(); go(cur + 1); }
+        else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(cur - 1); }
+        else if (k === 'Home') { e.preventDefault(); go(0); }
+        else if (k === 'End') { e.preventDefault(); go(N - 1); }
+        else if (k === 'Escape') { e.preventDefault(); close(); }
+        wake();
+    });
+    show.addEventListener('mousemove', wake);
+
+    /* 스와이프 */
+    var sx = null, sy = 0;
+    show.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; wake(); }, { passive: true });
+    show.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
+    });
+
+    /* 브라우저 전체 화면을 Esc로 먼저 빠져나오면 발표도 닫는다 */
+    function onFs() { if (!(document.fullscreenElement || document.webkitFullscreenElement)) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+    window.addEventListener('resize', function () { if (!show.hidden) fitStage(); });
+})();
+</script>
+<!-- /TOKEN-SLIDES 전체 화면 -->
 
 </body>
 </html>

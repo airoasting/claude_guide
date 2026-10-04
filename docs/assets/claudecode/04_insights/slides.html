@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>피자 프랜차이즈 실적 진단</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
+<style>
+:root{
+  --navy:#051C2C; --blue:#1F40E6; --blue-2:#7A8FF2; --blue-soft:#E8ECFD; --ink:#1E2A33; --muted:#5B6670; --faint:#8A949C; --line:#D7DCE0; --grid:#ECEFF1; --panel:#F5F7F8;
+  --ok:#1D6B4F; --ok-bg:#E5F2EC; --guess:#8A5A00; --guess-bg:#FBF1DC;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#2B3640;font-family:'Pretendard',-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1280px;height:720px;position:relative;transform-origin:center center;flex:none}
+.slide{position:absolute;inset:0;background:#fff;padding:52px 64px 0;display:none;flex-direction:column}
+.slide.active{display:flex}
+.tracker{font-size:15px;font-weight:700;color:var(--blue);letter-spacing:.04em;margin-bottom:10px}
+.title{font-size:32px;line-height:1.4;color:var(--navy);font-weight:800;letter-spacing:-.02em;max-width:1080px}
+.rule{height:1px;background:var(--line);margin:20px 0 24px}
+.body{flex:1;display:flex;gap:44px;min-height:0}
+.col-main{flex:1.55;display:flex;flex-direction:column;min-width:0}
+.col-side{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0}
+.col-side .head{margin-bottom:-10px}
+.col-side .so{margin-top:auto}
+.chart-title{font-size:18px;font-weight:700;color:var(--navy);line-height:26px;height:26px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-unit{font-size:14px;color:var(--muted);line-height:22px;height:22px;margin-bottom:12px}
+.chart{flex:1;min-height:0}
+.chart svg{width:100%;height:100%;display:block;overflow:visible}
+.pair{display:flex;gap:28px;flex:1;min-height:0}
+.pair>div{flex:1;display:flex;flex-direction:column;min-width:0}
+.legend{display:flex;gap:18px;font-size:14px;color:var(--muted);line-height:22px;height:22px;margin-bottom:12px;flex-wrap:nowrap;white-space:nowrap}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:6px;border-radius:2px}
+.legend i.sq{height:10px;width:10px}
+.callout{background:var(--panel);border-radius:6px;padding:14px 18px}
+.callout .k{font-size:14px;color:var(--muted);font-weight:600;margin-bottom:4px}
+.callout .v{font-size:36px;font-weight:800;color:var(--blue);letter-spacing:-.01em;line-height:1.15}
+.callout .v small{font-size:16px;color:var(--navy);font-weight:600;margin-left:4px}
+.callout .d{font-size:15px;color:var(--ink);line-height:1.55;margin-top:6px}
+.note{font-size:16px;line-height:1.5;color:var(--ink)}
+.note b{color:var(--navy)}
+.so{background:var(--navy);color:#fff;border-radius:6px;padding:14px 20px;font-size:16px;line-height:1.5}
+.so b{display:block;font-size:13px;color:#AFC0FF;margin-bottom:4px;letter-spacing:.04em}
+.tag{display:inline-block;font-size:12px;font-weight:700;border-radius:100px;padding:1px 8px;margin-right:6px;vertical-align:1px}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}
+.tag.guess{background:var(--guess-bg);color:var(--guess)}
+.foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin-top:22px;height:48px;flex:none;font-size:13px;color:var(--muted)}
+.foot .src{max-width:1060px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* cover */
+.slide.cover{background:var(--navy);color:#fff;padding:0 88px;justify-content:center}
+.cover .eyebrow{font-size:14px;font-weight:700;color:#AFC0FF;letter-spacing:.08em;margin-bottom:22px}
+.cover h1{font-size:48px;line-height:1.3;font-weight:800;letter-spacing:-.02em;margin-bottom:24px}
+.cover p{font-size:18px;color:#C9D3DB;line-height:1.6}
+.cover .bar{width:72px;height:4px;background:var(--blue);margin:36px 0 22px}
+.cover .meta{font-size:13px;color:#8FA0AD}
+/* exec summary */
+.exec{display:flex;flex-direction:column;flex:1;border-top:2px solid var(--navy)}
+.exec .row{flex:1;display:grid;grid-template-columns:56px 1fr 230px;align-items:center;gap:18px;border-bottom:1px solid var(--line)}
+.exec .n{font-size:26px;color:var(--blue);font-weight:700}
+.exec .h{font-size:21px;font-weight:700;color:var(--navy);line-height:1.4}
+.exec .s{font-size:15.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+.exec .m{text-align:right;font-size:30px;font-weight:800;color:var(--navy)}
+.exec .m small{display:block;font-size:13px;font-weight:600;color:var(--muted)}
+/* tables */
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.actwrap{flex:1;display:flex;min-height:0}
+.actwrap table{height:100%}
+.act th{font-size:14px;color:var(--muted);text-align:left;font-weight:600;padding:8px 12px;border-bottom:1.5px solid var(--navy)}
+.act td{font-size:16px;padding:0 12px;border-bottom:1px solid var(--line);vertical-align:middle;line-height:1.5}
+.act td:first-child{color:var(--blue);font-weight:700;width:40px}
+.act td.t{font-weight:700;color:var(--navy);width:290px}
+.act td.k{color:var(--muted);width:270px}
+.mini th{font-size:13px;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1.5px solid var(--navy);text-align:right}
+.mini td{font-size:15.5px;padding:8px 8px;border-bottom:1px solid var(--line);text-align:right}
+.mini th:first-child,.mini td:first-child{text-align:left}
+.mini td.hl{color:var(--blue);font-weight:700}
+/* controls */
+#ctrl{position:fixed;right:16px;bottom:14px;display:flex;align-items:center;gap:8px;z-index:5}
+#ctrl button{width:36px;height:36px;border-radius:100px;border:none;background:rgba(255,255,255,.14);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#ctrl button:hover{background:rgba(255,255,255,.26)}
+#ctrl button svg{width:18px;height:18px}
+#count{font-size:12px;color:#C9D3DB;min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+#back{position:fixed;left:16px;bottom:14px;font-size:12px;color:#C9D3DB;text-decoration:none;padding:9px 14px;border-radius:100px;background:rgba(255,255,255,.14);z-index:5}
+#back:hover{background:rgba(255,255,255,.26)}
+@media print{
+  body{background:#fff;overflow:visible}
+  #viewport{position:static;display:block}
+  #stage{transform:none!important;height:auto}
+  .slide{position:relative;display:flex!important;width:1280px;height:720px;page-break-after:always}
+  #ctrl,#back{display:none}
+  @page{size:1280px 720px;margin:0}
+}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+
+<!-- 1 표지 -->
+<section class="slide cover">
+  <div class="eyebrow">경영진 보고 · 실적 진단</div>
+  <h1>피자 프랜차이즈 9개 매장 실적 진단<br>성장의 질과 수익성</h1>
+  <p>매출은 6년 연속 증가했으나, 주문 수·인건비·채널 비용에서 구조적 위험 신호가 나타남</p>
+  <div class="bar"></div>
+  <div class="meta">2020-01 ~ 2026-08 실적 · 9개 매장 × 80개월 · 매출데이터·사건로그 기준 · 가상 데이터</div>
+</section>
+
+<!-- 2 요약 -->
+<section class="slide">
+  <div class="tracker">핵심 요약</div>
+  <div class="title">매출은 6년 연속 늘었으나, 성장을 이어 가려면 주문 회복·인건비 관리·채널 전환이 필요함</div>
+  <div class="rule"></div>
+  <div class="exec">
+    <div class="row"><div class="n">01</div><div><div class="h">매출 증가는 객단가 상승에 따른 것이며, 주문 수는 아직 2023년 수준에 못 미침</div><div class="s">1~8월 기준 매출은 2023년 대비 16.1% 늘었으나 주문 수는 1.0% 적음</div></div><div class="m">-1.0%<small>주문 수, 2023년 대비 2026년</small></div></div>
+    <div class="row"><div class="n">02</div><div><div class="h">인건비 비중이 6년간 4.5%p 올라 이익률을 낮추는 가장 큰 비용이 됨</div><div class="s">2020~2025년 주문 1건당 인건비는 47% 올랐으나 객단가는 25% 오르는 데 그침</div></div><div class="m">29.0%<small>매출 대비 인건비, 2026년</small></div></div>
+    <div class="row"><div class="n">03</div><div><div class="h">자사앱 주문 비중은 5배 이상 늘었으나 배달앱 의존도와 수수료 부담은 줄지 않음</div><div class="s">자사앱 비중은 5.6%에서 31.4%로 늘었으나 배달앱 주문 비중은 2022년 이후 43% 안팎에 머묾</div></div><div class="m">7.0%<small>매출 대비 플랫폼수수료</small></div></div>
+    <div class="row"><div class="n">04</div><div><div class="h">이익률이 가장 낮은 두 매장은 모두 인력 이탈을 겪었으며, 충장로점은 13.2%로 최하위임</div><div class="s">1위 서면점(21.0%)과의 격차는 7.8%p이며, 식자재비·인건비 비중이 모두 9개 매장 중 가장 높음</div></div><div class="m">7.8%p<small>1위 매장과의 이익률 격차</small></div></div>
+    <div class="row"><div class="n">05</div><div><div class="h">신메뉴 주문이 주방 처리 능력을 넘어 4월 클레임이 2020년 이후 최다를 기록함</div><div class="s">홍대점의 4월 클레임은 87건으로 1~3월 평균의 4.5배임</div></div><div class="m">226건<small>9개 매장 4월 클레임 합계</small></div></div>
+  </div>
+  <div class="foot"><span class="src">출처: 피자 매장별 실적 데이터.xlsx, 매출데이터 시트(실적 720개 매장·월), 사건로그 시트(39건)</span><span class="pg"></span></div>
+</section>
+
+<!-- 3 시사점 1 -->
+<section class="slide">
+  <div class="tracker">시사점 01 · 성장의 질</div>
+  <div class="title">매출 증가는 객단가 상승에 따른 것이며, 주문 수는 아직 2023년 수준에 못 미침</div>
+  <div class="rule"></div>
+  <div class="body">
+    <div class="col-main">
+      <div class="pair">
+        <div><div class="chart-title">매출</div><div class="chart-unit">억원, 각 연도 1~8월</div><div class="chart" id="c1a"></div></div>
+        <div><div class="chart-title">총주문</div><div class="chart-unit">만 건, 각 연도 1~8월</div><div class="chart" id="c1b"></div></div>
+      </div>
+    </div>
+    <div class="col-side">
+      <div class="head"><div class="chart-title">객단가와 고객 지표</div><div class="chart-unit">연간 기준</div></div>
+      <div class="callout"><div class="k">객단가, 2023년 → 2025년</div><div class="v">+13.0%<small>26,514원 → 29,952원</small></div><div class="d">같은 기간 연간 주문 수는 3.0% 감소함(376,670건 → 365,522건)</div></div>
+      <div class="note"><b>신규고객 수</b>는 2022년 42,964명을 정점으로 2025년 41,391명까지 줄었음. 재방문율은 53% 안팎에서 정체됨.</div>
+      <div class="so"><b>시사점</b>추가 가격 인상에 앞서 주문 수 회복을 별도 목표로 설정하고, 매장별 주문 수와 신규고객 수를 객단가와 함께 보고하도록 함</div>
+    </div>
+  </div>
+  <div class="foot"><span class="src">주: 2026년은 1~8월 실적만 있어 각 연도 1~8월끼리 비교함. 매출은 매출카테고리 6종의 합계임. 출처: 매출데이터 시트</span><span class="pg"></span></div>
+</section>
+
+<!-- 4 시사점 2 -->
+<section class="slide">
+  <div class="tracker">시사점 02 · 비용 구조</div>
+  <div class="title">인건비 비중이 6년간 4.5%p 올라 이익률을 낮추는 가장 큰 비용이 됨</div>
+  <div class="rule"></div>
+  <div class="body">
+    <div class="col-main">
+      <div class="chart-title">매출 대비 주요 비용과 영업이익률</div>
+      <div class="legend"><span><i style="background:var(--blue)"></i>인건비</span><span><i style="background:var(--faint)"></i>식자재비</span><span><i style="background:var(--navy)"></i>영업이익률</span></div>
+      <div class="chart" id="c2"></div>
+    </div>
+    <div class="col-side">
+      <div class="head"><div class="chart-title">2020년 → 2025년 상승률</div><div class="chart-unit">주문 1건 기준</div></div>
+      <div class="chart" id="c2b" style="flex:0 0 120px"></div>
+      <div class="note">2024년 영업이익률은 <b>1.1%p</b> 하락했으며, 하락폭 대부분이 인건비 비중 상승(<b>1.0%p</b>)으로 설명됨. 같은 기간 식자재비 비중은 31% 안팎에서 안정적이었음.</div>
+      <div class="note"><span class="tag ok">확인</span>2026-01 정규직 전환 지원금 시행(EV-030) 이후 매장 평균 정규직 수가 3.46명에서 3.70명으로 늘었음.</div>
+      <div class="so"><b>시사점</b>매장 KPI에 주문 1건당 인건비를 추가하고, 본사가 시간대별 주문량에 맞춘 파트타임 배치 기준을 제시함</div>
+    </div>
+  </div>
+  <div class="foot"><span class="src">주: 2026년은 1~8월 기준. 출처: 매출데이터 시트(인건비, 식자재비, 영업이익, 총주문건수), 사건로그 EV-030</span><span class="pg"></span></div>
+</section>
+
+<!-- 5 시사점 3 -->
+<section class="slide">
+  <div class="tracker">시사점 03 · 판매 채널</div>
+  <div class="title">자사앱 주문 비중은 5배 이상 늘었으나 배달앱 의존도와 수수료 부담은 줄지 않음</div>
+  <div class="rule"></div>
+  <div class="body">
+    <div class="col-main">
+      <div class="chart-title">주문 채널 비중</div>
+      <div class="legend"><span><i style="background:var(--blue)"></i>자사앱 주문 비중</span><span><i style="background:var(--navy)"></i>배달앱 주문 비중</span><span><i style="background:var(--faint)"></i>매출 대비 플랫폼수수료</span></div>
+      <div class="chart" id="c3"></div>
+    </div>
+    <div class="col-side">
+      <div class="head"><div class="chart-title">배달앱 수수료 부담</div><div class="chart-unit">배달앱 주문 1건 기준</div></div>
+      <div class="callout"><div class="k">주문 1건당 수수료, 2022년 → 2026년</div><div class="v">+21%<small>4,071원 → 4,927원</small></div><div class="d"><span class="tag ok">확인</span>2024-11 배달의민족 수수료 인상(6.8% → 9.8%, EV-024) 이후 매장 월평균 수수료가 681만원에서 790만원으로 늘었음</div></div>
+      <div class="note"><span class="tag guess">추정</span>자사앱 주문은 배달앱이 아니라 홀·포장 주문에서 옮겨 온 것으로 보임. 수령 방식 데이터가 없어 직접 검증할 수는 없음.</div>
+      <div class="note">매출 대비 쿠폰 할인은 9.0%로, 자사앱이 성장하는 동안에도 줄지 않았음(EV-018).</div>
+      <div class="so"><b>시사점</b>자사앱 성과 지표를 주문 비중에서 '배달앱에서 전환된 주문 수'로 바꾸고, 쿠폰은 배달앱 이용 고객의 자사앱 첫 배달 주문에 집중함</div>
+    </div>
+  </div>
+  <div class="foot"><span class="src">주: 배달앱 주문 비중은 배민·쿠팡이츠·요기요 주문 수 합계를 총주문으로 나눈 값이며, 각 비중은 주문 수 가중 평균임. 출처: 매출데이터·플랫폼마스터 시트, 사건로그 EV-018·EV-024</span><span class="pg"></span></div>
+</section>
+
+<!-- 6 시사점 4 -->
+<section class="slide">
+  <div class="tracker">시사점 04 · 매장 간 격차</div>
+  <div class="title">이익률이 가장 낮은 두 매장은 모두 인력 이탈을 겪었으며, 충장로점은 13.2%로 최하위임</div>
+  <div class="rule"></div>
+  <div class="body">
+    <div class="col-main">
+      <div class="chart-title">매장별 영업이익률</div>
+      <div class="legend"><span><i class="sq" style="background:var(--blue)"></i>2026년 1~8월</span><span><i class="sq" style="background:#fff;border:2px solid var(--navy);border-radius:50%"></i>2025년 1~8월</span></div>
+      <div class="chart" id="c4"></div>
+    </div>
+    <div class="col-side">
+      <div class="head"><div class="chart-title">광주 충장로점 주요 지표</div><div class="chart-unit">각 연도 1~8월</div></div>
+      <table class="mini">
+        <thead><tr><th>지표</th><th>2025년</th><th>2026년</th><th>9개 매장 중</th></tr></thead>
+        <tbody>
+          <tr><td>매출 대비 식자재비</td><td>33.7%</td><td class="hl">37.1%</td><td>최고</td></tr>
+          <tr><td>매출 대비 인건비</td><td>29.8%</td><td class="hl">32.1%</td><td>최고</td></tr>
+          <tr><td>QSC 평균</td><td>85.4</td><td class="hl">82.2</td><td>최저</td></tr>
+        </tbody>
+      </table>
+      <div class="note"><span class="tag ok">확인</span>충장로점은 2026-01 점주 승계 이후 정규직이 이탈했으며(EV-029), 월별 QSC 편차가 73.3~96.3으로 큼.</div>
+      <div class="note"><span class="tag ok">확인</span>연동점은 2026-04 정규직 이탈 후 파트타임 12명으로 운영되었고, 그달 이익률이 3.7%까지 떨어졌음(EV-035).</div>
+      <div class="so"><b>시사점</b>점주 승계나 정규직 이탈이 발생한 매장은 90일간 집중 관리하고, 첫 달에는 SV가 식자재 발주와 선입선출을 직접 점검함</div>
+    </div>
+  </div>
+  <div class="foot"><span class="src">주: 2026년 1~5월은 월 평균 환산치여서 월별 변동이 실제보다 클 수 있음. 출처: 매출데이터·매장마스터 시트, 사건로그 EV-029·EV-035</span><span class="pg"></span></div>
+</section>
+
+<!-- 7 시사점 5 -->
+<section class="slide">
+  <div class="tracker">시사점 05 · 신메뉴 운영</div>
+  <div class="title">신메뉴 주문이 주방 처리 능력을 넘어 4월 클레임이 2020년 이후 최다를 기록함</div>
+  <div class="rule"></div>
+  <div class="body">
+    <div class="col-main">
+      <div class="chart-title">서울 홍대점 클레임 건수와 QSC 점수, 2026년</div>
+      <div class="legend"><span><i class="sq" style="background:var(--blue)"></i>클레임(건, 왼쪽 축)</span><span><i style="background:var(--navy)"></i>QSC 점수(오른쪽 축)</span></div>
+      <div class="chart" id="c5"></div>
+    </div>
+    <div class="col-side">
+      <div class="head"><div class="chart-title">9개 매장 전체 영향</div><div class="chart-unit">2026년 4월</div></div>
+      <div class="callout"><div class="k">클레임 합계</div><div class="v">226건<small>2020년 이후 월간 최다</small></div><div class="d">기존 최다는 199건임. 홍대점이 87건으로 가장 많았으며, 1~3월 평균(19건)의 4.5배임</div></div>
+      <div class="note"><span class="tag ok">확인</span>2026-03 트러플 머쉬룸 피자 출시(EV-032) 후 홍대점 신메뉴 비중이 19%까지 올라 주방이 과부하됨(EV-033). 4월 파트타임 증원에도 배달 지연이 이어졌음(EV-034).</div>
+      <div class="note">3월 전 매장 평균 식자재 폐기율은 5.4%로, 직전 12개월 범위(3.0~4.6%)를 웃돌았음.</div>
+      <div class="so"><b>시사점</b>신메뉴는 주방 처리 능력 점검을 통과한 매장부터 단계적으로 출시하고, 한 매장 시범 판매 후 전국 확대(EV-004, EV-009)를 표준 절차로 삼음</div>
+    </div>
+  </div>
+  <div class="foot"><span class="src">출처: 매출데이터 시트(클레임건수, QSC점수, 신메뉴매출비중, 식자재폐기율), 사건로그 EV-004·EV-009·EV-032~034</span><span class="pg"></span></div>
+</section>
+
+<!-- 8 실행 과제 -->
+<section class="slide">
+  <div class="tracker">실행 과제</div>
+  <div class="title">다섯 과제 모두 현재 데이터로 매월 측정할 수 있는 지표와 연결함</div>
+  <div class="rule"></div>
+  <div class="actwrap"><table class="act">
+    <thead><tr><th></th><th>과제</th><th>첫 90일 실행 내용</th><th>측정 지표</th></tr></thead>
+    <tbody>
+      <tr><td>01</td><td class="t">주문 수 회복을 별도 목표로 설정</td><td>매장 월간 보고에 주문 수와 신규고객 수를 객단가와 함께 넣음. 가격 인상을 검토할 때는 주문 수 영향 분석을 함께 제출함</td><td class="k">1~8월 총주문 252,319건(2023년 수준) 회복</td></tr>
+      <tr><td>02</td><td class="t">주문 1건당 인건비를 매장 KPI로 도입</td><td>본사가 시간대별 주문량에 맞춘 파트타임 배치표를 제시함. 정규직이 늘어난 매장의 QSC·재방문율 변화를 추적함</td><td class="k">주문 1건당 인건비 8,667원 이하 유지</td></tr>
+      <tr><td>03</td><td class="t">자사앱 목표를 배달앱 주문 전환으로 변경</td><td>자사앱 주문에 수령 방식(배달·포장·홀) 구분을 추가함. 쿠폰은 배달앱 이용 고객의 자사앱 첫 배달 주문에 집중함</td><td class="k">배달앱 주문 비중 42.5%에서 하락 전환</td></tr>
+      <tr><td>04</td><td class="t">인력 이탈 매장 90일 집중 관리</td><td>점주 승계나 정규직 이탈이 발생하면 첫 달에 SV가 식자재 발주와 재고를 직접 점검함. 충장로점과 연동점에 먼저 적용함</td><td class="k">충장로점 매출 대비 식자재비 35% 미만</td></tr>
+      <tr><td>05</td><td class="t">신메뉴 단계 출시 절차 표준화</td><td>출시 전 매장별로 피크 시간 주문량 대비 주방 처리 능력을 점검함. 점검을 통과한 매장부터 출시하고, 출시 첫 달 클레임을 주 단위로 확인함</td><td class="k">출시 월 클레임을 직전 12개월 범위 이내로 유지</td></tr>
+    </tbody>
+  </table></div>
+  <div class="foot"><span class="src">주: 측정 지표의 기준값은 모두 매출데이터 시트에서 산출함</span><span class="pg"></span></div>
+</section>
+
+</div></div>
+
+<a id="back" href="insights.html">시사점 문서</a>
+<div id="ctrl">
+  <button id="prev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+  <span id="count"></span>
+  <button id="next" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+</div>
+
+<script>
+const C={navy:'#051C2C',blue:'#1F40E6',blue2:'#7A8FF2',faint:'#8A949C',muted:'#5B6670',grid:'#ECEFF1',line:'#D7DCE0'};
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;return e}
+function svgFor(id,w,h){const box=document.getElementById(id);const s=el('svg',{viewBox:`0 0 ${w} ${h}`,preserveAspectRatio:'xMidYMid meet'});box.appendChild(s);return s}
+const YEARS=['2020','2021','2022','2023','2024','2025','2026'];
+
+// vertical bars with labels; hi = index to highlight
+function bars(id,labels,vals,{w=300,h=380,max,hi=[],fmt=v=>v,top=26,bottom=28}={}){
+  const s=svgFor(id,w,h);const n=vals.length;const pw=w,ph=h-top-bottom;const bw=pw/n*0.58;max=max||Math.max(...vals)*1.12;
+  s.appendChild(el('line',{x1:0,x2:w,y1:top+ph,y2:top+ph,stroke:C.navy,'stroke-width':1}));
+  vals.forEach((v,i)=>{const x=pw/n*i+(pw/n-bw)/2;const bh=v/max*ph;const y=top+ph-bh;const on=hi.includes(i);
+    s.appendChild(el('rect',{x,y,width:bw,height:bh,fill:on?C.blue:'#C5CDD3'}));
+    s.appendChild(el('text',{x:x+bw/2,y:y-8,'text-anchor':'middle','font-size':17,'font-weight':on?800:600,fill:on?C.blue:C.navy},fmt(v)));
+    s.appendChild(el('text',{x:x+bw/2,y:top+ph+22,'text-anchor':'middle','font-size':15,fill:C.muted},labels[i]));});
+  return s}
+
+// multi-line chart
+function lines(id,labels,series,{w=640,h=360,min=0,max,top=14,bottom=30,left=40,right=60,fmt=v=>v+'%',ticks=[],axisFmt=v=>v+'%'}={}){
+  const s=svgFor(id,w,h);const pw=w-left-right,ph=h-top-bottom;const X=i=>left+26+(pw-26)*i/(labels.length-1);const Y=v=>top+ph-(v-min)/(max-min)*ph;
+  ticks.forEach(t=>{s.appendChild(el('line',{x1:left,x2:left+pw,y1:Y(t),y2:Y(t),stroke:C.grid}));s.appendChild(el('text',{x:left-8,y:Y(t)+4,'text-anchor':'end','font-size':14,fill:C.faint},axisFmt(t)))});
+  labels.forEach((l,i)=>s.appendChild(el('text',{x:X(i),y:top+ph+22,'text-anchor':'middle','font-size':15,fill:C.muted},l)));
+  series.forEach(se=>{const d=se.v.map((v,i)=>(i?'L':'M')+X(i)+' '+Y(v)).join(' ');
+    s.appendChild(el('path',{d,fill:'none',stroke:se.c,'stroke-width':se.wd||2.6,'stroke-dasharray':se.dash||'none'}));
+    se.v.forEach((v,i)=>{if(se.lab&&se.lab.includes(i)){s.appendChild(el('circle',{cx:X(i),cy:Y(v),r:4,fill:se.c}));s.appendChild(el('text',{x:X(i)+(i===se.v.length-1?10:0),y:Y(v)+(i===se.v.length-1?4:(se.below?18:-10)),'text-anchor':i===se.v.length-1?'start':'middle','font-size':16,'font-weight':700,fill:se.c},fmt(v)))}})});
+  return s}
+
+// 1
+bars('c1a',YEARS,[43.1,52.9,60.1,64.4,67.9,70.6,74.7],{hi:[6],fmt:v=>v.toFixed(1)});
+bars('c1b',YEARS,[18.5,22.6,24.7,25.2,24.6,24.4,25.0],{hi:[3],fmt:v=>v.toFixed(1),max:29});
+
+// 2
+lines('c2',YEARS,[
+  {v:[30.1,30.2,30.8,31.8,31.3,30.9,30.9],c:C.faint,lab:[0,6],wd:2},
+  {v:[24.5,26.1,27.1,27.7,28.7,28.8,29.0],c:C.blue,lab:[0,3,6],below:true},
+  {v:[15.4,16.9,18.0,17.8,16.6,16.8,17.4],c:C.navy,lab:[0,2,4,6]}
+],{min:12,max:34,ticks:[15,20,25,30],fmt:v=>v.toFixed(1)+'%'});
+(function(){const s=svgFor('c2b',380,120);const rows=[['주문 1건당 인건비',47,C.blue],['객단가',25,'#C5CDD3']];
+  rows.forEach((r,i)=>{const y=14+i*52;s.appendChild(el('text',{x:0,y:y+16,'font-size':15,'font-weight':600,fill:C.navy},r[0]));
+    const bw=r[1]/50*190;s.appendChild(el('rect',{x:150,y,width:bw,height:22,fill:r[2]}));
+    s.appendChild(el('text',{x:150+bw+8,y:y+17,'font-size':18,'font-weight':800,fill:i?C.navy:C.blue},'+'+r[1]+'%'))})})();
+
+// 3
+lines('c3',YEARS,[
+  {v:[54.6,50.0,43.0,42.7,43.1,43.1,42.5],c:C.navy,lab:[0,2,6]},
+  {v:[5.6,9.5,13.8,17.3,21.6,25.3,31.4],c:C.blue,lab:[0,2,6],below:true},
+  {v:[8.6,8.0,6.9,7.0,7.1,7.0,7.0],c:C.faint,lab:[6],dash:'5 4',wd:2,below:true}
+],{min:0,max:60,ticks:[0,20,40,60],fmt:v=>v.toFixed(1)+'%'});
+
+// 4 horizontal bars
+(function(){const d=[['부산 서면점',21.0,16.9],['인천 부평점',20.5,18.1],['대전 둔산점',18.1,17.2],['대구 동성로점',17.8,15.5],['서울 홍대점',17.4,15.7],['수원 영통점',17.2,17.0],['서울 강남점',16.4,15.7],['제주 연동점',14.2,15.8],['광주 충장로점',13.2,15.5]];
+  const w=640,h=380,left=124,pw=450,rh=h/d.length,max=24;const s=svgFor('c4',w,h);const X=v=>left+v/max*pw;
+  [0,5,10,15,20].forEach(t=>{s.appendChild(el('line',{x1:X(t),x2:X(t),y1:0,y2:h-6,stroke:C.grid}))});
+  const avg=17.4;s.appendChild(el('line',{x1:X(avg),x2:X(avg),y1:0,y2:h-6,stroke:C.navy,'stroke-dasharray':'4 4'}));
+  s.appendChild(el('text',{x:X(avg)+6,y:h+10,'font-size':13,fill:C.muted},'전체 17.4%'));
+  d.forEach((r,i)=>{const y=i*rh+rh*0.2,bh=rh*0.5;const low=i>=7;
+    s.appendChild(el('text',{x:left-10,y:y+bh/2+4,'text-anchor':'end','font-size':15,'font-weight':low?800:500,fill:low?C.blue:C.navy},r[0]));
+    s.appendChild(el('rect',{x:left,y,width:X(r[1])-left,height:bh,fill:low?C.blue:'#C5CDD3'}));
+    s.appendChild(el('circle',{cx:X(r[2]),cy:y+bh/2,r:5,fill:'#fff',stroke:C.navy,'stroke-width':2}));
+    s.appendChild(el('text',{x:Math.max(X(r[1]),X(r[2]))+12,y:y+bh/2+5,'font-size':15,'font-weight':700,fill:low?C.blue:C.navy},r[1].toFixed(1)+'%'))})})();
+
+// 5 bars + line, two axes
+(function(){const m=['1월','2월','3월','4월','5월','6월','7월','8월'];const cl=[24.5,15.1,18.2,87.4,9.3,24,18,17];const q=[97.7,97.3,82.3,79.9,89.9,92.4,91.5,93.9];
+  const w=640,h=370,top=24,bottom=30,left=36,right=40,pw=w-left-right,ph=h-top-bottom;const s=svgFor('c5',w,h);
+  const X=i=>left+pw/m.length*(i+0.5);const Yc=v=>top+ph-v/100*ph;const Yq=v=>top+ph-(v-60)/40*ph;
+  [0,25,50,75,100].forEach(t=>{s.appendChild(el('line',{x1:left,x2:left+pw,y1:Yc(t),y2:Yc(t),stroke:C.grid}));s.appendChild(el('text',{x:left-8,y:Yc(t)+4,'text-anchor':'end','font-size':13,fill:C.faint},t))});
+  [60,70,80,90,100].forEach(t=>s.appendChild(el('text',{x:left+pw+8,y:Yq(t)+4,'font-size':13,fill:C.faint},t)));
+  // launch marker
+  s.appendChild(el('rect',{x:X(2)-pw/16,y:top,width:pw/8*2,height:ph,fill:'#E8ECFD',opacity:.6}));
+  s.appendChild(el('text',{x:X(2)-pw/16+6,y:top+14,'font-size':14,'font-weight':700,fill:C.blue},'신메뉴 출시 직후(3~4월)'));
+  const bw=pw/m.length*0.5;
+  cl.forEach((v,i)=>{const on=i===3;s.appendChild(el('rect',{x:X(i)-bw/2,y:Yc(v),width:bw,height:Yc(0)-Yc(v),fill:on?C.blue:'#C5CDD3'}));
+    s.appendChild(el('text',{x:X(i),y:Yc(v)-7,'text-anchor':'middle','font-size':on?18:15,'font-weight':on?800:600,fill:on?C.blue:C.muted},Math.round(v)));
+    s.appendChild(el('text',{x:X(i),y:top+ph+22,'text-anchor':'middle','font-size':15,fill:C.muted},m[i]))});
+  s.appendChild(el('path',{d:q.map((v,i)=>(i?'L':'M')+X(i)+' '+Yq(v)).join(' '),fill:'none',stroke:C.navy,'stroke-width':2.6}));
+  q.forEach((v,i)=>{s.appendChild(el('circle',{cx:X(i),cy:Yq(v),r:3.5,fill:C.navy}));if(i===0||i===3||i===7)s.appendChild(el('text',{x:X(i)+(i===3?14:0),y:Yq(v)+(i===3?5:-10),'text-anchor':i===3?'start':'middle','font-size':15,'font-weight':700,fill:C.navy},v.toFixed(1)))});
+})();
+
+// navigation
+const slides=[...document.querySelectorAll('.slide')];let cur=0;
+slides.forEach((s,i)=>{const pg=s.querySelector('.pg');if(pg)pg.textContent=i+1});
+function show(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,j)=>s.classList.toggle('active',j===cur));document.getElementById('count').textContent=(cur+1)+' / '+slides.length;try{history.replaceState(null,'','#'+(cur+1))}catch(e){}}
+document.getElementById('prev').onclick=()=>show(cur-1);
+document.getElementById('next').onclick=()=>show(cur+1);
+document.addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(cur+1)}else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(cur-1)}else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1)});
+let tx=null;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+document.addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40)show(cur+(dx<0?1:-1));tx=null});
+function fit(){const sc=Math.min(window.innerWidth/1280,(window.innerHeight-56)/720);document.getElementById('stage').style.transform='scale('+sc+')'}
+window.addEventListener('resize',fit);fit();
+const h=parseInt(location.hash.slice(1));show(isNaN(h)?0:h-1);
+</script>
+</body>
+</html>
