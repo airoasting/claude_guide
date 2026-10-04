@@ -4,155 +4,262 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>스위스 크로노그래프</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%231a2540' stroke='%23d4af37' stroke-width='8'/><line x1='50' y1='50' x2='50' y2='16' stroke='%23d4af37' stroke-width='3'/></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23D52B1E'/><path d='M42 22h16v20h20v16H58v20H42V58H22V42h20z' fill='%23fff'/></svg>" />
 <style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
-  body{font-family:Georgia,'Times New Roman',serif;
-    background:radial-gradient(circle at 50% 34%,#1b1c20 0%,#0e0f12 60%,#060607 100%);
-    display:flex;align-items:center;justify-content:center;padding:10px}
-  .watch{position:relative;width:300px;height:300px;display:flex;align-items:center;justify-content:center}
-  /* 푸셔 3개 */
-  .pusher{position:absolute;right:3%;width:22px;height:30px;z-index:1;border-radius:5px 7px 7px 5px;
-    background:linear-gradient(180deg,#f3e3a4 0%,#d4af37 42%,#9c7c22 78%,#caa83a 100%);
-    box-shadow:2px 2px 5px rgba(0,0,0,.6),inset 0 2px 2px rgba(255,255,255,.6),inset 0 -2px 3px rgba(0,0,0,.4)}
-  .p1{top:26%}.p3{bottom:26%}
-  .p2{top:50%;right:0.5%;transform:translateY(-50%);height:42px;width:18px;
-    background:repeating-linear-gradient(90deg,#d4af37 0 2px,#9c7c22 2px 4px)}
-  /* 골드 베젤 */
-  .bezel{position:relative;z-index:2;width:268px;height:268px;border-radius:50%;
-    background:conic-gradient(from 90deg,#9c7c22,#f6e9b0,#caa83a,#fff3c4,#a8861f,#f0dd9a,#8f7019,#e7cf7e,#9c7c22);
-    padding:16px;box-shadow:0 18px 38px rgba(0,0,0,.65),inset 0 3px 5px rgba(255,255,255,.7),inset 0 -5px 10px rgba(0,0,0,.55)}
-  .bezel::before{content:"";position:absolute;inset:9px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),inset 0 0 14px rgba(0,0,0,.5)}
-  .dial{position:relative;width:100%;height:100%;border-radius:50%;overflow:hidden;
-    background:radial-gradient(circle at 50% 40%,#27355c 0%,#1a2340 55%,#10162b 100%);
-    box-shadow:inset 0 6px 20px rgba(0,0,0,.7)}
-  .dial::after{content:"";position:absolute;inset:0;border-radius:50%;
-    background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.025) 0deg 1deg,transparent 1deg 2deg)}
-  .ticks{position:absolute;inset:0}
-  .brand{position:absolute;left:0;right:0;top:30%;text-align:center;z-index:2;color:#d8c98e}
-  .brand .b1{font-size:13px;letter-spacing:5px;text-indent:5px}
-  .brand .b2{font-size:9px;font-style:italic;letter-spacing:1px;color:#b9a460;margin-top:1px}
-  .made{position:absolute;left:0;right:0;bottom:22%;text-align:center;z-index:2;
-    font-size:7.5px;letter-spacing:3px;color:#8f7d4a;text-indent:3px}
-  .digi{position:absolute;left:0;right:0;top:54%;text-align:center;z-index:3;
-    font-family:"Courier New",monospace;font-weight:700;font-variant-numeric:tabular-nums;
-    font-size:25px;letter-spacing:3px;color:#f4ecd2;text-shadow:0 1px 4px rgba(0,0,0,.6)}
-  .digi .cs{font-size:15px;color:#c9b06a}
-  .hand{position:absolute;left:50%;top:50%;width:2px;height:118px;z-index:2;
-    background:linear-gradient(#f6e9b0,#d4af37 70%,#9c7c22);transform-origin:50% 92px;
-    transform:translate(-50%,-92px) rotate(0deg);border-radius:2px;box-shadow:0 0 5px rgba(212,175,55,.4)}
-  .hand::after{content:"";position:absolute;left:50%;bottom:-26px;width:2px;height:26px;background:#d4af37;transform:translateX(-50%)}
-  .pin{position:absolute;left:50%;top:50%;width:9px;height:9px;border-radius:50%;z-index:4;transform:translate(-50%,-50%);
-    background:radial-gradient(circle at 38% 32%,#fff3c4,#d4af37 60%,#9c7c22)}
-  .hit{position:absolute;right:-8px;width:42px;height:46px;z-index:1;cursor:pointer;
-    background:transparent;border:none;padding:0;margin:0;pointer-events:auto}
-  .h1{top:22%}.h2{top:50%;transform:translateY(-50%);height:56px}.h3{bottom:22%}
-  .hit:focus-visible{outline:2px solid #f6e9b0;outline-offset:2px;border-radius:6px}
-  .lapline{position:absolute;left:0;right:0;bottom:-18px;text-align:center;font-family:Arial,sans-serif;
-    font-size:9px;font-weight:800;letter-spacing:.4px;color:#e8d9a4;min-height:11px;
-    text-shadow:0 1px 2px rgba(0,0,0,.9);
-    font-variant-numeric:tabular-nums}
-  /* 비활성 푸셔는 커서로도 알 수 있게 */
+  html,body{height:100%;overflow:hidden}
+  :root{--red:#D52B1E;--steel-lt:#F4F6F8;--steel:#B9C0C7;--steel-dk:#5E666E}
+  body{font-family:'Pretendard',-apple-system,"Helvetica Neue",Arial,sans-serif;
+    position:relative;display:flex;align-items:center;justify-content:center;padding:10px;
+    background:linear-gradient(180deg,#0E1A2B 0%,#1A2C45 60%,#24395A 100%)}
+
+  /* ── 알프스 ──
+     눈 덮인 봉우리 실루엣을 뒤에 깐다. 스위스라는 이름이 첫눈에 읽히게 한다. */
+  .alps{position:absolute;left:0;right:0;bottom:0;height:20%;pointer-events:none}
+  .alps svg{width:100%;height:100%;display:block}
+  .moon{position:absolute;top:8%;left:12%;width:22px;height:22px;border-radius:50%;
+    background:radial-gradient(circle at 40% 40%,#FFFBEA,#E9E2C4);box-shadow:0 0 18px rgba(255,248,220,.35)}
+
+  /* 눈. 시작하면 알프스 위로 눈이 내리고 달빛이 조금 밝아진다. 정지하면 그 자리에 멈춘다 */
+  .snow{position:absolute;inset:0;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .8s ease}
+  .snow i{position:absolute;top:-8px;border-radius:50%;background:#fff;animation:fall linear infinite;animation-play-state:paused}
+  body.live .snow{opacity:1}
+  body.run .snow i{animation-play-state:running}
+  @keyframes fall{to{transform:translate(var(--dx),110vh)}}
+  .moon{transition:box-shadow .8s ease}
+  body.run .moon{box-shadow:0 0 28px rgba(255,248,220,.6)}
+  @media (prefers-reduced-motion:reduce){.snow{display:none}}
+
+  .wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:6px;margin-right:46px}
+  .watch{position:relative;width:216px;height:216px}
+
+  /* ── 스틸 케이스와 타키미터 베젤 ── */
+  .case{position:absolute;inset:0;border-radius:50%;padding:9px;z-index:1;
+    background:conic-gradient(from 210deg,#6B737B,#F7F9FB 10%,#AEB5BC 22%,#4E555C 34%,#DDE2E6 48%,#FFFFFF 54%,#8A9199 66%,#41474D 78%,#C9CED3 90%,#6B737B);
+    box-shadow:0 16px 34px rgba(0,0,0,.6),inset 0 2px 1px rgba(255,255,255,.9),inset 0 -3px 6px rgba(0,0,0,.5)}
+  .face{position:relative;width:100%;height:100%;border-radius:50%;overflow:hidden;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.6),inset 0 4px 12px rgba(0,0,0,.45)}
+  .face svg{display:block;width:100%;height:100%}
+
+  /* 푸셔. 진짜 크로노그래프처럼 위(2시)는 시작·정지, 아래(4시)는 리셋, 가운데 용두는 랩.
+     케이스 중심에서 뻗은 팔(.arm)을 돌려 세워서, 푸셔가 늘 둥근 케이스 가장자리에 붙는다 */
+  .arm{position:absolute;left:50%;top:50%;width:0;height:0;z-index:0}
+  .arm.a1{transform:rotate(-42deg)}.arm.a3{transform:rotate(42deg)}
+  .push,.crown{position:absolute;top:-12px;left:99px;width:17px;height:24px;border-radius:3px 6px 6px 3px;
+    background:linear-gradient(180deg,#F4F6F8,#B9C0C7 45%,#6B737B 85%,#AEB5BC);
+    box-shadow:2px 2px 4px rgba(0,0,0,.55),inset 0 1px 1px rgba(255,255,255,.9);transition:transform .09s ease,filter .2s}
+  .crown{top:-14px;height:28px;left:100px;width:15px;border-radius:3px 7px 7px 3px;
+    background:repeating-linear-gradient(180deg,#E9EDF0 0 2px,#7D858D 2px 4px)}
+  .press{transform:translateX(-4px)}
+  .watch.d2 .crown,.watch.d3 .a3 .push{filter:brightness(.7)}
+
+  /* 보이지 않는 조작 영역. 푸셔 위에 겹쳐 둔다 */
+  .hit{position:absolute;left:92px;top:-20px;width:40px;height:40px;border:none;background:transparent;cursor:pointer;border-radius:50%}
   .hit:disabled{cursor:default}
-  /* 실제로 보이는 금색 푸셔에 상태를 입힌다 */
-  .pusher{transition:opacity .18s,filter .18s,transform .1s}
-  .watch.d2 .p2,.watch.d3 .p3{opacity:.4;filter:grayscale(.55)}
+  .hit:focus-visible{outline:2px solid #fff;outline-offset:1px}
+
+  /* 푸셔 옆 작은 안내. 각 푸셔 높이에 맞춘다 */
+  .tag{position:absolute;left:calc(100% + 18px);font-size:8px;font-weight:800;letter-spacing:.6px;color:rgba(235,240,245,.75);pointer-events:none;white-space:nowrap;line-height:1}
+  .tag.t1{top:28px;left:calc(100% + 6px)}.tag.t2{top:50%;margin-top:-4px;left:calc(100% + 18px)}.tag.t3{bottom:28px;left:calc(100% + 6px)}
+  .tag b{color:var(--red);font-weight:800}
 
 
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
-      transition-duration:.001ms !important;scroll-behavior:auto !important}
-  }
-  button:hover:not(:disabled){filter:brightness(1.1)}
+  .lapline{min-height:13px;font-size:10px;font-weight:800;letter-spacing:.4px;color:#E8EDF2;font-variant-numeric:tabular-nums;
+    text-shadow:0 1px 3px rgba(0,0,0,.8)}
+  .lapline em{font-style:normal;color:#FF6B5E;margin-right:4px}
+
+  @media (prefers-reduced-motion:reduce){.push,.crown{transition:none}}
 </style>
 </head>
 <body>
-  <div class="watch">
-    <span class="pusher p1" aria-hidden="true"></span>
-    <span class="pusher p2" aria-hidden="true"></span>
-    <span class="pusher p3" aria-hidden="true"></span>
-    <div class="bezel">
-      <div class="dial">
-        <svg class="ticks" viewBox="0 0 240 240" id="ticks" aria-hidden="true"></svg>
-        <div class="brand"><div class="b1">CHRONOGRAPHE</div><div class="b2">Gen&egrave;ve</div></div>
-        <div class="digi"><span id="t">00:00<span class="cs">.00</span></span></div>
-        <div class="made">SWISS MADE</div>
-        <div class="hand" id="hand"></div>
-        <div class="pin"></div>
+  <span class="moon" aria-hidden="true"></span>
+  <div class="alps" aria-hidden="true">
+    <svg viewBox="0 0 400 160" preserveAspectRatio="none">
+      <path d="M0 120 L40 82 L70 100 L120 40 L150 70 L175 52 L215 96 L250 60 L285 22 L320 74 L350 58 L400 96 V160 H0Z" fill="#2E4566"/>
+      <path d="M120 40 L106 57 L116 54 L124 60 L134 52 L141 60Z M285 22 L268 44 L280 40 L289 47 L298 38 L306 46Z M175 52 L166 63 L176 60 L184 64Z" fill="#E9EEF4" opacity=".9"/>
+      <path d="M0 140 L60 110 L110 128 L170 98 L230 130 L290 104 L350 126 L400 112 V160 H0Z" fill="#1C2E47"/>
+    </svg>
+  </div>
+
+  <div class="snow" id="snow" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="watch" id="w">
+      <div class="arm a1"><span class="push" id="pt" aria-hidden="true"></span><button class="hit" id="b1" type="button" aria-label="시작"></button></div>
+      <div class="arm a2"><span class="crown" id="pc" aria-hidden="true"></span><button class="hit" id="b2" type="button" aria-label="랩" disabled></button></div>
+      <div class="arm a3"><span class="push" id="pb" aria-hidden="true"></span><button class="hit" id="b3" type="button" aria-label="리셋" disabled></button></div>
+      <div class="case">
+        <div class="face">
+          <svg viewBox="0 0 240 240" aria-hidden="true">
+            <defs>
+              <radialGradient id="silver" cx=".5" cy=".4" r=".75">
+                <stop offset="0" stop-color="#FBFBF9"/><stop offset=".7" stop-color="#EDEDE8"/><stop offset="1" stop-color="#D8D8D2"/>
+              </radialGradient>
+            </defs>
+            <!-- 타키미터 링 -->
+            <circle cx="120" cy="120" r="120" fill="#121418"/>
+            <g id="tachy" font-family="Helvetica Neue, Arial, sans-serif" font-size="6.6" font-weight="700" fill="#F2F2F2" text-anchor="middle"></g>
+            <!-- 판다 다이얼 -->
+            <circle cx="120" cy="120" r="101" fill="url(#silver)"/>
+            <g id="track"></g>
+            <g id="idx"></g>
+
+            <!-- 스위스 십자 로고 -->
+            <rect x="113" y="48" width="14" height="14" rx="2" fill="#D52B1E"/>
+            <path d="M118 51h4v4h4v4h-4v4h-4v-4h-4v-4h4z" fill="#fff" transform="translate(0 -1)"/>
+            <text x="120" y="72" font-family="Helvetica Neue, Arial, sans-serif" font-size="6.4" font-weight="700" letter-spacing="1.8" fill="#16181C" text-anchor="middle">CHRONOGRAPHE</text>
+            <text x="120" y="79" font-family="Helvetica Neue, Arial, sans-serif" font-size="4.4" letter-spacing="1.6" fill="#7A7F86" text-anchor="middle">SUISSE</text>
+
+            <!-- 디지털 창 -->
+            <rect x="86" y="84" width="68" height="17" rx="3" fill="#16181C"/>
+            <text id="dg" x="120" y="96.6" font-family="Menlo, 'Courier New', monospace" font-size="10.4" font-weight="700" fill="#F2F2F2" text-anchor="middle">00:00.00</text>
+
+            <!-- 보조 다이얼 셋: 9시 1/10초, 3시 30분, 6시 12시간 -->
+            <g id="subs"></g>
+            <text x="66" y="134" font-family="Helvetica Neue, Arial, sans-serif" font-size="4.2" fill="#C9CED3" text-anchor="middle" letter-spacing=".5">1/10</text>
+            <text x="174" y="134" font-family="Helvetica Neue, Arial, sans-serif" font-size="4.2" fill="#C9CED3" text-anchor="middle" letter-spacing=".5">MIN</text>
+            <text x="120" y="186" font-family="Helvetica Neue, Arial, sans-serif" font-size="4.2" fill="#C9CED3" text-anchor="middle" letter-spacing=".5">HRS</text>
+            <g id="tenth"><line x1="66" y1="124" x2="66" y2="102" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></g>
+            <circle cx="66" cy="120" r="1.8" fill="#fff"/>
+            <g id="mins"><line x1="174" y1="124" x2="174" y2="102" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></g>
+            <circle cx="174" cy="120" r="1.8" fill="#fff"/>
+            <g id="hrs"><line x1="120" y1="176" x2="120" y2="154" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></g>
+            <circle cx="120" cy="172" r="1.8" fill="#fff"/>
+
+            <text x="120" y="208" font-family="Helvetica Neue, Arial, sans-serif" font-size="4.2" letter-spacing="2" fill="#7A7F86" text-anchor="middle">SWISS MADE</text>
+
+            <!-- 빨간 크로노 초침. 끝에 둥근 원판을 단 스위스 기차역 시계 바늘 -->
+            <g id="sec">
+              <line x1="120" y1="146" x2="120" y2="24" stroke="#D52B1E" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="120" cy="33" r="5" fill="#D52B1E"/>
+            </g>
+            <circle cx="120" cy="120" r="3.6" fill="#D52B1E"/><circle cx="120" cy="120" r="1.4" fill="#F4F6F8"/>
+          </svg>
+        </div>
       </div>
+      <span class="tag t1" aria-hidden="true" id="g1"><b>●</b> START</span>
+      <span class="tag t2" aria-hidden="true">LAP</span>
+      <span class="tag t3" aria-hidden="true">RESET</span>
     </div>
-    <button class="hit h1" id="b1" aria-label="시작 / 정지"></button>
-    <button class="hit h2" id="b3" aria-label="리셋"></button>
-    <button class="hit h3" id="b2" aria-label="랩"></button>
     <div class="lapline" id="lp" aria-live="polite"></div>
   </div>
 <script>
 (function(){
-  var ns="http://www.w3.org/2000/svg",svg=document.getElementById('ticks');
-  for(var i=0;i<60;i++){var a=i*6*Math.PI/180,maj=(i%5===0),r1=maj?98:104,r2=112,l=document.createElementNS(ns,'line');
-    l.setAttribute('x1',(120+r1*Math.sin(a)).toFixed(1));l.setAttribute('y1',(120-r1*Math.cos(a)).toFixed(1));
-    l.setAttribute('x2',(120+r2*Math.sin(a)).toFixed(1));l.setAttribute('y2',(120-r2*Math.cos(a)).toFixed(1));
-    l.setAttribute('stroke',maj?'#d4af37':'rgba(212,175,55,.4)');l.setAttribute('stroke-width',maj?2.4:1);l.setAttribute('stroke-linecap','round');svg.appendChild(l);}
-  var t=document.getElementById('t'),hand=document.getElementById('hand'),lp=document.getElementById('lp'),
-      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
-  var run=false,stt=0,acc=0,iv=null,laps=[];
-  function el(){return acc+(run?performance.now()-stt:0);}
-  function parts(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);return[mm,ss,cc];}
-  function pad(n){return String(n).padStart(2,'0');}
-  function f(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1])+'<span class="cs">.'+pad(p[2])+'</span>';}
-  function plain(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1])+'.'+pad(p[2]);}
-  function draw(){var e=el();t.innerHTML=f(e);hand.style.transform='translate(-50%,-92px) rotate('+((e/1000)%60*6)+'deg)';}
+  var NS='http://www.w3.org/2000/svg';
+  function ln(g,x1,y1,x2,y2,c,w){var l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',x1.toFixed(2));l.setAttribute('y1',y1.toFixed(2));l.setAttribute('x2',x2.toFixed(2));l.setAttribute('y2',y2.toFixed(2));
+    l.setAttribute('stroke',c);l.setAttribute('stroke-width',w);g.appendChild(l);return l;}
+  function pol(cx,cy,r,deg){var a=deg*Math.PI/180;return[cx+r*Math.sin(a),cy-r*Math.cos(a)];}
 
-  /* ── 접근성 공통 ──
-     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
-     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  /* 타키미터. 1km를 t초에 지나면 속도는 3600/t km/h. 그 값이 놓일 각도에 숫자를 찍는다 */
+  var ty=document.getElementById('tachy');
+  [500,400,300,250,200,150,120,100,90,80,70,60].forEach(function(v){
+    var deg=3600/v*6,p=pol(120,120,111,deg),tx=document.createElementNS(NS,'text');
+    tx.setAttribute('x',p[0].toFixed(2));tx.setAttribute('y',(p[1]+2.3).toFixed(2));
+    tx.setAttribute('transform','rotate('+deg+' '+p[0].toFixed(2)+' '+p[1].toFixed(2)+')');
+    tx.textContent=v;ty.appendChild(tx);
+  });
+
+  /* 초 트랙. 1/5초 눈금 300칸 */
+  var tr=document.getElementById('track');
+  for(var i=0;i<300;i++){var d=i*1.2,big=i%25===0,mid=i%5===0;
+    var a=pol(120,120,big?90:(mid?94:96.5),d),b=pol(120,120,99,d);
+    ln(tr,a[0],a[1],b[0],b[1],'#16181C',big?1.4:(mid?.7:.3));}
+  /* 아플리케 인덱스. 보조 다이얼과 로고 자리는 비운다 */
+  var ix=document.getElementById('idx');
+  [30,60,120,150,210,240,300,330].forEach(function(d){
+    var a=pol(120,120,78,d),b=pol(120,120,88,d);
+    ln(ix,a[0],a[1],b[0],b[1],'#16181C',3.6).setAttribute('stroke-linecap','round');
+    ln(ix,a[0],a[1],b[0],b[1],'#E6E9EC',1.2).setAttribute('stroke-linecap','round');
+  });
+
+  /* 보조 다이얼 셋 */
+  var sb=document.getElementById('subs');
+  function sub(cx,cy,n,majorEvery){
+    var c=document.createElementNS(NS,'circle');c.setAttribute('cx',cx);c.setAttribute('cy',cy);c.setAttribute('r',24);
+    c.setAttribute('fill','#16181C');c.setAttribute('stroke','#C9CED3');c.setAttribute('stroke-width','1.4');sb.appendChild(c);
+    for(var k=0;k<n;k++){var dd=k*360/n,big=k%majorEvery===0,a=pol(cx,cy,big?17:19.5,dd),b=pol(cx,cy,22,dd);
+      ln(sb,a[0],a[1],b[0],b[1],'#E6E9EC',big?1:.45);}
+  }
+  sub(66,120,50,5);sub(174,120,30,5);sub(120,172,12,3);
+
+  /* 눈송이 마흔 개. 크기와 속도, 옆으로 흘러가는 폭을 제각각 둔다 */
+  var sn=document.getElementById('snow');
+  for(var q=0;q<40;q++){var f=document.createElement('i'),z=1+Math.random()*2.6,dur=5+Math.random()*7;
+    f.style.cssText='left:'+(Math.random()*100)+'%;width:'+z+'px;height:'+z+'px;opacity:'+(.35+Math.random()*.55)+
+      ';animation-duration:'+dur+'s;animation-delay:'+(-Math.random()*dur)+'s;--dx:'+(Math.random()*40-20)+'px';
+    sn.appendChild(f);}
+
+  /* ── 스탑워치 ── */
+  var w=document.getElementById('w'),sec=document.getElementById('sec'),tenth=document.getElementById('tenth'),
+      mins=document.getElementById('mins'),hrs=document.getElementById('hrs'),dg=document.getElementById('dg'),
+      lp=document.getElementById('lp'),g1=document.getElementById('g1'),
+      pt=document.getElementById('pt'),pc=document.getElementById('pc'),pb=document.getElementById('pb'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,st=0,acc=0,raf=0,laps=[],last=0;
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n){return String(n).padStart(2,'0');}
+  function plain(ms){var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);return pad(mm)+':'+pad(ss)+'.'+pad(cc);}
+  function draw(){
+    var e=el();dg.textContent=plain(e);
+    sec.setAttribute('transform','rotate('+(e/1000%60*6).toFixed(3)+' 120 120)');
+    tenth.setAttribute('transform','rotate('+(e%1000/1000*360).toFixed(2)+' 66 120)');
+    mins.setAttribute('transform','rotate('+(Math.floor(e/60000)%30*12)+' 174 120)');
+    hrs.setAttribute('transform','rotate('+(e/3600000%12*30).toFixed(2)+' 120 172)');
+  }
+  function loop(){draw();if(run)raf=requestAnimationFrame(loop);}
+  function press(p){p.classList.add('press');setTimeout(function(){p.classList.remove('press');},140);}
+
   var srSay=(function(){
     var r=document.createElement('div');
-    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
-    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
-      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    r.setAttribute('role','status');r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
     document.body.appendChild(r);
-    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+    return function(m){r.textContent='';setTimeout(function(){r.textContent=m;},30);};
   })();
-  function srHuman(ms){
-    if(ms<0)ms=0;
-    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
-    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
-  }
-  var srWasRun=false, srLast=0;
-  function ui(){
-    b2.disabled=!run;
-    b3.disabled=run||el()===0;
-    var wa=document.querySelector('.watch');
-    if(wa){wa.classList.toggle('d3',b2.disabled);wa.classList.toggle('d2',b3.disabled);}
-    b1.setAttribute('aria-label',run?'정지':(el()>0?'재개':'시작'));
 
-    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
-    var srE=el();
-    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
-    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
-    srWasRun=run; srLast=srE;
-    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  function ui(){
+    var e=el();
+    b2.disabled=!run;b3.disabled=run||e===0;
+    document.body.classList.toggle('run',run);document.body.classList.toggle('live',run||e>0);
+    w.classList.toggle('d2',b2.disabled);w.classList.toggle('d3',b3.disabled);
+    b1.setAttribute('aria-label',run?'정지':(e>0?'재개':'시작'));
+    g1.innerHTML='<b>●</b> '+(run?'STOP':'START');
+    if(document.activeElement&&document.activeElement.disabled)b1.focus();
   }
-  function start(){run=true;stt=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
-  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
-  function reset(){if(run)return;acc=0;stt=0;laps=[];lp.textContent='';draw();ui();}
-  function lap(){if(!run)return;var e=el(),sp=e-(laps.length?laps[laps.length-1].t:0);
-    laps.push({t:e,sp:sp});
-    var best=Math.min.apply(null,laps.map(function(x){return x.sp}));
-    lp.textContent='LAP '+laps.length+' · '+plain(e)+(laps.length>1&&sp===best?' ★':'');}
-  b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
-  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
-  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  function go(){
+    press(pt);
+    if(run){acc=el();run=false;cancelAnimationFrame(raf);draw();srSay('정지. 경과 시간 '+plain(acc));}
+    else{st=performance.now();run=true;loop();}
+    ui();
+  }
+  function lap(){
+    if(!run)return;press(pc);
+    var e=el(),sp=e-last;last=e;laps.push(sp);
+    var best=Math.min.apply(null,laps);
+    lp.innerHTML='<em>LAP '+laps.length+'</em>'+plain(sp)+(laps.length>1&&sp===best?' ★':'');
+  }
+  /* 리셋하면 바늘들이 0으로 미끄러져 돌아간다 */
+  function reset(){
+    if(run)return;press(pb);
+    var from=acc,t0=performance.now();acc=0;laps=[];last=0;lp.textContent='';ui();
+    (function back(){
+      var k=Math.min(1,(performance.now()-t0)/450),ease=1-Math.pow(1-k,3),v=from*(1-ease);
+      acc=v;draw();acc=0;
+      if(k<1)requestAnimationFrame(back);else{draw();srSay('초기화했습니다');}
+    })();
+  }
+
+  b1.addEventListener('click',go);b2.addEventListener('click',lap);b3.addEventListener('click',reset);
   document.addEventListener('keydown',function(e){
     if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
-    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
-    if(e.key===' '){e.preventDefault();run?stop():start();}
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();go();}
     else if(e.key==='l'||e.key==='L'){lap();}
     else if(e.key==='r'||e.key==='R'){reset();}
   });
-  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run){cancelAnimationFrame(raf);loop();}});
   draw();ui();
 })();
 </script>

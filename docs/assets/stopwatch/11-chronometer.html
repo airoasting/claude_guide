@@ -3,118 +3,204 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>크로노미터</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%23F3E9CE' stroke='%23C9A24A' stroke-width='5'/></svg>" />
+<title>항해용 크로노미터</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='6' y='6' width='88' height='88' rx='8' fill='%235A2E1A'/><circle cx='50' cy='50' r='34' fill='%23F7F2E6' stroke='%23C9A24A' stroke-width='6'/><path d='M50 50V22' stroke='%231F3F8A' stroke-width='4'/></svg>" />
 <style>
   @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
-  body{font-family:"Georgia","Times New Roman",'Pretendard',serif;
-    background:radial-gradient(circle at 50% 32%,#322a1a 0%,#1d1810 55%,#100b07 100%);
-    display:flex;align-items:center;justify-content:center;color:#EADFC4;padding:14px}
-  .stage{display:flex;flex-direction:column;align-items:center;gap:16px}
+  html,body{height:100%;overflow:hidden}
+  :root{--brass:#C9A24A;--brass-lt:#F0D894;--wood:#5A2E1A;--blue:#1F3F8A;}
+  body{font-family:Georgia,"Times New Roman",'Pretendard',serif;color:#EADFC4;
+    position:relative;display:flex;align-items:center;justify-content:center;padding:12px;
+    background:radial-gradient(120% 90% at 50% 20%,#1E2B3C 0%,#121B27 55%,#0A0F16 100%)}
 
-  .watch{position:relative;width:262px;height:262px}
-  /* 금 케이스 */
-  .case{position:absolute;inset:0;border-radius:50%;padding:13px;
-    background:conic-gradient(from 125deg,#6e5418,#e9cf86,#b8902f,#f3dca0,#8a6a2a,#f0d894,#a8821e,#f3dca0,#6e5418);
-    box-shadow:0 18px 40px rgba(0,0,0,.62),inset 0 2px 3px rgba(255,255,255,.6),inset 0 -5px 10px rgba(80,55,10,.6)}
-  .case::before{content:"";position:absolute;inset:9px;border-radius:50%;
-    box-shadow:inset 0 0 0 2px rgba(120,90,30,.55),inset 0 0 0 3px rgba(245,225,160,.35)}
-  /* 크라운 */
-  .crown{position:absolute;right:-7px;top:50%;transform:translateY(-50%);width:15px;height:30px;border-radius:4px;z-index:0;
-    background:linear-gradient(90deg,#7a5e1e,#e9cf86 45%,#a8821e);
-    box-shadow:0 3px 5px rgba(0,0,0,.5),inset 0 1px 1px rgba(255,255,255,.5)}
-  .crown::after{content:"";position:absolute;inset:3px 4px;border-radius:2px;
-    background:repeating-linear-gradient(90deg,rgba(80,55,10,.6) 0 1px,transparent 1px 3px)}
-  /* 다이얼 */
-  .dial{position:relative;width:100%;height:100%;border-radius:50%;overflow:hidden;
-    background:radial-gradient(circle at 50% 40%,#FBF4DF 0%,#EFE0BC 62%,#DEC99B 100%);
-    box-shadow:inset 0 3px 10px rgba(120,90,40,.32),inset 0 -2px 6px rgba(120,90,40,.2)}
-  .dialsvg{position:absolute;inset:0;width:100%;height:100%}
-  .brand{position:absolute;top:29%;left:0;right:0;text-align:center;z-index:1;
-    font-style:italic;font-weight:700;font-size:19px;color:#7A5A1E;letter-spacing:.5px;text-shadow:0 1px 0 rgba(255,255,255,.4)}
-  .stars{position:absolute;top:67%;left:0;right:0;text-align:center;z-index:1;color:#8A6A22;font-size:10px;font-weight:700;letter-spacing:1.5px;text-indent:1.5px;font-variant-numeric:tabular-nums}
-  /* 중앙 디지털 카르투슈 */
-  .cartouche{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1;
-    padding:5px 14px;border-radius:7px;
-    background:linear-gradient(180deg,#2b2114,#15100a);
-    border:2px solid #C9A24A;
-    box-shadow:0 2px 7px rgba(0,0,0,.45),inset 0 0 8px rgba(0,0,0,.55),inset 0 1px 0 rgba(245,225,160,.25)}
-  .time{font-weight:700;font-variant-numeric:tabular-nums;font-size:27px;color:#F3DFA2;letter-spacing:1px;
-    text-shadow:0 0 6px rgba(201,162,71,.35)}
-  .time .cs{font-size:15px;color:#C9A24A}
+  /* ── 바다 ──
+     아래쪽에 물결 두 겹. 계측이 시작되면 배가 움직이듯 흘러간다. */
+  .sea{position:absolute;left:0;right:0;bottom:0;height:70px;pointer-events:none;overflow:hidden;opacity:.55}
+  .sea svg{position:absolute;bottom:0;left:0;width:200%;height:100%}
+  .sea .w1{fill:#1C3550}.sea .w2{fill:#244566;opacity:.8}
+  body.live .sea .s1{animation:flow 7s linear infinite}
+  body.live .sea .s2{animation:flow 4.6s linear infinite reverse}
+  body.live:not(.run) .sea svg{animation-play-state:paused}
+  @keyframes flow{to{transform:translateX(-50%)}}
+
+  .stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;z-index:1}
+
+  /* ── 나무 상자 ──
+     마호가니 상자에 놋쇠 모서리를 박았다. 배가 흔들리면 상자도 함께 기운다. */
+  .box{position:relative;width:218px;height:218px;border-radius:10px;transform-origin:50% 60%;
+    background:
+      repeating-linear-gradient(8deg,rgba(0,0,0,.10) 0 2px,transparent 2px 7px),
+      repeating-linear-gradient(-4deg,rgba(255,200,150,.05) 0 1px,transparent 1px 11px),
+      linear-gradient(160deg,#7A3E22 0%,#5A2E1A 45%,#3E1E10 100%);
+    box-shadow:0 18px 34px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,220,180,.25),inset 0 -3px 8px rgba(0,0,0,.45)}
+  .box::before{content:"";position:absolute;inset:9px;border-radius:6px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.45),inset 0 0 0 2px rgba(255,210,160,.12)}
+  .corner{position:absolute;width:22px;height:22px;
+    background:linear-gradient(135deg,#F3DFA2,#C9A24A 55%,#8A6A22);box-shadow:0 1px 2px rgba(0,0,0,.5)}
+  .corner.tl{top:0;left:0;border-radius:10px 0 14px 0}
+  .corner.tr{top:0;right:0;border-radius:0 10px 0 14px}
+  .corner.bl{bottom:0;left:0;border-radius:0 14px 0 10px}
+  .corner.br{bottom:0;right:0;border-radius:14px 0 10px 0}
+
+  /* 짐벌. 상자가 기울어도 다이얼은 늘 수평을 지킨다 */
+  .gimbal{position:absolute;inset:14px;border-radius:50%;
+    background:conic-gradient(from 120deg,#7A5A1E,#F0D894,#B8902F,#F6E2A8,#8A6A22,#E9CF86,#A8821E,#F0D894,#7A5A1E);
+    box-shadow:0 3px 8px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,240,200,.4)}
+  .pivot{position:absolute;top:50%;width:10px;height:16px;margin-top:-8px;border-radius:3px;
+    background:linear-gradient(180deg,#F3DFA2,#9A7628);box-shadow:0 1px 2px rgba(0,0,0,.5)}
+  .pivot.l{left:-6px}.pivot.r{right:-6px}
+  .level{position:absolute;inset:9px;border-radius:50%}
+  .level svg{display:block;width:100%;height:100%}
+
+  body.live .box{animation:rock 5.2s ease-in-out infinite}
+  body.live .level{animation:rock 5.2s ease-in-out infinite reverse}
+  body.live:not(.run) .box,body.live:not(.run) .level{animation-play-state:paused}
+  @keyframes rock{0%,100%{transform:rotate(0)}25%{transform:rotate(4deg)}75%{transform:rotate(-4deg)}}
+
+  /* 초침은 반 초마다 한 칸. 실제 항해용 크로노미터의 박자다 */
+  #sec{transform-origin:100px 100px;transition:transform .12s cubic-bezier(.3,1.8,.5,1)}
+  #min{transform-origin:134px 100px}
+  #pwr{transform-origin:66px 102px;transition:transform .6s ease}
+
+  /* ── 놋쇠 명판 ── */
+  .plate{display:flex;align-items:baseline;gap:10px;padding:5px 14px;border-radius:5px;
+    background:linear-gradient(180deg,#F0D894,#C9A24A 55%,#9A7628);color:#2A1E0C;
+    box-shadow:0 3px 8px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.55)}
+  .plate .time{font-weight:700;font-size:21px;font-variant-numeric:tabular-nums lining-nums;font-family:"Times New Roman",Times,serif;letter-spacing:.5px}
+  .plate .time .cs{font-size:13px;color:#5A4318}
+  .plate .lap{font-size:10px;font-weight:700;letter-spacing:.5px;color:#5A4318;font-family:'Pretendard',sans-serif;min-width:0}
+  .plate .lap:empty{display:none}
 
   .row{display:flex;gap:9px}
-  button{font-family:inherit;font-weight:700;font-size:11px;cursor:pointer;padding:10px 0;width:70px;border-radius:22px;
-    border:1px solid #C9A24A;background:linear-gradient(180deg,rgba(60,48,26,.6),rgba(28,21,12,.7));color:#EADFC4;
-    transition:transform .07s,background .15s;box-shadow:inset 0 1px 0 rgba(245,225,160,.18),0 3px 8px rgba(0,0,0,.4)}
+  button{font-family:inherit;font-weight:700;font-size:11px;letter-spacing:.5px;cursor:pointer;height:36px;width:76px;border-radius:20px;
+    border:1px solid var(--brass);background:linear-gradient(180deg,rgba(40,52,70,.7),rgba(18,26,38,.8));color:#EADFC4;
+    transition:transform .07s,background .15s,filter .15s;box-shadow:inset 0 1px 0 rgba(245,225,160,.18),0 3px 8px rgba(0,0,0,.4)}
   button:active{transform:translateY(2px)}
-  #b1{background:linear-gradient(180deg,#E8CF86,#B8902F);color:#2a2010;border-color:#F0DCA0;
+  #b1{background:linear-gradient(180deg,#F0D894,#B8902F);color:#2a2010;border-color:#F6E2A8;
     box-shadow:0 3px 10px rgba(201,162,71,.4),inset 0 1px 0 rgba(255,255,255,.5)}
-  #b1.run{background:linear-gradient(180deg,#9a2f1a,#6e1f10);color:#f4eeda;border-color:#9a2f1a}
-  button:disabled{opacity:.6;cursor:default}
-  button:focus-visible{outline:2px solid #F3DFA2;outline-offset:2px}
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
-      transition-duration:.001ms !important;scroll-behavior:auto !important}
-  }
+  #b1.run{background:linear-gradient(180deg,#2C4F9E,#1F3F8A);color:#F4EEDA;border-color:#4A6CC0}
+  button:disabled{opacity:.45;cursor:default}
   button:hover:not(:disabled){filter:brightness(1.1)}
+  button:focus-visible{outline:2px solid #F3DFA2;outline-offset:2px}
+
+  @media (prefers-reduced-motion: reduce){
+    body.live .box,body.live .level,body.live .sea svg{animation:none}
+    #sec,#pwr{transition:none}
+  }
 </style>
 </head>
 <body>
+  <div class="sea" aria-hidden="true">
+    <svg class="s1" viewBox="0 0 800 70" preserveAspectRatio="none"><path class="w1" d="M0 34 Q50 20 100 34 T200 34 T300 34 T400 34 T500 34 T600 34 T700 34 T800 34 V70 H0Z"/></svg>
+    <svg class="s2" viewBox="0 0 800 70" preserveAspectRatio="none"><path class="w2" d="M0 48 Q40 38 80 48 T160 48 T240 48 T320 48 T400 48 T480 48 T560 48 T640 48 T720 48 T800 48 V70 H0Z"/></svg>
+  </div>
+
   <div class="stage">
-    <div class="watch">
-      <div class="crown" aria-hidden="true"></div>
-      <div class="case">
-        <div class="dial">
-          <svg class="dialsvg" viewBox="0 0 200 200" id="dialsvg" aria-hidden="true"></svg>
-          <div class="brand">Chronometer</div>
-          <div class="cartouche"><span class="time"><span id="t">00:00<span class="cs">.00</span></span></span></div>
-          <div class="stars" id="lapline" aria-live="polite">✦ ✦ ✦</div>
+    <div class="box" aria-hidden="true">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <div class="gimbal">
+        <span class="pivot l"></span><span class="pivot r"></span>
+        <div class="level">
+          <svg viewBox="0 0 200 200" id="dial">
+            <defs>
+              <radialGradient id="enamel" cx=".5" cy=".42" r=".7">
+                <stop offset="0" stop-color="#FFFDF7"/><stop offset="1" stop-color="#EDE5D3"/>
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="100" r="99" fill="url(#enamel)"/>
+            <circle cx="100" cy="100" r="99" fill="none" stroke="#B8902F" stroke-width="2"/>
+            <g id="ticks"></g>
+            <g id="nums" font-family="Times New Roman, Times, serif" font-size="11" fill="#2A2018" text-anchor="middle"></g>
+
+            <!-- 태엽 잔량(Up & Down) 보조 다이얼, 왼쪽 -->
+            <g>
+              <circle cx="66" cy="100" r="20" fill="#F4EEE0" stroke="#2A2018" stroke-width=".7"/>
+              <g id="pticks"></g>
+              <text x="66" y="112" font-size="4.6" text-anchor="middle" fill="#6E5D48" font-family="Times New Roman, serif" letter-spacing=".4">UP &amp; DOWN</text>
+              <text x="55" y="94" font-size="4.4" text-anchor="middle" fill="#2A2018" font-family="Times New Roman, serif">0</text>
+              <text x="77" y="94" font-size="4.4" text-anchor="middle" fill="#2A2018" font-family="Times New Roman, serif">56</text>
+              <line id="pwr" x1="66" y1="102" x2="66" y2="85" stroke="#1F3F8A" stroke-width="1.4" stroke-linecap="round"/>
+              <circle cx="66" cy="102" r="1.9" fill="#1F3F8A"/>
+            </g>
+
+            <!-- 분 적산 보조 다이얼 (0~30분), 오른쪽 -->
+            <g>
+              <circle cx="134" cy="100" r="20" fill="#F4EEE0" stroke="#2A2018" stroke-width=".7"/>
+              <g id="mticks"></g>
+              <text x="134" y="112" font-size="4.8" text-anchor="middle" fill="#6E5D48" font-family="Times New Roman, serif" letter-spacing=".5">MIN</text>
+              <line id="min" x1="134" y1="100" x2="134" y2="84" stroke="#1F3F8A" stroke-width="1.4" stroke-linecap="round"/>
+              <circle cx="134" cy="100" r="1.9" fill="#1F3F8A"/>
+            </g>
+
+            <text x="100" y="140" font-size="7.4" text-anchor="middle" fill="#2A2018" font-family="Times New Roman, serif" letter-spacing="1.6">MARINE</text>
+            <text x="100" y="148.5" font-size="6" text-anchor="middle" fill="#6E5D48" font-family="Times New Roman, serif" font-style="italic" letter-spacing=".8">Chronometer</text>
+
+            <!-- 블루 스틸 초침 -->
+            <g id="sec">
+              <line x1="100" y1="118" x2="100" y2="14" stroke="#1F3F8A" stroke-width="1.4" stroke-linecap="round"/>
+              <circle cx="100" cy="116" r="4.2" fill="none" stroke="#1F3F8A" stroke-width="1.4"/>
+            </g>
+            <circle cx="100" cy="100" r="3.6" fill="#1F3F8A"/><circle cx="100" cy="100" r="1.3" fill="#C9A24A"/>
+          </svg>
         </div>
       </div>
     </div>
+
+    <div class="plate"><span class="time" id="t" role="timer">00:00<span class="cs">.00</span></span><span class="lap" id="lapline" aria-live="polite"></span></div>
+
     <div class="row">
-      <button id="b1">START</button>
-      <button id="b2" disabled>LAP</button>
-      <button id="b3" disabled>RESET</button>
+      <button id="b1" type="button">START</button>
+      <button id="b2" type="button" disabled>LAP</button>
+      <button id="b3" type="button" disabled>RESET</button>
     </div>
   </div>
 <script>
 (function(){
-  // ── 다이얼 디테일 생성 (선버스트 기요셰 + 분 트랙 + 금 인덱스) ──
-  var ns="http://www.w3.org/2000/svg",svg=document.getElementById("dialsvg"),cx=100,cy=100;
-  function ln(x1,y1,x2,y2,s,w,cap){var l=document.createElementNS(ns,"line");
+  /* ── 다이얼 그리기 ── */
+  var ns="http://www.w3.org/2000/svg";
+  function ln(g,x1,y1,x2,y2,s,w){var l=document.createElementNS(ns,"line");
     l.setAttribute("x1",x1.toFixed(2));l.setAttribute("y1",y1.toFixed(2));l.setAttribute("x2",x2.toFixed(2));l.setAttribute("y2",y2.toFixed(2));
-    l.setAttribute("stroke",s);l.setAttribute("stroke-width",w);if(cap)l.setAttribute("stroke-linecap",cap);svg.appendChild(l);}
-  // 선버스트 (가는 방사선)
-  for(var i=0;i<200;i++){var a=i*1.8*Math.PI/180;ln(cx+16*Math.sin(a),cy-16*Math.cos(a),cx+86*Math.sin(a),cy-86*Math.cos(a),i%2?"rgba(150,115,40,.05)":"rgba(110,82,26,.09)",0.6);}
-  // 동심원 (바리콘 느낌)
-  for(var r=26;r<=82;r+=7){var c=document.createElementNS(ns,"circle");c.setAttribute("cx",cx);c.setAttribute("cy",cy);c.setAttribute("r",r);c.setAttribute("fill","none");c.setAttribute("stroke","rgba(140,105,36,.05)");c.setAttribute("stroke-width","0.6");svg.appendChild(c);}
-  // 분 트랙
-  var ring=document.createElementNS(ns,"circle");ring.setAttribute("cx",cx);ring.setAttribute("cy",cy);ring.setAttribute("r",90);ring.setAttribute("fill","none");ring.setAttribute("stroke","rgba(122,90,30,.5)");ring.setAttribute("stroke-width","1");svg.appendChild(ring);
-  for(var i=0;i<60;i++){var a=i*6*Math.PI/180,maj=i%5===0;ln(cx+(maj?82:86)*Math.sin(a),cy-(maj?82:86)*Math.cos(a),cx+90*Math.sin(a),cy-90*Math.cos(a),"#7A5A1E",maj?1.6:0.7,"round");}
-  // 금 시간 인덱스 (12개)
-  for(var h=0;h<12;h++){var a=h*30*Math.PI/180;ln(cx+67*Math.sin(a),cy-67*Math.cos(a),cx+78*Math.sin(a),cy-78*Math.cos(a),"#B8902F",h%3===0?3.4:2.4,"round");}
+    l.setAttribute("stroke",s);l.setAttribute("stroke-width",w);l.setAttribute("stroke-linecap","round");g.appendChild(l);}
+  var tk=document.getElementById('ticks'),nm=document.getElementById('nums');
+  /* 바깥 초 트랙. 반 초 눈금까지 120칸 */
+  for(var i=0;i<120;i++){var a=i*3*Math.PI/180,five=i%10===0,one=i%2===0,r1=five?84:(one?88:90);
+    ln(tk,100+r1*Math.sin(a),100-r1*Math.cos(a),100+94*Math.sin(a),100-94*Math.cos(a),"#2A2018",five?1.6:(one?.8:.45));}
+  for(var k=1;k<=12;k++){var a2=k*30*Math.PI/180,tx=document.createElementNS(ns,"text");
+    tx.setAttribute("x",(100+74*Math.sin(a2)).toFixed(2));tx.setAttribute("y",(100-74*Math.cos(a2)+3.8).toFixed(2));
+    tx.textContent=k*5;nm.appendChild(tx);}
+  /* 태엽 잔량 눈금. -58도(0시간)부터 +58도(56시간)까지 */
+  var pt=document.getElementById('pticks');
+  for(var p=0;p<=8;p++){var ap=(-58+p*14.5)*Math.PI/180,bigp=p%4===0;
+    ln(pt,66+17*Math.sin(ap),102-17*Math.cos(ap),66+(bigp?12.5:14.5)*Math.sin(ap),102-(bigp?12.5:14.5)*Math.cos(ap),"#2A2018",bigp?.9:.5);}
+  var mt=document.getElementById('mticks');
+  for(var m=0;m<30;m++){var am=m*12*Math.PI/180,big=m%5===0;
+    ln(mt,134+20*Math.sin(am),100-20*Math.cos(am),134+(big?15:17.5)*Math.sin(am),100-(big?15:17.5)*Math.cos(am),"#2A2018",big?.9:.45);}
 
-  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),lapline=document.getElementById('lapline');
-  var run=false,st=0,acc=0,iv=null,laps=[],last=0;
+  var sec=document.getElementById('sec'),min=document.getElementById('min'),pwr=document.getElementById('pwr');
+  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),
+      lapline=document.getElementById('lapline'),bd=document.body;
+  var run=false,st=0,acc=0,iv=null,laps=[],last=0,lastBeat=-1;
   function el(){return acc+(run?performance.now()-st:0);}
   function f(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
     return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'<span class="cs">.'+String(cc).padStart(2,'0')+'</span>';}
   function plain(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);
     return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cc).padStart(2,'0');}
-  function draw(){t.innerHTML=f(el());}
+  function draw(){
+    var e=el();t.innerHTML=f(e);
+    /* 반 초 박자. 각도는 누적해서 59→0으로 넘어갈 때도 앞으로만 돈다 */
+    var beat=Math.floor(e/500);
+    if(beat!==lastBeat){lastBeat=beat;sec.style.transform='rotate('+beat*3+'deg)';}
+    min.style.transform='rotate('+(e/60000%30)*12+'deg)';
+    /* 태엽 잔량. 감은 상태(56)에서 시작해 1분에 한 칸씩 풀린다 */
+    var left=Math.max(0,1-e/(56*60000));
+    pwr.style.transform='rotate('+(-58+116*left)+'deg)';
+  }
 
-  /* ── 접근성 공통 ──
-     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
-     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
   var srSay=(function(){
     var r=document.createElement('div');
     r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
-    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
-      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
     document.body.appendChild(r);
     return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
   })();
@@ -124,17 +210,22 @@
     return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
   }
   var srWasRun=false, srLast=0;
-  function ui(){b1.textContent=run?'STOP':(el()>0?'RESUME':'START');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;
-    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
-    var srE=el();
-    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
-    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
-    srWasRun=run; srLast=srE;
+  function ui(){
+    var e=el();
+    b1.textContent=run?'STOP':(e>0?'RESUME':'START');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||e===0;
+    bd.classList.toggle('run',run);bd.classList.toggle('live',run||e>0);
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(e));
+    else if(!srWasRun&&!run&&srLast>0&&e===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=e;
     if(document.activeElement&&document.activeElement.disabled) b1.focus();
   }
-  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
+  function start(){if(run)return;run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();ui();}
-  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;draw();ui();lapline.textContent='✦ ✦ ✦';}
+  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;lastBeat=-1;
+    /* 초침이 거꾸로 돌아 0으로 돌아가는 모습을 한 번 보여 준다 */
+    sec.style.transition='transform .7s cubic-bezier(.4,0,.2,1)';draw();
+    setTimeout(function(){sec.style.transition='';},720);
+    lapline.textContent='';ui();}
   function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
     var best=Math.min.apply(null,laps);
     lapline.textContent='LAP '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');}

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>계산기 시계 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='8' width='72' height='84' rx='12' fill='%231C1D20'/><rect x='22' y='18' width='56' height='26' rx='3' fill='%23B9C2A4'/><g fill='%23555A60'><rect x='22' y='52' width='12' height='8' rx='2'/><rect x='38' y='52' width='12' height='8' rx='2'/><rect x='54' y='52' width='12' height='8' rx='2'/><rect x='22' y='66' width='12' height='8' rx='2'/><rect x='38' y='66' width='12' height='8' rx='2'/><rect x='54' y='66' width='12' height='8' rx='2'/></g></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{--lcd:#CDD0C8;--seg:#25272A;--ghost:rgba(37,39,42,.07);--gold:#D8B66A;--blue:#4FA3D9}
+  body{font-family:'Pretendard',-apple-system,"Helvetica Neue",Arial,sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(120% 90% at 50% 30%,#EDEBE6 0%,#D6D3CC 55%,#BDB9B1 100%)}
+
+  /* ── 스틸 브레이슬릿. 위아래로 화면 밖까지 이어진다 ── */
+  .band{position:absolute;left:50%;width:176px;margin-left:-88px;height:240px;z-index:-1;
+    background:
+      repeating-linear-gradient(180deg,rgba(0,0,0,.18) 0 1px,transparent 1px 13px),
+      linear-gradient(90deg,#9EA3A9 0%,#E9EBED 18%,#C3C7CB 40%,#F4F5F6 55%,#B4B8BD 78%,#8E9399 100%);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+  .band.b-up{bottom:calc(100% - 8px)}.band.b-dn{top:calc(100% - 8px)}
+
+  /* ── 스틸 케이스 ── */
+  /* 위 시곗줄이 보이도록 살짝 내리고 줄인다 */
+  .watch{position:relative;width:236px;height:318px;border-radius:16px;padding:10px;flex-shrink:0;transform:translateY(10px) scale(.9);
+    background:linear-gradient(135deg,#F6F7F8 0%,#C9CDD1 28%,#ECEEF0 48%,#AEB3B8 78%,#DADDE0 100%);
+    box-shadow:0 18px 34px rgba(60,55,45,.35),inset 0 1px 0 #fff,inset 0 -2px 4px rgba(0,0,0,.25),inset 0 0 0 1px rgba(0,0,0,.12)}
+
+  /* 검은 베젤. 금색·파란색 인쇄를 두른다 */
+  .bezel{position:relative;height:170px;border-radius:9px;padding:20px 16px 22px;
+    background:linear-gradient(180deg,#1A1B1E,#0F1012);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 1px 0 rgba(255,255,255,.6)}
+  .print{position:absolute;font-size:7.2px;font-weight:700;letter-spacing:.9px;color:#E7E9EC;white-space:nowrap;line-height:1}
+  .print.tl{top:7px;left:12px;color:var(--gold);font-style:italic;letter-spacing:1.4px}
+  .print.tr{top:7px;right:12px}
+  .print.bl{bottom:8px;left:12px}
+  .print.br{bottom:8px;right:12px}
+  .print.bm{bottom:8px;left:50%;transform:translateX(-50%);color:var(--blue);font-style:italic;font-size:7px;letter-spacing:.6px}
+  .print .g{color:var(--gold)}
+
+  /* ── LCD ── */
+  .lcd{position:relative;height:100%;border-radius:3px;padding:6px 8px 5px;overflow:hidden;
+    background:linear-gradient(180deg,#D7D9D2 0%,var(--lcd) 60%,#C0C3BA 100%);
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.35);transition:background .25s,box-shadow .25s}
+  /* 일루미네이터. 켜면 청록 백라이트가 들어온다 */
+  .lcd.light{background:linear-gradient(180deg,#9CE8D0 0%,#7AD7B9 100%);box-shadow:inset 0 2px 5px rgba(0,0,0,.2),0 0 20px rgba(110,220,190,.6)}
+  .top{display:flex;justify-content:space-between;align-items:center;height:12px;
+    font-family:Menlo,"Courier New",monospace;font-size:9px;font-weight:700;color:var(--seg);letter-spacing:.5px}
+  .top .on{opacity:1}.top .off{opacity:.1}
+  .run{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--seg);margin-right:4px;opacity:.1;vertical-align:1px}
+  body.running .run{opacity:1;animation:blink 1s steps(2,start) infinite}
+  @keyframes blink{50%{opacity:.1}}
+  .digits{display:block;width:100%;height:50px;margin-top:4px}
+  .digits .s{fill:var(--ghost)}
+  .digits .s.on{fill:var(--seg)}
+  .bar{display:flex;gap:2px;height:5px;margin-top:6px}
+  .bar i{flex:1;border-radius:1px;background:var(--ghost)}
+  .bar i.on{background:var(--seg)}
+  /* 랩 기록. 최근 두 개를 LCD 아래 줄에 남긴다 */
+  .laps{margin-top:6px;font-family:Menlo,"Courier New",monospace;font-size:9.5px;font-weight:700;line-height:1.35;color:var(--seg);
+    font-variant-numeric:tabular-nums;min-height:26px}
+  .laps div{display:flex;justify-content:space-between}
+  .laps div+div{opacity:.55}
+  .laps .best{margin-left:4px}
+  .laps.hide{visibility:hidden}
+
+  /* ── 키패드. 검은 유리판에 가는 격자와 금색 숫자 ── */
+  .pad{position:relative;margin-top:10px;height:118px;border-radius:9px;padding:9px 10px;
+    background:linear-gradient(160deg,#202226 0%,#0D0E10 55%,#1A1B1F 100%);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 1px 0 rgba(255,255,255,.6)}
+  .pad::after{content:"";position:absolute;inset:0;border-radius:9px;pointer-events:none;
+    background:linear-gradient(125deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,0) 35%)}
+  .pad .print{top:4px}
+  .pad .print.pl{left:12px;color:var(--blue);font-style:italic}
+  .pad .print.pr{right:12px;color:var(--blue);font-style:italic}
+  .keys{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;height:100%;
+    border-top:1px solid rgba(210,215,220,.35);border-left:1px solid rgba(210,215,220,.35)}
+  .key{border:none;border-right:1px solid rgba(210,215,220,.35);border-bottom:1px solid rgba(210,215,220,.35);
+    background:transparent;cursor:pointer;font-family:"Helvetica Neue",Arial,sans-serif;font-size:13px;font-weight:500;color:var(--gold);
+    transition:background .12s}
+  .key.op{font-size:12px}
+  .key:hover{background:rgba(216,182,106,.08)}
+  .key:active,.key.hit{background:rgba(216,182,106,.25)}
+
+  /* ── 옆 버튼 ── */
+  .side{position:absolute;width:15px;height:28px;border:none;cursor:pointer;border-radius:3px;
+    background:linear-gradient(90deg,#8E9399,#F1F2F4 45%,#A3A8AE);box-shadow:0 2px 3px rgba(0,0,0,.35);transition:transform .07s}
+  .side.l{left:-11px}.side.r{right:-11px}
+  .side.l:active,.side.l.hit{transform:translateX(3px)}
+  .side.r:active,.side.r.hit{transform:translateX(-3px)}
+  .s1{top:30px}.s2{top:128px}
+  .key:focus-visible,.side:focus-visible{outline:2px solid #4FA3D9;outline-offset:1px}
+
+  @media (prefers-reduced-motion:reduce){body.running .run{animation:none}.key,.side{transition:none}}
+</style>
+</head>
+<body>
+  <div class="watch">
+    <div class="band b-up" aria-hidden="true"></div>
+    <div class="band b-dn" aria-hidden="true"></div>
+    <button class="side l s1" id="kLight" type="button" aria-label="라이트" aria-pressed="false"></button>
+    <button class="side r s1" id="kStart" type="button" aria-label="시작"></button>
+    <button class="side l s2" id="kMode" type="button" aria-label="모드 전환. 스탑워치와 계산기"></button>
+    <button class="side r s2" id="kLap" type="button" aria-label="랩"></button>
+
+    <div class="bezel">
+      <span class="print tl" aria-hidden="true">◀ ILLUMINATOR</span>
+      <span class="print tr" aria-hidden="true"><span class="g">START·STOP</span> ▶</span>
+      <span class="print bl" aria-hidden="true">◀ MODE</span>
+      <span class="print bm" aria-hidden="true">CALCULATOR</span>
+      <span class="print br" aria-hidden="true"><span class="g">LAP·RESET</span> ▶</span>
+      <div class="lcd" id="lcd">
+        <div class="top">
+          <span><span class="run" aria-hidden="true"></span><span id="mStw" class="on">STW</span> <span id="mCalc" class="off">CAL</span></span>
+          <span id="sub">&nbsp;</span>
+        </div>
+        <svg class="digits" id="dg" viewBox="0 0 200 46" aria-hidden="true"></svg>
+        <div class="bar" id="bar" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="laps" id="laps" aria-live="polite"></div>
+        <span id="sr" role="timer" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></span>
+      </div>
+    </div>
+
+    <div class="pad">
+      <div class="keys" id="keys">
+        <button class="key" type="button">7</button><button class="key" type="button">8</button><button class="key" type="button">9</button><button class="key op" type="button" aria-label="나누기">÷</button>
+        <button class="key" type="button">4</button><button class="key" type="button">5</button><button class="key" type="button">6</button><button class="key op" type="button" aria-label="곱하기">×</button>
+        <button class="key" type="button">1</button><button class="key" type="button">2</button><button class="key" type="button">3</button><button class="key op" type="button" aria-label="빼기">−</button>
+        <button class="key op" type="button" aria-label="지우기">C</button><button class="key" type="button">0</button><button class="key op" type="button" aria-label="계산">=</button><button class="key op" type="button" aria-label="더하기">+</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  /* ── 7세그먼트 LCD ──
+     칸 여덟 개. 켜진 획은 진하게, 꺼진 획도 옅게 남겨 실제 LCD의 잔상을 흉내 낸다. */
+  var NS='http://www.w3.org/2000/svg',svg=document.getElementById('dg');
+  var SEG={a:'2,0 18,0 15,3 5,3',b:'18,1 20,3 20,19 18,21 16,19 16,4',c:'18,25 20,27 20,43 18,45 16,42 16,27',
+           d:'5,43 15,43 18,46 2,46',e:'2,25 4,27 4,42 2,45 0,43 0,27',f:'2,1 4,4 4,19 2,21 0,19 0,3',g:'3,21.5 17,21.5 19,23 17,24.5 3,24.5 1,23'};
+  var MAP={'0':'abcdef','1':'bc','2':'abdeg','3':'abcdg','4':'bcfg','5':'acdfg','6':'acdefg','7':'abc','8':'abcdefg','9':'abcdfg','-':'g','E':'adefg','r':'eg',' ':''};
+  var cells=[];
+  for(var i=0;i<8;i++){
+    var g=document.createElementNS(NS,'g');g.setAttribute('transform','translate('+(4+i*23.5+(i>=4?6:0))+',0) skewX(-6)');
+    var c={};
+    for(var k in SEG){var p=document.createElementNS(NS,'polygon');p.setAttribute('points',SEG[k]);p.setAttribute('class','s');g.appendChild(p);c[k]=p;}
+    var dp=document.createElementNS(NS,'circle');dp.setAttribute('cx',22.4);dp.setAttribute('cy',44);dp.setAttribute('r',1.8);dp.setAttribute('class','s');g.appendChild(dp);c.dp=dp;
+    svg.appendChild(g);cells.push(c);
+  }
+  /* 분과 초 사이 콜론 */
+  var colon=[];
+  [[98.6,13],[96.6,31]].forEach(function(xy){var r=document.createElementNS(NS,'rect');r.setAttribute('x',xy[0]);r.setAttribute('y',xy[1]);
+    r.setAttribute('width',3.6);r.setAttribute('height',3.6);r.setAttribute('class','s');svg.appendChild(r);colon.push(r);});
+
+  function paint(chars,dps,col){
+    for(var i=0;i<8;i++){var on=MAP[chars[i]]||'';
+      for(var k in SEG)cells[i][k].classList.toggle('on',on.indexOf(k)>=0);
+      cells[i].dp.classList.toggle('on',!!dps[i]);}
+    colon.forEach(function(r){r.classList.toggle('on',!!col);});
+  }
+
+  var lcd=document.getElementById('lcd'),sub=document.getElementById('sub'),mStw=document.getElementById('mStw'),mCalc=document.getElementById('mCalc'),
+      bar=[].slice.call(document.querySelectorAll('#bar i')),sr=document.getElementById('sr'),
+      kStart=document.getElementById('kStart'),kLap=document.getElementById('kLap'),kMode=document.getElementById('kMode'),kLight=document.getElementById('kLight');
+  var mode='stw';
+
+  /* ── 스탑워치 ── */
+  var run=false,st=0,acc=0,raf=0,laps=0,last=0,lapUntil=0,lapVal=0,lapList=[],lapsEl=document.getElementById('laps');
+  function lapPlain(ms){var s2=stwChars(ms);return (s2.slice(0,2).trim()?s2.slice(0,2).trim()+':':'')+s2.slice(2,4)+':'+s2.slice(4,6)+'.'+s2.slice(6,8);}
+  function drawLaps(){
+    if(!lapList.length){lapsEl.innerHTML='';return;}
+    var best=Math.min.apply(null,lapList),h='';
+    for(var i=lapList.length-1;i>=Math.max(0,lapList.length-2);i--){
+      h+='<div><span>LAP '+pad(i+1)+(lapList.length>1&&lapList[i]===best?'<span class="best">★</span>':'')+'</span><span>'+lapPlain(lapList[i])+'</span></div>';}
+    lapsEl.innerHTML=h;
+  }
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n){return String(n).padStart(2,'0');}
+  function stwChars(ms){
+    var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,m=Math.floor(s/60),mm=m%60,h=Math.floor(m/60)%100;
+    /* 칸 0~1 시간, 2~3 분, 4~5 초, 6~7 1/100초. 시간이 0이면 비운다 */
+    var hs=h?String(h).padStart(2,' '):'  ';
+    return hs+pad(mm)+pad(ss)+pad(cc);
+  }
+  function drawStw(){
+    var now=performance.now(),e=el(),show=(lapUntil>now)?lapVal:e;
+    paint(stwChars(show),{5:1},1);
+    var tenth=Math.floor(e%1000/100);
+    bar.forEach(function(b,i){b.classList.toggle('on',(run||e>0)&&i<=tenth&&(run||e%1000>0));});
+    sub.textContent=lapUntil>now?('SPL '+laps):(laps?('LAP '+laps):' ');
+  }
+  function loop(){if(mode==='stw')drawStw();if(run||lapUntil>performance.now())raf=requestAnimationFrame(loop);}
+  function startStop(){
+    hit(kStart);
+    if(mode!=='stw')setMode('stw');
+    if(run){acc=el();run=false;say('정지 '+fmt(acc));}
+    else{st=performance.now();run=true;}
+    document.body.classList.toggle('running',run);
+    kStart.setAttribute('aria-label',run?'정지':(acc>0?'재개':'시작'));
+    cancelAnimationFrame(raf);loop();drawStw();
+  }
+  function lapReset(){
+    hit(kLap);
+    if(mode!=='stw'){setMode('stw');return;}
+    if(run){var e=el();laps++;lapVal=e-last;last=e;lapList.push(lapVal);drawLaps();lapUntil=performance.now()+1800;cancelAnimationFrame(raf);loop();say('랩 '+laps+' '+fmt(lapVal));}
+    else if(el()>0){acc=0;laps=0;last=0;lapUntil=0;lapList=[];drawLaps();drawStw();say('초기화했습니다');}
+    kStart.setAttribute('aria-label',run?'정지':(acc>0?'재개':'시작'));
+  }
+  function fmt(ms){var s=stwChars(ms);return (s.slice(0,2).trim()?s.slice(0,2).trim()+'시간 ':'')+s.slice(2,4)+':'+s.slice(4,6)+'.'+s.slice(6,8);}
+
+  /* ── 계산기 ── 여덟 자리, 사칙연산 */
+  var cur='0',prev=null,op=null,fresh=true;
+  function drawCalc(){
+    var str=cur,dot=str.indexOf('.'),digs=str.replace('.','');
+    if(digs.length>8){paint('       E'.split(''),{},0);sub.textContent='ERROR';return;}
+    var chars=(Array(9).join(' ')+digs).slice(-8).split(''),dps={};
+    if(dot>=0)dps[8-(digs.length-dot)-1]=1;
+    paint(chars,dps,0);sub.textContent=op?({'+':'+','-':'−','*':'×','/':'÷'})[op]:' ';
+    bar.forEach(function(b){b.classList.remove('on');});
+  }
+  function num(v){var r=Math.round(v*1e7)/1e7,s=String(r);
+    if(s.indexOf('e')>=0||s.replace('-','').replace('.','').length>8){
+      var intLen=String(Math.floor(Math.abs(r))).length;if(intLen>8)return 'E';
+      s=r.toFixed(Math.max(0,8-intLen-(r<0?1:0)));s=s.replace(/\.?0+$/,'');}
+    return s;}
+  function calc(a,b,o){return o==='+'?a+b:o==='-'?a-b:o==='*'?a*b:(b===0?NaN:a/b);}
+  function press(k){
+    if(mode!=='calc')setMode('calc');
+    if(cur==='E'&&k!=='C')return;
+    if(/[0-9]/.test(k)){cur=(fresh||cur==='0')?k:(cur.replace('-','').replace('.','').length<8?cur+k:cur);fresh=false;}
+    else if(k==='C'){cur='0';prev=null;op=null;fresh=true;}
+    else if(k==='='){if(op!==null&&prev!==null){var r=calc(prev,parseFloat(cur),op);cur=isFinite(r)?num(r):'E';prev=null;op=null;fresh=true;}}
+    else{var ops={'+':'+','−':'-','×':'*','÷':'/'};
+      if(op!==null&&prev!==null&&!fresh){var r2=calc(prev,parseFloat(cur),op);cur=isFinite(r2)?num(r2):'E';}
+      prev=parseFloat(cur);op=ops[k];fresh=true;}
+    if(cur==='E'){paint('       E'.split(''),{},0);sub.textContent='ERROR';}else drawCalc();
+    sr.textContent=cur==='E'?'오류':cur;
+  }
+
+  function setMode(m){
+    mode=m;mStw.className=m==='stw'?'on':'off';mCalc.className=m==='calc'?'on':'off';lapsEl.classList.toggle('hide',m!=='stw');
+    if(m==='stw'){drawStw();cancelAnimationFrame(raf);loop();}else drawCalc();
+  }
+  function hit(b){b.classList.add('hit');setTimeout(function(){b.classList.remove('hit');},120);}
+
+  var srBox=(function(){var r=document.createElement('div');r.setAttribute('role','status');r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0)';document.body.appendChild(r);return r;})();
+  function say(m){srBox.textContent='';setTimeout(function(){srBox.textContent=m;},30);}
+
+  kStart.addEventListener('click',startStop);
+  kLap.addEventListener('click',lapReset);
+  kMode.addEventListener('click',function(){hit(kMode);setMode(mode==='stw'?'calc':'stw');say(mode==='stw'?'스탑워치 모드':'계산기 모드');});
+  /* 일루미네이터. 한 번 누르면 켜지고, 다시 누르면 꺼진다 */
+  kLight.addEventListener('click',function(){hit(kLight);var on=lcd.classList.toggle('light');
+    kLight.setAttribute('aria-pressed',on?'true':'false');});
+  [].forEach.call(document.querySelectorAll('.key'),function(b){b.addEventListener('click',function(){press(b.textContent);});});
+
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.key==='Enter'))return;
+    var map={'+':'+','-':'−','*':'×','/':'÷','Enter':'=','=':'=','Escape':'C','c':'C','C':'C'};
+    if(e.key===' '){e.preventDefault();startStop();}
+    else if(mode==='stw'&&(e.key==='l'||e.key==='L'||e.key==='r'||e.key==='R')){lapReset();}
+    else if(/^[0-9]$/.test(e.key)){press(e.key);}
+    else if(map[e.key]){e.preventDefault();press(map[e.key]);}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run){cancelAnimationFrame(raf);loop();}});
+  setMode('stw');
+})();
+</script>
+</body>
+</html>

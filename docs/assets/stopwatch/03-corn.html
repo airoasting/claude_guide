@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>옥수수 스탑워치</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌽</text></svg>" />
 <style>
@@ -12,7 +12,29 @@
   body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
     background:linear-gradient(180deg,#EAF6FF 0%,#F3FBE9 60%,#FBF3D8 100%);
     display:flex;align-items:center;justify-content:center;color:#5A3A1C;padding:14px}
-  .wrap{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:300px}
+  .wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:300px}
+
+  /* ── 평택항 ──
+     왼쪽엔 컨테이너 크레인과 쌓인 컨테이너, 수평선엔 서해대교 같은 사장교, 오른쪽 바다엔 자동차 운반선.
+     시작하면 크레인이 컨테이너를 옮기고, 배가 움직이고, 물결이 흐르고, 갈매기가 난다 */
+  html,body{overflow:hidden}
+  .port{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .port svg{width:100%;height:100%;display:block}
+  .port .wave{animation:drift 6s linear infinite;animation-play-state:paused}
+  @keyframes drift{to{transform:translateX(-40px)}}
+  .port .ship{animation:sail 14s ease-in-out infinite alternate;animation-play-state:paused}
+  @keyframes sail{to{transform:translateX(-46px)}}
+  .port .trolley{animation:carry 4.8s ease-in-out infinite;animation-play-state:paused}
+  @keyframes carry{0%,8%{transform:translateX(0)}42%,58%{transform:translateX(52px)}92%,100%{transform:translateX(0)}}
+  .port .cable{animation:hoist 4.8s ease-in-out infinite;animation-play-state:paused;transform-box:fill-box;transform-origin:50% 0}
+  @keyframes hoist{0%,100%{transform:scaleY(1)}20%,30%{transform:scaleY(.45)}50%{transform:scaleY(1)}70%,80%{transform:scaleY(.45)}}
+  .port .box{animation:lift 4.8s ease-in-out infinite;animation-play-state:paused}
+  @keyframes lift{0%,100%{transform:translateY(0)}20%,30%{transform:translateY(-15px)}50%{transform:translateY(0)}70%,80%{transform:translateY(-15px)}}
+  .port .gull{opacity:0;animation:fly 9s linear infinite;animation-play-state:paused}
+  @keyframes fly{0%{opacity:0;transform:translate(0,0)}10%{opacity:.8}90%{opacity:.8}100%{opacity:0;transform:translate(-430px,-30px)}}
+  body.run .port .wave,body.run .port .ship,body.run .port .trolley,body.run .port .cable,body.run .port .box,body.run .port .gull{animation-play-state:running}
+  body.live .port .gull{opacity:revert}
+  @media (prefers-reduced-motion:reduce){.port *{animation:none !important}}
   .corn{position:relative;width:128px;height:158px}
   .silk{position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:60px;height:18px}
   .silk span{position:absolute;bottom:0;left:50%;width:2px;height:16px;transform-origin:bottom center;
@@ -58,7 +80,7 @@
 
   .time{font-variant-numeric:tabular-nums;font-weight:800;font-size:42px;letter-spacing:1px;color:#5A3A1C}
   .time .cs{font-size:22px;color:#B07A3E}
-  .row{display:flex;gap:9px}
+  .row{display:flex;gap:9px;margin-top:18px}
   button{font-family:inherit;font-weight:800;font-size:14px;color:#fff;border:none;cursor:pointer;
     padding:13px 0;width:80px;border-radius:22px;box-shadow:0 4px 0 rgba(0,0,0,.13),0 6px 10px rgba(0,0,0,.10);transition:transform .07s,opacity .15s}
   button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.13)}
@@ -84,6 +106,77 @@
 </style>
 </head>
 <body>
+  <div class="port" aria-hidden="true">
+    <svg viewBox="0 0 400 360" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CFE6F6"/><stop offset="1" stop-color="#F1F6F2"/></linearGradient>
+        <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9CCBE0"/><stop offset="1" stop-color="#C9E4EC"/></linearGradient>
+        <linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3EED7"/><stop offset="1" stop-color="#FBF3D8"/></linearGradient>
+      </defs>
+      <rect width="400" height="172" fill="url(#sky)"/>
+      <circle cx="330" cy="58" r="16" fill="#FFF3C9" opacity=".8"/>
+
+      <!-- 서해대교 같은 사장교. 탑 둘에서 케이블이 부채꼴로 내려온다 -->
+      <g stroke="#9DB2C2" fill="none" opacity=".9">
+        <path d="M120 150H400" stroke-width="3"/>
+        <path d="M206 150V92M214 150V92M296 150V92M304 150V92" stroke-width="2.4"/>
+        <path d="M204 100h12M294 100h12" stroke-width="2"/>
+        <path d="M210 94L150 150M210 94L170 150M210 94L190 150M210 94L230 150M210 94L250 150M210 94L270 150
+                 M300 94L260 150M300 94L280 150M300 94L320 150M300 94L340 150M300 94L360 150" stroke-width=".7"/>
+      </g>
+
+      <!-- 바다 -->
+      <rect y="168" width="400" height="92" fill="url(#sea)"/>
+      <g class="wave" stroke="#fff" stroke-width="1.2" opacity=".55" fill="none">
+        <path d="M0 196q10-4 20 0t20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0 20 0"/>
+        <path d="M0 226q12-4 24 0t24 0 24 0 24 0 24 0 24 0 24 0 24 0 24 0 24 0 24 0 24 0 24 0 24 0 24 0 24 0 24 0 24 0 24 0"/>
+      </g>
+
+      <!-- 자동차 운반선. 높고 네모난 선체 -->
+      <g class="ship">
+        <path d="M262 186h104l-8 14H270z" fill="#2F4D6E"/>
+        <rect x="266" y="150" width="96" height="36" rx="3" fill="#F2F4F6"/>
+        <rect x="266" y="176" width="96" height="5" fill="#C9473A"/>
+        <rect x="344" y="140" width="14" height="10" rx="1" fill="#E6E9EC"/>
+        <g fill="#9FB3C4"><rect x="272" y="158" width="66" height="2"/><rect x="272" y="166" width="66" height="2"/></g>
+      </g>
+
+      <!-- 부두와 컨테이너 -->
+      <rect x="0" y="176" width="168" height="12" fill="#B9BEC3"/>
+      <g>
+        <rect x="2" y="160" width="26" height="8" fill="#C9473A"/><rect x="2" y="152" width="26" height="8" fill="#3C78B4"/><rect x="2" y="144" width="26" height="8" fill="#E8913A"/>
+        <rect x="2" y="168" width="26" height="8" fill="#4C9A6A"/>
+        <rect x="30" y="168" width="26" height="8" fill="#3C78B4"/><rect x="30" y="160" width="26" height="8" fill="#E8913A"/><rect x="30" y="152" width="26" height="8" fill="#8A96A3"/>
+        <rect x="58" y="168" width="26" height="8" fill="#C9473A"/><rect x="58" y="160" width="26" height="8" fill="#4C9A6A"/>
+        <g stroke="rgba(0,0,0,.18)" stroke-width=".6"><path d="M9 144v32M16 144v32M23 144v32M37 152v24M44 152v24M51 152v24M65 160v16M72 160v16M79 160v16"/></g>
+      </g>
+
+      <!-- 컨테이너 크레인 둘. 붐이 바다 쪽으로 뻗는다 -->
+      <g fill="none" stroke="#D8553C" stroke-width="3" stroke-linejoin="round">
+        <path d="M96 176V112M126 176V112M96 140h30M96 112h30"/>
+        <path d="M86 112H190M100 112L111 84 122 112M111 84L160 112"/>
+      </g>
+      <g fill="none" stroke="#E7A34A" stroke-width="2.4" stroke-linejoin="round" opacity=".85">
+        <path d="M30 144V100M52 144V100M30 100h22M24 100H104M33 100L41 78 49 100M41 78L80 100"/>
+      </g>
+      <!-- 트롤리가 붐을 따라 컨테이너를 옮긴다 -->
+      <g class="trolley">
+        <rect x="128" y="108" width="12" height="6" fill="#4A4F55"/>
+        <rect class="cable" x="133" y="114" width="1.4" height="30" fill="#4A4F55"/>
+        <g class="box"><rect x="124" y="144" width="20" height="8" fill="#3C78B4"/><path d="M129 144v8M134 144v8M139 144v8" stroke="rgba(0,0,0,.2)" stroke-width=".6"/></g>
+      </g>
+
+      <!-- 갈매기 -->
+      <g fill="none" stroke="#6E7F8E" stroke-width="1.4" stroke-linecap="round">
+        <path class="gull" d="M400 70q4-4 8 0q4-4 8 0" style="animation-delay:-1s"/>
+        <path class="gull" d="M420 92q3-3 6 0q3-3 6 0" style="animation-delay:-5s"/>
+      </g>
+
+      <!-- 앞쪽 들판. 옥수수가 서 있는 곳 -->
+      <path d="M0 262q100-14 200 0t200 0V360H0z" fill="url(#field)"/>
+    </svg>
+  </div>
+
   <div class="wrap">
     <div class="corn" aria-hidden="true">
       <div class="silk"><span></span><span></span><span></span><span></span></div>
@@ -140,9 +233,10 @@
     srWasRun=run; srLast=srE;
     if(document.activeElement&&document.activeElement.disabled) b1.focus();
   }
-  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);fig.classList.add('go');draw();ui();}
-  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;fig.classList.remove('go');draw();ui();}
-  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;fig.classList.remove('go');draw();ui();lp.textContent='';}
+  function scene(){document.body.classList.toggle('run',run);document.body.classList.toggle('live',run||acc>0);}
+  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);fig.classList.add('go');draw();ui();scene();}
+  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;fig.classList.remove('go');draw();ui();scene();}
+  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;laps=[];last=0;fig.classList.remove('go');draw();ui();lp.textContent='';scene();}
   function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);lp.textContent='랩 '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');
     fig.classList.remove('pop'); void fig.offsetWidth; fig.classList.add('pop');
     clearTimeout(popT); popT=setTimeout(function(){fig.classList.remove('pop');},420);}

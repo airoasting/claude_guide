@@ -19,6 +19,33 @@
   .track svg{position:absolute;width:460px;height:460px;left:50%;top:50%;transform:translate(-50%,-44%)}
   .track circle{fill:none;stroke:#8A3B2E;stroke-width:14}
   .track .ln{stroke:#D9C9B4;stroke-width:1;opacity:.5}
+  .track{transition:opacity .6s ease}
+  body.live .track{opacity:.85}
+
+  /* 주자. 시작하면 두 레인을 반시계 방향으로 돌고, 정지하면 그 자리에 멈춘다 */
+  .track .runner{opacity:0;transition:opacity .5s ease;transform-origin:230px 230px}
+  .track .runner circle{fill:none;stroke-linecap:round;stroke-dasharray:var(--l) 1000;stroke-dashoffset:-500}
+  .track .runner.r1 circle{stroke:#35C766;stroke-width:7}
+  .track .runner.r2 circle{stroke:#F7F2E4;stroke-width:6}
+  .track .runner .t1{--l:210;opacity:.07}
+  .track .runner .t2{--l:130;opacity:.16}
+  .track .runner .t3{--l:64;opacity:.38}
+  .track .runner .t4{--l:16;opacity:1}
+  body.live .track .runner{opacity:1}
+  body.live .track .r1{animation:lap 5.6s linear infinite}
+  body.live .track .r2{animation:lap 4.2s linear infinite}
+  body.live:not(.run) .track .runner{animation-play-state:paused}
+  @keyframes lap{to{transform:rotate(-360deg)}}
+
+  /* 출발 신호. 시작을 누를 때마다 레인 위로 빛이 한 번 퍼진다 */
+  .track .gun{fill:none;stroke:#35C766;stroke-width:3;opacity:0;transform-origin:230px 230px}
+  .track .gun.go{animation:gun .9s cubic-bezier(.2,.7,.3,1)}
+  @keyframes gun{0%{opacity:.9;transform:scale(.55)}100%{opacity:0;transform:scale(1.25)}}
+
+  @media (prefers-reduced-motion:reduce){
+    body.live .track .runner{animation:none}
+    .track .gun.go{animation:none}
+  }
 
   .glass{position:relative;width:min(300px,100%);padding:18px 14px 16px;border-radius:20px;text-align:center;
     background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.03));
@@ -64,6 +91,16 @@
     <svg viewBox="0 0 460 460">
       <circle cx="230" cy="230" r="196"/><circle cx="230" cy="230" r="180" class="ln"/><circle cx="230" cy="230" r="212" class="ln"/>
       <circle cx="230" cy="230" r="150"/><circle cx="230" cy="230" r="134" class="ln"/><circle cx="230" cy="230" r="166" class="ln"/>
+      <defs><filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <circle cx="230" cy="230" r="150" class="gun" id="gun"/>
+      <g class="runner r1" filter="url(#glow)">
+        <circle cx="230" cy="230" r="196" pathLength="1000" class="t1"/><circle cx="230" cy="230" r="196" pathLength="1000" class="t2"/>
+        <circle cx="230" cy="230" r="196" pathLength="1000" class="t3"/><circle cx="230" cy="230" r="196" pathLength="1000" class="t4"/>
+      </g>
+      <g class="runner r2" filter="url(#glow)">
+        <circle cx="230" cy="230" r="150" pathLength="1000" class="t1"/><circle cx="230" cy="230" r="150" pathLength="1000" class="t2"/>
+        <circle cx="230" cy="230" r="150" pathLength="1000" class="t3"/><circle cx="230" cy="230" r="150" pathLength="1000" class="t4"/>
+      </g>
     </svg>
   </div>
 
@@ -98,7 +135,8 @@
 <script>
 (function(){
   var t=document.getElementById('t'),stt=document.getElementById('stt'),lp=document.getElementById('lp'),
-      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),
+      gun=document.getElementById('gun'),bd=document.body;
   var run=false,st=0,acc=0,iv=null,laps=0,last=0;
 
   function el(){return acc+(run?performance.now()-st:0);}
@@ -121,11 +159,14 @@
     b2.disabled=!run;b3.disabled=run||el()===0;
     stt.textContent=run?'TIMING':(acc>0?'STOPPED':'READY');
     stt.classList.toggle('on',run);
+    bd.classList.toggle('run',run);
+    bd.classList.toggle('live',run||acc>0);
     if(document.activeElement&&document.activeElement.disabled)b1.focus();
   }
   function go(){
     if(run){acc=el();run=false;clearInterval(iv);iv=null;draw();srSay('정지 '+fmt(acc));}
-    else{st=performance.now();run=true;if(!iv)iv=setInterval(draw,31);}
+    else{st=performance.now();run=true;if(!iv)iv=setInterval(draw,31);
+      gun.classList.remove('go');void gun.getBoundingClientRect();gun.classList.add('go');}
     ui();
   }
   function lap(){

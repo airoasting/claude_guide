@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>오늘의 한 권 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M8 24c16-6 30-4 42 6 12-10 26-12 42-6v56c-16-6-30-4-42 6-12-10-26-12-42-6z' fill='%23F4EBD6'/><path d='M50 30v56' stroke='%238C2F2A' stroke-width='4'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{
+    --paper:#F5ECD7;
+    --paper-dk:#E6D8B8;
+    --ink:#2B2118;
+    --ink-soft:#6E5D48;
+    --brass:#C9A55A;
+    --cover:#8C2F2A;   /* 추천 책마다 바뀐다 */
+  }
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    color:var(--ink);word-break:keep-all;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:12px;
+    background:
+      radial-gradient(70% 55% at 50% 8%,rgba(255,196,110,.20) 0%,rgba(255,196,110,0) 70%),
+      radial-gradient(130% 100% at 50% 30%,#2A1E16 0%,#1A120D 55%,#0C0806 100%)}
+
+  /* 책상 위 스탠드 불빛. 읽는 동안 조금 더 밝아진다 */
+  body::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(60% 45% at 50% 42%,rgba(255,214,150,.10),transparent 70%);
+    opacity:0;transition:opacity .8s ease}
+  body.run::before{opacity:1}
+
+  /* ── 펼친 책 ──
+     표지(겉 판)를 뒤에 깔고, 양쪽 페이지를 올린다. 아래 가장자리에는 쌓인 종이 결을 둔다. */
+  .book{position:relative;width:min(336px,100%);height:206px;perspective:1100px;flex-shrink:0}
+  .board{position:absolute;inset:6px -6px -8px;border-radius:6px;background:var(--cover);
+    box-shadow:0 18px 34px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.08);transition:background .5s ease}
+  .stack{position:absolute;left:0;right:0;bottom:-4px;height:6px;
+    background:repeating-linear-gradient(180deg,#E9DDC2 0 1px,#CDBD99 1px 2px);border-radius:0 0 3px 3px}
+  .page{position:absolute;top:0;bottom:0;width:50%;background:var(--paper);overflow:hidden;padding:16px 15px 12px}
+  .page.l{left:0;border-radius:4px 0 0 4px;
+    background:linear-gradient(90deg,var(--paper) 0%,var(--paper) 78%,var(--paper-dk) 100%)}
+  .page.r{right:0;border-radius:0 4px 4px 0;
+    background:linear-gradient(270deg,var(--paper) 0%,var(--paper) 78%,var(--paper-dk) 100%)}
+  .spine{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:rgba(80,55,30,.25)}
+
+  .folio{position:absolute;bottom:9px;left:0;right:0;text-align:center;font-family:Georgia,'Times New Roman',serif;
+    font-size:9px;color:#A08C6C;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+
+  /* 왼쪽 페이지. 오늘의 추천 */
+  .eyebrow{font-size:8.5px;font-weight:700;letter-spacing:2px;color:var(--cover);transition:color .5s ease}
+  .title{margin-top:8px;font-family:Georgia,'Times New Roman',"Apple SD Gothic Neo",serif;font-size:17px;font-weight:700;
+    line-height:1.25;color:var(--ink);min-height:21px}
+  .author{margin-top:4px;font-size:10px;color:var(--ink-soft);font-weight:600}
+  .rule{width:22px;height:1px;background:#BFA97F;margin:9px 0 8px}
+  .why{font-size:10.5px;line-height:1.5;color:#4A3C2E}
+  .swap{position:absolute;left:15px;bottom:24px;font-family:inherit;font-size:9.5px;font-weight:700;color:var(--ink-soft);
+    background:none;border:none;border-bottom:1px dashed #BFA97F;padding:0 0 1px;cursor:pointer}
+  .swap:hover:not(:disabled){color:var(--cover)}
+  .swap:disabled{opacity:.35;cursor:default}
+  .rec{transition:opacity .3s ease}
+  .rec.turn{opacity:0}
+
+  /* 오른쪽 페이지. 읽은 시간과 책갈피 */
+  .page.r{text-align:center}
+  .label{font-size:8.5px;font-weight:700;letter-spacing:2px;color:#9A8668}
+  .time{margin-top:14px;font-family:'Times New Roman',Times,serif;font-size:34px;line-height:1;
+    font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+  .time .cs{font-size:15px;color:#9A8668}
+  .state{margin-top:7px;height:12px;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#A08C6C}
+  .state.on{color:var(--cover)}
+  .marks{margin-top:12px;list-style:none;display:flex;flex-direction:column;gap:4px;min-height:40px}
+  .marks li{display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:#4A3C2E;
+    font-variant-numeric:tabular-nums;border-bottom:1px dotted #CDBB97;padding-bottom:3px}
+  .marks li b{font-weight:700;color:var(--cover)}
+  .marks li.new{animation:ink .5s ease}
+  @keyframes ink{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+
+  /* 리본 책갈피. 읽는 동안 살짝 흔들린다 */
+  .ribbon{position:absolute;left:50%;margin-left:-4.5px;top:-4px;width:9px;height:224px;z-index:3;
+    background:linear-gradient(90deg,#7A1F1C,#B23A33 50%,#7A1F1C);transform-origin:50% 0;
+    clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 7px),0 100%);
+    filter:drop-shadow(1px 2px 1px rgba(0,0,0,.25))}
+  body.run .ribbon{animation:sway 3.6s ease-in-out infinite}
+  @keyframes sway{0%,100%{transform:rotate(0)}50%{transform:rotate(-1.6deg)}}
+
+  /* 책장 넘김. 일정 시간마다 오른쪽 페이지가 왼쪽으로 넘어간다 */
+  .leaf{position:absolute;top:0;bottom:0;left:50%;width:50%;z-index:2;transform-origin:0 50%;
+    border-radius:0 4px 4px 0;pointer-events:none;opacity:0;
+    background:linear-gradient(270deg,var(--paper) 0%,#EFE3C8 70%,var(--paper-dk) 100%)}
+  .leaf.go{animation:turn .9s cubic-bezier(.45,.05,.35,1)}
+  @keyframes turn{
+    0%{opacity:1;transform:rotateY(0);box-shadow:0 0 0 rgba(0,0,0,0)}
+    50%{box-shadow:-12px 0 22px rgba(0,0,0,.22);filter:brightness(.92)}
+    92%{opacity:1}
+    100%{opacity:0;transform:rotateY(-180deg)}}
+
+  /* ── 조작부 ── */
+  .row{display:flex;gap:8px;flex-shrink:0;position:relative;z-index:1}
+  button.btn{font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;
+    height:38px;width:90px;border-radius:999px;transition:all .18s;
+    color:#E8D9B8;border:1px solid rgba(201,165,90,.42);background:rgba(255,255,255,.045)}
+  button.btn:disabled{color:rgba(201,165,90,.4);border-color:rgba(201,165,90,.16);background:rgba(255,255,255,.02);cursor:default}
+  button.btn:hover:not(:disabled){background:rgba(201,165,90,.15);border-color:rgba(201,165,90,.7)}
+  #b1{background:var(--paper);border-color:transparent;color:var(--ink);font-weight:800;box-shadow:0 6px 16px rgba(0,0,0,.45)}
+  #b1:hover{transform:translateY(-1px);filter:brightness(1.04)}
+  #b1.on{background:var(--cover);color:#FFF4E2}
+  button:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+
+  @media (prefers-reduced-motion:reduce){
+    body.run .ribbon{animation:none}
+    .leaf.go{animation:none}
+    .rec{transition:none}
+  }
+</style>
+</head>
+<body>
+  <div class="book">
+    <div class="board"></div>
+    <div class="stack"></div>
+
+    <div class="page l">
+      <div class="rec" id="rec">
+        <div class="eyebrow">오늘의 한 권</div>
+        <div class="title" id="bt"></div>
+        <div class="author" id="ba"></div>
+        <div class="rule"></div>
+        <div class="why" id="bw"></div>
+      </div>
+      <button class="swap" id="sw" type="button">다른 책 추천받기 ↻</button>
+      <div class="folio" id="fl"></div>
+    </div>
+
+    <div class="page r">
+      <div class="label">읽은 시간</div>
+      <div class="time" id="t" role="timer">00:00<span class="cs">.00</span></div>
+      <div class="state" id="stt">책을 펼쳐 주세요</div>
+      <ul class="marks" id="mk" aria-label="책갈피 기록"></ul>
+      <div class="folio" id="fr"></div>
+    </div>
+
+    <div class="spine"></div>
+    <div class="leaf" id="leaf" aria-hidden="true"></div>
+    <div class="ribbon" aria-hidden="true"></div>
+  </div>
+
+  <div class="row">
+    <button class="btn" id="b1" type="button">시작</button>
+    <button class="btn" id="b2" type="button" disabled aria-label="책갈피 (랩)">책갈피</button>
+    <button class="btn" id="b3" type="button" disabled>초기화</button>
+  </div>
+
+<script>
+(function(){
+  /* ── 추천 책 ──
+     국내에 번역·출간된 책만 담았다. 추천 문장은 책 속 인용이 아니라 소개 글이다.
+     열 때, 시작·정지·재개할 때, '다른 책' 버튼을 누를 때마다 다른 책을 고른다. */
+  var BOOKS=[
+    {t:'모모',a:'미하엘 엔데',c:'#8C2F2A',w:'시간을 훔쳐 가는 회색 신사들과 맞선 소녀의 이야기. 스탑워치를 켜기 전에 읽기 좋은 책.'},
+    {t:'4000주',a:'올리버 버크먼',c:'#2F4A3A',w:'80년 인생을 주 단위로 세면 약 4000주. 그 짧은 시간을 어디에 쓸지 다시 묻는다.'},
+    {t:'아주 작은 습관의 힘',a:'제임스 클리어',c:'#B0702A',w:'매일 조금씩 나아지는 습관을 설계하는 방법을 구체적인 장면으로 보여 준다.'},
+    {t:'몰입',a:'미하이 칙센트미하이',c:'#2E4F78',w:'시간 가는 줄 모르는 상태는 언제 오는가. 몰입의 조건을 파고든 고전.'},
+    {t:'딥 워크',a:'칼 뉴포트',c:'#3B3B46',w:'알림과 산만함을 걷어내고 한 가지 일에 깊이 빠지는 훈련법.'},
+    {t:'생각에 관한 생각',a:'대니얼 카너먼',c:'#5B3A6E',w:'빠른 직관과 느린 사고, 두 시스템이 판단을 어떻게 흔드는지 설명한다.'},
+    {t:'사피엔스',a:'유발 하라리',c:'#7A5A2E',w:'인류가 어떻게 지금의 모습이 되었는지 한 권으로 길게 훑는다.'},
+    {t:'데미안',a:'헤르만 헤세',c:'#3E5C5A',w:'익숙한 세계를 깨고 자기 자신이 되어 가는 성장의 기록.'},
+    {t:'어린 왕자',a:'앙투안 드 생텍쥐페리',c:'#2D5C8C',w:'어릴 때와 어른이 되어 읽을 때 전혀 다르게 읽히는 짧은 이야기.'},
+    {t:'죽음의 수용소에서',a:'빅터 프랭클',c:'#4A4038',w:'가장 가혹한 조건에서도 삶의 의미를 붙드는 힘에 관한 기록.'},
+    {t:'노인과 바다',a:'어니스트 헤밍웨이',c:'#1F5A6E',w:'거대한 물고기와 끝까지 씨름하는 늙은 어부의 끈기를 그린 짧은 소설.'}
+  ];
+  var root=document.documentElement,rec=document.getElementById('rec'),
+      bt=document.getElementById('bt'),ba=document.getElementById('ba'),bw=document.getElementById('bw'),
+      sw=document.getElementById('sw'),bi=-1;
+  function pick(first){
+    var n=bi;
+    while(n===bi&&BOOKS.length>1) n=Math.floor(Math.random()*BOOKS.length);
+    bi=n;var b=BOOKS[n];
+    function fill(){bt.textContent='『'+b.t+'』';ba.textContent=b.a;bw.textContent=b.w;root.style.setProperty('--cover',b.c);}
+    if(first){fill();return;}
+    rec.classList.add('turn');
+    setTimeout(function(){fill();rec.classList.remove('turn');},300);
+  }
+  pick(true);
+
+  /* ── 스탑워치 ── */
+  var PAGE_MS=10000; /* 10초마다 한 쪽씩 넘긴다 */
+  var t=document.getElementById('t'),stt=document.getElementById('stt'),mk=document.getElementById('mk'),
+      fl=document.getElementById('fl'),fr=document.getElementById('fr'),leaf=document.getElementById('leaf'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,st=0,acc=0,iv=null,marks=[],last=0,pages=0;
+
+  function el(){return acc+(run?performance.now()-st:0);}
+  function pad(n){return String(n).padStart(2,'0');}
+  function fmt(ms){var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,h=Math.floor(m/60);
+    return (h?h+':'+pad(mm):pad(mm))+':'+pad(ss)+'.'+pad(cs);}
+  function folio(){fl.textContent=2+pages*2;fr.textContent=3+pages*2;}
+  function draw(){
+    var e=el(),f=fmt(e),i=f.lastIndexOf('.');
+    t.innerHTML=f.slice(0,i)+'<span class="cs">'+f.slice(i)+'</span>';
+    var p=Math.floor(e/PAGE_MS);
+    if(p>pages){pages=p;folio();
+      leaf.classList.remove('go');void leaf.offsetWidth;leaf.classList.add('go');}
+  }
+
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status');r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){r.textContent='';setTimeout(function(){r.textContent=m;},30);};
+  })();
+
+  function ui(){
+    var e=el();
+    b1.textContent=run?'정지':(e>0?'재개':'시작');
+    b1.classList.toggle('on',run);
+    b2.disabled=!run;b3.disabled=run||e===0;sw.disabled=run;
+    stt.textContent=run?'읽는 중':(e>0?'잠시 덮어 둠':'책을 펼쳐 주세요');
+    stt.classList.toggle('on',run);
+    document.body.classList.toggle('run',run);
+    if(document.activeElement&&document.activeElement.disabled)b1.focus();
+  }
+  function go(){
+    if(run){acc=el();run=false;clearInterval(iv);iv=null;draw();srSay('정지. 읽은 시간 '+fmt(acc));}
+    else{st=performance.now();run=true;if(!iv)iv=setInterval(draw,31);}
+    pick(false); /* 시작·정지·재개를 누를 때마다 다음 책을 권한다 */
+    ui();
+  }
+  function mark(){
+    if(!run)return;
+    var e=el(),seg=e-last;last=e;marks.push(seg);
+    var li=document.createElement('li');li.className='new';
+    li.innerHTML='<span><b>책갈피 '+marks.length+'</b> &middot; '+(2+pages*2)+'쪽</span><span>'+fmt(seg)+'</span>';
+    mk.insertBefore(li,mk.firstChild);
+    while(mk.children.length>3)mk.removeChild(mk.lastChild);
+  }
+  function reset(){
+    if(run)return;
+    acc=0;st=0;marks=[];last=0;pages=0;mk.textContent='';folio();draw();ui();srSay('초기화했습니다');
+  }
+
+  b1.addEventListener('click',go);b2.addEventListener('click',mark);b3.addEventListener('click',reset);
+  sw.addEventListener('click',function(){if(!run)pick(false);});
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();go();}
+    else if(e.key==='l'||e.key==='L'){mark();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
+  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
+  folio();draw();ui();
+})();
+</script>
+</body>
+</html>

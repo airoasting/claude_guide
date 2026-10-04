@@ -118,20 +118,20 @@
 
 | 페이지 | 설명 |
 |--------|------|
-| [멀티 페르소나로 시 쓰기](https://airoasting.vercel.app/showcase-poems.html) | 수업 첫 실습에서 쓰고 비평하고 다시 쓴 시 47편을 여섯 묶음으로 정리 |
-| [스탑워치 쇼케이스](https://airoasting.vercel.app/showcase-stopwatch.html) | 같은 한 줄 지시에서 출발한 수강생 스탑워치 42종을 라이브로 임베드한 모음 |
+| [멀티 페르소나로 시 쓰기](https://airoasting.vercel.app/showcase-poems.html) | 수업 첫 실습에서 쓰고 비평하고 다시 쓴 시 44편을 여섯 묶음으로 정리 |
+| [스탑워치 쇼케이스](https://airoasting.vercel.app/showcase-stopwatch.html) | 같은 한 줄 지시에서 출발한 수강생 스탑워치 35종을 라이브로 임베드한 모음 |
 | [스킬 쇼케이스](https://airoasting.vercel.app/showcase-skills.html) | 수강생들이 자기 업무를 Claude 스킬로 만든 실전 자동화 25선 |
 
 ---
 
-## 디자인·시각화 갤러리
+## 시각 레퍼런스 갤러리
 
 | 페이지 | 설명 |
 |--------|------|
 | [EDA 차트 갤러리 30](https://airoasting.vercel.app/eda-gallery.html) | 본격적인 분석에 앞서 분포와 이상치를 확인하는 차트 30가지 |
 | [전략 프레임워크 70](https://strategy.airoasting.com/) | SWOT, BCG 매트릭스, 5 Forces처럼 이름만 알면 바로 그려지는 전략 프레임워크 70가지(외부 사이트) |
-| [UI 디자인 트렌드 39](https://airoasting.vercel.app/ui-design.html) | 같은 스탑워치를 서른아홉 가지 스타일로 만들어 시대순으로 비교 |
-| [UI 컴포넌트 갤러리 40](https://airoasting.vercel.app/component-gallery.html) | 이름만 지정하면 바로 만들어지는 UI 부품 40개 |
+| [UI 디자인 트렌드 40](https://airoasting.vercel.app/ui-design.html) | 같은 스탑워치를 마흔 가지 스타일로 만들어 시대순으로 비교 |
+| [UI 컴포넌트 갤러리 50](https://airoasting.vercel.app/component-gallery.html) | 이름만 지정하면 바로 만들어지는 UI 부품 50개 |
 | [SVG 아이콘 300](https://airoasting.vercel.app/icon-gallery.html) | 버튼·카드에 바로 붙여 쓰는 라인 아이콘 300개, 누르면 SVG 코드 복사 |
 
 ---
@@ -216,7 +216,7 @@
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 한 주 작업을 정리해 매주 업데이트하고 있습니다.
 
 - **v3.12 · 2026-10-04: 5단계 커리큘럼 재편과 콜라주 슬라이드 확대**
-  커리큘럼을 소환, 연결, 계약, 조합, 자율 5단계로 재편하고, 새 구성에 맞지 않는 확장 프로그램·코워크·7단계 방법론 페이지는 사이트에서 내렸습니다. 오리엔테이션, 멀티 페르소나, 나만의 Skill 등 아홉 페이지에 전체 화면으로 보는 콜라주 슬라이드를 넣었습니다. 부록에는 에이전트 도구 다섯 가지를 비교하는 안내 페이지를 만들고, EDA 차트 갤러리와 UI 디자인 트렌드는 각각 30장, 39장으로 늘렸습니다.
+  커리큘럼을 소환, 연결, 계약, 조합, 자율 5단계로 재편하고, 새 구성에 맞지 않는 확장 프로그램·코워크·7단계 방법론 페이지는 사이트에서 내렸습니다. 오리엔테이션, 멀티 페르소나, 나만의 Skill 등 열두 페이지에 전체 화면으로 보는 콜라주 슬라이드를 넣었습니다. 부록에는 에이전트 도구 다섯 가지를 비교하는 안내 페이지를 만들고, EDA 차트 갤러리와 UI 디자인 트렌드는 각각 30장, 39장으로 늘렸습니다.
 - **v3.11 · 2026-09-27: 최신 모델 반영과 Cowork 실전 과제 개편**
   Claude Opus 5.5와 GPT-6 Sol·Luna를 반영해 오리엔테이션의 벤치마크 표, 가격표, 출시 타임라인과 메인 페이지의 모델 표기를 갱신했습니다. Claude Cowork 페이지는 9월 16일부터 순차 적용된 채팅·Cowork 통합에 맞춰 비교표, 앱 화면, 자주 묻는 질문을 고쳤습니다. 코워크 실전 과제에는 Claude Cowork와 Codex를 바꿔 보는 스위치를 달고, 시작 전 준비와 과제별 실행 순서를 두 앱 기준으로 따로 적었습니다.
 - **v3.10 · 2026-09-20: 컴퍼니 브레인 개편과 헤르메스 사용 사례 신설**

@@ -7,13 +7,13 @@
     <link rel="apple-touch-icon" href="assets/logos/logo1-transparent.png">
     <link rel="canonical" href="https://airoasting.github.io/claude_guide/showcase-poems.html">
     <meta property="og:title" content="시로 쓴 자화상 | AI ROASTING">
-    <meta property="og:description" content="멀티 페르소나 실습으로 완성한 47편. AI 시대, 일하는 사람들의 하루.">
+    <meta property="og:description" content="멀티 페르소나 실습으로 완성한 44편. AI 시대, 일하는 사람들의 하루.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
     <meta property="og:url" content="https://airoasting.github.io/claude_guide/showcase-poems.html">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="시로 쓴 자화상 | AI ROASTING">
-    <meta name="twitter:description" content="멀티 페르소나 실습으로 완성한 47편. AI 시대, 일하는 사람들의 하루.">
+    <meta name="twitter:description" content="멀티 페르소나 실습으로 완성한 44편. AI 시대, 일하는 사람들의 하루.">
     <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
     <title>시로 쓴 자화상 | AI ROASTING</title>
     <style>
@@ -358,6 +358,8 @@
         }
         .poem-text p:last-child { margin-bottom: 0; }
         .poem-text .frag { color: #8a857d; }
+        /* 산문시: 줄을 끊지 않고 한 문단으로 흐른다 */
+        .poem-text p.prose { text-align: justify; }
 
         /* ── CTA Card ── */
         .cta-card {
@@ -513,6 +515,243 @@
     <!-- ANALYTICS-STD -->
     <script defer src="assets/js/analytics.js"></script>
     <!-- /ANALYTICS-STD -->
+    <!-- POEM-SLIDES -->
+    <style>
+        /* ═════ POEM-SLIDES: "내 이름을 쓴다" 콜라주 슬라이드. 960×540 좌표계, 틀 폭에 맞춰 scale. 구조는 harness HARNESS-SLIDES와 같다 ═════ */
+        .px-wrap { margin: 0 0 40px; }
+        .px-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .px-title { margin: 0; font-size: 18px; font-weight: 800; color: #2E2A26; letter-spacing: -0.2px; }
+        .px-play {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 20px; border: 0; border-radius: 999px; cursor: pointer;
+            background: #1A1917; color: #fff; font: inherit; font-size: 14px; font-weight: 700;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+        .px-play svg { width: 17px; height: 17px; }
+        .px-play:hover { background: var(--ant-orange); transform: translateY(-1px); }
+        .px-frame {
+            position: relative; aspect-ratio: 16 / 9; overflow: hidden; cursor: zoom-in;
+            border-radius: 14px; background: #E4D6BB;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 10px 32px rgba(0,0,0,0.10);
+        }
+        .px-frame:focus-visible { outline: 3px solid var(--ant-orange); outline-offset: 3px; }
+        .px-frame::after {
+            content: ''; position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(26,25,23,0.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7'/%3E%3C/svg%3E") center / 15px no-repeat;
+            opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+        }
+        .px-frame:hover::after, .px-frame:focus-visible::after { opacity: 1; }
+        .px-frame > .px-slide { display: none; }
+        .px-frame > .px-slide.on { display: block; }
+        .px-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; }
+        .px-nav button {
+            display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+            border: 1px solid #D8D2C8; border-radius: 50%; background: #fff; color: #3A3530; cursor: pointer;
+            transition: border-color 0.18s ease, color 0.18s ease;
+        }
+        .px-nav button:hover:not(:disabled) { border-color: var(--ant-orange); color: var(--ant-orange); }
+        .px-nav button:disabled { opacity: 0.35; cursor: default; }
+        .px-nav button svg { width: 18px; height: 18px; }
+        .px-count { min-width: 56px; text-align: center; font-size: 14px; font-weight: 700; color: #6B645C; font-variant-numeric: tabular-nums; }
+
+        /* 슬라이드 공통 */
+        .px-slide {
+            position: absolute; left: 0; top: 0; width: 960px; height: 540px; overflow: hidden;
+            transform-origin: 0 0; color: #1A1917; line-height: 1.3; text-align: left;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            word-break: keep-all; -webkit-font-smoothing: antialiased; letter-spacing: -0.2px;
+            background-color: #E4D6BB;
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .26 0 0 0 0 .13 0 0 0 .20 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+                radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.35), transparent 60%);
+        }
+        .px-slide.px-night { background-color: #24211E; color: #F4EEE3; }
+        .px-slide * { box-sizing: border-box; }
+        .px-slide .ab { position: absolute; }
+        .px-slide svg { display: block; }
+
+        .px-scrap { filter: drop-shadow(0 5px 9px rgba(60,40,20,0.22)) drop-shadow(0 1px 1px rgba(60,40,20,0.15)); }
+        .px-night .px-scrap { filter: drop-shadow(0 6px 12px rgba(0,0,0,0.45)); }
+        .px-in { position: relative; width: 100%; height: 100%; background: #FBF7EE; color: #1A1917; }
+        .px-torn-b { clip-path: polygon(0.0% 0.0%, 100.0% 0.0%, 100.0% 97.5%, 96.4% 97.2%, 92.9% 96.5%, 89.3% 96.6%, 85.7% 97.2%, 82.1% 99.4%, 78.6% 96.2%, 75.0% 99.9%, 71.4% 97.6%, 67.9% 98.3%, 64.3% 99.8%, 60.7% 98.5%, 57.1% 96.9%, 53.6% 96.5%, 50.0% 99.3%, 46.4% 97.7%, 42.9% 96.4%, 39.3% 96.3%, 35.7% 97.7%, 32.1% 96.1%, 28.6% 98.0%, 25.0% 96.2%, 21.4% 97.5%, 17.9% 98.1%, 14.3% 96.3%, 10.7% 98.6%, 7.1% 96.6%, 3.6% 97.3%, 0.0% 98.5%); }
+        .px-torn-tb { clip-path: polygon(0.0% 1.6%, 3.6% 2.6%, 7.1% 0.6%, 10.7% 1.9%, 14.3% 2.0%, 17.9% 1.2%, 21.4% 1.8%, 25.0% 0.2%, 28.6% 0.2%, 32.1% 0.7%, 35.7% 2.2%, 39.3% 1.4%, 42.9% 1.0%, 46.4% 1.9%, 50.0% 1.5%, 53.6% 1.0%, 57.1% 2.5%, 60.7% 2.2%, 64.3% 0.8%, 67.9% 1.8%, 71.4% 1.7%, 75.0% 2.8%, 78.6% 2.3%, 82.1% 0.9%, 85.7% 3.1%, 89.3% 0.4%, 92.9% 1.3%, 96.4% 2.4%, 100.0% 1.6%, 100.0% 98.4%, 96.4% 97.3%, 92.9% 98.3%, 89.3% 96.9%, 85.7% 98.9%, 82.1% 98.0%, 78.6% 97.7%, 75.0% 99.4%, 71.4% 100.0%, 67.9% 98.9%, 64.3% 99.0%, 60.7% 97.0%, 57.1% 98.9%, 53.6% 98.3%, 50.0% 99.8%, 46.4% 99.5%, 42.9% 98.3%, 39.3% 98.7%, 35.7% 98.7%, 32.1% 99.0%, 28.6% 97.8%, 25.0% 99.6%, 21.4% 98.6%, 17.9% 99.2%, 14.3% 98.9%, 10.7% 96.9%, 7.1% 98.4%, 3.6% 97.3%, 0.0% 98.4%); }
+        .px-grid { background-color: #FBF7EE; background-image: linear-gradient(rgba(120,150,190,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(120,150,190,0.22) 1px, transparent 1px); background-size: 22px 22px; }
+        .px-lined { background-color: #FBF7EE; background-image: linear-gradient(transparent 31px, rgba(120,150,190,0.3) 31px, rgba(120,150,190,0.3) 32px); background-size: 100% 32px; }
+        .px-yellow { background: #F5D56A; }
+        .px-ink { background: #1A1917; color: #F4EEE3; }
+
+        .px-tape {
+            position: absolute; width: 92px; height: 26px; z-index: 3;
+            background: rgba(246,236,205,0.78); box-shadow: 0 1px 2px rgba(60,40,20,0.12);
+            clip-path: polygon(3.0% 0.0%, 97.0% 0.0%, 100.0% 18.0%, 96.0% 36.0%, 100.0% 55.0%, 95.0% 74.0%, 100.0% 100.0%, 3.0% 100.0%, 0.0% 80.0%, 4.0% 60.0%, 0.0% 42.0%, 5.0% 22.0%);
+        }
+        .px-tape.or { background: repeating-linear-gradient(-45deg, rgba(217,119,87,0.85) 0 7px, rgba(250,230,215,0.85) 7px 14px); }
+        .px-tape.lab {
+            width: auto; height: auto; padding: 7px 16px; font-size: 16px; font-weight: 800; color: #1A1917; white-space: nowrap;
+            background: rgba(245,213,106,0.92);
+        }
+        .px-tape.lab small { font-size: 12px; font-weight: 700; opacity: 0.6; margin-left: 6px; }
+
+        .px-cut { display: flex; gap: 4px; align-items: flex-end; }
+        .px-cut span {
+            display: inline-block; padding: 2px 10px 6px; font-weight: 900; line-height: 1; letter-spacing: -1px;
+            box-shadow: 0 3px 6px rgba(60,40,20,0.2);
+        }
+        .px-cut span:nth-child(5n+1) { background: #1A1917; color: #F4EEE3; transform: rotate(-3deg); }
+        .px-cut span:nth-child(5n+2) { background: #D97757; color: #fff; transform: rotate(2deg) translateY(-4px); }
+        .px-cut span:nth-child(5n+3) { background: #FBF7EE; color: #1A1917; transform: rotate(-1.5deg) translateY(3px); font-weight: 700; }
+        .px-cut span:nth-child(5n+4) { background: #F5D56A; color: #1A1917; transform: rotate(3deg); }
+        .px-cut span:nth-child(5n+5) { background: #8FA98B; color: #fff; transform: rotate(-2deg) translateY(-2px); }
+
+        .px-halftone { border-radius: 50%; background-image: radial-gradient(#D97757 2px, transparent 2.3px); background-size: 11px 11px; opacity: 0.75; }
+        .px-night .px-halftone { opacity: 0.35; }
+        .px-sticker {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 50%;
+            font-weight: 900; line-height: 1.2; box-shadow: 0 4px 10px rgba(60,40,20,0.25);
+        }
+        .px-stamp {
+            padding: 8px 16px; border: 3px solid #C0392B; border-radius: 6px; color: #C0392B;
+            font-size: 22px; font-weight: 900; letter-spacing: 1px; opacity: 0.85;
+            box-shadow: inset 0 0 0 2px rgba(192,57,43,0.25);
+        }
+        .px-night .px-stamp { color: #E8735F; border-color: #E8735F; }
+        .px-num { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: rgba(26,25,23,0.55); }
+        .px-night .px-num { color: rgba(244,238,227,0.5); }
+        .px-chip { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 800; }
+
+        /* 시 인용: 본문 시 카드와 같은 Pretendard. 명조(AppleMyungjo)는 굵기가 가짜로 번져 뺐다 */
+        .px-poem {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+            font-size: 21px; font-weight: 500; line-height: 1.75; letter-spacing: -0.5px; color: #2A2622;
+        }
+        .px-poem p { margin: 0 0 12px; }
+        .px-poem p:last-child { margin-bottom: 0; }
+        .px-quote { padding: 22px 26px; }
+        .px-src { font-size: 13.5px; font-weight: 800; color: #8A8178; margin-bottom: 14px; letter-spacing: 0; }
+        .px-src b { color: #D97757; }
+
+        /* 내레이션 자막 띠: 장마다 같은 자리, 이야기를 다음 장으로 넘긴다 */
+        .px-narr {
+            position: absolute; left: 60px; right: 60px; bottom: 34px; z-index: 4;
+            padding: 13px 22px; background: #1A1917; color: #F4EEE3;
+            font-size: 18px; font-weight: 700; line-height: 1.45; letter-spacing: -0.3px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25); transform: rotate(-0.6deg);
+        }
+        .px-narr b { color: #F5D56A; font-weight: 800; }
+        .px-night .px-narr { background: #F4EEE3; color: #1A1917; }
+        .px-night .px-narr b { color: #C0392B; }
+
+        /* 결재란 */
+        .px-sign { width: 100%; border-collapse: collapse; background: #fff; color: #1A1917; table-layout: fixed; }
+        .px-sign th, .px-sign td { border: 2px solid #1A1917; text-align: center; }
+        .px-sign th { height: 34px; font-size: 14px; font-weight: 800; background: #F1ECE2; }
+        .px-sign td { height: 96px; position: relative; }
+        .px-sign td.last { background: #FFFBEA; }
+        .px-scrib { position: absolute; left: 12%; right: 12%; top: 50%; height: 3px; background: #C0392B; transform: rotate(-12deg); opacity: 0.85; }
+        .px-scrib + .px-scrib { transform: rotate(10deg); }
+        .px-caret { display: inline-block; width: 3px; height: 34px; background: #1A1917; vertical-align: middle; animation: px-blink 1.05s steps(1) infinite; }
+        @keyframes px-blink { 50% { opacity: 0; } }
+
+        /* 창, 파일, 대화상자 */
+        .px-win { background: #fff; border-radius: 10px; overflow: hidden; }
+        .px-win-bar { display: flex; gap: 6px; align-items: center; height: 30px; padding: 0 12px; background: #ECE6DB; }
+        .px-win-bar i { width: 10px; height: 10px; border-radius: 50%; background: #CFC6B8; }
+        .px-bub { display: inline-block; padding: 9px 14px; border-radius: 14px 14px 4px 14px; background: #1A1917; color: #fff; font-size: 15px; font-weight: 700; }
+        .px-bar { height: 10px; border-radius: 5px; background: #E3DDD2; margin-top: 10px; }
+        .px-file { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #fff; border-radius: 6px; font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; letter-spacing: 0; white-space: nowrap; box-shadow: 0 3px 8px rgba(60,40,20,0.18); }
+        .px-file i { flex: none; width: 22px; height: 26px; border-radius: 2px 8px 2px 2px; background: #2A6A9A; }
+        .px-dlg { padding: 18px 20px; background: #fff; border-radius: 10px; font-size: 15px; font-weight: 800; }
+        .px-dlg-b { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+        .px-dlg-b span { padding: 7px 14px; border-radius: 6px; border: 1.5px solid #CFC6B8; font-size: 13px; font-weight: 800; color: #6B645C; }
+        .px-dlg-b span.hit { border-color: #1A1917; background: #1A1917; color: #fff; }
+
+        /* 이름표 */
+        .px-tag { border-radius: 14px; overflow: hidden; background: #fff; }
+        .px-tag-h { padding: 14px 0 10px; background: #C0392B; color: #fff; text-align: center; }
+        .px-tag-h b { display: block; font-size: 34px; font-weight: 900; letter-spacing: 2px; }
+        .px-tag-h span { font-size: 15px; font-weight: 700; opacity: 0.9; }
+        .px-tag-b { position: relative; height: 130px; }
+        .px-tag-b::after { content: ''; position: absolute; left: 34px; right: 34px; bottom: 34px; border-bottom: 2.5px solid #CFC6B8; }
+
+        /* 명단 */
+        .px-roster { width: 100%; border-collapse: collapse; font-size: 13px; font-weight: 800; }
+        .px-roster th { padding: 9px 8px; border-bottom: 2px solid #1A1917; text-align: left; color: #5A534B; }
+        .px-roster td { padding: 9px 8px; border-bottom: 1px solid #E3DDD2; }
+        .px-redact { display: inline-block; height: 13px; border-radius: 2px; background: #1A1917; vertical-align: middle; }
+        .px-gray { display: inline-block; height: 9px; border-radius: 2px; background: #CFC6B8; vertical-align: middle; }
+
+        /* 서명 줄 */
+        .px-contract { padding: 18px 20px; }
+        .px-contract .px-bar { background: #E8E2D7; height: 8px; margin-top: 9px; }
+        .px-sigline { position: absolute; left: 20px; right: 20px; bottom: 22px; border-top: 1.5px solid #1A1917; padding-top: 5px; font-size: 11px; font-weight: 800; color: #8A8178; }
+        .px-form { width: 100%; border-collapse: collapse; }
+        .px-form td { border: 2px solid #1A1917; padding: 10px 14px; font-size: 16px; font-weight: 800; }
+        .px-form td:first-child { width: 46%; background: #F1ECE2; font-size: 14px; color: #5A534B; }
+        .px-form td:last-child { font-size: 22px; font-weight: 900; color: #C0392B; }
+
+        /* 부르는 이름 */
+        .px-call { padding: 20px 22px; }
+        .px-call-n { font-size: 34px; font-weight: 900; letter-spacing: -1px; }
+        .px-call-q { margin-top: 4px; font-size: 13px; font-weight: 800; color: #8A8178; }
+        .px-call-a { margin-top: 18px; font-size: 18px; font-weight: 800; line-height: 1.45; color: #3A3530; }
+        .px-mirror { display: inline-block; transform: scaleX(-1); }
+
+        /* v2: 콜라주 손질 */
+        .px-cutout { padding: 7px; background: #FBF7EE; }
+        .px-form-hero td { padding: 8px 18px; font-size: 18px; }
+        .px-form-hero td:last-child { font-size: 36px; line-height: 1; text-align: center; }
+        .px-board {
+            position: relative; width: 100%; height: 100%; border-radius: 10px;
+            background: #6B4A2E; background-image: linear-gradient(180deg, rgba(255,255,255,0.10), transparent 45%), repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0 2px, transparent 2px 9px);
+            box-shadow: inset 0 0 0 2px rgba(0,0,0,0.18);
+        }
+        .px-clip { position: absolute; left: 76%; top: -12px; width: 100px; height: 26px; margin-left: -60px; border-radius: 6px; background: linear-gradient(180deg, #D9D6CF, #9C978E); box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
+        .px-imprint { position: absolute; left: 0; right: 0; top: 30px; text-align: center; font-size: 42px; font-weight: 900; letter-spacing: 4px; color: rgba(20,12,6,0.55); filter: blur(0.4px); }
+        .px-board-cap { position: absolute; left: 22px; right: 22px; bottom: 12px; font-size: 14px; font-weight: 800; color: rgba(255,244,228,0.88); letter-spacing: -0.2px; }
+        .px-board-cap b { color: #F5D56A; }
+        .px-wedge { left: 120px; top: 0; width: 70px; height: 540px; }
+        .px-crack { left: 186px; top: 0; width: 14px; height: 540px; background: linear-gradient(90deg, rgba(255,236,180,0.25), rgba(255,240,200,0.95) 50%, rgba(255,236,180,0.25)); box-shadow: 0 0 24px 6px rgba(245,213,106,0.35); }
+        .px-night .px-wedge { left: 30px; top: 300px; width: 520px; height: 240px; background: linear-gradient(180deg, rgba(255,236,180,0.30), rgba(255,236,180,0.04)); mix-blend-mode: screen; clip-path: polygon(30% 0, 33% 0, 100% 100%, 0 100%); }
+
+        a.px-go { text-decoration: none; cursor: pointer; }
+        .px-cut-duo span:nth-child(odd) { background: #1A1917; color: #F4EEE3; }
+        .px-cut-duo span:nth-child(even) { background: #FBF7EE; color: #1A1917; font-weight: 900; }
+        #poems { scroll-margin-top: 120px; }
+        a.px-go:hover { background: rgba(217,119,87,0.95); color: #fff; }
+
+        /* 전체 화면 */
+        .px-show { position: fixed; inset: 0; z-index: 2147483000; background: #0b0d0c; overflow: hidden; touch-action: pan-y; }
+        .px-show[hidden] { display: none; }
+        .px-show-stage { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; }
+        .px-show-btn {
+            position: absolute; z-index: 2; display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; border: 0; border-radius: 50%; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: #fff; transition: background 0.18s ease, opacity 0.3s ease;
+        }
+        .px-show-btn:hover { background: rgba(255,255,255,0.24); }
+        .px-show-btn:disabled { opacity: 0.25 !important; cursor: default; }
+        .px-show-btn svg { width: 22px; height: 22px; }
+        .px-show-prev { left: 20px; top: 50%; transform: translateY(-50%); }
+        .px-show-next { right: 20px; top: 50%; transform: translateY(-50%); }
+        .px-show-close { right: 20px; top: 20px; width: 44px; height: 44px; }
+        .px-show-num {
+            position: absolute; z-index: 2; left: 50%; bottom: 18px; transform: translateX(-50%);
+            padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease;
+        }
+        .px-show.idle .px-show-btn, .px-show.idle .px-show-num { opacity: 0; }
+        .px-show.idle { cursor: none; }
+        @media (max-width: 768px) {
+            .px-frame { border-radius: 10px; }
+            .px-toolbar { flex-direction: column; align-items: flex-start; }
+            .px-show-btn { width: 40px; height: 40px; }
+            .px-show-prev { left: 10px; top: auto; bottom: 12px; transform: none; }
+            .px-show-next { right: 10px; top: auto; bottom: 12px; transform: none; }
+            .px-show-close { right: 10px; top: 10px; }
+        }
+        @media (prefers-reduced-motion: reduce) { .px-caret { animation: none; } }
+    </style>
+    <!-- /POEM-SLIDES -->
 </head>
 <body>
 <!-- SKIP-STD -->
@@ -569,7 +808,7 @@
     </nav>
     <a href="index.html#section-showcase" class="back-link">&larr; 목록으로</a>
     <h1>시로 쓴 자화상</h1>
-    <p>멀티 페르소나 실습으로 완성한 47편 &middot; AI 시대, 일하는 사람들의 하루</p>
+    <p>멀티 페르소나 실습으로 완성한 44편 &middot; AI 시대, 일하는 사람들의 하루</p>
     <div class="header-pages">
         <a href="showcase-poems.html" class="header-page-link active">시로 쓴 자화상</a>
         <a href="showcase-stopwatch.html" class="header-page-link">스탑워치 쇼케이스</a>
@@ -581,36 +820,31 @@
 <nav class="sub-menu" id="subMenu" aria-label="유형 바로가기">
     <a href="#s5" data-sec="s5">
         <span class="sm-num">1</span>
-        <span class="sm-title">봄과 시작</span>
-        <span class="sm-sub"><span class="sm-count">4편</span></span>
-    </a>
-    <a href="#s7" data-sec="s7">
-        <span class="sm-num">2</span>
-        <span class="sm-title">여름과 더위</span>
+        <span class="sm-title">계절</span>
         <span class="sm-sub"><span class="sm-count">11편</span></span>
     </a>
     <a href="#s1" data-sec="s1">
-        <span class="sm-num">3</span>
+        <span class="sm-num">2</span>
         <span class="sm-title">AI와 나</span>
-        <span class="sm-sub"><span class="sm-count">5편</span></span>
+        <span class="sm-sub"><span class="sm-count">6편</span></span>
     </a>
     <a href="#s2" data-sec="s2">
-        <span class="sm-num">4</span>
+        <span class="sm-num">3</span>
         <span class="sm-title">일과 돈</span>
         <span class="sm-sub"><span class="sm-count">11편</span></span>
     </a>
     <a href="#s3" data-sec="s3">
-        <span class="sm-num">5</span>
+        <span class="sm-num">4</span>
         <span class="sm-title">아이를 키우며</span>
         <span class="sm-sub"><span class="sm-count">7편</span></span>
     </a>
     <a href="#s4" data-sec="s4">
-        <span class="sm-num">6</span>
+        <span class="sm-num">5</span>
         <span class="sm-title">부모님과 나</span>
         <span class="sm-sub"><span class="sm-count">4편</span></span>
     </a>
     <a href="#s6" data-sec="s6">
-        <span class="sm-num">7</span>
+        <span class="sm-num">6</span>
         <span class="sm-title">혼자 있는 시간</span>
         <span class="sm-sub"><span class="sm-count">5편</span></span>
     </a>
@@ -618,15 +852,265 @@
 
 <main class="container" id="main" tabindex="-1">
 
+    <!-- ── POEM-SLIDES: "내 이름을 쓴다" 콜라주 슬라이드. 시 구절은 모두 이 페이지 본문을 그대로 옮긴다 ── -->
+    <div class="px-wrap">
+        <div class="px-toolbar">
+            <p class="px-title">내 이름을 쓴다, 슬라이드 아홉 장으로 먼저 보기</p>
+            <button type="button" class="px-play" id="pxPlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+                전체 화면으로 보기
+            </button>
+        </div>
+        <div class="px-frame" id="pxFrame" tabindex="0" role="button" aria-label="내 이름을 쓴다 슬라이드, 전체 화면으로 보기">
+
+            <!-- 01 표지 -->
+            <div class="px-slide on">
+                <div class="ab px-halftone" style="left:640px;top:-90px;width:420px;height:420px"></div>
+                <div class="ab px-scrap" style="left:50px;top:54px;width:540px;height:420px;transform:rotate(-2deg)">
+                    <div class="px-in px-grid px-torn-b"></div>
+                </div>
+                <span class="px-tape" style="left:30px;top:48px;transform:rotate(-36deg)"></span>
+                <span class="px-tape or" style="left:520px;top:50px;width:84px;transform:rotate(30deg)"></span>
+                <div class="ab" style="left:90px;top:96px;transform:rotate(-2deg);transform-origin:0 0">
+                    <span class="px-chip px-ink">시로 쓴 자화상 · 시 일곱 편으로 엮은 이야기</span>
+                    <div class="px-cut" style="margin-top:26px;font-size:80px"><span>내</span><span>이</span><span>름</span><span>을</span></div>
+                    <div class="px-cut" style="margin-top:16px;margin-left:120px;font-size:80px"><span>쓴</span><span>다</span></div>
+                    <div style="margin-top:30px;font-size:20px;font-weight:800;line-height:1.6">AI가 초안을 써 주는 시대,<br>마지막 한 칸에는 아직<br><span style="background:#F5D56A;padding:0 4px">사람의 이름</span>이 들어갑니다</div>
+                </div>
+                <div class="ab px-scrap" style="left:626px;top:150px;width:290px;transform:rotate(3deg)">
+                    <table class="px-sign">
+                        <tr><th>담당</th><th>검토</th><th>책임자</th></tr>
+                        <tr><td><span class="px-scrib"></span><span class="px-scrib"></span></td><td><span class="px-scrib"></span><span class="px-scrib"></span></td><td class="last"><span class="px-caret"></span></td></tr>
+                    </table>
+                </div>
+                <span class="px-tape" style="left:730px;top:136px;transform:rotate(-6deg)"></span>
+                <div class="ab px-stamp" style="left:690px;top:330px;transform:rotate(-8deg)">결재 대기</div>
+                <div class="ab px-num" style="right:60px;bottom:28px">01 / 09</div>
+            </div>
+
+            <!-- 02 1막 · 0.3초 : 왼쪽 오브젝트 + 오른쪽 인용 -->
+            <div class="px-slide">
+                <span class="px-tape lab" style="left:44px;top:34px;transform:rotate(-2deg)">1막 · 빨라진 손</span>
+                <div class="ab px-num" style="right:60px;top:40px">02 / 09</div>
+                <div class="ab px-scrap" style="left:60px;top:100px;width:400px;height:290px;transform:rotate(-2deg)">
+                    <div class="px-in px-torn-b px-cutout">
+                        <div class="px-win" style="height:100%">
+                            <div class="px-win-bar"><i></i><i></i><i></i></div>
+                            <div style="padding:20px 22px">
+                                <div style="text-align:right"><span class="px-bub">질문을 입력했다</span></div>
+                                <div class="px-bar" style="width:92%;margin-top:22px"></div>
+                                <div class="px-bar" style="width:84%"></div>
+                                <div class="px-bar" style="width:96%"></div>
+                                <div class="px-bar" style="width:70%"></div>
+                                <div class="px-bar" style="width:88%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <span class="px-tape" style="left:90px;top:88px;transform:rotate(-14deg)"></span>
+                <div class="ab px-cut" style="left:240px;top:262px;font-size:64px;transform:rotate(-4deg)"><span>0.3</span><span>초</span></div>
+                <div class="ab px-scrap" style="left:500px;top:120px;width:410px;height:200px;transform:rotate(1.5deg)">
+                    <div class="px-in px-lined px-torn-tb px-quote">
+                        <div class="px-src"><b>●</b> 시 「처음 듣는 목소리」에서</div>
+                        <div class="px-poem" style="font-size:20px"><p>질문을 입력했다<br>0.3초<br>사흘 걸려 쓴 것이 화면 위로 밀려 올라갔다</p></div>
+                    </div>
+                </div>
+                <span class="px-tape or" style="left:820px;top:110px;width:80px;transform:rotate(30deg)"></span>
+                <div class="px-narr">사흘 걸린 문서가 <b>0.3초</b> 만에 밀려났습니다. 아직 모르겠다고, 옆자리가 먼저 말했습니다.</div>
+            </div>
+
+            <!-- 03 1막 · 길어지는 파일명 : 가운데 계단 -->
+            <div class="px-slide">
+                <span class="px-tape lab" style="left:44px;top:34px;transform:rotate(-2deg)">1막 · 빨라진 손</span>
+                <div class="ab px-num" style="right:60px;top:40px">03 / 09</div>
+                <div class="ab px-file" style="left:80px;top:104px;font-size:19px;transform:rotate(-1.5deg)"><i></i>보고서_최종.hwp</div>
+                <div class="ab px-file" style="left:130px;top:170px;font-size:19px;transform:rotate(1deg)"><i></i>보고서_최종_진짜최종.hwp</div>
+                <div class="ab px-file" style="left:180px;top:236px;font-size:19px;transform:rotate(-0.8deg)"><i></i>보고서_최종_진짜최종_수정.hwp</div>
+                <span class="px-tape" style="left:66px;top:94px;width:60px;transform:rotate(-24deg)"></span>
+                <span class="px-tape or" style="left:470px;top:222px;width:56px;transform:rotate(28deg)"></span>
+                <div class="ab px-scrap" style="left:84px;top:318px;width:290px;transform:rotate(-2.5deg)">
+                    <div class="px-dlg">바뀐 내용을 저장할까요?<div class="px-dlg-b"><span>저장</span><span class="hit">저장 안 함</span></div></div>
+                </div>
+                <span class="px-tape" style="left:300px;top:306px;width:64px;transform:rotate(18deg)"></span>
+                <div class="ab px-scrap" style="left:600px;top:110px;width:300px;height:200px;transform:rotate(2deg)">
+                    <div class="px-in px-grid px-torn-tb px-quote">
+                        <div class="px-src"><b>●</b> 시 「보고서_최종」에서</div>
+                        <div class="px-poem" style="font-size:34px;line-height:1.4;font-weight:700">파일명이<br>길어질수록</div>
+                    </div>
+                </div>
+                <div class="ab px-scrap" style="left:690px;top:322px;width:170px;height:50px;transform:rotate(-5deg)">
+                    <div class="px-in px-torn-tb" style="padding:12px 0;text-align:center;font-size:18px;font-weight:800;letter-spacing:-0.4px">나는 짧아졌다</div>
+                </div>
+                <div class="px-narr">손이 빨라져도, 고친 자리는 또 고칩니다. <b>처음이 어디였는지</b> 흐려집니다.</div>
+            </div>
+
+            <!-- 04 2막 · 마지막 한 칸 -->
+            <div class="px-slide px-night">
+                <span class="px-tape lab" style="left:44px;top:34px;transform:rotate(-2deg)">2막 · 마지막 한 칸과 그 무게</span>
+                <div class="ab px-num" style="right:60px;top:40px">04 / 09</div>
+                <div class="ab px-scrap" style="left:70px;top:104px;width:300px;height:46px;transform:rotate(-2deg)"><div class="px-in px-torn-tb px-poem" style="padding:6px 18px;font-size:19px">밤새 도착해 있었다.</div></div>
+                <div class="ab px-scrap" style="left:96px;top:170px;width:190px;height:46px;transform:rotate(1.5deg)"><div class="px-in px-torn-tb px-poem" style="padding:6px 18px;font-size:19px"><s style="text-decoration-color:#C0392B;text-decoration-thickness:3px">나는 지웠다.</s></div></div>
+                <div class="ab px-scrap" style="left:120px;top:236px;width:170px;height:46px;transform:rotate(-1deg)"><div class="px-in px-torn-tb px-poem" style="padding:6px 18px;font-size:19px"><s style="text-decoration-color:#C0392B;text-decoration-thickness:3px">또 지웠다.</s></div></div>
+                <div class="ab px-scrap" style="left:146px;top:302px;width:280px;height:46px;transform:rotate(2deg)"><div class="px-in px-torn-tb px-poem" style="padding:6px 18px;font-size:19px">마지막에 한 칸이 남았다.</div></div>
+                <div class="ab px-scrap" style="left:500px;top:96px;width:380px;transform:rotate(2deg)">
+                    <table class="px-sign">
+                        <tr><th style="font-size:22px;height:52px">책임자</th></tr>
+                        <tr><td class="last" style="height:220px"><span class="px-caret" style="height:60px;width:4px"></span></td></tr>
+                    </table>
+                </div>
+                <span class="px-tape or" style="left:650px;top:82px;transform:rotate(-5deg)"></span>
+                <div class="ab px-src" style="left:510px;top:392px;color:rgba(244,238,227,0.65)"><b>●</b> 시 「서명란」에서 · 커서가 깜빡였다. 오래.</div>
+                <div class="px-narr">밤새 온 초안을 다 지우고 나도, 한 칸은 남습니다. <b>책임자.</b></div>
+            </div>
+
+            <!-- 05 2막 · 명단 : 왼쪽 오브젝트 + 오른쪽 인용 -->
+            <div class="px-slide px-night">
+                <span class="px-tape lab" style="left:44px;top:34px;transform:rotate(-2deg)">2막 · 마지막 한 칸과 그 무게</span>
+                <div class="ab px-num" style="right:60px;top:40px">05 / 09</div>
+                <div class="ab px-scrap" style="left:60px;top:96px;width:450px;height:318px;transform:rotate(-1.5deg)">
+                    <div class="px-in" style="padding:18px 20px">
+                        <table class="px-roster">
+                            <tr><th style="width:40%">이름</th><th>사번</th><th>근속 연수</th></tr>
+                            <tr><td><span class="px-redact" style="width:62px"></span></td><td><span class="px-gray" style="width:58px"></span></td><td><span class="px-gray" style="width:28px"></span></td></tr>
+                            <tr><td><span class="px-redact" style="width:48px"></span></td><td><span class="px-gray" style="width:58px"></span></td><td><span class="px-gray" style="width:36px"></span></td></tr>
+                            <tr><td><span class="px-redact" style="width:62px"></span></td><td><span class="px-gray" style="width:58px"></span></td><td><span class="px-gray" style="width:22px"></span></td></tr>
+                            <tr><td><span class="px-redact" style="width:56px"></span></td><td><span class="px-gray" style="width:58px"></span></td><td><span class="px-gray" style="width:40px"></span></td></tr>
+                            <tr><td><span class="px-redact" style="width:62px"></span></td><td><span class="px-gray" style="width:58px"></span></td><td><span class="px-gray" style="width:30px"></span></td></tr>
+                            <tr><td><span class="px-redact" style="width:50px"></span></td><td><span class="px-gray" style="width:58px"></span></td><td><span class="px-gray" style="width:26px"></span></td></tr>
+                        </table>
+                        <div class="ab" style="left:0;right:0;top:168px;border-top:2px dashed rgba(26,25,23,0.35);transform:rotate(-4deg)"></div>
+                    </div>
+                </div>
+                <div class="ab px-scrap" style="left:316px;top:318px;width:200px;transform:rotate(5deg)"><div class="px-in px-yellow" style="padding:13px 16px;font-size:16px;font-weight:800;line-height:1.45">생일은<br>어느 칸에도 없다</div></div>
+                <div class="ab px-scrap" style="left:560px;top:84px;width:340px;height:340px;transform:rotate(1.5deg)">
+                    <div class="px-in px-lined px-torn-tb px-quote" style="padding-top:18px">
+                        <div class="px-src"><b>●</b> 시 「명단(名單)」에서</div>
+                        <div class="px-poem" style="font-size:18px;line-height:1.68"><p>결재란은 비어 있다<br>이 빈칸을 채우면<br>저 책상들이 빈다</p><p style="color:#B3ADA4">⋯</p><p>잉크가 나오지 않는다<br>귀퉁이에 두 번 긋고<br><span style="background:#F5D56A;padding:0 3px">내 이름을 쓴다</span></p></div>
+                    </div>
+                </div>
+                <div class="px-narr">새벽 네 시, 그 칸에 내 이름을 쓰면 <b>다른 이름들</b>이 지워지기도 합니다.</div>
+            </div>
+
+            <!-- 06 2막 · 수신 확인 : 가운데 표 -->
+            <div class="px-slide">
+                <span class="px-tape lab" style="left:44px;top:34px;transform:rotate(-2deg)">2막 · 마지막 한 칸과 그 무게</span>
+                <div class="ab px-num" style="right:60px;top:40px">06 / 09</div>
+                <div class="ab px-scrap" style="left:120px;top:78px;width:230px;height:270px;transform:rotate(-11deg)">
+                    <div class="px-in px-contract"><div class="px-bar" style="width:60%;height:12px;background:#CFC6B8"></div><div class="px-bar"></div><div class="px-bar"></div><div class="px-bar" style="width:80%"></div>
+                        <svg class="ab" style="left:30px;bottom:30px" width="150" height="46" viewBox="0 0 150 46" fill="none" stroke="#1A1917" stroke-width="2.4" stroke-linecap="round"><path d="M4 34c14-26 22-30 20-8s10-10 18-18 4 24 16 14 14-20 22-6 10 8 22-4 20 4 40-2"/></svg>
+                        <div class="px-sigline">서명</div></div>
+                </div>
+                <div class="ab px-scrap" style="left:610px;top:78px;width:230px;height:270px;transform:rotate(10deg)">
+                    <div class="px-in px-contract"><div class="px-bar" style="width:60%;height:12px;background:#CFC6B8"></div><div class="px-bar"></div><div class="px-bar" style="width:90%"></div><div class="px-bar"></div>
+                        <svg class="ab" style="left:36px;bottom:30px" width="150" height="46" viewBox="0 0 150 46" fill="none" stroke="#1A1917" stroke-width="2.4" stroke-linecap="round"><path d="M4 34c14-26 22-30 20-8s10-10 18-18 4 24 16 14 14-20 22-6 10 8 22-4 20 4 40-2"/></svg>
+                        <div class="px-sigline">서명</div></div>
+                </div>
+                <div class="ab px-scrap" style="left:250px;top:84px;width:460px;transform:rotate(-1deg)">
+                    <div class="px-in" style="padding:20px 26px 22px">
+                        <div class="px-src"><b>●</b> 시 「수신 확인 1」에서</div>
+                        <table class="px-form px-form-hero"><tr><td>대표자</td><td>나</td></tr><tr><td>담당자</td><td>나</td></tr><tr><td>연대보증인</td><td>나</td></tr></table>
+                    </div>
+                </div>
+                <span class="px-tape" style="left:430px;top:70px;transform:rotate(3deg)"></span>
+                <div class="ab px-scrap" style="left:176px;top:338px;width:240px;transform:rotate(-3deg)"><div class="px-in px-yellow" style="padding:12px 16px;font-size:16px;font-weight:800;line-height:1.5">저희가 책임지고 하겠습니다<br>아홉 시 이 분에 보낸다</div></div>
+                <div class="ab px-scrap" style="left:500px;top:314px;width:230px;height:116px;transform:rotate(1.5deg)">
+                    <div class="px-in px-torn-tb px-poem" style="padding:12px 24px;font-size:21px;line-height:1.5">나는 자유롭고<br>나는 괜찮고<br>나는</div>
+                </div>
+                <div class="px-narr">어떤 날은 <b>모든 칸</b>에 같은 이름이 들어갑니다.</div>
+            </div>
+
+            <!-- 07 3막 · 부르는 이름 : 세 장 나란히 + 결재판 -->
+            <div class="px-slide">
+                <span class="px-tape lab" style="left:44px;top:34px;transform:rotate(-2deg)">3막 · 이름 석 자</span>
+                <div class="ab px-num" style="right:60px;top:40px">07 / 09</div>
+                <div class="ab px-scrap" style="left:60px;top:92px;width:260px;height:190px;transform:rotate(-3deg)">
+                    <div class="px-in px-torn-b px-call"><div class="px-call-n">부장님</div><div class="px-call-q">하고 부르면</div><div class="px-call-a">안경을 올리고</div></div>
+                </div>
+                <div class="ab px-scrap" style="left:350px;top:84px;width:260px;height:190px;transform:rotate(2deg)">
+                    <div class="px-in px-yellow px-torn-b px-call"><div class="px-call-n">아빠</div><div class="px-call-q">하고 부르면</div><div class="px-call-a">티브이 소리를 줄인다</div></div>
+                </div>
+                <div class="ab px-scrap" style="left:640px;top:96px;width:260px;height:190px;transform:rotate(-1.5deg)">
+                    <div class="px-in px-ink px-torn-b px-call"><div class="px-call-n" style="color:rgba(244,238,227,0.55)">(&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)</div><div class="px-call-q" style="color:rgba(244,238,227,0.6)">아무도 부르지 않는 세 시에는</div><div class="px-call-a" style="color:#F4EEE3">의자가 유리문 쪽으로<br>돌아가 있다</div></div>
+                </div>
+                <span class="px-tape" style="left:150px;top:80px;transform:rotate(-8deg)"></span>
+                <span class="px-tape or" style="left:440px;top:70px;width:80px;transform:rotate(6deg)"></span>
+                <span class="px-tape" style="left:730px;top:84px;transform:rotate(-4deg)"></span>
+                <div class="ab px-scrap" style="left:180px;top:304px;width:600px;height:128px;transform:rotate(-1deg)">
+                    <div class="px-board">
+                        <span class="px-clip"></span>
+                        <div class="px-imprint"><span class="px-mirror">이름 석 자</span></div>
+                        <div class="px-board-cap"><b>●</b> 시 「반사」에서</div>
+                    </div>
+                </div>
+                <div class="px-narr">직함도 아빠도 아닌 <b>이름</b>은, 결재판 밑판에 뒤집혀서만 남습니다.</div>
+            </div>
+
+            <!-- 08 3막 · 문틈 : 문틈 빛 + 오른쪽 인용 -->
+            <div class="px-slide px-night">
+                <div class="ab px-num" style="right:60px;top:40px">08 / 09</div>
+                <div class="ab px-wedge"></div>
+                <div class="ab" style="left:120px;top:0;width:70px;height:540px;background:#161412"></div>
+                <div class="ab px-crack"></div>
+                <div class="ab px-scrap" style="left:330px;top:76px;width:560px;height:236px;transform:rotate(1.5deg)">
+                    <div class="px-in px-lined px-torn-tb px-quote" style="padding-top:18px">
+                        <div class="px-src"><b>●</b> 시 「몰래」에서 · 아이의 시선</div>
+                        <div class="px-poem" style="font-size:21px;line-height:1.7"><p>아빠가 무릎을 꿇어요<br>어깨가 내 책가방만 해요</p><p>내 이름을 세 번 불러요<br>아빠 이름은 한 번도 안 불러요</p></div>
+                    </div>
+                </div>
+                <span class="px-tape or" style="left:300px;top:70px;width:80px;transform:rotate(-30deg)"></span>
+                <div class="ab px-scrap" style="left:390px;top:330px;width:400px;height:84px;transform:rotate(-1.5deg)">
+                    <div class="px-in px-torn-tb px-poem" style="padding:12px 22px;font-size:17px;line-height:1.55">나는 소원 빌 때 아빠 이름을 안 넣었어요<br>아빠 건 아빠가 빌면 되잖아요</div>
+                </div>
+                <div class="ab px-scrap" style="left:760px;top:438px;width:130px;height:60px;transform:rotate(5deg)">
+                    <div class="px-in px-torn-tb px-poem" style="padding:12px 0;text-align:center;font-size:23px;font-weight:600">그냥요</div>
+                </div>
+            </div>
+
+            <!-- 09 맺음 -->
+            <div class="px-slide">
+                <div class="ab px-halftone" style="left:760px;top:330px;width:320px;height:320px"></div>
+                <div class="ab px-scrap" style="left:70px;top:70px;width:370px;transform:rotate(-2.5deg)">
+                    <table class="px-sign">
+                        <tr><th style="font-size:20px;height:48px">책임자</th></tr>
+                        <tr><td class="last" style="height:190px">
+                            <svg class="ab" style="left:48px;top:46px" width="270" height="100" viewBox="0 0 270 100" fill="none" stroke="#1A1917" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 70c18-46 34-58 30-20s16-4 26-22 2 40 22 30 18-40 34-30-10 34 8 34 26-38 40-36 4 30 22 28 30-20 66-24"/><path d="M60 88c50-6 120-8 190-14"/></svg>
+                        </td></tr>
+                    </table>
+                </div>
+                <span class="px-tape or" style="left:206px;top:56px;transform:rotate(-4deg)"></span>
+                <div class="ab px-scrap" style="left:96px;top:342px;width:250px;height:110px;transform:rotate(-2deg)">
+                    <div class="px-in px-torn-tb" style="padding:14px 22px">
+                        <div class="px-poem" style="font-size:22px;line-height:1.5">나는<br>내 이름을 썼다.</div>
+                    </div>
+                </div>
+                <div class="ab px-src" style="left:110px;top:462px"><b>●</b> 시 「서명란」 마지막 줄</div>
+                <div class="ab" style="left:500px;top:84px;width:410px">
+                    <div style="font-size:24px;font-weight:900;line-height:1.5;letter-spacing:-0.6px">초안은 AI가 씁니다.<br>그 칸의 무게는 아직</div>
+                    <div class="px-cut px-cut-duo" style="margin-top:6px;font-size:38px;gap:14px"><span>사람이</span><span>집니다</span></div>
+                    <div class="px-scrap" style="margin-top:30px;transform:rotate(1deg)"><div class="px-in" style="padding:18px 22px;font-size:20px;font-weight:800;line-height:1.6">오늘 어느 칸에 이름을 썼나요.<br>그 이름을 불러 준 사람은 있었나요.</div></div>
+                </div>
+                <a class="px-go px-tape lab" href="#poems" style="left:500px;top:398px;transform:rotate(-1.5deg)">↓ 사람이 AI와 함께 고쳐 쓴 시 마흔네 편</a>
+                <div class="ab px-num" style="right:60px;top:40px">09 / 09</div>
+            </div>
+
+        </div>
+        <div class="px-nav">
+            <button type="button" id="pxPrevIn" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <span class="px-count" id="pxCount" aria-live="polite">1 / 9</span>
+            <button type="button" id="pxNextIn" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+    </div>
+    <!-- ── /POEM-SLIDES ── -->
+
     <!-- 인트로 -->
-    <div class="intro-card reveal">
+    <div class="intro-card reveal" id="poems">
         <h2>한 번에 나온 시가 아닙니다</h2>
         <p>수업의 <strong>첫 실습</strong>이었습니다. 주제는 한 줄, <strong>"AI 시대를 사는 나를 시로 써줘."</strong> 수강생들은 초안 하나로 끝내지 않았습니다. <strong>수행자·비평가·독자</strong>, 여러 페르소나를 번갈아 세워 쓰고 비평하고 다시 썼습니다. AI는 일을 빨리 끝내는 도구이기 전에, 나를 여러 시선으로 다시 보게 하는 <strong>거울</strong>이기도 합니다.</p>
     </div>
 
-    <!-- ── 유형 1 · 봄과 시작 ── -->
+    <!-- ── 유형 1 · 계절 ── -->
     <div class="cat-label reveal" id="s5">
-        <span class="cat-pill"><span class="cat-sub">봄과 시작</span><span class="cat-count">4</span></span>
+        <span class="cat-pill"><span class="cat-sub">계절</span><span class="cat-count">11</span></span>
     </div>    <div class="poem-list" data-section="s5">
 
         <article class="poem-card reveal">
@@ -659,30 +1143,21 @@
             <span class="poem-tag">위로 · 봄</span>
             <div class="poem-text">
                 <p>지쳐 누웠더니<br>봄이 먼저 와 있다</p>
-                <p>창틀 틈으로 들어온 빛이<br>장판을 건너와<br>양말 신은 발끝에서 멈춘다</p>
-                <p>겨우내 베란다에 둔 화분<br>죽은 줄 알고도 아직 안 버렸다<br>굳은 흙이 한쪽만 들떠 있다</p>
                 <p>일어나야 하는데</p>
                 <p>빛이 무릎에 닿았다<br>발이 저리다</p>
             </div>
         </article>
 
         <article class="poem-card reveal">
-            <div class="poem-head"><span class="poem-name">전원이 꺼지지 않는 것들</span></div>
-            <span class="poem-tag">가전 · 사계절의 비유</span>
+            <div class="poem-head"><span class="poem-name">예감</span></div>
+            <span class="poem-tag">에어컨 필터 · 여름</span>
             <div class="poem-text">
-                <p>하늘이 오늘도 리모컨을 잃어버렸다<br>채널 못 바꾼 구름이 회색으로 굳는다<br>소파 밑을 뒤져도 우리 것은 나오지 않았다</p>
-                <p>밤새 가습기 물통 눈금이 내려갔다<br>꺼야 할 타이머는 봄부터 켜져 있다<br>네가 앉던 창틀 아래 벽지가 부풀었다</p>
-                <p>3단으로 올려도 날개보다 모터 소리가 컸다<br>선풍기 목은 한쪽에 걸린 채 돌아오지 않았다<br>바람은 네 쪽을 비켜 갔다</p>
-                <p>골목이 통째로 정전이던 가을밤<br>불이 들어오자 화면은 그 채널부터 켜졌다</p>
-                <p>겨울에는 코드를 다 뽑고 잤다<br>멀티탭 스위치 하나가 남았다<br>불 끈 방에 빨간 점이 떠 있다</p>
+                <p>오월 끝인데 퇴근길이 아직 파랗다<br>현관 불을 안 켜고 들어온다</p>
+                <p>에어컨을 꺼냈다<br>필터에 작년 먼지가 그대로다<br>베란다 난간에 대고 턴다<br>아직 덥지도 않은데 눈이 따갑다</p>
+                <p>선풍기 상자에 유성펜으로 쓴 연도가 셋이다<br>맨 위 것은 볕에 바래 흐리다<br>올해 것을 맨 아래 쓴다</p>
+                <p>코드를 꽂아 두고 켜지는 않는다<br>창을 열어 두면 날개가 저 혼자<br>반 바퀴 돌다 만다</p>
             </div>
         </article>
-    </div>
-
-    <!-- ── 유형 2 · 여름과 더위 ── -->
-    <div class="cat-label reveal" id="s7">
-        <span class="cat-pill"><span class="cat-sub">여름과 더위</span><span class="cat-count">11</span></span>
-    </div>    <div class="poem-list" data-section="s7">
 
         <article class="poem-card reveal">
             <div class="poem-head"><span class="poem-name">매미</span></div>
@@ -693,30 +1168,6 @@
                 <p>오늘은 창을 민다<br>레일이 한 뼘에서 걸린다<br>망에 손바닥을 대면 살이 잘게 눌린다</p>
                 <p>그 틈으로 울음이 벽지 이음매까지 닿고<br>에어컨이 다시 돈다</p>
                 <p>등줄기가 젖는다<br>매미는 아직 반도 울지 않았다</p>
-            </div>
-        </article>
-
-        <article class="poem-card reveal">
-            <div class="poem-head"><span class="poem-name">타이머</span></div>
-            <span class="poem-tag">선풍기 · 날개 수를 세는 밤</span>
-            <div class="poem-text">
-                <p>에어컨 없는 방<br>이불을 걷어차면<br>발끝만 잠깐 시원하고<br>천장을 보는 눈이 뜨겁다</p>
-                <p>선풍기가 목을 돌린다<br>왼쪽 벽에서 창으로, 창에서 발치로<br>바람에 장판 냄새가 섞인다<br>같은 공기가 같은 순서로 돌아온다</p>
-                <p>열어둔 창 틈으로<br>얼음 잔 부딪히는 소리<br>누군가는 아직 밖에 있다</p>
-                <p>물을 마시고 돌아눕는다<br>컵에 남긴 물이 벌써 미지근하다</p>
-                <p>돌아가는 날개를 센다<br>셋인가 넷인가<br>세 번째부터 자꾸 처음이 된다</p>
-                <p>다 세기도 전에<br>창틀이 희끄무레하다</p>
-            </div>
-        </article>
-
-        <article class="poem-card reveal">
-            <div class="poem-head"><span class="poem-name">얼음 한 알</span></div>
-            <span class="poem-tag">얼음 한 알 · 참은 말</span>
-            <div class="poem-text">
-                <p>실외기가 밤새 뒤척였다.</p>
-                <p>입 안에서 모서리가 둥글어지는 동안<br>아무 말도 하지 않는 연습을 한다.<br>말을 하면 더워진다.<br>컵 두 개에 물이 그대로다.</p>
-                <p>창밖에서 아이들이 물총을 쏜다.<br>맞은 아이가 더 크게 웃는다.</p>
-                <p>창을 조금 연다.<br>더운 바람이 먼저 들어오고<br>물 튀는 소리가 뒤따라온다.<br>혀 밑이 미지근하다.</p>
             </div>
         </article>
 
@@ -734,41 +1185,6 @@
         </article>
 
         <article class="poem-card reveal">
-            <div class="poem-head"><span class="poem-name">염천(炎天)</span></div>
-            <span class="poem-tag">여름 골목 · 식지 않는 저녁</span>
-            <div class="poem-text">
-                <p>그늘까지 데워진 골목<br>아스팔트가 물러져<br>구두 뒤축이 잠깐 잠긴다<br>뒤에서 자국이 닫힌다</p>
-                <p>매미가 그치면 귀가 먼저 덥고<br>셔츠는 살갗에서 떨어지지 않는다</p>
-                <p>수박 한 조각에<br>앞니가 먼저 시리다<br>유리잔에서 얼음이 자리를 바꾼다</p>
-                <p>가로등이 켜져도<br>아스팔트는 아직 낮이다</p>
-            </div>
-        </article>
-
-        <article class="poem-card reveal">
-            <div class="poem-head"><span class="poem-name">그늘이 없는 쪽</span></div>
-            <span class="poem-tag">마당에 뿌린 물 · 마르는 순서</span>
-            <div class="poem-text">
-                <p>정오에는 그림자가 발밑으로 다 들어간다<br>나무 한 그루가 매미 소리로 꽉 찬다</p>
-                <p>부채질도 잊고<br>얼음물 잔을 오래 쥐고 있으면<br>맺힌 물이 유리를 타고 내려와<br>손목까지 온다<br>거기서부터 미지근하다</p>
-                <p>선풍기는 제가 데운 공기를 다시 보낸다<br>문틈에서 한 줄기가 들어올 때<br>목덜미만 잠깐 서늘하다</p>
-                <p>저녁에 바가지로 마당에 물을 뿌린다<br>흙냄새가 올라왔다 가고<br>처음 뿌린 자리가 벌써 희다</p>
-            </div>
-        </article>
-
-        <article class="poem-card reveal">
-            <div class="poem-head"><span class="poem-name">미련 같은 거 없다</span></div>
-            <span class="poem-tag">여름 · 문을 걸어 잠근 오후</span>
-            <div class="poem-text">
-                <p>문 열면 더위가 먼저 들어와 앉는다<br>나는 도로 닫는다</p>
-                <p>매미는 저게 사랑 노래라고 우기지만<br>떼로 지르는 통에 내 귓속이 한 겹 더 덥다</p>
-                <p>땀 한 줄이 목덜미에서 등까지 가는 데 한참이다<br>나는 대꾸 없이 얼음물만 들이켠다<br>얼음이 나보다 먼저 진다</p>
-                <p>걸쇠까지 걸어 잠근다</p>
-                <p>이 정도면 됐다<br>나갈 때 문은 닫고</p>
-                <p>냉동실 문 안쪽에 성에가 두껍다<br>손톱으로 긁어 입에 넣는다</p>
-            </div>
-        </article>
-
-        <article class="poem-card reveal">
             <div class="poem-head"><span class="poem-name">실외기</span></div>
             <span class="poem-tag">실외기 골목 · 끝의 반전</span>
             <div class="poem-text">
@@ -776,17 +1192,6 @@
                 <p>땀 한 방울이 등을 타고 내려가<br>허리춤에서 멈춘다<br>실외기 여섯 대가 서로에게 더운 바람을 뱉는 골목<br>그중 한 대 뒤의 창은 은박지로 막혀 있다<br>젖은 셔츠가 살에 붙는다</p>
                 <p>그늘로 들어가 담벼락에 손을 댄다<br>나보다 먼저 데워져 있다</p>
                 <p>자정에도 그 창 앞 한 대는 돈다<br>바람 나오는 쪽에 손바닥을 대고 서 있다</p>
-            </div>
-        </article>
-
-        <article class="poem-card reveal">
-            <div class="poem-head"><span class="poem-name">여름, 길 위에서</span></div>
-            <span class="poem-tag">여름 · 돌아갈 곳</span>
-            <div class="poem-text">
-                <p>문고리를 두어 번 흔들어 보고<br>끈이 풀린 운동화째로<br>떠난다</p>
-                <p>탄다<br>요금통에 동전 두 개<br>등부터 먼저 익는 비닐 시트에 앉는다</p>
-                <p>잠들고<br>깬다<br>한 뼘 열린 창을 짠 내가 비집는<br>어느 정류장<br>유리에서 뺨을 뗀다</p>
-                <p>내린다<br>운동화 속으로 모래가 들어오고<br>표는 돌아오는 쪽이 땀에 붙어 있다</p>
             </div>
         </article>
 
@@ -803,20 +1208,43 @@
         </article>
 
         <article class="poem-card reveal">
-            <div class="poem-head"><span class="poem-name">예감</span></div>
-            <span class="poem-tag">에어컨 필터 · 여름</span>
+            <div class="poem-head"><span class="poem-name">내년</span></div>
+            <span class="poem-tag">사업계획 · 은행나무</span>
             <div class="poem-text">
-                <p>오월 끝인데 퇴근길이 아직 파랗다<br>현관 불을 안 켜고 들어온다</p>
-                <p>에어컨을 꺼냈다<br>필터에 작년 먼지가 그대로다<br>베란다 난간에 대고 턴다<br>아직 덥지도 않은데 눈이 따갑다</p>
-                <p>선풍기 상자에 유성펜으로 쓴 연도가 셋이다<br>맨 위 것은 볕에 바래 흐리다<br>올해 것을 맨 아래 쓴다</p>
-                <p>코드를 꽂아 두고 켜지는 않는다<br>창을 열어 두면 날개가 저 혼자<br>반 바퀴 돌다 만다</p>
+                <p>시월에 내년을 쓴다<br>엑셀 맨 윗줄에 2027을 치고<br>칸마다 올해보다 큰 숫자를 넣는다</p>
+                <p>회의실 창밖 은행나무가<br>꼭대기부터 노래진다<br>아래 가지는 아직 초록을 쥐고 있다</p>
+                <p>성장률 칸에서 손이 멈춘다<br>작년 이맘때 파일을 연다<br>작년에 쓴 숫자에 올해는 닿지 못했다<br>그 숫자에 1을 더해 적는다</p>
+                <p>퇴근길 보도에 열매가 으깨져 있다<br>피해 디디다가 하나를 밟는다<br>냄새가 집까지 따라온다</p>
+                <p>현관에서 휴지로 밑창을 닦는다<br>닦을수록 손끝에 옮는다</p>
+            </div>
+        </article>
+
+        <article class="poem-card reveal">
+            <div class="poem-head"><span class="poem-name">반팔</span></div>
+            <span class="poem-tag">옷 정리 · 숟가락 둘</span>
+            <div class="poem-text">
+                <p>반팔을 접어 상자에 넣는다<br>소매, 소매, 반으로</p>
+                <p>주머니에서 영수증이 나온다<br>빙수 하나, 숟가락 둘<br>날짜는 지워졌다</p>
+                <p>테이프를 붙인다<br>한 번 더 붙인다</p>
+            </div>
+        </article>
+
+        <article class="poem-card reveal">
+            <div class="poem-head"><span class="poem-name">전원이 꺼지지 않는 것들</span></div>
+            <span class="poem-tag">가전 · 사계절의 비유</span>
+            <div class="poem-text">
+                <p>하늘이 오늘도 리모컨을 잃어버렸다<br>채널 못 바꾼 구름이 회색으로 굳는다<br>소파 밑을 뒤져도 우리 것은 나오지 않았다</p>
+                <p>밤새 가습기 물통 눈금이 내려갔다<br>꺼야 할 타이머는 봄부터 켜져 있다<br>네가 앉던 창틀 아래 벽지가 부풀었다</p>
+                <p>3단으로 올려도 날개보다 모터 소리가 컸다<br>선풍기 목은 한쪽에 걸린 채 돌아오지 않았다<br>바람은 네 쪽을 비켜 갔다</p>
+                <p>골목이 통째로 정전이던 가을밤<br>불이 들어오자 화면은 그 채널부터 켜졌다</p>
+                <p>겨울에는 코드를 다 뽑고 잤다<br>멀티탭 스위치 하나가 남았다<br>불 끈 방에 빨간 점이 떠 있다</p>
             </div>
         </article>
     </div>
 
-    <!-- ── 유형 3 · AI와 나 ── -->
+    <!-- ── 유형 2 · AI와 나 ── -->
     <div class="cat-label reveal" id="s1">
-        <span class="cat-pill"><span class="cat-sub">AI와 나</span><span class="cat-count">5</span></span>
+        <span class="cat-pill"><span class="cat-sub">AI와 나</span><span class="cat-count">6</span></span>
     </div>    <div class="poem-list" data-section="s1">
 
         <article class="poem-card reveal">
@@ -858,10 +1286,9 @@
             <div class="poem-head"><span class="poem-name">금요일, 그리고 AI</span></div>
             <span class="poem-tag">배움 · 금요일</span>
             <div class="poem-text">
-                <p>여섯 시<br>복도 불이 반쯤 꺼진다<br>한 주를 다 쓴 손이<br>아직 전원을 누른다</p>
-                <p>화면은 먼저 말하지 않는다</p>
-                <p>처음엔 남의 연장이었다<br>몇 번 만지작거리다 나는 손을 뗐다<br>지우고 고쳐 묻고 또 지우고<br>열 몇 번 만에 손이 먼저 간다</p>
-                <p>이마에서 화면까지 한 뼘<br>아무도 노트북을 덮지 않는다</p>
+                <p>여섯 시, 복도 불이 반쯤 꺼진다</p>
+                <p>지우고 고쳐 묻고 또 지우고<br>열 몇 번 만에 손이 먼저 간다</p>
+                <p>아무도 노트북을 덮지 않는다</p>
             </div>
         </article>
 
@@ -877,9 +1304,24 @@
                 <p>새벽 네 시<br>금은 아무 데도 가지 않는다<br>나도</p>
             </div>
         </article>
+
+        <article class="poem-card reveal">
+            <div class="poem-head"><span class="poem-name">서명란</span></div>
+            <span class="poem-tag">밤새 온 초안 · 책임자 칸</span>
+            <div class="poem-text">
+                <p>밤새<br>도착해 있었다.</p>
+                <p>나는<br>지웠다.</p>
+                <p>또 지웠다.</p>
+                <p>마지막에<br>한 칸이 남았다.</p>
+                <p>책임자</p>
+                <p>커서가<br>깜빡였다.</p>
+                <p>오래.</p>
+                <p>나는<br>내 이름을 썼다.</p>
+            </div>
+        </article>
     </div>
 
-    <!-- ── 유형 4 · 일과 돈 ── -->
+    <!-- ── 유형 3 · 일과 돈 ── -->
     <div class="cat-label reveal" id="s2">
         <span class="cat-pill"><span class="cat-sub">일과 돈</span><span class="cat-count">11</span></span>
     </div>    <div class="poem-list" data-section="s2">
@@ -917,10 +1359,7 @@
             <span class="poem-tag">머그컵 · 겹치는 갈색 원</span>
             <div class="poem-text">
                 <p>아침마다 커피를 내린다<br>뜨거울 때는 못 마신다</p>
-                <p>서류에 형광펜을 긋는다<br>노란 줄이 뒷장까지<br>밴다</p>
-                <p>두 손으로 감싸는 사이<br>잔은 체온이 된다</p>
-                <p>전자레인지 문을 열었다가<br>도로 닫고 마신다</p>
-                <p>누가 지나가며 묻는다<br>요즘 어때요<br>괜찮아요<br>식기 전에 드세요</p>
+                <p>요즘 어때요<br>괜찮아요</p>
                 <p>컵을 내려놓는다<br>갈색 원이 한 겹 더 앉는다</p>
             </div>
         </article>
@@ -929,11 +1368,7 @@
             <div class="poem-head"><span class="poem-name">반사</span></div>
             <span class="poem-tag">회의실 유리 · 두께</span>
             <div class="poem-text">
-                <p>회의실 유리문에<br>누가 밀고 나간 손자국<br>그 안쪽에 내 얼굴이<br>반쯤 지워진 채 앉아 있다<br>유리 뒷면에서 같은 얼굴이<br>반 뼘 어긋나 따라 앉는다</p>
-                <p>결재판 밑판에 이름 석 자가 뒤집혀 배었다<br>카펫에 파인 네 개의 홈으로<br>바퀴가 저절로 들어가 선다</p>
-                <p>부장님 하고 부르면 안경을 올린다<br>아빠 하고 부르면 티브이 소리를 줄인다<br>아무도 부르지 않는 세 시에는<br>의자가 유리문 쪽으로 돌아가 있다</p>
-                <p>서랍 셋째 칸에 영수증이 포개진다<br>손가락 두 마디 두께<br>맨 아래 것부터 잉크가 날아갔다</p>
-                <p>국그릇이 뜨거워 행주째 든다<br>숟가락을 놓았다 다시 고쳐 놓는다<br>엄지에 인주가 남아 있다<br>김이 걷힌다<br>국물에 형광등이 뜬다</p>
+                <p class="prose">회의실 유리문에 누가 밀고 나간 손자국이 있고, 그 안쪽에 내 얼굴이 반쯤 지워진 채 앉아 있다. 유리 뒷면에서 같은 얼굴이 반 뼘 어긋나 따라 앉는다. 결재판 밑판에 이름 석 자가 뒤집혀 배었다. 카펫에 파인 네 개의 홈으로 바퀴가 저절로 들어가 선다. 부장님 하고 부르면 안경을 올리고, 아빠 하고 부르면 티브이 소리를 줄인다. 아무도 부르지 않는 세 시에는 의자가 유리문 쪽으로 돌아가 있다. 서랍 셋째 칸에 영수증이 손가락 두 마디 두께로 포개졌고, 맨 아래 것부터 잉크가 날아갔다. 국그릇이 뜨거워 행주째 든다. 숟가락을 놓았다가 다시 고쳐 놓는다. 엄지에 인주가 남아 있다. 김이 걷히자 국물에 형광등이 뜬다.</p>
             </div>
         </article>
 
@@ -994,10 +1429,9 @@
             <div class="poem-head"><span class="poem-name">가동률 0%</span></div>
             <span class="poem-tag">석유화학 · 가동률 0%</span>
             <div class="poem-text">
-                <p>나프타를 끓이던 남자가<br>정문을 등지고 걸어간다<br>서류 한 장, 도장 하나</p>
-                <p>대책 보고서는 세 권째<br>스테이플러가 끝까지 안 들어간다</p>
-                <p>제어실 모니터에<br>에틸렌 시세가 아직 깜빡인다<br>중국서 온 배가 부두를 다 물고 있다<br>우리 3번 굴뚝은 하늘을 안 흔든다<br>탱크는 두드리면 소리가 안에서 한참 돈다</p>
-                <p>정문 앞 화단에<br>잡초가 무릎까지 올라와 있다<br>한 사람 지나간 폭만 누워 있다</p>
+                <p>나프타를 끓이던 남자가<br>정문을 등지고 걸어간다</p>
+                <p>3번 굴뚝은 하늘을 흔들지 않는다<br>탱크를 두드리면 소리가 안에서 한참 돈다</p>
+                <p>정문 앞 잡초가 무릎까지 올라왔다<br>한 사람 지나간 폭만 누워 있다</p>
             </div>
         </article>
 
@@ -1018,14 +1452,12 @@
             <div class="poem-head"><span class="poem-name">첫 번째 월요일</span></div>
             <span class="poem-tag">퇴직금 · 빈 달력</span>
             <div class="poem-text">
-                <p>퇴직금 통장을 열었다<br>쉼표가 두 개다</p>
-                <p>오전 열 시<br>카페에서 나만 노트북이 없다<br>얼음이 다 녹도록 옆자리가 두 번 바뀐다<br>통장을 덮었다가 다시 연다</p>
-                <p>달력을 한 장 넘긴다<br>다음 칸도 비어 있다<br>숫자를 남은 칸으로 나눠본다</p>
+                <p>퇴직금 통장의 쉼표는 두 개<br>달력의 빈칸은 그보다 많다</p>
             </div>
         </article>
     </div>
 
-    <!-- ── 유형 5 · 아이를 키우며 ── -->
+    <!-- ── 유형 4 · 아이를 키우며 ── -->
     <div class="cat-label reveal" id="s3">
         <span class="cat-pill"><span class="cat-sub">아이를 키우며</span><span class="cat-count">7</span></span>
     </div>    <div class="poem-list" data-section="s3">
@@ -1035,10 +1467,15 @@
             <span class="poem-tag">두 개의 시계</span>
             <div class="poem-text">
                 <p>왼손목 시계는 회의실 벽시계에 맞추고<br>오른손목 시계는 오 분 앞으로 돌려놓는다</p>
-                <p>점심을 씹다 어린이집 전화를 받는다<br>엄마 배 아파요<br>남은 밥을 마저 삼킨다</p>
-                <p>퇴근 버스 두 정거장 남기고<br>계란이 두 알인지 세 알인지 세어본다</p>
-                <p>아이를 눕히고 배에 손을 얹는다<br>낮에 아프다던 자리가 오르내린다</p>
-                <p>아이가 잠들면 식탁을 닦는다<br>닦은 자리에 노트북을 편다<br>새벽 두 시 냉장고가 한 번 돌아간다</p>
+                <p>06:40<br>아이 양말을 짝 맞춰 신긴다<br>왼쪽이 뒤집혀 있다<br>다시 신긴다</p>
+                <p>08:55<br>엘리베이터 거울 앞에서<br>머리끈을 손목에서 머리로 옮긴다</p>
+                <p>10:00<br>주간 회의<br>내 차례가 오기 전에<br>오른손목을 한 번 본다</p>
+                <p>12:20<br>점심을 씹다 어린이집 전화를 받는다<br>엄마 배 아파요<br>남은 밥을 마저 삼킨다</p>
+                <p>15:00<br>메신저 창이 두 개<br>한쪽에는 수정 요청<br>한쪽에는 이제 괜찮아졌어요</p>
+                <p>18:42<br>퇴근 버스 두 정거장 남기고<br>계란이 두 알인지 세 알인지 세어본다</p>
+                <p>21:10<br>아이를 눕히고 배에 손을 얹는다<br>낮에 아프다던 자리가 오르내린다</p>
+                <p>23:30<br>식탁을 닦는다<br>닦은 자리에 노트북을 편다</p>
+                <p>02:00<br>냉장고가 한 번 돌아간다</p>
                 <p>시계를 풀어 나란히 놓는다<br>오른쪽 자국이 늦게 지워진다</p>
             </div>
         </article>
@@ -1097,11 +1534,8 @@
             <div class="poem-head"><span class="poem-name">재생목록</span></div>
             <span class="poem-tag">플레이리스트 · 대물림</span>
             <div class="poem-text">
-                <p>서랍 안쪽에 이어폰 줄이<br>아이팟을 세 바퀴 감은 채 굳었다</p>
-                <p>잭이 맞지 않는다</p>
                 <p>내가 틀어 두던 노래가<br>아이 귀에서 새어 나온다<br>가사가 다 들린다</p>
-                <p>이어폰을 귀에 눌러 넣고<br>아이가 덜 닫고 나간 문을<br>나도 닫는다</p>
-                <p>지하철 손잡이를 잡고<br>같은 목록 첫 곡을 누른다<br>삼 초 동안 아무 소리도 나오지 않는다</p>
+                <p>같은 목록 첫 곡을 누른다<br>삼 초 동안 아무 소리도 나오지 않는다</p>
             </div>
         </article>
 
@@ -1118,7 +1552,7 @@
         </article>
     </div>
 
-    <!-- ── 유형 6 · 부모님과 나 ── -->
+    <!-- ── 유형 5 · 부모님과 나 ── -->
     <div class="cat-label reveal" id="s4">
         <span class="cat-pill"><span class="cat-sub">부모님과 나</span><span class="cat-count">4</span></span>
     </div>    <div class="poem-list" data-section="s4">
@@ -1140,8 +1574,6 @@
             <div class="poem-text">
                 <p>현관문보다 먼저<br>치킨 냄새가 들어왔다</p>
                 <p>나는 상자를 안았다<br>아버지가 아니라</p>
-                <p>우리는 마주 앉았다<br>무 국물이 상자 바닥을 적셨다<br>뼈가 쌓였다<br>아버지는 일어났다</p>
-                <p>나는 마지막 조각을 집었다<br>껍질이 손가락에 붙었다<br>차가워진 것인 줄 알면서</p>
                 <p>오늘<br>나는 치킨을 사 들었다</p>
             </div>
         </article>
@@ -1152,7 +1584,7 @@
             <div class="poem-text">
                 <p>자다가 목말라서 나왔어요<br>문틈으로 봤어요</p>
                 <p>아빠가 무릎을 꿇어요<br>어깨가 내 책가방만 해요</p>
-                <p>내 이름을 세 번 불러요<br>아빠 이름은 한 번도요</p>
+                <p>내 이름을 세 번 불러요<br>아빠 이름은 한 번도 안 불러요</p>
                 <p>슈퍼맨은 내 이름을 몰라요</p>
                 <p>나는 소원 빌 때 아빠 이름을 안 넣었어요<br>아빠 건 아빠가 빌면 되잖아요<br>그냥요</p>
                 <p>아빠 일어나기 전에 이불 속으로 뛰어들어요<br>물은 안 마셨어요</p>
@@ -1172,7 +1604,7 @@
         </article>
     </div>
 
-    <!-- ── 유형 7 · 혼자 있는 시간 ── -->
+    <!-- ── 유형 6 · 혼자 있는 시간 ── -->
     <div class="cat-label reveal" id="s6">
         <span class="cat-pill"><span class="cat-sub">혼자 있는 시간</span><span class="cat-count">5</span></span>
     </div>    <div class="poem-list" data-section="s6">
@@ -1181,9 +1613,7 @@
             <div class="poem-head"><span class="poem-name">배차</span></div>
             <span class="poem-tag">보안등 · 첫차</span>
             <div class="poem-text">
-                <p>보안등이 먼 기둥부터 꺼진다<br>꺼진 자리가 이쪽으로 온다<br>내가 선 자리가 마지막으로 지워진다</p>
-                <p>승차대 유리에 이마를 댄다<br>안쪽에서 내 얼굴이 윤곽도 없이 번진다<br>김 서린 자리에 이마가 여럿<br>나보다 높은 것<br>나보다 한참 낮은 것</p>
-                <p>첫차가 이마들을 싣고 간다<br>유리에 이마가 하나 늘어난다<br>온열의자는 이제야<br>뜨거워진다</p>
+                <p>보안등이 먼 기둥부터 꺼진다<br>꺼진 자리가 이쪽으로 온다<br>내가 선 자리가 마지막으로 지워진다<br>승차대 유리에 이마를 댄다<br>안쪽에서 내 얼굴이 윤곽도 없이 번진다<br>김 서린 자리에 이마가 여럿<br>나보다 높은 것<br>나보다 한참 낮은 것<br>첫차가 이마들을 싣고 간다<br>유리에 이마가 하나 늘어난다<br>온열의자는 이제야<br>뜨거워진다</p>
             </div>
         </article>
 
@@ -1192,11 +1622,9 @@
             <span class="poem-tag">빈 바늘 · 다섯 시</span>
             <div class="poem-text">
                 <p>헤드랜턴을 끄면<br>물이 어디까지인지 모른다</p>
-                <p>청갯지렁이는 없어지고<br>바늘만 올라온다<br>누가 당겼다는 것만<br>손목에 남는다</p>
-                <p>보온병 뚜껑의 커피가 식는다<br>한 모금에 입술의 소금이 먼저 온다</p>
-                <p>찌가 한 번 잠기고<br>숨을 멈춘 사이<br>다시 떠오른다</p>
-                <p>다섯 시에 들어온다고 써 붙이고 나왔다</p>
-                <p>줄을 다시 던진다<br>찌가 어디 떨어졌는지 보인다</p>
+                <p>바늘만 올라온다<br>누가 당겼다는 것만 손목에 남는다</p>
+                <p>다섯 시에 들어온다고 써 붙이고 나왔다<br>줄을 다시 던진다</p>
+                <p>찌가 어디 떨어졌는지<br>이제 보인다</p>
             </div>
         </article>
 
@@ -1204,9 +1632,7 @@
             <div class="poem-head"><span class="poem-name">한강을 걷는 해치</span></div>
             <span class="poem-tag">한강 · 자꾸 틀리는 획</span>
             <div class="poem-text">
-                <p>한쪽 어깨에만 이끼가 앉았다<br>물이 오는 방향을<br>몸이 먼저 안다</p>
-                <p>바람은 뿔 사이를 지나<br>굽다 만 삼겹살 냄새를 하류로 데려간다<br>나는 간 적이 없다</p>
-                <p>사람들은 돗자리를 털어 접고<br>주차장 쪽으로 간다<br>눌린 풀이 한참 뒤에 일어선다</p>
+                <p>한쪽 어깨에만 이끼가 앉았다<br>물이 오는 방향을 몸이 먼저 안다</p>
                 <p>강이 나를 베낀다<br>획이 자꾸 틀린다</p>
             </div>
         </article>
@@ -1215,10 +1641,8 @@
             <div class="poem-head"><span class="poem-name">강가, 오후</span></div>
             <span class="poem-tag">강물 · 식는 커피</span>
             <div class="poem-text">
-                <p>반쯤 마시고 내려놓은 뒤로<br>컵에 손을 대지 않았다</p>
-                <p>이어폰에서 전주가 긴 노래가 나왔다<br>접어둔 계절 하나가 펴졌다<br>다음 곡으로 넘기지 않았다</p>
-                <p>강물이 잠깐<br>두 겹으로 보였다<br>한 겹으로 지나갔다<br>일어서지는 않았다</p>
-                <p>식기 전에<br>한 모금 더</p>
+                <p>강물이 잠깐 두 겹으로 보였다가<br>한 겹으로 지나갔다</p>
+                <p>식기 전에, 한 모금 더</p>
             </div>
         </article>
 
@@ -1238,7 +1662,7 @@
     <!-- CTA -->
     <div class="cta-card reveal">
         <div class="cta-title">당신의 하루도, 한 편의 시가 됩니다</div>
-        <div class="cta-desc">여기 마흔일곱 편 모두 코드도, 운율 지식도 없이 시작했습니다.<br>오늘 하루를 한 줄로 들려주면, 나머지는 Claude와 함께 다듬을 수 있습니다.</div>
+        <div class="cta-desc">여기 마흔네 편 모두 코드도, 운율 지식도 없이 시작했습니다.<br>오늘 하루를 한 줄로 들려주면, 나머지는 Claude와 함께 다듬을 수 있습니다.</div>
         <div class="cta-buttons">
             <a href="multi-persona.html" class="cta-btn primary">멀티 페르소나로 토론하기</a>
             <a href="showcase-stopwatch.html" class="cta-btn secondary">스탑워치 쇼케이스 보기</a>
@@ -1678,6 +2102,150 @@ body.sm-menu-open .sm-drawer { transform: translateX(0); }
     window.addEventListener('keydown', onFirst);
 })();
 </script>
+
+<!-- POEM-SLIDES 전체 화면: 슬라이드 한 장을 화면에 16:9로 맞춰 띄운다 -->
+<div class="px-show" id="pxShow" role="dialog" aria-modal="true" aria-label="내 이름을 쓴다 슬라이드 전체 화면" hidden>
+    <div class="px-show-stage" id="pxStage"></div>
+    <button type="button" class="px-show-btn px-show-prev" id="pxPrev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="px-show-btn px-show-next" id="pxNext" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" class="px-show-btn px-show-close" id="pxClose" aria-label="전체 화면 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <div class="px-show-num" id="pxNum" aria-live="polite">1 / 9</div>
+</div>
+<script>
+(function () {
+    var W = 960, H = 540;
+    var frame = document.getElementById('pxFrame');
+    var show = document.getElementById('pxShow');
+    var stage = document.getElementById('pxStage');
+    if (!frame || !show || !stage) return;
+    var slides = [].slice.call(frame.querySelectorAll('.px-slide'));
+    var N = slides.length, cur = 0, lastFocus = null, idleT = null;
+    var $ = function (id) { return document.getElementById(id); };
+
+    /* 본문: 틀 폭에 맞춰 960×540을 줄이고, 현재 장만 보인다 */
+    function fitFrame() {
+        var k = frame.clientWidth / W;
+        slides.forEach(function (s) { s.style.transform = 'scale(' + k + ')'; });
+    }
+    function paintInline() {
+        slides.forEach(function (s, i) { s.classList.toggle('on', i === cur); });
+        $('pxCount').textContent = (cur + 1) + ' / ' + N;
+        $('pxPrevIn').disabled = cur === 0;
+        $('pxNextIn').disabled = cur === N - 1;
+    }
+    fitFrame();
+    paintInline();
+    if ('ResizeObserver' in window) new ResizeObserver(fitFrame).observe(frame);
+    else window.addEventListener('resize', fitFrame);
+
+    /* 발표: 화면 안에 들어가는 가장 큰 16:9 */
+    function fitStage() {
+        var vw = show.clientWidth, vh = show.clientHeight;
+        var k = Math.min(vw / W, vh / H);
+        stage.style.transform = 'translate(' + ((vw - W * k) / 2) + 'px,' + ((vh - H * k) / 2) + 'px) scale(' + k + ')';
+    }
+    function render() {
+        var c = slides[cur].cloneNode(true);
+        c.style.transform = '';
+        c.classList.add('on');
+        stage.innerHTML = '';
+        stage.appendChild(c);
+        $('pxNum').textContent = (cur + 1) + ' / ' + N;
+        $('pxPrev').disabled = cur === 0;
+        $('pxNext').disabled = cur === N - 1;
+        fitStage();
+    }
+    function go(i) {
+        i = Math.max(0, Math.min(N - 1, i));
+        if (i === cur && (show.hidden || stage.firstChild)) return;
+        cur = i;
+        paintInline();
+        if (!show.hidden) render();
+    }
+    function wake() {
+        show.classList.remove('idle');
+        clearTimeout(idleT);
+        idleT = setTimeout(function () { show.classList.add('idle'); }, 2500);
+    }
+    function open(i) {
+        lastFocus = document.activeElement;
+        cur = i;
+        show.hidden = false;
+        document.documentElement.style.overflow = 'hidden';
+        render();
+        wake();
+        $('pxClose').focus({ preventScroll: true });
+        if (show.requestFullscreen) show.requestFullscreen().catch(function () {});
+        else if (show.webkitRequestFullscreen) show.webkitRequestFullscreen();
+    }
+    function close() {
+        if (show.hidden) return;
+        show.hidden = true;
+        stage.innerHTML = '';
+        clearTimeout(idleT);
+        document.documentElement.style.overflow = '';
+        var fe = document.fullscreenElement || document.webkitFullscreenElement;
+        if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        paintInline();
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    }
+
+    $('pxPlay').addEventListener('click', function () { open(0); });
+    /* 맺음 장의 '시 마흔네 편' 링크: 전체 화면을 닫고 시 목록 첫머리로 내려간다 */
+    function goPoems(e) {
+        e.preventDefault(); e.stopPropagation();
+        close();
+        var t = document.getElementById('poems');
+        if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    frame.addEventListener('click', function (e) { if (e.target.closest('.px-go')) return goPoems(e); open(cur); });
+    frame.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(cur); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+    });
+    $('pxPrevIn').addEventListener('click', function () { go(cur - 1); });
+    $('pxNextIn').addEventListener('click', function () { go(cur + 1); });
+    $('pxPrev').addEventListener('click', function () { go(cur - 1); });
+    $('pxNext').addEventListener('click', function () { go(cur + 1); });
+    $('pxClose').addEventListener('click', close);
+
+    /* 슬라이드 빈 곳: 왼쪽 1/3은 이전, 나머지는 다음 */
+    stage.addEventListener('click', function (e) {
+        if (e.target.closest('.px-go')) return goPoems(e);
+        if (e.clientX < show.clientWidth / 3) go(cur - 1); else go(cur + 1);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (show.hidden) return;
+        var k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') { if (k === 'Enter' && e.target.tagName === 'BUTTON') return; e.preventDefault(); go(cur + 1); }
+        else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(cur - 1); }
+        else if (k === 'Home') { e.preventDefault(); go(0); }
+        else if (k === 'End') { e.preventDefault(); go(N - 1); }
+        else if (k === 'Escape') { e.preventDefault(); close(); }
+        wake();
+    });
+    show.addEventListener('mousemove', wake);
+
+    /* 스와이프 */
+    var sx = null, sy = 0;
+    show.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; wake(); }, { passive: true });
+    show.addEventListener('touchend', function (e) {
+        if (sx === null) return;
+        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+        sx = null;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(cur + (dx < 0 ? 1 : -1));
+    });
+
+    /* 브라우저 전체 화면을 Esc로 먼저 빠져나오면 발표도 닫는다 */
+    function onFs() { if (!(document.fullscreenElement || document.webkitFullscreenElement)) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+    window.addEventListener('resize', function () { if (!show.hidden) fitStage(); });
+})();
+</script>
+<!-- /POEM-SLIDES 전체 화면 -->
 
 </body>
 </html>

@@ -3,35 +3,76 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>스틸 크로노</title>
+<title>스틸 크로노미터</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' fill='none' stroke='%23bcc0c4' stroke-width='9'/></svg>" />
 <style>
   @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
-  body{font-family:"Helvetica Neue",Arial,'Pretendard',sans-serif;
-    background:radial-gradient(circle at 50% 28%,#3b3d41 0%,#202225 45%,#0f1012 100%);
+  html,body{height:100%;overflow:hidden}
+  body{font-family:"Helvetica Neue",Arial,'Pretendard',sans-serif;position:relative;
+    background:
+      radial-gradient(90% 45% at 50% 100%,rgba(255,120,30,.38) 0%,rgba(255,90,20,.12) 45%,transparent 75%),
+      linear-gradient(180deg,#121316 0%,#1B1C20 55%,#2A1A12 100%);
     display:flex;align-items:center;justify-content:center;color:#cfd2d4;padding:14px}
-  .watch{position:relative;width:280px;height:280px;margin-top:14px}
+  .watch{position:relative;z-index:1;width:280px;height:280px;margin-top:10px;transform:scale(.8);flex-shrink:0}
+
+  /* ── 제철소 ──
+     고로, 굴뚝, 철골 실루엣을 뒤에 깔고 바닥에는 쇳물이 흐르는 탕도를 둔다.
+     시작하면 쇳물이 흐르고 불꽃이 튀며 굴뚝에서 연기가 오른다. 정지하면 그 자리에 멈춘다 */
+  .mill{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .mill svg.sil{position:absolute;left:0;right:0;bottom:0;width:100%;height:72%}
+  .sil .s1{fill:#09090B}.sil .s2{fill:#25262B}.sil .win{fill:#FF9A3C;opacity:.55}
+  .melt{position:absolute;left:-10%;right:-10%;bottom:0;height:16px;
+    background:linear-gradient(90deg,#FF5A14,#FFC24A 20%,#FF7A1E 40%,#FFE08A 55%,#FF6A18 75%,#FFB43C 90%,#FF5A14);
+    background-size:200% 100%;box-shadow:0 -6px 24px rgba(255,120,30,.75),0 -2px 6px rgba(255,200,90,.8);
+    animation:pour 3s linear infinite;animation-play-state:paused;filter:saturate(.85) brightness(.85);transition:filter .6s}
+  @keyframes pour{to{background-position:-200% 0}}
+  .glow{position:absolute;left:0;right:0;bottom:0;height:45%;opacity:.35;transition:opacity .6s;
+    background:radial-gradient(70% 70% at 50% 100%,rgba(255,130,40,.55),transparent 70%)}
+  .spark{position:absolute;bottom:12px;width:3px;height:3px;border-radius:50%;background:#FFD27A;
+    box-shadow:0 0 6px #FF9A3C,0 0 2px #fff;opacity:0;animation:spark linear infinite;animation-play-state:paused}
+  @keyframes spark{0%{opacity:0;transform:translate(0,0)}8%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
+  .smoke{position:absolute;width:26px;height:26px;border-radius:50%;background:rgba(150,150,155,.28);filter:blur(5px);
+    opacity:0;animation:smoke 5s ease-out infinite;animation-play-state:paused}
+  @keyframes smoke{0%{opacity:0;transform:translate(0,0) scale(.5)}20%{opacity:.8}100%{opacity:0;transform:translate(18px,-90px) scale(2.2)}}
+  body.live .spark,body.live .smoke{opacity:revert}
+  body.run .melt,body.run .spark,body.run .smoke{animation-play-state:running}
+  body.run .melt{filter:none}
+  body.run .glow{opacity:.9;animation:breathe 2.4s ease-in-out infinite}
+  @keyframes breathe{50%{opacity:.6}}
+  body:not(.live) .spark,body:not(.live) .smoke{visibility:hidden}
 
   /* 상단 크라운(고리 버튼) */
   .crown{position:absolute;top:-17px;left:50%;transform:translateX(-50%);width:44px;height:30px;z-index:1;
     border-radius:9px 9px 7px 7px;
-    background:linear-gradient(180deg,#eef1f3 0%,#c2c6ca 38%,#888c90 72%,#6a6e72 100%);
-    box-shadow:0 4px 6px rgba(0,0,0,.55),inset 0 2px 2px rgba(255,255,255,.7),inset 0 -2px 3px rgba(0,0,0,.35)}
+    background:linear-gradient(90deg,#5d636a 0%,#f4f7fa 18%,#ffffff 26%,#9aa1a8 44%,#3e4349 58%,#c9cfd5 76%,#ffffff 84%,#6b7178 100%);
+    box-shadow:0 4px 6px rgba(0,0,0,.55),inset 0 2px 1px rgba(255,255,255,.95),inset 0 -2px 3px rgba(0,0,0,.45)}
   .crown::after{content:"";position:absolute;left:50%;top:8px;transform:translateX(-50%);width:18px;height:6px;border-radius:3px;
     background:#3f4347;box-shadow:inset 0 1px 2px rgba(0,0,0,.7)}
 
-  /* 브러시드 메탈 베젤 */
+  /* 거울처럼 닦은 폴리시드 스틸 베젤.
+     밝은 띠와 어두운 띠를 촘촘히 엇갈려 주변 빛이 비친 크롬 반사를 만든다 */
   .bezel{position:absolute;inset:0;border-radius:50%;padding:23px;
-    background:conic-gradient(from 90deg,#83878b,#e9ecef,#a9adb1,#d8dce0,#7e8286,#eef1f3,#9fa3a7,#d2d6da,#83878b);
-    box-shadow:0 16px 34px rgba(0,0,0,.65),inset 0 3px 4px rgba(255,255,255,.75),inset 0 -4px 8px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.2)}
+    background:
+      radial-gradient(circle at 30% 18%,rgba(255,255,255,.95) 0,rgba(255,255,255,0) 22%),
+      conic-gradient(from 200deg,#3b4046,#f9fbfd 7%,#ffffff 10%,#8d949b 17%,#2c3035 25%,#b8bfc6 33%,#ffffff 39%,#6f767d 47%,#23272b 55%,#9ea5ac 63%,#f4f7fa 70%,#ffffff 73%,#5a6067 82%,#2a2e33 90%,#3b4046);
+    box-shadow:0 18px 36px rgba(0,0,0,.7),0 0 0 1px rgba(0,0,0,.6),inset 0 2px 1px rgba(255,255,255,.95),inset 0 -3px 6px rgba(0,0,0,.6)}
+  /* 안쪽 경사면. 얇은 밝은 테두리가 한 번 더 빛을 받는다 */
   .bezel::before{content:"";position:absolute;inset:11px;border-radius:50%;
-    box-shadow:inset 0 2px 4px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.18)}
+    background:conic-gradient(from 20deg,#2b2f34,#e9eef2 12%,#5f666d 28%,#ffffff 44%,#3a3f45 60%,#c4cad0 78%,#2b2f34);
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.35)}
+  /* 빛 반사. 손목을 살짝 기울이듯 하이라이트가 베젤 위를 천천히 오간다 */
+  .bezel::after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:2;
+    background:conic-gradient(from -78deg,transparent 0deg,rgba(255,255,255,.55) 10deg,#fff 16deg,rgba(255,255,255,.55) 22deg,transparent 34deg,
+      transparent 175deg,rgba(255,255,255,.35) 188deg,rgba(255,255,255,.8) 194deg,rgba(255,255,255,.35) 200deg,transparent 212deg);
+    -webkit-mask:radial-gradient(circle closest-side,transparent 83%,#000 84%);
+            mask:radial-gradient(circle closest-side,transparent 83%,#000 84%);
+    animation:tilt 4.5s ease-in-out infinite alternate}
+  @keyframes tilt{from{transform:rotate(-32deg)}to{transform:rotate(32deg)}}
 
   /* 나사 4개 */
   .screw{position:absolute;width:13px;height:13px;border-radius:50%;z-index:3;
-    background:radial-gradient(circle at 35% 28%,#f2f4f6,#a4a8ac 58%,#646468);
+    background:radial-gradient(circle at 35% 28%,#ffffff 0,#e6eaee 22%,#7d838a 60%,#3d4247 100%);
     box-shadow:0 1px 2px rgba(0,0,0,.6),inset 0 -1px 2px rgba(0,0,0,.45)}
   .screw::after{content:"";position:absolute;left:50%;top:50%;width:9px;height:1.8px;border-radius:1px;background:#54585c;
     transform:translate(-50%,-50%) rotate(42deg);box-shadow:0 1px 0 rgba(255,255,255,.25)}
@@ -46,7 +87,10 @@
     box-shadow:inset 0 7px 22px rgba(0,0,0,.85),inset 0 0 0 2px #2b2e32;
     display:flex;flex-direction:column;align-items:center;justify-content:center}
   .dial::after{content:"";position:absolute;top:-30%;left:-10%;width:80%;height:60%;border-radius:50%;
-    background:radial-gradient(circle,rgba(255,255,255,.10),transparent 70%);pointer-events:none}/* 유리 반사 */
+    background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%);pointer-events:none}/* 유리 반사 */
+  .dial::before{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:2;
+    background:linear-gradient(160deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,0) 38%);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
   .ticks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
   .cross::before{content:"";position:absolute;left:50%;top:14%;bottom:14%;width:1px;background:rgba(200,205,210,.10);transform:translateX(-50%)}
   .cross::after{content:"";position:absolute;top:50%;left:14%;right:14%;height:1px;background:rgba(200,205,210,.10);transform:translateY(-50%)}
@@ -80,6 +124,25 @@
 </style>
 </head>
 <body>
+  <div class="mill" aria-hidden="true" id="mill">
+    <div class="glow"></div>
+    <svg class="sil" viewBox="0 0 400 220" preserveAspectRatio="xMidYMax slice">
+      <!-- 뒤쪽 철골과 크레인 -->
+      <path class="s2" d="M0 220V150h40v-30h10v30h30V110h70v40h20V130h80v-20h14v20h40V96h60v124z"/>
+      <path class="s2" d="M150 110V70h4v40zM150 72h120v4H150zM262 72v40h4V72z"/>
+      <!-- 고로: 왼쪽, 위가 좁은 탑과 배관 -->
+      <path class="s1" d="M18 220V128l10-8V84l8-10h20l8 10v36l10 8v92z"/>
+      <path class="s1" d="M30 74V40h4v34zM48 74V30h4v44zM60 92h40v6H60zM96 92v-20h6v26z"/>
+      <!-- 굴뚝 셋 -->
+      <path class="s1" d="M312 220V44h12v176zM336 220V64h10v156zM356 220V80h9v140z"/>
+      <!-- 앞쪽 공장 건물 -->
+      <path class="s1" d="M0 220v-36h70l20-14 20 14h40v-20h60l16-12 16 12h46v-12h50l22 14h40v54z"/>
+      <rect class="win" x="122" y="190" width="10" height="5" rx="1"/><rect class="win" x="140" y="190" width="10" height="5" rx="1"/>
+      <rect class="win" x="232" y="182" width="10" height="5" rx="1"/><rect class="win" x="250" y="182" width="10" height="5" rx="1"/>
+      <rect class="win" x="300" y="186" width="8" height="5" rx="1"/>
+    </svg>
+    <div class="melt"></div>
+  </div>
   <div class="watch">
     <div class="crown" aria-hidden="true"></div>
     <div class="bezel">
@@ -99,6 +162,14 @@
   </div>
 <script>
 (function(){
+  // 쇳물에서 튀는 불꽃과 굴뚝 연기
+  var mill=document.getElementById('mill');
+  for(var q=0;q<26;q++){var sp=document.createElement('i');sp.className='spark';var d=.9+Math.random()*1.4;
+    sp.style.cssText='left:'+(5+Math.random()*90)+'%;animation-duration:'+d+'s;animation-delay:'+(-Math.random()*d)+'s;--dx:'+(Math.random()*70-35)+'px;--dy:'+(-40-Math.random()*90)+'px';
+    mill.appendChild(sp);}
+  [[80.5,3],[85.5,10],[90.2,19]].forEach(function(c,k){for(var n=0;n<2;n++){var sm=document.createElement('i');sm.className='smoke';
+    sm.style.cssText='left:calc('+c[0]+'% - 13px);top:calc(38% + '+c[1]+'%);animation-delay:'+(-(k*1.3+n*2.5))+'s';mill.appendChild(sm);}});
+
   // 눈금 생성 (60분틱, 5단위 강조)
   var ns="http://www.w3.org/2000/svg",svg=document.getElementById("ticks");
   for(var i=0;i<60;i++){var a=i*6*Math.PI/180,maj=(i%5===0),r1=maj?77:84,r2=92;
@@ -144,6 +215,7 @@
   }
   var srWasRun=false, srLast=0;
   function ui(){b1.textContent=run?'STOP':(el()>0?'RESUME':'START');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;
+    document.body.classList.toggle('run',run);document.body.classList.toggle('live',run||el()>0);
     /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
     var srE=el();
     if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
