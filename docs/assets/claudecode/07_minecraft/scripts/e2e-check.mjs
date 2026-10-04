@@ -4,7 +4,7 @@ const baseUrl = process.argv[2] ?? "http://127.0.0.1:5174/";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, args: ["--use-angle=metal", "--enable-gpu", "--ignore-gpu-blocklist"] });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 
 try {
