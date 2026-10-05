@@ -267,23 +267,39 @@
             display: flex; flex-direction: column;
             isolation: isolate;
         }
-        /* 헤더 배경 루프 영상 — 끊김 없이 계속 반복 재생된다 */
-        .hero-video {
+        /* COVER-FX · 셰이더 배경 (2026-10-05)
+           예전 배경 영상(hero-bg.mp4 2.2MB)은 흑백·blur 18px·0.34로 눌려 화면에서 거의 보이지 않았다.
+           그 자리를 실시간 셰이더가 맡는다. 구리가 녹아 천천히 일렁이는 바탕이다.
+           색은 아래 그라디언트 세 값 범위에서 출발하고, 셰이더 안에서 WCAG 휘도를 0.155로 자른다.
+           어느 픽셀에서도 흰 글자 대비가 5.07:1 아래로 떨어지지 않는다. 빛은 밝기가 아니라 채도로 표현된다.
+           WebGL이 없으면 캔버스가 투명한 채 남아 그라디언트가 그대로 보인다.
+           그리는 코드는 assets/js/cover-fx.js */
+        .cover-shader {
             position: absolute; inset: 0;
             width: 100%; height: 100%;
-            object-fit: cover; object-position: center;
-            z-index: 0;
-            /* 전면 표지에서는 영상이 사진처럼 읽히면 안 된다. 종이 위 얼룩 정도로만 남긴다 */
-            /* 0.58 + 선명한 원본은 덩어리가 살결처럼 읽혔다. 무엇인지 알아볼 만큼 크고
-               뜻을 읽을 만큼 또렷하지는 않은 중간 지대다. 흐려서 질감만 남긴다.
-               blur는 가장자리를 비우므로 1.08로 키워 화면 밖으로 밀어낸다 */
-            opacity: 0.34;
-            transform-origin: center;
-            transform: scale(1.08);
-            filter: grayscale(1) contrast(1.04) brightness(1.02) blur(18px);
-            mix-blend-mode: soft-light;
+            display: block; z-index: 0;
             pointer-events: none;
-            border-radius: inherit;
+            opacity: 0; transition: opacity 1.4s ease;
+        }
+        .hero.has-shader .cover-shader { opacity: 1; }
+        /* 왼쪽 위 CSS 발광(.hero::before)은 원래 표지 그대로 남긴다. 셰이더는 원래 색 위에 옅은 결만 얹는다 */
+
+        /* COVER-FX · 배경 다이얼 (2026-10-05).
+           Anthropic 모델 발표 페이지처럼 표지 뒤에서 금속 다이얼이 1에서 5로 딸깍딸깍 돌고, 5에서 머문 뒤 전화 다이얼이 풀리듯 1로 돌아간다.
+           영상 파일이 아니라 캔버스로 그린다(숫자를 정확히 1~5로, 용량 0). Anthropic 영상은 저작물이라 쓰지 않는다.
+           겹침 규칙은 하나다. 숫자는 제목 뒤에 걸쳐도 되지만 제목 아랫선 밑(구분선·부제)으로는 내려가지 않고, 제목의 2.8배를 넘지 않는다.
+           바늘선은 제목 위 8px에서 멈춘다. 모바일(768px 이하)은 다이얼을 쓰지 않는다. 크기는 JS가 화면마다 계산한다.
+           흐린 캔버스 위에 초점 맞은 캔버스를 위쪽 가운데만 보이게 겹쳐 초점 흐림을 만든다 */
+        .cover-dial { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity 1.2s ease; }
+        /* 모바일은 배경 다이얼을 쓰지 않는다(사용자 결정). 좁은 화면에서는 숫자 둘 자리가 제목 위에 거의 없다 */
+        @media (max-width: 768px) { .cover-dial { display: none; } }
+        .cover-dial.is-on { opacity: 1; }
+        .cover-dial canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+        .dial-blur { filter: blur(4px); }
+        /* 초점이 맞는 영역. 아랫부분도 보이도록 넓혔다 */
+        .dial-sharp {
+            -webkit-mask-image: radial-gradient(ellipse 50% 42% at 50% 22%, #000 45%, transparent 90%);
+            mask-image: radial-gradient(ellipse 50% 42% at 50% 22%, #000 45%, transparent 90%);
         }
         /* 베이스 그라디언트(150deg)가 좌상단을 밝게 선언하므로 발광도 좌상단에 둔다.
            우상단에 두면 광원이 두 개가 된다. 0.30은 그 위 흰 글자를 4.5:1 밑으로 떨어뜨려 0.18로 낮췄다 */
@@ -325,8 +341,17 @@
         .jacket { flex: 1; min-height: 0; display: flex; }
         .jacket-front { flex: 1; min-width: 0; display: flex; position: relative; overflow: hidden; }
 
+        /* COVER-FX · 불씨. 표지 바닥에서 흩어져 올라와 5단계 점(.cover-steps)으로 빨려 든다(cover-fx.js).
+           점보다 위로는 올라가지 않으므로 제목 묶음 위에 불씨가 얹히지 않는다 */
+        .cover-embers {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+            mix-blend-mode: screen;
+        }
+
         /* ── 앞표지 조판 ── */
         .hero-inner {
+            position: relative; z-index: 1;
             flex: 1; min-height: 0;
             /* 부제를 한 줄로 세우려면 판면이 760px로는 모자란다 */
             max-width: 960px; margin: 0 auto; width: 100%;
@@ -370,13 +395,16 @@
         .cover-mid {
             flex: 1; min-height: 0;
             display: flex; flex-direction: column; align-items: center;
-            /* 아래로 붙인다. 중앙 정렬이면 남는 높이가 소속과 마스코트 사이에 몰려
-               저자 이름이 부제와 마스코트 어디에도 안 붙고 허공에 뜬다.
-               저자 묶음은 마스코트와 한 덩어리로 읽혀야 하므로 아래에 붙이고,
-               위쪽 여백은 .cover-author 의 margin-top 이 정한다 */
-            justify-content: flex-end;
-            /* 발치는 마스코트가 채운다. 제목 덩어리는 광학 중심보다 조금 아래에 놓는다 */
-            padding: clamp(24px, 7%, 96px) 0 0;
+            /* 2026-10-05 마스코트를 빼면서 아래 정렬(flex-end)을 걷었다. 발치를 채우던 캐릭터가 없어지자
+               내용이 통째로 내려가 제목이 표지 아래 절반(1440x900에서 383px)으로 떨어졌다.
+               지금 데스크톱은 제목 위치를 아래 padding-top으로 정하고, 저자 묶음(margin-top: auto)이 남는 높이를 가져가 각인 위에 붙는다.
+               모바일은 제목과 저자 둘 다 auto라 남는 높이를 반씩 나눈다(768px 블록) */
+            justify-content: flex-start;
+            /* 2026-10-05 제목부터 전체를 내렸다. 위쪽 빈 공간에 배경 다이얼의 눈금과 숫자가 들어간다.
+               제목은 (높이 - 640px)만큼 내리되 화면 높이의 36%를 넘지 않는다. 1440x900에서 292px(5단계와 저자 사이 50px).
+               36%(332px)를 900px 화면에 그대로 쓰면 5단계와 저자가 28px로 붙어 답답했다.
+               큰 화면은 36%까지 내려가 1920x1080에서 5단계와 저자 사이가 152px에서 줄어든다 */
+            padding: max(24px, min(36svh, calc(100svh - 640px))) 0 0;
         }
         .cover-title { display: block; }
         /* 한글 대제목의 음수 자간 한계는 -0.03em이다 */
@@ -385,15 +413,26 @@
            제목을 더 긴 문장으로 바꾸려면 이 값을 다시 재야 한다. 대상이나 범위를 덧붙이고 싶으면
            제목을 늘리지 말고 아래 .cover-sub 를 쓴다 */
         .cover-title .ct-main {
+            position: relative;
             display: block; white-space: nowrap;
             font-size: clamp(30px, 5.4vw, 78px); font-weight: 850; color: #fff;
             letter-spacing: -0.028em; line-height: 1.14;
-            text-shadow: 2px 4px 26px rgba(58,20,8,0.32);
+            /* COVER-FX · 키네틱 제목 (2026-10-05). 로딩할 때 한 번만 움직인다.
+               글자를 한 자씩 span(.ch)으로 나눴다. 등장하는 동안 굵기(가변 글꼴 100~900)와 위치가 글자마다 따로 움직인다.
+               그림자는 얕은 한 겹이다. 구리색 압출 판 네 겹을 깔았다가 과하다는 지적으로 줄였다.
+               글자 면을 그라디언트로 칠하면 그림자가 투명한 글자 속으로 비치므로 면은 단색 흰색이다 */
+        }
+        .ct-main .ch {
+            display: inline-block;
+            color: #fff;
+            font-weight: 850;
+            transform-origin: 50% 100%;
+            text-shadow: 0.02em 0.03em 0 rgba(90,30,10,0.45), 0.04em 0.08em 0.28em rgba(40,12,4,0.32);
         }
         /* 제목에서 멀어질수록 간격이 넓어져야 덩어리가 나뉜다 */
         .cover-rule {
             width: clamp(48px, 5.2vw, 76px); height: 2px;
-            margin: clamp(20px, 2vw, 28px) auto clamp(24px, 2.6vw, 36px);
+            margin: clamp(20px, 2vw, 28px) auto clamp(20px, 2.1vw, 30px);
             background: rgba(255,255,255,0.8);
         }
         /* 부제는 두 단이다. 윗단은 대상과 범위, 아랫단은 방법과 구조.
@@ -430,18 +469,114 @@
             padding: clamp(7px, 0.7vw, 10px) clamp(17px, 1.7vw, 25px);
             border-radius: 100px;
             background: rgba(0,0,0,0.20);
-            font-size: clamp(11px, 1.18vw, 16px); font-weight: 500;
+            /* 하한 11px은 태블릿(820px)에서 너무 작아 12px로 올렸다 */
+            font-size: clamp(12px, 1.18vw, 16px); font-weight: 500;
             color: rgba(255,255,255,0.92); line-height: 1.6;
             max-width: none; white-space: nowrap;
         }
+        /* COVER-FX · 5단계 점선. 부제 아랫단의 "5단계"를 그림으로 보여 준다.
+           기본 상태가 다섯 점 모두 켜진 모습이다. JS가 없거나 모션 줄이기 설정이면 그대로 보인다.
+           cover-fx.js가 .cs-anim을 붙이면 꺼진 채로 시작하고, 불씨가 모일 때마다 .is-lit으로 하나씩 켠다.
+           선은 첫 점 중심(10%)에서 마지막 점 중심(90%)까지이고, 켜진 만큼 --cs-progress로 채운다 */
+        .cover-steps {
+            position: relative;
+            display: flex; list-style: none;
+            width: clamp(320px, 36vw, 500px);
+            /* 알약과의 간격은 부제-알약 간격과 같은 단으로 둔다. 30px이면 5단계가 알약의 부속이 아니라 4단처럼 떨어져 보였다 */
+            margin: clamp(14px, 1.3vw, 18px) 0 28px; padding: 0;
+            --cs-progress: 1;
+            --fig-h: 28px;
+        }
+        .cover-steps::before,
+        .cover-steps::after {
+            content: ''; position: absolute; left: 10%; right: 10%;
+            /* 링크 위 여백 9px + 형상 높이 + 간격 10px + 점 반지름 5.5px. 점 가운데를 지난다 */
+            top: calc(9px + var(--fig-h) + 10px + 5.5px); height: 1px; pointer-events: none;
+        }
+        .cover-steps::before { background: rgba(255,255,255,0.28); }
+        .cover-steps::after {
+            transform-origin: left center;
+            transform: scaleX(var(--cs-progress));
+            transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .cover-steps li { flex: 1; display: flex; justify-content: center; }
+        .cover-steps a {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            padding: 9px 6px 4px; min-width: 44px;
+            color: inherit; text-decoration: none;
+        }
+        /* 꺼진 점은 속이 빈 고리, 켜진 점은 불씨 색으로 채우고 번진다.
+           제련이다. 녹은 구리 바탕에서 떨어져 나온 불씨가 단계마다 모이며 정제되므로,
+           켜진 점의 색이 소환 구리색 → 자율 백금색으로 한 단계씩 밝아진다. 번짐은 과해 보여 뺐다 */
+        .cover-steps li { --cs-c: #FFE6CF; }
+        .cs-dot {
+            width: 11px; height: 11px; border-radius: 50%;
+            background: var(--cs-c);
+            box-shadow: 0 0 0 3px rgba(255,190,140,0.16);
+            transition: background 0.5s ease, box-shadow 0.5s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .cover-steps.cs-anim li:not(.is-lit) .cs-dot {
+            background: rgba(0,0,0,0.18);
+            box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.62);
+        }
+        .cover-steps li:nth-child(1) { --cs-c: #E8946A; }
+        .cover-steps li:nth-child(2) { --cs-c: #EFAE84; }
+        .cover-steps li:nth-child(3) { --cs-c: #F5C8A0; }
+        .cover-steps li:nth-child(4) { --cs-c: #FADFC0; }
+        .cover-steps li:nth-child(5) { --cs-c: #FFF6E8; }
+        /* COVER-FX · 단계 아이콘. icon-gallery.html에서 골랐다(3.13-1).
+           소환 sparkles · 연결 plug-connected · 계약 rosette-discount-check · 조합 users-group · 자율 refresh.
+           직접 그린 로봇 형상을 먼저 넣었다가 "유치한 상형 문자"라는 지적으로 갤러리 아이콘으로 바꿨다.
+           점이 켜지는 순간 선을 긋듯 그려진다. 모든 선에 pathLength="1"을 주고 stroke-dasharray 1로 그린다.
+           기본은 다 그려진 상태다. .cs-anim이 붙었을 때만 켜지기 전까지 비워 둔다 */
+        .cs-fig {
+            display: block; width: var(--fig-h); height: var(--fig-h);
+            overflow: visible; color: var(--cs-c);
+        }
+        .cs-fig path {
+            fill: none; stroke: currentColor; stroke-width: 1.9;
+            stroke-linecap: round; stroke-linejoin: round;
+            stroke-dasharray: 1; stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1) var(--d, 0s);
+        }
+        .cover-steps.cs-anim li:not(.is-lit) .cs-fig path { stroke-dashoffset: 1; }
+        /* 감춘 선도 끝이 둥글어(round cap) 길이 0인 점으로 찍힌다. 켜지기 전에는 아이콘 자체를 숨긴다.
+           이것이 없으면 로딩 직후 아이콘 자리마다 선 개수만큼 점이 떠 있었다(소환 3개, 조합 6개) */
+        .cover-steps.cs-anim li:not(.is-lit) .cs-fig { visibility: hidden; }
+        /* 자율은 다 그려진 뒤 루프 화살표가 스스로 천천히 계속 돈다. 표지에서 끝나지 않고 움직이는 유일한 요소다 */
+        .cover-steps li:nth-child(5).is-lit .cs-fig { animation: cs-loop 9s linear 1.2s infinite; }
+        @keyframes cs-loop { to { transform: rotate(360deg); } }
+        /* 선도 같은 순서로 구리색에서 백금색으로 밝아진다 */
+        .cover-steps::after { background: linear-gradient(90deg, #E8946A, #F5C8A0 50%, #FFF6E8); }
+        /* 이름은 켜짐과 무관하게 같은 밝기다. 흐리게 두면 대비 하한을 깬다.
+           12px은 표지에서 너무 작아 보인다는 지적으로 데스크톱 15px(1440 기준), 모바일 13px로 키웠다 */
+        .cs-name {
+            font-size: clamp(13px, 1.05vw, 15px); font-weight: 600; letter-spacing: 0.01em; line-height: 1.3;
+            color: rgba(255,255,255,0.96);
+        }
+        .cover-steps a:hover .cs-dot,
+        .cover-steps a:focus-visible .cs-dot { transform: scale(1.3); }
+        .cover-steps a:hover .cs-name,
+        .cover-steps a:focus-visible .cs-name { color: #fff; }
+        /* 이름만으로는 무엇을 배우는지 짐작하기 어렵다. 마우스를 올리면 실제 용어가 이름 아래에 뜬다(2026-10-05 비평 검토) */
+        .cover-steps a::after {
+            content: attr(data-term);
+            position: absolute; top: 100%; left: 50%; transform: translate(-50%, 2px);
+            white-space: nowrap; pointer-events: none;
+            font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.88);
+            opacity: 0; transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .cover-steps a:hover::after,
+        .cover-steps a:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
+        @media (hover: none) { .cover-steps a::after { display: none; } }
         /* 두 단 사이 구분선은 모바일에만 둔다(아래 max-width: 768px 블록).
            데스크톱은 두 단이 각각 한 줄이라 크기 차이만으로 구분되고, 선을 넣으면 오히려 번잡하다 */
         .cover-author {
-            /* 이름 위는 넓게(1440x900에서 81px), 소속에서 마스코트까지는 좁게(34px).
-               이 비율이 뒤집히면 이름이 부제 쪽에 붙어 저자 묶음이 흩어진다.
-               svh를 함께 물린 이유는 아래로 붙여 놓았기 때문이다. 화면이 낮으면 내용이 위로 밀려
-               제목이 표지 밖으로 나간다. 1440x660에서 5.6vw만 쓰면 25px이 잘렸다 */
-            margin-top: clamp(28px, min(5.6vw, 9svh), 82px);
+            /* 남는 높이를 가져가 저자 묶음을 각인 위에 붙인다. 큰 화면에서 5단계와 저자 사이가 벌어지는 것은
+               .cover-mid 의 padding-top(36svh 상한)이 제목을 더 내려 줄인다.
+               고정 간격(6svh)으로 바꿔 봤더니 1440x900에서 내용이 넘쳐 소속과 각인이 4px로 붙었다 */
+            margin-top: auto;
             font-size: clamp(13px, 1.15vw, 15px); font-weight: 700;
             letter-spacing: 0.01em; line-height: 1.4; color: rgba(255,255,255,0.94);
         }
@@ -465,12 +600,12 @@
            0.66은 3.4:1이라 12px 본문 기준을 넘지 못했다 */
         .cover-affil {
             margin-top: 7px;
-            /* .cover-mid 가 flex-end 이고 아래 패딩이 0이라, 이게 없으면 소속이 마스코트에 붙는다.
-               위 .cover-author 와 같은 이유로 화면 높이도 함께 본다 */
+            /* 아래 패딩이 0이라, 이게 없으면 소속이 각인에 붙는다. 화면 높이도 함께 본다 */
             margin-bottom: clamp(14px, min(2.4vw, 3.8svh), 34px);
             display: flex; flex-direction: column; gap: 2px;
             font-size: clamp(11px, 0.92vw, 12px); font-weight: 500; line-height: 1.5;
-            color: rgba(255,255,255,0.80);
+            /* 0.80에서 올렸다(2026-10-05). 저자 뒤를 어둡게 누르던 셰이더 구역을 빼면서 4.50:1로 기준선에 걸렸다 */
+            color: rgba(255,255,255,0.86);
         }
 
         /* 각인 — 표지 발치 가운데 */
@@ -503,54 +638,12 @@
             animation: brandWave 0.8s ease;
             animation-delay: calc(var(--i) * 0.045s);
         }
-        /* ── 표지 발치 마스코트 ──
-           저자 정보와 각인 사이의 빈 자리를 채운다. 세로 기준(svh)으로 잡아야
-           화면이 낮아져도 제목을 밀어내지 않는다.
-           제목이 하는 말을 그림으로 보여주는 유일한 요소라 두 번째 단으로 세운다.
-           원본 1280x720 프레임을 그대로 쓰므로 레티나 화면에서도 선명하다. */
-        .cover-mascot { display: flex; justify-content: center; margin-bottom: clamp(12px, 2.4svh, 26px); }
-        .mascot-stage {
-            position: relative;
-            height: clamp(72px, 18svh, 170px); aspect-ratio: 16 / 9;
-        }
-        /* 바닥 그림자는 두지 않는다. 프레임에서 그림자를 지워 놓고 CSS로 다시 그리면
-           캐릭터와 따로 노는 타원이 남는다(2026-08-02 사용자 지적). */
-        .mascot-still, .mascot-canvas {
-            position: absolute; inset: 0; width: 100%; height: 100%;
-            display: block; z-index: 1; transition: opacity 0.45s ease;
-        }
-        /* 스틸과 애니메이션은 같은 첫 프레임에서 만들었다 */
-        .mascot-still { object-fit: contain; object-position: bottom center; }
-        .mascot-canvas { opacity: 0; }
-        .cover-mascot.is-playing .mascot-canvas { opacity: 1; }
-        .cover-mascot.is-playing .mascot-still { opacity: 0; }
-
-        /* 캐릭터 셋이 곧 서비스 셋이다(왼쪽부터 ChatGPT, Claude, Hermes).
-           부제에서 뺀 제품명이 여기로 내려와 각 캐릭터의 이름표가 된다.
-           --x는 robots-cut.webp 원본에서 잰 캐릭터 가로 중심이고,
-           88%는 세 캐릭터의 발끝(83.2%)에서 한 숨 떨어진 자리다.
-           재생 중 가로 중심은 최대 1.9%(288px 판에서 5.5px) 흔들려 이름표가 따라갈 필요가 없다.
-           프레임을 다시 만들면 두 값을 다시 재야 한다 */
-        .mascot-tags { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
-        .mascot-tags span {
-            position: absolute; top: 88%; left: var(--x); transform: translateX(-50%);
-            white-space: nowrap;
-            /* 700 산세리프 흰색은 제목과 같은 무게로 읽혀 캐릭터보다 이름표가 먼저 보였다.
-               책 자켓의 도판 캡션 자리라 세리프로 내린다. Georgia는 웹폰트가 아니라
-               두께가 400·700뿐이므로 굵기 대신 크기와 자간으로 조절한다 */
-            font-family: Georgia, 'Times New Roman', serif;
-            font-size: clamp(10px, 0.82vw, 12px); font-weight: 400;
-            letter-spacing: 0.05em; line-height: 1.4;
-            /* 표지 주황(#D97757)에서 끌어온 살구빛을 바탕(#8F3E22 안팎) 쪽으로 끌어내렸다.
-               2.96:1. 소자 텍스트 AA(4.5:1)를 넘지 못한다. 이름표가 캐릭터를 덮지 않게
-               희미하게 두는 쪽을 사용자가 택한 값이다(2026-08-03).
-               같은 정보가 .mascot-still의 alt에 있어 스크린 리더로는 온전히 읽힌다 */
-            color: #C99C7E;
-        }
+        /* 표지 발치 마스코트(ChatGPT·Claude·Hermes 캐릭터 셋)는 2026-10-05 사용자 결정으로 뺐다.
+           프레임 자산과 생성 스크립트는 backups/2026-10-05-cover-cleanup/에 있다(MANIFEST.tsv) */
 
         .cover-imprint { display: flex; justify-content: center; padding-bottom: 0; }
         .cover-imprint .hero-brand { margin-bottom: 0; }
-        /* 상표는 마스코트 아래, 표지 발치에 놓는다 */
+        /* 상표는 표지 발치에 놓는다 */
         .hero-brand-foot {
             font-size: 13px; letter-spacing: 2px; color: rgba(255,255,255,0.94);
         }
@@ -681,9 +774,10 @@
             background: #9C3F1E; border: none; cursor: pointer;
             border-radius: 100px;
             box-shadow: 4px 5px 12px rgba(80,32,14,0.26);
-            padding: 12px 20px;
+            /* 표지에서 실제로 누르게 하려는 단추인데 12px이라 띠지 카드 제목(13px)보다 작았다(2026-10-05 비평 검토) */
+            padding: 14px 24px; min-height: 48px;
             font-family: inherit;
-            font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+            font-size: 14px; font-weight: 700; letter-spacing: 0.01em;
             color: #fff;
             transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
         }
@@ -754,7 +848,9 @@
             box-shadow: 0 8px 22px rgba(0,0,0,0.36);
         }
         .cue-rail { background: rgba(43,27,19,0.28); }
-        .cue-dot { background: #2B1B13; }        .flap-item { border-top-color: rgba(255,255,255,0.11); }
+        .cue-dot { background: #2B1B13; }
+
+        .flap-item { border-top-color: rgba(255,255,255,0.11); }
         .flap-item:last-of-type { border-bottom-color: rgba(255,255,255,0.11); }
         .flap-tag { color: #E9A279; }
         .flap-go { color: #E9A279; }
@@ -1821,7 +1917,6 @@
             .flap-desc { -webkit-line-clamp: 1; }
             .flap-item { padding: 8px 0; }
             .flap-title { margin-bottom: 7px; }
-            .cover-mid { padding-bottom: clamp(24px, 5%, 60px); }
         }
         /* 낮은 화면에서는 판권 목록까지 세울 자리가 없다. 목록만 접고
            최신 모델 한 줄은 남긴다. 어느 모델로 쓴 자료인지는 판권의 마지막 줄이다 */
@@ -1857,13 +1952,15 @@
             .hero-brand { font-size: 11px; margin-bottom: 0; }
 
             /* 앞표지. 이 높이가 제목의 세로 위치를 정한다.
-               .cover-mid 가 flex-end 라 내용은 늘 바닥에 붙는다. 표지가 낮으면 내용이 통째로
-               올라와 제목이 오른쪽 위 햄버거 단추에 가까워진다. 78svh에서는 거리가 79px뿐이었다.
+               (옛 기록) .cover-mid 가 flex-end 이던 때는 표지가 낮으면 내용이 통째로
+               올라와 제목이 오른쪽 위 햄버거 단추에 가까워졌다. 78svh에서는 거리가 79px뿐이었다.
                실제 기기에서 다시 쟀다. Safari 주소창과 하단 툴바가 화면을 먹어 표지가
                테스트보다 훨씬 짧아진다. iPhone(393x660 상당)에서 84svh면 여백이 19px까지 붙는다.
                88svh로 올려 같은 조건에서 63px을 확보했다. 다음 섹션은 79px 남아 여전히 걸쳐 보인다 */
             .jacket-front { min-height: 88svh; }
-            .hero-inner { padding: 26px 20px 20px; max-width: none; }
+            /* min-height: auto 로 앞표지가 내용만큼 늘어나게 한다. 0이면 5단계 줄이 들어온 뒤 내용이 앞표지보다 길어져
+               각인이 바닥에 2px로 붙고 아래 여백이 잘렸다(앞표지는 overflow: hidden) */
+            .hero-inner { padding: 26px 20px 20px; max-width: none; min-height: auto; }
             .cover-edition { font-size: 11px; margin-top: 34px; }
             .cover-mid { padding: 18px 0; }
             /* 한 줄로 세우므로 좁은 화면에서는 판면 너비가 크기를 정한다 */
@@ -1881,29 +1978,27 @@
                 font-size: 13px; white-space: normal; max-width: 27ch;
                 margin-top: 14px; padding: 10px 19px;
             }
-            /* 저자 묶음은 제목 묶음이 아니라 마스코트 쪽에 붙인다.
-               .cover-mid는 원래 세로 중앙 정렬이라 아래에 97px 여유가 생겨 이름이 허공에 떠 있었다.
-               아래로 붙여 놓고(flex-end) 이름 위 여백만 벌리면 이름 위 62px, 마스코트까지 36px이 된다.
-               제목도 24px 내려가 햄버거 단추(bottom 58px)와 더 떨어진다 */
             /* 모바일은 아래 정렬(flex-end)을 쓰지 않는다. 아래로만 붙이면 제목 위 여백이
                화면 높이에 그대로 비례해서, 600px에서는 햄버거에 10px까지 붙고 812px에서는 197px로 벌어진다.
                대신 제목은 위에서 고정 거리, 저자 묶음은 아래 고정으로 두고 가운데가 늘어나게 한다.
                .cover-author 의 margin-top: auto 가 남는 높이를 전부 흡수한다.
                padding-top 62px 은 햄버거(bottom 58px)에서 30px 떨어뜨리려고 잡은 값이다.
-               자리가 모자라면 auto 가 먼저 0으로 줄어드는데, 그때도 .cover-sub2 의
+               자리가 모자라면 auto 가 먼저 0으로 줄어드는데, 그때도 .cover-steps 의
                margin-bottom 24px 이 남아 제목 묶음과 저자 묶음이 붙지 않는다 */
             .cover-mid { justify-content: flex-start; padding: 62px 0 14px; }
-            .cover-sub2 { margin-bottom: 24px; }
+            .cover-sub2 { margin-bottom: 0; }
+            /* 5단계 줄이 들어오며 393x660에서 햄버거~제목이 63px에서 46px로 좁아졌다. 줄 위아래 여백과
+               링크 안 여백을 줄여 되돌린다(393x660에서 63px). 아래 12px은 저자 묶음과 붙지 않게 남기는 최소 간격이다 */
+            .cover-steps { width: 100%; max-width: 340px; margin: 10px 0 12px; }
+            .cover-steps a { padding-top: 4px; gap: 8px; }
+            .cover-steps::before, .cover-steps::after { top: calc(4px + var(--fig-h) + 8px + 5.5px); }
+            .cs-name { font-size: 13px; }
+            .cover-steps { --fig-h: 24px; }
             /* auto 를 위아래 둘에 걸어 남는 높이를 반씩 나눠 갖게 한다.
                저자 쪽에만 걸면 900px 화면에서 가운데가 284px 벌어져 표지가 비어 보인다 */
             .cover-title { margin-top: auto; }
             .cover-author { margin-top: auto; font-size: 13px; }
             .cover-affil { margin-bottom: 14px; }
-            /* 데스크탑 상한(17svh)을 그대로 두면 375px 화면에서 마스코트가 판면의 59%를 먹는다.
-               좁은 화면은 세로가 길어 svh 배수를 낮춰야 폭이 잡힌다.
-               max-width로 묶으면 height가 이미 확정이라 aspect-ratio가 깨져 납작해진다 */
-            .mascot-stage { height: clamp(72px, 11svh, 108px); }
-            .cover-mascot { margin-bottom: clamp(10px, 1.8svh, 18px); }
 
             /* 띠지 — 세로에서는 표지 아래를 가로로 감싼다.
                띠지와 본문이 둘 다 크림이라 경계가 흐려진다. 아래를 검은 선으로 끊어 준다 */
@@ -1919,7 +2014,9 @@
             .band-cards { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             /* 터치 타깃 최소 44px. 이전 21px은 WCAG 2.5.8 미달이었다 */
             /* 모바일에서는 판면 전체 폭을 쓴다. 엄지로 누르는 자리라 넓을수록 확실하다 */
+            /* 첫 화면 아래로 걸쳐 보이는 띠지 자리에 시작 단추가 오게 맨 위로 올린다 */
             .cover-cue {
+                order: -1;
                 align-self: stretch; width: 100%;
                 justify-content: center; gap: 10px;
                 padding: 15px 18px; min-height: 52px; font-size: 14px;
@@ -2131,36 +2228,56 @@
            그대로 두면 화면이 처음 그려질 때 시차가 이미 다 지나가 표지가 통째로 툭 나타난다.
            그래서 head에서 cover-hold로 감춰 두었다가, 글꼴이 선 뒤 cover-in으로 바꿔 그때 재생한다.
            JS가 꺼져 있으면 cover-hold 자체가 걸리지 않아 표지는 처음부터 그대로 보인다 */
-        html.cover-hold .cover-title .ct-main,
+        html.cover-hold .cover-title .ct-main .ch,
         html.cover-hold .cover-sub,
         html.cover-hold .cover-sub2,
+        html.cover-hold .cover-steps,
         html.cover-hold .cover-author,
         html.cover-hold .cover-affil,
-        html.cover-hold .cover-mascot,
         html.cover-hold .cover-imprint,
         html.cover-hold .cover-band { opacity: 0; }
         html.cover-hold .cover-rule { transform: scaleX(0); }
 
-        html.cover-in .cover-title .ct-main,
         html.cover-in .cover-sub,
         html.cover-in .cover-sub2,
+        html.cover-in .cover-steps,
         html.cover-in .cover-author,
         html.cover-in .cover-affil,
-        html.cover-in .cover-mascot,
         html.cover-in .cover-imprint,
         html.cover-in .cover-band {
             /* 표지가 올라오는 속도. 빠르면 그냥 나타난 것으로 보이고 아무 인상도 남지 않는다.
                1.3초에 걸쳐 한 요소씩 올라오게 둔다 */
             animation: hero-rise 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
-        html.cover-in .cover-title .ct-main { animation-delay: 0.06s; }
-        html.cover-in .cover-sub            { animation-delay: 0.48s; }
-        html.cover-in .cover-sub2           { animation-delay: 0.62s; }
-        html.cover-in .cover-author         { animation-delay: 0.78s; }
-        html.cover-in .cover-affil          { animation-delay: 0.88s; }
-        html.cover-in .cover-mascot         { animation-delay: 0.98s; }
-        html.cover-in .cover-imprint        { animation-delay: 1.10s; }
+        html.cover-in .cover-sub            { animation-delay: 0.78s; }
+        html.cover-in .cover-sub2           { animation-delay: 0.92s; }
+        html.cover-in .cover-steps          { animation-delay: 1.04s; }
+        html.cover-in .cover-author         { animation-delay: 1.18s; }
+        html.cover-in .cover-affil          { animation-delay: 1.26s; }
+        html.cover-in .cover-imprint        { animation-delay: 1.50s; }
         html.cover-in .cover-band           { animation-delay: 1.20s; }
+
+        /* COVER-FX · 키네틱 등장. 글자가 기준선 아래 슬롯에서 솟는다. 가늘고 길게 늘어난 채(150) 올라와
+           굵어지며(900) 착지하고, 한 번 눌렸다 튀어 오른 뒤 850에 선다. 그림자는 착지하면서 드리운다.
+           끝 상태가 기본 스타일과 같으므로 fill-mode는 backwards로 충분하다 */
+        @keyframes ch-in {
+            0%   { opacity: 0; transform: translate3d(0, 0.95em, 0) scale(0.92, 1.4); font-weight: 150; text-shadow: 0 0 0 rgba(90,30,10,0), 0 0 0 rgba(40,12,4,0); }
+            48%  { opacity: 1; transform: translate3d(0, -0.07em, 0) scale(1.04, 0.9); font-weight: 900; text-shadow: 0 0 0 rgba(90,30,10,0), 0 0 0 rgba(40,12,4,0); }
+            70%  { transform: translate3d(0, 0.02em, 0) scale(0.99, 1.04); }
+            100% { opacity: 1; transform: none; font-weight: 850; text-shadow: 0.02em 0.03em 0 rgba(90,30,10,0.45), 0.04em 0.08em 0.28em rgba(40,12,4,0.32); }
+        }
+        html.cover-in .cover-title .ct-main .ch {
+            animation: ch-in 0.95s cubic-bezier(0.2, 0.9, 0.2, 1) backwards;
+            animation-delay: calc(0.08s + var(--i) * 0.045s);
+        }
+        /* 슬롯. 등장하는 동안만 제목 줄 아래를 잘라 글자가 기준선 밑에서 솟는 것처럼 보이게 한다.
+           끝나면 풀어서 압출 판의 그림자가 잘리지 않게 한다 */
+        @keyframes ct-slot {
+            0%, 99% { clip-path: inset(-60% -8% -1% -8%); }
+            100%    { clip-path: none; }
+        }
+        html.cover-in .cover-title .ct-main { animation: ct-slot 1.6s linear backwards; }
+
 
         /* 띠지는 오른쪽에서 감긴다. 실제 책 띠지를 두르는 방향이다.
            데스크톱에서는 표지가 인트로 뒤에 있어 로드 시점에 돌면 아무도 못 본다.
@@ -2176,22 +2293,24 @@
                 animation: band-slide-in 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
             }
         }
-        /* 제목 아래 규칙선은 왼쪽에서 그어진다 */
+        /* 제목 아래 규칙선은 가운데에서 양옆으로 그어진다. 가운데 정렬 조판이라 왼쪽에서 시작하면 한쪽으로 쏠려 보인다 */
         @keyframes cover-rule-draw {
             from { transform: scaleX(0); }
             to   { transform: scaleX(1); }
         }
-        .cover-rule { transform-origin: left center; }
+        .cover-rule { transform-origin: center; }
         html.cover-in .cover-rule {
-            animation: cover-rule-draw 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.52s both;
+            animation: cover-rule-draw 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.70s both;
         }
 
         @media (prefers-reduced-motion: reduce) {
+            .cover-embers { display: none !important; }
+            .cs-fig { animation: none !important; }
             .hero, .hero-brand, .hero h1, .hero-meta, .hero-intro,
             .hero-btn, .nav-wrapper, main.container, .card-section,
-            .cover-title .ct-main, .cover-edition,
-            .cover-sub, .cover-sub2, .cover-rule, .cover-author, .cover-affil, .cover-mascot, .cover-imprint,
-            .cover-band, .cue-dot, .cover-sheet, .hero-video,
+            .cover-title .ct-main, .cover-title .ct-main .ch, .cover-edition,
+            .cover-sub, .cover-sub2, .cover-steps, .cover-rule, .cover-author, .cover-affil, .cover-imprint,
+            .cover-band, .cue-dot, .cover-sheet,
             .intro-wheel, .intro-chev .ic1, .intro-bubbles span {
                 clip-path: none !important;
                 animation: none !important;
@@ -2204,6 +2323,8 @@
             .band-card:hover, .band-card:focus-visible { transform: none !important; }
             .flap-item:hover .flap-go, .flap-item:focus-visible .flap-go { transform: none !important; }
             .flap-item, .band-card, .cover-cue, .flap-go { transition: none !important; }
+            /* COVER-FX · 반사광·빛 테두리·단추 광택은 모두 끈다. 셰이더는 cover-fx.js가 정지 화면 한 장만 그린다 */
+            
         }
 
     </style>
@@ -2309,15 +2430,20 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
 <div class="cover-track">
 <div class="cover-stage">
 <header class="hero">
-    <video class="hero-video" autoplay muted loop playsinline poster="assets/media/hero-poster.webp" aria-hidden="true">
-        <source src="assets/media/hero-bg.mp4" type="video/mp4">
-    </video>
+    <!-- COVER-FX · 셰이더 배경. 그리는 코드는 assets/js/cover-fx.js -->
+    <canvas class="cover-shader" aria-hidden="true"></canvas>
     <span class="cover-grain" aria-hidden="true"></span>
     <div class="cover-sheet">
         <div class="jacket">
 
             <!-- 앞표지 -->
             <div class="jacket-front">
+                <!-- COVER-FX · 배경 다이얼. 흐린 판 위에 초점 맞은 판을 위쪽 가운데만 겹쳐 초점 흐림을 만든다(cover-fx.js) -->
+                <div class="cover-dial" aria-hidden="true">
+                    <canvas class="dial-blur"></canvas>
+                    <canvas class="dial-sharp"></canvas>
+                </div>
+                <canvas class="cover-embers" aria-hidden="true"></canvas>
                 <div class="hero-inner">
                     <!-- 로고 화면으로 돌아가는 유일한 길. 스크롤로는 돌아가지 않는다 -->
                     <button type="button" class="cover-up" id="coverUp" title="로고 화면으로" aria-label="로고 화면으로 이동">
@@ -2325,32 +2451,25 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
                     </button>
                     <div class="cover-mid">
                         <h1 class="cover-title">
-                            <span class="ct-main">AI 에이전트를 고용하라</span>
+                            <span class="visually-hidden">AI 에이전트를 고용하라</span><span class="ct-main" aria-hidden="true"><span class="ch" style="--i:0">A</span><span class="ch" style="--i:1">I</span> <span class="ch" style="--i:2">에</span><span class="ch" style="--i:3">이</span><span class="ch" style="--i:4">전</span><span class="ch" style="--i:5">트</span><span class="ch" style="--i:6">를</span> <span class="ch" style="--i:7">고</span><span class="ch" style="--i:8">용</span><span class="ch" style="--i:9">하</span><span class="ch" style="--i:10">라</span></span>
                         </h1>
                         <div class="cover-rule" aria-hidden="true"></div>
                         <p class="cover-sub">비즈니스 리더를 위한 <span class="cs-keep">Claude·ChatGPT 완전 정복</span></p>
                         <p class="cover-sub2">프롬프트에서 하네스·루프까지, <span class="cs-keep">대화를 실행으로 바꾸는 5단계</span></p>
+                        <!-- COVER-FX · 5단계. 불씨가 바닥에서 올라와 한 단계씩 모이며 점을 켜고, 켜질 때 아이콘이 그려진다(cover-fx.js).
+                             부제 아랫단 "5단계"를 그림으로 보여 주는 자리라 알약 바로 밑에 붙인다. 이름은 각 단계 섹션으로 가는 링크다 -->
+                        <ol class="cover-steps" aria-label="5단계">
+                            <li><a href="#section-1" data-term="멀티 페르소나" aria-label="1단계 소환: 멀티 페르소나"><svg class="cs-fig" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2z" pathLength="1" style="--d:0.00s"/><path d="M16 6a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2z" pathLength="1" style="--d:0.08s"/><path d="M9 18a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" pathLength="1" style="--d:0.16s"/></svg><span class="cs-dot" aria-hidden="true"></span><span class="cs-name">소환</span></a></li>
+                            <li><a href="#section-2" data-term="바이브 코딩" aria-label="2단계 연결: 바이브 코딩"><svg class="cs-fig" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 12l5 5l-1.5 1.5a3.536 3.536 0 1 1 -5 -5l1.5 -1.5z" pathLength="1" style="--d:0.00s"/><path d="M17 12l-5 -5l1.5 -1.5a3.536 3.536 0 1 1 5 5l-1.5 1.5z" pathLength="1" style="--d:0.08s"/><path d="M3 21l2.5 -2.5" pathLength="1" style="--d:0.16s"/><path d="M18.5 5.5l2.5 -2.5" pathLength="1" style="--d:0.24s"/><path d="M10 11l-2 2" pathLength="1" style="--d:0.32s"/><path d="M13 14l-2 2" pathLength="1" style="--d:0.40s"/></svg><span class="cs-dot" aria-hidden="true"></span><span class="cs-name">연결</span></a></li>
+                            <li><a href="#section-3" data-term="하네스" aria-label="3단계 계약: 하네스"><svg class="cs-fig" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7.2a2.2 2.2 0 0 1 2.2 -2.2h1a2.2 2.2 0 0 0 1.55 -.64l.7 -.7a2.2 2.2 0 0 1 3.12 0l.7 .7c.412 .41 .97 .64 1.55 .64h1a2.2 2.2 0 0 1 2.2 2.2v1c0 .58 .23 1.138 .64 1.55l.7 .7a2.2 2.2 0 0 1 0 3.12l-.7 .7a2.2 2.2 0 0 0 -.64 1.55v1a2.2 2.2 0 0 1 -2.2 2.2h-1a2.2 2.2 0 0 0 -1.55 .64l-.7 .7a2.2 2.2 0 0 1 -3.12 0l-.7 -.7a2.2 2.2 0 0 0 -1.55 -.64h-1a2.2 2.2 0 0 1 -2.2 -2.2v-1a2.2 2.2 0 0 0 -.64 -1.55l-.7 -.7a2.2 2.2 0 0 1 0 -3.12l.7 -.7a2.2 2.2 0 0 0 .64 -1.55v-1z" pathLength="1" style="--d:0.00s"/><path d="M9 12l2 2l4 -4" pathLength="1" style="--d:0.08s"/></svg><span class="cs-dot" aria-hidden="true"></span><span class="cs-name">계약</span></a></li>
+                            <li><a href="#section-4" data-term="멀티 에이전트" aria-label="4단계 조합: 멀티 에이전트"><svg class="cs-fig" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" pathLength="1" style="--d:0.00s"/><path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1" pathLength="1" style="--d:0.08s"/><path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" pathLength="1" style="--d:0.16s"/><path d="M17 10h2a2 2 0 0 1 2 2v1" pathLength="1" style="--d:0.24s"/><path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" pathLength="1" style="--d:0.32s"/><path d="M3 13v-1a2 2 0 0 1 2 -2h2" pathLength="1" style="--d:0.40s"/></svg><span class="cs-dot" aria-hidden="true"></span><span class="cs-name">조합</span></a></li>
+                            <li><a href="#section-5" data-term="루프" aria-label="5단계 자율: 루프"><svg class="cs-fig" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" pathLength="1" style="--d:0.00s"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" pathLength="1" style="--d:0.08s"/></svg><span class="cs-dot" aria-hidden="true"></span><span class="cs-name">자율</span></a></li>
+                        </ol>
                         <p class="cover-author"><a class="cover-author-go" href="?about=1" data-about-open data-about-target="aboutMaker" aria-haspopup="dialog" aria-label="만든이 소개 열기">강정구 <span>· Jayden Kang</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a></p>
                         <p class="cover-affil">
                             <span>라이너(Liner) · AI 전략 총괄</span>
                             <span>국민경제자문회의 · AI경제 정책자문단</span>
                         </p>
-                    </div>
-
-                    <!-- 표지 발치 마스코트
-                         robots.mp4의 원본 24fps를 배경과 그림자 없는 240장으로 저장해 캔버스에 돌린다.
-                         첫 프레임(robots-cut.webp)이 먼저 뜨고, 프레임이 모이면 그 위에서 재생된다.
-                         프레임을 다시 만들려면 assets/logos/robotseq-src/build_robots.py -->
-                    <div class="cover-mascot" id="mascotBand">
-                        <div class="mascot-stage">
-                            <img class="mascot-still" id="mascotStill" src="assets/logos/robots-cut.webp?v=20260802-2" alt="ChatGPT, Claude, Hermes를 나타내는 캐릭터 셋이 나란히 서 있다" width="1280" height="720" decoding="async">
-                            <canvas class="mascot-canvas" id="mascotCanvas" width="1280" height="720" aria-hidden="true"></canvas>
-                            <div class="mascot-tags">
-                                <span style="--x:17.7%">ChatGPT</span>
-                                <span style="--x:48.9%">Claude</span>
-                                <span style="--x:80.2%">Hermes</span>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="cover-imprint">
@@ -3046,89 +3165,6 @@ if (/^#section-/.test(location.hash)) document.documentElement.classList.add('no
     </div>
 
 </main>
-
-<script>
-(function () {
-    var band = document.getElementById('mascotBand');
-    var cv = document.getElementById('mascotCanvas');
-    if (!band || !cv || !window.IntersectionObserver) return;
-    // 모션을 줄이는 설정이면 스틸 한 장으로 끝낸다
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    var ctx = cv.getContext('2d');
-    var N = 240, FPS = 24, MIN_READY = 24;   // 첫 1초 분량을 받으면 재생을 시작한다
-    var imgs = new Array(N), ready = 0, next = 0, loading = 0;
-    var playing = false, raf = null, t0 = 0, lastIdx = -1;
-
-    function pad(n) { return ('00' + n).slice(-3); }
-
-    // 한 번에 여섯 장씩만 받는다. 페이지의 다른 이미지 로딩을 막지 않기 위해서다
-    function pump() {
-        while (loading < 6 && next < N) {
-            (function (i) {
-                var im = new Image();
-                im.decoding = 'async';
-                im.onload = im.onerror = function () {
-                    loading--; ready++;
-                    if (!playing && ready >= MIN_READY) start();
-                    pump();
-                };
-                im.src = 'assets/logos/robotseq/r' + pad(i) + '.webp?v=20260802-2';
-                imgs[i] = im;
-            })(next);
-            next++; loading++;
-        }
-    }
-
-    // 아직 안 받은 프레임 자리에서는 가장 가까운 받아 둔 프레임을 쓴다. 그래야 끊기지 않는다
-    function frameAt(idx) {
-        for (var d = 0; d < N; d++) {
-            var a = idx - d, b = idx + d;
-            if (a >= 0 && imgs[a] && imgs[a].complete && imgs[a].naturalWidth) return imgs[a];
-            if (b < N && imgs[b] && imgs[b].complete && imgs[b].naturalWidth) return imgs[b];
-        }
-        return null;
-    }
-
-    function tick(t) {
-        if (!t0) t0 = t;
-        var idx = Math.floor((t - t0) / (1000 / FPS)) % N;
-        if (idx !== lastIdx) {
-            var im = frameAt(idx);
-            if (im) {
-                ctx.clearRect(0, 0, cv.width, cv.height);
-                ctx.drawImage(im, 0, 0, cv.width, cv.height);
-                lastIdx = idx;
-                if (!band.classList.contains('is-playing')) band.classList.add('is-playing');
-            }
-        }
-        raf = requestAnimationFrame(tick);
-    }
-
-    function start() {
-        if (playing) return;
-        playing = true; t0 = 0;
-        raf = requestAnimationFrame(tick);
-    }
-
-    function stop() {
-        if (raf) cancelAnimationFrame(raf);
-        raf = null; playing = false;
-    }
-
-    // 화면에 들어올 때만 받고 돌린다. 지나가면 멈춰 배터리를 아낀다
-    new IntersectionObserver(function (es) {
-        es.forEach(function (e) {
-            if (e.isIntersecting) {
-                pump();
-                if (ready >= MIN_READY) start();
-            } else {
-                stop();
-            }
-        });
-    }, { rootMargin: '400px 0px' }).observe(band);
-})();
-</script>
 
 <!-- ── 뉴스레터 ── -->
 <section class="newsletter-section">
@@ -4304,29 +4340,7 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 
-<script>
-(function () {
-    var v = document.querySelector('.hero-video');
-    if (!v) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        try { v.pause(); } catch (e) {}
-        return;
-    }
-    v.muted = true;
-    var tryPlay = function () {
-        var p = v.play();
-        if (p && typeof p.catch === 'function') p.catch(function () {});
-    };
-    tryPlay();
-    v.addEventListener('canplay', tryPlay, { once: true });
-    v.addEventListener('loadeddata', tryPlay, { once: true });
-    document.addEventListener('visibilitychange', function () { if (!document.hidden) tryPlay(); });
-    // 자동재생이 막히면 첫 사용자 상호작용에서 재생
-    var onFirst = function () { tryPlay(); window.removeEventListener('pointerdown', onFirst); window.removeEventListener('keydown', onFirst); };
-    window.addEventListener('pointerdown', onFirst);
-    window.addEventListener('keydown', onFirst);
-})();
-</script>
+<script defer src="assets/js/cover-fx.js?v=20261005"></script>
 
 <script>
 // 콘텐츠 페이지의 "← 목록으로"(index.html#section-N)로 들어왔을 때 해당 섹션에 내려놓는다.
