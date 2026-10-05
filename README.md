@@ -77,7 +77,7 @@
 | 페이지 | 설명 |
 |--------|------|
 | [에이전트의 도구란?](https://airoasting.vercel.app/agent-tools.html) | 내장 도구·MCP·커넥터·스킬·플러그인 다섯 가지의 차이와 관계를 한 지도로 |
-| [MCP 연결 실전](https://airoasting.vercel.app/mcp-examples.html) | 구글 드라이브·카카오톡·DART 공시·법령 검색·Liner·텔레그램 여섯 가지를 Claude에 연결 |
+| [MCP 연결 실전](https://airoasting.vercel.app/mcp-examples.html) | 구글 지메일·캘린더·드라이브, 카카오톡, DART 공시, 한국 법령, Higgsfield, 텔레그램 여섯 가지 연결. 법령과 Higgsfield는 Claude·Codex 데스크탑 앱 토글 |
 | [스킬 라이브러리](https://skill.airoasting.com/) | 비즈니스 리더를 위해 엄선한 검증된 실무 AI 스킬 모음(외부 사이트) |
 
 ### 4단계. 조합: 멀티 에이전트
