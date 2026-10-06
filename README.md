@@ -119,7 +119,7 @@
 | 페이지 | 설명 |
 |--------|------|
 | [멀티 페르소나로 시 쓰기](https://airoasting.com/showcase-poems.html) | 수업 첫 실습에서 쓰고 비평하고 다시 쓴 시 44편을 여섯 묶음으로 정리 |
-| [스탑워치 쇼케이스](https://airoasting.com/showcase-stopwatch.html) | 같은 한 줄 지시에서 출발한 수강생 스탑워치 36종을 라이브로 임베드한 모음 |
+| [스탑워치 쇼케이스](https://airoasting.com/showcase-stopwatch.html) | 같은 한 줄 지시에서 출발한 수강생 스탑워치 35종을 라이브로 임베드한 모음 |
 | [스킬 쇼케이스](https://airoasting.com/showcase-skills.html) | 수강생들이 자기 업무를 Claude 스킬로 만든 실전 자동화 25선 |
 
 ---
