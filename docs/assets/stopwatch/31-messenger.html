@@ -21,24 +21,27 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
     padding:12px 14px 86px;overflow:hidden}
 
-  /* ── 전시장 안쪽. 위에서 초록 네온이 쏟아진다 ── */
-  .room{position:absolute;inset:0;pointer-events:none;
-    background:
-      radial-gradient(120% 52% at 50% -6%,rgba(20,220,96,.72) 0%,rgba(12,150,66,.34) 38%,transparent 72%),
-      radial-gradient(80% 46% at 50% 108%,rgba(120,66,34,.5) 0%,transparent 70%),
-      linear-gradient(180deg,#123018 0%,#1B1410 46%,#0B0908 100%)}
-  /* 벽에 그려진 잎사귀. 네온을 받아 위쪽만 밝다 */
-  .leaf{position:absolute;top:-6%;width:34px;height:62%;pointer-events:none;
-    border-radius:60% 60% 46% 46%/70% 70% 30% 30%;
-    background:linear-gradient(180deg,rgba(150,255,170,.5) 0%,rgba(40,150,70,.2) 46%,transparent 88%);
-    filter:blur(.4px)}
-  .l1{left:2%;transform:rotate(-9deg)}
-  .l2{left:13%;height:52%;transform:rotate(5deg)}
-  .l3{right:3%;transform:rotate(8deg)}
-  .l4{right:15%;height:50%;transform:rotate(-6deg)}
-  /* 바닥으로 길게 떨어지는 빛줄기 */
-  .beam{position:absolute;left:0;right:0;top:0;height:46%;pointer-events:none;opacity:.5;
-    background:repeating-linear-gradient(90deg,transparent 0 13px,rgba(160,255,190,.16) 13px 15px)}
+  /* ── 만화 무대. 그러데이션 없이 평면 색으로 끊어 칠하고, 굵은 잉크 선으로 감싼다 ── */
+  .room{position:absolute;inset:0;pointer-events:none;overflow:hidden;background:#2AAE5C}
+  /* 고양이 뒤로 퍼지는 집중선. 달리는 동안 천천히 돈다 */
+  .rays{position:absolute;left:50%;top:160px;width:900px;height:900px;margin:-450px 0 0 -450px;
+    background:repeating-conic-gradient(#38C66D 0 7.5deg,#2AAE5C 7.5deg 15deg)}
+  body.go .rays{animation:spin 40s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  /* 무대 소품(조명 원판, 잎사귀, 마룻바닥, 반짝이). 폭이 바뀌어도 고양이 기준 가운데에 둔다 */
+  .set{position:absolute;left:50%;top:0;width:600px;height:360px;margin-left:-300px;overflow:visible}
+  .twinkle{transform-box:fill-box;transform-origin:center}
+  body.go .twinkle{animation:twinkle .9s ease-in-out infinite alternate}
+  body.go .twinkle.t2{animation-delay:-.3s}
+  body.go .twinkle.t3{animation-delay:-.6s}
+  /* 잎사귀는 줄기 끝(왼쪽 위 꼭짓점)을 축으로 흔들린다. 시작하면 움직이고, 멈추면 그 자세로 선다 */
+  .sway{transform-box:fill-box;transform-origin:0 0;animation:sway 1.1s ease-in-out infinite alternate;animation-play-state:paused}
+  .sway.s2{animation-duration:.9s;animation-delay:-.4s}
+  .sway.s3{animation-duration:1.2s;animation-delay:-.7s}
+  .sway.s4{animation-duration:.95s;animation-delay:-.2s}
+  body.go .sway{animation-play-state:running}
+  @keyframes sway{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+  @keyframes twinkle{from{transform:scale(.7) rotate(0)}to{transform:scale(1.15) rotate(20deg)}}
 
   /* ── 네온 사인 ── */
   .sign{position:relative;z-index:3;flex-shrink:0;width:100%;
@@ -46,6 +49,7 @@
     padding-right:2px;min-height:58px;justify-content:center}
   .sign span{font-size:10px;font-weight:800;letter-spacing:.2px;white-space:nowrap;
     color:#F4FFF7;font-variant-numeric:tabular-nums;
+    -webkit-text-stroke:3px #0E2416;paint-order:stroke fill;
     text-shadow:0 0 5px rgba(190,255,210,.95),0 0 13px rgba(50,235,120,.85),0 0 26px rgba(20,200,90,.6);
     animation:pop .34s cubic-bezier(.3,1.5,.6,1) 1}
   .sign span.hit{color:#FFF4CF;
@@ -67,21 +71,22 @@
   .read{position:relative;z-index:3;text-align:center}
   .time{font-size:26px;font-weight:800;letter-spacing:-.9px;white-space:nowrap;line-height:1;
     font-variant-numeric:tabular-nums;color:#FFFFFF;
-    text-shadow:0 0 12px rgba(60,240,130,.6),0 2px 4px rgba(0,0,0,.8)}
+    -webkit-text-stroke:5px #0E2416;paint-order:stroke fill;
+    text-shadow:0 3px 0 #0E2416}
   .time .cs{font-size:15px;font-weight:700;color:var(--neon)}
 
   /* ── 조작부 ── */
   .row{position:absolute;left:0;right:0;bottom:34px;z-index:4;display:flex;justify-content:center;gap:8px}
+  /* 버튼도 만화 무대에 맞춰 잉크 테두리와 아래로 떨어지는 단단한 그림자를 준다 */
   button{font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap;
-    padding:11px 0;width:78px;border-radius:20px;transition:all .16s;
-    color:#EAFFF1;border:1.5px solid rgba(150,255,185,.4);background:rgba(12,26,16,.72);
-    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
-  button:disabled{opacity:.42;cursor:default}
+    padding:10px 0;width:78px;border-radius:20px;transition:transform .07s,box-shadow .07s,background .16s;
+    color:#EAFFF1;border:2.5px solid #0E2416;background:#1F4A2E;box-shadow:0 4px 0 #0E2416}
+  button:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 #0E2416}
+  button:disabled{opacity:.6;cursor:default;color:#9DBFA8}
   button:focus-visible{outline:2px solid var(--neon);outline-offset:3px}
-  button:hover:not(:disabled){border-color:var(--neon);background:rgba(20,52,30,.86)}
-  #b1{background:var(--grn);color:#04331A;border-color:transparent;
-    box-shadow:0 0 18px rgba(6,199,85,.55),0 3px 10px rgba(0,0,0,.45)}
-  #b1:hover{background:#0AE063;border-color:transparent}
+  button:hover:not(:disabled){background:#28603B}
+  #b1{background:var(--grn);color:#04331A}
+  #b1:hover{background:#0AE063}
 
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation:none !important;transition-duration:.001ms !important}
@@ -90,9 +95,41 @@
 </head>
 <body>
   <div class="room" aria-hidden="true">
-    <span class="leaf l1"></span><span class="leaf l2"></span>
-    <span class="leaf l3"></span><span class="leaf l4"></span>
-    <span class="beam"></span>
+    <span class="rays"></span>
+    <svg class="set" viewBox="0 0 600 360">
+      <defs>
+        <g id="leaf"><g stroke="#0E2416" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M0 0 C40 8 70 46 66 104 C30 92 2 58 0 0 Z" fill="#1E8B48" stroke-width="3.5"/>
+          <path d="M0 0 C40 8 70 46 66 104 C52 66 30 34 0 0 Z" fill="#45C774" stroke="none"/>
+          <path d="M0 0 C40 8 70 46 66 104 C30 92 2 58 0 0 Z" fill="none" stroke-width="3.5"/>
+          <path d="M2 4 C28 34 48 64 64 100" fill="none" stroke-width="2.5"/>
+        </g></g>
+        <path id="star" d="M0 -10 Q2 -2 10 0 Q2 2 0 10 Q-2 2 -10 0 Q-2 -2 0 -10 Z" fill="#FFE14D" stroke="#0E2416" stroke-width="2.5" stroke-linejoin="round"/>
+        <clipPath id="discClip"><circle cx="300" cy="160" r="74"/></clipPath>
+      </defs>
+      <!-- 고양이 뒤 조명 원판: 두 단계 명암 -->
+      <g clip-path="url(#discClip)">
+        <rect x="220" y="80" width="160" height="160" fill="#86E2A2"/>
+        <circle cx="292" cy="152" r="72" fill="#C2F7D2"/>
+      </g>
+      <circle cx="300" cy="160" r="74" fill="none" stroke="#0E2416" stroke-width="4"/>
+      <!-- 위에서 늘어진 잎사귀 -->
+      <g transform="translate(132 -12) rotate(-14)"><use class="sway" href="#leaf"/></g>
+      <g transform="translate(176 -18) rotate(12) scale(.78)"><use class="sway s2" href="#leaf"/></g>
+      <g transform="translate(468 70) scale(-1 1) rotate(-6)"><use class="sway s3" href="#leaf"/></g>
+      <g transform="translate(440 104) scale(-.74 .74) rotate(18)"><use class="sway s4" href="#leaf"/></g>
+      <!-- 마룻바닥: 판자 선이 무대 가운데로 모인다 -->
+      <path d="M0 233 H600 V360 H0 Z" fill="#B5713F"/>
+      <path d="M0 233 H600 V243 H0 Z" fill="#D08A52"/>
+      <g stroke="#0E2416" stroke-width="2" opacity=".32">
+        <path d="M300 243 V360 M300 243 L210 360 M300 243 L120 360 M300 243 L30 360 M300 243 L-60 360 M300 243 L390 360 M300 243 L480 360 M300 243 L570 360 M300 243 L660 360"/>
+      </g>
+      <path d="M0 233 H600" stroke="#0E2416" stroke-width="4"/>
+      <!-- 반짝이 -->
+      <g transform="translate(220 98) scale(1.1)"><use class="twinkle" href="#star"/></g>
+      <g transform="translate(384 118) scale(.85)"><use class="twinkle t2" href="#star"/></g>
+      <g transform="translate(212 196) scale(.7)"><use class="twinkle t3" href="#star"/></g>
+    </svg>
   </div>
 
   <!-- 전시장 벽의 네온 사인. 랩을 찍으면 여기에 한 줄씩 걸린다 -->

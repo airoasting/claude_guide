@@ -10,52 +10,91 @@
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;overflow:hidden}
   :root{
-    --paper:#F5ECD7;
-    --paper-dk:#E6D8B8;
-    --ink:#2B2118;
-    --ink-soft:#6E5D48;
+    --paper:#F4E8CC;
+    --paper-dk:#DCC79C;
+    --ink:#2A1C12;
+    --ink-soft:#6B5639;
+    --gold:#C9A04E;
+    --gold-lt:#F1D58E;
     --brass:#C9A55A;
     --cover:#8C2F2A;   /* 추천 책마다 바뀐다 */
+    /* 한글은 명조로, 숫자와 로마자는 고전 세리프로 */
+    --serif:'Baskerville','Times New Roman','AppleMyungjo','Nanum Myeongjo','Noto Serif KR','Batang',serif;
+    --didot:'Didot','Bodoni 72','Bodoni MT','Times New Roman',serif;
   }
-  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+  body{font-family:var(--serif);
     color:var(--ink);word-break:keep-all;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:12px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:12px;
+    /* 호두나무 서재 책상. 결을 아주 옅게 깔고 위에서 스탠드 불빛이 떨어진다 */
     background:
-      radial-gradient(70% 55% at 50% 8%,rgba(255,196,110,.20) 0%,rgba(255,196,110,0) 70%),
-      radial-gradient(130% 100% at 50% 30%,#2A1E16 0%,#1A120D 55%,#0C0806 100%)}
+      radial-gradient(70% 55% at 50% 6%,rgba(255,200,120,.24) 0%,rgba(255,200,120,0) 70%),
+      repeating-linear-gradient(93deg,rgba(255,220,170,.018) 0 2px,transparent 2px 9px),
+      radial-gradient(130% 100% at 50% 30%,#3A2418 0%,#22150E 55%,#0E0806 100%)}
 
   /* 책상 위 스탠드 불빛. 읽는 동안 조금 더 밝아진다 */
   body::before{content:"";position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(60% 45% at 50% 42%,rgba(255,214,150,.10),transparent 70%);
+    background:radial-gradient(60% 45% at 50% 42%,rgba(255,214,150,.12),transparent 70%);
     opacity:0;transition:opacity .8s ease}
   body.run::before{opacity:1}
 
-  /* ── 펼친 책 ──
-     표지(겉 판)를 뒤에 깔고, 양쪽 페이지를 올린다. 아래 가장자리에는 쌓인 종이 결을 둔다. */
+  /* ── 펼친 가죽 장정본 ──
+     가죽 표지에 금박 테두리를 찍고, 아래 모서리에 놋쇠 귀를 단다.
+     종이 단면은 금박(삼방금)으로 칠하고, 책등 위에는 머리띠(헤드밴드)를 둔다. */
   .book{position:relative;width:min(336px,100%);height:206px;perspective:1100px;flex-shrink:0}
-  .board{position:absolute;inset:6px -6px -8px;border-radius:6px;background:var(--cover);
-    box-shadow:0 18px 34px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.08);transition:background .5s ease}
-  .stack{position:absolute;left:0;right:0;bottom:-4px;height:6px;
-    background:repeating-linear-gradient(180deg,#E9DDC2 0 1px,#CDBD99 1px 2px);border-radius:0 0 3px 3px}
-  .page{position:absolute;top:0;bottom:0;width:50%;background:var(--paper);overflow:hidden;padding:16px 15px 12px}
-  .page.l{left:0;border-radius:4px 0 0 4px;
-    background:linear-gradient(90deg,var(--paper) 0%,var(--paper) 78%,var(--paper-dk) 100%)}
-  .page.r{right:0;border-radius:0 4px 4px 0;
-    background:linear-gradient(270deg,var(--paper) 0%,var(--paper) 78%,var(--paper-dk) 100%)}
-  .spine{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:rgba(80,55,30,.25)}
+  .board{position:absolute;inset:6px -7px -9px;border-radius:5px;
+    background-color:var(--cover);
+    background-image:radial-gradient(120% 90% at 28% 18%,rgba(255,235,200,.16),transparent 60%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .38 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    box-shadow:0 22px 40px rgba(0,0,0,.65),0 6px 12px rgba(0,0,0,.4),
+      inset 0 0 0 1px rgba(0,0,0,.35),inset 0 0 16px rgba(0,0,0,.45);
+    transition:background-color .5s ease}
+  .board::before{content:"";position:absolute;inset:3px;border-radius:3px;
+    border:1px solid rgba(225,188,105,.85);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+  .cn{position:absolute;bottom:-9px;width:15px;height:15px;z-index:0;
+    background:linear-gradient(135deg,#F4DB98,#C69A45 45%,#8A6524);
+    box-shadow:0 1px 2px rgba(0,0,0,.5)}
+  .cn.bl{left:-7px;clip-path:polygon(0 0,100% 100%,0 100%);border-bottom-left-radius:4px}
+  .cn.br{right:-7px;clip-path:polygon(100% 0,100% 100%,0 100%);border-bottom-right-radius:4px}
+  .stack{position:absolute;left:1px;right:1px;bottom:-4px;height:6px;border-radius:0 0 3px 3px;
+    background:repeating-linear-gradient(180deg,#F0D27F 0 1px,#A97F2E 1px 2px)}
+  .edge{position:absolute;top:3px;bottom:-3px;width:3px;
+    background:repeating-linear-gradient(90deg,#F0D27F 0 1px,#A97F2E 1px 2px)}
+  .edge.el{left:-3px;border-radius:3px 0 0 3px}
+  .edge.er{right:-3px;border-radius:0 3px 3px 0}
+  .headband{position:absolute;left:50%;top:-3px;width:16px;height:4px;margin-left:-8px;z-index:1;border-radius:2px 2px 0 0;
+    background:repeating-linear-gradient(90deg,var(--cover) 0 2px,var(--gold-lt) 2px 4px);transition:background .5s ease}
 
-  .folio{position:absolute;bottom:9px;left:0;right:0;text-align:center;font-family:Georgia,'Times New Roman',serif;
-    font-size:9px;color:#A08C6C;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+  .page{position:absolute;top:0;bottom:0;width:50%;overflow:hidden;padding:17px 16px 12px}
+  /* 책 가운데로 갈수록 종이가 말려 들어가 어두워진다 */
+  .page.l{left:0;border-radius:4px 0 0 4px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35  0 0 0 0 .25  0 0 0 0 .1  0 0 0 .12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),linear-gradient(90deg,#E6D3AA 0%,var(--paper) 7%,var(--paper) 68%,#E3CEA2 90%,#C8AE7E 100%)}
+  .page.r{right:0;border-radius:0 4px 4px 0;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35  0 0 0 0 .25  0 0 0 0 .1  0 0 0 .12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),linear-gradient(270deg,#E6D3AA 0%,var(--paper) 7%,var(--paper) 68%,#E3CEA2 90%,#C8AE7E 100%)}
+  /* 고서 판면처럼 겹줄 테두리 */
+  .frame{position:absolute;inset:7px;pointer-events:none;border:1px solid rgba(139,104,52,.42);
+    box-shadow:inset 0 0 0 2px rgba(244,232,204,.0),inset 0 0 0 3px rgba(139,104,52,.22)}
+  .page.l .frame{right:9px}
+  .page.r .frame{left:9px}
+  .spine{position:absolute;left:50%;top:0;bottom:0;width:20px;margin-left:-10px;pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(70,45,20,.16) 38%,rgba(50,30,12,.38) 50%,rgba(70,45,20,.16) 62%,transparent)}
+
+  .folio{position:absolute;bottom:11px;left:0;right:0;text-align:center;font-family:var(--didot);font-style:italic;
+    font-size:9.5px;color:#9A8058;font-variant-numeric:tabular-nums;letter-spacing:.5px}
 
   /* 왼쪽 페이지. 오늘의 추천 */
-  .eyebrow{font-size:8.5px;font-weight:700;letter-spacing:2px;color:var(--cover);transition:color .5s ease}
-  .title{margin-top:8px;font-family:Georgia,'Times New Roman',"Apple SD Gothic Neo",serif;font-size:17px;font-weight:700;
-    line-height:1.25;color:var(--ink);min-height:21px}
-  .author{margin-top:4px;font-size:10px;color:var(--ink-soft);font-weight:600}
-  .rule{width:22px;height:1px;background:#BFA97F;margin:9px 0 8px}
-  .why{font-size:10.5px;line-height:1.5;color:#4A3C2E}
-  .swap{position:absolute;left:15px;bottom:24px;font-family:inherit;font-size:9.5px;font-weight:700;color:var(--ink-soft);
-    background:none;border:none;border-bottom:1px dashed #BFA97F;padding:0 0 1px;cursor:pointer}
+  .eyebrow{font-size:8.5px;font-weight:700;letter-spacing:2.5px;color:var(--cover);transition:color .5s ease}
+  .eyebrow::before{content:"❦";margin-right:5px;letter-spacing:0;color:var(--gold)}
+  .title{margin-top:7px;font-family:var(--serif);font-size:17px;font-weight:700;
+    line-height:1.25;color:var(--ink);min-height:21px;letter-spacing:-.2px}
+  .author{margin-top:4px;font-size:10px;color:var(--ink-soft);font-weight:600;letter-spacing:.5px}
+  /* 장식 괘선: 금선 가운데 마름모 */
+  .rule{position:relative;width:52px;height:1px;margin:10px 0 9px;
+    background:linear-gradient(90deg,var(--gold),rgba(201,160,78,.25))}
+  .rule::after{content:"";position:absolute;left:0;top:-2.5px;width:5px;height:5px;background:var(--gold);transform:rotate(45deg)}
+  .why{font-size:10.5px;line-height:1.55;color:#47361F}
+  /* 첫 글자를 크게 내려 앉히는 장식 머리글자 */
+  .why::first-letter{float:left;font-family:var(--didot);font-size:27px;line-height:.86;margin:2px 4px 0 0;color:var(--cover)}
+  .swap{position:absolute;left:16px;bottom:24px;font-family:inherit;font-size:9.5px;font-weight:700;color:var(--ink-soft);
+    background:none;border:none;border-bottom:1px dashed #BFA273;padding:0 0 1px;cursor:pointer}
   .swap:hover:not(:disabled){color:var(--cover)}
   .swap:disabled{opacity:.35;cursor:default}
   .rec{transition:opacity .3s ease}
@@ -63,31 +102,33 @@
 
   /* 오른쪽 페이지. 읽은 시간과 책갈피 */
   .page.r{text-align:center}
-  .label{font-size:8.5px;font-weight:700;letter-spacing:2px;color:#9A8668}
-  .time{margin-top:14px;font-family:'Times New Roman',Times,serif;font-size:34px;line-height:1;
-    font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
-  .time .cs{font-size:15px;color:#9A8668}
-  .state{margin-top:7px;height:12px;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#A08C6C}
+  .label{font-size:8.5px;font-weight:700;letter-spacing:2.5px;color:#8E7650;display:flex;align-items:center;justify-content:center;gap:7px}
+  .label::before,.label::after{content:"";width:16px;height:1px;background:var(--gold)}
+  .time{margin-top:12px;font-family:var(--didot);font-size:37px;line-height:1;
+    font-variant-numeric:tabular-nums lining-nums;color:var(--ink);white-space:nowrap;letter-spacing:-.5px}
+  .time .cs{font-size:16px;color:#A8833F}
+  .state{margin-top:8px;height:12px;font-size:9px;font-weight:700;letter-spacing:2px;color:#9A8058}
   .state.on{color:var(--cover)}
-  .marks{margin-top:12px;list-style:none;display:flex;flex-direction:column;gap:4px;min-height:40px}
-  .marks li{display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:#4A3C2E;
-    font-variant-numeric:tabular-nums;border-bottom:1px dotted #CDBB97;padding-bottom:3px}
+  .marks{margin-top:11px;list-style:none;display:flex;flex-direction:column;gap:4px;min-height:40px}
+  .marks li{display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:#47361F;
+    font-variant-numeric:tabular-nums;border-bottom:1px dotted #C4AA7C;padding-bottom:3px}
+  .marks li span:last-child{font-family:var(--didot)}
   .marks li b{font-weight:700;color:var(--cover)}
   .marks li.new{animation:ink .5s ease}
   @keyframes ink{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
 
-  /* 리본 책갈피. 읽는 동안 살짝 흔들린다 */
-  .ribbon{position:absolute;left:50%;margin-left:-4.5px;top:-4px;width:9px;height:224px;z-index:3;
-    background:linear-gradient(90deg,#7A1F1C,#B23A33 50%,#7A1F1C);transform-origin:50% 0;
-    clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 7px),0 100%);
-    filter:drop-shadow(1px 2px 1px rgba(0,0,0,.25))}
+  /* 비단 리본 책갈피. 읽는 동안 살짝 흔들린다 */
+  .ribbon{position:absolute;left:50%;margin-left:-5px;top:-4px;width:10px;height:226px;z-index:3;
+    background:linear-gradient(90deg,#4E0F12,#8E2329 30%,#C4504A 50%,#8E2329 70%,#4E0F12);transform-origin:50% 0;
+    clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 8px),0 100%);
+    filter:drop-shadow(1px 2px 1.5px rgba(0,0,0,.35))}
   body.run .ribbon{animation:sway 3.6s ease-in-out infinite}
   @keyframes sway{0%,100%{transform:rotate(0)}50%{transform:rotate(-1.6deg)}}
 
   /* 책장 넘김. 일정 시간마다 오른쪽 페이지가 왼쪽으로 넘어간다 */
   .leaf{position:absolute;top:0;bottom:0;left:50%;width:50%;z-index:2;transform-origin:0 50%;
     border-radius:0 4px 4px 0;pointer-events:none;opacity:0;
-    background:linear-gradient(270deg,var(--paper) 0%,#EFE3C8 70%,var(--paper-dk) 100%)}
+    background:linear-gradient(270deg,var(--paper) 0%,#EFE1C2 70%,var(--paper-dk) 100%)}
   .leaf.go{animation:turn .9s cubic-bezier(.45,.05,.35,1)}
   @keyframes turn{
     0%{opacity:1;transform:rotateY(0);box-shadow:0 0 0 rgba(0,0,0,0)}
@@ -95,16 +136,23 @@
     92%{opacity:1}
     100%{opacity:0;transform:rotateY(-180deg)}}
 
-  /* ── 조작부 ── */
-  .row{display:flex;gap:8px;flex-shrink:0;position:relative;z-index:1}
-  button.btn{font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;
-    height:38px;width:90px;border-radius:999px;transition:all .18s;
-    color:#E8D9B8;border:1px solid rgba(201,165,90,.42);background:rgba(255,255,255,.045)}
-  button.btn:disabled{color:rgba(201,165,90,.4);border-color:rgba(201,165,90,.16);background:rgba(255,255,255,.02);cursor:default}
-  button.btn:hover:not(:disabled){background:rgba(201,165,90,.15);border-color:rgba(201,165,90,.7)}
-  #b1{background:var(--paper);border-color:transparent;color:var(--ink);font-weight:800;box-shadow:0 6px 16px rgba(0,0,0,.45)}
-  #b1:hover{transform:translateY(-1px);filter:brightness(1.04)}
-  #b1.on{background:var(--cover);color:#FFF4E2}
+  /* ── 조작부: 가죽 위에 금선을 두 줄 두른 라벨 ── */
+  .row{display:flex;gap:9px;flex-shrink:0;position:relative;z-index:1}
+  button.btn{font-family:var(--serif);font-size:12.5px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;
+    height:38px;width:90px;border-radius:5px;transition:all .18s;
+    color:#E9D29A;border:1px solid rgba(201,160,78,.6);
+    background:linear-gradient(180deg,#2E1F15,#1B120C);
+    box-shadow:inset 0 0 0 3px #22170F,inset 0 0 0 4px rgba(201,160,78,.32),0 5px 12px rgba(0,0,0,.45)}
+  button.btn:disabled{color:rgba(201,160,78,.38);border-color:rgba(201,160,78,.22);
+    box-shadow:inset 0 0 0 3px #22170F,inset 0 0 0 4px rgba(201,160,78,.1);cursor:default}
+  button.btn:hover:not(:disabled){border-color:var(--gold-lt);color:#F6E2AE}
+  /* 시작: 금박 */
+  #b1{background:linear-gradient(180deg,#F4DB98 0%,#D4AE5E 48%,#B38833 52%,#C9A04E 100%);border-color:#8A6524;color:#2A1A0E;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 3px rgba(255,240,200,.0),0 6px 14px rgba(0,0,0,.5)}
+  #b1:hover{transform:translateY(-1px);filter:brightness(1.05);color:#2A1A0E}
+  /* 읽는 중: 표지와 같은 가죽에 금 글씨 */
+  #b1.on{background:var(--cover);border-color:rgba(225,188,105,.85);color:#F3DFA6;
+    box-shadow:inset 0 0 0 3px var(--cover),inset 0 0 0 4px rgba(243,223,166,.55),0 6px 14px rgba(0,0,0,.5)}
   button:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
 
   @media (prefers-reduced-motion:reduce){
@@ -117,9 +165,13 @@
 <body>
   <div class="book">
     <div class="board"></div>
+    <span class="cn bl" aria-hidden="true"></span><span class="cn br" aria-hidden="true"></span>
     <div class="stack"></div>
+    <span class="edge el" aria-hidden="true"></span><span class="edge er" aria-hidden="true"></span>
+    <span class="headband" aria-hidden="true"></span>
 
     <div class="page l">
+      <span class="frame" aria-hidden="true"></span>
       <div class="rec" id="rec">
         <div class="eyebrow">오늘의 한 권</div>
         <div class="title" id="bt"></div>
@@ -132,6 +184,7 @@
     </div>
 
     <div class="page r">
+      <span class="frame" aria-hidden="true"></span>
       <div class="label">읽은 시간</div>
       <div class="time" id="t" role="timer">00:00<span class="cs">.00</span></div>
       <div class="state" id="stt">책을 펼쳐 주세요</div>
