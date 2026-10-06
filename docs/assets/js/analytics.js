@@ -19,15 +19,13 @@
        이 사이트는 여러 주소로 같은 내용이 떠 있다.
          airoasting.github.io/claude_guide/  GitHub Pages (main/docs)
          airoasting.com                      Vercel 커스텀 도메인, 루트로 서빙
-         airoasting.vercel.app               Vercel 기본 주소, 같은 배포
        한쪽만 적으면 다른 쪽 방문자가 통째로 안 잡힌다. 배포처를 늘리면 여기도 늘린다.
-       미리보기 배포(airoasting-git-*.vercel.app 등)는 이름이 달라 자동으로 빠진다.
+       미리보기 배포는 이름이 달라 자동으로 빠진다.
        와일드카드를 쓰지 않는 이유가 이것이다. 시험 배포가 실제 통계를 더럽히면 안 된다. */
     var HOSTS = [
         'airoasting.github.io',
         'airoasting.com',
-        'www.airoasting.com',
-        'airoasting.vercel.app'
+        'www.airoasting.com'
     ];
 
     if (GA_ID === 'G-XXXXXXXXXX' || GA_ID.indexOf('G-') !== 0) return;
