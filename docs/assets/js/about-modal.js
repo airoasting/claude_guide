@@ -474,7 +474,7 @@
                 <div id="aboutTop">
                     <p class="ab-eyebrow">강의에서 가장 많이 받는 질문</p>
                     <div class="ab-quote">
-                        <h1 id="aboutTitle">"개발 말고, 비즈니스용으로는 Claude를 어떻게 써야 하나요?"</h1>
+                        <h1 id="aboutTitle">"개발 말고, 비즈니스용으로는 Claude·ChatGPT를 어떻게 써야 하나요?"</h1>
                     </div>
                     <div class="ab-rule" aria-hidden="true"></div>
                     <div class="ab-intro">
