@@ -16,7 +16,7 @@
     <meta name="twitter:description" content="비즈니스 리더를 위한 Claude·ChatGPT 완전 정복. 프롬프트에서 하네스·루프까지, 대화를 실행으로 바꾸는 5단계. Hermes까지 다루는 실전 가이드">
     <meta name="twitter:image" content="https://airoasting.github.io/claude_guide/assets/thumbnails/thumbnail.png">
     <title>MCP 연결 실전 | AI ROASTING</title>
-    <meta name="description" content="카카오톡 PlayMCP, 한국 법령 MCP, Higgsfield, 기업 공시 분석, 텔레그램, 구글 지메일·캘린더·드라이브. 외부 도구를 MCP로 연결하는 실전 예제 여섯 가지를 연결 경로와 복사용 주소까지 한 페이지에서 따라 합니다.">
+    <meta name="description" content="카카오톡 PlayMCP, Liner 검색 MCP, 한국 법령 MCP, Higgsfield, 기업 공시 분석, 텔레그램, 구글 지메일·캘린더·드라이브. 외부 도구를 MCP로 연결하는 실전 예제 일곱 가지를 연결 경로와 복사용 주소까지 한 페이지에서 따라 합니다.">
     <style>
         @font-face {
             font-family: 'Pretendard';
@@ -205,6 +205,31 @@
         .mc-row.mcp { color: #fff; }
         .mc-row em { font-style: normal; display: block; font-size: 1.08cqw; font-weight: 600; opacity: 0.8; margin-top: 0.15cqw; }
 
+        .mc-full { position: absolute; z-index: 2; color: #fff; display: flex; align-items: baseline; gap: 1cqw; transform: translateY(-50%); white-space: nowrap; }
+        .mc-full .mc-ab { font-family: Georgia, 'Times New Roman', serif; font-size: 2.2cqw; font-weight: 900; }
+        .mc-full span:last-child { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-size: 1.15cqw; font-weight: 600; opacity: 0.85; }
+        .mc-full b { font-style: normal; font-weight: 900; color: #F4D35E; opacity: 1; }
+        .mc-story { position: absolute; z-index: 2; color: #fff; font-size: 1.05cqw; font-weight: 600; line-height: 1.5; transform: translateY(-50%); background: rgba(0,0,0,0.16); padding: 0.6cqw 0.9cqw; border-radius: 0.4cqw; }
+        .mc-story b { font-weight: 900; color: #F4D35E; }
+        .mc-row { font-size: 1.35cqw; }
+        .mc-row em { font-size: 0.88cqw; opacity: 0.72; margin-top: 0.1cqw; }
+        .mc-tl { padding: 0.55cqw 1.1cqw; }
+        .mc-tl .mc-date { font-size: 1.3cqw; }
+        .mc-tl .mc-dt { font-size: 1.08cqw; margin-top: 0.15cqw; }
+        .mc-tl .mc-dd { font-size: 0.88cqw; }
+        .mc-foot { font-size: 0.98cqw; font-weight: 600; line-height: 1.55; }
+        .mc-foot b { color: #B35535; font-weight: 900; margin-right: 0.6cqw; }
+        .mc-foot i { font-family: Georgia, 'Times New Roman', serif; font-weight: 700; margin-right: 0.4cqw; }
+        .mc-jn .mc-jt { font-family: Georgia, 'Times New Roman', serif; font-size: 2.1cqw; font-weight: 900; color: var(--mc-orange); line-height: 1.1; }
+        .mc-jn i { display: block; font-family: Georgia, 'Times New Roman', serif; font-size: 1.1cqw; font-weight: 700; margin: 0.15cqw 0 0.35cqw; }
+        .mc-jn p { margin: 0; font-size: 1.05cqw; font-weight: 600; line-height: 1.5; }
+        .mc-jn code, .mc-foot code { font-family: 'SF Mono', 'Courier New', monospace; font-size: 0.95em; background: #F1E9D8; padding: 0 0.3cqw; }
+        .mc-code { padding: 1cqw 1.4cqw; }
+        .mc-code pre { margin: 0; font-family: 'SF Mono', 'Courier New', monospace; font-size: 1.12cqw; line-height: 1.5; color: #F4EEE2; white-space: pre; }
+        .mc-code .k { color: #9CC3E6; }
+        .mc-code .v { color: #E9C46A; }
+        .mc-code .n { color: #F4A261; }
+        .mc-code .cm { color: #E07A55; font-family: inherit; font-weight: 700; }
         .mc-date { font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 1.7cqw; color: var(--mc-orange); line-height: 1.1; }
         .mc-dt { font-size: 1.35cqw; font-weight: 900; margin-top: 0.25cqw; }
         .mc-dd { display: block; font-style: normal; font-size: 1.02cqw; font-weight: 600; opacity: 0.75; margin-top: 0.1cqw; }
@@ -215,6 +240,51 @@
         .mc-key { display: inline-flex; align-items: center; gap: 0.5cqw; white-space: nowrap; }
         .mc-key b { font-size: 1.02cqw; font-weight: 900; color: #fff; background: var(--mc-ink); padding: 0.1cqw 0.5cqw; }
         .mc-key code { font-family: 'SF Mono', 'Courier New', monospace; font-size: 1.12cqw; font-weight: 700; background: #F1E9D8; padding: 0.15cqw 0.5cqw; letter-spacing: -0.01em; }
+        /* 2장. DART API 요청 뜯어보기 */
+        .mc-lbl { display: flex; align-items: center; gap: 0.7cqw; font-size: 1.2cqw; font-weight: 900; }
+        .mc-lbl i { font-style: normal; display: inline-flex; align-items: center; justify-content: center; width: 1.9cqw; height: 1.9cqw; border-radius: 50%; background: var(--mc-orange); color: #fff; font-size: 1.1cqw; font-weight: 900; }
+        .mc-lbl small { font-size: 1.02cqw; font-weight: 600; color: #6b645b; }
+        .mc-k40 { display: flex; gap: 0.9cqw; margin-top: 0.7cqw; }
+        .mc-kg { display: flex; flex-direction: column; align-items: center; }
+        .mc-kg code { font-family: 'SF Mono', 'Courier New', monospace; font-size: 2.15cqw; font-weight: 700; letter-spacing: 0.02em; background: #F1E9D8; padding: 0.25cqw 0.6cqw; }
+        .mc-kg small { font-size: 0.95cqw; font-weight: 800; color: var(--mc-orange); margin-top: 0.25cqw; border-top: 0.15cqw solid var(--mc-orange); width: 100%; text-align: center; padding-top: 0.15cqw; }
+        .mc-url { font-family: 'SF Mono', 'Courier New', monospace; font-size: 1.3cqw; font-weight: 700; color: #F4EEE2; line-height: 1.9; }
+        .mc-url .u0 { opacity: 0.65; }
+        .mc-url b { display: inline-block; white-space: nowrap; font-weight: 700; padding: 0.05cqw 0.3cqw; border-radius: 0.3cqw; }
+        .mc-url sup { font-family: inherit; font-size: 0.85cqw; font-weight: 900; color: #fff; background: var(--mc-orange); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; width: 1.4cqw; height: 1.4cqw; vertical-align: 0.6cqw; margin-left: 0.15cqw; }
+        .mc-url .s1 { background: rgba(217,119,79,0.35); }
+        .mc-url .s2 { background: rgba(226,174,72,0.4); }
+        .mc-url .s3 { background: rgba(120,150,190,0.45); }
+        .mc-url .s4 { background: rgba(90,160,110,0.45); }
+        .mc-card .mc-cn { font-size: 1.05cqw; font-weight: 900; color: var(--mc-orange); }
+        .mc-card code { display: block; font-family: 'SF Mono', 'Courier New', monospace; font-size: 1.7cqw; font-weight: 700; margin: 0.25cqw 0 0.2cqw; }
+        .mc-card .mc-cd { font-size: 1.05cqw; font-weight: 600; line-height: 1.4; }
+        /* Liner 카드 슬라이드: 기본 웹서치 vs Liner */
+        .ln-cover { margin: 4px 0 22px; display: flex; flex-direction: column; gap: 12px; }
+        .ln-cover .mcc-open { align-self: flex-start; }
+        .ln-panel { padding: 1.1cqw 1.5cqw 1.2cqw; }
+        .ln-h { font-size: 1.35cqw; font-weight: 900; margin-bottom: 0.8cqw; }
+        .ln-h small { display: block; font-size: 0.92cqw; font-weight: 700; color: #6b645b; margin-top: 0.1cqw; }
+        .ln-bars { display: flex; flex-direction: column; gap: 0.55cqw; }
+        .ln-bar { display: grid; grid-template-columns: 12.5cqw 1fr 4.2cqw; align-items: center; gap: 0.7cqw; }
+        .ln-name { font-size: 1.02cqw; font-weight: 800; line-height: 1.15; }
+        .ln-name small { display: block; font-size: 0.8cqw; font-weight: 600; color: #8a8378; }
+        .ln-track { height: 1.25cqw; background: #EAE3D3; border-radius: 0.2cqw; overflow: hidden; }
+        .ln-track i { display: block; height: 100%; background: #56677D; }
+        .ln-bar.c .ln-track i { background: #B35535; }
+        .ln-bar b { font-family: 'SF Mono', 'Courier New', monospace; font-size: 1.05cqw; font-weight: 700; text-align: right; }
+        .ln-bar.ln-ref { margin-top: 0.4cqw; padding-top: 0.6cqw; border-top: 0.12cqw dashed #B8AE9C; }
+        .ln-bar.ln-ref .ln-track i { background: repeating-linear-gradient(90deg, #2E8B57 0 0.8cqw, #4CAF73 0.8cqw 1.6cqw); }
+        .ln-fn { font-size: 0.82cqw; font-weight: 600; color: #6b645b; line-height: 1.45; margin-top: 0.7cqw; }
+        .ln-tr { display: grid; grid-template-columns: 8.5cqw 1fr 1.25fr; gap: 0.8cqw; align-items: center; padding: 1.25cqw 0; border-top: 0.1cqw solid #E2D9C6; font-size: 1.02cqw; font-weight: 600; line-height: 1.35; }
+        .ln-tr.ln-th { border-top: 0; padding-top: 0; font-size: 1.15cqw; font-weight: 900; }
+        .ln-pill { display: inline-block; width: 9.5cqw; text-align: center; color: #fff; font-size: 1.05cqw; font-weight: 800; padding: 0.35cqw 0; border-radius: 999px; line-height: 1.2; }
+        .ln-th .ln-a .ln-pill { background: #56677D; }
+        .ln-th .ln-b .ln-pill { background: #2E8B57; }
+        .ln-k { font-weight: 900; color: var(--mc-orange); }
+        .ln-a { color: #5A5650; }
+        .ln-b { font-weight: 800; color: #1A1917; }
+        .ln-b small { display: block; font-family: 'SF Mono', 'Courier New', monospace; font-size: 0.8cqw; font-weight: 600; color: #2E8B57; }
         /* 전체 화면 덱 */
         .mc-modal {
             position: fixed; inset: 0; z-index: 3000;
@@ -1227,6 +1297,35 @@
             .cx-item.cn-dim { display: none; }
             .cx-plugins .cn-search { margin-left: 0; width: 100%; order: 3; }
         }
+        /* ===== 직접 그린 Codex 사용자 지정 MCP 서버 만들기 창 ===== */
+        .cxd-fig { max-width: 520px; }
+        .cxd-mock {
+            background: #fff; border: 1px solid #E4E2DE; border-radius: 16px;
+            padding: 18px 18px 16px; color: #1A1917; box-shadow: 0 8px 22px rgba(58,53,48,0.12);
+        }
+        .cxd-head { display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
+        .cxd-head i { font-style: normal; font-weight: 400; color: #6B6862; font-size: 18px; line-height: 1; }
+        .cxd-label { font-size: 12px; font-weight: 600; margin: 12px 0 5px; }
+        .cxd-field {
+            position: relative; font-size: 12.5px; border: 1px solid #E4E2DE; border-radius: 9px;
+            padding: 8px 11px; background: #fff; font-family: 'SF Mono', Menlo, Consolas, monospace;
+            overflow-wrap: anywhere;
+        }
+        .cxd-field.cxd-ph { color: #A9A49B; font-family: inherit; }
+        .cxd-field.cxd-plain { font-family: inherit; }
+        .cxd-tabs { display: flex; gap: 4px; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+        .cxd-tabs span { position: relative; padding: 4px 8px; border-radius: 7px; color: #8A857D; }
+        .cxd-tabs span.on { color: #1A1917; }
+        .cxd-warn { font-size: 11.5px; color: #8A4B1F; background: #FFF7F0; border: 1px solid #F3C9A8; border-radius: 9px; padding: 8px 11px; margin-top: 14px; }
+        .cxd-agree { position: relative; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; border: 1px solid #ECEAE6; border-radius: 9px; padding: 9px 11px; margin-top: 10px; }
+        .cxd-box { flex-shrink: 0; width: 14px; height: 14px; border: 1.5px solid #B5B2AC; border-radius: 4px; }
+        .cxd-foot { display: flex; justify-content: flex-end; align-items: center; gap: 14px; margin-top: 14px; font-size: 12px; }
+        .cxd-foot .cxd-cancel { color: #6B6862; }
+        .cxd-sub { font-size: 12px; color: #4A4640; margin: -4px 0 10px; }
+        .cxd-hint { font-size: 11px; color: #8A857D; margin: 5px 0 10px; }
+        .cxd-hint.cxd-gap { margin-top: 12px; }
+        .cxd-btn { border: 1px solid #E4E2DE; border-radius: 9px; padding: 6px 12px; }
+        .cxd-make { position: relative; background: #16171A; color: #fff; font-weight: 700; border-radius: 9px; padding: 7px 13px; }
         /* ===== 직접 그린 Claude Desktop 왼쪽 사이드바 목업 ===== */
         .sb-fig { max-width: 256px; }
         .sb-mock {
@@ -1395,7 +1494,7 @@
     </nav>
     <a href="index.html#section-3" class="back-link">&larr; 목록으로</a>
     <h1>MCP 연결 실전</h1>
-    <p>외부 도구를 MCP로 연결하는 실전 예제 여섯 가지. 연결 경로와 복사용 주소까지 이 페이지에서 바로 따라 합니다</p>
+    <p>외부 도구를 MCP로 연결하는 실전 예제 일곱 가지. 연결 경로와 복사용 주소까지 이 페이지에서 바로 따라 합니다</p>
     <div class="mode-tabs" role="tablist">
         <button class="mode-tab" id="tab-harness" onclick="switchMode('harness')" role="tab" aria-selected="false">하네스</button>
         <button class="mode-tab active" id="tab-tool" onclick="switchMode('tool')" role="tab" aria-selected="true">도구</button>
@@ -1427,23 +1526,28 @@
         <span class="sm-title">카카오톡 MCP</span>
         <span class="sm-sub">나에게 보내기</span>
     </a>
-    <a href="#mcp-stock" data-sec="mcp-stock">
+    <a href="#mcp-liner" data-sec="mcp-liner">
         <span class="sm-num">3</span>
+        <span class="sm-title">Liner 검색 MCP</span>
+        <span class="sm-sub">출처 달린 검색</span>
+    </a>
+    <a href="#mcp-stock" data-sec="mcp-stock">
+        <span class="sm-num">4</span>
         <span class="sm-title">기업 공시 분석</span>
         <span class="sm-sub">DART 리포트</span>
     </a>
     <a href="#mcp-law" data-sec="mcp-law">
-        <span class="sm-num">4</span>
+        <span class="sm-num">5</span>
         <span class="sm-title">한국 법령 MCP</span>
         <span class="sm-sub">인용 검증</span>
     </a>
     <a href="#mcp-higgsfield" data-sec="mcp-higgsfield">
-        <span class="sm-num">5</span>
+        <span class="sm-num">6</span>
         <span class="sm-title">Higgsfield</span>
         <span class="sm-sub">이미지·영상 생성</span>
     </a>
     <a href="#mcp-telegram" data-sec="mcp-telegram" class="tool-claude-only">
-        <span class="sm-num">6</span>
+        <span class="sm-num">7</span>
         <span class="sm-title">텔레그램 주고받기</span>
         <span class="sm-sub">봇·CLI</span>
     </a>
@@ -1451,7 +1555,7 @@
 
 <main class="container" id="main" tabindex="-1">
 
-    <!-- 0. MCP 개념: 16:9 콜라주 표지 한 장 + 버튼으로 전체 화면 덱(API vs. MCP 세 장, #mcDeck) -->
+    <!-- 0. MCP 개념: 16:9 콜라주 표지 한 장 + 버튼으로 전체 화면 덱(API · DART 예시 · MCP · 이름·비교 · JSON-RPC 다섯 장, #mcDeck) -->
     <section class="mcp-concept anim-fade-up" id="mcp-concept" aria-labelledby="mcpConceptTitle">
         <div class="mcc-head">
             <span class="task-number"><svg viewBox="0 0 24 24"><path d="M9 3v5M15 3v5"/><path d="M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v4"/></svg></span>
@@ -1472,6 +1576,7 @@
                 <path d="M1168,468 C1190,600 1150,700 1176,792" stroke="#1A1917" stroke-width="3.6" stroke-dasharray="10 8"/>
                 <path d="M1168,468 C1260,560 1350,640 1424,738" stroke="#B35535" stroke-width="3.6" stroke-dasharray="10 8"/>
                 <path d="M1168,468 C1300,500 1400,560 1464,594" stroke="#1A1917" stroke-width="3.6" stroke-dasharray="10 8"/>
+                <path d="M1168,468 C1070,510 970,570 880,594" stroke="#B35535" stroke-width="3.6" stroke-dasharray="10 8"/>
             </svg>
             <div class="mc-dots" style="left:56%;top:-4%;width:36cqw;height:36cqw;"></div>
             <div class="mc-dots" style="left:-6%;top:62%;width:22cqw;height:22cqw;--dc:rgba(26,25,23,0.35);"></div>
@@ -1500,7 +1605,8 @@
             <div class="mc-p mc-c mc-z2 t2" style="left:89%;top:82%;--r:-3deg;"><span class="mc-t" style="font-size:1.6cqw;"><i class="mc-dot" style="background:#B35535;"></i>한국 법령</span></div>
             <div class="mc-p mc-c mc-z2" style="left:91%;top:50%;--r:3deg;--pc:#CFE0EE;"><span class="mc-t" style="font-size:1.6cqw;">텔레그램</span></div>
             <div class="mc-p mc-c mc-z2 t2 mc-w" style="left:91.5%;top:66%;--r:4deg;--pc:#1A1917;white-space:nowrap;"><span class="mc-t" style="font-size:1.6cqw;">Higgsfield</span></div>
-            <div class="mc-sticker mc-hide-sm" style="left:92%;top:17%;--s:11cqw;--r:10deg;"><small style="margin:0;">예제 여섯 개</small><b style="font-size:2.2cqw;">모두 MCP</b></div>
+            <div class="mc-p mc-c mc-z2 mc-w" style="left:55%;top:66%;--r:-2deg;--pc:#2E8B57;white-space:nowrap;"><span class="mc-t" style="font-size:1.6cqw;">Liner 검색</span></div>
+            <div class="mc-sticker mc-hide-sm" style="left:92%;top:17%;--s:11cqw;--r:10deg;"><small style="margin:0;">예제 일곱 개</small><b style="font-size:2.2cqw;">모두 MCP</b></div>
         </div>
 
         <div class="mcc-foot">
@@ -1807,7 +1913,167 @@
             </div>
         </div>
 
-        <!-- 3. 기업 공시 데이터 분석 (DART) -->
+        <!-- 3. Liner 검색 MCP (liner.com/ko/developers/docs/mcp). Claude·Codex 데스크탑 앱 단계를 토글로 나눈다 -->
+        <div class="task-card" id="mcp-liner">
+            <div class="task-header" onclick="toggleTask(this)">
+                <span class="task-number"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/><path d="M7.5 9h6M7.5 12h4"/></svg></span>
+                <div class="task-title-area">
+                    <div class="task-title">Liner 검색 MCP 연결하기</div>
+                    <div class="task-difficulty"><span class="t-clock">8분</span><span><b>입문</b></span></div>
+                </div>
+                <span class="task-toggle">&#x25BC;</span>
+            </div>
+            <div class="task-body">
+                <div class="task-content">
+                    <p class="task-lead">Liner의 원격 MCP 서버를 붙여, AI가 <strong>출처가 달린 웹 검색</strong>과 <strong>논문 검색</strong>, <strong>딥 리서치</strong>를 Liner로 돌립니다. 법률·금융·의료·기업 분야 검색도 따로 부를 수 있습니다. 답마다 근거 링크가 따라오므로 보고서에 옮기기 전에 원문을 바로 확인합니다. 키를 붙여넣지 않고 <strong>Liner 계정으로 로그인</strong>만 하면 연결됩니다.</p>
+
+                    <a class="skill-pill" href="https://liner.com/ko/developers/docs/mcp" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9 2h5v5h-1.5V4.6L7.3 9.8 6.2 8.7l5.2-5.2H9zM2 4h5v1.5H3.5v7h7V9H12v5H2z"/></svg>Liner MCP 공식 문서 &middot; liner.com/ko/developers/docs/mcp <span class="sp-tail">&rsaquo;</span></a>
+
+                    <div class="mcp-note" style="margin-top: 16px; margin-bottom: 18px;">MCP로 부른 검색도 Liner API를 직접 부를 때와 똑같이 <strong>사용량이 과금</strong>됩니다. 크레딧이 모자라면 검색이 실패하니 <strong>platform.liner.com/billing</strong>에서 잔액을 먼저 확인합니다.</div>
+
+                    <!-- 기본 웹서치 vs Liner 슬라이드. 누르면 #lnDeck 전체 화면으로 연다(슬라이드는 JS가 복제) -->
+                    <div class="ln-cover">
+            <div class="mc-slide mcc-frame ln-slide" id="lnSlide" role="button" tabindex="0" aria-label="기본 웹서치와 Liner 비교 슬라이드. 누르면 전체 화면으로 엽니다">
+                <div class="mc-dots" style="left:80%;top:-12%;width:24cqw;height:24cqw;--dc:rgba(46,139,87,0.4);"></div>
+                <div class="mc-rn" style="left:4%;top:4%;font-size:3.6cqw;"><span class="l4">Web</span><span class="l2 sm">vs.</span><span class="l1" style="background:#2E8B57;">Liner</span></div>
+                <div class="mc-p mc-z2 mc-w" style="--pc:#1A1917;left:35%;top:5%;--r:-1.2deg;font-size:2.3cqw;font-weight:900;padding:0.5cqw 1.5cqw;">기본 웹서치와 Liner, 무엇이 다른가</div>
+
+                <!-- 왼쪽: 웹 검색 없는 모델 정확도 (Kaggle SimpleQA Verified, 2026-10-10) -->
+                <div class="mc-p mc-z2 t2 ln-panel" style="--pc:#FBF8F1;left:4%;top:23%;width:43%;--r:-0.5deg;">
+                    <div class="ln-h">웹 검색 없는 모델 정확도<small>SimpleQA Verified &middot; 1,000문항 &middot; 2026.10.10</small></div>
+                    <div class="ln-bars">
+                        <div class="ln-bar "><span class="ln-name">GPT-6 Astra<small>OpenAI</small></span><span class="ln-track"><i style="width:75.8%"></i></span><b>75.8%</b></div>
+                        <div class="ln-bar "><span class="ln-name">Gemini 4 Argon<small>Google</small></span><span class="ln-track"><i style="width:75.6%"></i></span><b>75.6%</b></div>
+                        <div class="ln-bar "><span class="ln-name">GPT-6.1 Sol<small>OpenAI</small></span><span class="ln-track"><i style="width:73.8%"></i></span><b>73.8%</b></div>
+                        <div class="ln-bar c"><span class="ln-name">Claude Opus 5<small>Anthropic</small></span><span class="ln-track"><i style="width:63.3%"></i></span><b>63.3%</b></div>
+                        <div class="ln-bar "><span class="ln-name">Grok 4.7<small>xAI</small></span><span class="ln-track"><i style="width:59.4%"></i></span><b>59.4%</b></div>
+                        <div class="ln-bar c"><span class="ln-name">Claude Sonnet 5.5<small>Anthropic</small></span><span class="ln-track"><i style="width:44.7%"></i></span><b>44.7%</b></div>
+                        <div class="ln-bar c"><span class="ln-name">Claude Haiku 5.5<small>Anthropic</small></span><span class="ln-track"><i style="width:23.9%"></i></span><b>23.9%</b></div>
+                        <div class="ln-bar ln-ref"><span class="ln-name">Claude + 기본 웹서치<small>원본 SimpleQA 기준</small></span><span class="ln-track"><i style="width:90.5%"></i></span><b>90.5%</b></div>
+                    </div>
+                    <div class="ln-fn">맨 아래 줄은 문항 세트가 달라 직접 비교용이 아닌 참고값입니다(Firecrawl 측정, 2026.07). Claude Opus 5.5&middot;Fable 5.1은 리더보드 미등재.</div>
+                </div>
+                <span class="mc-tape" style="left:5%;top:24%;--r:-30deg;--w:4.5cqw;"></span>
+
+                <!-- 오른쪽: 기본 웹서치 vs Liner -->
+                <div class="mc-p mc-z2 ln-panel" style="--pc:#FBF8F1;left:50%;top:23%;width:46%;--r:0.5deg;">
+                    <div class="ln-tr ln-th"><span class="ln-k"></span><span class="ln-a"><span class="ln-pill">기본 웹서치</span></span><span class="ln-b"><span class="ln-pill">Liner MCP</span></span></div>
+                        <div class="ln-tr"><span class="ln-k">검색 범위</span><span class="ln-a">일반 웹 검색</span><span class="ln-b">웹 검색 + 논문 전용 검색<small>search_scholar</small></span></div>
+                        <div class="ln-tr"><span class="ln-k">분야별 검색</span><span class="ln-a">별도 도구 없음</span><span class="ln-b">법률·금융·의료·기업 전용 4종<small>search_legal 등</small></span></div>
+                        <div class="ln-tr"><span class="ln-k">심층 리서치</span><span class="ln-a">기본 검색 기능</span><span class="ln-b">다단계 딥 리서치 에이전트<small>deep_research_agent</small></span></div>
+                        <div class="ln-tr"><span class="ln-k">앱 간 일관성</span><span class="ln-a">앱마다 다른 검색 엔진</span><span class="ln-b">Claude·Codex·Cursor에서 동일</span></div>
+                        <div class="ln-tr"><span class="ln-k">비용·설정</span><span class="ln-a">구독에 포함, 설정 불필요</span><span class="ln-b">사용량 과금, 커넥터 1회 설정</span></div>
+                </div>
+                <span class="mc-tape" style="left:95%;top:24%;--r:30deg;--w:4.5cqw;"></span>
+
+                <div class="mc-p mc-z3 t2" style="--pc:#2E8B57;left:4%;top:86%;width:92%;--r:-0.3deg;padding:0.6cqw 1.4cqw;color:#fff;">
+                    <div class="mc-foot" style="font-size:1.1cqw;"><b style="color:#F4D35E;">정리</b>단순 사실 확인은 기본 웹서치로 충분합니다. 논문, 분야별 자료, 출처 목록이 필요한 리서치에서 Liner를 연결합니다.</div>
+                </div>
+            </div>
+                        <button type="button" class="mcc-open" id="lnOpen" aria-haspopup="dialog" aria-controls="lnDeck">
+                            <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+                            기본 웹서치 vs. Liner 전체 화면으로 보기
+                        </button>
+                    </div>
+
+                    <!-- Claude 데스크탑 앱 -->
+                    <div class="tv-claude">
+                    <ul class="cmd-list">
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9312; 커넥터 화면에서 추가 누르기</span></div>
+                            <span class="cmd-tail"><span class="cmd-pill cmd-pill-note"><span class="cmd-text">사용자 지정 &rarr; 커넥터 &rarr; 오른쪽 위 + 추가</span></span></span>
+                            <span class="cmd-why">Claude Desktop 왼쪽 사이드바에서 <strong>사용자 지정</strong>을 열고 위쪽 탭에서 <strong>커넥터</strong>를 고릅니다. 오른쪽 위 <strong>+ 추가</strong>를 눌러 <strong>커스텀 커넥터 추가</strong> 창을 엽니다.</span>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9313; 이름과 MCP 서버 URL 넣고 계속</span></div>
+                            <span class="cmd-os"><strong>이름</strong></span>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">liner</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-os"><strong>MCP 서버 URL</strong></span>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">https://platform.liner.com/api/v1/mcp</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-why"><strong>이름</strong> 칸과 <strong>MCP 서버 URL</strong> 칸에 위 값을 그대로 붙이고 <strong>계속</strong>을 누릅니다. 주소 뒤에 키를 붙이지 않습니다. 인증은 다음 단계의 로그인이 맡습니다.</span>
+                            <figure class="mcp-fig cxd-fig">
+                                <div class="cxd-mock" role="img" aria-label="Claude 커스텀 커넥터 추가 창. 이름 칸에 liner, MCP 서버 URL 칸에 Liner MCP 주소가 들어 있고, 계속 버튼이 표시되어 있다">
+                                    <div class="cxd-head">커스텀 커넥터 추가<i>&times;</i></div>
+                                    <p class="cxd-sub">Claude를 데이터와 도구에 연결하세요.</p>
+                                    <div class="cxd-field cn-hit">liner<i class="cn-badge">1</i></div>
+                                    <div class="cxd-hint">커넥터 목록에 표시됩니다.</div>
+                                    <div class="cxd-field cn-hit">https://platform.liner.com/api/v1/mcp<i class="cn-badge">2</i></div>
+                                    <div class="cxd-hint">서버가 MCP 요청을 수락하는 HTTPS 주소입니다.</div>
+                                    <div class="cxd-hint cxd-gap">신뢰할 수 있는 개발자의 커넥터만 사용하세요.</div>
+                                    <div class="cxd-foot"><span class="cxd-cancel cxd-btn">취소</span><span class="cxd-make cn-hit">계속<i class="cn-badge">3</i></span></div>
+                                </div>
+                                <figcaption><strong>1 이름</strong>과 <strong>2 MCP 서버 URL</strong>을 넣고 <strong>3 계속</strong>을 누릅니다</figcaption>
+                            </figure>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9314; Liner 로그인</span></div>
+                            <span class="cmd-why"><strong>계속</strong>을 누르면 브라우저에 Liner 로그인 창이 열립니다. 바로 열리지 않으면 커넥터 목록의 <strong>liner</strong>에서 <strong>연결</strong>을 누릅니다. 로그인하고 동의한 뒤, 이 연결에 쓸 <strong>API 키</strong>를 고르고 접근을 허용합니다. 키가 아직 없으면 그 화면에서 바로 만들면 됩니다.</span>
+                            <span class="cmd-ok"><b>키나 토큰을 채팅에 붙이지 않습니다.</b> 연결 정보는 로그인 과정에서 Claude가 받아 보관합니다. 처음부터 있는 <b>Default</b> 키는 Playground 전용이라 목록에 나오지 않습니다. 고른 키를 나중에 폐기하면 연결도 바로 끊깁니다.</span>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9315; 도구 확인</span></div>
+                            <span class="cmd-why">연결되면 <strong>search_web</strong>(웹 검색), <strong>search_scholar</strong>(논문 검색), <strong>search_legal</strong>, <strong>search_finance</strong>, <strong>search_medical</strong>, <strong>search_business</strong>(법률·금융·의료·기업 분야 검색), <strong>quick_answer_agent</strong>(짧은 사실 확인), <strong>search_agent</strong>(출처를 단 종합 답), <strong>deep_research_agent</strong>(여러 단계 리서치) 같은 도구가 보입니다. 바로 안 보이면 Claude Desktop을 다시 열거나 잠시 뒤 확인합니다.</span>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9316; 첫 검색 테스트</span></div>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">Liner로 최근 AI 검색 서비스 동향을 찾아서, 출처 링크를 단 5줄 요약으로 정리해줘.</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-why">Claude Desktop에서 새 대화를 열고 위 질문을 보냅니다. 문장마다 출처 링크가 달려 나오면 연결된 것입니다. 논문이 필요하면 "Liner 논문 검색으로"라고 덧붙입니다.</span>
+                        </li>
+                    </ul>
+                    </div>
+
+                    <!-- Codex 데스크탑 앱 -->
+                    <div class="tv-codex">
+                    <ul class="cmd-list">
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9312; 플러그인 화면에서 추가 누르기</span></div>
+                            <span class="cmd-tail"><span class="cmd-pill cmd-pill-note"><span class="cmd-text">왼쪽 네 번째 버튼 &rarr; 맞춤 설정 &rarr; 플러그인 &rarr; 오른쪽 위 추가</span></span></span>
+                            <span class="cmd-why">Codex 앱 왼쪽 세로 버튼 줄의 <strong>네 번째 버튼</strong>으로 <strong>맞춤 설정</strong>을 열고 <strong>플러그인</strong>을 고릅니다. 오른쪽 위 <strong>추가</strong>를 눌러 <strong>사용자 지정 MCP 서버 만들기</strong> 창을 엽니다.</span>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9313; 이름과 서버 URL 넣고 플러그인으로 만들기</span></div>
+                            <span class="cmd-os"><strong>이름</strong></span>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">liner</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-os"><strong>연결 &middot; 서버 URL</strong></span>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">https://platform.liner.com/api/v1/mcp</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-why"><strong>이름</strong> 칸과, <strong>연결</strong>의 <strong>서버 URL</strong> 탭 주소 칸에 위 값을 그대로 붙입니다. 설명은 비워 둬도 되고, <strong>인증</strong>은 기본값 <strong>OAuth</strong> 그대로 둡니다. <strong>이해했으며 계속 진행하겠습니다</strong>에 체크하고 <strong>플러그인으로 만들기</strong>를 누릅니다.</span>
+                            <figure class="mcp-fig cxd-fig">
+                                <div class="cxd-mock" role="img" aria-label="Codex 사용자 지정 MCP 서버 만들기 창. 이름 칸에 liner, 연결의 서버 URL 탭 주소 칸에 Liner MCP 주소가 들어 있고, 인증은 OAuth다. 이해했으며 계속 진행하겠습니다 체크 칸과 플러그인으로 만들기 버튼이 표시되어 있다">
+                                    <div class="cxd-head">사용자 지정 MCP 서버 만들기<i>&times;</i></div>
+                                    <div class="cxd-label">이름</div>
+                                    <div class="cxd-field cn-hit">liner<i class="cn-badge">1</i></div>
+                                    <div class="cxd-label">설명(선택 사항)</div>
+                                    <div class="cxd-field cxd-ph">앱의 기능을 간단히 설명하세요</div>
+                                    <div class="cxd-label">연결</div>
+                                    <div class="cxd-tabs"><span class="on">서버 URL</span><span>터널</span></div>
+                                    <div class="cxd-field cn-hit">https://platform.liner.com/api/v1/mcp<i class="cn-badge">2</i></div>
+                                    <div class="cxd-label">인증</div>
+                                    <div class="cxd-field cxd-plain">OAuth</div>
+                                    <div class="cxd-warn">&#9888;&#xFE0E; 사용자 지정 MCP 서버에는 위험이 따릅니다.</div>
+                                    <div class="cxd-agree cn-hit"><span class="cxd-box"></span>이해했으며 계속 진행하겠습니다<i class="cn-badge">3</i></div>
+                                    <div class="cxd-foot"><span class="cxd-cancel">취소</span><span class="cxd-make cn-hit">플러그인으로 만들기<i class="cn-badge">4</i></span></div>
+                                </div>
+                                <figcaption><strong>1 이름</strong>과 <strong>2 서버 URL</strong>을 넣고, <strong>3 체크</strong>한 뒤 <strong>4 플러그인으로 만들기</strong>를 누릅니다</figcaption>
+                            </figure>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9314; Liner 로그인</span></div>
+                            <span class="cmd-why">브라우저에 Liner 로그인 창이 열립니다. 바로 열리지 않으면 Liner를 처음 쓸 때 열립니다. 로그인하고 동의한 뒤, 이 연결에 쓸 <strong>API 키</strong>를 고르고 접근을 허용합니다. 키가 아직 없으면 그 화면에서 바로 만들면 됩니다.</span>
+                            <span class="cmd-ok"><b>키나 토큰을 채팅에 붙이지 않습니다.</b> 처음부터 있는 <b>Default</b> 키는 Playground 전용이라 목록에 나오지 않습니다. 고른 키를 나중에 폐기하면 연결도 바로 끊깁니다.</span>
+                            <span class="cmd-why">맞춤 설정의 <strong>설치됨</strong> 아래에 <strong>liner</strong>가 보이면 연결된 것입니다. <strong>search_web</strong>(웹 검색), <strong>search_scholar</strong>(논문 검색), <strong>search_legal</strong>, <strong>search_finance</strong>, <strong>search_medical</strong>, <strong>search_business</strong>(법률·금융·의료·기업 분야 검색), <strong>quick_answer_agent</strong>(짧은 사실 확인), <strong>search_agent</strong>(출처를 단 종합 답), <strong>deep_research_agent</strong>(여러 단계 리서치) 같은 도구를 쓸 수 있습니다.</span>
+                        </li>
+                        <li class="cmd-item">
+                            <div class="cmd-head"><input type="checkbox"><span class="cmd-label">&#9315; 첫 검색 테스트</span></div>
+                            <span class="cmd-tail"><span class="cmd-pill"><span class="cmd-text">Liner로 최근 AI 검색 서비스 동향을 찾아서, 출처 링크를 단 5줄 요약으로 정리해줘.</span><button type="button" class="cmd-copy" onclick="copyCmd(this)">복사</button></span></span>
+                            <span class="cmd-why">Codex 앱에서 새 스레드를 열고 위 질문을 보냅니다. 문장마다 출처 링크가 달려 나오면 연결된 것입니다. 논문이 필요하면 "Liner 논문 검색으로"라고 덧붙입니다.</span>
+                        </li>
+                    </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 기업 공시 데이터 분석 (DART) -->
         <div class="task-card" id="mcp-stock">
             <div class="task-header" onclick="toggleTask(this)">
                 <span class="task-number"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m6.5 15 4-4.5 3 2.5 5.5-6.5"/><path d="M15.5 6.5H19v3.5"/></svg></span>
@@ -1901,7 +2167,7 @@
             </div>
         </div>
 
-        <!-- 4. 한국 법령 MCP (airoasting/korean-law). Claude·Codex 데스크탑 앱 단계를 토글로 나눈다 -->
+        <!-- 5. 한국 법령 MCP (airoasting/korean-law). Claude·Codex 데스크탑 앱 단계를 토글로 나눈다 -->
         <div class="task-card" id="mcp-law">
             <div class="task-header" onclick="toggleTask(this)">
                 <span class="task-number"><svg viewBox="0 0 24 24"><path d="M12 3v18M8 21h8"/><path d="M5 7h5M14 7h5"/><path d="M5 7 2.5 12.5a2.7 2.7 0 0 0 5 0z"/><path d="M19 7l-2.5 5.5a2.7 2.7 0 0 0 5 0z"/></svg></span>
@@ -1990,7 +2256,7 @@
             </div>
         </div>
 
-        <!-- 5. Higgsfield MCP. Claude·Codex 데스크탑 앱 단계를 토글로 나눈다 -->
+        <!-- 6. Higgsfield MCP. Claude·Codex 데스크탑 앱 단계를 토글로 나눈다 -->
         <div class="task-card" id="mcp-higgsfield">
             <div class="task-header" onclick="toggleTask(this)">
                 <span class="task-number"><svg viewBox="0 0 24 24"><path d="M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="m4 9 1.6-4.2 14.1 2.6L20 9"/><path d="m9.2 5.6 1.4 2.7M14.2 6.5l1.4 2.5"/></svg></span>
@@ -2082,7 +2348,7 @@
             </div>
         </div>
 
-        <!-- 6. 텔레그램으로 메시지 주고 받기 -->
+        <!-- 7. 텔레그램으로 메시지 주고 받기 -->
         <div class="task-card tool-claude-only" id="mcp-telegram">
             <div class="task-header" onclick="toggleTask(this)">
                 <span class="task-number"><svg viewBox="0 0 24 24"><path d="m22 4-11 7"/><path d="M22 4 15 21l-4-8-8-4z"/></svg></span>
@@ -2186,7 +2452,7 @@
     <!-- CTA -->
     <div class="cta-section anim-fade-up">
         <h3>하나만 골라 작게 시작해 보세요</h3>
-        <p>여섯 예제 모두 10~15분이면 첫 연결을 만들 수 있습니다. 지금 가장 끌리는 카드를 펼쳐 그 자리에서 따라가면 됩니다.</p>
+        <p>일곱 예제 모두 10~15분이면 첫 연결을 만들 수 있습니다. 지금 가장 끌리는 카드를 펼쳐 그 자리에서 따라가면 됩니다.</p>
         <div class="cta-buttons">
             <a class="cta-btn primary" href="#mcp-drive">가장 쉬운 구글 연결부터 &rarr;</a>
         </div>
@@ -2224,7 +2490,7 @@
     <div class="mc-stage" id="mcStage">
 
         <!-- 1장. API -->
-        <div class="mc-slide" data-slide="0" aria-label="1장. API, 도구마다 따로 뚫는 문">
+        <div class="mc-slide" data-slide="0" aria-label="1장. API, 서비스마다 다른 전용 창구">
             <svg class="mc-lines" viewBox="0 0 1600 900" aria-hidden="true">
                 <path d="M352,387 C470,446 459,408.0 549,454.0 S760,433 856,387" stroke="#B35535" stroke-width="3.4" opacity="0.9"/>
                 <path d="M352,387 C470,301 477,506.5 567,402.5 S760,436 856,540" stroke="#56677D" stroke-width="3.4" opacity="0.9"/>
@@ -2238,7 +2504,7 @@
             </svg>
             <div class="mc-dots" style="left:70%;top:18%;width:30cqw;height:30cqw;--dc:rgba(86,103,125,0.45);"></div>
             <div class="mc-rn" style="left:5%;top:6%;font-size:5.5cqw;"><span class="l4">A</span><span class="l2">P</span><span class="l3">I</span></div>
-            <div class="mc-p mc-z2 mc-w" style="--pc:#56677D;left:25%;top:7.5%;--r:-1.5deg;font-size:2.8cqw;font-weight:900;padding:0.6cqw 1.6cqw;">도구마다 따로 뚫는 문</div>
+            <div class="mc-p mc-z2 mc-w" style="--pc:#56677D;left:25%;top:7.5%;--r:-1.5deg;font-size:2.8cqw;font-weight:900;padding:0.6cqw 1.6cqw;">서비스마다 다른 전용 창구</div>
             <span class="mc-clip" style="left:26%;top:18.5%;--r:1deg;">Application Programming Interface · 프로그램끼리 정해 둔 창구</span>
 
             <span class="mc-clip or" style="left:14%;top:30%;--tx:-50%;">AI 앱</span>
@@ -2254,7 +2520,7 @@
             <div class="mc-p mc-z2 t2" style="left:75%;top:50%;width:22%;--r:1.2deg;">
                 <div class="mc-note"><h4>그래서 생기는 일</h4><ul>
                     <li>서비스마다 문서·인증·데이터 모양이 다릅니다</li>
-                    <li>앱마다 개발자가 연결 코드를 따로 짭니다</li>
+                    <li>앱마다 개발자가 연결 코드를 별도로 작성합니다</li>
                     <li>한쪽이 바뀌면 그 연결을 다시 고칩니다</li>
                 </ul></div>
             </div>
@@ -2262,7 +2528,7 @@
             <span class="mc-clip or" style="left:5%;top:90%;--r:-1deg;">앱과 도구가 늘수록 연결은 곱하기로 늘어납니다</span>
             <!-- API 키 예시. 값은 형식만 흉내 낸 가짜(구글 AIza…, 슬랙 xoxb-…, DART 40자리) -->
             <div class="mc-p t2 mc-z3" style="--pc:#FBF8F1;left:37%;top:86%;width:59%;--r:-0.6deg;padding:0.7cqw 1.4cqw 0.8cqw;">
-                <div class="mc-keyhead"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4"/><path d="m10.5 12.5 9-9M16 7l2.5 2.5M13.5 9.5 16 12"/></svg>API 키 예시<span>서비스마다 따로 발급받아 코드에 넣는 비밀번호 · 가짜 값</span></div>
+                <div class="mc-keyhead"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="4"/><path d="m10.5 12.5 9-9M16 7l2.5 2.5M13.5 9.5 16 12"/></svg>API 키 예시<span>서비스마다 따로 발급받아 코드에 넣는 비밀번호</span></div>
                 <div class="mc-keys">
                     <span class="mc-key"><b>구글</b><code>AIzaSyA3kX••••••••</code></span>
                     <span class="mc-key"><b>슬랙</b><code>xoxb-1234-••••-••••</code></span>
@@ -2272,8 +2538,45 @@
             <span class="mc-tape" style="left:95%;top:86.5%;--r:30deg;--w:4.5cqw;"></span>
         </div>
 
-        <!-- 2장. MCP -->
-        <div class="mc-slide" data-slide="1" aria-label="2장. MCP, 한 번 만들면 어디서나 꽂는 규격">
+        <!-- 2장. DART API 요청 뜯어보기. 키는 형식만 흉내 낸 가짜 40자리. corp_code 00126380은 삼성전자(종목코드 005930), reprt_code는 OpenDART 규격(11013 1분기·11012 반기·11014 3분기·11011 사업보고서) -->
+        <div class="mc-slide" data-slide="1" aria-label="2장. DART로 보는 API 요청 한 줄. 인증키 40자리와 요청 주소의 자리별 뜻">
+            <div class="mc-dots" style="left:78%;top:-8%;width:26cqw;height:26cqw;--dc:rgba(86,103,125,0.4);"></div>
+            <div class="mc-rn" style="left:5%;top:5%;font-size:4.4cqw;"><span class="l4">API</span><span class="l5">키</span></div>
+            <div class="mc-p mc-z2 mc-w" style="--pc:#56677D;left:25%;top:6.5%;--r:-1.5deg;font-size:2.6cqw;font-weight:900;padding:0.6cqw 1.6cqw;">DART로 보는 API 요청 한 줄</div>
+            <span class="mc-clip" style="left:26%;top:17.5%;--r:1deg;">개발자가 문서를 참고해 직접 입력하는 값</span>
+
+            <!-- ① 인증키 40자리 -->
+            <div class="mc-p mc-z2 t2" style="--pc:#FBF8F1;left:5%;top:25%;width:90%;--r:-0.4deg;padding:1.1cqw 1.8cqw 1.2cqw;">
+                <div class="mc-lbl"><i>1</i>인증키 crtfc_key &middot; 40자리<small>opendart.fss.or.kr에서 발급받는 비밀번호</small></div>
+                <div style="display:flex;align-items:flex-end;gap:2.2cqw;">
+                    <div class="mc-k40">
+                        <span class="mc-kg"><code>7c1e0f3a9b</code><small>1~10</small></span>
+                        <span class="mc-kg"><code>24d85e6f01</code><small>11~20</small></span>
+                        <span class="mc-kg"><code>c7a3b9d24e</code><small>21~30</small></span>
+                        <span class="mc-kg"><code>8f5a6c0b17</code><small>31~40</small></span>
+                    </div>
+                    <div class="mc-note" style="font-size:1.12cqw;line-height:1.5;flex:1;">숫자 0~9와 영문 a~f로 된 <b>무작위 40자</b>입니다. 앞쪽 몇 자리가 회사나 날짜를 뜻하지 않고, <b>40자 전체가 한 덩어리</b>로 &ldquo;누가 묻는가&rdquo;를 증명합니다. 한 글자만 틀려도 거절됩니다.</div>
+                </div>
+            </div>
+            <span class="mc-tape" style="left:6%;top:26%;--r:-28deg;--w:5cqw;"></span>
+
+            <!-- 요청 주소 한 줄 -->
+            <div class="mc-p mc-z2" style="--pc:#1A1917;left:5%;top:56.5%;width:90%;--r:0.3deg;padding:1cqw 1.8cqw 0.9cqw;">
+                <div class="mc-url"><span class="u0">https://opendart.fss.or.kr/api/fnlttSinglAcnt.json</span><br>?<b class="s1">crtfc_key=7c1e0f3a9b…0b17<sup>1</sup></b>&amp;<b class="s2">corp_code=00126380<sup>2</sup></b>&amp;<b class="s3">bsns_year=2024<sup>3</sup></b>&amp;<b class="s4">reprt_code=11011<sup>4</sup></b></div>
+            </div>
+            <span class="mc-clip or" style="left:5%;top:51%;--r:-2deg;z-index:3;">삼성전자 2024년 사업보고서의 주요 재무 항목을 달라는 요청</span>
+
+            <!-- 자리별 뜻 -->
+            <div class="mc-p mc-z2 mc-card t2" style="left:5%;top:75%;width:20.5%;--r:-1deg;"><div class="mc-cn">1 crtfc_key &middot; 40자리</div><code>7c1e…0b17</code><div class="mc-cd">내 인증키. 하루 조회 한도도 이 키에 걸립니다</div></div>
+            <div class="mc-p mc-z2 mc-card" style="left:28%;top:75%;width:20.5%;--r:1deg;--pc:#EAE3D3;"><div class="mc-cn">2 corp_code &middot; 8자리</div><code>00126380</code><div class="mc-cd">DART 고유번호, 삼성전자. 6자리 종목코드 005930과 다른 번호입니다</div></div>
+            <div class="mc-p mc-z2 mc-card t2" style="left:51%;top:75%;width:20.5%;--r:-0.6deg;"><div class="mc-cn">3 bsns_year &middot; 4자리</div><code>2024</code><div class="mc-cd">사업연도. 보고서가 다루는 해입니다</div></div>
+            <div class="mc-p mc-z2 mc-card" style="left:74%;top:75%;width:21%;--r:1.2deg;--pc:#EAE3D3;"><div class="mc-cn">4 reprt_code &middot; 5자리</div><code>11011</code><div class="mc-cd">보고서 종류. 11013 1분기, 11012 반기, 11014 3분기, 11011 사업보고서</div></div>
+            <span class="mc-tape" style="left:95%;top:76%;--r:30deg;--w:4.5cqw;"></span>
+
+        </div>
+
+        <!-- 3장. MCP -->
+        <div class="mc-slide" data-slide="2" aria-label="3장. MCP, 한 번 만들면 어디서나 사용하는 규격">
             <svg class="mc-lines" viewBox="0 0 1600 900" aria-hidden="true">
                 <path d="M352,387 L544,387 M352,540 L544,540 M352,693 L544,693" stroke="#1A1917" stroke-width="5"/>
                 <path d="M704,387 L896,387 M704,540 L896,540 M704,693 L896,693" stroke="#B35535" stroke-width="5"/>
@@ -2282,7 +2585,7 @@
             </svg>
             <div class="mc-dots" style="left:26%;top:30%;width:26cqw;height:26cqw;"></div>
             <div class="mc-rn" style="left:5%;top:6%;font-size:5.5cqw;"><span class="l1">M</span><span class="l5">C</span><span class="l3">P</span></div>
-            <div class="mc-p mc-z2 mc-w" style="--pc:#B35535;left:27%;top:7.5%;--r:-1.5deg;font-size:2.8cqw;font-weight:900;padding:0.6cqw 1.6cqw;">한 번 만들면 어디서나 꽂는 규격</div>
+            <div class="mc-p mc-z2 mc-w" style="--pc:#B35535;left:27%;top:7.5%;--r:-1.5deg;font-size:2.8cqw;font-weight:900;padding:0.6cqw 1.6cqw;">한 번 만들면 어디서나 사용하는 규격</div>
             <span class="mc-clip" style="left:28%;top:18.5%;--r:1deg;">Model Context Protocol · AI와 도구 사이의 공용 플러그</span>
 
             <span class="mc-clip" style="left:14%;top:30%;--tx:-50%;">MCP 클라이언트 · AI 앱</span>
@@ -2312,49 +2615,99 @@
             <span class="mc-clip" style="left:5%;top:90%;--r:-1deg;">USB-C처럼, 단자 모양 하나에 무엇이든 꽂습니다</span>
         </div>
 
-        <!-- 3장. 나란히 + 연표(날짜는 1차 출처 확인: Anthropic 2024-11-25, OpenAI 2025-03-26, Google 2025-04-09, AAIF 2025-12-09) -->
-        <div class="mc-slide" data-slide="2" aria-label="3장. API와 MCP를 나란히 놓고 보면, 그리고 MCP 연표">
+        <!-- 4장. 나란히 + 연표(날짜는 1차 출처 확인: Anthropic 2024-11-25, OpenAI 2025-03-26, Google 2025-04-09, AAIF 2025-12-09) -->
+        <div class="mc-slide" data-slide="3" aria-label="4장. API와 MCP의 이름 풀이와 유래, 나란히 비교, 그리고 MCP 연표">
             <div class="mc-dots" style="left:-5%;top:-10%;width:24cqw;height:24cqw;--dc:rgba(26,25,23,0.3);"></div>
             <div class="mc-dots" style="left:82%;top:48%;width:20cqw;height:20cqw;"></div>
-            <div class="mc-rn" style="left:5%;top:5%;font-size:4.4cqw;"><span class="l4">API</span><span class="l2 sm">vs.</span><span class="l1">MCP</span></div>
-            <div class="mc-p mc-z2 mc-w" style="--pc:#1A1917;left:36%;top:6.5%;--r:-1.5deg;font-size:2.5cqw;font-weight:900;padding:0.6cqw 1.6cqw;">나란히 놓고 보면</div>
+            <div class="mc-rn" style="left:5%;top:4%;font-size:4cqw;"><span class="l4">API</span><span class="l2 sm">vs.</span><span class="l1">MCP</span></div>
+            <div class="mc-p mc-z2 mc-w" style="--pc:#1A1917;left:36%;top:5%;--r:-1.5deg;font-size:2.3cqw;font-weight:900;padding:0.5cqw 1.5cqw;">이름부터 풀어 보면</div>
 
-            <div class="mc-p" style="--pc:#56677D;left:27%;top:19%;width:33%;height:46%;--r:-0.6deg;"></div>
-            <div class="mc-p t2" style="--pc:#B35535;left:62%;top:19%;width:34%;height:46%;--r:0.5deg;"></div>
-            <span class="mc-tape" style="left:28.5%;top:20%;--r:-30deg;--w:6cqw;"></span>
-            <span class="mc-tape" style="left:94.5%;top:20%;--r:28deg;--w:6cqw;"></span>
-            <div class="mc-row api" style="left:30%;top:24.5%;font-size:2.2cqw;font-weight:900;font-family:Georgia,'Times New Roman',serif;">API</div>
-            <div class="mc-row mcp" style="left:65%;top:24.5%;font-size:2.2cqw;font-weight:900;font-family:Georgia,'Times New Roman',serif;">MCP</div>
+            <div class="mc-p" style="--pc:#56677D;left:27%;top:15.5%;width:33%;height:58%;--r:-0.6deg;"></div>
+            <div class="mc-p t2" style="--pc:#B35535;left:62%;top:15.5%;width:34%;height:58%;--r:0.5deg;"></div>
+            <span class="mc-tape" style="left:28.5%;top:16.5%;--r:-30deg;--w:6cqw;"></span>
+            <span class="mc-tape" style="left:94.5%;top:16.5%;--r:28deg;--w:6cqw;"></span>
 
-            <span class="mc-clip" style="left:5%;top:33%;--ty:-50%;">누가 부르나</span>
-            <span class="mc-clip" style="left:5%;top:41.5%;--ty:-50%;--r:1.5deg;">연결 규칙</span>
-            <span class="mc-clip" style="left:5%;top:50%;--ty:-50%;">도구를 늘릴 때</span>
-            <span class="mc-clip" style="left:5%;top:58.5%;--ty:-50%;--r:1.5deg;">무엇을 할지</span>
+            <!-- 약어 풀이 -->
+            <div class="mc-full" style="left:30%;top:19.5%;width:28%;"><span class="mc-ab">API</span><span><b>A</b>pplication <b>P</b>rogramming <b>I</b>nterface</span></div>
+            <div class="mc-full" style="left:65%;top:19.5%;width:29%;"><span class="mc-ab">MCP</span><span><b>M</b>odel <b>C</b>ontext <b>P</b>rotocol</span></div>
 
-            <div class="mc-row api" style="left:30%;top:33%;width:28%;">개발자가 짠 프로그램<em>코드가 정해 둔 순서대로 부름</em></div>
-            <div class="mc-row api" style="left:30%;top:41.5%;width:28%;">서비스마다 제각각<em>문서·인증·데이터 모양이 다름</em></div>
-            <div class="mc-row api" style="left:30%;top:50%;width:28%;">앱마다 연결 코드를 새로<em>앱이 세 개면 세 번 짬</em></div>
-            <div class="mc-row api" style="left:30%;top:58.5%;width:28%;">개발자가 미리 정해 둠<em>짜 둔 기능만 실행</em></div>
+            <!-- 이름의 유래 -->
+            <span class="mc-clip or" style="left:5%;top:31%;--ty:-50%;--r:-1.5deg;">이름의 유래</span>
+            <div class="mc-story" style="left:30%;top:31%;width:28%;">1968년 한 컴퓨터 그래픽 논문에 처음 등장한 말입니다. 응용 프로그램(<b>Application</b>)이 다른 프로그램을 부를 때 쓰는, 미리 약속해 둔 접점(<b>Interface</b>)이라는 뜻입니다.</div>
+            <div class="mc-story" style="left:65%;top:31%;width:29%;">Anthropic 개발자 데이비드 소리아 파라는 Claude와 코드 편집기 사이에서 코드를 복사해 붙이다 지쳤습니다. 개발 도구의 공용 규격 LSP를 본떠, 모델(<b>Model</b>)에 맥락(<b>Context</b>)을 건네는 약속(<b>Protocol</b>)을 만들었습니다.</div>
 
-            <div class="mc-row mcp" style="left:65%;top:33%;width:29%;">AI 모델<em>Claude, ChatGPT 같은 AI 앱이 부름</em></div>
-            <div class="mc-row mcp" style="left:65%;top:41.5%;width:29%;">모두 같은 규격 하나<em>목록 보기, 부르기, 결과 받기</em></div>
-            <div class="mc-row mcp" style="left:65%;top:50%;width:29%;">서버 하나 연결하면 끝<em>호환되는 AI 앱 어디서나 씀</em></div>
-            <div class="mc-row mcp" style="left:65%;top:58.5%;width:29%;">AI가 목록을 읽고 고름<em>요청에 맞는 도구를 스스로 선택</em></div>
+            <span class="mc-clip" style="left:5%;top:43.5%;--ty:-50%;">누가 부르나</span>
+            <span class="mc-clip" style="left:5%;top:51.5%;--ty:-50%;--r:1.5deg;">연결 규칙</span>
+            <span class="mc-clip" style="left:5%;top:59.5%;--ty:-50%;">도구를 늘릴 때</span>
+            <span class="mc-clip" style="left:5%;top:67.5%;--ty:-50%;--r:1.5deg;">무엇을 할지</span>
+
+            <div class="mc-row api" style="left:30%;top:43.5%;width:28%;">개발자가 작성한 프로그램<em>코드가 정해 둔 순서대로 부름</em></div>
+            <div class="mc-row api" style="left:30%;top:51.5%;width:28%;">서비스마다 제각각<em>문서·인증·데이터 모양이 다름</em></div>
+            <div class="mc-row api" style="left:30%;top:59.5%;width:28%;">앱마다 연결 코드를 새로<em>앱이 3개면 3번 개발</em></div>
+            <div class="mc-row api" style="left:30%;top:67.5%;width:28%;">개발자가 미리 정해 둠<em>사전에 구현한 기능만 실행</em></div>
+
+            <div class="mc-row mcp" style="left:65%;top:43.5%;width:29%;">AI 모델<em>Claude, ChatGPT 같은 AI 앱이 부름</em></div>
+            <div class="mc-row mcp" style="left:65%;top:51.5%;width:29%;">모두 같은 규격 하나<em>목록 보기, 부르기, 결과 받기</em></div>
+            <div class="mc-row mcp" style="left:65%;top:59.5%;width:29%;">서버 하나 연결하면 끝<em>호환되는 AI 앱 어디서나 씀</em></div>
+            <div class="mc-row mcp" style="left:65%;top:67.5%;width:29%;">AI가 목록을 읽고 고름<em>요청에 맞는 도구를 스스로 선택</em></div>
 
             <!-- 연표: 실 한 줄에 날짜 쪽지 네 장 -->
             <svg class="mc-lines" viewBox="0 0 1600 900" aria-hidden="true" style="z-index:1;">
-                <path d="M110,690 C500,676 1100,704 1500,688" stroke="#1A1917" stroke-width="3.5" stroke-dasharray="2 9"/>
-                <g fill="#B35535"><circle cx="304" cy="686" r="9"/><circle cx="640" cy="688" r="9"/><circle cx="976" cy="692" r="9"/><circle cx="1312" cy="691" r="9"/></g>
+                <path d="M110,716 C500,704 1100,728 1500,714" stroke="#1A1917" stroke-width="3.5" stroke-dasharray="2 9"/>
+                <g fill="#B35535"><circle cx="304" cy="712" r="7"/><circle cx="640" cy="713" r="7"/><circle cx="976" cy="716" r="7"/><circle cx="1312" cy="716" r="7"/></g>
             </svg>
-            <span class="mc-clip or" style="left:5%;top:70.5%;--ty:-50%;--r:-3deg;z-index:3;">MCP 연표</span>
-            <div class="mc-p mc-c mc-z2" style="left:19%;top:79.5%;width:19cqw;--r:-2deg;"><div class="mc-date">2024.11.25</div><div class="mc-dt">Anthropic 공개</div><em class="mc-dd">개방형 규격으로 첫 공개</em></div>
-            <div class="mc-p mc-c mc-z2 t2" style="left:40%;top:80%;width:19cqw;--r:1.5deg;--pc:#EAE3D3;"><div class="mc-date">2025.03.26</div><div class="mc-dt">OpenAI 채택</div><em class="mc-dd">Agents SDK부터 지원</em></div>
-            <div class="mc-p mc-c mc-z2" style="left:61%;top:80%;width:19cqw;--r:-1deg;"><div class="mc-date">2025.04.09</div><div class="mc-dt">구글 채택</div><em class="mc-dd">Gemini 모델·SDK 지원 발표</em></div>
-            <div class="mc-p mc-c mc-z2 t2" style="left:82%;top:79.5%;width:19cqw;--r:2deg;--pc:#F4D35E;"><div class="mc-date">2025.12.09</div><div class="mc-dt">리눅스 재단에 기부</div><em class="mc-dd">Agentic AI Foundation으로 이관</em></div>
-            <span class="mc-tape" style="left:90.5%;top:73.5%;--r:35deg;--w:4.5cqw;"></span>
+            <span class="mc-clip or" style="left:5%;top:76%;--ty:-50%;--r:-3deg;z-index:3;">MCP 연표</span>
+            <div class="mc-p mc-c mc-z2 mc-tl" style="left:19%;top:82%;width:16cqw;--r:-2deg;"><div class="mc-date">2024.11.25</div><div class="mc-dt">Anthropic 공개</div><em class="mc-dd">개방형 규격으로 첫 공개</em></div>
+            <div class="mc-p mc-c mc-z2 t2 mc-tl" style="left:40%;top:82.5%;width:16cqw;--r:1.5deg;--pc:#EAE3D3;"><div class="mc-date">2025.03.26</div><div class="mc-dt">OpenAI 채택</div><em class="mc-dd">Agents SDK부터 지원</em></div>
+            <div class="mc-p mc-c mc-z2 mc-tl" style="left:61%;top:82.5%;width:16cqw;--r:-1deg;"><div class="mc-date">2025.04.09</div><div class="mc-dt">구글 채택</div><em class="mc-dd">Gemini 모델·SDK 지원 발표</em></div>
+            <div class="mc-p mc-c mc-z2 t2 mc-tl" style="left:82%;top:82%;width:16cqw;--r:2deg;--pc:#F4D35E;"><div class="mc-date">2025.12.09</div><div class="mc-dt">리눅스 재단에 기부</div><em class="mc-dd">Agentic AI Foundation으로 이관</em></div>
+            <span class="mc-tape" style="left:88.5%;top:77%;--r:35deg;--w:4cqw;"></span>
 
-            <div class="mc-p mc-z3 t2" style="--pc:#FBF8F1;left:8%;top:90%;width:84%;--r:-0.4deg;padding:0.6cqw 1.6cqw;">
-                <div class="mc-note" style="font-size:1.2cqw;"><b style="color:#B35535;font-weight:900;margin-right:0.6cqw;">핵심</b>MCP는 API를 없애지 않습니다. MCP 서버 대부분이 안에서 그 서비스의 API를 부르고, MCP는 AI가 쓰기 쉽게 감싼 공용 포장입니다.</div>
+            <div class="mc-p mc-z3 t2" style="--pc:#FBF8F1;left:6%;top:89.5%;width:88%;--r:-0.4deg;padding:0.5cqw 1.4cqw;">
+                <div class="mc-foot"><b>핵심</b>MCP는 API를 없애지 않습니다. MCP 서버 대부분이 안에서 그 서비스의 API를 부르고, MCP는 AI가 쓰기 쉽게 감싼 공용 포장입니다.</div>
+                <div class="mc-foot"><b>LSP</b><i>Language Server Protocol.</i> 2016년 Microsoft가 공개한, 코드 편집기와 프로그래밍 언어 기능(자동 완성, 오류 표시)을 잇는 공용 규격입니다. MCP는 이 구조를 AI 앱과 도구 사이로 옮겨 왔습니다.</div>
+            </div>
+        </div>
+        <!-- 5장. MCP 메시지 형식 JSON-RPC 2.0 (MCP 공식 스펙: JSON-RPC 2.0 메시지. initialize·tools/list·tools/call은 스펙의 메서드 이름) -->
+        <div class="mc-slide" data-slide="4" aria-label="5장. MCP의 메시지 포맷, JSON-RPC 2.0. 약어 풀이와 요청·응답 예시">
+            <div class="mc-dots" style="left:80%;top:-10%;width:24cqw;height:24cqw;"></div>
+            <div class="mc-rn" style="left:5%;top:4.5%;font-size:4cqw;"><span class="l3">{ }</span><span class="l1">JSON</span></div>
+            <div class="mc-p mc-z2 mc-w" style="--pc:#B35535;left:31%;top:5.5%;--r:-1.5deg;font-size:2.4cqw;font-weight:900;padding:0.5cqw 1.5cqw;">MCP의 메시지 포맷, JSON-RPC 2.0</div>
+            <span class="mc-clip" style="left:32%;top:16%;--r:1deg;">MCP 공식 규격은 모든 메시지를 이 포맷으로 기술합니다</span>
+
+            <!-- 이름 풀이 세 조각 -->
+            <div class="mc-p mc-z2 t2 mc-jn" style="left:5%;top:23%;width:28%;--r:-1deg;"><div class="mc-jt">JSON</div><i>JavaScript Object Notation</i><p>&ldquo;키(key)&rdquo;: 값(value) 구조로 데이터를 표기하는 텍스트 포맷. 사람과 프로그램 모두 판독할 수 있습니다.</p></div>
+            <div class="mc-p mc-z2 mc-jn" style="left:36%;top:23%;width:28%;--r:0.8deg;--pc:#EAE3D3;"><div class="mc-jt">RPC</div><i>Remote Procedure Call</i><p>원격 프로그램의 기능을 함수명과 인자만 전송해 로컬 함수처럼 호출하는 방식.</p></div>
+            <div class="mc-p mc-z2 t2 mc-jn" style="left:67%;top:23%;width:28%;--r:-0.6deg;"><div class="mc-jt">2.0</div><i>version</i><p>규격의 버전 번호. 모든 메시지 첫 줄에 <code>"jsonrpc": "2.0"</code>을 명시합니다.</p></div>
+            <span class="mc-tape" style="left:6%;top:24%;--r:-30deg;--w:4.5cqw;"></span>
+
+            <!-- 요청과 응답 -->
+            <span class="mc-clip or" style="left:5%;top:44.5%;--r:-2deg;z-index:3;">요청(Request) &middot; AI 앱 &rarr; Liner 서버</span>
+            <div class="mc-p mc-z2 mc-code" style="--pc:#1A1917;left:5%;top:50.5%;width:44%;--r:-0.4deg;"><pre>{
+  <span class="k">"jsonrpc"</span>: <span class="v">"2.0"</span>,        <span class="cm">&larr; 규격 버전</span>
+  <span class="k">"id"</span>: <span class="n">2</span>,                 <span class="cm">&larr; 요청 ID</span>
+  <span class="k">"method"</span>: <span class="v">"tools/call"</span>,  <span class="cm">&larr; 메서드: 도구 호출</span>
+  <span class="k">"params"</span>: {              <span class="cm">&larr; 파라미터</span>
+    <span class="k">"name"</span>: <span class="v">"search_web"</span>,
+    <span class="k">"arguments"</span>: { <span class="k">"query"</span>: <span class="v">"AI 검색 동향"</span> }
+  }
+}</pre></div>
+            <span class="mc-clip" style="left:51%;top:44.5%;--r:1.5deg;z-index:3;">응답(Response) &middot; Liner 서버 &rarr; AI 앱</span>
+            <div class="mc-p mc-z2 mc-code t2" style="--pc:#1A1917;left:51%;top:50.5%;width:44%;--r:0.4deg;"><pre>{
+  <span class="k">"jsonrpc"</span>: <span class="v">"2.0"</span>,
+  <span class="k">"id"</span>: <span class="n">2</span>,                 <span class="cm">&larr; 동일 ID로 요청과 매칭</span>
+  <span class="k">"result"</span>: {              <span class="cm">&larr; 결과값</span>
+    <span class="k">"content"</span>: [
+      { <span class="k">"type"</span>: <span class="v">"text"</span>,
+        <span class="k">"text"</span>: <span class="v">"검색 결과 …"</span> }
+    ]
+  }
+}</pre></div>
+
+            <!-- 흐름 -->
+            <div class="mc-p mc-z3 t2" style="--pc:#FBF8F1;left:5%;top:87%;width:90%;--r:-0.3deg;padding:0.55cqw 1.4cqw;">
+                <div class="mc-foot"><b>흐름</b><code>initialize</code> 연결 개시와 기능 협상 &rarr; <code>tools/list</code> 도구 목록 조회 &rarr; <code>tools/call</code> 선택한 도구 호출 &rarr; <code>result</code> 결과 수신</div>
+                <div class="mc-foot"><b>참고</b>JSON은 데이터 포맷이며 프로그래밍 언어가 아닙니다. 서버는 Python, TypeScript 등 어떤 언어로 구현해도 이 포맷만 준수하면 됩니다. LSP도 동일한 JSON-RPC를 사용합니다.</div>
             </div>
         </div>
     </div>
@@ -2363,13 +2716,64 @@
         <button type="button" class="mc-nav" id="mcPrev" aria-label="이전 장"><svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg></button>
         <div class="mc-dots-nav" role="tablist" aria-label="슬라이드">
             <button type="button" class="mc-dotbtn" data-go="0">1 · API</button>
-            <button type="button" class="mc-dotbtn" data-go="1">2 · MCP</button>
-            <button type="button" class="mc-dotbtn" data-go="2">3 · 비교·연표</button>
+            <button type="button" class="mc-dotbtn" data-go="1">2 · DART 예시</button>
+            <button type="button" class="mc-dotbtn" data-go="2">3 · MCP</button>
+            <button type="button" class="mc-dotbtn" data-go="3">4 · 이름·비교·연표</button>
+            <button type="button" class="mc-dotbtn" data-go="4">5 · JSON-RPC</button>
         </div>
         <button type="button" class="mc-nav" id="mcNext" aria-label="다음 장"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></button>
     </div>
     <p class="mc-rotate">휴대폰을 가로로 돌리면 크게 보입니다</p>
 </div>
+<div class="mc-modal" id="lnDeck" role="dialog" aria-modal="true" aria-label="기본 웹서치와 Liner 비교 슬라이드" hidden>
+    <button type="button" class="mc-close" id="lnClose" aria-label="닫기"><svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+    <div class="mc-stage" id="lnStage"></div>
+    <p class="mc-rotate">휴대폰을 가로로 돌리면 크게 보입니다</p>
+</div>
+<script>
+// Liner 카드 슬라이드: 카드 안 슬라이드를 복제해 전체 화면으로 띄운다. 동작은 MC-COLLAGE 덱과 같다
+(function(){
+    var deck = document.getElementById('lnDeck'), src = document.getElementById('lnSlide');
+    if (!deck || !src) return;
+    var stage = document.getElementById('lnStage'), lastFocus = null, wentFs = false;
+    function fsEl(){ return document.fullscreenElement || document.webkitFullscreenElement; }
+    function open(){
+        if (!stage.firstChild) {
+            var c = src.cloneNode(true);
+            c.removeAttribute('id'); c.removeAttribute('role'); c.removeAttribute('tabindex');
+            c.classList.remove('mcc-frame'); c.classList.add('on');
+            c.setAttribute('aria-label', '기본 웹서치와 Liner 비교');
+            stage.appendChild(c);
+        }
+        lastFocus = document.activeElement;
+        deck.hidden = false;
+        document.body.classList.add('mc-open');
+        var req = deck.requestFullscreen || deck.webkitRequestFullscreen;
+        if (req) {
+            try { var p = req.call(deck); wentFs = true; if (p && p.catch) p.catch(function(){ wentFs = false; }); }
+            catch(e) { wentFs = false; }
+        }
+        document.getElementById('lnClose').focus();
+    }
+    function close(){
+        if (deck.hidden) return;
+        wentFs = false;
+        if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+        deck.hidden = true;
+        document.body.classList.remove('mc-open');
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+    function onFs(){ if (wentFs && !fsEl()) close(); }
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+    document.getElementById('lnOpen').addEventListener('click', open);
+    src.addEventListener('click', open);
+    src.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    document.getElementById('lnClose').addEventListener('click', close);
+    deck.addEventListener('click', function(e){ if (e.target === deck) close(); });
+    document.addEventListener('keydown', function(e){ if (!deck.hidden && e.key === 'Escape') close(); });
+})();
+</script>
 <script>
 // MC-COLLAGE: 전체 화면 덱. 가능하면 브라우저 전체 화면까지 켜고, 안 되면(아이폰 등) 고정 오버레이로 띄운다
 (function(){

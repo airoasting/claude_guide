@@ -2345,7 +2345,7 @@ function App() {
         <div className="title-inner">
           <p className="eyebrow">A Voxel Adventure</p>
           <h1 className="logo">
-            <span>MindCraft</span>
+            <span>Minecraft</span>
             <span className="logo-sub">
               <i aria-hidden="true" />
               Temple
