@@ -541,12 +541,20 @@
                     <p class="ab-eyebrow ab-latin">Changelog</p>
                     <div class="ab-sec-head">
                         <h2 class="ab-sec-title">업데이트 내역</h2>
-                        <span class="ab-sec-note">최신순 · 전체 33건</span>
+                        <span class="ab-sec-note">최신순 · 전체 35건</span>
                     </div>
                     <div class="ab-log">
                         <div class="ab-log-item">
+                            <div class="ab-log-meta"><span class="ab-ver">v3.14</span><span class="ab-date">2026-10-25</span></div>
+                            <div><p class="ab-log-title">멀티 에이전트와 루프 역할 분리, 오리엔테이션 재무 비교 신설</p><p class="ab-log-desc">/goal 설명을 5단계 루프 엔지니어링으로 옮기고, 4단계 멀티 에이전트 소환은 다이내믹 워크플로우 중심으로 다시 썼습니다. 오리엔테이션에는 OpenAI와 Anthropic의 기업 가치·매출 비교 섹션을 새로 만들고, 가격표와 벤치마크 표를 최신 모델로 갱신했습니다. 하네스, 멀티 페르소나, 나만의 Skill 등 여러 페이지의 슬라이드도 다시 구성했습니다.</p></div>
+                        </div>
+                        <div class="ab-log-item">
+                            <div class="ab-log-meta"><span class="ab-ver">v3.13</span><span class="ab-date">2026-10-19</span></div>
+                            <div><p class="ab-log-title">MCP 연결 실전 개편과 최신 모델·도입률 반영</p><p class="ab-log-desc">MCP 연결 실전에 Claude·Codex 데스크탑 앱 토글을 달고 Liner 검색을 더해 일곱 가지 연결로 늘렸습니다. 오리엔테이션에는 Gemini 4 Argon 일반 공개와 Ramp AI Index 9월 기업 도입률을 반영했습니다. 메인 표지는 배경 다이얼과 키네틱 제목으로 다시 만들었습니다.</p></div>
+                        </div>
+                        <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.12</span><span class="ab-date">2026-10-04</span></div>
-                            <div><p class="ab-log-title">5단계 커리큘럼 재편과 콜라주 슬라이드 확대</p><p class="ab-log-desc">커리큘럼을 소환, 연결, 계약, 조합, 자율 5단계로 재편하고, 새 구성에 맞지 않는 확장 프로그램·코워크·7단계 방법론 페이지는 사이트에서 내렸습니다. 오리엔테이션, 멀티 페르소나, 나만의 Skill 등 열네 페이지에 전체 화면으로 보는 콜라주 슬라이드를 넣었습니다. 부록에는 에이전트 도구 다섯 가지를 비교하는 안내 페이지를 만들고, EDA 차트 갤러리와 UI 디자인 트렌드는 각각 30장, 39장으로 늘렸습니다.</p></div>
+                            <div><p class="ab-log-title">5단계 커리큘럼 재편과 콜라주 슬라이드 확대</p><p class="ab-log-desc">커리큘럼을 소환, 연결, 계약, 조합, 자율 5단계로 재편하고, 새 구성에 맞지 않는 확장 프로그램·코워크·7단계 방법론 페이지는 사이트에서 내렸습니다. 오리엔테이션, 멀티 페르소나, 나만의 Skill 등 열네 페이지에 전체 화면으로 보는 콜라주 슬라이드를 넣었습니다. 부록에는 에이전트 도구 다섯 가지를 비교하는 안내 페이지를 만들고, EDA 차트 갤러리와 UI 디자인 트렌드는 각각 30장, 40장으로 늘렸습니다.</p></div>
                         </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.11</span><span class="ab-date">2026-09-27</span></div>
@@ -560,16 +568,16 @@
                             <div class="ab-log-meta"><span class="ab-ver">v3.9</span><span class="ab-date">2026-09-13</span></div>
                             <div><p class="ab-log-title">1단계 기본기 개편</p><p class="ab-log-desc">1단계 기본기를 프롬프트 잘 쓰는 법, 멀티 페르소나 토론, 프로젝트 만들기 순서로 다시 묶었습니다. 멀티 페르소나는 흩어져 있던 실습을 하나로 합치고 요청문을 짧게 줄여 처음 쓰는 사람도 따라올 수 있게 했습니다. AI 활용 능력 페이지는 기본 작성법을 앞에 두고 여러 단계로 이어지는 일을 맡기는 방법을 뒤에 놓았으며, 겹치던 설명은 덜어냈습니다.</p></div>
                         </div>
-                        <div class="ab-log-item">
-                            <div class="ab-log-meta"><span class="ab-ver">v3.8</span><span class="ab-date">2026-09-06</span></div>
-                            <div><p class="ab-log-title">최신 모델 반영과 LLM Wiki 실습 개편</p><p class="ab-log-desc">9월 첫 주에 잇달아 출시된 Claude Fable 5.1(1일), Gemini 3.8 Flash(2일), GPT-6 Astra(3일)를 반영해 성능 벤치마크 표, 가격표, 모델 타임라인, 체크리스트와 활용 수준 진단의 모델 설명을 갱신했습니다. 컴퍼니 브레인 실습 편은 공개된 LLM 위키 스킬을 Claude 데스크톱 앱에 설치해 샘플 문서 8개로 바로 실행해 볼 수 있게 했습니다.</p></div>
-                        </div>
-                        <div class="ab-log-item">
-                            <div class="ab-log-meta"><span class="ab-ver">v3.7</span><span class="ab-date">2026-08-30</span></div>
-                            <div><p class="ab-log-title">토큰 절감 가이드 개편</p><p class="ab-log-desc">'토큰 아껴 쓰기'를 비용·보안·법률 섹션으로 옮기고, 토큰에 요금이 어떻게 매겨지는지 먼저 설명한 뒤 팀에 지시할 행동 지침을 이어 놓았습니다. 구독제는 사용량 한도로 계산되지만 Enterprise와 API는 사용한 만큼 요금이 책정된다는 점도 추가했습니다.</p></div>
-                        </div>
                                                 <details class="ab-more">
-                            <summary>이전 기록 27건 더 보기</summary>
+                            <summary>이전 기록 29건 더 보기</summary>
+                            <div class="ab-log-item">
+                                <div class="ab-log-meta"><span class="ab-ver">v3.8</span><span class="ab-date">2026-09-06</span></div>
+                                <div><p class="ab-log-title">최신 모델 반영과 LLM Wiki 실습 개편</p><p class="ab-log-desc">9월 첫 주에 잇달아 출시된 Claude Fable 5.1(1일), Gemini 3.8 Flash(2일), GPT-6 Astra(3일)를 반영해 성능 벤치마크 표, 가격표, 모델 타임라인, 체크리스트와 활용 수준 진단의 모델 설명을 갱신했습니다. 컴퍼니 브레인 실습 편은 공개된 LLM 위키 스킬을 Claude 데스크톱 앱에 설치해 샘플 문서 8개로 바로 실행해 볼 수 있게 했습니다.</p></div>
+                            </div>
+                            <div class="ab-log-item">
+                                <div class="ab-log-meta"><span class="ab-ver">v3.7</span><span class="ab-date">2026-08-30</span></div>
+                                <div><p class="ab-log-title">토큰 절감 가이드 개편</p><p class="ab-log-desc">'토큰 아껴 쓰기'를 비용·보안·법률 섹션으로 옮기고, 토큰에 요금이 어떻게 매겨지는지 먼저 설명한 뒤 팀에 지시할 행동 지침을 이어 놓았습니다. 구독제는 사용량 한도로 계산되지만 Enterprise와 API는 사용한 만큼 요금이 책정된다는 점도 추가했습니다.</p></div>
+                            </div>
                             <div class="ab-log-item">
                                 <div class="ab-log-meta"><span class="ab-ver">v3.6</span><span class="ab-date">2026-08-23</span></div>
                                 <div><p class="ab-log-title">GitHub 가이드 보강과 스킬 제작 5단계 추가</p><p class="ab-log-desc">GitHub 가이드에 Git과 GitHub가 어떻게 시작됐는지와 세 서비스의 요금제 비교를 더했습니다. 스킬 페이지에는 스킬을 직접 만드는 5단계를 새로 넣고 구성 요소를 여섯 가지로 넓혔습니다.</p></div>
