@@ -10,38 +10,117 @@
   @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;overflow:hidden}
-  :root{--bg:#0B0B12;--lime:#D7FF3A;--pink:#FF2E88;--cyan:#2EE6FF;--white:#F7F7FA}
+  :root{--bg:#07070D;--lime:#D7FF3A;--pink:#FF2E88;--cyan:#2EE6FF;--violet:#9B6BFF;--white:#F7F7FA;
+    --wash:#9B6BFF;--wash2:#D7FF3A}
   body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;color:var(--white);
-    background:radial-gradient(80% 60% at 50% 46%,#2A0F2A 0%,var(--bg) 70%);
-    display:flex;align-items:center;justify-content:center;padding:14px;position:relative}
+    background:radial-gradient(90% 70% at 50% 40%,#1C0B22 0%,var(--bg) 72%);
+    display:flex;align-items:center;justify-content:center;padding:54px 14px 66px;position:relative}
+
+  /* ── 무대 조명: 위에서 내려오는 무빙 라이트, 8카운트마다 색이 바뀐다 ── */
+  .rig{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+  .wash{position:absolute;inset:0;background:radial-gradient(95% 70% at 50% 0%,var(--wash) 0%,transparent 72%);opacity:.05}
+  .floor{position:absolute;left:0;right:0;bottom:0;height:46%;background:radial-gradient(75% 70% at 50% 100%,var(--wash2) 0%,transparent 72%);opacity:.06;transition:opacity .5s}
+  body:not(.on) .wash{transition:opacity .5s}
+  body.on .wash{opacity:.2}
+  body.paused .wash{opacity:.1}
+  body.on .floor{opacity:.16}
+  body.paused .floor{opacity:.1}
+  .beam{position:absolute;top:-4px;width:340px;height:440px;margin-left:-170px;transform-origin:50% 0;
+    background:conic-gradient(from 162deg at 50% 0,transparent 0deg,var(--c) 12deg,var(--c) 24deg,transparent 36deg,transparent 360deg);
+    -webkit-mask-image:linear-gradient(#000 0%,rgba(0,0,0,.45) 55%,transparent 92%);mask-image:linear-gradient(#000 0%,rgba(0,0,0,.45) 55%,transparent 92%);
+    mix-blend-mode:screen;opacity:0;transition:opacity .5s;will-change:transform}
+  .beam::before{content:'';position:absolute;left:50%;top:0;width:8px;height:8px;margin:-3px 0 0 -4px;border-radius:50%;background:#fff;box-shadow:0 0 10px 3px var(--c)}
+  .bm0{left:10%}.bm1{left:36%}.bm2{left:64%}.bm3{left:90%}
+  .bm0,.bm2{--c:var(--wash)}.bm1,.bm3{--c:var(--wash2)}
+  body.on .beam{opacity:.42}
+  body.paused .beam{opacity:.13}
+  /* 대기 중에는 핀 조명 하나만 숨 쉬듯 켜져 있다 */
+  .spot{position:absolute;left:50%;top:-4px;width:300px;height:420px;margin-left:-150px;
+    background:conic-gradient(from 168deg at 50% 0,transparent 0deg,rgba(255,255,255,.85) 9deg,rgba(255,255,255,.85) 15deg,transparent 24deg,transparent 360deg);
+    -webkit-mask-image:linear-gradient(#000 0%,rgba(0,0,0,.4) 60%,transparent 95%);mask-image:linear-gradient(#000 0%,rgba(0,0,0,.4) 60%,transparent 95%);
+    opacity:.12;transition:opacity .5s}
+  body.idle .spot{animation:spotBreathe 2.8s ease-in-out infinite}
+  body.on .spot{opacity:.16}
+  @keyframes spotBreathe{0%,100%{opacity:.08}50%{opacity:.2}}
+  .flash{position:absolute;inset:0;z-index:6;pointer-events:none;background:#fff;opacity:0}
+  .flash.f1{animation:fl1 .38s ease-out}
+  .flash.f2{animation:fl2 .6s ease-out}
+  @keyframes fl1{0%{opacity:.13}100%{opacity:0}}
+  @keyframes fl2{0%{opacity:.32}100%{opacity:0}}
 
   /* ── 흐르는 글자 띠 (JS가 속도를 조절한다. 대기 중엔 느리게, 달리면 빠르게) ── */
-  .band{position:absolute;left:-20%;right:-20%;white-space:nowrap;overflow:hidden;pointer-events:none;transform:rotate(-7deg)}
+  .band{position:absolute;left:-20%;right:-20%;white-space:nowrap;overflow:hidden;pointer-events:none;transform:rotate(-6deg);z-index:1}
   .band .track{display:inline-block;will-change:transform}
   .band span{display:inline-block;padding-right:.5em}
-  .b-top{top:5%;background:var(--lime);color:var(--bg);font-size:19px;font-weight:900;letter-spacing:.5px;padding:3px 0}
-  .b-mid{top:36%;color:transparent;-webkit-text-stroke:1.2px rgba(255,255,255,.13);font-size:64px;font-weight:900;letter-spacing:-1px;line-height:1}
-  .b-bot{bottom:3%;background:var(--pink);color:var(--white);font-size:17px;font-weight:800;letter-spacing:.5px;padding:3px 0}
+  .b-top{top:4%;background:var(--lime);color:var(--bg);font-size:18px;font-weight:900;letter-spacing:.5px;padding:3px 0;box-shadow:0 4px 18px rgba(0,0,0,.45)}
   .dot{color:var(--pink)}
-  .b-bot .dot{color:var(--lime)}
-  .b-mid .dot{color:transparent}
+  /* 무대 앞 LED 띠 */
+  .b-led{left:0;right:0;bottom:44px;transform:none;height:16px;line-height:14px;
+    background:linear-gradient(#170A16,#22091D);border-top:1px solid rgba(255,46,136,.55);border-bottom:1px solid rgba(255,46,136,.55);
+    color:var(--pink);font-size:10.5px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 6px rgba(255,46,136,.85)}
+  .b-led .dot{color:var(--lime);text-shadow:0 0 6px rgba(215,255,58,.8)}
 
-  .wrap{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:-4px}
+  /* ── 객석: 응원봉이 박자에 맞춰 흔들리고, 색은 조명과 같이 바뀐다 ── */
+  .crowd{position:absolute;left:0;right:0;bottom:0;height:52px;z-index:2;pointer-events:none}
+  .crowd::after{content:'';position:absolute;left:0;right:0;bottom:0;height:24px;
+    background:radial-gradient(9px 11px at 50% 100%,#040408 96%,transparent 100%) 0 0/21px 100% repeat-x,
+               radial-gradient(11px 15px at 50% 100%,#08080F 96%,transparent 100%) 10px 0/23px 100% repeat-x,
+               linear-gradient(transparent 55%,#040408 55%)}
+  .ls{position:absolute;width:2px;height:15px;margin-left:-1px;border-radius:1px;background:linear-gradient(#E6E6EE,#4A4A58);
+    transform-origin:50% 100%;opacity:.35;transition:opacity .5s;will-change:transform}
+  .ls::before{content:'';position:absolute;left:50%;top:-8px;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;
+    background:var(--wash);box-shadow:0 0 8px 2px var(--wash);transition:background .3s,box-shadow .3s}
+  body.on .ls{opacity:1}
+  body.paused .ls{opacity:.55}
+  .crowd.cheer .ls::before{background:#fff;box-shadow:0 0 14px 5px #fff;transition:none}
+
+  .wrap{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:6px}
+
+  /* ── 방송 화면 HUD: ON AIR, 8카운트 진행, BPM ── */
+  .hud{display:flex;align-items:center;justify-content:space-between;width:268px;height:14px;
+    font-size:9.5px;font-weight:800;letter-spacing:1.2px;color:rgba(247,247,250,.55);font-variant-numeric:tabular-nums}
+  .air{display:flex;align-items:center;gap:5px;min-width:64px}
+  .air b{width:7px;height:7px;border-radius:50%;background:#4A4A56}
+  .air em{font-style:normal}
+  body.on .air b{background:#FF3B5C;box-shadow:0 0 7px #FF3B5C}
+  body.on .air em{color:var(--white)}
+  .air b.blink{animation:blink .4s ease-out}
+  @keyframes blink{0%{transform:scale(1.7)}100%{transform:scale(1)}}
+  .dots{display:flex;gap:4px}
+  .dots i{width:12px;height:4px;border-radius:1px;background:rgba(247,247,250,.16)}
+  .dots i.on{background:var(--lime);box-shadow:0 0 6px var(--lime)}
+  .dots i:first-child.on{background:var(--pink);box-shadow:0 0 6px var(--pink)}
+  body:not(.on) .dots i.on{box-shadow:none;opacity:.55}
+  .bpm{min-width:64px;text-align:right}
+  .bpm strong{color:var(--lime);font-weight:900}
 
   /* ── 카운트: 안무 연습실의 "파이브, 식스, 세븐, 에잇!" ── */
-  .count{height:38px;display:flex;align-items:center;justify-content:center;min-width:220px}
+  .count{position:relative;z-index:1;height:36px;display:flex;align-items:center;justify-content:center;min-width:220px}
   .word{display:inline-block;font-size:31px;font-weight:900;color:var(--lime);font-style:normal;
     transform:skewX(-9deg);text-shadow:3px 3px 0 var(--pink);white-space:nowrap}
   .word.idle{font-weight:300;color:rgba(247,247,250,.55);text-shadow:none;letter-spacing:6px;font-size:18px;animation:breathe 1.6s ease-in-out infinite}
   @keyframes breathe{0%,100%{font-weight:200;letter-spacing:8px}50%{font-weight:700;letter-spacing:4px}}
   .word.slam{animation:slam .46s cubic-bezier(.2,.9,.25,1) both}
+  .word.down{color:var(--white);text-shadow:3px 3px 0 var(--pink),-2px -2px 0 var(--cyan)}
   @keyframes slam{
     0%{transform:skewX(-9deg) scale(2.3);opacity:0;font-weight:100;letter-spacing:22px}
     35%{transform:skewX(-9deg) scale(.92);opacity:1;font-weight:900;letter-spacing:-1px}
     55%{transform:skewX(-9deg) scale(1.04)}
     100%{transform:skewX(-9deg) scale(1);opacity:.9;font-weight:800;letter-spacing:0}}
 
-  /* ── 시간: 숫자마다 따로 떨어져 내려앉고, 박자마다 굵기가 출렁인다 ── */
+  /* ── 시간: 이퀄라이저 위에 놓이고, 박자마다 카메라가 줌 펀치를 넣는다 ── */
+  .stagebox{position:relative;z-index:0;display:flex;justify-content:center}
+  .stagebox.punch{animation:punch .22s cubic-bezier(.2,.8,.3,1)}
+  .stagebox.punch.big{animation:punchBig .34s cubic-bezier(.2,.8,.3,1)}
+  @keyframes punch{0%{transform:scale(1.07)}100%{transform:none}}
+  @keyframes punchBig{0%{transform:scale(1.16) rotate(-1.5deg)}100%{transform:none}}
+  .eq{position:absolute;left:50%;top:50%;z-index:-1;width:272px;height:98px;margin:-49px 0 0 -136px;
+    display:flex;align-items:center;justify-content:space-between;opacity:.34;pointer-events:none;transition:opacity .5s;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent);mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent)}
+  body.idle .eq{opacity:.16}
+  .eq i{display:block;width:9px;height:100%;border-radius:3px;background:linear-gradient(var(--wash2),var(--wash) 50%,var(--wash2));
+    transform:scaleY(.05);will-change:transform}
+
   .time{display:flex;align-items:baseline;font-size:66px;font-weight:800;line-height:1;letter-spacing:-2px;
     font-variant-numeric:tabular-nums;color:var(--white);text-shadow:4px 4px 0 var(--pink),-2px -2px 0 rgba(46,230,255,.55)}
   .time .d{display:inline-block;min-width:.6em;text-align:center}
@@ -53,14 +132,27 @@
     100%{transform:none;font-weight:800}}
   .time .cs{font-size:28px;font-weight:600;letter-spacing:-.5px;color:var(--lime);text-shadow:2px 2px 0 var(--pink);margin-left:2px}
   .time.thump{animation:thump .48s ease-out}
-  @keyframes thump{0%{font-weight:900;transform:scale(1.07,1.0)}40%{font-weight:600}100%{font-weight:800;transform:none}}
+  .time.thump.glitch{animation:thump .48s ease-out,glitch .36s linear}
+  @keyframes thump{0%{font-weight:900}40%{font-weight:600}100%{font-weight:800}}
+  /* 첫 박(하나)에만 RGB가 갈라지며 화면이 튄다 */
+  @keyframes glitch{
+    0%{text-shadow:-7px 0 0 var(--cyan),7px 0 0 var(--pink);transform:translateX(5px) skewX(-10deg)}
+    18%{text-shadow:6px 0 0 var(--cyan),-6px 1px 0 var(--pink);transform:translateX(-4px) skewX(6deg)}
+    36%{text-shadow:-3px 0 0 var(--cyan),4px -1px 0 var(--pink);transform:translateX(2px)}
+    60%{text-shadow:2px 0 0 var(--cyan),-2px 0 0 var(--pink);transform:none}
+    100%{text-shadow:4px 4px 0 var(--pink),-2px -2px 0 rgba(46,230,255,.55);transform:none}}
 
-  .lp{height:16px;font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--lime);font-variant-numeric:tabular-nums}
+  /* ── 킬링파트 기록: 번호와 구간 시간을 분홍 칩으로 ── */
+  .lp{position:relative;z-index:1;height:18px;display:flex;align-items:center;font-size:11px;font-weight:800;letter-spacing:.5px;
+    color:var(--white);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .lp:not(:empty){padding:0 9px;background:var(--pink);border-radius:3px;transform:skewX(-8deg);box-shadow:2px 2px 0 var(--lime)}
+  .lp.pop{animation:pop .4s cubic-bezier(.2,.9,.3,1.4)}
+  @keyframes pop{0%{transform:skewX(-8deg) scale(1.35)}100%{transform:skewX(-8deg) scale(1)}}
 
-  /* ── 킬링파트: 랩을 찍으면 글자가 한 자씩 날아들어 화면을 가로지른다 ── */
-  .kp{position:absolute;left:0;right:0;top:50%;z-index:3;margin-top:-36px;text-align:center;pointer-events:none;
+  /* ── 킬링파트: 랩을 찍으면 글자가 한 자씩 날아들고 꽃가루가 터진다 ── */
+  .kp{position:absolute;left:0;right:0;top:50%;z-index:4;margin-top:-34px;text-align:center;pointer-events:none;
     font-size:40px;font-weight:900;letter-spacing:-1px;white-space:nowrap;color:var(--white);
-    text-shadow:3px 3px 0 var(--pink);visibility:hidden}
+    text-shadow:3px 3px 0 var(--pink),-2px -2px 0 var(--cyan);visibility:hidden}
   .kp.go{visibility:visible}
   .kp i{display:inline-block;font-style:normal;opacity:0}
   .kp.go i{animation:fly 1.15s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--k) * 32ms)}
@@ -71,9 +163,18 @@
     100%{transform:translateX(-120px) skewX(20deg);opacity:0;font-weight:100}}
   .kp.go ~ .wrap .time{opacity:.18;transition:opacity .12s}
   .wrap .time{transition:opacity .3s}
+  .conf{position:absolute;left:50%;top:50%;width:0;height:0;z-index:2;pointer-events:none}
+  .conf i{position:absolute;left:-3px;top:-5px;width:6px;height:10px;border-radius:1px;opacity:0}
+  .conf i:nth-child(3n){width:7px;height:7px;border-radius:50%}
+  .conf i:nth-child(4n){width:4px;height:13px}
+  .conf.go i{animation:burst 1.25s cubic-bezier(.15,.7,.3,1) both}
+  @keyframes burst{
+    0%{transform:translate(0,0) rotate(0deg) scale(.4);opacity:1}
+    45%{transform:translate(var(--dx),var(--dy)) rotate(calc(var(--r) * .5)) scale(1);opacity:1}
+    100%{transform:translate(var(--dx),calc(var(--dy) + 70px)) rotate(var(--r)) scale(.9);opacity:0}}
 
   /* ── 버튼: 글자가 주인공. 누르면 자간이 벌어진다 ── */
-  .row{display:flex;gap:8px;margin-top:8px}
+  .row{display:flex;gap:8px;margin-top:6px}
   button{font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;
     width:84px;height:40px;border-radius:4px;color:var(--white);background:#14141E;
     border:1.5px solid rgba(247,247,250,.75);box-shadow:3px 3px 0 var(--pink);
@@ -88,19 +189,35 @@
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
       transition-duration:.001ms !important}
+    .flash,.conf{display:none}
   }
 </style>
 </head>
-<body>
+<body class="idle">
+  <div class="rig" aria-hidden="true">
+    <div class="wash" id="wash"></div>
+    <div class="floor"></div>
+    <div class="spot"></div>
+    <div class="beam bm0"></div><div class="beam bm1"></div><div class="beam bm2"></div><div class="beam bm3"></div>
+  </div>
   <div class="band b-top" aria-hidden="true"><div class="track" data-dir="-1"></div></div>
-  <div class="band b-mid" aria-hidden="true"><div class="track" data-dir="1"></div></div>
-  <div class="band b-bot" aria-hidden="true"><div class="track" data-dir="-1"></div></div>
+  <div class="band b-led" aria-hidden="true"><div class="track" data-dir="1"></div></div>
+  <div class="crowd" id="crowd" aria-hidden="true"></div>
 
   <div class="kp" id="kp" aria-hidden="true"></div>
 
   <div class="wrap">
+    <div class="hud" aria-hidden="true">
+      <span class="air"><b id="airDot"></b><em id="air">STANDBY</em></span>
+      <span class="dots" id="dots"></span>
+      <span class="bpm">BPM <strong>120</strong></span>
+    </div>
     <div class="count" aria-hidden="true"><span class="word idle" id="word">READY?</span></div>
-    <div class="time" id="t" role="timer"></div>
+    <div class="stagebox" id="box">
+      <div class="eq" id="eq" aria-hidden="true"></div>
+      <div class="time" id="t" role="timer"></div>
+      <div class="conf" id="conf" aria-hidden="true"></div>
+    </div>
     <div class="lp" id="lp" aria-live="polite"></div>
     <div class="row">
       <button id="b2" type="button" disabled aria-label="킬링파트 (랩)">킬링파트</button>
@@ -108,15 +225,18 @@
       <button id="b3" type="button" disabled>리셋</button>
     </div>
   </div>
+  <div class="flash" id="flash" aria-hidden="true"></div>
 <script>
 (function(){
   var REDUCED=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root=document.documentElement, body=document.body;
+  function $(id){return document.getElementById(id);}
+  function re(node,cls){cls.forEach(function(c){node.classList.remove(c);});void node.offsetWidth;cls.forEach(function(c){node.classList.add(c);});}
 
   /* ── 글자 띠 채우기 ── */
   var BANDS=[
     ['COMEBACK','컴백','ON STAGE','무대 위로','EIGHT COUNT','에잇 카운트'],
-    ['K-POP','K-POP','K-POP'],
-    ['ENCORE','앵콜','ONE MORE TIME','한 번 더','KILLING PART','킬링파트']
+    ['ONE MORE TIME','한 번 더','KILLING PART','킬링파트','ENCORE','앵콜']
   ];
   var tracks=[].slice.call(document.querySelectorAll('.band .track'));
   tracks.forEach(function(tr,i){
@@ -125,22 +245,68 @@
     tr.innerHTML=html+html+html+html; /* 넉넉히 반복해 두고 한 묶음 폭만큼 돌린다 */
   });
   var widths=tracks.map(function(tr){return tr.scrollWidth/4;});
-  var pos=[0,0,0], speed=14, target=14, lastF=performance.now();
+
+  /* ── 무대 장치: 조명 4개, 이퀄라이저 18칸, 응원봉 18개, 꽃가루 28장 ── */
+  var beams=[].slice.call(document.querySelectorAll('.beam'));
+  var BASE=[-18,-6,6,18], PH=[0,Math.PI,0,Math.PI];
+  var eq=$('eq'),bars=[],lv=[],NB=18;
+  for(var i=0;i<NB;i++){var bi=document.createElement('i');eq.appendChild(bi);bars.push(bi);lv.push(.05);}
+  var crowd=$('crowd'),sticks=[],NS=18;
+  for(i=0;i<NS;i++){
+    var s=document.createElement('span');s.className='ls';
+    s.style.left=((i+.5)/NS*100).toFixed(2)+'%';s.style.bottom=(12+(i*7%3)*4)+'px';
+    crowd.appendChild(s);sticks.push(s);
+  }
+  var conf=$('conf'),bits=[];
+  for(i=0;i<28;i++){var ci=document.createElement('i');conf.appendChild(ci);bits.push(ci);}
+  var dots=$('dots'),dotEls=[];
+  for(i=0;i<8;i++){var di=document.createElement('i');dots.appendChild(di);dotEls.push(di);}
+  var wash=$('wash'),flash=$('flash'),box=$('box'),air=$('air'),airDot=$('airDot');
+  beams.forEach(function(b,k){b.style.transform='rotate('+BASE[k]+'deg)';});
+
+  /* 8카운트마다 바뀌는 조명 색 (주색, 보조색) */
+  var PAL=[['#FF2E88','#2EE6FF'],['#D7FF3A','#FF2E88'],['#2EE6FF','#9B6BFF'],['#9B6BFF','#D7FF3A']];
+  var palIdx=3;
+  function setPal(k){k=((k%PAL.length)+PAL.length)%PAL.length;if(k===palIdx)return;palIdx=k;
+    root.style.setProperty('--wash',PAL[k][0]);root.style.setProperty('--wash2',PAL[k][1]);}
+
+  function setBar(k,v){if(Math.abs(v-lv[k])<.003)return;lv[k]=v;bars[k].style.transform='scaleY('+v.toFixed(3)+')';}
+
+  /* ── 한 프레임: 글자 띠, 조명, 이퀄라이저, 응원봉을 모두 경과 시간에서 계산한다 ── */
+  var pos=[0,0], speed=14, target=14, lastF=performance.now();
   function frame(now){
     var dt=Math.min(.05,(now-lastF)/1000); lastF=now;
     speed+=(target-speed)*Math.min(1,dt*3);          /* 시작·정지 때 띠가 서서히 빨라지고 느려진다 */
-    if(!REDUCED) tracks.forEach(function(tr,i){
-      var dir=+tr.dataset.dir, w=widths[i]||1;
-      pos[i]=(pos[i]+speed*dt*(i===1?.55:1))%w;
-      tr.style.transform='translateX('+(dir<0?-pos[i]:pos[i]-w)+'px)';
+    if(!REDUCED) tracks.forEach(function(tr,k){
+      var dir=+tr.dataset.dir, w=widths[k]||1;
+      pos[k]=(pos[k]+speed*dt*(k===1?.6:1))%w;
+      tr.style.transform='translateX('+(dir<0?-pos[k]:pos[k]-w)+'px)';
     });
+    var e=el(), bf=e/BEAT, ph=bf-Math.floor(bf), k;
+    if(run&&!REDUCED){
+      var kick=Math.exp(-ph*5), hat=Math.exp(-((ph+.5)%1)*9), tt=e/1000, sw=2*Math.PI*bf;
+      for(k=0;k<4;k++) beams[k].style.transform='rotate('+(BASE[k]+24*Math.sin(sw/4+PH[k])).toFixed(2)+'deg)';
+      for(k=0;k<NB;k++){
+        var x=k/(NB-1), low=Math.max(0,1-x*1.7), high=Math.max(0,x*1.5-.45);
+        var n=.5+.5*Math.sin(tt*(6.3+k*1.37)+k*2.1);
+        setBar(k,Math.min(1,.1+kick*.8*low+hat*.6*high+n*.38*(1-.4*low)));
+      }
+      for(k=0;k<NS;k++) sticks[k].style.transform='translateY('+(-5*kick).toFixed(2)+'px) rotate('+(16*Math.sin(sw/2-k*.45)).toFixed(2)+'deg)';
+      wash.style.opacity=(.1+.24*kick).toFixed(3);
+    }else{
+      /* 정지·대기: 막대가 잦아들고 조명과 응원봉은 그 자리에 멈춘다 */
+      var rate=REDUCED?1:Math.min(1,dt*5);
+      for(k=0;k<NB;k++){
+        var tgt=run?.18+.5*Math.abs(Math.sin(k*1.9)):(e>0?.1:.05);
+        setBar(k,lv[k]+(tgt-lv[k])*rate);
+      }
+    }
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 
   /* ── 스탑워치 ── */
-  var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),
-      lp=document.getElementById('lp'),word=document.getElementById('word'),kp=document.getElementById('kp');
+  var t=$('t'),b1=$('b1'),b2=$('b2'),b3=$('b3'),lp=$('lp'),word=$('word'),kp=$('kp');
   var run=false,st=0,acc=0,iv=null,laps=[],last=0,beat=-1;
   var BPM=120, BEAT=60000/BPM;
   /* 연습실 카운트: 처음 네 박은 "5·6·7·8", 그다음부터 여덟 박을 한 묶음으로 센다 */
@@ -173,13 +339,23 @@
     prev=main;cs.textContent='.'+pad(cc);
     if(run){var b=Math.floor(e/BEAT);if(b!==beat){beat=b;onBeat(b);}}
   }
-  function slam(txt){
-    word.className='word';word.textContent=txt;
-    if(!REDUCED){void word.offsetWidth;word.className='word slam';}
+  function slam(txt,down){
+    word.className='word'+(down?' down':'');word.textContent=txt;
+    if(!REDUCED){void word.offsetWidth;word.className+=' slam';}
   }
+  var litDot=-1;
+  function lightDot(k){if(litDot>=0)dotEls[litDot].classList.remove('on');litDot=k;if(k>=0)dotEls[k].classList.add('on');}
+  function flashIt(c){flash.className='flash';void flash.offsetWidth;flash.className='flash '+c;}
   function onBeat(b){
-    slam(b<4?LEAD[b]:EIGHT[(b-4)%8]);
-    if(!REDUCED){t.classList.remove('thump');void t.offsetWidth;t.classList.add('thump');}
+    var lead=b<4, k=lead?b+4:(b-4)%8, down=!lead&&k===0;
+    slam(lead?LEAD[b]:EIGHT[k],down);
+    setPal(lead?3:Math.floor((b-4)/8));
+    lightDot(k);
+    if(REDUCED)return;
+    t.classList.remove('thump','glitch');void t.offsetWidth;t.classList.add('thump');if(down)t.classList.add('glitch');
+    box.classList.remove('punch','big');void box.offsetWidth;box.classList.add('punch');if(down)box.classList.add('big');
+    re(airDot,['blink']);
+    if(down)flashIt('f1');
   }
   function idleWord(txt){word.className='word idle';word.textContent=txt;}
 
@@ -199,9 +375,13 @@
   }
   var srWasRun=false, srLast=0;
   function ui(){
-    b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;
-    target=run?95:14;
-    var srE=el();
+    var e=el();
+    b1.textContent=run?'정지':(e>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||e===0;
+    target=run?110:14;
+    body.className=run?'on':(e>0?'paused':'idle');
+    air.textContent=run?'ON AIR':(e>0?'PAUSE':'STANDBY');
+    if(!run)wash.style.opacity='';
+    var srE=e;
     if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
     else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
     srWasRun=run; srLast=srE;
@@ -209,16 +389,36 @@
   }
   function start(){run=true;st=performance.now();beat=Math.floor(acc/BEAT)-1;if(!iv)iv=setInterval(draw,31);draw();ui();}
   function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;draw();idleWord('PAUSE');ui();}
-  function reset(){if(run)return;acc=0;st=0;laps=[];last=0;beat=-1;lp.textContent='';draw();idleWord('READY?');ui();}
+  function reset(){
+    if(run)return;acc=0;st=0;laps=[];last=0;beat=-1;lp.textContent='';lp.classList.remove('pop');draw();idleWord('READY?');
+    lightDot(-1);setPal(3);
+    beams.forEach(function(b,k){b.style.transform='rotate('+BASE[k]+'deg)';});
+    sticks.forEach(function(s){s.style.transform='';});
+    ui();
+  }
+  var CC=['#D7FF3A','#FF2E88','#2EE6FF','#F7F7FA','#9B6BFF'];
+  function burst(){
+    bits.forEach(function(s,k){
+      var a=Math.random()*Math.PI*2, d=70+Math.random()*100;
+      s.style.setProperty('--dx',(Math.cos(a)*d).toFixed(1)+'px');
+      s.style.setProperty('--dy',(Math.sin(a)*d*.7-24).toFixed(1)+'px');
+      s.style.setProperty('--r',((Math.random()*2-1)*540).toFixed(0)+'deg');
+      s.style.background=CC[k%CC.length];
+    });
+    re(conf,['go']);
+  }
   function lap(){
     if(!run)return;
     var e=el(),sp=e-last;last=e;laps.push(sp);var best=Math.min.apply(null,laps);
-    lp.textContent='KILLING PART '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');
+    lp.textContent='킬링파트 #'+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');
     var txt='KILLING PART',h='';
     for(var i=0;i<txt.length;i++) h+='<i style="--k:'+i+'">'+(txt[i]===' '?'&nbsp;':txt[i])+'</i>';
     kp.innerHTML=h;
     kp.classList.remove('go');void kp.offsetWidth;kp.classList.add('go');
     clearTimeout(kp._t);kp._t=setTimeout(function(){kp.classList.remove('go');},1600);
+    if(REDUCED)return;
+    re(lp,['pop']);burst();flashIt('f2');
+    re(crowd,['cheer']);clearTimeout(crowd._t);crowd._t=setTimeout(function(){crowd.classList.remove('cheer');},650);
   }
   b1.onclick=function(){run?stop():start();};b2.onclick=lap;b3.onclick=reset;
   window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});

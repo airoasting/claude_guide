@@ -66,6 +66,24 @@
     box-shadow:2px 2px 0 rgba(0,0,0,.3)}
   .msg.blink{animation:bl 1s steps(2,jump-none) infinite}
   @keyframes bl{to{opacity:.25}}
+  body.lapfx .msg{visibility:hidden}
+
+  /* 랩 연출. 배너, 동전, LAP 숫자 깜박임 */
+  .pop{position:absolute;left:50%;top:38px;z-index:3;transform:translateX(-50%);visibility:hidden;white-space:nowrap;
+    padding:5px 9px 4px;text-align:center;font-family:'PressStart',monospace;background:#1B2250;border:2px solid var(--gold);
+    box-shadow:2px 2px 0 rgba(0,0,0,.35)}
+  .pop b{display:block;font-size:10px;font-weight:400;color:#FFE27A;text-shadow:1px 1px 0 #7A3A00}
+  .pop small{display:block;margin-top:4px;font-size:6px;color:#FFFFFF}
+  .pop.on{visibility:visible;animation:pop 1s steps(10) both}
+  @keyframes pop{0%{transform:translate(-50%,6px) scale(.6)}20%{transform:translate(-50%,0) scale(1.12)}
+    35%{transform:translate(-50%,0) scale(1)}80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-6px)}}
+  .coin{position:absolute;bottom:62px;z-index:3;width:7px;height:9px;visibility:hidden;background:var(--gold);
+    border:1px solid #8E5A00;box-shadow:1px 1px 0 rgba(0,0,0,.3)}
+  .coin::after{content:"";position:absolute;left:2px;top:1px;width:1px;height:5px;background:#FFF2B8}
+  .coin.on{visibility:visible;animation:coin .7s steps(7) both}
+  @keyframes coin{0%{transform:translateY(0)}60%{transform:translateY(-20px);opacity:1}100%{transform:translateY(-26px);opacity:0}}
+  #lc.fl{animation:fl 1s steps(1) both}
+  @keyframes fl{0%,40%,80%{color:#FFE27A}20%,60%{color:#FFFFFF}}
 
   /* 픽셀 캐릭터 */
   .hero{position:absolute;left:0;bottom:38px;width:16px;height:22px;z-index:2;transform:translateX(-24px);
@@ -86,34 +104,61 @@
   @keyframes stB{0%{transform:translateY(-2px)}50%{transform:translateY(0)}}
   @keyframes arm{50%{transform:translateY(1px)}}
 
-  /* A / B */
-  .ab{position:relative;width:62px;height:62px;flex:0 0 62px}
+  /* A / B. 버튼 아래 인쇄 표기로 기능을 밝힌다 */
+  .ab{position:relative;width:68px;height:80px;flex:0 0 68px}
   .ab button{position:absolute;width:30px;height:30px;border-radius:50%;border:0;cursor:pointer;
     font-family:'PressStart',monospace;font-size:8px;color:#EFE8FF;
     background:radial-gradient(circle at 35% 30%,#6A55B5,#3A2C78 70%);
     box-shadow:0 3px 0 #241A52,0 5px 8px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .06s}
   .ab button:active{transform:translateY(2px);box-shadow:0 1px 0 #241A52,inset 0 1px 0 rgba(255,255,255,.25)}
-  .ab #a{right:0;top:0}.ab #b{left:0;bottom:0}
+  .ab #a{right:0;top:2px}.ab #b{left:0;top:32px}
   .ab button:disabled{opacity:.45;cursor:default}
+  .lg{position:absolute;width:40px;text-align:center;font-size:8px;font-weight:800;line-height:1;color:#E9E2FF;
+    letter-spacing:-.2px;pointer-events:none;text-shadow:0 1px 0 rgba(0,0,0,.35)}
+  .lg.la{right:-5px;top:37px}
+  .lg.lb{left:-5px;top:67px}
+  #b:disabled + .lg{opacity:.45}
 
-  .row{display:flex;justify-content:center;gap:12px;margin-top:9px}
+  .row{display:flex;justify-content:center;margin-top:8px}
+  .key{display:flex;flex-direction:column;align-items:center;gap:3px}
+  .key em{font-style:normal;font-size:8px;font-weight:800;color:#FFD56A;pointer-events:none}
+  .row button:disabled{opacity:.45;cursor:default}
+  .row button:disabled + em{opacity:.45}
+  /* LAP 버튼. 작동 중에만 금색으로 켜진다 */
+  .row #lapb{height:18px;padding:0 24px;font-size:7.5px;letter-spacing:1px}
+  .row #lapb:not(:disabled){color:#3A2400;background:linear-gradient(180deg,#FFE08A,#E3A21F);
+    box-shadow:0 2px 0 #8E5A00,0 0 0 2px rgba(245,185,66,.3),inset 0 1px 0 rgba(255,255,255,.5)}
+  .row #lapb:not(:disabled):active{box-shadow:0 1px 0 #8E5A00}
   .row button{height:14px;padding:0 12px;border:0;border-radius:999px;cursor:pointer;
     font-family:'PressStart',monospace;font-size:5.5px;color:#D9D0F5;letter-spacing:.5px;
     background:linear-gradient(180deg,#4B3B90,#33276E);box-shadow:0 2px 0 #241A52,inset 0 1px 0 rgba(255,255,255,.18)}
   .row button:active{transform:translateY(1px);box-shadow:0 1px 0 #241A52}
-  .row button span{color:#6FE29B}
-  .row button.off span{color:#8C7AD0}
-  .spk{position:absolute;right:16px;bottom:12px;width:36px;height:22px;
-    background:radial-gradient(circle,rgba(0,0,0,.42) 1.3px,transparent 1.6px) 0 0/6px 6px;transform:skewY(-12deg)}
+  /* 스피커 그릴이 효과음 스위치를 겸한다 */
+  .spk{position:absolute;right:12px;bottom:8px;width:40px;height:32px;padding:0;border:0;background:none;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:3px}
+  .spk i{display:block;width:34px;height:18px;transform:skewY(-12deg);
+    background:radial-gradient(circle,rgba(0,0,0,.42) 1.3px,transparent 1.6px) 0 0/6px 6px}
+  .spk span{font-family:'PressStart',monospace;font-size:5px;color:#6FE29B}
+  .spk.off span{color:#8C7AD0}
   button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
   /* ── 랩 기록 ── */
-  .rec{width:min(322px,100%);display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:12px;
+  /* 랩 기록 띠는 고정 높이. 빈 상태에서도 두 줄 자리를 잡아 둔다 */
+  .rec{width:min(322px,100%);height:62px;flex:0 0 62px;overflow:hidden;padding:7px 12px 6px;border-radius:12px;
     background:#F1ECDD;color:#4A4059;font-variant-numeric:tabular-nums;font-size:11px;font-weight:700;line-height:1;
     box-shadow:0 4px 12px rgba(0,0,0,.35)}
-  .rec h2{font-family:'PressStart',monospace;font-size:7px;letter-spacing:1px;color:#5B4B8F;margin-right:auto}
+  .rh{display:flex;align-items:center;justify-content:space-between;gap:8px;height:10px;margin-bottom:4px}
+  .rec h2{font-family:'PressStart',monospace;font-size:7px;letter-spacing:1px;color:#5B4B8F}
+  .rh span{font-size:9px;font-weight:700;color:#8A7C9E}
+  .rec ol{list-style:none;height:34px}
+  .rec li{display:flex;align-items:center;gap:8px;height:17px;padding:0 4px;border-radius:5px}
+  .rec li + li{opacity:.6}
+  .rec li.ph{opacity:.4}
+  .rec li .no{width:38px;color:#B0261E}
+  .rec li span:not(.no){flex:1;white-space:nowrap}
   .rec b{color:#2C2240;font-weight:800}
-  .rec .no{color:#B0261E}
+  .rec li.new{animation:rf .8s ease-out}
+  @keyframes rf{from{background:#FFD56A}to{background:transparent}}
 
   /* 2열 구간(약 294px). 조작부를 줄여 화면 폭을 벌고 HUD 숫자를 한 단계 낮춘다 */
   @media (max-width:320px){
@@ -121,8 +166,9 @@
     .ab{transform:scale(.84);margin:0 -6px}
     .hud{padding:0 7px}.hud b{font-size:9px}.hud b .cs{font-size:7px}.hud small{font-size:5.5px}
     .msg{font-size:6px;top:52px}
+    .rec{padding:7px 9px 6px}.rec li{gap:5px}.rec li .no{width:34px}
   }
-  @media (prefers-reduced-motion:reduce){.hero,.arm,.legL,.legR,.msg{animation:none !important}}
+  @media (prefers-reduced-motion:reduce){.hero,.arm,.legL,.legR,.msg,.pop,.coin,#lc,.rec li{animation:none !important}}
 </style>
 </head>
 <body>
@@ -131,12 +177,12 @@
     <div class="brand">TIMEBOY <b>ADVANCE</b></div>
 
     <div class="mid">
-      <div class="dpad" role="group" aria-label="십자키 (랩)">
+      <div class="dpad" role="group" aria-label="십자키 (랩 보조)">
         <span class="v"></span><span class="h"></span>
-        <button class="u" type="button" aria-label="랩 (위)" data-lap></button>
-        <button class="d" type="button" aria-label="랩 (아래)" data-lap></button>
-        <button class="lf" type="button" aria-label="랩 (왼쪽)" data-lap></button>
-        <button class="rt" type="button" aria-label="랩 (오른쪽)" data-lap></button>
+        <button class="u" type="button" aria-label="랩, 십자키 위" data-lap></button>
+        <button class="d" type="button" aria-label="랩, 십자키 아래" data-lap></button>
+        <button class="lf" type="button" aria-label="랩, 십자키 왼쪽" data-lap></button>
+        <button class="rt" type="button" aria-label="랩, 십자키 오른쪽" data-lap></button>
       </div>
 
       <div class="bezel">
@@ -168,36 +214,39 @@
             <div class="lp"><small>LAP</small><b id="lc">00</b></div>
           </div>
           <div class="msg blink" id="msg">PRESS A TO START</div>
+          <div class="pop" id="pop" aria-hidden="true"><b id="popN">LAP 01!</b><small id="popS">+00:00.00</small></div>
+          <span class="coin" id="coin" aria-hidden="true"></span>
           <div class="hero" aria-hidden="true"><i class="cap"></i><i class="brim"></i><i class="face"></i><i class="eye"></i><i class="body"></i><i class="arm"></i><i class="legL"></i><i class="legR"></i></div>
         </div>
       </div>
 
       <div class="ab">
-        <button id="a" type="button" aria-label="A 시작/정지">A</button>
-        <button id="b" type="button" aria-label="B 초기화" disabled>B</button>
+        <button id="a" type="button" aria-label="A 버튼, 시작">A</button>
+        <span class="lg la" aria-hidden="true">시작·정지</span>
+        <button id="b" type="button" aria-label="B 버튼, 초기화" disabled>B</button>
+        <span class="lg lb" aria-hidden="true">리셋</span>
       </div>
     </div>
 
     <div class="row">
-      <button id="start" type="button">START</button>
-      <button id="sel" type="button" aria-pressed="true">SELECT <span>&#9835;ON</span></button>
+      <div class="key"><button id="lapb" type="button" aria-label="랩" data-lap disabled>LAP</button><em aria-hidden="true">랩</em></div>
     </div>
-    <div class="spk" aria-hidden="true"></div>
+    <button class="spk" id="sel" type="button" aria-label="효과음" aria-pressed="true"><i></i><span>&#9835;ON</span></button>
   </div>
 
   <div class="rec">
-    <h2>LAP RECORD</h2>
-    <span id="rl">
-      <span class="no">NO.--</span>&nbsp;&nbsp;구간 <b>--:--.--</b>&nbsp;&nbsp;누적 <b>--:--.--</b>
-    </span>
+    <div class="rh"><h2>LAP RECORD</h2><span>LAP 버튼 · L 키</span></div>
+    <ol id="rl" aria-label="최근 랩 기록"></ol>
   </div>
 
 <script>
 (function(){
   var t=document.getElementById('t'),lc=document.getElementById('lc'),msg=document.getElementById('msg'),
       rl=document.getElementById('rl'),a=document.getElementById('a'),b=document.getElementById('b'),
-      start=document.getElementById('start'),sel=document.getElementById('sel');
-  var run=false,st=0,acc=0,iv=null,laps=0,last=0,sound=true,ac=null;
+      sel=document.getElementById('sel'),
+      pop=document.getElementById('pop'),popN=document.getElementById('popN'),popS=document.getElementById('popS'),
+      coin=document.getElementById('coin'),hero=document.querySelector('.hero'),lcd=document.querySelector('.lcd');
+  var run=false,st=0,acc=0,iv=null,laps=0,last=0,sound=true,ac=null,hist=[],fxT=null;
 
   function el(){return acc+(run?performance.now()-st:0);}
   function pad(n){return String(n).padStart(2,'0');}
@@ -205,18 +254,19 @@
     return pad(m)+':'+pad(s)+'.'+pad(cs);}
   function draw(){var f=fmt(el());t.innerHTML=f.slice(0,5)+'<span class="cs">'+f.slice(5)+'</span>';}
 
-  /* 8비트 삑 소리. SELECT로 끈다 */
-  function beep(hz,dur){
+  /* 8비트 삑 소리. 스피커 그릴로 끈다 */
+  function beep(hz,dur,at){
     if(!sound)return;
     try{
       var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-      ac=ac||new AC();var o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;
+      ac=ac||new AC();var o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime+(at||0);
       o.type='square';o.frequency.value=hz;
       g.gain.setValueAtTime(0.06,n);g.gain.exponentialRampToValueAtTime(0.0001,n+dur);
       o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+dur);
     }catch(e){}
   }
 
+  /* 접근성 공통 */
   var srSay=(function(){
     var r=document.createElement('div');
     r.setAttribute('role','status');r.setAttribute('aria-live','polite');
@@ -225,9 +275,35 @@
     return function(m){r.textContent='';setTimeout(function(){r.textContent=m;},30);};
   })();
 
+  /* 랩 기록 띠. 최근 2개, 위가 최신. 빈 줄은 -- 자리표시 */
+  function row(x,isNew){
+    return '<li'+(isNew?' class="new"':(x?'':' class="ph"'))+'><span class="no">NO.'+(x?pad(x.n):'--')+'</span>'+
+      '<span>구간 <b>'+(x?fmt(x.seg):'--:--.--')+'</b></span><span>누적 <b>'+(x?fmt(x.e):'--:--.--')+'</b></span></li>';
+  }
+  function rec(isNew){
+    var h=hist.slice(-2).reverse();
+    rl.innerHTML=row(h[0],isNew)+row(h[1],false);
+  }
+
+  /* 클래스를 다시 붙여 애니메이션을 처음부터 돌린다 */
+  function replay(x,c){x.classList.remove(c);void x.offsetWidth;x.classList.add(c);}
+  function lapFx(n,seg){
+    popN.textContent='LAP '+pad(n)+'!';popS.textContent='+'+fmt(seg);
+    var lr=lcd.getBoundingClientRect(),hr=hero.getBoundingClientRect();
+    coin.style.left=Math.max(6,Math.min(lr.width-14,hr.left-lr.left+5))+'px';
+    replay(pop,'on');replay(coin,'on');replay(lc,'fl');
+    document.body.classList.add('lapfx');
+    clearTimeout(fxT);
+    fxT=setTimeout(function(){pop.classList.remove('on');coin.classList.remove('on');document.body.classList.remove('lapfx');},1000);
+  }
+  function clearFx(){
+    clearTimeout(fxT);pop.classList.remove('on');coin.classList.remove('on');lc.classList.remove('fl');
+    document.body.classList.remove('lapfx');
+  }
+
   function ui(){
     document.body.classList.toggle('go',run);
-    a.setAttribute('aria-label',run?'A 정지':(acc>0?'A 재개':'A 시작'));
+    a.setAttribute('aria-label',run?'A 버튼, 정지':(acc>0?'A 버튼, 재개':'A 버튼, 시작'));
     b.disabled=run||el()===0;
     var lapBtns=document.querySelectorAll('[data-lap]');
     for(var i=0;i<lapBtns.length;i++)lapBtns[i].disabled=!run;
@@ -236,42 +312,42 @@
     if(document.activeElement&&document.activeElement.disabled)a.focus();
   }
   function go(){
-    if(run){acc=el();run=false;clearInterval(iv);iv=null;draw();beep(330,.12);srSay('정지 '+fmt(acc));}
-    else{st=performance.now();run=true;if(!iv)iv=setInterval(draw,31);beep(880,.08);}
+    if(run){acc=el();run=false;clearInterval(iv);iv=null;draw();clearFx();beep(330,.12);srSay('정지 '+fmt(acc));}
+    else{st=performance.now();run=true;if(!iv)iv=setInterval(draw,31);beep(880,.08);srSay(acc>0?'재개':'시작. LAP 버튼으로 랩을 기록합니다');}
     ui();
   }
   function lap(){
-    if(!run)return;
-    var e=el(),seg=e-last;last=e;laps=Math.min(laps+1,99);
-    lc.textContent=pad(laps);
-    rl.innerHTML='<span class="no">NO.'+pad(laps)+'</span>&nbsp;&nbsp;구간 <b>'+fmt(seg)+'</b>&nbsp;&nbsp;누적 <b>'+fmt(e)+'</b>';
-    beep(1320,.06);
+    if(!run||laps>=99)return;
+    var e=el(),seg=e-last;last=e;laps++;
+    hist.push({n:laps,seg:seg,e:e});if(hist.length>2)hist.shift();
+    lc.textContent=pad(laps);rec(true);lapFx(laps,seg);
+    beep(988,.05);beep(1319,.09,.06);
+    srSay('랩 '+laps+', 구간 '+fmt(seg)+', 누적 '+fmt(e));
   }
   function reset(){
-    if(run)return;
-    acc=0;st=0;laps=0;last=0;lc.textContent='00';draw();
-    rl.innerHTML='<span class="no">NO.--</span>&nbsp;&nbsp;구간 <b>--:--.--</b>&nbsp;&nbsp;누적 <b>--:--.--</b>';
+    if(run||el()===0)return;
+    acc=0;st=0;laps=0;last=0;hist=[];lc.textContent='00';draw();rec(false);clearFx();
     beep(220,.15);ui();srSay('초기화했습니다');
   }
   function toggleSound(){
     sound=!sound;
-    sel.innerHTML='SELECT <span>&#9835;'+(sound?'ON':'OFF')+'</span>';
+    sel.querySelector('span').innerHTML='&#9835;'+(sound?'ON':'OFF');
     sel.classList.toggle('off',!sound);
     sel.setAttribute('aria-pressed',sound?'true':'false');
   }
 
   a.addEventListener('click',go);
-  start.addEventListener('click',go);
   b.addEventListener('click',reset);
   sel.addEventListener('click',toggleSound);
   document.querySelectorAll('[data-lap]').forEach(function(x){x.addEventListener('click',lap);});
 
+  /* Space·Z·Enter 시작/정지, L·방향키 랩, R·X 초기화 */
   document.addEventListener('keydown',function(e){
     if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
     if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.key==='Enter'))return;
     var k=e.key;
     if(k===' '||k==='z'||k==='Z'||k==='Enter'){e.preventDefault();go();}
-    else if(k==='x'||k==='X'||k==='r'||k==='R'){reset();}
+    else if(k==='r'||k==='R'||k==='x'||k==='X'){reset();}
     else if(k==='l'||k==='L'||k.indexOf('Arrow')===0){e.preventDefault();lap();}
     else if(k==='Shift'&&e.location===2){toggleSound();}
   });
@@ -279,7 +355,7 @@
   window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
   window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
 
-  draw();ui();
+  draw();rec(false);ui();
 })();
 </script>
 </body>

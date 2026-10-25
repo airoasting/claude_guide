@@ -64,6 +64,9 @@
   .laps div+div{opacity:.55}
   .laps .best{margin-left:4px}
   .laps.hide{visibility:hidden}
+  /* 새 랩 줄은 LCD처럼 두 번 깜빡인다 */
+  .laps div.new{animation:lapBlink .3s steps(1) 3}
+  @keyframes lapBlink{50%{opacity:.15}}
 
   /* ── 키패드. 검은 유리판에 가는 격자와 금색 숫자 ── */
   .pad{position:relative;margin-top:10px;height:118px;border-radius:9px;padding:9px 10px;
@@ -168,11 +171,11 @@
   /* ── 스탑워치 ── */
   var run=false,st=0,acc=0,raf=0,laps=0,last=0,lapUntil=0,lapVal=0,lapList=[],lapsEl=document.getElementById('laps');
   function lapPlain(ms){var s2=stwChars(ms);return (s2.slice(0,2).trim()?s2.slice(0,2).trim()+':':'')+s2.slice(2,4)+':'+s2.slice(4,6)+'.'+s2.slice(6,8);}
-  function drawLaps(){
+  function drawLaps(fresh){
     if(!lapList.length){lapsEl.innerHTML='';return;}
     var best=Math.min.apply(null,lapList),h='';
     for(var i=lapList.length-1;i>=Math.max(0,lapList.length-2);i--){
-      h+='<div><span>LAP '+pad(i+1)+(lapList.length>1&&lapList[i]===best?'<span class="best">★</span>':'')+'</span><span>'+lapPlain(lapList[i])+'</span></div>';}
+      h+='<div'+(fresh&&i===lapList.length-1?' class="new"':'')+'><span>LAP '+pad(i+1)+(lapList.length>1&&lapList[i]===best?'<span class="best">★</span>':'')+'</span><span>'+lapPlain(lapList[i])+'</span></div>';}
     lapsEl.innerHTML=h;
   }
   function el(){return acc+(run?performance.now()-st:0);}
@@ -184,11 +187,12 @@
     return hs+pad(mm)+pad(ss)+pad(cc);
   }
   function drawStw(){
-    var now=performance.now(),e=el(),show=(lapUntil>now)?lapVal:e;
-    paint(stwChars(show),{5:1},1);
+    /* 랩을 눌러도 큰 숫자는 멈추지 않는다. 구간 기록은 아래 랩 목록에만 남긴다 */
+    var e=el();
+    paint(stwChars(e),{5:1},1);
     var tenth=Math.floor(e%1000/100);
     bar.forEach(function(b,i){b.classList.toggle('on',(run||e>0)&&i<=tenth&&(run||e%1000>0));});
-    sub.textContent=lapUntil>now?('SPL '+laps):(laps?('LAP '+laps):' ');
+    sub.textContent=laps?('LAP '+laps):' ';
   }
   function loop(){if(mode==='stw')drawStw();if(run||lapUntil>performance.now())raf=requestAnimationFrame(loop);}
   function startStop(){
@@ -203,7 +207,7 @@
   function lapReset(){
     hit(kLap);
     if(mode!=='stw'){setMode('stw');return;}
-    if(run){var e=el();laps++;lapVal=e-last;last=e;lapList.push(lapVal);drawLaps();lapUntil=performance.now()+1800;cancelAnimationFrame(raf);loop();say('랩 '+laps+' '+fmt(lapVal));}
+    if(run){var e=el();laps++;lapVal=e-last;last=e;lapList.push(lapVal);drawLaps(true);say('랩 '+laps+' '+fmt(lapVal));}
     else if(el()>0){acc=0;laps=0;last=0;lapUntil=0;lapList=[];drawLaps();drawStw();say('초기화했습니다');}
     kStart.setAttribute('aria-label',run?'정지':(acc>0?'재개':'시작'));
   }

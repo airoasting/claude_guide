@@ -8,24 +8,37 @@
 <style>
   @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
+  html,body{height:100%;overflow:hidden}
   :root{--ink:#1B1B2F}
-  /* 하늘도 셀 셰이딩: 그러데이션 없이 두 단계로 끊어 칠한다 */
+  /* 방 벽도 셀 셰이딩: 그러데이션 없이 두 단계로 끊어 칠한다 */
   body{font-family:'Pretendard',"Helvetica Neue",Arial,sans-serif;color:var(--ink);overflow:hidden;
-    background:linear-gradient(180deg,#8FDCFF 0 58%,#73CDF7 58% 100%);
+    background:linear-gradient(180deg,#FFEBCB 0 62%,#FBDDB0 62% 100%);
     display:flex;align-items:center;justify-content:center;padding:14px;position:relative}
 
-  /* ── 구름 (외곽선 + 아래쪽 평면 그림자) ── */
-  .sky{position:fixed;inset:0;pointer-events:none;z-index:0}
-  .cloud{position:absolute;animation:drift 26s linear infinite}
-  .cloud.c1{top:9%;left:-90px}
-  .cloud.c2{top:58%;left:-90px;animation-duration:34s;animation-delay:-17s;transform:scale(.8)}
-  @keyframes drift{from{translate:0 0}to{translate:calc(100vw + 180px) 0}}
+  /* ── 벽의 창문: 굵은 틀, 두 단계 하늘, 창 안으로 구름이 지나간다 ── */
+  .window{position:fixed;left:50%;top:10px;width:min(80vw,262px);height:118px;transform:translateX(-50%);z-index:0;pointer-events:none;
+    border:4px solid var(--ink);border-radius:12px;overflow:hidden;
+    background:linear-gradient(180deg,#8FDCFF 0 60%,#73CDF7 60% 100%);box-shadow:0 5px 0 rgba(27,27,47,.18)}
+  .window::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:4px;margin-left:-2px;background:var(--ink)}
+  .window::after{content:'';position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;background:var(--ink)}
+  .cloud{position:absolute;top:14px;left:-96px;animation:drift 24s linear infinite}
+  .cloud.c2{top:62px;animation-duration:31s;animation-delay:-15s;transform:scale(.75)}
+  @keyframes drift{from{translate:0 0}to{translate:calc(min(80vw,262px) + 190px) 0}}
+
+  /* ── 책상: 위판은 밝은 띠와 본색 두 단계, 앞 모서리는 진한 띠 ── */
+  .scene::before{content:'';position:absolute;left:-100vw;right:-100vw;top:196px;height:200vh;z-index:-1;
+    border-top:3px solid var(--ink);
+    background:repeating-linear-gradient(180deg,transparent 0 26px,rgba(165,98,42,.22) 26px 28px) 0 22px/100% 100% no-repeat,
+      linear-gradient(180deg,#F4C987 0 20px,#E6A863 20px 100%)}
+  body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:9px;background:#B8743A;border-top:3px solid var(--ink);z-index:0}
+  .prop{position:absolute;bottom:4px;pointer-events:none}
+  .scene svg.prop.books{left:-74px;width:70px;height:50px}
+  .scene svg.prop.cup{right:-62px;width:56px;height:70px}
 
   .wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:14px}
 
   /* ── 자명종 캐릭터 ── */
-  .scene{position:relative;width:240px;height:214px}
+  .scene{position:relative;width:240px;height:214px;isolation:isolate}
   .scene svg{display:block;width:240px;height:214px;overflow:visible}
   #clock{transform-box:view-box;transform-origin:120px 204px}
   .bell{transform-box:fill-box;transform-origin:50% 90%}
@@ -100,13 +113,33 @@
 </style>
 </head>
 <body>
-  <div class="sky" aria-hidden="true">
+  <div class="window" aria-hidden="true">
     <svg class="cloud c1" width="92" height="44" viewBox="0 0 92 44"><defs><clipPath id="cc1"><path d="M14 40 a12 12 0 0 1 2-23 a16 16 0 0 1 28-9 a14 14 0 0 1 26 4 a13 13 0 0 1 8 28 z"/></clipPath></defs><g clip-path="url(#cc1)"><rect width="92" height="44" fill="#CFE6F5"/><path d="M10 34 a12 12 0 0 1 4-21 a16 16 0 0 1 28-9 a14 14 0 0 1 26 4 a13 13 0 0 1 10 22 z" fill="#fff"/></g><path d="M14 40 a12 12 0 0 1 2-23 a16 16 0 0 1 28-9 a14 14 0 0 1 26 4 a13 13 0 0 1 8 28 z" fill="none" stroke="#1B1B2F" stroke-width="3" stroke-linejoin="round"/></svg>
     <svg class="cloud c2" width="92" height="44" viewBox="0 0 92 44"><g clip-path="url(#cc1)"><rect width="92" height="44" fill="#CFE6F5"/><path d="M10 34 a12 12 0 0 1 4-21 a16 16 0 0 1 28-9 a14 14 0 0 1 26 4 a13 13 0 0 1 10 22 z" fill="#fff"/></g><path d="M14 40 a12 12 0 0 1 2-23 a16 16 0 0 1 28-9 a14 14 0 0 1 26 4 a13 13 0 0 1 8 28 z" fill="none" stroke="#1B1B2F" stroke-width="3" stroke-linejoin="round"/></svg>
   </div>
 
   <div class="wrap">
     <div class="scene" id="scene">
+      <!-- 책상 위 소품: 책 더미와 연필꽂이 (두 단계 명암, 굵은 외곽선) -->
+      <svg class="prop books" width="70" height="50" viewBox="0 0 70 50" aria-hidden="true">
+        <g stroke="#1B1B2F" stroke-width="3" stroke-linejoin="round">
+          <rect x="4" y="34" width="60" height="13" rx="3" fill="#5FB8FF"/><rect x="4" y="41" width="60" height="6" rx="2" fill="#2F86E0" stroke="none"/>
+          <rect x="9" y="20" width="52" height="14" rx="3" fill="#FF6B7D"/><rect x="9" y="28" width="52" height="6" rx="2" fill="#E03A57" stroke="none"/>
+          <rect x="6" y="7" width="48" height="13" rx="3" fill="#7BE07B"/><rect x="6" y="14" width="48" height="6" rx="2" fill="#3FB55C" stroke="none"/>
+        </g>
+        <path d="M52 22v12M56 22v12M14 9v11" stroke="#fff" stroke-width="2" opacity=".75"/>
+      </svg>
+      <svg class="prop cup" width="56" height="70" viewBox="0 0 56 70" aria-hidden="true">
+        <g stroke="#1B1B2F" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+          <path d="M16 34 L10 4 L15 3 L21 33" fill="#FFD23F"/><path d="M10 4 L12 0 L15 3" fill="#F6C59B"/>
+          <path d="M28 33 L30 8 L35 8 L33 33" fill="#5FB8FF"/>
+          <path d="M38 34 L46 10 L50 12 L42 35" fill="#FF6B7D"/>
+          <path d="M8 32 H48 L44 66 H12 Z" fill="#B9A2FF"/>
+          <path d="M28 33 H47 L44 66 H28 Z" fill="#8467E6" stroke="none"/>
+          <path d="M8 32 H48 L44 66 H12 Z" fill="none"/>
+        </g>
+        <path d="M14 38 l2 20" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+      </svg>
       <svg viewBox="0 0 240 214" aria-hidden="true">
         <defs>
           <clipPath id="bodyClip"><circle cx="120" cy="118" r="80"/></clipPath>

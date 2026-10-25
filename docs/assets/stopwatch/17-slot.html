@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='8' width='72' height='84' rx='12' fill='%23c0182b'/><rect x='26' y='34' width='48' height='24' rx='4' fill='%23120a04'/><circle cx='50' cy='22' r='6' fill='%23ffd34d'/></svg>" />
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
+  html,body{height:100%;overflow:hidden}
   body{font-family:"Trebuchet MS","Segoe UI",sans-serif;
     background:radial-gradient(circle at 50% 28%,#3a0a12 0%,#220309 58%,#0c0103 100%);
     display:flex;align-items:center;justify-content:center;padding:8px;color:#fff}
@@ -98,10 +98,14 @@
 
   /* 영수증 (랩 기록) */
   .receipt{margin-top:11px;background:#f6f1e4;border-radius:8px;color:#3a3326;
-    padding:8px 9px;min-height:34px;max-height:74px;overflow-y:auto;
+    /* 높이를 고정한다. 랩이 쌓여도 기계는 늘어나지 않고 안에서만 스크롤된다 */
+    padding:8px 9px;height:74px;overflow-y:auto;
     box-shadow:inset 0 2px 5px rgba(0,0,0,.22);
     font-family:"Courier New",monospace}
-  .receipt .empty{font-size:9px;color:#9a9078;text-align:center;line-height:34px;letter-spacing:1px}
+  .receipt .empty{font-size:9px;color:#9a9078;text-align:center;line-height:58px;letter-spacing:1px}
+
+  /* 잭팟 폭죽 */
+  #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:10}
   .lap-row{display:flex;justify-content:space-between;font-size:11px;font-weight:700;
     padding:2px 1px;border-bottom:1px dashed #cfc6ad}
   .lap-row:last-child{border-bottom:0}
@@ -158,6 +162,7 @@
 
     <div class="receipt" id="receipt"><div class="empty">— NO RECORD —</div></div>
   </div>
+  <canvas id="fx" aria-hidden="true"></canvas>
 
 <script>
 (function(){
@@ -323,7 +328,65 @@
     reelEls.forEach(function(r){ r.classList.remove('win'); void r.offsetWidth; r.classList.add('win');
       setTimeout(function(){ r.classList.remove('win'); },650); });
     flashBurst();
+    fireworks();
     setTimeout(function(){ if(running){ jp.textContent='SPINNING'; jp.classList.remove('flash'); } },700);
+  }
+
+  /* ── 잭팟 폭죽 ──
+     아래에서 불꽃 네 발이 차례로 솟아 화면 위쪽에서 터진다. 불티는 중력으로 떨어지며 사라진다.
+     모션 축소 설정이면 쏘지 않는다. */
+  var fx=document.getElementById('fx'),fctx=fx.getContext('2d'),rockets=[],sparks=[],flashes=[],fxRaf=0,fxPrev=0;
+  var FX_COL=['#ffd34d','#ff5a4e','#ffffff','#ff8ad8','#7ee8ff','#ffb02e'];
+  function fxSize(){var d=Math.min(2,window.devicePixelRatio||1);fx.width=Math.round(innerWidth*d);fx.height=Math.round(innerHeight*d);
+    fctx.setTransform(d,0,0,d,0,0);}
+  function fireworks(){
+    if(REDUCED)return;
+    fxSize();
+    var W=innerWidth,H=innerHeight;
+    for(var k=0;k<5;k++){
+      rockets.push({x:W*(.15+.7*Math.random()),y:H+6,ty:H*(.1+.32*Math.random()),
+        vy:-(H*.034+Math.random()*H*.006),wait:k*150,col:FX_COL[Math.floor(Math.random()*FX_COL.length)]});
+    }
+    if(!fxRaf){fxPrev=0;fxRaf=requestAnimationFrame(fxLoop);}
+  }
+  function burst(x,y,col){
+    var n=72;
+    flashes.push({x:x,y:y,life:0,col:col});
+    for(var i=0;i<n;i++){
+      var a=Math.PI*2*i/n+Math.random()*.15,sp=2.2+Math.random()*3;
+      sparks.push({x:x,y:y,px:x,py:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:0,max:75+Math.random()*40,
+        col:Math.random()<.7?col:FX_COL[Math.floor(Math.random()*FX_COL.length)]});
+    }
+  }
+  function fxLoop(t){
+    var f=fxPrev?Math.min(3,(t-fxPrev)/16.67):1;fxPrev=t;
+    fctx.clearRect(0,0,innerWidth,innerHeight);
+    fctx.globalCompositeOperation='lighter';
+    rockets=rockets.filter(function(r){
+      if(r.wait>0){r.wait-=f*16.67;return true;}
+      var oy=r.y;r.y+=r.vy*f;
+      fctx.strokeStyle=r.col;fctx.lineWidth=2;fctx.globalAlpha=.9;
+      fctx.beginPath();fctx.moveTo(r.x,oy+10);fctx.lineTo(r.x,r.y);fctx.stroke();
+      if(r.y<=r.ty){burst(r.x,r.y,r.col);return false;}
+      return true;
+    });
+    /* 터지는 순간 둥근 섬광 */
+    flashes=flashes.filter(function(h){h.life+=f;var a=1-h.life/14;if(a<=0)return false;
+      var g=fctx.createRadialGradient(h.x,h.y,0,h.x,h.y,34);g.addColorStop(0,'rgba(255,250,220,'+(.85*a)+')');g.addColorStop(1,'rgba(255,200,80,0)');
+      fctx.globalAlpha=1;fctx.fillStyle=g;fctx.fillRect(h.x-34,h.y-34,68,68);return true;});
+    sparks=sparks.filter(function(s){
+      s.px=s.x;s.py=s.y;
+      s.vx*=Math.pow(.965,f);s.vy=s.vy*Math.pow(.965,f)+.045*f;
+      s.x+=s.vx*f;s.y+=s.vy*f;s.life+=f;
+      var a=1-s.life/s.max;if(a<=0)return false;
+      fctx.globalAlpha=a;fctx.strokeStyle=s.col;fctx.lineWidth=2.4;
+      fctx.beginPath();fctx.moveTo(s.px-s.vx*2,s.py-s.vy*2);fctx.lineTo(s.x,s.y);fctx.stroke();
+      if(a>.35&&Math.random()<.5){fctx.fillStyle='#fff';fctx.fillRect(s.x-1,s.y-1,2,2);}
+      return true;
+    });
+    fctx.globalAlpha=1;fctx.globalCompositeOperation='source-over';
+    if(rockets.length||sparks.length||flashes.length)fxRaf=requestAnimationFrame(fxLoop);
+    else{fxRaf=0;fctx.clearRect(0,0,innerWidth,innerHeight);}
   }
 
   function renderLaps(){

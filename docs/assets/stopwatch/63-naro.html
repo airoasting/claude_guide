@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>나로호 발사 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230A1430'/><path d='M44 84V30Q44 12 50 6Q56 12 56 30V84Z' fill='%23F2F4F6'/><rect x='46' y='36' width='8' height='5' fill='%23fff' stroke='%23999' stroke-width='.5'/><circle cx='50' cy='38.5' r='1.6' fill='%23C60C30'/><path d='M46 84L54 84L58 98L42 98Z' fill='%23FFB347'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;background:#0A1430;color:#fff;position:relative}
+  canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+  /* 나로호: 화면 좌표는 스크립트가 매 프레임 정한다 */
+  #rk{position:absolute;left:0;top:0;overflow:visible;will-change:transform}
+  .fl{transform-box:fill-box;transform-origin:50% 0}
+  body.run .fl{animation:flick .07s linear infinite alternate}
+  @keyframes flick{from{transform:scale(.94,.96)}to{transform:scale(1.06,1.04)}}
+
+  /* ── 관제 화면 ── */
+  .hud{position:absolute;left:0;right:0;top:0;padding:8px 12px 0;text-align:center;pointer-events:none;
+    background:linear-gradient(180deg,rgba(4,8,20,.7),rgba(4,8,20,0));height:86px}
+  /* 단계 문구는 화면에 보이지 않는다(스크립트는 그대로 갱신한다) */
+  .status{display:none;font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:#A9C4EA;min-height:13px}
+  .status.go{color:#FFC46B}.status.hold{color:#FF7B7B}.status.space{color:#B9F0FF}
+  .time{margin-top:2px;font-size:32px;font-weight:900;letter-spacing:.5px;line-height:1.05;font-variant-numeric:tabular-nums;
+    text-shadow:0 2px 10px rgba(0,0,0,.55)}
+  .time .tp{color:#FFB347;margin-right:2px}
+  .time .cs{font-size:18px;color:#9FB6D8}
+  .tele{position:absolute;left:12px;right:12px;top:52px;display:flex;justify-content:space-between;
+    font-size:10px;font-weight:700;color:#C9D8EE;font-variant-numeric:tabular-nums;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+  .tele b{font-size:13px;color:#fff;font-weight:800;margin-left:3px}
+
+  /* 랩 기록: 높이를 고정해 두 줄 자리를 처음부터 잡아 둔다 */
+  .laps{position:absolute;left:10px;right:10px;bottom:46px;height:36px;padding:3px 9px;border-radius:6px;
+    background:rgba(4,8,20,.66);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);overflow:hidden;
+    font-size:10.5px;font-weight:700;font-variant-numeric:tabular-nums}
+  .laps div{display:flex;justify-content:space-between;height:15px;line-height:15px;color:#5E6E8C}
+  .laps div.on{color:#E6EEF9}
+  .laps div.on+div.on{color:#93A5C2}
+  .laps .n{color:#FFB347;width:52px}
+  .laps div:not(.on) .n{color:#5E6E8C}
+  .laps div.new{animation:lapIn .5s ease-out}
+  @keyframes lapIn{0%{background:rgba(255,179,71,.35)}100%{background:transparent}}
+
+  .row{position:absolute;left:10px;right:10px;bottom:9px;display:flex;gap:6px}
+  button{font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;flex:1 1 0;min-width:0;height:30px;border:0;border-radius:6px;
+    color:#fff;background:rgba(24,34,58,.9);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);transition:filter .15s,opacity .15s,transform .1s}
+  button:hover:not(:disabled){filter:brightness(1.2)}
+  button:active:not(:disabled){transform:translateY(1px)}
+  button:disabled{opacity:.4;cursor:default}
+  button:focus-visible{outline:2px solid #FFB347;outline-offset:2px}
+  #b1{background:#D9572B;box-shadow:none}
+  body.run #b1{background:#2B3A5E;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+  @media (prefers-reduced-motion:reduce){body.run .fl,.laps div.new{animation:none}}
+</style>
+</head>
+<body>
+  <canvas id="cv" aria-hidden="true"></canvas>
+
+  <!-- 나로호(KSLV-I): 굵은 1단 위에 조금 가는 상단과 페어링. 날개가 없다 -->
+  <svg id="rk" viewBox="0 0 36 330" aria-hidden="true">
+    <defs>
+      <linearGradient id="hull" gradientUnits="userSpaceOnUse" x1="3" y1="0" x2="33" y2="0">
+        <stop offset="0" stop-color="#8E98A3"/><stop offset=".22" stop-color="#E6EAEE"/><stop offset=".38" stop-color="#FFFFFF"/>
+        <stop offset=".7" stop-color="#D9DEE3"/><stop offset="1" stop-color="#7C8691"/>
+      </linearGradient>
+      <linearGradient id="skirt" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#4A525C"/><stop offset=".35" stop-color="#9AA3AD"/><stop offset="1" stop-color="#3E464F"/>
+      </linearGradient>
+      <linearGradient id="bell" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#2A2D33"/><stop offset=".4" stop-color="#6B6F78"/><stop offset="1" stop-color="#1E2025"/>
+      </linearGradient>
+      <linearGradient id="foil" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#F6D27A"/><stop offset=".5" stop-color="#C9932E"/><stop offset="1" stop-color="#F0C25A"/>
+      </linearGradient>
+      <linearGradient id="core" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#FFFFFF"/><stop offset=".25" stop-color="#FFF4C8"/><stop offset="1" stop-color="#FFD27A" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="outer" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#FFB347"/><stop offset=".5" stop-color="#FF7A2E" stop-opacity=".75"/><stop offset="1" stop-color="#FF5A1E" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="vac" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#E9F2FF" stop-opacity=".95"/><stop offset=".35" stop-color="#9CC4FF" stop-opacity=".55"/><stop offset="1" stop-color="#6E9CFF" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <!-- 상단(2단): 킥모터와 노즐, 페어링 속 위성. 1단이 떨어지면 드러난다 -->
+    <g id="up">
+      <g id="plume2" class="fl" style="opacity:0">
+        <path d="M15,68 C2,96 -4,140 18,170 C40,140 34,96 21,68 Z" fill="url(#vac)"/>
+        <path d="M16,68 C14,82 15,96 18,108 C21,96 22,82 20,68 Z" fill="url(#core)"/>
+      </g>
+      <path d="M14,58 L22,58 L24,68 L12,68 Z" fill="url(#bell)"/>
+      <rect x="8" y="40" width="20" height="20" fill="url(#hull)"/>
+      <g id="sat">
+        <rect x="16.5" y="34" width="3" height="6" fill="#6B717A"/>
+        <rect x="11" y="16" width="14" height="18" rx="1" fill="url(#foil)"/>
+        <path d="M11,22 H25 M11,28 H25" stroke="#9C6E1E" stroke-width=".4"/>
+        <rect x="12.5" y="18" width="4" height="3" fill="#1D3A6E"/><rect x="19.5" y="18" width="4" height="3" fill="#1D3A6E"/>
+        <rect x="12.5" y="29" width="11" height="3" fill="#1D3A6E"/>
+        <path d="M18,16 V10" stroke="#C9CED6" stroke-width=".6"/>
+      </g>
+    </g>
+    <!-- 페어링: 두 쪽으로 갈라진다 -->
+    <path id="fL" d="M8,44 L8,22 C8,8 14,1 18,0 L18,44 Z" fill="url(#hull)"/>
+    <path id="fR" d="M28,44 L28,22 C28,8 22,1 18,0 L18,44 Z" fill="url(#hull)"/>
+    <path id="fSeam" d="M18,0 V44" stroke="#B9C0C8" stroke-width=".4" opacity=".7"/>
+
+    <!-- 1단: 배기 불꽃, 노즐, 태극기와 대한민국, 단 사이 연결부 -->
+    <g id="s1">
+      <g id="plume" class="fl" style="opacity:0">
+        <path id="pOuter" d="M10,338 C4,380 6,430 18,470 C30,430 32,380 26,338 Z" fill="url(#outer)"/>
+        <path d="M13,338 C10,362 12,392 18,414 C24,392 26,362 23,338 Z" fill="url(#core)"/>
+      </g>
+      <path d="M12,326 L24,326 L27,340 L9,340 Z" fill="url(#bell)"/>
+      <rect x="3" y="72" width="30" height="258" fill="url(#hull)"/>
+      <rect x="3" y="306" width="30" height="24" fill="url(#skirt)"/>
+      <path d="M3,180 H33 M3,250 H33" stroke="#9AA3AD" stroke-width=".5" opacity=".6"/>
+      <g transform="translate(9 92)">
+        <rect width="18" height="12" fill="#FFFFFF" stroke="#B9C0C8" stroke-width=".3"/>
+        <path d="M6.4,6 A2.6,2.6 0 0 1 11.6,6 A1.3,1.3 0 0 1 9,6 A1.3,1.3 0 0 0 6.4,6 Z" fill="#C60C30"/>
+        <path d="M6.4,6 A2.6,2.6 0 0 0 11.6,6 A1.3,1.3 0 0 0 9,6 A1.3,1.3 0 0 1 6.4,6 Z" fill="#003478"/>
+        <g fill="#111">
+          <rect x="2.2" y="2" width="2.4" height=".45" transform="rotate(-34 3.4 2.2)"/><rect x="2.6" y="2.7" width="2.4" height=".45" transform="rotate(-34 3.8 2.9)"/>
+          <rect x="13.4" y="2" width="2.4" height=".45" transform="rotate(34 14.6 2.2)"/><rect x="13" y="2.7" width="2.4" height=".45" transform="rotate(34 14.2 2.9)"/>
+          <rect x="2.6" y="9" width="2.4" height=".45" transform="rotate(34 3.8 9.2)"/><rect x="2.2" y="9.7" width="2.4" height=".45" transform="rotate(34 3.4 9.9)"/>
+          <rect x="13" y="9" width="2.4" height=".45" transform="rotate(-34 14.2 9.2)"/><rect x="13.4" y="9.7" width="2.4" height=".45" transform="rotate(-34 14.6 9.9)"/>
+        </g>
+      </g>
+      <g fill="#16264E" font-family="Pretendard,sans-serif" font-weight="800" font-size="9.5" text-anchor="middle">
+        <text x="18" y="124">대</text><text x="18" y="136">한</text><text x="18" y="148">민</text><text x="18" y="160">국</text>
+      </g>
+      <rect x="3" y="70" width="30" height="3" fill="#5A626C"/>
+      <path d="M3,70 L8,60 L28,60 L33,70 Z" fill="url(#hull)"/>
+    </g>
+  </svg>
+
+  <div class="hud">
+    <div class="status" id="st">나로우주센터 · 발사 대기</div>
+    <div class="time" role="timer"><span class="tp">T+</span><span id="t">00:00<span class="cs">.00</span></span></div>
+  </div>
+  <div class="tele" aria-hidden="true"><span>고도<b id="alt">0.0</b> km</span><span>속도<b id="vel">0</b> km/h</span></div>
+
+  <div class="laps" id="laps" aria-hidden="true"></div>
+  <div class="row">
+    <button id="b1" type="button">발사</button>
+    <button id="b2" type="button" disabled>랩</button>
+    <button id="b3" type="button" disabled>리셋</button>
+  </div>
+
+<script>
+(function(){
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d'),rk=document.getElementById('rk'),pOuter=document.getElementById('pOuter'),
+      tEl=document.getElementById('t'),stEl=document.getElementById('st'),altEl=document.getElementById('alt'),velEl=document.getElementById('vel'),
+      lapsEl=document.getElementById('laps'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),body=document.body;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var W=0,H=0,D=1,RH=130,RW=0,PXM=0,padY=0,targetY=0;
+  var run=false,stt=0,acc=0,raf=0,prevT=0,laps=[],last=0;
+  var puffs=[],stars=[],seed=3;
+  function rnd(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646;}
+  for(var i=0;i<90;i++)stars.push([rnd(),rnd(),.3+rnd()*.7,rnd()<.15]);
+
+  function resize(){D=Math.min(2,window.devicePixelRatio||1);W=cv.clientWidth;H=cv.clientHeight;
+    cv.width=Math.round(W*D);cv.height=Math.round(H*D);ctx.setTransform(D,0,0,D,0,0);
+    RH=Math.max(96,Math.min(140,H*.38));RW=RH*36/330;PXM=RH/33;            /* 나로호 길이 약 33m */
+    padY=H-88;targetY=Math.max(RH+82,H*.56);
+    rk.setAttribute('width',RW.toFixed(1));rk.setAttribute('height',RH.toFixed(1));}
+
+  function el(){return acc+(run?performance.now()-stt:0);}
+  function pad(n,w){return String(n).padStart(w||2,'0');}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);return pad(mm)+':'+pad(ss)+'.'+pad(cs);}
+
+  /* ── 비행 모형 (화면 연출용 근사치) ──
+     누르고 1초 동안 점화, 그 뒤 이륙. 고도는 300km에 다가가고 속도는 궤도 속도(초속 7.8km)에 다가간다. */
+  /* 실제보다 시간을 압축한다: 처음엔 천천히 오르다 점점 빨라져 15초 남짓이면 우주에 닿는다 */
+  var IGN=1.0;
+  function warp(tf){return tf+tf*tf*tf/30;}
+  function altOfW(w){return 300000*(1-Math.exp(-Math.pow(w/200,2)));}
+  function tAtAlt(a){var w=200*Math.sqrt(-Math.log(1-a/300000)),lo=0,hi=200;
+    for(var k=0;k<50;k++){var m=(lo+hi)/2;if(warp(m)<w)lo=m;else hi=m;}return lo;}
+  /* 비행 순서: 페어링 분리(고도 25km) → 1단 분리(50km) → 2단 점화(1.2초 뒤) → 우주(100km) */
+  var T_FAIR=tAtAlt(25000),T_SEP=tAtAlt(50000),T_IGN2=T_SEP+1.2,T_SPACE=tAtAlt(100000),T_ORBIT=T_SPACE+2.5;
+  function flight(ms){var tf=Math.max(0,ms/1000-IGN),w=warp(tf);
+    return {tf:tf,alt:altOfW(w),v:7800*(1-Math.exp(-15*w/7800))};}
+
+  function mix(a,b,k){return Math.round(a+(b-a)*k);}
+  function hex(c){return [parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16)];}
+  var SKY=[[0,'#3D7CC6','#C4DDF0'],[12,'#1E4888','#7AA6D2'],[35,'#0A1C40','#2E4C80'],[80,'#03060F','#0C1834']];
+  function skyAt(km){var i=0;while(i<SKY.length-2&&km>SKY[i+1][0])i++;var a=SKY[i],b=SKY[i+1],k=Math.max(0,Math.min(1,(km-a[0])/(b[0]-a[0])));
+    var t0=hex(a[1]),t1=hex(b[1]),u0=hex(a[2]),u1=hex(b[2]);
+    return ['rgb('+mix(t0[0],t1[0],k)+','+mix(t0[1],t1[1],k)+','+mix(t0[2],t1[2],k)+')','rgb('+mix(u0[0],u1[0],k)+','+mix(u0[1],u1[1],k)+','+mix(u0[2],u1[2],k)+')'];}
+
+  function lattice(x,base,h,w){ctx.strokeStyle='rgba(40,48,60,.85)';ctx.lineWidth=1;
+    ctx.strokeRect(x-w/2,base-h,w,h);ctx.beginPath();
+    for(var y=base;y>base-h;y-=w*1.6){ctx.moveTo(x-w/2,y);ctx.lineTo(x+w/2,y-w*1.6);ctx.moveTo(x+w/2,y);ctx.lineTo(x-w/2,y-w*1.6);}
+    ctx.stroke();}
+
+  function drawScene(f,shift,rx,rBottom,dt,emit){
+    var km=f.alt/1000,sky=skyAt(km);
+    var g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,sky[0]);g.addColorStop(.75,sky[1]);g.addColorStop(1,sky[1]);
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    /* 별: 고도 25km부터 서서히 보인다 */
+    var sa=Math.max(0,Math.min(1,(km-25)/45));
+    if(sa>0){for(var i=0;i<stars.length;i++){var s=stars[i];ctx.globalAlpha=sa*s[2];ctx.fillStyle='#fff';
+      var sz=s[3]?1.6:1;ctx.fillRect(s[0]*W,s[1]*H*.8,sz,sz);}ctx.globalAlpha=1;}
+    /* 지구의 둥근 가장자리: 높이 오를수록 아래에서 드러난다 */
+    var ek=Math.max(0,Math.min(1,(km-45)/120));
+    if(ek>0){var R=W*2.6,cy=H+R-ek*H*.26;
+      var eg=ctx.createRadialGradient(W/2,cy,R*.97,W/2,cy,R*1.03);eg.addColorStop(0,'rgba(60,140,230,.0)');eg.addColorStop(.5,'rgba(110,190,255,'+(.55*ek)+')');eg.addColorStop(1,'rgba(110,190,255,0)');
+      ctx.fillStyle=eg;ctx.beginPath();ctx.arc(W/2,cy,R*1.03,0,Math.PI*2);ctx.fill();
+      var lg=ctx.createLinearGradient(0,cy-R,0,cy-R+H*.3);lg.addColorStop(0,'#2C6FB8');lg.addColorStop(1,'#0B2348');
+      ctx.fillStyle=lg;ctx.beginPath();ctx.arc(W/2,cy,R,0,Math.PI*2);ctx.fill();}
+    /* 구름: 1~4km 높이에 있다가 지나간다(거리는 압축해 그린다) */
+    [[1500,.2,1],[2600,.72,.8],[3800,.35,1.2]].forEach(function(c){
+      var y=rBottom-(c[0]-f.alt)*.09;
+      if(y>-40&&y<H+40){ctx.fillStyle='rgba(255,255,255,'+(.55*Math.max(0,1-km/20))+')';
+        for(var k=0;k<5;k++){ctx.beginPath();ctx.ellipse(c[1]*W+(k-2)*22*c[2],y+(k%2)*5,26*c[2],9*c[2],0,0,Math.PI*2);ctx.fill();}}});
+
+    /* 땅: 수평선, 바다, 섬, 발사대. 로켓을 따라 카메라가 오르면 아래로 밀려난다 */
+    var gy=padY+shift;
+    if(gy-120<H){
+      var hz=gy-34;
+      ctx.fillStyle='#2D5C86';ctx.fillRect(0,hz,W,H-hz);
+      ctx.fillStyle='rgba(255,255,255,.18)';for(var w=0;w<6;w++)ctx.fillRect(((w*73)%W),hz+4+w*3,30,1);
+      ctx.fillStyle='#3E5A4C';ctx.beginPath();ctx.moveTo(0,hz);ctx.quadraticCurveTo(W*.16,hz-22,W*.34,hz-6);ctx.quadraticCurveTo(W*.42,hz-12,W*.5,hz);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#4C6A52';ctx.beginPath();ctx.moveTo(W*.62,hz);ctx.quadraticCurveTo(W*.8,hz-30,W,hz-12);ctx.lineTo(W,hz);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#55704E';ctx.fillRect(0,gy-8,W,H);
+      ctx.fillStyle='#A9ADB0';ctx.fillRect(rx-W*.24,gy-6,W*.48,10);
+      ctx.fillStyle='#8C9195';ctx.fillRect(rx-W*.24,gy+4,W*.48,H);
+      ctx.fillStyle='#2A2C2F';ctx.fillRect(rx-RW*.9,gy-6,RW*1.8,12);
+      /* 피뢰탑 둘과 엄빌리컬 타워 */
+      lattice(W*.2,gy-4,RH*1.25,5);lattice(W*.8,gy-4,RH*1.25,5);
+      var ux=rx+RW*1.6,uh=RH*.78;lattice(ux,gy-6,uh,7);
+      var swing=Math.min(1,f.tf*1.4);
+      ctx.save();ctx.translate(ux-3,gy-6-uh*.82);ctx.rotate(swing*.9);ctx.fillStyle='rgba(40,48,60,.9)';ctx.fillRect(-RW*1.1,-2,RW*1.1,4);ctx.restore();
+    }
+
+    /* 연기와 배기 흔적 */
+    if(emit&&!reduce){
+      if(f.alt<160){var n=f.tf>0?4:2;for(var p=0;p<n;p++){var dir=rnd()<.5?-1:1;
+        puffs.push({wx:rx+dir*(4+rnd()*8),wy:0,vx:dir*(40+rnd()*80),vy:6+rnd()*14,r:6+rnd()*6,life:0,max:3.5+rnd()*1.5,gr:22+rnd()*14,screen:false});}}
+      else if(f.tf<T_SEP){puffs.push({wx:rx+(rnd()-.5)*4,wy:rBottom+RH*.35,vx:(rnd()-.5)*8,vy:-(140+rnd()*60),r:3+rnd()*2,life:0,max:1.4,gr:12,screen:true});}
+      else if(f.tf>=T_IGN2){puffs.push({wx:rx+(rnd()-.5)*3,wy:rBottom-RH+RH*150/330,vx:(rnd()-.5)*14,vy:-(90+rnd()*40),r:2+rnd()*1.5,life:0,max:1.1,gr:14,screen:true});}
+      /* 분리 순간 연결부에서 하얀 김이 터진다 */
+      [[T_FAIR,RH*25/330],[T_SEP,RH*66/330]].forEach(function(ev){
+        if(f.tf>=ev[0]&&f.tf-dt<ev[0]){for(var b=0;b<14;b++){var an=rnd()*Math.PI*2;
+          puffs.push({wx:rx+Math.cos(an)*3,wy:rBottom-RH+ev[1],vx:Math.cos(an)*(30+rnd()*40),vy:Math.sin(an)*(30+rnd()*40),r:2+rnd()*2,life:0,max:1.2,gr:10,screen:true,burst:true});}}});
+    }
+    for(var q=puffs.length-1;q>=0;q--){var u=puffs[q];u.life+=dt;if(u.life>u.max){puffs.splice(q,1);continue;}
+      u.wx+=u.vx*dt;u.vx*=Math.pow(.35,dt);u.r+=u.gr*dt;
+      var sy;if(u.screen){u.wy-=u.vy*dt;sy=u.wy;}else{u.wy+=u.vy*dt;u.vy*=Math.pow(.5,dt);sy=gy-6-u.wy;}
+      var a=(1-u.life/u.max)*(u.screen?.35:.8);
+      ctx.fillStyle='rgba(236,238,240,'+a.toFixed(3)+')';ctx.beginPath();ctx.arc(u.wx,sy,u.r,0,Math.PI*2);ctx.fill();}
+    /* 점화 순간 바닥의 불빛 */
+    if(emit&&f.alt<120){var fg=ctx.createRadialGradient(rx,gy-4,0,rx,gy-4,60);fg.addColorStop(0,'rgba(255,200,110,.6)');fg.addColorStop(1,'rgba(255,160,60,0)');
+      ctx.fillStyle=fg;ctx.fillRect(rx-60,gy-64,120,90);}
+  }
+
+  /* ── 마지막 장면: 카메라가 물러나 지구 전체가 보이고, 위성이 궤도를 따라 지구를 돈다 ── */
+  var LANDS=[[0,.5,.42,.22],[1.1,.15,.5,.28],[2.3,-.35,.38,.3],[3.4,.35,.55,.25],[4.4,-.1,.3,.42],[5.3,.6,.35,.18],[.6,-.6,.4,.16]];
+  function drawOrbit(f,k){
+    var t=f.tf-T_ORBIT,cx=W/2,cy=H*.54,R=Math.min(W*.24,(H-150)*.42),a=R*1.9,b=R*.62,tilt=-.22;
+    ctx.save();ctx.globalAlpha=k;
+    ctx.fillStyle='#02040A';ctx.fillRect(0,0,W,H);
+    for(var i=0;i<stars.length;i++){var s=stars[i];ctx.globalAlpha=k*s[2];ctx.fillStyle='#fff';var sz=s[3]?1.6:1;ctx.fillRect(s[0]*W,s[1]*H,sz,sz);}
+    ctx.globalAlpha=k;
+    function op(an){var x=Math.cos(an)*a,y=Math.sin(an)*b;return [cx+x*Math.cos(tilt)-y*Math.sin(tilt),cy+x*Math.sin(tilt)+y*Math.cos(tilt)];}
+    function path(from,to){ctx.beginPath();for(var an=from;an<=to+1e-6;an+=.05){var q=op(an);an===from?ctx.moveTo(q[0],q[1]):ctx.lineTo(q[0],q[1]);}ctx.stroke();}
+    var th=Math.PI/2+t*2*Math.PI/9,behind=Math.sin(th)<0;
+    ctx.setLineDash([2,4]);ctx.strokeStyle='rgba(185,240,255,.35)';ctx.lineWidth=1;path(Math.PI,2*Math.PI);ctx.setLineDash([]);
+    if(behind)drawSat();
+    /* 지구: 대기 빛, 바다, 돌아가는 대륙, 밤 쪽 그늘 */
+    var ag=ctx.createRadialGradient(cx,cy,R*.95,cx,cy,R*1.18);ag.addColorStop(0,'rgba(110,190,255,.55)');ag.addColorStop(1,'rgba(110,190,255,0)');
+    ctx.fillStyle=ag;ctx.beginPath();ctx.arc(cx,cy,R*1.18,0,7);ctx.fill();
+    var og=ctx.createRadialGradient(cx-R*.35,cy-R*.35,R*.1,cx,cy,R);og.addColorStop(0,'#3F8FD8');og.addColorStop(1,'#123E78');
+    ctx.fillStyle=og;ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.fill();
+    ctx.save();ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.clip();
+    var rot=t*.35;
+    LANDS.forEach(function(l){var lon=l[0]+rot,c=Math.cos(lon);if(c<-.15)return;var x=cx+R*Math.sin(lon)*Math.cos(l[1]),y=cy-R*Math.sin(l[1]);
+      ctx.fillStyle='rgba(92,150,92,'+Math.min(1,.4+c)+')';ctx.beginPath();ctx.ellipse(x,y,R*l[2]*Math.max(.15,c),R*l[3],0,0,7);ctx.fill();});
+    ctx.fillStyle='rgba(255,255,255,.55)';[[.2,.3],[1.9,-.2],[3.8,.5],[5,-.45]].forEach(function(cl){var lon=cl[0]+rot*1.2,c=Math.cos(lon);if(c<0)return;
+      ctx.beginPath();ctx.ellipse(cx+R*Math.sin(lon),cy-R*cl[1],R*.22*c,R*.06,0,0,7);ctx.fill();});
+    var ng=ctx.createLinearGradient(cx-R,cy,cx+R,cy);ng.addColorStop(0,'rgba(0,0,0,0)');ng.addColorStop(.55,'rgba(0,0,0,0)');ng.addColorStop(1,'rgba(0,0,10,.62)');
+    ctx.fillStyle=ng;ctx.fillRect(cx-R,cy-R,2*R,2*R);ctx.restore();
+    ctx.setLineDash([2,4]);ctx.strokeStyle='rgba(185,240,255,.45)';path(0,Math.PI);ctx.setLineDash([]);
+    if(!behind)drawSat();
+    ctx.restore();
+    function drawSat(){
+      /* 지나온 자취 */
+      for(var j=1;j<18;j++){var p0=op(th-j*.045),p1=op(th-(j-1)*.045);ctx.strokeStyle='rgba(255,210,122,'+(.6*(1-j/18))+')';ctx.lineWidth=1.6;
+        ctx.beginPath();ctx.moveTo(p0[0],p0[1]);ctx.lineTo(p1[0],p1[1]);ctx.stroke();}
+      var q=op(th),sc=.85+.25*Math.sin(th);
+      ctx.save();ctx.translate(q[0],q[1]);ctx.scale(sc,sc);ctx.rotate(th*.2);
+      ctx.fillStyle='#1D3A6E';ctx.fillRect(-13,-2.5,8,5);ctx.fillRect(5,-2.5,8,5);
+      ctx.strokeStyle='#9CC4FF';ctx.lineWidth=.5;ctx.strokeRect(-13,-2.5,8,5);ctx.strokeRect(5,-2.5,8,5);
+      ctx.fillStyle='#E9B949';ctx.fillRect(-4.5,-4,9,8);ctx.fillStyle='#FFF1C0';ctx.fillRect(-4.5,-4,9,1.6);
+      ctx.restore();
+      var gl=ctx.createRadialGradient(q[0],q[1],0,q[0],q[1],10);gl.addColorStop(0,'rgba(255,230,160,.45)');gl.addColorStop(1,'rgba(255,230,160,0)');ctx.fillStyle=gl;ctx.fillRect(q[0]-10,q[1]-10,20,20);
+    }
+  }
+
+  function status(ms,f){
+    if(!run&&ms>0)return ['홀드 (HOLD)','hold'];
+    if(!run)return ['나로우주센터 · 발사 대기',''];
+    if(f.tf<=0)return ['점화 (IGNITION)','go'];
+    if(f.tf<8)return ['이륙 (LIFTOFF)','go'];
+    if(f.tf<T_FAIR)return ['상승 중 · 대기권 통과','go'];
+    if(f.tf<T_SEP)return ['페어링 분리','go'];
+    if(f.tf<T_IGN2)return ['1단 분리','go'];
+    if(f.tf<T_SPACE)return ['2단 점화','go'];
+    if(f.tf<T_ORBIT)return ['우주 공간 진입','space'];
+    return ['위성 궤도 진입 · 지구를 돈다','space'];
+  }
+
+  var up=document.getElementById('up'),s1=document.getElementById('s1'),fL=document.getElementById('fL'),fR=document.getElementById('fR'),
+      fSeam=document.getElementById('fSeam'),plume1=document.getElementById('plume'),plume2=document.getElementById('plume2');
+  /* 분리 장면은 비행 시간만으로 정해진다. 홀드하면 그대로 멈추고 리셋하면 제자리로 돌아온다 */
+  function stages(tf){
+    var a=tf-T_FAIR;
+    if(a>0){var dx=4*a+12*a*a,dy=6*a*a,op=Math.max(0,1-(a-1.2)/1);
+      fL.setAttribute('transform','translate('+(-dx).toFixed(2)+' '+dy.toFixed(2)+') rotate('+(-(20*a+30*a*a)).toFixed(1)+' 8 44)');
+      fR.setAttribute('transform','translate('+dx.toFixed(2)+' '+dy.toFixed(2)+') rotate('+(20*a+30*a*a).toFixed(1)+' 28 44)');
+      fL.style.opacity=fR.style.opacity=op;fSeam.style.opacity=0;}
+    else{fL.removeAttribute('transform');fR.removeAttribute('transform');fL.style.opacity=fR.style.opacity=1;fSeam.style.opacity=.7;}
+    var b=tf-T_SEP;
+    if(b>0){s1.setAttribute('transform','translate(0 '+(12*b+26*b*b).toFixed(2)+') rotate('+(9*b).toFixed(1)+' 18 200)');
+      s1.style.opacity=Math.max(0,1-(b-2)/1.4);}
+    else{s1.removeAttribute('transform');s1.style.opacity=1;}
+  }
+
+  function frame(now){
+    var dt=prevT?Math.min(.05,(now-prevT)/1000):0;prevT=now;
+    var ms=el(),f=flight(ms),altPx=f.alt*PXM;
+    var rBottom=Math.max(targetY,padY-4-altPx),shift=rBottom-(padY-4-altPx);
+    /* 1단이 떨어지면 카메라가 남은 상단을 화면 가운데로 데려온다 */
+    var sb=Math.max(0,Math.min(1,(f.tf-T_SEP)/2));sb=sb*sb*(3-2*sb);rBottom+=sb*RH*.5;
+    var rx=W/2;
+    drawScene(f,shift,rx,rBottom,dt,run);
+    var sway=run&&!reduce&&f.tf>0?(Math.random()-.5)*.6:0;
+    rk.style.transform='translate('+(rx-RW/2+sway).toFixed(2)+'px,'+(rBottom-RH).toFixed(2)+'px)';
+    var ko=Math.max(0,Math.min(1,(f.tf-T_ORBIT)/2));if(ko>0)drawOrbit(f,ko);rk.style.opacity=1-ko;
+    /* 높이 오를수록 공기가 옅어져 불꽃이 넓게 퍼진다 */
+    stages(f.tf,run);
+    var spread=1+Math.min(1.6,f.alt/40000);
+    pOuter.setAttribute('d','M10,338 C'+(10-6*spread)+',380 '+(10-4*spread)+',430 18,'+(450+20*spread)+' C'+(26+4*spread)+',430 '+(26+6*spread)+',380 26,338 Z');
+    plume1.style.opacity=(ms>120&&f.tf<T_SEP)?1:0;
+    plume2.style.opacity=f.tf>=T_IGN2?1:(f.tf>T_IGN2-.2?(f.tf-(T_IGN2-.2))/.2:0);
+    var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60),hh=Math.floor(mm/60);
+    tEl.innerHTML=(hh?pad(hh)+':'+pad(mm%60):pad(mm))+':'+pad(ss)+'<span class="cs">.'+pad(cs)+'</span>';
+    altEl.textContent=(f.alt/1000).toFixed(1);velEl.textContent=Math.round(f.v*3.6).toLocaleString('en-US');
+    var st=status(ms,f);if(stEl.textContent!==st[0]){stEl.textContent=st[0];stEl.className='status '+st[1];}
+    if(run||puffs.length)raf=requestAnimationFrame(frame);else{raf=0;prevT=0;}
+  }
+  function kick(){if(!raf){prevT=0;raf=requestAnimationFrame(frame);}}
+
+  function drawLaps(fresh){
+    var best=laps.length>1?Math.min.apply(null,laps.map(function(l){return l.d;})):-1,h='';
+    for(var k=0;k<2;k++){var i=laps.length-1-k;
+      if(i>=0){var l=laps[i];h+='<div class="on'+(fresh&&k===0?' new':'')+'"><span class="n">LAP '+pad(i+1)+(l.d===best?' ★':'')+'</span><span>+'+plain(l.d)+'</span><span>T+'+plain(l.t)+'</span></div>';}
+      else h+='<div><span class="n">LAP --</span><span>+--:--.--</span><span>T+--:--.--</span></div>';}
+    lapsEl.innerHTML=h;}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    body.classList.toggle('run',run);
+    b1.textContent=run?'정지':(el()>0?'재개':'발사');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function start(){if(run)return;run=true;stt=performance.now();ui();kick();}
+  function stop(){if(!run)return;acc=el();run=false;ui();kick();}
+  function reset(){if(run)return;acc=0;stt=0;laps=[];last=0;puffs=[];drawLaps(false);ui();kick();}
+  function lap(){if(!run)return;var e=el(),d=e-last;last=e;laps.push({t:e,d:d});drawLaps(true);
+    srSay('랩 '+laps.length+'. 구간 '+srHuman(d));}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  window.addEventListener('resize',function(){resize();kick();});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){cancelAnimationFrame(raf);raf=0;kick();}});
+  resize();drawLaps(false);ui();kick();
+})();
+</script>
+</body>
+</html>

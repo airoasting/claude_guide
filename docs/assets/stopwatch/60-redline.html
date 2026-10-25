@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>레드라인 계기판 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23121216'/><path d='M22 76A36 36 0 1 1 78 76' fill='none' stroke='%23E6E6EC' stroke-width='7'/><path d='M86 50A36 36 0 0 1 78 76' fill='none' stroke='%23E8344A' stroke-width='7'/><path d='M50 50L28 70' stroke='%23FF6A2A' stroke-width='7' stroke-linecap='round'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+    color:#E6E6EC;word-break:keep-all;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:8px;
+    background:radial-gradient(90% 80% at 50% 40%,#1C1C22 0%,#121216 60%,#0B0B0E 100%)}
+
+  .gauge{width:min(94vw,calc(100vh - 58px));aspect-ratio:1/1;display:block;cursor:pointer}
+  .label{font-family:inherit;font-weight:500;letter-spacing:5px;fill:#9A9AA6}
+
+  /* 진행 호와 표시 바늘. 50초를 넘기면 레드라인에 들어간다 */
+  #prog{transition:stroke .3s}
+  #mk path{fill:#FF6A2A;transition:fill .3s}
+  #redArc{transition:filter .3s,opacity .3s;opacity:.7}
+  body.red #prog{stroke:#E8344A}
+  body.red #mk path{fill:#FF3B4E}
+  body.red #redArc{opacity:1;filter:drop-shadow(0 0 6px rgba(232,52,74,.8))}
+  body.red.go #redArc{animation:pulse .5s ease-in-out infinite alternate}
+  @keyframes pulse{to{opacity:.55}}
+
+  /* 랩을 누르면 랩 창이 한 번 번쩍인다 */
+  #lapBox{transition:fill .5s}
+  body.flash #lapBox{fill:rgba(255,106,42,.28);transition:none}
+
+  .row{display:flex;gap:8px;justify-content:center;width:min(94vw,300px)}
+  button{font-family:inherit;font-size:12px;font-weight:800;letter-spacing:2px;cursor:pointer;
+    flex:1 1 0;min-width:0;height:30px;border-radius:7px;color:#E6E6EC;
+    background:#1E1E25;border:1px solid #34343E;
+    transition:filter .18s,opacity .18s,transform .12s,border-color .18s}
+  button:hover:not(:disabled){border-color:#FF6A2A;transform:translateY(-1px)}
+  button:active:not(:disabled){transform:translateY(0)}
+  button:disabled{opacity:.36;cursor:default}
+  button:focus-visible{outline:2px solid #FF6A2A;outline-offset:3px}
+  #b1{background:#FF6A2A;border-color:#FF6A2A;color:#140A04}
+  body.go #b1{background:#E8344A;border-color:#E8344A;color:#FFFFFF}
+
+  @media (prefers-reduced-motion:reduce){
+    body.red.go #redArc{animation:none}
+  }
+</style>
+</head>
+<body>
+  <svg class="gauge" id="gauge" viewBox="0 0 400 400" aria-hidden="true">
+    <defs>
+      <radialGradient id="face" cx="50%" cy="45%" r="60%">
+        <stop offset="0%" stop-color="#101014"/><stop offset="100%" stop-color="#08080A"/>
+      </radialGradient>
+      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- 바깥 테두리: 회색 트랙과 레드라인 구간 -->
+    <path id="track" fill="none" stroke="#24242C" stroke-width="7" stroke-linecap="butt"/>
+    <path id="redArc" fill="none" stroke="#B0283A" stroke-width="7" stroke-linecap="butt"/>
+
+    <!-- 계기판 면 -->
+    <circle cx="200" cy="200" r="182" fill="url(#face)" stroke="#202028" stroke-width="2"/>
+
+    <!-- 흐른 시간만큼 차오르는 호 -->
+    <path id="prog" fill="none" stroke="#FF6A2A" stroke-width="3" stroke-linecap="round" opacity=".85" filter="url(#glow)"/>
+
+    <g id="ticks"></g>
+    <g id="nums"></g>
+
+    <!-- 테두리를 따라 도는 표시 바늘 -->
+    <g id="mk"><path d="M200,22 L193,46 L207,46 Z"/></g>
+
+    <text class="label" x="200" y="128" text-anchor="middle" font-size="13">CHRONO</text>
+    <path id="mmss" fill="none" stroke="#ECECF2" stroke-linejoin="round" stroke-linecap="square"/>
+    <path id="cs" fill="none" stroke="#FF8A4A" stroke-linejoin="round" stroke-linecap="square"/>
+
+    <!-- 랩 창 -->
+    <path id="lapBox" d="M152,288 L248,288 L262,330 L138,330 Z" fill="rgba(255,106,42,0)" stroke="#FF6A2A" stroke-width="2.4" stroke-linejoin="round"/>
+    <text class="label" x="200" y="304" text-anchor="middle" font-size="10" style="letter-spacing:4px">LAP</text>
+    <path id="lapN" fill="none" stroke="#FF6A2A" stroke-linejoin="round" stroke-linecap="square"/>
+    <text class="label" id="st" x="200" y="356" text-anchor="middle" font-size="12">READY</text>
+  </svg>
+
+  <div class="row">
+    <button id="b1" type="button">시작</button>
+    <button id="b2" type="button" disabled>랩</button>
+    <button id="b3" type="button" disabled>리셋</button>
+  </div>
+
+<script>
+/* ── 각진 숫자 ──
+   기기마다 글꼴이 달라도 같은 모양이 나오도록, 숫자를 12×16 칸 안의 굵은 선으로 직접 그린다.
+   0에는 빗금을 넣어 계기판 숫자처럼 보이게 한다. */
+var Glyph=(function(){
+  var a=1.8,b=10.2,t=1.8,m=8,u=14.2;
+  var G={
+    '0':[[[a,t],[b,t],[b,u],[a,u],[a,t]],[[a+1.4,u-2.6],[b-1.4,t+2.6]]],
+    '1':[[[3.6,t+2],[6.6,t],[6.6,u]]],
+    '2':[[[a,t],[b,t],[b,m],[a,m],[a,u],[b,u]]],
+    '3':[[[a,t],[b,t],[b,u],[a,u]],[[a+2.4,m],[b,m]]],
+    '4':[[[a,t],[a,m],[b,m]],[[b,t],[b,u]]],
+    '5':[[[b,t],[a,t],[a,m],[b,m],[b,u],[a,u]]],
+    '6':[[[b,t],[a,t],[a,u],[b,u],[b,m],[a,m]]],
+    '7':[[[a,t],[b,t],[b,u]]],
+    '8':[[[a,t],[b,t],[b,u],[a,u],[a,t]],[[a,m],[b,m]]],
+    '9':[[[b,m],[a,m],[a,t],[b,t],[b,u],[a,u]]],
+    ':':[[[6,5],[6,5.01]],[[6,11],[6,11.01]]],
+    '.':[[[3,u],[3,u+.01]]]
+  };
+  var W={':':7,'.':6};
+  function width(s){var w=0;for(var i=0;i<s.length;i++)w+=(W[s[i]]||12)+2.4;return w-2.4;}
+  /* 문자열 하나를 path d 하나로 만든다. x,y는 기준점, k는 배율, anchor는 'middle' 또는 'start' */
+  function d(s,x,y,k,anchor){
+    var ox=anchor==='middle'?x-width(s)*k/2:x,out='';
+    for(var i=0;i<s.length;i++){var ch=s[i],g=G[ch],dx=ch===':'?-2.5:(ch==='.'?-1.5:0);
+      if(g)for(var j=0;j<g.length;j++)for(var p=0;p<g[j].length;p++){
+        out+=(p?'L':'M')+(ox+(g[j][p][0]+dx)*k).toFixed(2)+','+(y+g[j][p][1]*k).toFixed(2);}
+      ox+=((W[ch]||12)+2.4)*k;}
+    return out;}
+  return {d:d};
+})();
+
+/* ── 눈금 ──
+   0초는 왼쪽 아래, 30초는 맨 위, 60초는 오른쪽 아래. 270도를 60칸으로 나눈다. */
+var CX=200,CY=200;
+function ang(v){return -135+v*4.5;}
+function pt(r,deg){var a=deg*Math.PI/180;return [CX+r*Math.sin(a),CY-r*Math.cos(a)];}
+function arc(r,v0,v1){var p0=pt(r,ang(v0)),p1=pt(r,ang(v1)),big=(v1-v0)*4.5>180?1:0;
+  return 'M'+p0[0].toFixed(2)+','+p0[1].toFixed(2)+' A'+r+','+r+' 0 '+big+',1 '+p1[0].toFixed(2)+','+p1[1].toFixed(2);}
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  document.getElementById('track').setAttribute('d',arc(192,0,50));
+  document.getElementById('redArc').setAttribute('d',arc(192,50,60));
+  var g=document.getElementById('ticks');
+  for(var v=0;v<=60;v++){
+    var major=v%5===0,red=v>=50,r0=170,r1=major?(v%10===0?148:152):160,
+        p0=pt(r0,ang(v)),p1=pt(r1,ang(v)),l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',p0[0].toFixed(2));l.setAttribute('y1',p0[1].toFixed(2));
+    l.setAttribute('x2',p1[0].toFixed(2));l.setAttribute('y2',p1[1].toFixed(2));
+    l.setAttribute('stroke',red?'#E8344A':(major?'#E6E6EC':'#5E5E68'));
+    l.setAttribute('stroke-width',major?3.4:1.4);
+    g.appendChild(l);}
+  var n=document.getElementById('nums');
+  for(v=0;v<60;v+=5){var c=pt(128,ang(v)),p=document.createElementNS(NS,'path'),s=String(v);
+    p.setAttribute('d',Glyph.d(s,c[0],c[1]-7,.9,'middle'));
+    p.setAttribute('fill','none');p.setAttribute('stroke',v>=50?'#FF3B4E':'#C4C4CE');
+    p.setAttribute('stroke-width','2.6');p.setAttribute('stroke-linejoin','round');p.setAttribute('stroke-linecap','square');
+    n.appendChild(p);}
+})();
+</script>
+<script>
+(function(){
+  var mmss=document.getElementById('mmss'),csP=document.getElementById('cs'),lapN=document.getElementById('lapN'),
+      st=document.getElementById('st'),mk=document.getElementById('mk'),prog=document.getElementById('prog'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,stt=0,acc=0,raf=0,laps=[],last=0,ft=null,lastTxt='';
+  var LEN=174*Math.PI*1.5;
+  prog.setAttribute('d',arc(174,0,60));
+  mmss.setAttribute('stroke-width','8.4');csP.setAttribute('stroke-width','5.2');lapN.setAttribute('stroke-width','3.4');
+
+  function el(){return acc+(run?performance.now()-stt:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+  function draw(){
+    var ms=el(),cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.min(99,Math.floor(s/60));
+    var txt=pad(mm,2)+':'+pad(ss,2);
+    if(txt!==lastTxt){mmss.setAttribute('d',Glyph.d(txt,200,152,3.1,'middle'));lastTxt=txt;}
+    csP.setAttribute('d',Glyph.d('.'+pad(cs,2),200,232,1.9,'middle'));
+    var sec=(ms%60000)/1000;
+    mk.setAttribute('transform','rotate('+ang(sec).toFixed(2)+' 200 200)');
+    prog.setAttribute('stroke-dasharray',(LEN*sec/60).toFixed(1)+' '+LEN.toFixed(1));
+    document.body.classList.toggle('red',sec>=50);
+  }
+  function loop(){draw();if(run)raf=requestAnimationFrame(loop);}
+  function drawLaps(){lapN.setAttribute('d',Glyph.d(String(laps.length),200,309,1.05,'middle'));}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    document.body.classList.toggle('go',run);
+    b1.textContent=run?'정지':(el()>0?'재개':'시작');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+    if(laps.length){var sp=laps[laps.length-1],best=Math.min.apply(null,laps);
+      st.textContent='LAST '+plain(sp)+(laps.length>1&&sp===best?' ★':'');}
+    else st.textContent=run?'RUNNING':(el()>0?'PAUSED':'READY');
+
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function flash(){document.body.classList.add('flash');clearTimeout(ft);
+    ft=setTimeout(function(){document.body.classList.remove('flash');},60);}
+  function start(){if(run)return;run=true;stt=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);ui();}
+  function stop(){if(!run)return;acc=el();run=false;cancelAnimationFrame(raf);draw();ui();}
+  function reset(){if(run)return;acc=0;stt=0;laps=[];last=0;drawLaps();draw();ui();}
+  function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
+    drawLaps();flash();ui();
+    srSay('랩 '+laps.length+'. 구간 '+srHuman(sp));}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.getElementById('gauge').addEventListener('click',function(){run?stop():start();});
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run){cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);}});
+  drawLaps();draw();ui();
+})();
+</script>
+</body>
+</html>

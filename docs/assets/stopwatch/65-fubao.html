@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>푸바오 대나무 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23CFE3A8'/><circle cx='26' cy='28' r='14' fill='%232A2420'/><circle cx='74' cy='28' r='14' fill='%232A2420'/><ellipse cx='50' cy='56' rx='38' ry='34' fill='%23FBF4E4'/><ellipse cx='36' cy='56' rx='9' ry='12' transform='rotate(35 36 56)' fill='%232A2420'/><ellipse cx='64' cy='56' rx='9' ry='12' transform='rotate(-35 64 56)' fill='%232A2420'/><ellipse cx='50' cy='70' rx='6' ry='4' fill='%232A2420'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background:#CFE2AA;color:#2E4A22;position:relative}
+  .bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+  /* ── 배경: 대나무 숲과 햇살. 잠든 동안은 조금 어둑하다 ── */
+  #dim{opacity:0;transition:opacity 1.2s ease}
+  body:not(.sit) #dim{opacity:.24}
+  .rays{opacity:.5;transition:opacity 1.2s ease}
+  body:not(.sit) .rays{opacity:.15}
+  .sway{transform-box:fill-box;transform-origin:50% 0;animation:sway 6s ease-in-out infinite alternate}
+  .sway.b{animation-duration:7.4s;animation-delay:-3s}
+  @keyframes sway{from{transform:rotate(-1.6deg)}to{transform:rotate(1.6deg)}}
+
+  /* ── 푸바오 ── */
+  .panda{position:absolute;left:50%;top:50px;width:220px;height:200px;margin-left:-110px;overflow:visible}
+  .vb{transform-box:view-box}
+
+  /* 누운 몸 ↔ 앉은 몸 */
+  .lie{transition:opacity .45s ease .3s}
+  body.sit .lie{opacity:0;transition:opacity .3s ease .1s}
+  .lieBreath{transform-origin:124px 184px;animation:breathe 3.6s ease-in-out infinite}
+  @keyframes breathe{50%{transform:scale(1.015,1.04)}}
+  .sitB{opacity:0;transform-origin:110px 184px;transform:scale(1.05,.6);transition:opacity .3s ease,transform .45s ease}
+  body.sit .sitB{opacity:1;transform:none;transition:opacity .25s ease .1s,transform .6s cubic-bezier(.34,1.5,.6,1) .1s}
+
+  /* 머리: 자세를 따라 옮겨 가고, 잘 때는 숨 쉬며 살짝 오르내린다 */
+  .headPose{transform-origin:110px 62px;transform:translate(-18px,66px) rotate(-9deg);
+    transition:transform .75s cubic-bezier(.45,0,.3,1)}
+  body.sit .headPose{transform:none;transition:transform .7s cubic-bezier(.34,1.3,.6,1) .12s}
+  body.pause .headPose{transform:rotate(5deg);transition:transform .5s cubic-bezier(.34,1.4,.6,1)}
+  .headBreath{animation:headB 3.6s ease-in-out infinite}
+  body.sit .headBreath{animation:none}
+  @keyframes headB{50%{transform:translateY(-1.4px)}}
+
+  /* 눈: 감은 눈, 뜬 눈, 기쁜 눈 */
+  .eyeO,.eyeH{opacity:0;transition:opacity .15s}
+  .eyeS{transition:opacity .15s}
+  body.sit .eyeO{opacity:1}
+  body.sit .eyeS{opacity:0}
+  body.lapPop .eyeO{opacity:0}
+  body.lapPop .eyeH{opacity:1}
+  .blink{transform-box:fill-box;transform-origin:50% 50%;animation:blink 4.2s ease-in-out infinite}
+  body.pause .blink{animation-duration:2.6s}
+  @keyframes blink{0%,91%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+  body.pause .shine{transform-box:fill-box;transform-origin:50% 50%;transform:scale(1.35)}
+
+  /* 입: 오물오물은 스크립트가, 하품은 CSS가 맡는다 */
+  .mO{opacity:0;transform-box:fill-box;transform-origin:50% 15%}
+
+  /* 일어나기: 하품하며 두 팔을 쭉 뻗었다가 대나무를 쥔다 */
+  .sArms{opacity:0;transform-origin:110px 104px}
+  body.waking .sArms{animation:sArms 1s ease-in-out both}
+  @keyframes sArms{0%{opacity:0;transform:translateY(8px) scale(.9)}14%{opacity:1}34%{transform:translateY(-3px) scale(1.04,1.06)}
+    56%{opacity:1;transform:translateY(-1px)}68%,100%{opacity:0;transform:translateY(6px) scale(.92)}}
+  body.waking .armR,body.waking .armL,body.waking .pawR,body.waking .pawL{animation:armsIn 1s ease-out both}
+  @keyframes armsIn{0%,56%{opacity:0}74%,100%{opacity:1}}
+  body.waking .mO{animation:yawn 1s ease-in-out both}
+  @keyframes yawn{0%,14%{opacity:0;transform:scale(.3)}28%,58%{opacity:1;transform:scale(1.15,1.35)}72%,100%{opacity:0;transform:scale(.4)}}
+  body.waking .mW{animation:hideW 1s linear both}
+  @keyframes hideW{0%,16%{opacity:1}20%,66%{opacity:0}72%,100%{opacity:1}}
+  body.waking .eyeO{animation:openK 1s steps(1) both}
+  body.waking .eyeS{animation:shutK 1s steps(1) both}
+  @keyframes openK{0%{opacity:0}74%{opacity:1}}
+  @keyframes shutK{0%{opacity:1}74%{opacity:0}}
+
+  /* 대나무와 앞발: 앉아 있을 때만 보인다 */
+  .hold,.pawR,.pawL{opacity:0;transition:opacity .2s}
+  body.sit .hold,body.sit .pawR,body.sit .pawL{opacity:1;transition:opacity .25s .2s}
+  .hold{transform-origin:94px 120px}
+  body.waking .hold{animation:holdIn 1s ease-out both}
+  @keyframes holdIn{0%,76%{opacity:0;transform:scale(.6)}90%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:none}}
+  body.fresh .hold{animation:fresh .5s cubic-bezier(.34,1.6,.6,1)}
+  @keyframes fresh{0%{transform:scale(.7);opacity:.3}100%{transform:none;opacity:1}}
+
+  /* 머리 위 잎사귀: 자는 동안만 얹혀 있다가 일어나면 날아간다 */
+  .napLeaf{transform-box:fill-box;transform-origin:50% 50%;transition:opacity .3s ease .7s,transform .5s ease .7s}
+  body.sit .napLeaf{opacity:0;transform:translate(16px,-18px) rotate(70deg);transition:opacity .4s ease,transform .5s ease}
+
+  /* Zzz */
+  .zz{transition:opacity .6s ease 1s}
+  body.sit .zz{opacity:0;transition:opacity .15s}
+  .zz text{font-family:inherit;font-weight:900;fill:#FFFDF4;stroke:#5E7F45;stroke-width:3px;paint-order:stroke fill;
+    stroke-linejoin:round;transform-box:fill-box;transform-origin:50% 50%;animation:zz 3.3s ease-in-out infinite;opacity:0}
+  .zz text:nth-child(2){animation-delay:1.1s}
+  .zz text:nth-child(3){animation-delay:2.2s}
+  @keyframes zz{0%{opacity:0;transform:translate(0,6px) scale(.6)}25%{opacity:1}80%{opacity:.9}100%{opacity:0;transform:translate(9px,-16px) scale(1.05)}}
+
+  /* 한 입마다 떨어지는 잎 부스러기, 랩마다 터지는 잎과 하트 */
+  .cr{opacity:0}
+  .crumb.go .cr{animation:crumb 1.2s cubic-bezier(.3,.15,.7,1) forwards}
+  @keyframes crumb{0%{opacity:1;transform:translate(0,0) rotate(0)}80%{opacity:1}100%{opacity:0;transform:translate(var(--dx),86px) rotate(var(--r))}}
+  .bl{opacity:0}
+  .burst.go .bl{animation:burst .8s ease-out forwards}
+  @keyframes burst{0%{opacity:1;transform:rotate(var(--a)) translateX(4px) scale(.5)}
+    70%{opacity:1}100%{opacity:0;transform:rotate(var(--a)) translateX(34px) rotate(90deg) scale(1)}}
+  .heart{opacity:0}
+  .heart.go{animation:heart 1.1s ease-out forwards}
+  @keyframes heart{0%{opacity:0;transform:translate(0,6px) scale(.4)}25%{opacity:1;transform:translate(0,0) scale(1.1)}
+    100%{opacity:0;transform:translate(6px,-22px) scale(.9)}}
+
+  /* ── 위쪽: 이름표와 상태, 시간 ── */
+  .top{position:absolute;left:12px;right:12px;top:9px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+  .tag,.chip{font-size:11px;font-weight:800;line-height:1;padding:5px 9px 5px 8px;border-radius:99px;white-space:nowrap;
+    background:rgba(255,252,240,.82);box-shadow:0 1px 0 rgba(70,100,40,.18)}
+  .tag{color:#3F6B2A;display:flex;align-items:center;gap:4px}
+  .tag svg{width:11px;height:11px}
+  .chip{color:#6A5236;font-weight:700}
+  .time{position:absolute;left:0;right:0;top:32px;text-align:center;font-size:33px;font-weight:800;line-height:1;
+    letter-spacing:.5px;color:#2B4520;font-variant-numeric:tabular-nums;white-space:nowrap;
+    text-shadow:0 1px 0 rgba(255,255,240,.85),0 0 14px rgba(255,252,230,.9)}
+  .time .cs{font-size:19px;color:#5C8F33}
+
+  /* ── 랩 기록: 두 줄 자리를 처음부터 잡아 높이가 변하지 않는다 ── */
+  .laps{position:absolute;left:14px;right:14px;top:262px;height:40px;padding:3px 10px;border-radius:10px;
+    background:rgba(255,251,238,.9);box-shadow:0 2px 0 rgba(70,100,40,.16),inset 0 0 0 1px rgba(110,150,70,.18);
+    font-size:11px;font-weight:700;font-variant-numeric:tabular-nums;overflow:hidden}
+  .laps div{display:flex;justify-content:space-between;height:17px;line-height:17px;color:#BDB49C;white-space:nowrap}
+  .laps div.on{color:#2E4A22}
+  .laps div.on+div.on{color:#7C8A62}
+  .laps .k{width:64px}
+  .laps .k b{color:#E39A2E;font-weight:900}
+  .laps div.new{animation:lapIn .7s ease-out}
+  @keyframes lapIn{0%{background:rgba(150,200,90,.35)}100%{background:transparent}}
+
+  /* ── 버튼: 대나무 초록, 크림, 나무색 ── */
+  .row{position:absolute;left:14px;right:14px;top:310px;display:flex;gap:8px}
+  button{font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;flex:1 1 0;min-width:0;height:36px;border:0;
+    border-radius:18px;transition:transform .08s,box-shadow .08s,opacity .15s,background .15s}
+  button:active:not(:disabled){transform:translateY(2px)}
+  button:disabled{opacity:.45;cursor:default}
+  button:focus-visible{outline:2.5px solid #2B4520;outline-offset:2px}
+  #b1{color:#FFFDF2;background:linear-gradient(#80BC4C,#5C9A35);box-shadow:0 3px 0 #3F7424,0 5px 10px rgba(50,90,20,.25);
+    text-shadow:0 1px 0 rgba(30,60,10,.35)}
+  #b1:active{box-shadow:0 1px 0 #3F7424}
+  #b1.run{color:#4A3010;background:linear-gradient(#F6D9A0,#E9B867);box-shadow:0 3px 0 #B9853E,0 5px 10px rgba(120,80,20,.22);text-shadow:none}
+  #b2{color:#3F6B2A;background:#FFF8E6;box-shadow:0 3px 0 #C9D9A8,0 5px 10px rgba(50,90,20,.14)}
+  #b3{color:#6A5236;background:#EBDDC2;box-shadow:0 3px 0 #C6AE86,0 5px 10px rgba(90,60,20,.14)}
+  button:hover:not(:disabled){filter:brightness(1.05)}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important}
+    .zz text{opacity:1}
+  }
+</style>
+</head>
+<body>
+  <!-- 배경 (대나무 줄기는 스크립트가 심는다) -->
+  <svg class="bg" viewBox="0 0 360 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#F7F3D8"/><stop offset=".35" stop-color="#E6EFC6"/><stop offset=".64" stop-color="#C6DEA2"/>
+      </linearGradient>
+      <radialGradient id="sun" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#FFFBE4" stop-opacity=".95"/><stop offset="1" stop-color="#FFF4C4" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="grd" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#A9C97C"/><stop offset=".4" stop-color="#8DB662"/><stop offset="1" stop-color="#6E9748"/>
+      </linearGradient>
+      <linearGradient id="deckTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#E4B97F"/><stop offset="1" stop-color="#CF9D62"/>
+      </linearGradient>
+      <linearGradient id="deckFront" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#B98149"/><stop offset="1" stop-color="#93602F"/>
+      </linearGradient>
+      <path id="bgLeaf" d="M0,0 C6,-3.4 15,-3.6 24,0 C15,3 6,3.2 0,0 Z"/>
+    </defs>
+    <rect width="360" height="360" fill="url(#sky)"/>
+    <ellipse cx="262" cy="30" rx="150" ry="90" fill="url(#sun)"/>
+    <g id="far"></g>
+    <g class="rays" fill="#FFFBE6">
+      <path d="M300,-10 L340,-10 L170,240 L120,240 Z" opacity=".35"/>
+      <path d="M232,-10 L252,-10 L92,240 L64,240 Z" opacity=".25"/>
+      <path d="M366,20 L366,60 L250,240 L216,240 Z" opacity=".22"/>
+    </g>
+    <g id="mid"></g>
+
+    <!-- 땅과 풀 -->
+    <path d="M0,228 C90,222 270,222 360,228 L360,360 L0,360 Z" fill="url(#grd)"/>
+    <g id="grass" fill="#7FAA55"></g>
+
+    <!-- 나무 마루 -->
+    <ellipse cx="180" cy="262" rx="146" ry="7" fill="#3E5A26" opacity=".28"/>
+    <rect x="44" y="238" width="272" height="20" rx="5" fill="url(#deckFront)"/>
+    <path d="M48,248 H312" stroke="#82542A" stroke-width="1.2" opacity=".7"/>
+    <g fill="#6E4622" opacity=".6"><circle cx="58" cy="243" r="1.2"/><circle cx="58" cy="253" r="1.2"/><circle cx="302" cy="243" r="1.2"/><circle cx="302" cy="253" r="1.2"/><circle cx="180" cy="243" r="1.2"/><circle cx="180" cy="253" r="1.2"/></g>
+    <rect x="44" y="227" width="272" height="14" rx="6" fill="url(#deckTop)"/>
+    <g stroke="#B98552" stroke-width="1" opacity=".55"><path d="M98,228 L96,240"/><path d="M150,228 L149,240"/><path d="M210,228 L211,240"/><path d="M262,228 L264,240"/></g>
+    <path d="M50,229 H310" stroke="#F3D3A2" stroke-width="1.2" opacity=".7"/>
+
+    <!-- 마루 위 여분 대나무 다발 -->
+    <g transform="translate(52 226)">
+      <rect x="0" y="-4" width="64" height="5" rx="2.4" fill="#7DB34E"/>
+      <rect x="4" y="-8.5" width="60" height="5" rx="2.4" fill="#93C561"/>
+      <rect x="-2" y="-1" width="58" height="4.6" rx="2.3" fill="#6EA444"/>
+      <g fill="#4F8830"><rect x="20" y="-9" width="1.6" height="13" rx=".8"/><rect x="42" y="-9" width="1.6" height="13" rx=".8"/></g>
+      <rect x="30" y="-10" width="3.4" height="15" rx="1.2" fill="#C99A5E"/>
+      <use href="#bgLeaf" transform="translate(64 -6) rotate(-24) scale(.6)" fill="#7DB34E"/>
+      <use href="#bgLeaf" transform="translate(62 -4) rotate(16) scale(.5)" fill="#6EA444"/>
+    </g>
+
+    <g id="near"></g>
+    <rect id="dim" width="360" height="360" fill="#22324A"/>
+  </svg>
+
+  <!-- 푸바오 -->
+  <svg class="panda" id="pd" viewBox="0 0 220 200" aria-hidden="true">
+    <defs>
+      <radialGradient id="gHead" cx=".46" cy=".36" r=".72">
+        <stop offset="0" stop-color="#FFFCF2"/><stop offset=".55" stop-color="#F7EDDB"/><stop offset="1" stop-color="#E2D2B4"/>
+      </radialGradient>
+      <radialGradient id="gBody" cx=".5" cy=".28" r=".8">
+        <stop offset="0" stop-color="#FBF3E2"/><stop offset=".6" stop-color="#EEE1C8"/><stop offset="1" stop-color="#D4C09E"/>
+      </radialGradient>
+      <radialGradient id="gBlk" cx=".38" cy=".3" r=".85">
+        <stop offset="0" stop-color="#4C433D"/><stop offset=".55" stop-color="#2C2622"/><stop offset="1" stop-color="#1C1816"/>
+      </radialGradient>
+      <linearGradient id="gBam" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#BDE27E"/><stop offset=".35" stop-color="#8CC352"/><stop offset=".78" stop-color="#5F9D35"/><stop offset="1" stop-color="#477F27"/>
+      </linearGradient>
+      <filter id="fur" filterUnits="userSpaceOnUse" x="-20" y="-20" width="260" height="240">
+        <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="7" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4"/></filter>
+      <clipPath id="stkClip"><rect x="-1" y="-40" width="160" height="80"/></clipPath>
+      <path id="leaf" d="M0,0 C4,-2.6 10,-2.8 16,0 C10,2.2 4,2.2 0,0 Z"/>
+      <path id="leafS" d="M-6,0 C-3,-2.4 2.6,-2.6 6.2,0 C2.6,2 -3,2 -6,0 Z"/>
+      <path id="patch" d="M99,53 C103,58 100.5,68 94.5,74 C88.5,80 77.5,81.5 74.5,74.5 C71.5,67.5 77,59.5 85,55.5 C90,53 96,50.5 99,53 Z"/>
+    </defs>
+
+    <!-- 누운 몸: 엎드려 앞발에 턱을 괸다 -->
+    <g class="lie">
+      <g class="lieBreath vb">
+        <ellipse cx="126" cy="185" rx="94" ry="6.5" fill="#33461F" opacity=".26"/>
+        <g filter="url(#fur)">
+          <path d="M40,184 C36,158 52,124 92,114 C120,107 150,98 176,107 C201,116 213,148 207,184 Z" fill="url(#gBody)"/>
+          <path d="M116,184 C111,160 113,128 122,113 C131,106 143,102 154,104 C151,130 153,160 160,184 Z" fill="url(#gBlk)"/>
+          <ellipse cx="189" cy="174" rx="23" ry="12.5" transform="rotate(-8 189 174)" fill="url(#gBlk)"/>
+        </g>
+        <ellipse cx="206" cy="171" rx="5.5" ry="7.5" fill="#7E685C"/>
+        <ellipse cx="176" cy="116" rx="18" ry="6" fill="#FFFDF5" opacity=".35" filter="url(#soft)"/>
+      </g>
+      <g filter="url(#fur)">
+        <ellipse cx="73" cy="177" rx="31" ry="9.5" fill="url(#gBlk)"/>
+        <ellipse cx="108" cy="179" rx="25" ry="8.2" fill="url(#gBlk)"/>
+      </g>
+      <g fill="#5A4E46"><circle cx="45" cy="174" r="1.8"/><circle cx="44" cy="179" r="1.8"/><circle cx="85" cy="177" r="1.6"/><circle cx="84.4" cy="181.4" r="1.6"/></g>
+    </g>
+
+    <!-- 앉은 몸 -->
+    <g class="sitB vb">
+      <ellipse cx="110" cy="185" rx="76" ry="6.5" fill="#33461F" opacity=".26"/>
+      <g filter="url(#fur)">
+        <path d="M110,86 C78,86 55,108 48,138 C43,166 62,184 110,184 C158,184 177,166 172,138 C165,108 142,86 110,86 Z" fill="url(#gBody)"/>
+        <path d="M54,122 C49,98 76,86 110,86 C144,86 171,98 166,122 C152,112 133,107 110,107 C87,107 68,112 54,122 Z" fill="url(#gBlk)"/>
+      </g>
+      <!-- 턱 밑과 배 아래 그늘 -->
+      <ellipse cx="110" cy="108" rx="40" ry="9" fill="#9C8562" opacity=".35" filter="url(#soft)"/>
+      <ellipse cx="110" cy="178" rx="46" ry="7" fill="#A88F68" opacity=".3" filter="url(#soft)"/>
+      <!-- 뒷다리: 앞으로 쭉 뻗어 발바닥이 보인다 -->
+      <g filter="url(#fur)">
+        <ellipse cx="68" cy="169" rx="27" ry="16.5" transform="rotate(-24 68 169)" fill="url(#gBlk)"/>
+        <ellipse cx="152" cy="169" rx="27" ry="16.5" transform="rotate(24 152 169)" fill="url(#gBlk)"/>
+      </g>
+      <g fill="#86705F">
+        <ellipse cx="52" cy="173" rx="8.5" ry="9.5" transform="rotate(-24 52 173)"/>
+        <ellipse cx="168" cy="173" rx="8.5" ry="9.5" transform="rotate(24 168 173)"/>
+      </g>
+      <g fill="#96806E">
+        <circle cx="42.5" cy="166" r="2.5"/><circle cx="45.4" cy="161.4" r="2.6"/><circle cx="50.4" cy="159.2" r="2.6"/><circle cx="55.6" cy="160" r="2.4"/>
+        <circle cx="177.5" cy="166" r="2.5"/><circle cx="174.6" cy="161.4" r="2.6"/><circle cx="169.6" cy="159.2" r="2.6"/><circle cx="164.4" cy="160" r="2.4"/>
+      </g>
+      <!-- 기지개 켤 때만 보이는 팔: 머리 양옆으로 쭉 뻗는다 -->
+      <g class="sArms">
+        <g fill="none" stroke="#2A2420" stroke-width="22" stroke-linecap="round" filter="url(#fur)">
+          <path d="M70,104 Q52,84 47,54"/><path d="M150,104 Q168,84 173,54"/>
+        </g>
+        <g fill="#86705F"><ellipse cx="46" cy="47" rx="5" ry="4"/><ellipse cx="174" cy="47" rx="5" ry="4"/></g>
+      </g>
+      <!-- 앞팔 -->
+      <g fill="none" stroke="#2A2420" stroke-width="23" stroke-linecap="round" filter="url(#fur)">
+        <path class="armR vb" d="M154,100 C162,122 134,125 103,112"/>
+        <path class="armL vb" d="M64,104 C57,126 66,137 85,131"/>
+      </g>
+    </g>
+
+    <!-- 머리 -->
+    <g class="headPose vb"><g class="headBreath vb"><g id="hc">
+      <g filter="url(#fur)">
+        <circle cx="73" cy="30" r="15.5" fill="url(#gBlk)"/>
+        <circle cx="147" cy="30" r="15.5" fill="url(#gBlk)"/>
+      </g>
+      <circle cx="74.5" cy="31.5" r="7.5" fill="#3E3631"/>
+      <circle cx="145.5" cy="31.5" r="7.5" fill="#3E3631"/>
+      <g filter="url(#fur)">
+        <path d="M110,20 C137,20 156,35 158,57 C160,80 149,98 128,103 C118,105.6 102,105.6 92,103 C71,98 60,80 62,57 C64,35 83,20 110,20 Z" fill="url(#gHead)"/>
+        <path d="M101,24 C101,17 106,14.5 108.6,20.5 C110,14 115.6,13.8 117,22 Z" fill="#F7EEDC"/>
+        <path d="M63,70 L57.6,73.6 L63.6,75.4 Z M157,70 L162.4,73.6 L156.4,75.4 Z" fill="#EADDC4"/>
+      </g>
+      <ellipse cx="110" cy="33" rx="28" ry="9" fill="#D8C6A2" opacity=".28" filter="url(#soft)"/>
+      <!-- 눈가 검은 무늬: 바깥 아래로 처진 물방울 -->
+      <use href="#patch" fill="url(#gBlk)"/>
+      <use href="#patch" transform="translate(220 0) scale(-1 1)" fill="url(#gBlk)"/>
+      <g class="eyeO"><g class="blink">
+        <circle cx="90.5" cy="61" r="4.4" fill="#120D0A" stroke="#6A5848" stroke-width=".9"/>
+        <circle cx="129.5" cy="61" r="4.4" fill="#120D0A" stroke="#6A5848" stroke-width=".9"/>
+        <g class="shine" fill="#FFFFFF"><circle cx="92" cy="59.2" r="1.7"/><circle cx="131" cy="59.2" r="1.7"/></g>
+        <circle cx="89.2" cy="62.8" r=".75" fill="#FFFFFF" opacity=".8"/><circle cx="128.2" cy="62.8" r=".75" fill="#FFFFFF" opacity=".8"/>
+      </g></g>
+      <g class="eyeS" fill="none" stroke="#D8CBB4" stroke-width="1.7" stroke-linecap="round">
+        <path d="M85.4,60.6 Q90.4,65.4 95.4,60.6"/><path d="M124.6,60.6 Q129.6,65.4 134.6,60.6"/>
+      </g>
+      <g class="eyeH" fill="none" stroke="#D8CBB4" stroke-width="1.8" stroke-linecap="round">
+        <path d="M85.6,63 Q90.4,57 95.2,63"/><path d="M124.8,63 Q129.6,57 134.4,63"/>
+      </g>
+      <!-- 볼 -->
+      <g id="ckL"><ellipse cx="77" cy="86" rx="8.4" ry="4.8" fill="#F3A394" opacity=".34"/></g>
+      <g id="ckR"><ellipse cx="143" cy="86" rx="8.4" ry="4.8" fill="#F3A394" opacity=".34"/></g>
+      <!-- 주둥이, 코, 입 -->
+      <ellipse cx="110" cy="84" rx="16" ry="11" fill="#FFFDF6" opacity=".7"/>
+      <g id="jaw">
+        <ellipse class="mO" cx="110" cy="88.6" rx="4.6" ry="5.2" fill="#5C2828"/>
+        <g class="mW"><path d="M110,81 V84.4 M103.6,85 Q106.8,88.6 110,84.4 Q113.2,88.6 116.4,85" fill="none" stroke="#3A2E28" stroke-width="1.35" stroke-linecap="round"/></g>
+      </g>
+      <path d="M103.4,75 C103.4,71.6 116.6,71.6 116.6,75 C116.6,78.6 112.3,81.6 110,81.6 C107.7,81.6 103.4,78.6 103.4,75 Z" fill="#1E1815"/>
+      <ellipse cx="108" cy="73.8" rx="2.6" ry="1.2" fill="#FFFFFF" opacity=".35"/>
+      <!-- 자는 동안 머리에 얹힌 잎 -->
+      <g class="napLeaf"><use href="#leaf" transform="translate(116 19) rotate(-28) scale(1.15)" fill="#7DB34E"/>
+        <path d="M116,19 L114,22" stroke="#5E8F36" stroke-width="1.1" stroke-linecap="round"/></g>
+    </g></g></g>
+
+    <!-- 대나무: 입 쪽 끝부터 한 입씩 줄어든다 -->
+    <g class="hold vb">
+      <g transform="translate(117 88) rotate(128.5)" clip-path="url(#stkClip)">
+        <g id="stk">
+          <rect x="-4" y="-4.7" width="116" height="9.4" rx="3" fill="url(#gBam)"/>
+          <rect x="-4" y="-3.3" width="116" height="1.5" rx=".7" fill="#DDF3A8" opacity=".55"/>
+          <g id="nodes"></g>
+          <g id="sprig"></g>
+          <ellipse cx="112" cy="0" rx="1.8" ry="4.7" fill="#E4EEB6" stroke="#6E9E40" stroke-width=".7"/>
+        </g>
+      </g>
+    </g>
+    <g class="pawR vb">
+      <g filter="url(#fur)"><ellipse cx="101" cy="111" rx="12.6" ry="10.6" transform="rotate(-36 101 111)" fill="url(#gBlk)"/></g>
+      <path d="M95.6,107.6 Q99,111 97,115.6 M100.4,104.6 Q104,108 102.4,112.6" fill="none" stroke="#5B4F47" stroke-width="1.1" stroke-linecap="round"/>
+    </g>
+    <g class="pawL vb">
+      <g filter="url(#fur)"><ellipse cx="85" cy="131" rx="12" ry="10" transform="rotate(-36 85 131)" fill="url(#gBlk)"/></g>
+      <path d="M79.6,127.8 Q83,131 81,135.4 M84.2,124.8 Q87.8,128 86.2,132.6" fill="none" stroke="#5B4F47" stroke-width="1.1" stroke-linecap="round"/>
+    </g>
+
+    <!-- Zzz -->
+    <g class="zz" transform="translate(126 90)">
+      <text x="0" y="0" font-size="10">z</text>
+      <text x="9" y="-12" font-size="13">z</text>
+      <text x="20" y="-27" font-size="17">Z</text>
+    </g>
+
+    <!-- 잎 부스러기 -->
+    <g id="crumbs" fill="#A9D66C" stroke="#5E9A36" stroke-width=".6"></g>
+    <!-- 랩: 잎이 터지고 하트가 오른다 -->
+    <g class="burst" id="burst" transform="translate(96 118)"></g>
+    <g transform="translate(152 34)"><path class="heart vb" id="heart" d="M0,3 C-6,-2 -5,-8 0,-5.4 C5,-8 6,-2 0,3 Z" fill="#F07C7C" stroke="#FFFFFF" stroke-width="1.2"/></g>
+  </svg>
+
+  <div class="top" aria-hidden="true">
+    <!-- 상태 문구는 화면에 보이지 않는다(스크립트가 쓰는 자리만 둔다) -->
+    <span class="chip" id="chip" hidden></span>
+  </div>
+  <div class="time" id="t">00:00<span class="cs">.00</span></div>
+
+  <div class="laps" id="laps" aria-hidden="true"></div>
+
+  <div class="row">
+    <button id="b1" type="button">시작</button>
+    <button id="b2" type="button" disabled>랩</button>
+    <button id="b3" type="button" disabled>리셋</button>
+  </div>
+
+<script>
+/* ── 그림 채우기: 대나무 숲, 풀, 대나무 마디, 잎 조각 ──
+   씨앗을 고정한 난수라 열 때마다 같은 숲이 나온다. */
+(function(){
+  var NS='http://www.w3.org/2000/svg',seed=11;
+  function r(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646;}
+  function mk(tag,a,p){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e;}
+  /* 줄기 하나: 마디, 밝은 결, 마디마다 가끔 잎 */
+  function stalk(g,x,w,top,bot,c,nc,hc,lc,leafP,leafS){
+    mk('rect',{x:(x-w/2).toFixed(1),y:top,width:w,height:bot-top,fill:c},g);
+    mk('rect',{x:(x-w/4).toFixed(1),y:top,width:(w*.18).toFixed(1),height:bot-top,fill:hc,opacity:.5},g);
+    var y=bot-14-r()*16;
+    while(y>top+6){
+      mk('rect',{x:(x-w/2-.6).toFixed(1),y:y.toFixed(1),width:(w+1.2).toFixed(1),height:1.8,rx:.9,fill:nc},g);
+      if(r()<leafP){var side=r()<.5?-1:1,n=2+Math.floor(r()*2),lg=mk('g',{fill:lc},g);
+        for(var i=0;i<n;i++){var a=side<0?180-(20+i*22+r()*10):(20+i*22+r()*10);
+          mk('use',{href:'#bgLeaf',transform:'translate('+(x+side*w/2).toFixed(1)+' '+y.toFixed(1)+') rotate('+a.toFixed(0)+') scale('+(leafS*(.8+r()*.4)).toFixed(2)+')'},lg);}}
+      y-=24+r()*12;
+    }
+  }
+  var far=document.getElementById('far'),mid=document.getElementById('mid'),near=document.getElementById('near');
+  for(var i=0;i<17;i++)stalk(far,6+i*21.5+r()*8,4+r()*2,-10,232,'#C8DFA9','#B0CC8E','#E6F2CF','#B6D494',.5,.75);
+  for(var j=0;j<9;j++)stalk(mid,18+j*41+r()*12,7+r()*2,-10,232,'#9DC777','#78A855','#CBE6A6','#8ABD64',.55,.95);
+  /* 가장 앞 줄기는 양쪽 가장자리에 두고, 잎은 위에서 늘어진다 */
+  [[38,12],[56,9],[306,10],[324,13]].forEach(function(s,k){
+    stalk(near,s[0],s[1],-10,240,'#6AA247','#4C8031','#A9D47F','#5D9A40',.25,1.1);});
+  function droop(cx,cy,dir,cls){var g=mk('g',{class:'sway'+(cls?' '+cls:''),fill:'#5C9940'},near);
+    for(var i=0;i<6;i++){var a=dir>0?(18+i*20+r()*8):(162-i*20-r()*8);
+      mk('use',{href:'#bgLeaf',fill:i%2?'#6BAA4B':'#5C9940',transform:'translate('+cx+' '+cy+') rotate('+a.toFixed(0)+') scale('+(1.05+r()*.4).toFixed(2)+')'},g);}}
+  droop(56,18,1);droop(46,64,1,'b');droop(306,30,-1,'b');droop(318,76,-1);
+  var grass=document.getElementById('grass');
+  for(var gx=0;gx<360;gx+=7+r()*8){var h=4+r()*6,y0=226+r()*3;
+    mk('path',{d:'M'+gx.toFixed(1)+','+(y0+4).toFixed(1)+' L'+(gx+2).toFixed(1)+','+(y0-h).toFixed(1)+' L'+(gx+4).toFixed(1)+','+(y0+4).toFixed(1)+' Z'},grass);}
+
+  /* 손에 든 대나무: 마디 16마다, 곁가지 잎 둘 */
+  var nodes=document.getElementById('nodes'),sprig=document.getElementById('sprig');
+  for(var nx=10;nx<112;nx+=16){mk('rect',{x:nx-1.3,y:-5.3,width:2.6,height:10.6,rx:1,fill:'#4C862B'},nodes);
+    mk('rect',{x:nx+1.4,y:-4.4,width:.9,height:8.8,fill:'#CDEA95',opacity:.7},nodes);}
+  [[42,1],[74,-1],[98,1]].forEach(function(b){var x=b[0],s=b[1];
+    mk('path',{d:'M'+x+','+(s*4)+' Q'+(x+4)+','+(s*9)+' '+(x+9)+','+(s*12),fill:'none',stroke:'#5E9A36','stroke-width':1.1,'stroke-linecap':'round'},sprig);
+    mk('use',{href:'#leaf',transform:'translate('+(x+9)+' '+(s*12)+') rotate('+(s*40)+') scale(1.05)',fill:'#7DB84C'},sprig);
+    mk('use',{href:'#leaf',transform:'translate('+(x+9)+' '+(s*12)+') rotate('+(s*95)+') scale(.85)',fill:'#6AA83E'},sprig);});
+
+  /* 부스러기 네 조각, 랩 잎 여섯 장 */
+  var crumbs=document.getElementById('crumbs');
+  for(var c=0;c<4;c++){var g=mk('g',{class:'crumb',transform:'translate(124 95)'},crumbs);
+    mk('use',{href:'#leafS',class:'cr vb'},g);}
+  var burst=document.getElementById('burst');
+  for(var b=0;b<7;b++){var u=mk('use',{href:'#leaf',class:'bl vb',fill:b%2?'#8DC25A':'#6EA444'},burst);
+    u.style.setProperty('--a',(-160+b*30)+'deg');}
+})();
+</script>
+<script>
+(function(){
+  var body=document.body,t=document.getElementById('t'),chip=document.getElementById('chip'),lapsEl=document.getElementById('laps'),
+      hc=document.getElementById('hc'),jaw=document.getElementById('jaw'),ckL=document.getElementById('ckL'),ckR=document.getElementById('ckR'),
+      mO=document.querySelector('.mO'),mW=document.querySelector('.mW'),stk=document.getElementById('stk'),
+      crumbs=document.querySelectorAll('.crumb'),burst=document.getElementById('burst'),heart=document.getElementById('heart'),
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)');
+  function rm(){return !!(reduce&&reduce.matches);}
+
+  /* 한 입은 1.2초. 일어나는 1초 뒤부터 먹기 시작하고, 일곱 입째에 새 대나무를 집는다 */
+  var BITE=1200,WAKE=1000,SEG=8,PER=7;
+  var run=false,stt=0,acc=0,raf=0,laps=[],last=0,lapBase=WAKE,wakeT=0,popT=0,freshT=0,shownK=-1,shownBites=-1,crumbI=0,chipNote='';
+  function el(){return acc+(run?performance.now()-stt:0);}
+  function pad(n,w){return String(n).padStart(w||2,'0');}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60),hh=Math.floor(mm/60);
+    return (hh?hh+':'+pad(mm%60):pad(mm))+':'+pad(ss)+'.'+pad(cs);}
+  function draw(){
+    var ms=el(),cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60),hh=Math.floor(mm/60);
+    t.innerHTML=(hh?pad(hh)+':'+pad(mm%60):pad(mm))+':'+pad(ss)+'<span class="cs">.'+pad(cs)+'</span>';
+  }
+
+  /* ── 먹는 동작: 경과 시간에서 바로 계산하므로 멈추면 그 자리에서 멈춘다 ── */
+  function flash(cls,ms,timer){body.classList.remove(cls);void body.offsetWidth;body.classList.add(cls);
+    clearTimeout(timer);return setTimeout(function(){body.classList.remove(cls);},ms);}
+  function setStalk(k){if(k===shownK)return;
+    if(k===0&&shownK>0&&run)freshT=flash('fresh',520,freshT);
+    shownK=k;stk.setAttribute('transform','translate('+(-k*SEG)+' 0)');}
+  function dropCrumb(){if(rm())return;var g=crumbs[crumbI++%crumbs.length],u=g.firstChild;
+    u.style.setProperty('--dx',(10+Math.random()*24).toFixed(0)+'px');u.style.setProperty('--r',(160+Math.random()*200).toFixed(0)+'deg');
+    g.classList.remove('go');void g.getBoundingClientRect();g.classList.add('go');}
+  function neutral(){hc.removeAttribute('transform');jaw.removeAttribute('transform');ckL.removeAttribute('transform');ckR.removeAttribute('transform');
+    mO.style.opacity='';mW.style.opacity='';}
+  function chew(e){
+    if(e<lapBase){setStalk(0);neutral();shownBites=-1;return;}
+    var tt=e-lapBase,cyc=Math.floor(tt/BITE),p=(tt%BITE)/BITE,bites=cyc+(p>=.12?1:0),k=bites%PER;
+    if(bites!==shownBites){if(bites>shownBites&&shownBites>=0&&k!==0)dropCrumb();shownBites=bites;}
+    setStalk(k);
+    if(rm()||!run){neutral();return;}
+    var d=0,j=0,open=0;
+    if(p<.24){var b=p/.24;d=Math.sin(b*Math.PI);j=d;open=Math.max(0,Math.min(1,(d-.35)*2.4));}
+    else{var q=(p-.24)/.76;j=.55*Math.abs(Math.sin(q*3*Math.PI));}
+    hc.setAttribute('transform','translate('+(d*1.4).toFixed(2)+' '+(d*2.4+j*.5).toFixed(2)+') rotate('+(d*4).toFixed(2)+' 110 90)');
+    jaw.setAttribute('transform','translate(0 '+(j*1.8).toFixed(2)+')');
+    var s=(1+.08*j).toFixed(3);
+    ckL.setAttribute('transform','translate(77 86) scale('+s+') translate(-77 -86)');
+    ckR.setAttribute('transform','translate(143 86) scale('+s+') translate(-143 -86)');
+    mO.style.opacity=open.toFixed(2);mW.style.opacity=(1-open).toFixed(2);
+  }
+  function loop(){var e=el();draw();chew(e);if(run)raf=requestAnimationFrame(loop);}
+
+  function drawLaps(fresh){
+    var best=laps.length>1?Math.min.apply(null,laps.map(function(l){return l.d;})):-1,h='';
+    for(var k=0;k<2;k++){var i=laps.length-1-k;
+      if(i>=0){var l=laps[i];h+='<div class="on'+(fresh&&k===0?' new':'')+'"><span class="k">랩 '+pad(i+1)+(l.d===best?' <b>★</b>':'')+'</span><span>+'+plain(l.d)+'</span><span>'+plain(l.t)+'</span></div>';}
+      else h+='<div><span class="k">랩 --</span><span>+--:--.--</span><span>--:--.--</span></div>';}
+    lapsEl.innerHTML=h;}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    var e=el();
+    body.classList.toggle('sit',run||e>0);
+    body.classList.toggle('pause',!run&&e>0);
+    b1.textContent=run?'정지':(e>0?'재개':'시작');
+    b1.classList.toggle('run',run);
+    b2.disabled=!run; b3.disabled=run||e===0;
+    chip.textContent=chipNote||(run?(body.classList.contains('waking')?'기지개 켜는 중':'냠냠 먹는 중'):(e>0?'잠깐 쉬는 중':'쿨쿨 자는 중'));
+
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function start(){if(run)return;var asleep=el()===0;run=true;stt=performance.now();
+    if(asleep){clearTimeout(wakeT);body.classList.add('waking');
+      wakeT=setTimeout(function(){body.classList.remove('waking');ui();},rm()?0:WAKE);}
+    cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);ui();}
+  function stop(){if(!run)return;acc=el();run=false;chipNote='';cancelAnimationFrame(raf);draw();chew(acc);ui();}
+  function reset(){if(run)return;acc=0;stt=0;laps=[];last=0;lapBase=WAKE;shownBites=-1;chipNote='';
+    clearTimeout(wakeT);clearTimeout(popT);body.classList.remove('waking','lapPop','fresh');
+    neutral();draw();drawLaps(false);ui();setTimeout(function(){if(!run&&el()===0)setStalk(0);},400);}
+  function lap(){if(!run)return;var e=el(),d=e-last;last=e;laps.push({t:e,d:d});
+    /* 랩마다 새 대나무를 집는다 */
+    lapBase=Math.max(e,WAKE);shownBites=-1;shownK=-1;setStalk(0);
+    drawLaps(true);
+    if(!rm()){popT=flash('lapPop',900,popT);freshT=flash('fresh',520,freshT);
+      burst.classList.remove('go');void burst.getBoundingClientRect();burst.classList.add('go');
+      heart.classList.remove('go');void heart.getBoundingClientRect();heart.classList.add('go');}
+    chipNote='새 대나무 '+laps.length+'개째!';ui();
+    setTimeout(function(n){return function(){if(laps.length===n){chipNote='';ui();}};}(laps.length),1300);
+    srSay('랩 '+laps.length+'. 구간 '+srHuman(d));}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run){cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);}});
+  setStalk(0);drawLaps(false);draw();ui();
+})();
+</script>
+</body>
+</html>

@@ -12,34 +12,32 @@
   body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
     color:#F2F0EA;word-break:keep-all;
     display:flex;align-items:center;justify-content:center;padding:11px;
-    background:radial-gradient(115% 90% at 50% 30%,#3A3F44 0%,#25292D 60%,#17191C 100%)}
+    background:radial-gradient(115% 90% at 50% 30%,#3B4247 0%,#262B2F 60%,#181A1D 100%)}
 
   /* 검은 액자 */
-  .frame{width:100%;max-width:306px;border-radius:4px;overflow:hidden;padding:6px;
-    background:linear-gradient(135deg,#2A2A2C,#141416 50%,#2E2E30);
-    box-shadow:0 18px 40px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.08)}
-  .art{display:block;width:100%;height:auto;background:#A9B4B8}
+  .frame{width:100%;max-width:306px;border-radius:3px;overflow:hidden;padding:6px;
+    background:linear-gradient(135deg,#2B2A28,#151514 50%,#2D2C2A);
+    box-shadow:0 18px 40px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.07)}
+  .art{display:block;width:100%;height:auto;background:#9FAAB0}
 
-  /* 구름은 천천히 흐르고, 사과는 얼굴 앞에 떠 있다 */
-  .cloud{animation:drift 40s linear infinite}
-  .cloud.b{animation-duration:56s;animation-delay:-20s}
-  body.go .cloud{animation-duration:14s}
-  body.go .cloud.b{animation-duration:20s}
-  @keyframes drift{from{transform:translateX(-60px)}to{transform:translateX(380px)}}
-  #apple{transition:transform .9s cubic-bezier(.3,1.3,.5,1)}
-  #appleBob{animation:bob 3.6s ease-in-out infinite}
-  body.go #apple{transform:translateY(-9px)}
-  body.go #appleBob{animation-duration:1.6s}
-  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.6px)}}
-  #appleBob.wob{animation:wob .5s ease-in-out}
-  @keyframes wob{0%,100%{transform:rotate(0)}30%{transform:rotate(-8deg)}65%{transform:rotate(6deg)}}
-  #appleBob{transform-box:fill-box;transform-origin:50% 100%}
+  /* 정지 상태에서는 모두 멈춰 있고, 작동 중에만 흐른다 */
+  #clouds{animation:drift 150s linear infinite;animation-play-state:paused}
+  @keyframes drift{from{transform:translateX(0)}to{transform:translateX(-300px)}}
+  #appleFloat{animation:float 4.2s ease-in-out infinite;animation-play-state:paused}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.6px)}}
+  #appleSway{transform-box:fill-box;transform-origin:50% 60%;
+    animation:sway 11s ease-in-out infinite;animation-play-state:paused}
+  @keyframes sway{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(3deg)}}
+  body.go #clouds,body.go #appleFloat,body.go #appleSway{animation-play-state:running}
+  /* 랩: 사과가 잠시 비켜나 눈이 조금 더 드러난다 */
+  #applePeek.peek{animation:peek 1.5s cubic-bezier(.35,0,.25,1)}
+  @keyframes peek{0%{transform:translate(0,0)}28%,55%{transform:translate(-2.4px,5.6px)}100%{transform:translate(0,0)}}
 
   /* ── 조작부 ── */
-  .bar{background:linear-gradient(180deg,#2B2D31 0%,#1D1F22 100%);padding:12px 13px 11px;text-align:center;margin-top:6px;border-radius:2px}
+  .bar{background:linear-gradient(180deg,#2A2D31 0%,#1C1E21 100%);padding:12px 13px 11px;text-align:center;margin-top:6px;border-radius:2px}
   .time{font-size:26px;font-weight:800;letter-spacing:.3px;line-height:1.1;white-space:nowrap;
-    color:#FFFFFF;font-variant-numeric:tabular-nums}
-  .time .cs{font-size:14px;font-weight:700;color:#9CCB5A}
+    color:#F4F2EC;font-variant-numeric:tabular-nums}
+  .time .cs{font-size:14px;font-weight:700;color:#A9C25A}
 
   .row{display:flex;gap:8px;justify-content:center;margin-top:10px}
   button{font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;
@@ -48,13 +46,14 @@
   button:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
   button:active:not(:disabled){transform:translateY(0)}
   button:disabled{opacity:.36;cursor:default}
-  button:focus-visible{outline:2px solid #9CCB5A;outline-offset:3px}
-  #b1{background:#78AA3C;color:#13220A}
-  #b2{background:#6F8794}
-  #b3{background:#B0302A}
+  button:focus-visible{outline:2px solid #A9C25A;outline-offset:3px}
+  #b1{background:#86A83E;color:#142008}
+  #b2{background:#66798A}
+  #b3{background:#A7352C}
 
-  .lapline{margin-top:8px;min-height:12px;font-size:10px;font-weight:700;color:rgba(190,215,150,.8);
-    font-variant-numeric:tabular-nums}
+  /* 랩 줄은 높이를 고정해 랩이 늘어도 화면이 움직이지 않는다 */
+  .lapline{margin-top:8px;height:12px;line-height:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+    font-size:10px;font-weight:700;color:rgba(196,214,150,.82);font-variant-numeric:tabular-nums}
 
   @media (max-height:326px){
     .time{font-size:21px}
@@ -62,107 +61,187 @@
     .bar{padding:9px 11px 10px}
   }
   @media (prefers-reduced-motion:reduce){
-    .cloud,#appleBob,#apple{animation:none !important;transition:none !important}
+    #clouds,#appleFloat,#appleSway,#applePeek,#applePeek.peek{animation:none !important}
   }
 </style>
 </head>
 <body>
   <div class="frame">
-    <svg class="art" viewBox="0 0 320 190" aria-hidden="true">
+    <svg class="art" viewBox="0 0 300 208" aria-hidden="true">
       <defs>
         <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#7F909A"/><stop offset="70%" stop-color="#AEB9BC"/><stop offset="100%" stop-color="#C6CCC8"/></linearGradient>
+          <stop offset="0%" stop-color="#6C7C88"/><stop offset="45%" stop-color="#8E9DA6"/><stop offset="100%" stop-color="#C3CBCA"/></linearGradient>
+        <radialGradient id="cloudG" cx=".42" cy=".3" r=".75">
+          <stop offset="0%" stop-color="#ECEEEB"/><stop offset="55%" stop-color="#CDD2D1"/><stop offset="100%" stop-color="#97A2A8"/></radialGradient>
         <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#5D7472"/><stop offset="100%" stop-color="#7A908A"/></linearGradient>
+          <stop offset="0%" stop-color="#34474A"/><stop offset="100%" stop-color="#55696A"/></linearGradient>
+        <linearGradient id="wallTop" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#CFC8B7"/><stop offset="100%" stop-color="#BAB2A0"/></linearGradient>
         <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#9A9285"/><stop offset="100%" stop-color="#7C7468"/></linearGradient>
+          <stop offset="0%" stop-color="#A49C8B"/><stop offset="100%" stop-color="#8C8475"/></linearGradient>
         <linearGradient id="coat" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#1E1F23"/><stop offset="45%" stop-color="#34363C"/><stop offset="100%" stop-color="#1A1B1E"/></linearGradient>
-        <linearGradient id="hat" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#15161A"/><stop offset="40%" stop-color="#3A3C42"/><stop offset="100%" stop-color="#111215"/></linearGradient>
-        <radialGradient id="appleG" cx=".38" cy=".34" r=".75">
-          <stop offset="0%" stop-color="#C8E07A"/><stop offset="45%" stop-color="#86B442"/><stop offset="100%" stop-color="#4E7E26"/></radialGradient>
+          <stop offset="0%" stop-color="#15171A"/><stop offset="38%" stop-color="#2B2F34"/><stop offset="62%" stop-color="#25282D"/><stop offset="100%" stop-color="#121417"/></linearGradient>
+        <linearGradient id="sleeve" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#121417"/><stop offset="55%" stop-color="#22252A"/><stop offset="100%" stop-color="#191B1F"/></linearGradient>
+        <linearGradient id="lapel" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#30343A"/><stop offset="100%" stop-color="#202328"/></linearGradient>
+        <radialGradient id="hat" cx=".36" cy=".28" r=".85">
+          <stop offset="0%" stop-color="#3C3E43"/><stop offset="45%" stop-color="#1D1E21"/><stop offset="100%" stop-color="#0D0E10"/></radialGradient>
         <radialGradient id="skin" cx=".45" cy=".4" r=".7">
-          <stop offset="0%" stop-color="#F0D2B8"/><stop offset="100%" stop-color="#D2A88A"/></radialGradient>
-        <filter id="soft"><feGaussianBlur stdDeviation="3.2"/></filter>
+          <stop offset="0%" stop-color="#E4C3A9"/><stop offset="100%" stop-color="#C39880"/></radialGradient>
+        <linearGradient id="neck" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#A57D67"/><stop offset="100%" stop-color="#CFA88E"/></linearGradient>
+        <linearGradient id="tie" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#8F2620"/><stop offset="50%" stop-color="#B2382D"/><stop offset="100%" stop-color="#8A231D"/></linearGradient>
+        <radialGradient id="appleG" cx=".42" cy=".42" r=".66">
+          <stop offset="0%" stop-color="#B5C45A"/><stop offset="50%" stop-color="#8CAA40"/><stop offset="100%" stop-color="#55792C"/></radialGradient>
+        <radialGradient id="blush" cx=".5" cy=".5" r=".5">
+          <stop offset="0%" stop-color="#94602E" stop-opacity=".38"/><stop offset="100%" stop-color="#9C5A2C" stop-opacity="0"/></radialGradient>
+        <filter id="soft" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="1.7"/></filter>
+        <filter id="haze" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
+        <filter id="fold"><feGaussianBlur stdDeviation=".9"/></filter>
+        <!-- 사과 껍질의 얼룩 -->
+        <filter id="mottle" x="0" y="0" width="1" height="1">
+          <feTurbulence type="fractalNoise" baseFrequency=".16" numOctaves="3" seed="7" result="n"/>
+          <feColorMatrix in="n" type="matrix" values="0 0 0 0 .24  0 0 0 0 .36  0 0 0 0 .1  .9 0 0 0 -.36" result="s"/>
+          <feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
+          <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="s2"/></feMerge>
+        </filter>
+        <!-- 유화 캔버스 결 -->
+        <filter id="grain" x="0" y="0" width="1" height="1">
+          <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3" result="g"/>
+          <feColorMatrix in="g" type="matrix" values="0 0 0 0 .26  0 0 0 0 .25  0 0 0 0 .22  .2 0 0 0 -.06"/>
+        </filter>
       </defs>
 
-      <!-- 흐린 하늘과 구름 -->
-      <rect width="320" height="190" fill="url(#sky)"/>
-      <g filter="url(#soft)" fill="#D9DEDC" opacity=".85">
-        <g class="cloud"><ellipse cx="40" cy="40" rx="44" ry="11"/><ellipse cx="66" cy="32" rx="26" ry="10"/></g>
-        <g class="cloud b"><ellipse cx="-20" cy="84" rx="50" ry="9"/><ellipse cx="6" cy="76" rx="28" ry="9"/></g>
-        <g class="cloud" style="animation-delay:-26s"><ellipse cx="0" cy="18" rx="34" ry="8"/></g>
+      <!-- 흐린 하늘과 무거운 구름 -->
+      <rect width="300" height="208" fill="url(#sky)"/>
+      <ellipse cx="150" cy="6" rx="190" ry="20" fill="#5F6E7A" opacity=".55" filter="url(#haze)"/>
+      <ellipse cx="150" cy="120" rx="200" ry="8" fill="#D5DAD6" opacity=".6" filter="url(#haze)"/>
+      <g id="clouds">
+        <g id="cl" filter="url(#soft)">
+          <g>
+            <ellipse cx="64" cy="40" rx="42" ry="7" fill="#8E99A0"/>
+            <ellipse cx="34" cy="36" rx="14" ry="7" fill="url(#cloudG)"/><ellipse cx="50" cy="29" rx="20" ry="11" fill="url(#cloudG)"/><ellipse cx="71" cy="22" rx="20" ry="13" fill="url(#cloudG)"/><ellipse cx="91" cy="29" rx="16" ry="10" fill="url(#cloudG)"/><ellipse cx="106" cy="36" rx="11" ry="6" fill="url(#cloudG)"/>
+          </g>
+          <g>
+            <ellipse cx="244" cy="31" rx="36" ry="6" fill="#8E99A0"/>
+            <ellipse cx="218" cy="27" rx="14" ry="8" fill="url(#cloudG)"/><ellipse cx="234" cy="19" rx="17" ry="11" fill="url(#cloudG)"/><ellipse cx="253" cy="16" rx="15" ry="10" fill="url(#cloudG)"/><ellipse cx="268" cy="24" rx="13" ry="8" fill="url(#cloudG)"/>
+          </g>
+          <g opacity="0.92">
+            <ellipse cx="274" cy="77" rx="26" ry="4.4" fill="#9CA6AB"/>
+            <ellipse cx="258" cy="73" rx="11" ry="6" fill="url(#cloudG)"/><ellipse cx="272" cy="67" rx="13" ry="8.5" fill="url(#cloudG)"/><ellipse cx="287" cy="72" rx="9" ry="5.5" fill="url(#cloudG)"/>
+          </g>
+          <g opacity="0.9">
+            <ellipse cx="34" cy="84" rx="24" ry="4" fill="#9CA6AB"/>
+            <ellipse cx="18" cy="80" rx="9" ry="5" fill="url(#cloudG)"/><ellipse cx="32" cy="75" rx="12" ry="7.5" fill="url(#cloudG)"/><ellipse cx="47" cy="80" rx="9" ry="5" fill="url(#cloudG)"/>
+          </g>
+          <g opacity="0.85">
+            <ellipse cx="206" cy="60" rx="26" ry="4.2" fill="#97A1A7"/>
+            <ellipse cx="191" cy="56" rx="10" ry="5.6" fill="url(#cloudG)"/><ellipse cx="206" cy="49" rx="13" ry="8.4" fill="url(#cloudG)"/><ellipse cx="221" cy="55" rx="10" ry="6" fill="url(#cloudG)"/>
+          </g>
+          <g opacity="0.7">
+            <ellipse cx="196" cy="108" rx="26" ry="3" fill="#B4BCBD"/>
+            <ellipse cx="186" cy="105" rx="9" ry="4" fill="url(#cloudG)"/><ellipse cx="198" cy="102" rx="11" ry="5.5" fill="url(#cloudG)"/><ellipse cx="210" cy="105" rx="8" ry="3.6" fill="url(#cloudG)"/>
+          </g>
+          <g opacity="0.65">
+            <ellipse cx="92" cy="112" rx="22" ry="2.6" fill="#B4BCBD"/>
+            <ellipse cx="84" cy="109" rx="8" ry="3.6" fill="url(#cloudG)"/><ellipse cx="95" cy="106" rx="10" ry="4.6" fill="url(#cloudG)"/><ellipse cx="105" cy="109" rx="7" ry="3.2" fill="url(#cloudG)"/>
+          </g>
+        </g>
+        <use href="#cl" x="-300"/><use href="#cl" x="300"/>
       </g>
 
-      <!-- 바다와 수평선 -->
-      <rect y="124" width="320" height="30" fill="url(#sea)"/>
-      <path d="M0,124 H320" stroke="#4C625F" stroke-width="1"/>
-      <g stroke="#9CB0AA" stroke-width="1" stroke-linecap="round" opacity=".55">
-        <path d="M14,132 h14 M60,138 h10 M96,130 h12 M230,134 h16 M270,141 h10 M292,129 h12 M40,147 h12 M250,148 h12"/>
+      <!-- 수평선과 잔물결 바다 -->
+      <rect y="124" width="300" height="52" fill="url(#sea)"/>
+      <rect y="124" width="300" height=".8" fill="#2A393C" opacity=".8"/>
+      <g stroke="#A9B9B4" stroke-width=".7" stroke-linecap="round" fill="none" opacity=".32">
+        <path d="M8,129 h8 M34,131 h11 M62,128 h7 M240,130 h9 M262,133 h12 M286,129 h8
+                 M14,139 q6,-1.2 12,0 M42,142 q7,-1.4 14,0 M70,137 h8 M232,140 q7,-1.3 14,0 M256,144 h10 M276,138 q6,-1.2 12,0
+                 M4,152 q8,-1.6 16,0 M34,156 h12 M60,150 q7,-1.4 14,0 M228,155 q8,-1.5 16,0 M258,151 h11 M282,157 q6,-1.2 12,0
+                 M16,166 h13 M48,163 q7,-1.4 14,0 M234,167 h13 M266,164 q8,-1.5 16,0 M70,170 h10"/>
+      </g>
+      <g stroke="#24333A" stroke-width=".8" stroke-linecap="round" fill="none" opacity=".45">
+        <path d="M22,135 h9 M64,146 h8 M246,137 h9 M270,148 h8 M10,160 h10 M288,151 h8 M40,172 h11 M250,172 h11"/>
       </g>
 
-      <!-- 낮은 돌담 -->
-      <rect y="150" width="320" height="40" fill="url(#wall)"/>
-      <rect y="150" width="320" height="4" fill="#B0A898"/>
-      <g stroke="#6C665C" stroke-width=".8" opacity=".6">
-        <path d="M0,170 H320 M40,154 V170 M110,154 V170 M230,154 V170 M290,154 V170 M70,170 V190 M260,170 V190"/>
-      </g>
+      <!-- 낮은 돌 방파벽 -->
+      <rect y="175" width="300" height="5.5" fill="url(#wallTop)"/>
+      <rect y="180.5" width="300" height="27.5" fill="url(#wall)"/>
+      <rect y="180.5" width="300" height="1.4" fill="#7B7466" opacity=".55"/>
 
-      <!-- 원작처럼 인물이 화면을 크게 채우도록 키운다 -->
-      <g transform="translate(-40 -17) scale(1.25)">
-      <!-- 사람: 검은 외투, 흰 셔츠, 붉은 넥타이 -->
+      <!-- 사람: 원작처럼 화면을 크게 채운다 -->
+      <g transform="translate(150 5) scale(1.18) translate(-150 -7)">
       <g>
-        <!-- 외투 몸통과 소매 -->
-        <path d="M112,190 C112,150 108,118 116,104 C124,94 140,90 150,88 L170,88 C180,90 196,94 204,104 C212,118 208,150 208,190 Z" fill="url(#coat)"/>
-        <path d="M116,104 C108,120 106,150 110,190 L122,190 C120,158 120,130 124,112 Z" fill="#17181B"/>
-        <path d="M204,104 C212,120 214,150 210,190 L198,190 C200,158 200,130 196,112 Z" fill="#17181B"/>
-        <!-- 한쪽 팔꿈치가 뒤로 꺾인 듯한 소매 주름 -->
-        <path d="M200,128 C206,136 206,146 202,152" fill="none" stroke="#0E0F11" stroke-width="1.4"/>
-        <path d="M120,130 C114,140 114,150 118,158" fill="none" stroke="#0E0F11" stroke-width="1.4"/>
-        <!-- 셔츠와 넥타이 -->
-        <path d="M150,88 L160,112 L170,88 Z" fill="#F4F2EC"/>
-        <path d="M151,88 L160,98 L169,88 L166,86 L160,92 L154,86 Z" fill="#FFFFFF" stroke="#C9C6BE" stroke-width=".6"/>
-        <path d="M157.6,94 L162.4,94 L161.4,98 L163.6,118 L160,123 L156.4,118 L158.6,98 Z" fill="#B42C24"/>
-        <path d="M157.6,94 L162.4,94 L161.4,98 L158.6,98 Z" fill="#8E1E18"/>
-        <!-- 옷깃 -->
-        <path d="M150,88 C146,98 146,108 152,122 L160,112 Z" fill="#26272B" stroke="#0E0F11" stroke-width=".8"/>
-        <path d="M170,88 C174,98 174,108 168,122 L160,112 Z" fill="#26272B" stroke="#0E0F11" stroke-width=".8"/>
-        <circle cx="160" cy="140" r="1.6" fill="#0E0F11"/><circle cx="160" cy="160" r="1.6" fill="#0E0F11"/>
-        <!-- 목과 귀 -->
-        <rect x="153" y="78" width="14" height="12" fill="#D8AE90"/>
-        <ellipse cx="140.6" cy="62" rx="3.2" ry="6" fill="#D9AF91"/>
-        <ellipse cx="179.4" cy="62" rx="3.2" ry="6" fill="#D9AF91"/>
-        <!-- 얼굴 (사과 뒤에 숨어 있다) -->
-        <ellipse cx="160" cy="62" rx="18.6" ry="22" fill="url(#skin)"/>
-        <g fill="#2A1E16">
-          <ellipse cx="153" cy="58" rx="2.2" ry="1.4"/><ellipse cx="167" cy="58" rx="2.2" ry="1.4"/>
+        <!-- 외투 몸통 -->
+        <path d="M150,84 C138,84 132,88 128,94 C118,97 106,99 99,104 C92,109 90,120 90,135 C89,155 88,178 87,200 L213,200 C212,182 213,166 210,151 C209,141 212,127 210,118 C208,108 202,101 196,99.5 C186,96 176,94 172,90 C168,86 160,84 150,84 Z" fill="url(#coat)"/>
+        <!-- 왼팔(화면 왼쪽) -->
+        <path d="M99,104 C92,109 90,120 90,135 C89,155 88,178 87,200 L111,200 C111,175 110,142 112,114 C108,107 104,104 99,104 Z" fill="url(#sleeve)"/>
+        <!-- 오른팔: 팔꿈치가 반대로 꺾인 원작의 소매 -->
+        <path d="M196,99.5 C202,101 208,108 210,118 C212,127 209,141 210,151 C213,166 212,182 213,200 L189,200 C190,184 193,168 188.6,152 C191.6,140 191,124 188,110 C191,104 193.6,100.6 196,99.5 Z" fill="url(#sleeve)"/>
+        <g filter="url(#fold)" fill="none" stroke-linecap="round">
+          <path d="M197,138 C203.6,144 204,152 199,159" stroke="#3A3E44" stroke-width="1.4" opacity=".8"/>
+          <path d="M192,150 C196,153 199,154 204,153" stroke="#0B0C0E" stroke-width="1.2" opacity=".8"/>
+          <path d="M101,128 C97,140 97,152 100,164" stroke="#33373C" stroke-width="1.2" opacity=".6"/>
+          <path d="M112,114 C110,140 110,170 111,200" stroke="#0B0C0E" stroke-width="1.4" opacity=".75"/>
+          <path d="M188.4,110 C191,126 191,142 188.6,152 C193,168 190,184 189,200" stroke="#0B0C0E" stroke-width="1.4" opacity=".75"/>
         </g>
-        <path d="M150,54 q3,-1.6 6,0 M164,54 q3,-1.6 6,0" stroke="#5A4434" stroke-width="1" fill="none"/>
-        <path d="M160,60 L158.6,68 L161.4,68.6" stroke="#B88A6C" stroke-width="1" fill="none"/>
-        <path d="M155,75 Q160,76.6 165,75" stroke="#A0705A" stroke-width="1.2" fill="none"/>
+        <!-- 높은 깃 -->
+        <path d="M128,94 C130,87 135,82.6 141,81.6 L141.6,90 L136,96 Z" fill="#202327"/>
+        <path d="M172,90 C170,85.6 165,82.4 159,81.6 L158.4,90 L163,95 Z" fill="#1C1F23"/>
+        <!-- 목 -->
+        <path d="M141,72 L159,72 L159.6,91 L140.4,91 Z" fill="url(#neck)"/>
+        <!-- 셔츠와 넥타이 -->
+        <path d="M139.6,88.6 L150,121 L160.4,88.6 C156,86.6 144,86.6 139.6,88.6 Z" fill="#E7E5DE"/>
+        <path d="M139.6,88 L149.4,95.4 L146,101 L137.4,92 Z" fill="#F5F3ED"/>
+        <path d="M160.4,88 L150.6,95.4 L154,101 L162.6,92 Z" fill="#ECEAE3"/>
+        <path d="M147.2,95 L152.8,95 L152,100 L148,100 Z" fill="#932822"/>
+        <path d="M148,100 L152,100 L154.4,115 L150,120.4 L145.6,115 Z" fill="url(#tie)"/>
+        <!-- 옷깃(라펠) -->
+        <path d="M137.4,92 L130.6,97.6 L134,101.4 L130.4,105.6 C137,113 143.6,120.6 150,127.4 L150,123 C146,113 142,102 137.4,92 Z" fill="url(#lapel)"/>
+        <path d="M162.6,92 L169.6,97.2 L166.4,101.2 L170,105.4 C163.4,113 156.6,120.4 150,127.4 L150,123 C154,113 158,102 162.6,92 Z" fill="url(#lapel)"/>
+        <!-- 단추 세 개 -->
+        <g fill="#0F1113">
+          <circle cx="151" cy="134" r="1.7"/><circle cx="151.4" cy="155" r="1.7"/><circle cx="151.8" cy="176" r="1.7"/>
+        </g>
+        <!-- 귀와 얼굴 -->
+        <ellipse cx="130.8" cy="55" rx="3.1" ry="6.2" fill="#CDA189"/>
+        <ellipse cx="169.2" cy="55" rx="3.1" ry="6.2" fill="#C99C84"/>
+        <path d="M130.4,51 q1.4,4 0,8 M169.6,51 q-1.4,4 0,8" stroke="#A97E68" stroke-width=".8" fill="none" opacity=".7"/>
+        <ellipse cx="150" cy="60" rx="18.4" ry="22" fill="url(#skin)"/>
+        <path d="M134,72 C138,80 144,83 150,83 C156,83 162,80 166,72 C164,79 158,84.6 150,84.6 C142,84.6 136,79 134,72 Z" fill="#B48A73" opacity=".5"/>
+        <!-- 사과 위로 드러나는 왼눈 -->
+        <ellipse cx="162.4" cy="48.6" rx="2.9" ry="1.55" fill="#EEE6DC"/>
+        <circle cx="162" cy="48.5" r="1.25" fill="#3A2A20"/>
+        <path d="M158.6,47.4 Q162.4,46 166.2,47.8" stroke="#9C735E" stroke-width=".7" fill="none"/>
+        <path d="M158,44.6 Q162.4,42.8 166.6,44.8" stroke="#5C4434" stroke-width="1.1" fill="none" stroke-linecap="round"/>
         <!-- 중산모 -->
-        <ellipse cx="160" cy="45" rx="27" ry="5.6" fill="#141518"/>
-        <path d="M141,45 C140,30 148,20 160,20 C172,20 180,30 179,45 Z" fill="url(#hat)"/>
-        <path d="M141.4,41 C152,43.6 168,43.6 178.6,41 L179,45 C168,47.4 152,47.4 141,45 Z" fill="#0C0D0F"/>
-        <path d="M150,26 C154,23 160,22.4 164,23" stroke="#5A5C64" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".7"/>
+        <path d="M129,38 C128,21 137,7 150,7 C163,7 172,21 171,38 Z" fill="url(#hat)"/>
+        <path d="M129.4,32.6 C140,34.6 160,34.6 170.6,32.6 L171,38 C160,40 140,40 129,38 Z" fill="#0B0C0E"/>
+        <path d="M117,38.6 C120,35 126,36 132,36.6 C140,37.2 160,37.2 168,36.6 C174,36 180,35 183,38.6 C180,43 168,44 150,44 C132,44 120,43 117,38.6 Z" fill="#121315"/>
+        <path d="M120,39.6 C130,42.4 170,42.4 180,39.6" stroke="#34363B" stroke-width=".8" fill="none" opacity=".7"/>
+        <path d="M140,44 C146,45.6 154,45.6 160,44 L160,45.4 C154,47 146,47 140,45.4 Z" fill="#8E6A57" opacity=".45"/>
       </g>
 
-      <!-- 얼굴 앞에 뜬 초록 사과 -->
-      <g id="apple">
-        <g id="appleBob">
-          <circle cx="160" cy="65" r="16.5" fill="url(#appleG)"/>
-          <path d="M146,70 C148,80 156,82 162,81.6" stroke="#3E6A1E" stroke-width="1.2" fill="none" opacity=".5"/>
-          <ellipse cx="153.6" cy="58.6" rx="4.2" ry="2.6" fill="#E8F2B8" opacity=".7" transform="rotate(-30 153.6 58.6)"/>
-          <path d="M158,50.4 Q160,52.6 162,50.4" stroke="#3E6A1E" stroke-width="1.2" fill="none"/>
-          <path d="M160,51 C160,46 161.6,43 164,41" stroke="#4A3220" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-          <path d="M161.4,46.4 C166,40 174,40 178,43 C172,47 166,48 161.4,46.4 Z" fill="#4E8A2E"/>
-          <path d="M161.4,46.4 C166,44.4 172,43.6 178,43" stroke="#2E5A18" stroke-width=".7" fill="none"/>
-          <path d="M159.4,47 C155,41 148,41.4 145,44.6 C150,48 155,48.6 159.4,47 Z" fill="#5E9A36"/>
-          <path d="M159.4,47 C155,45.6 150,45 145,44.6" stroke="#2E5A18" stroke-width=".7" fill="none"/>
+      <!-- 얼굴 앞에 떠 있는 초록 사과 -->
+      <g id="applePeek"><g id="appleFloat"><g id="appleSway">
+        <g transform="translate(149 64.2) scale(.86)">
+          <path d="M0,-15 C-4,-20 -12,-21 -17,-17 C-22,-13 -23,-3 -21,5 C-19,14 -12,21 -5,21 C-2,21 -1,20 0,20 C1,20 2,21 5,21 C12,21 19,14 21,5 C23,-3 22,-13 17,-17 C12,-21 4,-20 0,-15 Z" fill="url(#appleG)" filter="url(#mottle)"/>
+          <ellipse cx="8" cy="8" rx="14" ry="11" fill="url(#blush)" opacity=".7"/>
+          <path d="M-3,-15.4 C-1.4,-13.6 1.4,-13.6 3,-15.4 C1.4,-14.6 -1.4,-14.6 -3,-15.4 Z" fill="#46672A" opacity=".8"/>
+          <!-- 꼭지와 잎 네 장 -->
+          <path d="M0,-15 C0.4,-19 1.6,-22 3.4,-24.4" stroke="#4A3524" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <path d="M2.4,-21.6 C6,-27.6 13,-28.4 17,-25.4 C12.6,-21.4 7,-20.4 2.4,-21.6 Z" fill="#4F7C2D"/>
+          <path d="M1.6,-21 C-2,-27 -9,-28 -13,-25.2 C-8.6,-21.2 -3,-20 1.6,-21 Z" fill="#5C8A33"/>
+          <path d="M3.2,-23.6 C3,-29 6.4,-32.6 10.4,-33.4 C10,-28.6 7,-25 3.2,-23.6 Z" fill="#668F38"/>
+          <path d="M2.6,-23.4 C0,-28 -3.6,-30.2 -7.4,-30 C-6,-26 -2.4,-23.6 2.6,-23.4 Z" fill="#46712A"/>
+          <path d="M2.4,-21.6 C7.4,-23.6 12,-24.6 17,-25.4 M1.6,-21 C-3,-22.6 -8,-24 -13,-25.2" stroke="#36581F" stroke-width=".6" fill="none" opacity=".7"/>
         </g>
+      </g></g></g>
       </g>
-      </g>
+
+      <!-- 캔버스 결 -->
+      <rect width="300" height="208" fill="transparent" filter="url(#grain)"/>
     </svg>
 
     <div class="bar">
@@ -177,19 +256,11 @@
   </div>
 
 <script>
-/* 랩을 찍으면 사과가 한 번 흔들린다 */
-(function(){
-  var a=document.getElementById('appleBob'),b2=document.getElementById('b2');
-  function wob(){a.classList.remove('wob');void a.getBBox();a.classList.add('wob');setTimeout(function(){a.classList.remove('wob');},520);}
-  b2.addEventListener('click',wob);
-  document.addEventListener('keydown',function(e){if((e.key==='l'||e.key==='L')&&!b2.disabled&&!e.repeat)wob();});
-})();
-</script>
-<script>
 (function(){
   var t=document.getElementById('t'),lp=document.getElementById('lp'),
-      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
-  var run=false,stt=0,acc=0,iv=null,laps=[],last=0;
+      b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),
+      pk=document.getElementById('applePeek');
+  var run=false,stt=0,acc=0,iv=null,laps=[],last=0,pt=null;
   function el(){return acc+(run?performance.now()-stt:0);}
   function pad(n,w){return String(n).padStart(w,'0');}
   function f(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,m=Math.floor(s/60),mm=m%60,hh=Math.floor(m/60);
@@ -198,6 +269,9 @@
   function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
     return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
   function draw(){t.innerHTML=f(el());}
+  /* 랩을 찍으면 사과가 잠시 비켜난다 */
+  function peek(){pk.classList.remove('peek');void pk.getBBox();pk.classList.add('peek');
+    clearTimeout(pt);pt=setTimeout(function(){pk.classList.remove('peek');},1550);}
 
   /* ── 접근성 공통 ──
      정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
@@ -234,6 +308,7 @@
   function lap(){if(!run)return;var e=el(),sp=e-last;last=e;laps.push(sp);
     var best=Math.min.apply(null,laps);
     lp.textContent='LAP '+laps.length+' · '+plain(sp)+(laps.length>1&&sp===best?' ★':'');
+    peek();
     srSay('랩 '+laps.length+'. 구간 '+srHuman(sp));}
   b1.addEventListener('click',function(){run?stop():start();});
   b2.addEventListener('click',lap);
