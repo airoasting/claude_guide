@@ -22,6 +22,24 @@
   .b2{right:-6px;top:-6px;width:70px;height:48px}           /* blue top-right */
   .b3{left:-6px;bottom:-6px;width:64px;height:58px}         /* yellow bottom-left */
   .b4{right:-6px;bottom:-6px;width:90px;height:44px}        /* red bottom-right */
+  /* 달리는 동안: 색 블록이 박자에 맞춰 늘었다 줄고, 검은 선 위로 작은 색 사각형이 달린다 */
+  .blk{transition:none}
+  body.go .b1{animation:g1 1.6s steps(1) infinite}
+  body.go .b2{animation:g2 1.2s steps(1) infinite}
+  body.go .b3{animation:g3 2s steps(1) infinite}
+  body.go .b4{animation:g4 1.4s steps(1) infinite}
+  @keyframes g1{50%{width:128px}}
+  @keyframes g2{50%{height:66px;width:58px}}
+  @keyframes g3{50%{width:92px}}
+  @keyframes g4{50%{width:66px;height:52px}}
+  .dot{position:absolute;width:10px;height:10px;z-index:3;opacity:0;pointer-events:none}
+  .d1{background:#E2231A;top:72px}.d2{background:#1356A8;top:120px}.d3{background:#F6CB16;top:72px}.d4{background:#F6CB16;top:120px}
+  body.go .dot{opacity:1}
+  body.go .d1{animation:runx 2.4s linear infinite}
+  body.go .d3{animation:runx 2.4s linear infinite -1.2s}
+  body.go .d2{animation:runx 1.8s linear infinite reverse}
+  body.go .d4{animation:runx 1.8s linear infinite reverse -.9s}
+  @keyframes runx{from{left:-6px}to{left:250px}}
   .mid{position:absolute;left:-6px;right:-6px;top:74px;height:54px;border-top:6px solid #111;border-bottom:6px solid #111;background:#fff;
     display:flex;align-items:center;justify-content:center}
   .time{font-weight:800;font-variant-numeric:tabular-nums;font-size:38px;letter-spacing:1px;color:#111}
@@ -49,6 +67,7 @@
       <div class="blk blu b2" aria-hidden="true"></div>
       <div class="blk yel b3" aria-hidden="true"></div>
       <div class="blk red b4" aria-hidden="true"></div>
+      <i class="dot d1" aria-hidden="true"></i><i class="dot d2" aria-hidden="true"></i><i class="dot d3" aria-hidden="true"></i><i class="dot d4" aria-hidden="true"></i>
       <div class="mid"><span class="time"><span id="t" role="timer">00:00<span class="cs">.00</span></span></span></div>
     </div>
     <div class="row">
@@ -86,7 +105,7 @@
     return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
   }
   var srWasRun=false, srLast=0;
-  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;
+  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);document.body.classList.toggle('go',run);b2.disabled=!run;b3.disabled=run||el()===0;
     /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
     var srE=el();
     if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));

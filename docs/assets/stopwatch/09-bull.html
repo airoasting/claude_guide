@@ -16,7 +16,14 @@
   /* 원작 이미지(흰 여백 크롭본). 그림만 노출, 서명 포함 */
   .art{width:256px;overflow:hidden;border-radius:3px;
     border:1px solid rgba(0,0,0,.3);box-shadow:0 10px 22px rgba(20,6,2,.5)}
-  .art img{width:100%;display:block}
+  .art img{width:100%;display:block;transform-origin:42% 40%}
+  /* 달리는 동안: 황소가 힘을 모았다 내뿜듯 그림이 다가왔다 물러나고, 화면이 붉게 달아오른다 */
+  body{transition:background 1s}
+  body.go{background:#6A2A16}
+  body.go .art img{animation:charge 1.3s cubic-bezier(.45,0,.2,1) infinite}
+  @keyframes charge{0%,100%{transform:scale(1.03)}35%{transform:scale(1.1) translate(-1.5%,1%)}55%{transform:scale(1.07) translate(1%,-.5%) rotate(-.6deg)}}
+  body.go .art{animation:heat 1.3s ease-in-out infinite}
+  @keyframes heat{50%{box-shadow:0 10px 30px rgba(255,90,30,.55),0 0 0 2px rgba(255,140,60,.35)}}
   .time{font-family:Georgia,serif;font-weight:700;font-size:40px;color:#f6e8c6;letter-spacing:1px;text-shadow:1px 1px 0 rgba(20,6,2,.5)}
   .time .cs{font-size:18px;color:#f0b24a}
   .row{display:flex;gap:8px}
@@ -75,7 +82,7 @@
     return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
   }
   var srWasRun=false, srLast=0;
-  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);b2.disabled=!run;b3.disabled=run||el()===0;
+  function ui(){b1.textContent=run?'정지':(el()>0?'재개':'시작');b1.classList.toggle('run',run);document.body.classList.toggle('go',run);b2.disabled=!run;b3.disabled=run||el()===0;
     /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
     var srE=el();
     if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));

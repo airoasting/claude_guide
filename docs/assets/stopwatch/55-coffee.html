@@ -7,210 +7,560 @@
 <style>
 @font-face { font-family: Pretendard; src: url('../fonts/PretendardVariable.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
 * { box-sizing: border-box; }
-:root { --cream: #F7ECD9; --ink: #3A3530; --muted: #5F5042; --line: #D8BFA0; --coffee: #533C2C; }
-html, body { margin: 0; min-height: 100%; }
-body { min-height: 100svh; display: grid; place-items: center; padding: 12px; color: var(--ink); background: radial-gradient(ellipse at 10% 0%, #FFF8E8, transparent 60%), radial-gradient(ellipse at 100% 5%, #EDC18D, transparent 65%), linear-gradient(145deg, #F7ECD9, #E8D4B5); font-family: Pretendard, -apple-system, sans-serif; }
-.atelier { width: 100%; max-width: 420px; text-align: center; }
-.eyebrow { margin: 0 0 5px; font-size: 10px; font-weight: 600; letter-spacing: 3px; color: var(--muted); }
-.scene { display: block; width: 100%; height: 178px; margin: 10px auto 0; overflow: visible; }
-.clock { display: flex; justify-content: center; align-items: baseline; margin: 12px 0 0; font-family: Georgia, 'Times New Roman', serif; font-variant-numeric: tabular-nums; font-size: 43px; font-weight: 400; letter-spacing: 1px; line-height: 1.1; }
-.centiseconds { margin-left: 2px; font-size: 24px; color: var(--muted); }
-.controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 300px; margin: 20px auto 0; }
-button { min-width: 0; min-height: 38px; border: 1px solid var(--line); border-radius: 10px; padding: 0 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font: 600 12px Pretendard, sans-serif; color: var(--ink); background: var(--cream); box-shadow: 3px 3px 7px #D8C2A4, -3px -3px 7px #FFF8E8; cursor: pointer; touch-action: manipulation; }
-button:hover { background: #FCF9F3; }
-button:active { box-shadow: inset 2px 2px 5px #D9D2C7; }
-button:focus-visible { outline: 2px solid #A84726; outline-offset: 3px; }
-button:disabled { cursor: default; opacity: .5; box-shadow: none; }
-button.primary { border-color: var(--coffee); color: #FFFDF7; background: var(--coffee); box-shadow: 3px 3px 8px #CDC2B4, -3px -3px 8px #FFFDF8; }
-button.primary:hover { background: #443024; }
-button svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
-.lap { margin: 9px 0 0; min-height: 14px; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
-/* #533C2C 위 #FFFDF7 글자 대비 10.07:1. #EDC18D 위 #5F5042 보조 글자 대비 4.65:1. */
-@media (min-height: 500px) and (min-width: 400px) {
-  body { padding: 32px; }
-  .atelier { padding: 28px 20px; border: 1px solid #FFF6E4; background: #F7ECD9; border-radius: 24px; box-shadow: 12px 12px 32px #D4B996, -12px -12px 32px #FFF7E6; }
-  .scene { height: 240px; margin: 20px auto 12px; }
-  .clock { font-size: 52px; }
-}
-@media (max-width: 280px) { body { padding: 8px; } button { padding: 0 9px; } .scene { height: 150px; } }
-@media (max-height: 340px) { .scene { height: 150px; } .controls { margin-top: 14px; } }
+:root { --cream: #F3E6CF; --ink: #2A180D; --brick: #A2462B; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #140C08; }
+body { display: flex; align-items: center; justify-content: center; color: var(--cream); font-family: Pretendard, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+.atelier { position: relative; display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 480px; max-height: 640px; overflow: hidden; background: #1E130D; }
+.scene-wrap { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.scene { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* 카운터 앞판. 월넛 결과 광택 모서리 */
+.counter { position: relative; flex: none; padding: 10px 12px 9px;
+  background:
+    radial-gradient(ellipse 58% 46% at 50% 0%, rgba(255, 186, 112, .2), transparent 72%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, .38)),
+    repeating-linear-gradient(179deg, rgba(255, 210, 160, .045) 0 1px, transparent 1px 6px, rgba(0, 0, 0, .09) 6px 7px, transparent 7px 11px),
+    linear-gradient(90deg, #352013, #573623 28%, #4B2E1D 58%, #5A3925 78%, #352013); }
+.counter::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  background: linear-gradient(90deg, rgba(255, 214, 160, .05), rgba(255, 220, 170, .7) 50%, rgba(255, 214, 160, .05)), #6B442B;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .55), 0 2px 5px rgba(0, 0, 0, .35); }
+
+/* 황동 명판 */
+.plate { position: relative; width: min(216px, 100%); height: 44px; margin: 0 auto; overflow: hidden; border-radius: 6px; text-align: center; line-height: 46px; white-space: nowrap;
+  font-family: 'Bodoni 72', Didot, Baskerville, 'Times New Roman', Georgia, serif; font-variant-numeric: lining-nums tabular-nums; color: var(--ink);
+  background: linear-gradient(180deg, #F6E2B3 0%, #DDBB79 42%, #BC924F 56%, #D3AD6A 100%);
+  box-shadow: 0 0 0 1px #6B4B1F, inset 0 1px 0 rgba(255, 251, 232, .85), inset 0 -2px 3px rgba(80, 50, 15, .35), 0 4px 8px rgba(0, 0, 0, .5); }
+.plate #time { font-size: 33px; letter-spacing: .5px; text-shadow: 0 1px 0 rgba(255, 245, 215, .7); }
+.plate.long #time { font-size: 27px; }
+.plate .cs { margin-left: 2px; font-size: 19px; color: #4A3018; text-shadow: 0 1px 0 rgba(255, 245, 215, .6); }
+.plate::before, .plate::after { content: ''; position: absolute; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FFF3CF, #8C6630 72%); box-shadow: 0 0 0 .6px #5A3F18; }
+.plate::before { left: 8px; }
+.plate::after { right: 8px; }
+.glint { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 38%, rgba(255, 253, 238, .75) 50%, transparent 62%) no-repeat; background-size: 260% 100%; background-position: 160% 0; }
+.glint.on { animation: glint .8s ease-out; }
+@keyframes glint { from { background-position: 160% 0; } to { background-position: -60% 0; } }
+
+/* 버튼 */
+.controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; max-width: 300px; margin: 8px auto 0; }
+button { min-width: 0; height: 34px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; gap: 5px; border: 1px solid rgba(243, 230, 207, .3); border-radius: 8px; font: 600 12.5px Pretendard, sans-serif; letter-spacing: .2px; color: var(--cream);
+  background: linear-gradient(180deg, rgba(255, 240, 215, .12), rgba(255, 240, 215, .03)); box-shadow: inset 0 1px 0 rgba(255, 240, 215, .14), 0 2px 4px rgba(0, 0, 0, .35); cursor: pointer; touch-action: manipulation; }
+button:hover { background: linear-gradient(180deg, rgba(255, 240, 215, .2), rgba(255, 240, 215, .06)); }
+button:active { transform: translateY(1px); }
+button:focus-visible { outline: 2px solid #F2C77E; outline-offset: 2px; }
+button:disabled { opacity: .38; cursor: default; box-shadow: none; transform: none; }
+button.primary { color: var(--ink); border-color: #7A5826; background: linear-gradient(180deg, #F3DCA6, #D4AE68 55%, #BB914C); box-shadow: inset 0 1px 0 rgba(255, 250, 230, .8), 0 2px 5px rgba(0, 0, 0, .45); }
+button.primary:hover { background: linear-gradient(180deg, #F8E4B4, #DDB874 55%, #C49955); }
+button svg { flex: none; width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* 기록 영수증. 두 줄 높이를 처음부터 고정한다 */
+.receipt { position: relative; max-width: 300px; height: 40px; margin: 8px auto 0; padding: 3px 10px; list-style: none; overflow: visible; border-radius: 2px 2px 0 0; color: var(--ink);
+  font: 600 11.5px/16px Pretendard, sans-serif; font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #F5EBD7, #E9DCC2); box-shadow: 0 2px 4px rgba(0, 0, 0, .35); }
+.receipt::after { content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 4px; background: conic-gradient(from -45deg at 50% 100%, #E9DCC2 90deg, transparent 0) 0 0 / 8px 100% repeat-x; }
+.row { display: grid; grid-template-columns: 24px 1fr 1fr 14px; align-items: center; height: 16px; padding: 0 2px; border-radius: 2px; }
+.row + .row { height: 17px; border-top: 1px dashed rgba(60, 36, 20, .28); }
+.row .n { color: var(--brick); font-weight: 700; }
+.row .sp { text-align: center; }
+.row .tt { text-align: right; color: #6B5240; font-weight: 500; }
+.row .st { text-align: right; font-style: normal; color: var(--brick); }
+.row.empty { color: rgba(43, 26, 14, .3); }
+.row.empty .n, .row.empty .tt { color: inherit; }
+.row.stamp { animation: stamp .7s ease-out; }
+@keyframes stamp { 0% { background: rgba(162, 70, 43, .3); } 100% { background: rgba(162, 70, 43, 0); } }
+
+@media (max-height: 330px) { .plate { height: 38px; line-height: 40px; } .plate #time { font-size: 29px; } .controls { margin-top: 6px; } .receipt { margin-top: 6px; } }
+@media (max-width: 280px) { .counter { padding-left: 8px; padding-right: 8px; } button svg { display: none; } }
+@media (min-height: 520px) and (min-width: 500px) { .atelier { border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, .6); } }
+@media (prefers-reduced-motion: reduce) { .glint.on, .row.stamp { animation: none; } }
+/* 명판 #DDBB79 위 #2A180D 대비 9.6:1. 영수증 #F5EBD7 위 #6B5240 대비 6.3:1. */
 </style>
 </head>
 <body>
-<main class="atelier" data-state="idle" aria-label="커피 스톱워치">
-  <p class="eyebrow">CAFÉ ATELIER</p>
-  <svg class="scene" viewBox="14 0 160 186" aria-hidden="true">
+<main class="atelier" aria-label="커피 스톱워치">
+  <div class="scene-wrap">
+  <svg class="scene" viewBox="0 0 300 210" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
     <defs>
-      <linearGradient id="wood" x2="1" y2="0"><stop stop-color="#38281F"/><stop offset=".3" stop-color="#79533A"/><stop offset=".6" stop-color="#61412E"/><stop offset="1" stop-color="#38281F"/></linearGradient>
-      <linearGradient id="brass" x2="1" y2="0"><stop stop-color="#8E6A36"/><stop offset=".38" stop-color="#D7B77F"/><stop offset=".6" stop-color="#EBD3A3"/><stop offset="1" stop-color="#9C793F"/></linearGradient>
-      <linearGradient id="glass" x2="1" y2="0"><stop stop-color="#FFF" stop-opacity=".7"/><stop offset=".5" stop-color="#CDBB9C" stop-opacity=".15"/><stop offset="1" stop-color="#FFF" stop-opacity=".6"/></linearGradient>
-      <linearGradient id="table" x2="0" y2="1"><stop stop-color="#B98456" stop-opacity=".2"/><stop offset="1" stop-color="#9B623B" stop-opacity=".05"/></linearGradient>
-      <clipPath id="hopper-clip"><path d="M65 35H121L113 75H73Z"/></clipPath>
-      <g id="bean"><ellipse rx="6" ry="4" fill="#63402B"/><path d="M-4 0Q0-2 4 0" fill="none" stroke="#B28458" stroke-width="1"/></g>
+      <linearGradient id="tileFace" x2="0" y2="1"><stop stop-color="#3B261A"/><stop offset="1" stop-color="#2B1A11"/></linearGradient>
+      <pattern id="tiles" width="24" height="24" patternUnits="userSpaceOnUse">
+        <rect width="24" height="24" fill="#150C08"/>
+        <rect x=".7" y=".7" width="22.6" height="10.6" rx="1.4" fill="url(#tileFace)"/>
+        <rect x="-11.3" y="12.7" width="22.6" height="10.6" rx="1.4" fill="url(#tileFace)"/>
+        <rect x="12.7" y="12.7" width="22.6" height="10.6" rx="1.4" fill="url(#tileFace)"/>
+        <path d="M2 1.6H22M-10 13.6H10M14 13.6H34" stroke="#FFDDB0" stroke-opacity=".06" stroke-width=".7"/>
+      </pattern>
+      <radialGradient id="wallGlow" gradientUnits="userSpaceOnUse" cx="150" cy="70" r="190"><stop stop-color="#B0703C" stop-opacity=".42"/><stop offset=".55" stop-color="#6A3E20" stop-opacity=".16"/><stop offset="1" stop-color="#6A3E20" stop-opacity="0"/></radialGradient>
+      <radialGradient id="vignette" gradientUnits="userSpaceOnUse" cx="150" cy="118" r="235"><stop offset=".38" stop-color="#080402" stop-opacity="0"/><stop offset="1" stop-color="#080402" stop-opacity=".85"/></radialGradient>
+      <linearGradient id="cone" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="206"><stop stop-color="#FFE2AE" stop-opacity=".42"/><stop offset=".55" stop-color="#FFC982" stop-opacity=".14"/><stop offset="1" stop-color="#FFC27A" stop-opacity=".2"/></linearGradient>
+      <radialGradient id="halo"><stop stop-color="#FFE6B8" stop-opacity=".9"/><stop offset=".35" stop-color="#FFC983" stop-opacity=".35"/><stop offset="1" stop-color="#FFC983" stop-opacity="0"/></radialGradient>
+      <linearGradient id="copper" x2="1" y2="0"><stop stop-color="#3A2312"/><stop offset=".3" stop-color="#A86F3C"/><stop offset=".42" stop-color="#F0C58A"/><stop offset=".58" stop-color="#9A6232"/><stop offset="1" stop-color="#2E1B0E"/></linearGradient>
+      <linearGradient id="brass" x2="1" y2="0"><stop stop-color="#7A5A2A"/><stop offset=".3" stop-color="#D6B577"/><stop offset=".45" stop-color="#FBEBC2"/><stop offset=".62" stop-color="#C79F5C"/><stop offset="1" stop-color="#6E4F22"/></linearGradient>
+      <linearGradient id="brassV" x2="0" y2="1"><stop stop-color="#FBEAC0"/><stop offset=".45" stop-color="#CFA762"/><stop offset="1" stop-color="#7C5A28"/></linearGradient>
+      <radialGradient id="bezel" cx=".38" cy=".32" r=".8"><stop stop-color="#FFF0C8"/><stop offset=".45" stop-color="#C99F5A"/><stop offset="1" stop-color="#6A4A1E"/></radialGradient>
+      <linearGradient id="walnut" x2="1" y2="0"><stop stop-color="#2A170D"/><stop offset=".22" stop-color="#6E452B"/><stop offset=".4" stop-color="#8A5B3A"/><stop offset=".62" stop-color="#5C3922"/><stop offset="1" stop-color="#26150C"/></linearGradient>
+      <linearGradient id="knob" x2="1" y2="0"><stop stop-color="#24140B"/><stop offset=".35" stop-color="#8A5A38"/><stop offset=".6" stop-color="#4A2C1A"/><stop offset="1" stop-color="#1E1009"/></linearGradient>
+      <linearGradient id="topLight" x2="0" y2="1"><stop stop-color="#FFD9A0" stop-opacity=".3"/><stop offset="1" stop-color="#FFD9A0" stop-opacity="0"/></linearGradient>
+      <linearGradient id="glass" x2="1" y2="0"><stop stop-color="#FFF4E2" stop-opacity=".26"/><stop offset=".45" stop-color="#FFF4E2" stop-opacity=".05"/><stop offset=".8" stop-color="#FFF4E2" stop-opacity=".1"/><stop offset="1" stop-color="#FFF4E2" stop-opacity=".24"/></linearGradient>
+      <linearGradient id="counterTop" x2="0" y2="1"><stop stop-color="#24150C"/><stop offset=".25" stop-color="#5E3B26"/><stop offset="1" stop-color="#7A4F33"/></linearGradient>
+      <linearGradient id="linen" x2="1" y2="0"><stop stop-color="#E2D2B4"/><stop offset="1" stop-color="#9E8C71"/></linearGradient>
+      <linearGradient id="steamFade" gradientUnits="userSpaceOnUse" x1="0" y1="168" x2="0" y2="52"><stop stop-color="#FFF3DF" stop-opacity="0"/><stop offset=".14" stop-color="#FFF3DF" stop-opacity=".9"/><stop offset=".6" stop-color="#FFF3DF" stop-opacity=".5"/><stop offset="1" stop-color="#FFF3DF" stop-opacity="0"/></linearGradient>
+      <radialGradient id="beanFill" cx=".4" cy=".35" r=".75"><stop stop-color="#A26A3E"/><stop offset=".55" stop-color="#6E4227"/><stop offset="1" stop-color="#3A2214"/></radialGradient>
+      <pattern id="groundTex" width="5" height="5" patternUnits="userSpaceOnUse">
+        <rect width="5" height="5" fill="#5A3721"/>
+        <circle cx=".9" cy="1" r=".6" fill="#8A5C3A"/><circle cx="3.3" cy=".7" r=".4" fill="#2E1B10"/><circle cx="2.2" cy="2.6" r=".75" fill="#3A2315"/>
+        <circle cx="4.2" cy="3.4" r=".5" fill="#9C6B45"/><circle cx="1" cy="4.2" r=".45" fill="#6E4629"/><circle cx="3.4" cy="4.6" r=".3" fill="#2A170C"/>
+      </pattern>
+      <!-- 가루 더미 명암. 옆면은 어둡고 꼭대기는 램프 빛을 받는다 -->
+      <linearGradient id="moundShade" x2="1" y2="0"><stop stop-color="#0E0703" stop-opacity=".7"/><stop offset=".32" stop-color="#0E0703" stop-opacity=".12"/><stop offset=".5" stop-color="#0E0703" stop-opacity="0"/><stop offset=".68" stop-color="#0E0703" stop-opacity=".14"/><stop offset="1" stop-color="#0E0703" stop-opacity=".75"/></linearGradient>
+      <radialGradient id="moundHi" cx=".5" cy="0" r=".62" fx=".47" fy="0"><stop stop-color="#E2AE7C" stop-opacity=".62"/><stop offset=".45" stop-color="#C08656" stop-opacity=".22"/><stop offset="1" stop-color="#C08656" stop-opacity="0"/></radialGradient>
+      <linearGradient id="moundDeep" x2="0" y2="1"><stop offset=".35" stop-color="#0E0703" stop-opacity="0"/><stop offset="1" stop-color="#0E0703" stop-opacity=".5"/></linearGradient>
+      <filter id="blur4" x="-40%" y="-20%" width="180%" height="140%"><feGaussianBlur stdDeviation="4"/></filter>
+      <filter id="blur2" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.8"/></filter>
+      <filter id="blurSteam" x="-50%" y="-10%" width="200%" height="120%"><feGaussianBlur stdDeviation="1.6"/></filter>
+      <clipPath id="hopperClip"><path d="M104.6 60.5H195.4L186 102H114Z"/></clipPath>
+      <clipPath id="cupClip"><path d="M114.5 158H185.5L181.6 189.6Q150 193.6 118.4 189.6Z"/></clipPath>
+      <clipPath id="bodyClip"><rect x="106" y="108" width="88" height="46" rx="5"/></clipPath>
+      <g id="bean">
+        <ellipse rx="4.5" ry="3.2" fill="url(#beanFill)" stroke="#24120A" stroke-opacity=".6" stroke-width=".4"/>
+        <path d="M-3.2 .5Q-1.2 -.9 0 0T3.2 -.5" fill="none" stroke="#2A1509" stroke-opacity=".8" stroke-width=".55" stroke-linecap="round"/>
+        <ellipse cx="-1.3" cy="-1.6" rx="1.8" ry=".7" fill="#F0C08C" opacity=".32"/>
+      </g>
     </defs>
-    <!-- 월넛 카운터 -->
-    <path d="M14 174H174V186H14Z" fill="url(#table)"/>
-    <path d="M14 176H174" stroke="#B58B60"/>
-    <path d="M20 181H168M34 185H150" stroke="#C9AA85" stroke-width=".7"/>
-    <ellipse cx="97" cy="174" rx="53" ry="5" fill="#62472C" opacity=".13"/>
-    <!-- 원두 그라인더 -->
-    <rect x="51" y="164" width="86" height="9" rx="4" fill="url(#wood)"/>
-    <rect x="60" y="77" width="67" height="69" rx="9" fill="url(#wood)"/>
-    <path d="M70 85V139M75 82V142M111 82V142M116 87V137" stroke="#C49365" opacity=".16"/>
-    <rect x="61" y="76" width="65" height="9" rx="3" fill="url(#brass)"/>
-    <path d="M65 35H121L113 75H73Z" fill="url(#glass)" stroke="#BFAE93"/>
-    <g clip-path="url(#hopper-clip)">
-      <g id="hopper-beans"></g>
-      <path d="M69 43L75 69" stroke="#FFFDF7" stroke-width="3" opacity=".65"/>
+
+    <!-- 타일 벽, 램프 빛 -->
+    <rect x="-420" y="-420" width="1140" height="608" fill="url(#tiles)"/>
+    <rect x="-420" y="-420" width="1140" height="608" fill="url(#wallGlow)"/>
+    <path d="M150 -420V-6" stroke="#0E0805" stroke-width="1.4"/>
+    <circle cx="150" cy="17" r="36" fill="url(#halo)" id="halo-glow"/>
+    <g id="light-cone">
+      <path d="M127 15H173L266 206H34Z" fill="url(#cone)" filter="url(#blur4)"/>
+      <path d="M138 15H162L214 202H86Z" fill="url(#cone)" opacity=".55" filter="url(#blur4)"/>
     </g>
-    <ellipse cx="93" cy="35" rx="30" ry="4" fill="url(#brass)"/>
+    <g id="dust"></g>
+
+    <!-- 월넛 카운터 윗면 -->
+    <rect x="-420" y="186" width="1140" height="30" fill="url(#counterTop)"/>
+    <rect x="-420" y="185" width="1140" height="1.6" fill="#0B0503"/>
+    <path d="M-40 192C40 190 90 194 170 192S300 190 360 193M-40 199C60 197 120 201 200 198S300 201 360 199M-40 205C30 203 110 207 190 204S290 206 360 205" fill="none" stroke="#2A170C" stroke-opacity=".45" stroke-width=".7"/>
+    <path d="M-40 195C50 193 130 197 220 195S320 196 360 196M-40 202C70 200 140 204 230 201" fill="none" stroke="#C08A5C" stroke-opacity=".16" stroke-width=".7"/>
+    <ellipse id="pool" cx="150" cy="198" rx="112" ry="9" fill="#FFC47E" opacity=".24" filter="url(#blur4)"/>
+
+    <!-- 황동 계량스푼 -->
+    <ellipse cx="54" cy="205" rx="30" ry="2.6" fill="#000" opacity=".45" filter="url(#blur2)"/>
+    <path d="M51 199L20 203.5" stroke="#5E4320" stroke-width="3.6" stroke-linecap="round"/>
+    <path d="M51 198.6L20 203" stroke="url(#brassV)" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M50 196.4Q50 205.4 64 205.4Q78 205.4 78 196.4Z" fill="url(#brass)"/>
+    <ellipse cx="64" cy="196.4" rx="14" ry="3.3" fill="#2C190E" stroke="#E6C88E" stroke-width=".9"/>
+    <use href="#bean" transform="translate(59 195.2) rotate(-18) scale(.82)"/>
+    <use href="#bean" transform="translate(66.5 194.6) rotate(24) scale(.82)"/>
+    <use href="#bean" transform="translate(71 196.6) rotate(-60) scale(.78)"/>
+    <use href="#bean" transform="translate(62.5 192.4) rotate(70) scale(.8)"/>
+    <use href="#bean" transform="translate(90 200.5) rotate(40) scale(.85)"/>
+
+    <!-- 리넨 행주 -->
+    <ellipse cx="242" cy="207" rx="38" ry="2.6" fill="#000" opacity=".45" filter="url(#blur2)"/>
+    <path d="M207 192.5L267 190.5L276 205L211 207.5Z" fill="url(#linen)"/>
+    <path d="M211 207.5L276 205L276.6 206.6L211.4 209.2Z" fill="#6E5E48"/>
+    <path d="M216 192.3L220 207.3M222.5 192.1L226.5 207.1" stroke="#7D4C30" stroke-width="1.5"/>
+    <path d="M226 192L230 207" stroke="#7D4C30" stroke-width=".7"/>
+    <path d="M210 196L272 194M212 201L274 199" stroke="#FFF6E4" stroke-opacity=".12" stroke-width=".6"/>
+    <use href="#bean" transform="translate(240 197.5) rotate(18) scale(.9)"/>
+    <use href="#bean" transform="translate(252 200.5) rotate(-34) scale(.9)"/>
+    <use href="#bean" transform="translate(246.5 194.2) rotate(72) scale(.86)"/>
+
+    <!-- 그라인더 그림자와 받침 -->
+    <ellipse cx="150" cy="203.6" rx="57" ry="4" fill="#000" opacity=".55" filter="url(#blur2)"/>
+    <rect x="100" y="191" width="100" height="12.4" rx="2.5" fill="url(#walnut)"/>
+    <path d="M102 194.2H198" stroke="#FFD9A8" stroke-opacity=".16" stroke-width=".7"/>
+    <rect x="101" y="189.6" width="98" height="2.6" rx="1" fill="url(#brass)"/>
+
+    <!-- 유리 받침컵 안쪽 -->
+    <path d="M114.5 158H185.5L181.6 189.6Q150 193.6 118.4 189.6Z" fill="#120905" opacity=".35"/>
+    <!-- 원뿔 가루 더미, 떨어지는 가루, 착지 먼지 -->
+    <g clip-path="url(#cupClip)">
+      <g id="mound" opacity="0">
+        <path id="ground-pile" d="M150 190Z" fill="url(#groundTex)"/>
+        <g id="mound-grain"></g>
+        <path id="mound-deep" d="M150 190Z" fill="url(#moundDeep)"/>
+        <path id="mound-shade" d="M150 190Z" fill="url(#moundShade)"/>
+        <path id="mound-hi" d="M150 190Z" fill="url(#moundHi)"/>
+        <path id="mound-rim" d="M150 190Z" fill="none" stroke="#D29E6E" stroke-opacity=".5" stroke-width=".55" stroke-linecap="round"/>
+      </g>
+      <path id="stream" d="M150 164Z" fill="none" stroke="#56331D" stroke-linecap="round" opacity="0"/>
+      <path id="stream-hi" d="M150 164Z" fill="none" stroke="#E0AC78" stroke-width=".55" stroke-linecap="round" opacity="0"/>
+      <g id="grounds"></g>
+      <g id="puffs"></g>
+      <g id="chips"></g>
+    </g>
+
+    <!-- 월넛 몸통 -->
+    <rect x="106" y="108" width="88" height="46" rx="5" fill="url(#walnut)"/>
+    <g clip-path="url(#bodyClip)" fill="none" stroke-width=".7">
+      <path d="M112 108C115 120 110 136 113 154M119 108C121 118 117 130 120 142S118 150 119 154M128 108C126 116 131 124 128 134M172 108C175 122 170 140 174 154M181 108C178 120 183 134 180 154M188 108C190 126 186 140 189 154" stroke="#1C0E07" stroke-opacity=".4"/>
+      <path d="M115.5 108C118 122 114 138 116.5 154M176.5 108C179 124 175 138 177.5 154M184.5 110C182 124 186 138 184 152" stroke="#D9A26E" stroke-opacity=".18"/>
+      <rect x="106" y="108" width="88" height="20" fill="url(#topLight)" stroke="none"/>
+    </g>
+    <path d="M108.2 112V150" stroke="#FFD7A8" stroke-opacity=".18" stroke-width=".9"/>
+    <rect x="104" y="151" width="92" height="6" rx="1.8" fill="url(#brass)"/>
+    <rect x="103" y="102" width="94" height="8" rx="2" fill="url(#brass)"/>
+    <path d="M105 103.4H195" stroke="#FFF7DE" stroke-opacity=".7" stroke-width=".6"/>
+    <g fill="url(#bezel)" stroke="#5A3F18" stroke-width=".4">
+      <circle cx="108.5" cy="106" r="1.5"/><circle cx="191.5" cy="106" r="1.5"/><circle cx="108.5" cy="154" r="1.3"/><circle cx="191.5" cy="154" r="1.3"/>
+    </g>
+
+    <!-- 버 창. 칼날이 보인다 -->
+    <circle cx="150" cy="130" r="16.6" fill="url(#bezel)" stroke="#5A3F18" stroke-width=".6"/>
+    <circle cx="150" cy="130" r="13" fill="#140A06"/>
+    <g id="burr" transform="translate(150 130)">
+      <path id="burr-gear" fill="#BFA477" stroke="#5E4526" stroke-width=".5"/>
+      <circle r="5.4" fill="#2A1A10" stroke="#D7BC8A" stroke-width=".9"/>
+      <path d="M0-5.4V5.4M-5.4 0H5.4" stroke="#8C7048" stroke-width=".7"/>
+      <circle r="1.6" fill="#E9D3A2"/>
+    </g>
+    <circle cx="150" cy="130" r="13" fill="none" stroke="#000" stroke-opacity=".55" stroke-width="2.2"/>
+    <path d="M139.2 125A12 12 0 0 1 151 118" fill="none" stroke="#FFF7E4" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/>
+
+    <!-- 황동 배출구 -->
+    <path d="M143 156H157L155.2 164H144.8Z" fill="url(#brass)"/>
+    <ellipse cx="150" cy="164" rx="5.2" ry="1.3" fill="#1A0E07"/>
+
+    <!-- 받침컵 앞 유리 -->
+    <path d="M114.5 158H185.5L181.6 189.6Q150 193.6 118.4 189.6Z" fill="url(#glass)" stroke="#FFEBCB" stroke-opacity=".38" stroke-width=".8"/>
+    <ellipse cx="150" cy="158" rx="35.5" ry="3.3" fill="none" stroke="#FFEBCB" stroke-opacity=".5" stroke-width=".9"/>
+    <path d="M119.4 163L121.8 186" stroke="#FFF" stroke-opacity=".38" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M180.6 163.5L178.6 184" stroke="#FFF" stroke-opacity=".2" stroke-width="1.1" stroke-linecap="round"/>
+
+    <!-- 유리 호퍼와 원두 -->
+    <path d="M104 60H196L186 102H114Z" fill="#160B06" opacity=".3"/>
+    <g clip-path="url(#hopperClip)">
+      <g id="hopper-beans"></g>
+      <g id="tumblers"></g>
+    </g>
+    <path d="M104 60H196L186 102H114Z" fill="url(#glass)" stroke="#FFEBCB" stroke-opacity=".4" stroke-width=".8"/>
+    <path d="M109.5 64.5L117 98" stroke="#FFF" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>
+    <path d="M114.6 66L119.6 88" stroke="#FFF" stroke-opacity=".22" stroke-width="1" stroke-linecap="round"/>
+    <path d="M189.5 66L183 96" stroke="#FFF" stroke-opacity=".26" stroke-width="1.2" stroke-linecap="round"/>
+
+    <!-- 손잡이 뒤쪽 층 -->
     <g id="crank-rear"></g>
-    <rect x="90" y="24" width="6" height="13" rx="2" fill="url(#brass)" stroke="#866437" stroke-width=".7"/>
-    <circle cx="93" cy="26" r="4" fill="#D7B77F" stroke="#866437" stroke-width=".7"/>
-    <circle cx="93" cy="26" r="1.3" fill="#79533A"/>
+    <ellipse cx="150" cy="60" rx="47" ry="5.2" fill="none" stroke="url(#brass)" stroke-width="3.2"/>
+    <path d="M104.5 59.2Q150 55.2 195.5 59.2" fill="none" stroke="#FFF6DA" stroke-opacity=".55" stroke-width=".7"/>
+    <path d="M108 60.4H192" stroke="#5E4320" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M108 60H192" stroke="url(#brass)" stroke-width="2.2" stroke-linecap="round"/>
+    <ellipse cx="150" cy="59.6" rx="7.5" ry="3.2" fill="url(#brass)" stroke="#5E4320" stroke-width=".5"/>
+    <rect x="147.4" y="46" width="5.2" height="14" fill="url(#brass)"/>
+    <ellipse cx="150" cy="47" rx="6.2" ry="3.4" fill="url(#brass)" stroke="#5E4320" stroke-width=".5"/>
+    <ellipse cx="150" cy="46.2" rx="2.4" ry="1.2" fill="#FFF0C6"/>
+    <!-- 손잡이 앞쪽 층 -->
     <g id="crank-front">
-      <g id="crank" transform="translate(93 26)">
-        <path id="crank-arm-outline" d="M0 0L32 0L32-7" fill="none" stroke="#866437" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-        <path id="crank-arm" d="M0 0L32 0L32-7" fill="none" stroke="#D7B77F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-        <g id="crank-grip" transform="translate(32 0)">
-          <rect x="-6" y="-18" width="12" height="12" rx="5" fill="url(#wood)" stroke="#493022" stroke-width=".7"/>
-          <path d="M-3-14V-10" stroke="#A77B54" stroke-width="1" stroke-linecap="round" opacity=".65"/>
+      <g id="crank" transform="translate(150 47)">
+        <path id="arm-outline" d="M0 0L46 0" fill="none" stroke="#4E3618" stroke-width="5.2" stroke-linecap="round"/>
+        <path id="arm-core" d="M0 0L46 0" fill="none" stroke="#D6B373" stroke-width="3.4" stroke-linecap="round"/>
+        <path id="arm-shine" d="M0 0L46 0" fill="none" stroke="#FFF2CC" stroke-opacity=".75" stroke-width=".9" stroke-linecap="round" transform="translate(0 -.8)"/>
+        <g id="grip" transform="translate(46 0)">
+          <rect x="-1.6" y="-6" width="3.2" height="6.4" fill="url(#brass)"/>
+          <rect x="-5.6" y="-22" width="11.2" height="17" rx="5" fill="url(#knob)" stroke="#170A04" stroke-width=".5"/>
+          <path d="M-4.6-18.5H4.6M-5-15.5H5M-5-12.5H5M-4.6-9.5H4.6" stroke="#120804" stroke-opacity=".55" stroke-width=".6"/>
+          <path d="M-2.4-19.5V-8" stroke="#FFD8A8" stroke-opacity=".32" stroke-width="1" stroke-linecap="round"/>
+          <ellipse cy="-22" rx="5" ry="1.7" fill="url(#brass)" stroke="#5E4320" stroke-width=".4"/>
         </g>
       </g>
     </g>
-    <circle cx="93" cy="108" r="12" fill="#3E2D21" stroke="url(#brass)" stroke-width="2"/>
-    <g id="burr" transform="translate(93 108)" stroke="#C6A16C" stroke-width="1.5">
-      <circle r="6" fill="none"/><path d="M0-9V-5M9 0H5M0 9V5M-9 0H-5M-6-6L-3-3M6 6L3 3M6-6L3-3M-6 6L-3 3"/>
-    </g>
-    <rect x="86" y="125" width="14" height="8" rx="2" fill="url(#brass)"/>
-    <g id="grounds"></g>
-    <path d="M72 148H115L112 162Q94 169 76 162Z" fill="url(#glass)" stroke="#C5B49C"/>
-    <path id="ground-pile" d="M77 160Q94 159 110 160V162Q94 166 77 162Z" fill="#5C3B26"/>
-    <ellipse cx="94" cy="148" rx="21" ry="3" fill="none" stroke="#C5B49C"/>
+
+    <!-- 펜던트 램프 -->
+    <path d="M124 14.5C124 -2 136 -8 150 -8S176 -2 176 14.5Z" fill="url(#copper)"/>
+    <path d="M126 6.5C134 4.6 166 4.6 174 6.5" fill="none" stroke="#FFE2B0" stroke-opacity=".35" stroke-width=".7"/>
+    <ellipse cx="150" cy="14.5" rx="26" ry="3.2" fill="#24140A"/>
+    <ellipse id="bulb" cx="150" cy="15" rx="21.5" ry="2.3" fill="#FFF0CC"/>
+
+    <!-- 향 김, 기록 원두, 비네트 -->
+    <g id="steam" fill="none" stroke="url(#steamFade)" stroke-linecap="round" filter="url(#blurSteam)" opacity="0"></g>
+    <g id="pops"></g>
+    <rect x="-420" y="-420" width="1140" height="660" fill="url(#vignette)" pointer-events="none"/>
   </svg>
-  <div class="clock" role="timer" aria-label="경과 시간" aria-live="off"><span id="time">00:00</span><span class="centiseconds" id="fraction">.00</span></div>
-  <div class="controls">
-    <button class="primary" id="toggle" type="button" title="시작 / 일시정지 (Space)">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path id="toggle-icon" d="M8 5L19 12L8 19Z"/></svg><span id="toggle-label">시작</span>
-    </button>
-    <button id="lap" type="button" disabled title="현재 시간 기록 (L)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3M5 4H19L16 8L19 12H5"/></svg>기록</button>
-    <button id="reset" type="button" title="시간과 원두 초기화 (R)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10A9 9 0 1 1 5 18M3 4V10H9"/></svg>초기화</button>
   </div>
-  <p class="lap" id="lap-result" aria-live="polite"></p>
+
+  <section class="counter">
+    <div class="plate" id="plate" role="timer" aria-label="경과 시간" aria-live="off"><span id="time">00:00</span><span class="cs" id="fraction">.00</span><span class="glint" id="glint" aria-hidden="true"></span></div>
+    <div class="controls">
+      <button class="primary" id="toggle" type="button" title="시작 / 정지 (Space)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path id="toggle-icon" d="M8 5L19 12L8 19Z"/></svg><span id="toggle-label">시작</span>
+      </button>
+      <button id="lap" type="button" disabled title="현재 시간 기록 (L)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V3M5 4H19L16 8L19 12H5"/></svg>기록</button>
+      <button id="reset" type="button" disabled title="시간과 원두 초기화 (R)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10A9 9 0 1 1 5 18M3 4V10H9"/></svg>초기화</button>
+    </div>
+    <ol class="receipt" id="laps" aria-label="최근 기록">
+      <li class="row empty"><b class="n">—</b><span class="sp">--:--.--</span><span class="tt">--:--.--</span><i class="st"></i></li>
+      <li class="row empty"><b class="n">—</b><span class="sp">--:--.--</span><span class="tt">--:--.--</span><i class="st"></i></li>
+    </ol>
+  </section>
 </main>
 <script>
-(() => {
-  const $ = id => document.getElementById(id);
-  const atelier = document.querySelector('.atelier');
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const ns = 'http://www.w3.org/2000/svg';
-  let running = false, elapsed = 0, startedAt = 0, frame = 0, lapCount = 0;
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var NS='http://www.w3.org/2000/svg';
+  var rm=window.matchMedia('(prefers-reduced-motion: reduce)');
+  var b1=$('toggle'),b2=$('lap'),b3=$('reset'),plate=$('plate');
+  var run=false,stt=0,acc=0,raf=0,laps=[],last=0;
+  var flow=0,steam=0,glow=0,prevNow=0,lastText='';
+  function el(){return acc+(run?performance.now()-stt:0);}
+  function pad(n,w){return String(n).padStart(w,'0');}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);
+    return pad(mm,2)+':'+pad(ss,2)+'.'+pad(cs,2);}
+  function make(parent,tag,attrs){var e=document.createElementNS(NS,tag);
+    for(var k in attrs)e.setAttribute(k,attrs[k]);$(parent).appendChild(e);return e;}
+  function rnd(i){var x=Math.sin(i*127.1+31.7)*43758.5453;return x-Math.floor(x);}
 
-  function make(group, tag, attributes) {
-    const element = document.createElementNS(ns, tag);
-    Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
-    $(group).appendChild(element);
-    return element;
-  }
-  const beans = Array.from({ length: 21 }, (_, i) => make('hopper-beans', 'use', { href: '#bean', transform: `translate(${74 + (i % 5) * 9} ${43 + Math.floor(i / 5) * 6}) rotate(${i * 37})` }));
-  const grounds = Array.from({ length: 18 }, (_, i) => make('grounds', 'circle', { r: i % 3 === 0 ? 1.1 : .7, fill: i % 2 ? '#795032' : '#4C3020', opacity: 0 }));
+  /* 버 칼날 톱니 */
+  (function(){var n=14,d='';for(var k=0;k<n;k++){var a=k/n*Math.PI*2,w=Math.PI/n*.55;
+    var p=[[a-w*1.4,8.2],[a-w*.6,11.6],[a+w*.6,11.6],[a+w*1.4,8.2]];
+    p.forEach(function(q,j){d+=(k===0&&j===0?'M':'L')+(Math.cos(q[0])*q[1]).toFixed(2)+' '+(Math.sin(q[0])*q[1]).toFixed(2);});}
+    $('burr-gear').setAttribute('d',d+'Z');})();
 
-  function format(ms) {
-    const cs = Math.floor(ms / 10);
-    const seconds = Math.floor(cs / 100) % 60;
-    const minutes = Math.floor(cs / 6000) % 60;
-    const hours = Math.floor(cs / 360000);
-    const pad = value => String(value).padStart(2, '0');
-    return { main: `${hours ? pad(hours) + ':' : ''}${pad(minutes)}:${pad(seconds)}`, fraction: '.' + pad(cs % 100) };
+  /* 호퍼 원두. 아래층부터 쌓는다 */
+  var beans=[];
+  (function(){var i=0;for(var r=0;r<6;r++){var y=97.5-r*5.3,half=34+(101-y)*10/39-3,step=8.3,
+      cnt=Math.floor(half*2/step),x0=150-(cnt-1)*step/2+(r%2?step/4:-step/4);
+      for(var c=0;c<cnt;c++,i++){var bx=x0+c*step+(rnd(i)-.5)*2,by=y+(rnd(i+50)-.5)*1.6;
+        beans.push({x:bx,y:by,r:rnd(i+90)*360,s:.9+rnd(i+20)*.22,
+          node:make('hopper-beans','use',{href:'#bean'})});}}})();
+  var tumblers=[0,1,2].map(function(){return make('tumblers','use',{href:'#bean',opacity:0});});
+  /* 떨어지는 가루 풀. 세 가지 갈색, 지름 0.6~1.8 */
+  var BROWNS=['#A8754B','#80522F','#5C3A22'];
+  var grounds=[];for(var g=0;g<150;g++)grounds.push({node:make('grounds','circle',{r:.3,fill:BROWNS[g%3],opacity:0}),on:false});
+  var puffs=[];for(var q=0;q<16;q++)puffs.push({node:make('puffs','circle',{r:.5,fill:'#C99C72',opacity:0}),on:false});
+  var chips=[];for(var c=0;c<6;c++)chips.push({node:make('chips','rect',{x:-.9,y:-.6,width:1.8,height:1.2,rx:.3,fill:c%2?'#8C5C38':'#6A4128',opacity:0}),on:false});
+  /* 더미 속 알갱이 결 */
+  var grain=[];for(var k=0;k<44;k++)grain.push({x:114+rnd(k+600)*72,f:.12+rnd(k+700)*.85,
+    node:make('mound-grain','circle',{r:(.35+rnd(k+800)*.55).toFixed(2),fill:k%3?(k%2?'#8E5F3C':'#2F1C10'):'#B07B50',opacity:0})});
+  var spawnAcc=0,chipWait=.3,stopAt=-1,streamOn=false;
+  var dust=[];for(var d=0;d<18;d++)dust.push(make('dust','circle',{r:.45+rnd(d+300)*.7,fill:'#FFE6BC',opacity:0}));
+  var wisps=[{x:121,y:163,dir:-1,len:104,ph:0},{x:179,y:163,dir:1,len:104,ph:2.1},{x:172,y:166,dir:.45,len:84,ph:4.2}];
+  wisps.forEach(function(w){w.node=make('steam','path',{'stroke-width':3.6,'stroke-dasharray':'26 18'});});
+
+  /* 기록 때 튀어나오는 원두 */
+  var spots=[[224,197],[236,203.5],[214,203],[258,196.5],[86,195.5],[98,202.5]];
+  var pops=spots.map(function(){return {node:make('pops','use',{href:'#bean',opacity:0}),t0:-1};});
+
+  function paintTime(ms){
+    var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60),hh=Math.floor(mm/60);
+    var main=(hh?hh+':'+pad(mm%60,2):pad(mm,2))+':'+pad(ss,2);
+    if(main!==lastText){$('time').textContent=main;lastText=main;plate.classList.toggle('long',hh>0);}
+    $('fraction').textContent='.'+pad(cs,2);
   }
-  function currentTime() { return elapsed + (running ? performance.now() - startedAt : 0); }
-  function paint(ms) {
-    const formatted = format(ms);
-    $('time').textContent = formatted.main;
-    $('fraction').textContent = formatted.fraction;
-    const seconds = ms / 1000;
-    const motion = reducedMotion.matches ? 0 : seconds;
-    const active = ms > 0;
-    // 수평 회전을 타원으로 투영하고, 나무 손잡이는 수직 방향을 유지한다.
-    const crankAngle = motion * Math.PI * 2 / 3;
-    const crankDepth = Math.sin(crankAngle);
-    const crankX = Math.cos(crankAngle) * 32;
-    const crankY = crankDepth * 8;
-    const crankPath = `M0 0L${crankX} ${crankY}L${crankX} ${crankY - 7}`;
-    $('crank-arm-outline').setAttribute('d', crankPath);
-    $('crank-arm').setAttribute('d', crankPath);
-    $('crank-grip').setAttribute('transform', `translate(${crankX} ${crankY}) scale(${1 + crankDepth * .06})`);
-    const crankLayer = $(crankDepth >= 0 ? 'crank-front' : 'crank-rear');
-    if ($('crank').parentNode !== crankLayer) crankLayer.appendChild($('crank'));
-    $('burr').setAttribute('transform', `translate(93 108) rotate(${motion * 180 % 360})`);
-    beans.forEach((bean, i) => {
-      const phase = (motion * .6 + i * .173) % 1;
-      bean.setAttribute('transform', `translate(${76 + (i % 5) * 8 + Math.sin(motion * 3 + i) * 1.2} ${42 + Math.floor(i / 5) * 6 + phase * 4}) rotate(${i * 37 + Math.sin(motion * 2 + i) * 9})`);
-    });
-    grounds.forEach((ground, i) => {
-      const phase = (motion * 1.5 + i / grounds.length) % 1;
-      ground.setAttribute('cx', 93 + Math.sin(i * 7) * (2 + phase * 6));
-      ground.setAttribute('cy', 133 + phase * 25);
-      ground.setAttribute('opacity', active && !reducedMotion.matches ? .35 + Math.sin(phase * Math.PI) * .6 : 0);
-    });
-    const pileHeight = Math.min(seconds * .2, 7);
-    $('ground-pile').setAttribute('d', `M77 160Q94 ${159 - pileHeight} 110 160V162Q94 166 77 162Z`);
+
+  /* ── 받침컵 가루 ── */
+  var FLOOR=190.6,mH=0,mB=0,mR=1,lastG=-1;
+  /* 더미 윗면 높이. 꼭대기는 둥글고 옆으로 갈수록 완만하다 */
+  function surfY(x){var u=Math.abs(x-150)/mR,p=0;
+    if(u<1)p=Math.pow(Math.max(0,1-(Math.sqrt(u*u+.0144)-.12)/.8872),1.25);
+    return FLOOR-mB-(mH-mB)*p;}
+  function setMound(g){
+    if(Math.abs(g-lastG)<.0004)return;lastG=g;
+    mH=13.5*Math.pow(g,.75);mB=3*g;mR=Math.min(42,3+2*mH);
+    $('mound').setAttribute('opacity',mH>.05?1:0);
+    if(mH<=.05)return;
+    var rough=Math.min(1,mH/4),pts=[],rim='';
+    for(var i=0,x=110;x<=190.01;i++,x+=1.6){var y=surfY(x)+(rnd(i+900)-.5)*.55*rough;
+      pts.push(x.toFixed(1)+' '+y.toFixed(2));if(x>114&&x<186)rim+=(rim?'L':'M')+pts[i];}
+    var d='M110 196L'+pts.join('L')+'L190 196Z';
+    ['ground-pile','mound-deep','mound-shade','mound-hi'].forEach(function(id){$(id).setAttribute('d',d);});
+    $('mound-rim').setAttribute('d',rim);
+    grain.forEach(function(o){var s=surfY(o.x);
+      o.node.setAttribute('cx',o.x.toFixed(2));o.node.setAttribute('cy',(s+.6+(FLOOR+2-s)*o.f).toFixed(2));
+      o.node.setAttribute('opacity',FLOOR+1-s>1.2?.85:0);});
   }
-  function tick() {
-    paint(currentTime());
-    if (running) frame = requestAnimationFrame(tick);
+  /* 배출구 흔들림. 시간이 지난 값을 아래로 내려보내 물결처럼 보이게 한다 */
+  function sway(t){return 150+Math.sin(t*5.3)*.45+Math.sin(t*13.1)*.28;}
+  function puff(x,y){for(var i=0;i<puffs.length;i++){var o=puffs[i];if(o.on)continue;
+    o.on=true;o.x=x;o.y=y-.3;o.a=0;o.life=.32+Math.random()*.2;o.vx=(Math.random()-.5)*9;o.vy=-2.5-Math.random()*4;o.r=1.1+Math.random()*1.1;return;}}
+  /* 가루 낙하. 멈추면 새로 뿌리지 않고 떨어지던 알갱이만 마저 내린다 */
+  function grind(now,dt,t,emit){
+    var busy=false,i,o;
+    if(emit){stopAt=-1;}else if(streamOn){stopAt=now;}
+    streamOn=emit;
+    if(emit){spawnAcc+=480*(.45+.55*flow)*dt;
+      for(i=0;i<grounds.length&&spawnAcc>=1;i++){o=grounds[i];if(o.on)continue;spawnAcc-=1;
+        var rr=Math.random();o.on=true;o.r=.3+Math.pow(Math.random(),1.7)*.6;
+        o.x=sway(t)+(Math.random()-.5)*2.8;o.y=164.4;o.vx=(Math.random()-.5)*11;o.vy=70+Math.random()*25;
+        o.node.setAttribute('r',o.r.toFixed(2));o.node.setAttribute('fill',BROWNS[rr<.45?0:rr<.8?1:2]);
+        var head=Math.random()*dt;o.vy+=500*head;o.y+=o.vy*head;}
+      spawnAcc=Math.min(spawnAcc,2);
+      chipWait-=dt;
+      if(chipWait<=0){chipWait=.22+Math.random()*.55;
+        for(i=0;i<chips.length;i++){o=chips[i];if(o.on)continue;
+          o.on=true;o.roll=-1;o.x=sway(t)+(Math.random()-.5)*1.6;o.y=165;o.vx=(Math.random()-.5)*10;o.vy=60+Math.random()*20;
+          o.rot=Math.random()*360;o.spin=(Math.random()<.5?-1:1)*(500+Math.random()*500);o.s=.8+Math.random()*.6;break;}}
+    }else spawnAcc=0;
+    for(i=0;i<grounds.length;i++){o=grounds[i];if(!o.on)continue;
+      o.vy+=500*dt;o.x+=o.vx*dt;o.y+=o.vy*dt;
+      var land=surfY(o.x)-o.r*.4;
+      if(o.y>=land){o.on=false;o.node.setAttribute('opacity',0);if(Math.random()<.075)puff(o.x,land);continue;}
+      busy=true;o.node.setAttribute('cx',o.x.toFixed(2));o.node.setAttribute('cy',o.y.toFixed(2));o.node.setAttribute('opacity',.95);}
+    for(i=0;i<puffs.length;i++){o=puffs[i];if(!o.on)continue;o.a+=dt;var p=o.a/o.life;
+      if(p>=1){o.on=false;o.node.setAttribute('opacity',0);continue;}
+      busy=true;o.x+=o.vx*dt;o.y+=o.vy*dt;o.vx*=Math.exp(-dt*5);
+      o.node.setAttribute('cx',o.x.toFixed(2));o.node.setAttribute('cy',o.y.toFixed(2));
+      o.node.setAttribute('r',(.4+o.r*Math.sqrt(p)).toFixed(2));o.node.setAttribute('opacity',(.4*Math.pow(1-p,1.4)).toFixed(3));}
+    for(i=0;i<chips.length;i++){o=chips[i];if(!o.on)continue;busy=true;o.rot+=o.spin*dt;var fade=1;
+      if(o.roll<0){o.vy+=500*dt;o.x+=o.vx*dt;o.y+=o.vy*dt;var ly=surfY(o.x)-.5;
+        if(o.y>=ly){o.y=ly;o.roll=0;var dir=o.x===150?(Math.random()<.5?-1:1):Math.sign(o.x-150);o.vx=dir*(9+Math.random()*9);o.spin*=.5;puff(o.x,ly);}}
+      else{o.roll+=dt;o.x+=o.vx*dt;o.vx*=Math.exp(-dt*3);o.y=surfY(o.x)-.5;fade=1-o.roll/.8;
+        if(fade<=0){o.on=false;o.node.setAttribute('opacity',0);continue;}}
+      o.node.setAttribute('transform','translate('+o.x.toFixed(2)+' '+o.y.toFixed(2)+') rotate('+o.rot.toFixed(0)+') scale('+o.s.toFixed(2)+')');
+      o.node.setAttribute('opacity',(.95*fade).toFixed(2));}
+    /* 가루 줄기 본체. 멈추면 위끝이 낙하 속도로 따라 내려간다 */
+    var sw=$('stream'),hi=$('stream-hi'),top=164.4,bot=surfY(150)-.3;
+    if(!emit&&stopAt>=0){var s=(now-stopAt)/1000;top+=80*s+250*s*s;}
+    if((emit||stopAt>=0)&&top<bot-.6){var d='',dh='';
+      for(var y=top;;y=Math.min(bot,y+1.4)){var k=(y-164.4)/14,x=sway(t-(y-164.4)/130)+Math.sin(y*.9-t*31)*.15*k;
+        d+=(d?'L':'M')+x.toFixed(2)+' '+y.toFixed(2);dh+=(dh?'L':'M')+(x-.6-.25*k).toFixed(2)+' '+y.toFixed(2);if(y>=bot)break;}
+      var op=.5+.5*flow;
+      sw.setAttribute('d',d);sw.setAttribute('stroke-width',2.3);sw.setAttribute('opacity',(.8*op).toFixed(3));
+      hi.setAttribute('d',dh);hi.setAttribute('opacity',(.55*op).toFixed(3));busy=true;}
+    else{sw.setAttribute('opacity',0);hi.setAttribute('opacity',0);if(!emit)stopAt=-1;}
+    return busy;
   }
-  function toggle() {
-    if (running) {
-      elapsed = currentTime();
-      running = false;
-      cancelAnimationFrame(frame);
-      paint(elapsed);
-      atelier.dataset.state = 'paused';
-      $('toggle-label').textContent = '계속';
-      $('toggle-icon').setAttribute('d', 'M8 5L19 12L8 19Z');
-    } else {
-      running = true;
-      startedAt = performance.now();
-      atelier.dataset.state = 'running';
-      $('toggle-label').textContent = '일시정지';
-      $('toggle-icon').setAttribute('d', 'M8 5V19M16 5V19');
-      tick();
-    }
-    $('lap').disabled = !running;
+  /* 동작 줄이기. 알갱이를 모두 거둔다 */
+  function clearGrind(){[grounds,puffs,chips].forEach(function(a){a.forEach(function(o){o.on=false;o.node.setAttribute('opacity',0);});});
+    spawnAcc=0;stopAt=-1;streamOn=false;}
+
+  function render(now){
+    var still=rm.matches,dt=prevNow?Math.min(.1,(now-prevNow)/1000):0;prevNow=now;
+    var ms=el(),sec=ms/1000,t=still?0:now/1000;
+    var on=run&&!still?1:0;
+    flow+=(on-flow)*(1-Math.exp(-dt/(on?.35:.16)));
+    glow+=(on-glow)*(1-Math.exp(-dt/.9));
+    steam+=(on-steam)*(1-Math.exp(-dt/(on?1.3:2.8)));
+    if(still){flow=0;glow=0;steam=0;}
+    paintTime(ms);
+
+    /* 손잡이. 수평 회전을 타원으로 투영한다 */
+    var ang=still?0:sec*Math.PI*2/1.7,depth=Math.sin(ang),cx=Math.cos(ang)*46,cy=depth*8;
+    var arm='M0 0L'+cx.toFixed(2)+' '+cy.toFixed(2);
+    $('arm-outline').setAttribute('d',arm);$('arm-core').setAttribute('d',arm);$('arm-shine').setAttribute('d',arm);
+    $('grip').setAttribute('transform','translate('+cx.toFixed(2)+' '+cy.toFixed(2)+') scale('+(1+depth*.07).toFixed(3)+')');
+    var layer=$(depth>=0?'crank-front':'crank-rear');
+    if($('crank').parentNode!==layer)layer.appendChild($('crank'));
+    $('burr').setAttribute('transform','translate(150 130) rotate('+(ang*180/Math.PI*1.4%360).toFixed(1)+')');
+
+    /* 분쇄량. 호퍼는 줄고 컵은 찬다 */
+    var amount=1-Math.exp(-sec/25),gone=Math.floor(beans.length*.55*amount);
+    beans.forEach(function(b,i){var vis=i<beans.length-gone;
+      b.node.setAttribute('opacity',vis?1:0);if(!vis)return;
+      var a=flow,dx=Math.sin(t*9+i*1.7)*.7*a,dy=Math.sin(t*7.3+i*2.3)*.8*a+a*.6;
+      b.node.setAttribute('transform','translate('+(b.x+dx).toFixed(2)+' '+(b.y+dy).toFixed(2)+') rotate('+(b.r+Math.sin(t*5+i)*16*a).toFixed(1)+') scale('+b.s.toFixed(2)+')');});
+    var topY=beans[Math.max(0,beans.length-gone-1)].y;
+    tumblers.forEach(function(n,i){var p=(t*.75+i/3)%1,sx=150+(i-1)*24;
+      var x=sx+(150-sx)*p*p,y=topY-4+(100-topY)*p*p;
+      n.setAttribute('opacity',(flow*Math.min(1,p*6)*(1-p*p)).toFixed(2));
+      n.setAttribute('transform','translate('+x.toFixed(2)+' '+y.toFixed(2)+') rotate('+(p*400+i*90).toFixed(0)+') scale('+(1-p*.35).toFixed(2)+')');});
+
+    /* 원뿔 더미. 첫 1분 동안 자라고 그 뒤로는 거의 가득 찬 채로 둔다 */
+    setMound(1-Math.exp(-sec/20));
+    var falling=false,sw=$('stream');
+    if(still){clearGrind();$('stream-hi').setAttribute('opacity',0);sw.setAttribute('opacity',run?.8:0);sw.setAttribute('stroke-width',1);
+      if(run)sw.setAttribute('d','M150 164.4V'+(surfY(150)-.3).toFixed(2));}
+    else falling=grind(now,dt,t,run);
+
+    /* 램프 숨쉬기 */
+    var breathe=.9+glow*(.06+.1*Math.sin(t*1.5));
+    $('light-cone').setAttribute('opacity',breathe.toFixed(3));
+    $('halo-glow').setAttribute('opacity',(.75+glow*.25*(.6+.4*Math.sin(t*1.5))).toFixed(3));
+    $('pool').setAttribute('opacity',(.2+glow*.08*(1+Math.sin(t*1.5))).toFixed(3));
+
+    /* 빛 속 먼지. 정지 중에도 은은히 반짝인다 */
+    dust.forEach(function(n,i){var v=(rnd(i+200)+t*.010*(1+rnd(i)*.8))%1,y=24+v*168;
+      var half=(23+(y-15)*.48)*.8,x=150+(rnd(i+400)*2-1)*half+Math.sin(t*.45+i)*4;
+      n.setAttribute('cx',x.toFixed(2));n.setAttribute('cy',y.toFixed(2));
+      n.setAttribute('opacity',((.12+.5*(.5+.5*Math.sin(t*1.25+i*2.1)))*Math.sin(v*Math.PI)*breathe).toFixed(2));});
+
+    /* 향 김. 컵 양옆에서 올라와 램프 빛으로 흩어진다 */
+    $('steam').setAttribute('opacity',(steam*.62).toFixed(3));
+    if(steam>.004)wisps.forEach(function(w){var d='';
+      for(var s=0;s<=w.len;s+=6){var x=w.x+w.dir*s*.42+Math.sin(s*.085-t*1.7+w.ph)*(1.5+s*.1);
+        d+=(s?'L':'M')+x.toFixed(1)+' '+(w.y-s).toFixed(1);}
+      w.node.setAttribute('d',d);w.node.setAttribute('stroke-dashoffset',(-(t*20)-w.ph*9).toFixed(1));});
+
+    /* 기록 원두 비행 */
+    var flying=false;
+    pops.forEach(function(o,i){if(o.t0<0)return;var p=still?1:Math.min(1,(now-o.t0)/760);if(p<1)flying=true;
+      var e=p,x=o.x0+(o.x1-o.x0)*e,y=o.y0+(o.y1-o.y0)*e*e-160*e*(1-e)*(o.y1-o.y0)/135;
+      if(p>=1)y=o.y1;
+      o.node.setAttribute('opacity',1);
+      o.node.setAttribute('transform','translate('+x.toFixed(2)+' '+y.toFixed(2)+') rotate('+(o.r+p*560).toFixed(0)+') scale(.92)');});
+    return flying||falling;
   }
-  function reset() {
-    running = false;
-    cancelAnimationFrame(frame);
-    elapsed = 0;
-    lapCount = 0;
-    atelier.dataset.state = 'idle';
-    $('toggle-label').textContent = '시작';
-    $('toggle-icon').setAttribute('d', 'M8 5L19 12L8 19Z');
-    $('lap-result').textContent = '';
-    $('lap').disabled = true;
-    paint(0);
+  function loop(now){
+    var flying=render(now);
+    if(!document.hidden&&(run||!rm.matches||flying))raf=requestAnimationFrame(loop);else raf=0;
   }
-  function lap() {
-    if (!running) return;
-    const time = format(currentTime());
-    $('lap-result').textContent = `기록 ${String(++lapCount).padStart(2, '0')} · ${time.main}${time.fraction}`;
+  function kick(){if(!raf&&!document.hidden){prevNow=0;raf=requestAnimationFrame(loop);}}
+
+  function renderLaps(fresh){
+    var rows=$('laps').children,n=laps.length,best=n>1?Math.min.apply(null,laps.map(function(l){return l.d;})):-1;
+    for(var k=0;k<2;k++){var row=rows[k],l=laps[n-1-k];
+      row.classList.toggle('empty',!l);row.classList.remove('stamp');
+      row.querySelector('.n').textContent=l?pad(n-k,2):'—';
+      row.querySelector('.sp').textContent=l?plain(l.d):'--:--.--';
+      row.querySelector('.tt').textContent=l?plain(l.e):'--:--.--';
+      row.querySelector('.st').textContent=l&&l.d===best?'★':'';}
+    if(fresh){void rows[0].offsetWidth;rows[0].classList.add('stamp');
+      var gl=$('glint');gl.classList.remove('on');void gl.offsetWidth;gl.classList.add('on');}
   }
-  $('toggle').addEventListener('click', toggle);
-  $('reset').addEventListener('click', reset);
-  $('lap').addEventListener('click', lap);
-  document.addEventListener('keydown', event => {
-    if (event.repeat || event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(event.target.tagName) || event.target.isContentEditable) return;
-    if (event.code === 'Space') { event.preventDefault(); toggle(); }
-    if (event.key.toLowerCase() === 'r') reset();
-    if (event.key.toLowerCase() === 'l') lap();
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    $('toggle-label').textContent=run?'정지':(el()>0?'계속':'시작');
+    $('toggle-icon').setAttribute('d',run?'M8 5V19M16 5V19':'M8 5L19 12L8 19Z');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function start(){if(run)return;run=true;stt=performance.now();ui();kick();}
+  function stop(){if(!run)return;acc=el();run=false;ui();kick();}
+  function reset(){if(run)return;acc=0;stt=0;laps=[];last=0;
+    pops.forEach(function(o){o.t0=-1;o.node.setAttribute('opacity',0);});
+    renderLaps(false);ui();prevNow=0;render(performance.now());kick();}
+  function lap(){if(!run)return;var e=el(),d=e-last;last=e;laps.push({d:d,e:e});
+    var o=pops[(laps.length-1)%pops.length],s=spots[(laps.length-1)%spots.length];
+    o.t0=performance.now();o.x0=150+(laps.length%2?12:-12);o.y0=64;o.x1=s[0];o.y1=s[1];o.r=rnd(laps.length)*360;
+    renderLaps(true);kick();
+    srSay('랩 '+laps.length+'. 구간 '+srHuman(d));}
+
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.key===' '||e.code==='Space'){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'||e.code==='KeyL'){lap();}
+    else if(e.key==='r'||e.key==='R'||e.code==='KeyR'){reset();}
   });
-  document.addEventListener('visibilitychange', () => {
-    cancelAnimationFrame(frame);
-    if (running && !document.hidden) tick();
-  });
-  reducedMotion.addEventListener('change', () => paint(currentTime()));
-  paint(0);
+  document.addEventListener('visibilitychange',function(){cancelAnimationFrame(raf);raf=0;if(!document.hidden)kick();});
+  rm.addEventListener('change',kick);
+  renderLaps(false);ui();render(performance.now());kick();
 })();
 </script>
 </body>

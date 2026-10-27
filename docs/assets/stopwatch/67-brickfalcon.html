@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>브릭 화물선 조립 스탑워치</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23DCE6EF'/><circle cx='50' cy='52' r='30' fill='%23A0A5A9' stroke='%236C6E68' stroke-width='5'/><rect x='34' y='12' width='10' height='22' fill='%23A0A5A9'/><rect x='56' y='12' width='10' height='22' fill='%23A0A5A9'/><circle cx='50' cy='52' r='9' fill='%236C6E68'/><rect x='20' y='76' width='60' height='8' fill='%236FB7FF'/></svg>" />
+<style>
+  @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  :root{--ink:#1B2A34;--page:#E3ECF4;--red:#C91A09;--yellow:#F2CD37;--blue:#0055BF}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;color:var(--ink);position:relative;
+    background:radial-gradient(120% 90% at 50% 45%,#F2F6FA 0%,var(--page) 60%,#CFDCE8 100%)}
+  canvas{position:absolute;left:0;top:44px;width:100%;height:calc(100% - 44px - 98px);display:block;touch-action:none;cursor:grab}
+  canvas:active{cursor:grabbing}
+
+  /* 위: 설명서의 단계 번호, 완성 대수, 시간 */
+  .top{position:absolute;left:0;right:0;top:0;height:44px;display:flex;align-items:center;gap:8px;padding:0 12px}
+  .step{display:flex;align-items:baseline;gap:3px;padding:3px 7px 2px;background:#fff;border:2px solid var(--ink);border-radius:4px;transition:background .2s;transform-origin:0 50%}
+  .step small{font-size:9px;font-weight:900;letter-spacing:1px}
+  .step b{font-size:20px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;min-width:24px;text-align:right}
+  .step i{font-style:normal;font-size:10px;font-weight:800;color:#6C7A86}
+  .step.done{background:#7BD36B}
+  .step.turn{animation:turn .42s ease-in-out}
+  @keyframes turn{0%{transform:perspective(160px) rotateY(0)}45%{transform:perspective(160px) rotateY(-75deg);background:#F2F6FA}100%{transform:perspective(160px) rotateY(0)}}
+  .cnt{display:none;align-items:center;gap:3px;height:26px;padding:0 6px;border:2px solid var(--ink);border-radius:4px;background:var(--yellow);
+    font-size:12px;font-weight:900;font-variant-numeric:tabular-nums}
+  .cnt.on{display:flex}
+  .cnt svg{width:15px;height:15px}
+  .cnt.pop{animation:pop .5s ease-out}
+  @keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}
+  .time{margin-left:auto;font-size:28px;font-weight:900;letter-spacing:.3px;font-variant-numeric:tabular-nums;line-height:1}
+  .time .cs{font-size:17px;color:var(--blue)}
+
+  /* 모형 돌리기: 한 번 돌려 볼 때까지 테두리가 퍼진다 */
+  .rot{position:absolute;right:10px;top:52px;width:30px;height:30px;border-radius:50%;border:2px solid var(--ink);background:#fff;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 var(--ink);transition:opacity .3s}
+  .rot svg{width:16px;height:16px}
+  .rot:active{transform:translateY(1px);box-shadow:0 1px 0 var(--ink)}
+  .rot:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .rot.hint::after{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--blue);animation:hint 1.6s ease-out infinite;pointer-events:none}
+  @keyframes hint{0%{transform:scale(.8);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+  body.jump .rot{opacity:.15;pointer-events:none}
+
+  /* 랩 기록: 높이를 고정해 두 줄 자리를 처음부터 잡아 둔다 */
+  .laps{position:absolute;left:12px;right:12px;bottom:58px;height:36px;padding:2px 10px;background:#fff;border:2px solid var(--ink);border-radius:4px;
+    font-size:10.5px;font-weight:800;font-variant-numeric:tabular-nums;overflow:hidden}
+  .laps div{display:flex;justify-content:space-between;height:15px;line-height:15px;color:#A8B3BD}
+  .laps div.on{color:var(--ink)}
+  .laps div.on+div.on{color:#6C7A86}
+  .laps .k{width:56px}
+  .laps .s{width:28px;color:#B08A00}
+  .laps div:not(.on) .s{color:inherit}
+  .laps div.new{animation:lapIn .5s steps(2)}
+  @keyframes lapIn{0%{background:var(--yellow)}100%{background:transparent}}
+
+  /* 버튼: 윗면에 돌기가 달린 블록 */
+  .row{position:absolute;left:12px;right:12px;bottom:10px;display:flex;gap:10px}
+  button.brick{position:relative;flex:1 1 0;min-width:0;height:34px;border:0;border-radius:3px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:900;color:#fff;
+    box-shadow:inset 0 -6px 0 rgba(0,0,0,.22),inset 0 2px 0 rgba(255,255,255,.25),0 2px 0 rgba(27,42,52,.35);transition:transform .08s,filter .15s,opacity .15s}
+  button.brick::before{content:'';position:absolute;left:12%;right:12%;top:-6px;height:7px;
+    background:radial-gradient(circle at 50% 40%,var(--c) 0 4.2px,transparent 4.6px) 0 0/25% 100% repeat-x;filter:brightness(1.08)}
+  button.brick:hover:not(:disabled){filter:brightness(1.07)}
+  button.brick:active:not(:disabled){transform:translateY(2px)}
+  button.brick:disabled{opacity:.45;cursor:default}
+  button.brick:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+  #b1{background:var(--red);--c:var(--red)}
+  body.run #b1{background:var(--blue);--c:var(--blue)}
+  #b2{background:var(--yellow);--c:var(--yellow);color:var(--ink)}
+  #b3{background:#6C6E68;--c:#6C6E68}
+  @media (prefers-reduced-motion: reduce){.rot.hint::after{animation:none;opacity:.6}.step.turn,.cnt.pop{animation:none}}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="step" id="step" aria-hidden="true"><small>STEP</small><b id="stepN">1</b><i>/10</i></div>
+    <div class="cnt" id="cnt" aria-hidden="true"><svg viewBox="0 0 16 16"><circle cx="8" cy="9" r="5.6" fill="#A3A8AC" stroke="#1B2A34" stroke-width="1.4"/><rect x="5.4" y="1.4" width="1.8" height="4" fill="#A3A8AC" stroke="#1B2A34" stroke-width="1"/><rect x="8.8" y="1.4" width="1.8" height="4" fill="#A3A8AC" stroke="#1B2A34" stroke-width="1"/><circle cx="8" cy="9" r="1.8" fill="#1B2A34"/></svg><span id="cntN">×1</span></div>
+    <div class="time" id="t" role="timer">00:00<span class="cs">.00</span></div>
+  </div>
+  <canvas id="cv" aria-label="블록 부품을 끼워 원반형 우주 화물선을 조립하는 설명서 장면. 흐린 완성 모습 위로 부품이 채워지고, 1분마다 한 대가 완성되어 이륙한다. 드래그하면 모형을 돌린다"></canvas>
+  <button class="rot hint" id="rot" type="button" aria-label="모형 돌리기"><svg viewBox="0 0 16 16"><path d="M13 8a5 5 0 1 1-1.6-3.7" fill="none" stroke="#1B2A34" stroke-width="2" stroke-linecap="round"/><path d="M12.5 1.5v3.4H9.1" fill="none" stroke="#1B2A34" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <div class="laps" id="laps" aria-hidden="true"></div>
+  <div class="row">
+    <button class="brick" id="b1" type="button">시작</button>
+    <button class="brick" id="b2" type="button" disabled>랩</button>
+    <button class="brick" id="b3" type="button" disabled>리셋</button>
+  </div>
+
+<script>
+var Build=(function(){
+  /* ── 원반형 화물선 모형 ──
+     먼저 1×1 칸 단위로 모양을 잡고, 같은 색·같은 층·같은 단계의 칸을 1×2, 2×4, 4×6 같은 실제 부품 크기로 묶는다.
+     조립은 설명서처럼 10단계, 단계마다 5초. 50초에 완성, 51초에 엔진 점화, 55초에 하이퍼스페이스로 떠난다. */
+  var LG='#A3A8AC',LG2='#B9BDC1',GR='#8C9196',DG='#6C6E68',DK='#4B4D48',WH='#E6E8EA',RD='#B3372A',BK='#1B2A34',EGR='#7E8489';
+  var cells=[],map={},seed=17;
+  function rnd(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646;}
+  function add(x,y,z,c,o){o=o||{};var k=x+','+y+','+z,cell=map[k];
+    if(cell){if(o.keep)return;cell.c=c;cell.tile=!!o.tile;cell.eng=!!o.eng;cell.glow=o.glow;cell.sec=o.sec||cell.sec;return;}
+    cell={x:x,y:y,z:z,c:c,tile:!!o.tile,eng:!!o.eng,glow:o.glow,sec:o.sec||1};map[k]=cell;cells.push(cell);}
+  var R=11.5,x,y,r,a;
+  function ang(x,y){return Math.atan2(x,-y);}               /* 0이 앞, 오른쪽으로 갈수록 + */
+  function slot(x,y,lim){return Math.abs(x)<=1&&y<lim;}       /* 집게 사이 화물칸 홈 */
+  function mandAt(x,y){var ax=Math.abs(x);return ax>=2&&ax<=5&&y>=-18&&y<-Math.sqrt(Math.max(0,R*R-x*x))+.6&&!(y<-16.5&&ax>4.4);}
+  /* 바닥판(세 조각)과 집게 바닥 */
+  for(x=-13;x<=13;x++)for(y=-20;y<=13;y++){r=Math.hypot(x,y);a=ang(x,y);
+    if(r<=R&&!slot(x,y,-5))add(x,y,0,r>R-1.3?DK:DG,{sec:1+Math.min(2,Math.floor((a+Math.PI)/(2*Math.PI)*3))});
+    else if(mandAt(x,y))add(x,y,0,DG,{sec:4});}
+  /* 윗면 패널과 골, 집게 윗면 */
+  for(x=-13;x<=13;x++)for(y=-20;y<=13;y++){r=Math.hypot(x,y);a=ang(x,y);var ax=Math.abs(x);
+    if(r<=R-.6&&!slot(x,y,-4.5)){
+      var deg=((a*180/Math.PI)+360)%360,pi=Math.floor(deg/45),inPanel=Math.abs((deg%45)-22.5)>=5.5||r<=5.6,sec=5+Math.floor(pi/2);
+      if(!inPanel){if(rnd()<.45)add(x,y,1,[DG,DK,BK,GR][Math.floor(rnd()*4)],{sec:sec});continue;}
+      var c=r>R-1.7?GR:(pi%2?LG:LG2);
+      if(pi===6&&r>6&&r<9.5&&deg>278&&deg<300)c=RD;           /* 앞 왼쪽 패널의 붉은 도장 */
+      if(pi===2&&r>7&&r<9.2&&deg>110&&deg<122)c=RD;            /* 뒤 오른쪽 작은 도장 */
+      add(x,y,1,c,{tile:true,sec:sec});}
+    else if(mandAt(x,y))add(x,y,1,ax===2?DG:(y<-16?GR:LG),{tile:ax!==2,sec:8});}
+  /* 가운데 돔 */
+  for(x=-6;x<=6;x++)for(y=-6;y<=6;y++){r=Math.hypot(x,y);if(r<=5.4)add(x,y,2,r>4.5?GR:LG2,{tile:true,sec:9});}
+  /* 조종석: 오른쪽 옆구리에서 짧게 앞으로 뻗고, 원반 앞 가장자리 높이에서 끝난다 */
+  var S=[10.4,-1.6],E=[12.4,-7.2],dx=E[0]-S[0],dy=E[1]-S[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,P=[E[0]+ux*1.1,E[1]+uy*1.1];
+  for(x=5;x<=17;x++)for(y=-14;y<=2;y++){
+    var t=Math.max(0,Math.min(L,(x-S[0])*ux+(y-S[1])*uy)),d=Math.hypot(x-(S[0]+ux*t),y-(S[1]+uy*t)),dp=Math.hypot(x-P[0],y-P[1]);
+    if(dp<=2.4||d<=1.5)add(x,y,0,DG,{sec:10,keep:true});
+    if(dp<=2.2||d<=1.25)add(x,y,1,LG,{tile:true,sec:10});
+    if(dp<=1.7){var front=(x-P[0])*ux+(y-P[1])*uy>-.2;add(x,y,2,front?BK:LG2,{tile:true,sec:10});}
+    else if(d<=.65&&t<L-.5)add(x,y,2,LG2,{tile:true,sec:10});}
+  /* 허브와 4연장 포탑 */
+  for(x=-3;x<=3;x++)for(y=-3;y<=3;y++)if(Math.hypot(x,y)<=2.6)add(x,y,3,'#C9CDD0',{tile:true,sec:11});
+  [[0,0],[-1,0],[0,-1],[-1,-1],[0,-2],[-1,-2]].forEach(function(p){add(p[0],p[1],4,BK,{sec:11});});
+  /* 뒤쪽 엔진 띠: 시동 전에는 회색 판에 검은 살, 점화하면 푸르게 빛난다 */
+  for(x=-13;x<=13;x++)for(y=0;y<=13;y++){r=Math.hypot(x,y);a=Math.atan2(x,y);
+    if(Math.abs(a)<1.08&&r>R-1.9&&r<=R){add(x,y,0,DK,{eng:true,glow:'#3F86CF',sec:11});
+      if(r<=R-.6){var sl=Math.floor((a+2)*180/Math.PI/9)%2;add(x,y,1,sl?BK:EGR,{eng:true,tile:true,glow:sl?'#2C62A0':'#6FB7FF',sec:11});}}}
+  /* 레이더 접시, 도킹 포트 */
+  var Dc=[5,-7];
+  add(Dc[0],Dc[1],2,DG,{sec:12});
+  for(x=2;x<=8;x++)for(y=-10;y<=-4;y++)if(Math.hypot(x-Dc[0],y-Dc[1])<=1.9)add(x,y,3,WH,{tile:true,sec:12});
+  add(Dc[0],Dc[1],4,GR,{tile:true,sec:12});
+  [[-10,-1],[-10,0],[-10,1],[-11,0],[10,1],[10,2],[11,2]].forEach(function(p){add(p[0],p[1],2,DK,{sec:12});});
+
+  /* 모양 구역 → 설명서 단계(10단계) */
+  var SEC={1:1,2:2,3:3,4:3,5:4,6:5,7:6,8:7,9:8,10:8,11:9,12:10};
+  cells.forEach(function(c){c.step=SEC[c.sec];});
+
+  /* 칸을 부품으로 묶는다. 바닥판은 큰 판(4×6까지), 그 위는 2×4까지. 왼쪽 위 칸부터 들어가는 가장 큰 부품을 고른다 */
+  var BIG=[[4,6],[6,4],[4,4],[2,6],[6,2],[2,4],[4,2],[2,3],[3,2],[2,2],[1,6],[6,1],[1,4],[4,1],[1,3],[3,1],[1,2],[2,1],[1,1]],
+      SMALL=[[2,6],[6,2],[2,4],[4,2],[1,6],[6,1],[2,3],[3,2],[2,2],[1,4],[4,1],[1,3],[3,1],[1,2],[2,1],[1,1]];
+  function fits(c0,x,y){var u=map[x+','+y+','+c0.z];return u&&!u.part&&u.step===c0.step&&u.c===c0.c&&u.tile===c0.tile&&u.eng===c0.eng;}
+  var parts=[];
+  cells.slice().sort(function(a,b){return a.step-b.step||a.z-b.z||a.y-b.y||a.x-b.x;}).forEach(function(c){
+    if(c.part)return;var list=c.z===0?BIG:SMALL;
+    for(var s=0;s<list.length;s++){var w=list[s][0],h=list[s][1],good=true,i,j;
+      for(i=0;i<w&&good;i++)for(j=0;j<h&&good;j++)if(!fits(c,c.x+i,c.y+j))good=false;
+      if(!good)continue;
+      var Pt={cells:[],w:w,h:h,z:c.z,step:c.step,cx:c.x+(w-1)/2,cy:c.y+(h-1)/2};
+      for(i=0;i<w;i++)for(j=0;j<h;j++){var u=map[(c.x+i)+','+(c.y+j)+','+c.z];u.part=Pt;Pt.cells.push(u);}
+      parts.push(Pt);break;}});
+  /* 조립 순서: 단계 → 층 → 가운데에서 바깥, 같은 거리면 시계 방향 */
+  parts.sort(function(a,b){return a.step-b.step||a.z-b.z||(Math.hypot(a.cx,a.cy)-Math.hypot(b.cx,b.cy))||(ang(a.cx,a.cy)-ang(b.cx,b.cy));});
+  var STEPS=10,SL=5,T_DONE=50,T_IGN=50.6,T_JUMP=55,out=[];
+  for(var k=1;k<=STEPS;k++){var list=parts.filter(function(p){return p.step===k;}),t0=(k-1)*SL+(k===1?.6:.3),t1=k*SL-.35;
+    list.forEach(function(p,i){p.t=t0+(i+.5)/list.length*(t1-t0);});}
+  parts.forEach(function(p,i){p.i=i;p.cells.forEach(function(c){c.t=p.t;out.push(c);});});
+  out.forEach(function(c,i){c.i=i;});
+  return {cells:out,parts:parts,map:map,N:out.length,NP:parts.length,STEPS:STEPS,SL:SL,T_DONE:T_DONE,T_IGN:T_IGN,T_JUMP:T_JUMP};
+})();
+
+var Scene=(function(){
+  var B=Build,cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var cache=document.createElement('canvas'),cctx=cache.getContext('2d'),ghost=document.createElement('canvas'),gctx=ghost.getContext('2d');
+  var W=0,H=0,D=1,TW=10,HB=6,CX=0,CY=0,view=0,cachedN=-1,cacheView=-1,cacheGlow=-1,lastCacheT=0,ghostView=-1;
+  var FALL=.45,GHOST='#8FA3B6',CYCLE=60;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ENGS=B.cells.filter(function(c){return c.eng;});
+  var flags=[],boom=null,lastP=-1,pending=false;
+  function rot(x,y){switch(view){case 1:return [-y,x];case 2:return [-x,-y];case 3:return [y,-x];default:return [x,y];}}
+  /* 화면 기준 네 방향(뒤 오른쪽, 앞 오른쪽, 앞 왼쪽, 뒤 왼쪽)이 모형 좌표로 어느 쪽인지 */
+  var DIRS=[[1,0],[-1,0],[0,1],[0,-1]],EDGE=[];
+  function inv(rx,ry){for(var i=0;i<4;i++){var r=rot(DIRS[i][0],DIRS[i][1]);if(r[0]===rx&&r[1]===ry)return DIRS[i];}}
+  function iso(x,y,z){var r=rot(x,y);return [CX+(r[0]-r[1])*TW/2,CY+(r[0]+r[1])*TW/4-z*HB];}
+  function fit(){var a0=1e9,a1=-1e9,b0=1e9,b1=-1e9;
+    B.cells.forEach(function(c){var r=rot(c.x,c.y),a=r[0]-r[1],b=r[0]+r[1];if(a<a0)a0=a;if(a>a1)a1=a;if(b<b0)b0=b;if(b>b1)b1=b;});
+    TW=Math.max(6,Math.min(15,(W-36)/((a1-a0+2)/2),(H-24)/((b1-b0+2)/4+5*.6)));HB=TW*.6;
+    CX=W/2-(a0+a1)/2*TW/2;CY=H/2-(b0+b1)/2*TW/4+TW*1.2;
+    EDGE=[inv(0,-1),inv(1,0),inv(0,1),inv(-1,0)];cachedN=-1;ghostView=-1;}
+  function resize(){D=Math.min(2,window.devicePixelRatio||1);W=cv.clientWidth;H=cv.clientHeight;cv.width=Math.round(W*D);cv.height=Math.round(H*D);
+    cache.width=ghost.width=cv.width;cache.height=ghost.height=cv.height;fit();}
+  var SH={};function rgb(hex){var n=parseInt(hex.slice(1),16);return [n>>16,n>>8&255,n&255];}
+  function h2(v){v=Math.max(0,Math.min(255,Math.round(v)));return (v<16?'0':'')+v.toString(16);}
+  function shade(hex,k){var key=hex+k;if(SH[key])return SH[key];var c=rgb(hex),r=c[0],g=c[1],b=c[2];
+    if(k>1){var m=k-1;r=r+(255-r)*m;g=g+(255-g)*m;b=b+(255-b)*m;}else{r*=k;g*=k;b*=k;}
+    return SH[key]='#'+h2(r)+h2(g)+h2(b);}
+  function mix(h1,h2c,t){var a=rgb(h1),b=rgb(h2c);return '#'+h2(a[0]+(b[0]-a[0])*t)+h2(a[1]+(b[1]-a[1])*t)+h2(a[2]+(b[2]-a[2])*t);}
+  function nb(c,d){return B.map[(c.x+d[0])+','+(c.y+d[1])+','+c.z];}
+  function same(c,d){var u=nb(c,d);return !!(u&&u.part===c.part);}
+  /* 칸 하나를 그리되, 같은 부품끼리 맞닿은 면에는 선을 긋지 않는다. 그래서 여러 칸이 한 덩어리 부품으로 보인다 */
+  function brick(g,c,sx,sy,o){
+    var w=TW/2,h=TW/4,base=o.col||c.c;if(o.flash)base=mix(base,'#FFFFFF',.6*o.flash);
+    g.beginPath();g.moveTo(sx-w,sy);g.lineTo(sx,sy+h);g.lineTo(sx,sy+h+HB);g.lineTo(sx-w,sy+HB);g.closePath();g.fillStyle=shade(base,.8);g.fill();
+    g.beginPath();g.moveTo(sx+w,sy);g.lineTo(sx,sy+h);g.lineTo(sx,sy+h+HB);g.lineTo(sx+w,sy+HB);g.closePath();g.fillStyle=shade(base,.64);g.fill();
+    g.beginPath();g.moveTo(sx,sy-h);g.lineTo(sx+w,sy);g.lineTo(sx,sy+h);g.lineTo(sx-w,sy);g.closePath();g.fillStyle=c.tile?shade(base,1.06):base;g.fill();
+    var e0=!same(c,EDGE[0]),e1=!same(c,EDGE[1]),e2=!same(c,EDGE[2]),e3=!same(c,EDGE[3]);
+    g.strokeStyle=o.ghost?'rgba(70,96,122,.7)':'rgba(20,30,40,.55)';g.lineWidth=.7;g.beginPath();
+    if(e0){g.moveTo(sx,sy-h);g.lineTo(sx+w,sy);}
+    if(e1){g.moveTo(sx+w,sy);g.lineTo(sx,sy+h);}
+    if(e2){g.moveTo(sx,sy+h);g.lineTo(sx-w,sy);}
+    if(e3){g.moveTo(sx-w,sy);g.lineTo(sx,sy-h);}
+    if(!nb(c,EDGE[2])){g.moveTo(sx,sy+h);g.lineTo(sx,sy+h+HB);}
+    if(e3){g.moveTo(sx-w,sy);g.lineTo(sx-w,sy+HB);}
+    if(e0){g.moveTo(sx+w,sy);g.lineTo(sx+w,sy+HB);}
+    if(e1||e2||!nb(c,EDGE[2])){g.moveTo(sx-w,sy+HB);g.lineTo(sx,sy+h+HB);g.lineTo(sx+w,sy+HB);}
+    g.stroke();
+    if(c.tile&&e3&&!o.ghost){g.strokeStyle='rgba(255,255,255,.42)';g.lineWidth=.7;g.beginPath();g.moveTo(sx-w+1,sy);g.lineTo(sx,sy-h+.5);g.stroke();}
+    if(o.stud&&!c.tile){var sr=TW*.2,sh=TW*.12;
+      g.fillStyle=shade(base,.72);g.beginPath();g.ellipse(sx,sy+sh*.2,sr,sr*.5,0,0,Math.PI);g.rect(sx-sr,sy-sh,sr*2,sh);g.fill();
+      g.fillStyle=shade(base,1.14);g.beginPath();g.ellipse(sx,sy-sh,sr,sr*.5,0,0,Math.PI*2);g.fill();}
+  }
+  function above(c){return B.map[c.x+','+c.y+','+(c.z+1)];}
+  function order(list){return list.map(function(c){var r=rot(c.x,c.y);return {c:c,d:r[0]+r[1]};}).sort(function(a,b){return a.d-b.d||a.c.z-b.c.z;});}
+  function center(){return iso(0,-1,0);}
+  function engCol(c,gq){return gq>0?mix(c.c,c.glow,gq):null;}
+  /* 흐린 완성 모습: 처음부터 무엇을 만드는지 보이게 한다 */
+  function drawGhost(){if(ghostView===view)return;ghostView=view;
+    gctx.setTransform(D,0,0,D,0,0);gctx.clearRect(0,0,W,H);
+    order(B.cells).forEach(function(o){var c=o.c,s=iso(c.x,c.y,c.z);brick(gctx,c,s[0],s[1],{col:GHOST,ghost:true,stud:!above(c)});});}
+  /* 이미 끼운 부품은 따로 그려 두고, 자주 다시 그리지 않는다 */
+  function refresh(n,now,gq){
+    if(n===cachedN&&view===cacheView&&gq===cacheGlow)return;
+    var gap=now-lastCacheT<(n>=B.N?60:140),first=n>=B.N&&cachedN<B.N;
+    if(gap&&view===cacheView&&n>=cachedN&&cachedN>=0&&!first)return;
+    cachedN=n;cacheView=view;cacheGlow=gq;lastCacheT=now;
+    cctx.setTransform(D,0,0,D,0,0);cctx.clearRect(0,0,W,H);
+    order(B.cells.slice(0,n)).forEach(function(o){var c=o.c,s=iso(c.x,c.y,c.z),u=above(c);
+      brick(cctx,c,s[0],s[1],{stud:!(u&&u.i<n),col:c.eng?engCol(c,gq):null});});
+  }
+  function partAt(g,P,sx,sy,o){order(P.cells).forEach(function(q){var c=q.c,r=rot(c.x-P.cx,c.y-P.cy);
+    brick(g,c,sx+(r[0]-r[1])*TW/2,sy+(r[0]+r[1])*TW/4,o);});}
+  function drawFlag(f,now){
+    if(f.t0==null)f.t0=now;var s=iso(f.x,f.y,f.z),k=reduce?1:Math.max(0,Math.min(1,(now-f.t0)/240));if(k<1)pending=true;var ov=k<1?1+Math.sin(k*Math.PI)*.25:1,ph=TW*3*k*ov,px=s[0],py=s[1];
+    ctx.fillStyle='rgba(27,42,52,.5)';ctx.beginPath();ctx.ellipse(px,py,TW*.28,TW*.14,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#1B2A34';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,py-ph);ctx.stroke();
+    if(k<.3)return;var fw=TW*2.2*Math.min(1,(k-.3)/.5),fh=TW*1.4,ty=py-ph;
+    ctx.fillStyle='#F2CD37';ctx.strokeStyle='#1B2A34';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(px,ty);ctx.lineTo(px+fw,ty+fh/2);ctx.lineTo(px,ty+fh);ctx.closePath();ctx.fill();ctx.stroke();
+    if(fw>TW){ctx.fillStyle='#1B2A34';ctx.font='900 '+Math.max(8,Math.round(TW*.8))+'px Pretendard,sans-serif';ctx.textBaseline='middle';ctx.textAlign='left';
+      ctx.fillText(f.num,px+2.5,ty+fh/2+.5);}
+  }
+  var stars=[];for(var i=0;i<80;i++)stars.push([Math.random(),Math.random(),.3+Math.random()*.7]);
+  function count(list,p){var lo=0,hi=list.length;while(lo<hi){var m=(lo+hi)>>1;if(list[m].t<=p)lo=m+1;else hi=m;}return lo;}
+
+  function draw(p,now,cyc){
+    ctx.setTransform(D,0,0,D,0,0);ctx.clearRect(0,0,W,H);drawGhost();
+    /* 리셋: 끼워 둔 부품이 흩어지며 떨어진다 */
+    if(boom){if(boom.t0==null)boom.t0=now;var bt=Math.max(0,(now-boom.t0)/1000);
+      if(bt<.85){ctx.globalAlpha=.32*Math.min(1,bt/.6);ctx.drawImage(ghost,0,0,W,H);ctx.globalAlpha=1;
+        ctx.save();ctx.globalAlpha=Math.max(0,1-Math.pow(bt/.85,2));
+        boom.list.forEach(function(o){var c=o.c,v=boom.v[c.part.i],s=iso(c.x,c.y,c.z);
+          brick(ctx,c,s[0]+v[0]*bt,s[1]+v[1]*bt+900*bt*bt,{stud:true});});
+        ctx.restore();return {n:0,step:1,done:false,jump:false};}
+      boom=null;}
+    var n=p>=0?count(B.cells,p):0,np=p>=0?count(B.parts,p):0;lastP=p;pending=false;
+    var glow=p>=B.T_IGN?Math.min(1,(p-B.T_IGN)/1.2)*(.82+.18*Math.sin(now/110)):0,gq=reduce?(glow>0?1:0):Math.round(glow*20)/20;
+    refresh(n,now,gq);
+    var jump=p>=B.T_JUMP?(p-B.T_JUMP)/(CYCLE-B.T_JUMP):0,c0=center(),tx=W/2,ty=H*.42;
+    if(jump>0&&!reduce){ctx.save();ctx.strokeStyle='rgba(111,183,255,.75)';ctx.lineWidth=1.2;
+      stars.forEach(function(s){var ax=s[0]*W,ay=s[1]*H,dx=ax-tx,dy=ay-ty,Lr=jump*jump*120*s[2],m=Math.hypot(dx,dy)||1;
+        ctx.globalAlpha=Math.min(1,jump*2.4)*s[2];ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(ax+dx/m*Lr,ay+dy/m*Lr);ctx.stroke();});ctx.restore();}
+    ctx.save();
+    /* 하이퍼스페이스: 모형이 화면 가운데로 모이며 작아지다 빛 속으로 사라진다 */
+    if(jump>0){var e=jump*jump;ctx.globalAlpha=Math.max(0,1-Math.pow(jump,6));
+      ctx.translate(c0[0]+(tx-c0[0])*Math.min(1,jump*1.6),c0[1]+(ty-c0[1])*Math.min(1,jump*1.6));ctx.scale(1-e*.94,1-e*.94);ctx.translate(-c0[0],-c0[1]);}
+    var ga=p<0?.38:(p<B.T_DONE?.3:Math.max(0,.3-(p-B.T_DONE)*.3));
+    if(ga>0){var sa=ctx.globalAlpha;ctx.globalAlpha=sa*ga;ctx.drawImage(ghost,0,0,W,H);ctx.globalAlpha=sa;}
+    var sha=.14*Math.min(1,n/150)*(1-jump);if(sha>0){ctx.save();ctx.globalAlpha*=sha;ctx.fillStyle='#1B2A34';ctx.beginPath();
+      ctx.ellipse(c0[0],c0[1]+TW*.6,TW*11.5,TW*5.6,0,0,Math.PI*2);ctx.fill();ctx.restore();}
+    ctx.drawImage(cache,0,0,W,H);
+    /* 캐시에 아직 안 들어간 부품과 방금 끼운 부품의 반짝임 */
+    var extra=[];for(var k=Math.max(0,cachedN);k<n;k++)extra.push(B.cells[k]);
+    order(extra).forEach(function(o){var c=o.c,s=iso(c.x,c.y,c.z),age=p-c.t,u=above(c);
+      brick(ctx,c,s[0],s[1],{stud:!(u&&u.i<n),flash:(!reduce&&age<.18)?1-age/.18:0});});
+    /* 떨어지는 부품: 점점 빨라지다 딸깍 끼워진다 */
+    for(var q=np;q<B.NP&&B.parts[q].t-FALL<=p;q++){var P=B.parts[q],f=1-(P.t-p)/FALL,s0=iso(P.cx,P.cy,P.z),dy=reduce?0:(1-f*f)*TW*7;
+      ctx.save();ctx.globalAlpha*=Math.min(1,f*2.4);partAt(ctx,P,s0[0],s0[1]-dy,{stud:true});ctx.restore();
+      if(!reduce){ctx.save();ctx.globalAlpha*=.18*f;ctx.fillStyle='#1B2A34';ctx.beginPath();ctx.ellipse(s0[0],s0[1]+TW*.2,TW*(P.w+P.h)*.28,TW*(P.w+P.h)*.14,0,0,Math.PI*2);ctx.fill();ctx.restore();}}
+    if(!reduce)for(var q2=Math.max(0,np-4);q2<np;q2++){var P2=B.parts[q2],ag=p-P2.t;if(ag<0||ag>.22)continue;
+      var s2=iso(P2.cx,P2.cy,P2.z),rr=TW*(.6+(P2.w+P2.h)*.3)+ag*TW*10;ctx.save();ctx.globalAlpha*=1-ag/.22;ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.beginPath();
+      for(var j=0;j<6;j++){var an=j/6*Math.PI*2+.3,cx=Math.cos(an),cy=Math.sin(an)*.5;ctx.moveTo(s2[0]+cx*rr,s2[1]+cy*rr);ctx.lineTo(s2[0]+cx*(rr+TW*.7),s2[1]+cy*(rr+TW*.7));}
+      ctx.stroke();ctx.restore();}
+    /* 엔진 점화: 푸른빛이 번진다 */
+    if(glow>0){ctx.globalCompositeOperation='lighter';var ep=iso(0,10.5,1),rg=ctx.createRadialGradient(ep[0],ep[1],0,ep[0],ep[1],TW*9);
+      rg.addColorStop(0,'rgba(111,183,255,'+(.45*glow)+')');rg.addColorStop(1,'rgba(111,183,255,0)');ctx.fillStyle=rg;ctx.fillRect(ep[0]-TW*9,ep[1]-TW*9,TW*18,TW*18);
+      ctx.globalCompositeOperation='source-over';}
+    /* 랩 깃발 */
+    flags.forEach(function(f){if(f.cyc===cyc)drawFlag(f,now);});
+    ctx.restore();
+    if(jump>.8&&!reduce){var fl=(jump-.8)/.2;ctx.save();ctx.globalCompositeOperation='lighter';var rg2=ctx.createRadialGradient(tx,ty,0,tx,ty,TW*6);
+      rg2.addColorStop(0,'rgba(255,255,255,'+(1-fl)*.9+')');rg2.addColorStop(1,'rgba(111,183,255,0)');ctx.fillStyle=rg2;ctx.fillRect(0,0,W,H);ctx.restore();}
+    /* 다음 부품 칸: 설명서처럼 다음에 끼울 부품의 모양과 이번 단계에 남은 개수 */
+    if(np<B.NP&&p>=0&&p<B.T_DONE){var nx=B.parts[np],left=0;for(var z2=np;z2<B.NP&&B.parts[z2].step===nx.step;z2++)left++;
+      var bx=10,by=8,bw=88,bh=44;ctx.fillStyle='#fff';ctx.strokeStyle='#1B2A34';ctx.lineWidth=2;
+      ctx.beginPath();if(ctx.roundRect)ctx.roundRect(bx,by,bw,bh,5);else ctx.rect(bx,by,bw,bh);ctx.fill();ctx.stroke();
+      var sv=TW;TW=Math.min(12,64/(nx.w+nx.h+1));HB=TW*.6;partAt(ctx,nx,bx+26,by+bh/2-HB/2,{stud:true});TW=sv;HB=sv*.6;
+      ctx.fillStyle='#1B2A34';ctx.font='900 13px Pretendard,sans-serif';ctx.textBaseline='middle';ctx.textAlign='left';ctx.fillText('×'+left,bx+54,by+bh/2+1);
+      ctx.font='800 9px Pretendard,sans-serif';ctx.fillStyle='#6C7A86';ctx.fillText(Math.min(nx.w,nx.h)+'×'+Math.max(nx.w,nx.h),bx+54,by+bh/2-12);}
+    var step=p<0?1:(p>=B.T_DONE?B.STEPS:Math.min(B.STEPS,Math.floor(p/B.SL)+1));
+    return {n:n,step:step,done:p>=B.T_DONE,jump:jump>0};
+  }
+  function rotate(dir){view=(view+(dir||1)+4)%4;fit();}
+  function flag(num,cyc,p){var np=count(B.parts,p),P=np>0?B.parts[np-1]:null;pending=true;
+    var f=P?{x:P.cx,y:P.cy,z:P.z}:{x:0,y:0,z:0};f.num=num;f.cyc=cyc;f.t0=null;
+    if(flags.some(function(g){return g.cyc===cyc&&Math.abs(g.x-f.x)<1&&Math.abs(g.y-f.y)<1;}))f.x+=.8;
+    flags.push(f);}
+  function explode(){flags=[];var np=lastP>=0?count(B.parts,lastP):0;if(reduce||np===0){boom=null;return;}
+    var v={},c0=center();B.parts.slice(0,np).forEach(function(P){var s=iso(P.cx,P.cy,P.z),dx=s[0]-c0[0],dy=s[1]-c0[1],m=Math.hypot(dx,dy)||1,sp=90+Math.random()*170;
+      v[P.i]=[dx/m*sp+(Math.random()-.5)*60,-160-Math.random()*200];});
+    boom={t0:null,v:v,list:order(B.cells.slice(0,count(B.cells,lastP)))};}
+  window.addEventListener('resize',function(){resize();});
+  resize();
+  return {draw:draw,rotate:rotate,flag:flag,explode:explode,busy:function(){return !!boom||pending;},stepAt:function(p){return Math.min(B.STEPS,Math.floor(p/B.SL)+1);}};
+})();
+</script>
+<script>
+(function(){
+  var t=document.getElementById('t'),stepBox=document.getElementById('step'),stepN=document.getElementById('stepN'),lapsEl=document.getElementById('laps'),
+      cnt=document.getElementById('cnt'),cntN=document.getElementById('cntN'),rotBtn=document.getElementById('rot'),
+      cv=document.getElementById('cv'),body=document.body,b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3');
+  var run=false,stt=0,acc=0,laps=[],last=0,CYCLE=60,dirty=true,lastStep=0,lastCnt=0;
+  function el(){return acc+(run?performance.now()-stt:0);}
+  function pad(n){return String(n).padStart(2,'0');}
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);return pad(mm)+':'+pad(ss)+'.'+pad(cs);}
+  function replay(node,cls){node.classList.remove(cls);void node.offsetWidth;node.classList.add(cls);}
+  function frame(now){
+    var ms=el(),p=(ms/1000)%CYCLE,cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60),hh=Math.floor(mm/60),cyc=Math.floor(ms/1000/CYCLE);
+    t.innerHTML=(hh?pad(hh)+':'+pad(mm%60):pad(mm))+':'+pad(ss)+'<span class="cs">.'+pad(cs)+'</span>';
+    if(run||dirty||Scene.busy()){var st=Scene.draw(ms>0?p:-1,now,cyc);dirty=false;
+      if(st.step!==lastStep){stepN.textContent=st.step;if(run)replay(stepBox,'turn');lastStep=st.step;}
+      stepBox.classList.toggle('done',st.done);body.classList.toggle('jump',st.jump&&run);
+      if(cyc!==lastCnt){cntN.textContent='×'+cyc;cnt.classList.toggle('on',cyc>0);if(cyc>lastCnt)replay(cnt,'pop');lastCnt=cyc;}}
+    requestAnimationFrame(frame);
+  }
+  function drawLaps(fresh){
+    var best=laps.length>1?Math.min.apply(null,laps.map(function(l){return l.d;})):-1,h='';
+    for(var k=0;k<2;k++){var i=laps.length-1-k;
+      if(i>=0){var l=laps[i];h+='<div class="on'+(fresh&&k===0?' new':'')+'"><span class="k">LAP '+pad(i+1)+(l.d===best?' ★':'')+'</span><span class="s">S'+l.s+'</span><span>+'+plain(l.d)+'</span><span>'+plain(l.t)+'</span></div>';}
+      else h+='<div><span class="k">LAP --</span><span class="s">S-</span><span>+--:--.--</span><span>--:--.--</span></div>';}
+    lapsEl.innerHTML=h;}
+
+  /* ── 접근성 공통 ──
+     정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
+     10ms마다 바뀌므로 라이브 리전으로 두지 않는다. */
+  var srSay=(function(){
+    var r=document.createElement('div');
+    r.setAttribute('role','status'); r.setAttribute('aria-live','polite');
+    r.style.cssText='position:absolute;width:1px;height:1px;margin:-1px;padding:0;'+
+      'overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    document.body.appendChild(r);
+    return function(m){ r.textContent=''; setTimeout(function(){ r.textContent=m; },30); };
+  })();
+  function srHuman(ms){
+    if(ms<0)ms=0;
+    var cs=Math.floor(ms/10)%100, s=Math.floor(ms/1000), ss=s%60, mm=Math.floor(s/60);
+    return (mm?mm+'분 ':'')+ss+'점'+String(cs).padStart(2,'0')+'초';
+  }
+  var srWasRun=false, srLast=0;
+  function ui(){
+    body.classList.toggle('run',run);
+    b1.textContent=run?'정지':(el()>0?'재개':'시작');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+    if(!run)body.classList.remove('jump');
+
+    /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
+    var srE=el();
+    if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
+    else if(!srWasRun&&!run&&srLast>0&&srE===0) srSay('초기화했습니다');
+    srWasRun=run; srLast=srE;
+    if(document.activeElement&&document.activeElement.disabled) b1.focus();
+  }
+  function start(){if(run)return;run=true;stt=performance.now();ui();}
+  function stop(){if(!run)return;acc=el();run=false;dirty=true;ui();}
+  function reset(){if(run)return;Scene.explode();acc=0;stt=0;laps=[];last=0;drawLaps(false);dirty=true;ui();}
+  /* 랩: 지금 끼운 부품 위에 번호 깃발을 꽂고, 몇 단계였는지 함께 적는다 */
+  function lap(){if(!run)return;var e=el(),d=e-last;last=e;var p=(e/1000)%CYCLE,sNo=Scene.stepAt(p);laps.push({t:e,d:d,s:sNo});drawLaps(true);
+    Scene.flag(laps.length,Math.floor(e/1000/CYCLE),p);
+    srSay('랩 '+laps.length+'. 구간 '+srHuman(d)+'. '+sNo+'단계');}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',lap);
+  b3.addEventListener('click',reset);
+  /* 모형 돌리기: 버튼을 누르거나 좌우로 끌면 90도씩 돈다 */
+  function turn(dir){Scene.rotate(dir);dirty=true;rotBtn.classList.remove('hint');}
+  rotBtn.addEventListener('click',function(){turn(1);});
+  var dragX=null;
+  cv.addEventListener('pointerdown',function(e){dragX=e.clientX;cv.setPointerCapture(e.pointerId);});
+  cv.addEventListener('pointermove',function(e){if(dragX===null)return;var dx=e.clientX-dragX;if(Math.abs(dx)>36){turn(dx>0?1:-1);dragX=e.clientX;}});
+  cv.addEventListener('pointerup',function(){dragX=null;});
+  cv.addEventListener('pointercancel',function(){dragX=null;});
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
+    if(e.key===' '){e.preventDefault();run?stop():start();}
+    else if(e.key==='l'||e.key==='L'){lap();}
+    else if(e.key==='r'||e.key==='R'){reset();}
+  });
+  window.addEventListener('resize',function(){dirty=true;});
+  drawLaps(false);ui();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
