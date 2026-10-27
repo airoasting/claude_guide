@@ -8,163 +8,305 @@
 <style>
   @font-face{font-family:'Pretendard';src:url('../fonts/PretendardVariable.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap;}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
-  body{font-family:'Pretendard',"Helvetica Neue",Arial,sans-serif;
-    background:#000;display:flex;align-items:center;justify-content:center;padding:8px;color:#dfe6f0}
-  .stage{position:relative;width:300px;height:340px;border-radius:16px;overflow:hidden;
-    background:linear-gradient(#0a1430 0%,#0f1e44 58%,#16285a 100%);
-    box-shadow:0 16px 36px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.05)}
-  /* 경기장 배경 */
-  .field{position:absolute;inset:0;z-index:1}
-  .lights{position:absolute;inset:0;pointer-events:none;background:
-    radial-gradient(130px 90px at 12% -6%,rgba(186,206,255,.20),transparent 70%),
-    radial-gradient(130px 90px at 88% -6%,rgba(186,206,255,.20),transparent 70%)}
-  .crowd{position:absolute;inset:0;pointer-events:none}
-  .crowd i{position:absolute;width:5px;height:5px;border-radius:50%;background:#d7263d;opacity:.85;
-    animation:wave 2.4s ease-in-out infinite}            /* 관중은 항상 잔잔히 출렁 */
-  .field.live .crowd i{animation-duration:1.4s}          /* 경기 중 빨라짐 */
-  .field.goal .crowd i{animation-duration:.42s}          /* 골 때 격해짐 */
-  @keyframes wave{0%,100%{transform:translateY(0);filter:brightness(1)}50%{transform:translateY(-3px);filter:brightness(1.6)}}
-  /* 태극기 */
-  .flag{position:absolute;z-index:2;width:30px;height:20px;transform-origin:left center;
-    filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}
-  .flag svg{display:block;width:100%;height:100%}
-  .flag.f1{left:14px;top:112px}.flag.f2{right:14px;top:146px}
-  .field.live .flag{animation:flagwave 1.1s ease-in-out infinite}
-  .field.goal .flag{animation:flagwave .34s ease-in-out infinite}
-  @keyframes flagwave{0%,100%{transform:rotate(-5deg) skewX(0)}50%{transform:rotate(5deg) skewX(-7deg)}}
-  /* 잔디 */
-  .pitch{position:absolute;left:0;right:0;bottom:0;height:98px;overflow:hidden;
-    background:repeating-linear-gradient(90deg,#1f7a3d 0 22px,#1b6e36 22px 44px);
-    box-shadow:inset 0 3px 6px rgba(255,255,255,.06)}
-  .pitch .midline{position:absolute;left:0;right:0;top:0;height:2px;background:rgba(255,255,255,.45)}
-  .pitch .circle{position:absolute;left:50%;bottom:-44px;transform:translateX(-50%);
-    width:118px;height:118px;border:2px solid rgba(255,255,255,.45);border-radius:50%}
-  /* 전광판 */
-  .board{position:relative;z-index:3;text-align:center;padding-top:11px;
-    background:linear-gradient(rgba(5,12,30,.72),rgba(5,12,30,0))}
-  .status{font-size:11px;font-weight:800;letter-spacing:2px;color:#9fb4d8}
-  .status.live{color:#5fd38a}.status.half{color:#ffb454}
-  .score{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:5px}
-  .score .tm{font-size:11px;font-weight:800;letter-spacing:1px;padding:2px 7px;border-radius:6px}
-  .score .tm.kor{color:#fff;background:#cd2e3a}
-  .score .tm.wld{color:#cdd8ea;background:rgba(255,255,255,.12)}
-  .score b{display:inline-block;font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;min-width:24px;color:#eef3fb}
-  .score b#sk{color:#ff5a6e}
-  .score b.pop{animation:pop .5s ease}
-  @keyframes pop{0%{transform:scale(1)}30%{transform:scale(1.55);color:#ffd24a}100%{transform:scale(1)}}
-  .score .cln{font-size:22px;font-weight:800;color:#7f93b4}
-  .clock{margin-top:3px;font-size:21px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:1px;color:#cfe0f5}
-  .clock .cs{font-size:13px;color:#8aa0c4}
-  .last{height:15px;margin-top:3px;font-size:10px;font-weight:700;letter-spacing:.5px;color:#ffb454}
-  /* 골 연출 */
-  .goalflash{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:2px;opacity:0;pointer-events:none}
-  .goalflash .g{font-size:46px;font-weight:900;letter-spacing:2px;color:#fff;text-shadow:0 0 16px #ff3b52,0 0 4px #fff}
-  .goalflash .kr{font-size:15px;font-weight:800;letter-spacing:4px;color:#ffd24a}
-  .goalflash.show{animation:goalpop .85s ease-out}
-  @keyframes goalpop{0%{opacity:0;transform:scale(.6)}18%{opacity:1;transform:scale(1.12)}70%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Pretendard',"Helvetica Neue",Arial,sans-serif;background:#050a18;color:#eef3fb;position:relative}
+  canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+  /* 중계 화면 왼쪽 위의 점수판 */
+  .bug{position:absolute;left:8px;right:8px;top:8px;height:38px;display:flex;align-items:center;gap:6px;padding:0 8px 0 4px;
+    background:linear-gradient(#0d1a3c,#08122b);border:1px solid rgba(255,255,255,.14);border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+  .st{display:flex;align-items:center;gap:4px;height:22px;padding:0 6px;border-radius:5px;background:rgba(255,255,255,.08);
+    font-size:9px;font-weight:900;letter-spacing:1px;color:#9fb4d8}
+  .st i{width:6px;height:6px;border-radius:50%;background:#6c7a92}
+  body.run .st{color:#fff;background:#d7263d}
+  body.run .st i{background:#fff;animation:blink 1s steps(2) infinite}
+  body.half .st{color:#2a1a00;background:#ffb454}
+  @keyframes blink{50%{opacity:.2}}
+  .tm{font-size:11px;font-weight:900;letter-spacing:1px;padding:3px 5px;border-radius:4px}
+  .tm.kor{background:#d7263d;color:#fff}
+  .tm.wld{background:rgba(255,255,255,.14);color:#cdd8ea}
+  .sc{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;min-width:14px;text-align:center;line-height:1}
+  #sk{color:#ff5a6e}
+  .sc.pop{animation:pop .6s ease}
+  @keyframes pop{0%{transform:scale(1)}25%{transform:scale(1.8);color:#ffd24a}100%{transform:scale(1)}}
+  .dash{color:#6c7a92;font-weight:900}
+  .clock{margin-left:auto;font-size:24px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:.3px;line-height:1}
+  .clock .cs{font-size:14px;color:#8fb2ff}
+
+  /* 골 기록: 높이를 한 줄로 고정한다 */
+  .tick{position:absolute;left:8px;right:8px;top:50px;height:18px;display:flex;align-items:center;gap:8px;padding:0 8px;
+    background:rgba(5,10,24,.72);border-radius:5px;font-size:10px;font-weight:800;font-variant-numeric:tabular-nums;color:#9fb4d8;overflow:hidden;white-space:nowrap}
+  .tick b{color:#ffd24a}
+  .tick em{font-style:normal;color:#5fd38a}
+  .tick .prev{margin-left:auto;color:#6c7a92}
+  .tick.new{animation:tickIn .6s ease-out}
+  @keyframes tickIn{0%{background:#ffd24a;color:#1a1200}100%{background:rgba(5,10,24,.72)}}
+
   /* 버튼 */
-  .row{position:absolute;left:0;right:0;bottom:0;z-index:4;display:flex;gap:7px;padding:10px;
-    background:linear-gradient(transparent,rgba(4,10,24,.88) 42%)}
-  button{flex:1;font-family:inherit;font-weight:800;font-size:12px;padding:11px 0;border:none;border-radius:10px;cursor:pointer;
-    color:#fff;transition:transform .06s,filter .15s}
-  button:active{transform:translateY(1px)}
-  #b1{background:#1f9d57;color:#032414}#b1.run{background:#c0392b}#b2{background:#c98a1e;color:#301F02}#b3{background:#48505e}
-  button:disabled{opacity:.6;cursor:default}
-  button:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
-      transition-duration:.001ms !important;scroll-behavior:auto !important}
-  }
+  .row{position:absolute;left:0;right:0;bottom:0;display:flex;gap:7px;padding:22px 10px 10px;
+    background:linear-gradient(rgba(4,10,24,0),rgba(4,10,24,.9) 55%)}
+  button{flex:1;font-family:inherit;font-weight:900;font-size:12.5px;height:38px;border:none;border-radius:10px;cursor:pointer;
+    color:#fff;transition:transform .06s,filter .15s;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+  button:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+  #b1{background:#1f9d57;color:#03240f}
+  body.run #b1{background:#c0392b;color:#fff}
+  #b2{background:#f2c230;color:#2a1a00}
+  #b3{background:#48505e}
+  button:disabled{opacity:.5;cursor:default}
   button:hover:not(:disabled){filter:brightness(1.1)}
+  button:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){.sc.pop,.tick.new,body.run .st i{animation:none}}
 </style>
 </head>
 <body>
-  <div class="stage" id="stage">
-    <div class="field" id="field">
-      <div class="lights" aria-hidden="true"></div>
-      <div class="crowd" id="crowd" aria-hidden="true"></div>
-      <div class="flag f1" aria-hidden="true">
-        <svg viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg">
-          <rect width="36" height="24" fill="#f5f6f7"/>
-          <circle cx="18" cy="12" r="6" fill="#0047a0"/>
-          <path d="M12 12 A6 6 0 0 1 24 12 Z" fill="#cd2e3a"/>
-          <circle cx="15" cy="12" r="3" fill="#0047a0"/>
-          <circle cx="21" cy="12" r="3" fill="#cd2e3a"/>
-          <g fill="#111">
-            <rect x="3.5" y="3.15" width="7" height="0.9"/><rect x="3.5" y="5.55" width="7" height="0.9"/><rect x="3.5" y="7.95" width="7" height="0.9"/>
-            <rect x="25.5" y="3.15" width="2.8" height="0.9"/><rect x="29.7" y="3.15" width="2.8" height="0.9"/><rect x="25.5" y="5.55" width="7" height="0.9"/><rect x="25.5" y="7.95" width="2.8" height="0.9"/><rect x="29.7" y="7.95" width="2.8" height="0.9"/>
-            <rect x="3.5" y="15.15" width="7" height="0.9"/><rect x="3.5" y="17.55" width="2.8" height="0.9"/><rect x="7.7" y="17.55" width="2.8" height="0.9"/><rect x="3.5" y="19.95" width="7" height="0.9"/>
-            <rect x="25.5" y="15.15" width="2.8" height="0.9"/><rect x="29.7" y="15.15" width="2.8" height="0.9"/><rect x="25.5" y="17.55" width="2.8" height="0.9"/><rect x="29.7" y="17.55" width="2.8" height="0.9"/><rect x="25.5" y="19.95" width="2.8" height="0.9"/><rect x="29.7" y="19.95" width="2.8" height="0.9"/>
-          </g>
-        </svg>
-      </div>
-      <div class="flag f2" aria-hidden="true">
-        <svg viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg">
-          <rect width="36" height="24" fill="#f5f6f7"/>
-          <circle cx="18" cy="12" r="6" fill="#0047a0"/>
-          <path d="M12 12 A6 6 0 0 1 24 12 Z" fill="#cd2e3a"/>
-          <circle cx="15" cy="12" r="3" fill="#0047a0"/>
-          <circle cx="21" cy="12" r="3" fill="#cd2e3a"/>
-          <g fill="#111">
-            <rect x="3.5" y="3.15" width="7" height="0.9"/><rect x="3.5" y="5.55" width="7" height="0.9"/><rect x="3.5" y="7.95" width="7" height="0.9"/>
-            <rect x="25.5" y="3.15" width="2.8" height="0.9"/><rect x="29.7" y="3.15" width="2.8" height="0.9"/><rect x="25.5" y="5.55" width="7" height="0.9"/><rect x="25.5" y="7.95" width="2.8" height="0.9"/><rect x="29.7" y="7.95" width="2.8" height="0.9"/>
-            <rect x="3.5" y="15.15" width="7" height="0.9"/><rect x="3.5" y="17.55" width="2.8" height="0.9"/><rect x="7.7" y="17.55" width="2.8" height="0.9"/><rect x="3.5" y="19.95" width="7" height="0.9"/>
-            <rect x="25.5" y="15.15" width="2.8" height="0.9"/><rect x="29.7" y="15.15" width="2.8" height="0.9"/><rect x="25.5" y="17.55" width="2.8" height="0.9"/><rect x="29.7" y="17.55" width="2.8" height="0.9"/><rect x="25.5" y="19.95" width="2.8" height="0.9"/><rect x="29.7" y="19.95" width="2.8" height="0.9"/>
-          </g>
-        </svg>
-      </div>
-      <div class="pitch" aria-hidden="true"><div class="midline"></div><div class="circle"></div></div>
-    </div>
-    <div class="board">
-      <div class="status" id="status">킥오프 대기 (READY)</div>
-      <div class="score">
-        <span class="tm kor">KOR</span>
-        <b id="sk">0</b><span class="cln">:</span><b id="sw">0</b>
-        <span class="tm wld">WLD</span>
-      </div>
-      <div class="clock"><span id="t">00:00<span class="cs">.00</span></span></div>
-      <div class="last" id="last" aria-live="polite"></div>
-    </div>
-    <div class="goalflash" id="gf"><span class="g">GOAL!</span><span class="kr">대한민국</span></div>
-    <div class="row">
-      <button id="b1">킥오프</button>
-      <button id="b2" disabled>⚽ 골!</button>
-      <button id="b3" disabled>리셋</button>
-    </div>
+  <canvas id="cv" aria-label="밤 경기장 중계 화면. 붉은 유니폼 선수들이 공을 주고받으며 공격하고, 관중석에서 파도타기 응원이 돈다. 골 버튼을 누르면 슛이 골망을 흔든다"></canvas>
+  <div class="bug">
+    <span class="st" id="st"><i></i><span id="stT">READY</span></span>
+    <span class="tm kor">KOR</span><b class="sc" id="sk">0</b><span class="dash">-</span><b class="sc" id="sw">0</b><span class="tm wld">WLD</span>
+    <span class="clock" id="t" role="timer">00:00<span class="cs">.00</span></span>
   </div>
+  <div class="tick" id="tick" aria-hidden="true"></div>
+  <div class="row">
+    <button id="b1" type="button">킥오프</button>
+    <button id="b2" type="button" disabled>⚽ 골!</button>
+    <button id="b3" type="button" disabled>리셋</button>
+  </div>
+
+<script>
+var Match=(function(){
+  /* ── 밤 경기장 중계 장면 ──
+     옆 관중석 높은 곳에서 내려다보는 중계 카메라. 경기장은 105×68m, 원근에 따라 멀수록 작게 그린다.
+     붉은 팀(KOR)은 오른쪽 골대를 향해 공을 돌리며 공격하고, 골 버튼을 누르면 가장 앞선 공격수가 슛을 때린다. */
+  var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+  var W=0,H=0,D=1,PX=7,yF=130,yN=300,zN=1,zF=1.9,kF=1/1.9;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var seed=7;function rnd(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646;}
+  function clamp(v,a,b){return v<a?a:v>b?b:v;}
+  var KOR={j:'#D7263D',s:'#151A24',k:'#D7263D'},WLD={j:'#EEF2F7',s:'#22345F',k:'#EEF2F7'},GK1={j:'#2BB673',s:'#151A24',k:'#2BB673'},GK2={j:'#F2C230',s:'#3A3A3A',k:'#F2C230'};
+  function mk(team,role,kit){return {team:team,role:role,kit:kit,x:52,y:34,ph:rnd()*6,mv:0,lean:0,face:team==='K'?1:-1,arms:0};}
+  var K=[mk('K','gk',GK1),mk('K','d1',KOR),mk('K','d2',KOR),mk('K','m1',KOR),mk('K','m2',KOR),mk('K','m3',KOR),mk('K','f1',KOR),mk('K','f2',KOR)];
+  var WD=[mk('W','gk',GK2),mk('W','d1',WLD),mk('W','d2',WLD),mk('W','d3',WLD),mk('W','d4',WLD),mk('W','m1',WLD),mk('W','m2',WLD)];
+  var ALL=K.concat(WD);
+  var ball,simT,passAt,camX,camV,cel,netT,shakeT,fx,conf,flares,sparks,waveX,ledX,pending;
+
+  function P(x,y,h){var t=y/68,z=zF+(zN-zF)*t,k=1/z,u=(k-kF)/(1-kF);return [W/2+(x-camX)*k*PX,yF+(yN-yF)*u-(h||0)*k*PX,k];}
+  function camMin(){return W/2/PX-3;}
+  function camMax(){return 108-W/2/PX;}
+
+  function target(p,i){var bx=ball.x,by=ball.y,sh=by-34,j=Math.sin(simT*.9+i*1.7)*1.4,jy=Math.cos(simT*.7+i*2.3)*1.4;
+    if(p.team==='K')switch(p.role){
+      case 'gk':return [5,34+sh*.2];
+      case 'd1':return [clamp(bx-26,18,62)+j,18+sh*.3+jy];
+      case 'd2':return [clamp(bx-26,18,62)+j,50+sh*.3+jy];
+      case 'm1':return [clamp(bx-9,30,90)+j,12+sh*.25+jy];
+      case 'm2':return [clamp(bx-13,28,86)+j,34+sh*.35+jy];
+      case 'm3':return [clamp(bx-9,30,90)+j,56+sh*.25+jy];
+      case 'f1':return [clamp(bx+11,40,97)+j,25+Math.sin(simT*.6)*5];
+      default:return [clamp(bx+13,40,98)+j,43+Math.cos(simT*.5)*5];}
+    switch(p.role){
+      case 'gk':return [103.2,34+sh*.35];
+      case 'm1':return [clamp(bx+1,52,92)+j,by-10+jy];
+      case 'm2':return [clamp(bx+1,52,92)+j,by+10+jy];
+      default:return [clamp(bx+7,66,97)+j,{d1:14,d2:28,d3:40,d4:54}[p.role]+sh*.4+jy];}}
+  function move(p,tx,ty,dt,v){var dx=tx-p.x,dy=ty-p.y,d=Math.hypot(dx,dy),s=Math.min(d,v*dt);
+    if(d>.01){p.x+=dx/d*s;p.y+=dy/d*s;if(Math.abs(dx)>.08)p.face=dx>0?1:-1;}p.mv=dt>0?s/dt:0;p.ph+=s*2.4;}
+
+  function kickoff(){cel=null;var m=K[4];ball={x:52.5,y:34,h:0,fly:null,owner:m,shot:false,trail:[]};m.x=51.7;m.y=34;passAt=simT+1.1;}
+  function init(){seed=7;simT=0;camX=52.5;camV=0;cel=null;netT=-9;shakeT=-9;fx=null;conf=[];flares=[];sparks=[];waveX=-60;ledX=0;pending=null;
+    ball={x:52.5,y:34,h:0,fly:null,owner:null,shot:false,trail:[]};
+    ALL.forEach(function(p,i){var t=target(p,i);p.x=t[0];p.y=t[1];p.lean=0;p.arms=0;p.dive=null;p.mv=0;});
+    WD.forEach(function(p){if(p.role!=='gk')p.x=Math.max(p.x,56);});
+    K.forEach(function(p){if(p.role!=='gk')p.x=Math.min(p.x,50);});
+    kickoff();}
+
+  function pass(){var o=ball.owner,best=null,bs=-1e9;
+    K.forEach(function(p){if(p===o||p.role==='gk')return;var d=Math.hypot(p.x-o.x,p.y-o.y),sc;
+      sc=o.x>88?-Math.abs(p.x-(o.x-22))-Math.abs(p.y-o.y)*.3:(p.x-o.x)*.8-Math.abs(p.y-o.y)*.25+rnd()*8;
+      if(d<6||d>34)sc-=30;if(sc>bs){bs=sc;best=p;}});
+    var tx=best.x+best.face*1.5,ty=best.y,d=Math.hypot(tx-ball.x,ty-ball.y);
+    ball.fly={x0:ball.x,y0:ball.y,x1:tx,y1:ty,t0:simT,dur:clamp(d/19,.35,1.3),h:d>16?d*.11:.25,to:best};ball.owner=null;o.kick=simT;}
+  /* 골: 가장 앞선 공격수가 골문 안쪽으로 낮게 또는 높게 때린다 */
+  function shoot(){var s=null;K.forEach(function(p){if(p.role!=='gk'&&(!s||p.x>s.x))s=p;});
+    if(ball.fly||Math.hypot(s.x-ball.x,s.y-ball.y)>4){ball.x=s.x+.7;ball.y=s.y;ball.h=0;}
+    var ty=31+rnd()*6,d=Math.hypot(105.3-ball.x,ty-ball.y);
+    ball.fly={x0:ball.x,y0:ball.y,x1:106.4,y1:ty,t0:simT,dur:clamp(d/48,.26,.7),h:.3+rnd()*1.7,shot:true,shooter:s};
+    ball.owner=null;ball.shot=true;s.kick=simT;WD[0].dive={y:ty,t:simT};
+    if(!reduce)for(var i=0;i<14;i++)sparks.push({x:ball.x,y:ball.y,h:0,vx:(rnd()-.3)*6,vy:(rnd()-.5)*6,vh:2+rnd()*4,life:.6,c:rnd()<.5?'#3E9B57':'#2C7A43'});}
+  function goalHit(){var s=ball.fly.shooter;netT=simT;shakeT=simT;ball.fly=null;ball.x=106.3;
+    cel={t:simT,scorer:s};fx={t:simT,split:pending?pending.split:'',n:pending?pending.n:0};pending=null;burst();}
+  function burst(){if(reduce)return;
+    for(var i=0;i<130;i++)conf.push({x:rnd()*W,y:-rnd()*H*.5,vx:(rnd()-.5)*50,vy:50+rnd()*70,r:rnd()*6,vr:(rnd()-.5)*10,s:2.5+rnd()*2.5,
+      c:['#D7263D','#FFFFFF','#0047A0','#F2C230','#D7263D'][Math.floor(rnd()*5)],ph:rnd()*6});
+    for(var j=0;j<6;j++)flares.push({x:rnd()*W,y:20+rnd()*(yF-46),t:simT,life:2.6+rnd()});}
+
+  function update(dt){simT+=dt;var i;
+    if(ball.fly){var f=ball.fly,u=Math.min(1,(simT-f.t0)/f.dur);
+      ball.x=f.x0+(f.x1-f.x0)*u;ball.y=f.y0+(f.y1-f.y0)*u;ball.h=f.shot?.2+f.h*u:4*f.h*u*(1-u);
+      ball.trail.push([ball.x,ball.y,ball.h]);if(ball.trail.length>(f.shot?9:4))ball.trail.shift();
+      if(u>=1){if(f.shot)goalHit();else{ball.owner=f.to;ball.fly=null;passAt=simT+.8+rnd()*1.1;ball.trail=[];}}}
+    else if(ball.owner&&!cel){var o=ball.owner;ball.x=o.x+o.face*.7;ball.y=o.y;ball.h=Math.abs(Math.sin(simT*9))*.12;
+      if(simT>passAt)pass();}
+    else if(!ball.owner&&!cel)ball.h=Math.max(0,ball.h-dt*3);
+    if(cel&&simT-cel.t<.4)ball.h=Math.max(0,ball.h-dt*4);
+    /* 선수 이동 */
+    var near=null,nd=1e9;WD.forEach(function(p){if(p.role==='gk')return;var d=Math.hypot(p.x-ball.x,p.y-ball.y);if(d<nd){nd=d;near=p;}});
+    ALL.forEach(function(p,i){var t=target(p,i),v=p.team==='K'?7.4:6.8;p.arms=0;
+      if(cel){var ct=simT-cel.t;
+        if(p===cel.scorer){t=[100.5,66.8];v=8.5;p.arms=1;}
+        else if(p.team==='K'&&p.role!=='gk'){t=[cel.scorer.x-1.5-(i%3)*1.1,cel.scorer.y-1.2-(i%4)*1.2];v=8;p.arms=ct>.6?1:0;}
+        else if(p.team==='W'){v=2.2;}}
+      else if(p===ball.owner){t=[p.x+4,34+(p.y-34)*.9+Math.sin(simT*1.1)*3];v=6.2;}
+      else if(ball.fly&&!ball.fly.shot&&p===ball.fly.to){t=[ball.fly.x1,ball.fly.y1];v=8;}
+      else if(p===near&&!ball.shot){t=[ball.x+1.6,ball.y];v=7.2;}
+      if(p.dive){var a=simT-p.dive.t;if(a<1.6){t=[103.4,p.dive.y];v=14;p.lean=clamp(a*6,0,1.25)*(p.dive.y>p.y?1:-1);}else{p.dive=null;}}
+      else p.lean*=Math.max(0,1-dt*3);
+      move(p,t[0],t[1],dt,v);});
+    if(cel&&simT-cel.t>2.9){ball.shot=false;kickoff();}
+    /* 카메라: 평소엔 공을 따라가고, 슛 순간엔 골대로 빠르게 돈다 */
+    var ct=cel?clamp(cel.scorer.x-4,0,200):(ball.fly&&ball.fly.shot?99:ball.x+5),rate=(ball.fly&&ball.fly.shot)?12:3.2,prev=camX;
+    camX+=(clamp(ct,camMin(),camMax())-camX)*(1-Math.exp(-dt*rate));camV=(camX-prev)/Math.max(dt,1e-3);
+    waveX+=dt*(cel?220:95);if(waveX>W+80)waveX=-80;ledX+=dt*(cel?90:34);
+    for(i=conf.length-1;i>=0;i--){var c=conf[i];c.ph+=dt*4;c.x+=(c.vx+Math.sin(c.ph)*24)*dt;c.y+=c.vy*dt;c.r+=c.vr*dt;if(c.y>H+10)conf.splice(i,1);}
+    for(i=sparks.length-1;i>=0;i--){var s=sparks[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.vh-=12*dt;s.h=Math.max(0,s.h+s.vh*dt);s.life-=dt;if(s.life<=0)sparks.splice(i,1);}
+    for(i=flares.length-1;i>=0;i--)if(simT-flares[i].t>flares[i].life)flares.splice(i,1);
+  }
+
+  /* ── 그리기 ── */
+  function hash(a,b){var h=(a*73856093)^(b*19349663);h=(h^(h>>>13))*1274126177;return ((h^(h>>>16))>>>0)%1000/1000;}
+  var CROWD=['#D7263D','#D7263D','#C21F33','#E8394E','#D7263D','#B81C2E','#EEF2F7','#1E4FB0','#D7263D','#2A2F3A'];
+  function stands(live){
+    var g=ctx.createLinearGradient(0,0,0,yF);g.addColorStop(0,'#05070f');g.addColorStop(1,'#141c33');ctx.fillStyle=g;ctx.fillRect(0,0,W,yF);
+    var off=camX*PX*.35,rows=Math.floor((yF-18)/7),ct=cel?simT-cel.t:9;
+    for(var r=0;r<rows;r++){var y=10+r*7;if(r%4===3){ctx.fillStyle='rgba(255,255,255,.04)';ctx.fillRect(0,y+3,W,2);continue;}
+      var c0=Math.floor(off/6)-1,c1=c0+Math.ceil(W/6)+3,dark=.55+.45*(r/rows);
+      for(var c=c0;c<c1;c++){var sx=c*6-off+(r%2)*3,hv=hash(r,c),col=CROWD[Math.floor(hv*CROWD.length)];
+        var lift=0,arms=false;
+        if(live&&!reduce){var wv=Math.exp(-Math.pow(sx-waveX,2)/(2*16*16));lift=wv*4.5;arms=wv>.45;
+          if(ct<3.2){lift=Math.abs(Math.sin(simT*11+hv*20))*5*(1-ct/3.2);arms=true;}
+          else lift+=Math.sin(simT*3+hv*30)*.5;}
+        ctx.globalAlpha=dark;ctx.fillStyle=col;ctx.fillRect(sx-1.7,y-lift,3.4,3.6);
+        ctx.fillStyle='#C99A7A';ctx.fillRect(sx-1.1,y-2.4-lift,2.2,2.2);
+        if(arms){ctx.fillStyle=col;ctx.fillRect(sx-2.2,y-4.6-lift,1,2.6);ctx.fillRect(sx+1.2,y-4.6-lift,1,2.6);}}}
+    ctx.globalAlpha=1;
+    /* 홍염과 카메라 플래시 */
+    if(flares.length||ct<2.5){ctx.save();ctx.globalCompositeOperation='lighter';
+      flares.forEach(function(f){var a=(simT-f.t)/f.life,fl=(1-a)*(.75+.25*Math.sin(simT*40+f.x)),rg=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,26);
+        rg.addColorStop(0,'rgba(255,90,60,'+fl+')');rg.addColorStop(1,'rgba(255,40,20,0)');ctx.fillStyle=rg;ctx.fillRect(f.x-26,f.y-26,52,52);});
+      if(ct<2.5&&!reduce)for(var k=0;k<5;k++){var fx2=rnd()*W,fy=8+rnd()*(yF-30);ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(fx2-1,fy-1,2.5,2.5);}
+      ctx.restore();}
+  }
+  function led(){var y=yF-13,h=10;ctx.fillStyle='#03050b';ctx.fillRect(0,y,W,h);
+    var goal=cel&&simT-cel.t<2.9,txt=goal?'GOAL  ★  GOAL  ★  ':'KOREA  ★  FIGHTING  ★  ',flash=goal&&Math.floor(simT*8)%2;
+    ctx.font='900 8px Pretendard,sans-serif';ctx.textBaseline='middle';var tw=ctx.measureText(txt).width,o=-((ledX*6+camX*PX*.9)%tw);
+    for(var x=o-tw;x<W+tw;x+=tw){ctx.fillStyle=goal?(flash?'#FFD24A':'#FF3B52'):'#FF4B5E';ctx.fillText(txt,x,y+h/2+.5);}
+    ctx.fillStyle='rgba(255,255,255,.12)';ctx.fillRect(0,y,W,1);}
+  function quad(a,b,c,d){ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.lineTo(c[0],c[1]);ctx.lineTo(d[0],d[1]);ctx.closePath();}
+  function line(pts){ctx.beginPath();pts.forEach(function(p,i){var s=P(p[0],p[1],0);if(i)ctx.lineTo(s[0],s[1]);else ctx.moveTo(s[0],s[1]);});ctx.stroke();}
+  function pitch(){
+    quad(P(-12,-3),P(117,-3),P(117,74),P(-12,74));ctx.fillStyle='#14532c';ctx.fill();
+    for(var i=0;i<14;i++){var x0=i*7.5,x1=x0+7.5;quad(P(x0,0),P(x1,0),P(x1,68),P(x0,68));ctx.fillStyle=i%2?'#2A8A45':'#257E3F';ctx.fill();}
+    ctx.strokeStyle='rgba(255,255,255,.82)';ctx.lineWidth=1.3;
+    line([[0,0],[105,0],[105,68],[0,68],[0,0]]);line([[52.5,0],[52.5,68]]);
+    var cc=[];for(var a=0;a<=40;a++){var t=a/40*Math.PI*2;cc.push([52.5+Math.cos(t)*9.15,34+Math.sin(t)*9.15]);}line(cc);
+    [[0,1],[105,-1]].forEach(function(g){var x=g[0],d=g[1];line([[x,13.84],[x+16.5*d,13.84],[x+16.5*d,54.16],[x,54.16]]);line([[x,24.84],[x+5.5*d,24.84],[x+5.5*d,43.16],[x,43.16]]);
+      var ps=P(x+11*d,34);ctx.fillStyle='#fff';ctx.fillRect(ps[0]-1,ps[1]-1,2,2);});
+    var cs=P(52.5,34);ctx.fillStyle='#fff';ctx.fillRect(cs[0]-1.2,cs[1]-1,2.4,2);
+  }
+  /* 골대: 옆에서 본 골문과 골망. 골이 들어가면 그물이 뒤로 부푼다 */
+  function goalFrame(x,d){var nb=(d>0&&!reduce)?Math.max(0,1-(simT-netT)/.7)*Math.sin(Math.min(1,(simT-netT)/.7)*Math.PI*3+.5):0,bk=x+d*(2.2+Math.max(0,nb)*1.3);
+    var y0=30.34,y1=37.66,hh=2.44,a=P(x,y0,hh),b=P(x,y1,hh),a0=P(x,y0,0),b0=P(x,y1,0),c=P(bk,y0,0),e=P(bk,y1,0),ct=P(x+d*.9+(bk-x-d*2.2)*.6,y0,hh-.3),et=P(x+d*.9+(bk-x-d*2.2)*.6,y1,hh-.3);
+    ctx.strokeStyle='rgba(255,255,255,.28)';ctx.lineWidth=.6;ctx.beginPath();
+    for(var i=0;i<=6;i++){var u=i/6,yy=y0+(y1-y0)*u,p1=P(x,yy,hh),p2=P(x+d*.9+(bk-x-d*2.2)*.6,yy,hh-.3),p3=P(bk,yy,0);ctx.moveTo(p1[0],p1[1]);ctx.lineTo(p2[0],p2[1]);ctx.lineTo(p3[0],p3[1]);}
+    for(var j=1;j<=4;j++){var v=j/5;ctx.moveTo(a[0]+(c[0]-a[0])*v,a[1]+(c[1]-a[1])*v);ctx.lineTo(b[0]+(e[0]-b[0])*v,b[1]+(e[1]-b[1])*v);}
+    ctx.moveTo(c[0],c[1]);ctx.lineTo(e[0],e[1]);ctx.stroke();
+    ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a0[0],a0[1]);ctx.lineTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.lineTo(b0[0],b0[1]);ctx.stroke();
+    ctx.lineWidth=1;ctx.strokeStyle='rgba(255,255,255,.6)';ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(ct[0],ct[1]);ctx.lineTo(c[0],c[1]);ctx.moveTo(b[0],b[1]);ctx.lineTo(et[0],et[1]);ctx.lineTo(e[0],e[1]);ctx.stroke();}
+  function figure(p){var s=P(p.x,p.y,0),k=s[2],hp=2.75*k*PX,x=s[0],y=s[1],run=p.mv>.4&&!reduce,sw=run?Math.sin(p.ph)*hp*.2:0,kit=p.kit;
+    ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(x,y,hp*.3,hp*.09,0,0,Math.PI*2);ctx.fill();
+    ctx.save();ctx.translate(x,y);if(p.lean)ctx.rotate(p.lean*(p.face>0?1:-1)*-1);
+    var hip=-hp*.44,lw=Math.max(1.2,hp*.12);ctx.lineCap='round';ctx.lineWidth=lw;ctx.strokeStyle=kit.k;
+    ctx.beginPath();ctx.moveTo(-hp*.05,hip);ctx.lineTo(sw,0);ctx.moveTo(hp*.05,hip);ctx.lineTo(-sw,0);ctx.stroke();
+    ctx.fillStyle=kit.s;ctx.fillRect(-hp*.15,hip-hp*.12,hp*.3,hp*.14);
+    ctx.fillStyle=kit.j;ctx.fillRect(-hp*.16,-hp*.84,hp*.32,hp*.44);
+    ctx.strokeStyle=kit.j;ctx.lineWidth=Math.max(1,hp*.09);ctx.beginPath();
+    if(p.arms){ctx.moveTo(-hp*.14,-hp*.78);ctx.lineTo(-hp*.3,-hp*1.12);ctx.moveTo(hp*.14,-hp*.78);ctx.lineTo(hp*.3,-hp*1.12);}
+    else{ctx.moveTo(-hp*.15,-hp*.78);ctx.lineTo(-hp*.2-sw*.5,-hp*.5);ctx.moveTo(hp*.15,-hp*.78);ctx.lineTo(hp*.2+sw*.5,-hp*.5);}ctx.stroke();
+    ctx.fillStyle='#E0B08C';ctx.beginPath();ctx.arc(0,-hp*.95,hp*.12,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1B1B1F';ctx.beginPath();ctx.arc(0,-hp*.99,hp*.12,Math.PI,0);ctx.fill();
+    ctx.restore();}
+  function drawBall(){var s=P(ball.x,ball.y,0),b=P(ball.x,ball.y,ball.h),r=Math.max(2,.38*s[2]*PX);
+    if(ball.trail.length>1&&!reduce){ctx.strokeStyle=ball.shot?'rgba(255,220,120,.75)':'rgba(255,255,255,.35)';ctx.lineWidth=ball.shot?r*1.4:1;ctx.lineCap='round';ctx.beginPath();
+      ball.trail.forEach(function(t,i){var q=P(t[0],t[1],t[2]);if(i)ctx.lineTo(q[0],q[1]);else ctx.moveTo(q[0],q[1]);});ctx.lineTo(b[0],b[1]);ctx.stroke();}
+    ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(s[0],s[1],r,r*.35,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(b[0],b[1]-r*.8,r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#222';ctx.beginPath();ctx.arc(b[0]+r*.2,b[1]-r*.9,r*.35,0,Math.PI*2);ctx.fill();}
+  function beams(live){var goal=cel&&simT-cel.t<1.8&&!reduce;ctx.save();ctx.globalCompositeOperation='lighter';
+    [[-10,-10,1],[W+10,-10,-1]].forEach(function(L,i){var sway=live&&!reduce?Math.sin(simT*.5+i*2)*.08:0,ang=Math.PI/2-L[2]*(.55+sway),len=H*1.3,
+      tx=L[0]+Math.cos(ang)*len,ty=L[1]+Math.sin(ang)*len,col=goal?(Math.floor(simT*10+i)%2?'255,70,90':'255,255,255'):'190,210,255',al=goal?.16:.07;
+      var g=ctx.createLinearGradient(L[0],L[1],tx,ty);g.addColorStop(0,'rgba('+col+','+(al*2)+')');g.addColorStop(1,'rgba('+col+',0)');ctx.fillStyle=g;
+      var nx=-Math.sin(ang)*90,ny=Math.cos(ang)*90;ctx.beginPath();ctx.moveTo(L[0],L[1]);ctx.lineTo(tx+nx,ty+ny);ctx.lineTo(tx-nx,ty-ny);ctx.closePath();ctx.fill();});
+    ctx.restore();}
+  function overlay(){if(!fx)return;var a=simT-fx.t;if(a>2.2){fx=null;return;}
+    var cx=W/2,cy=H*.47,sc=a<.16?2.6-1.6*(a/.16):1,al=a>1.75?Math.max(0,(2.2-a)/.45):1;
+    ctx.save();ctx.globalAlpha=al;
+    if(!reduce){ctx.strokeStyle='rgba(255,255,255,.22)';ctx.lineWidth=1.5;ctx.beginPath();for(var i=0;i<30;i++){var t=i/30*Math.PI*2+a*.6,r0=46+((i*37)%30),r1=W;
+      ctx.moveTo(cx+Math.cos(t)*r0,cy+Math.sin(t)*r0*.6);ctx.lineTo(cx+Math.cos(t)*r1,cy+Math.sin(t)*r1*.6);}ctx.stroke();}
+    ctx.translate(cx,cy);ctx.scale(sc,sc);ctx.transform(1,0,-.18,1,0,0);
+    ctx.font='900 58px Pretendard,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.lineJoin='round';ctx.lineWidth=8;ctx.strokeStyle='#8B0F1E';ctx.strokeText('GOAL!',0,0);
+    ctx.shadowColor='#FF3B52';ctx.shadowBlur=18;ctx.fillStyle='#FFFFFF';ctx.fillText('GOAL!',0,0);ctx.shadowBlur=0;
+    ctx.fillStyle='#FFD24A';ctx.font='900 13px Pretendard,sans-serif';ctx.fillText('대한민국'+(fx.n?'  ·  '+fx.n+'호 골':''),0,40);
+    if(fx.split){ctx.font='900 15px Pretendard,sans-serif';ctx.fillStyle='#5FD38A';ctx.fillText('+'+fx.split,0,60);}
+    ctx.restore();}
+
+  function render(live){
+    ctx.setTransform(D,0,0,D,0,0);ctx.clearRect(0,0,W,H);
+    var sh=(!reduce&&simT-shakeT<.5)?(1-(simT-shakeT)/.5)*6:0;
+    ctx.save();if(sh)ctx.translate((rnd()-.5)*sh*2,(rnd()-.5)*sh*2);
+    stands(live);led();pitch();
+    var list=ALL.slice().sort(function(a,b){return a.y-b.y;}),bd=false;
+    goalFrame(0,-1);
+    list.forEach(function(p){if(!bd&&ball.y<p.y){drawBall();bd=true;}figure(p);});if(!bd)drawBall();
+    sparks.forEach(function(s){var q=P(s.x,s.y,s.h);ctx.fillStyle=s.c;ctx.fillRect(q[0]-1,q[1]-1,2,2);});
+    goalFrame(105,1);
+    beams(live);
+    /* 슛 때 카메라가 빠르게 돌면 가로 잔상이 남는다 */
+    if(!reduce&&Math.abs(camV)>14){ctx.strokeStyle='rgba(255,255,255,'+Math.min(.25,(Math.abs(camV)-14)/120)+')';ctx.lineWidth=1;ctx.beginPath();
+      for(var i=0;i<14;i++){var yy=yF+((i*53)%Math.max(1,(yN-yF))),xx=(i*97)%W;ctx.moveTo(xx,yy);ctx.lineTo(xx-camV*1.6,yy);}ctx.stroke();}
+    conf.forEach(function(c){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(c.r);ctx.fillStyle=c.c;ctx.fillRect(-c.s/2,-c.s/4,c.s,c.s/2*(.4+Math.abs(Math.sin(c.ph))));ctx.restore();});
+    ctx.restore();
+    var vg=ctx.createRadialGradient(W/2,H*.55,H*.3,W/2,H*.55,H*.85);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.45)');ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+    overlay();
+  }
+  function resize(){D=Math.min(2,window.devicePixelRatio||1);W=cv.clientWidth;H=cv.clientHeight;cv.width=Math.round(W*D);cv.height=Math.round(H*D);
+    PX=W/50;yF=Math.round(H*.37);yN=H-56;}
+  window.addEventListener('resize',resize);resize();init();
+  return {
+    tick:function(dt,live){if(live)update(Math.min(dt,.05));render(live);},
+    goal:function(split,n){if(cel&&simT-cel.t<2.9){fx={t:simT,split:split,n:n};shakeT=simT;burst();return;}
+      pending={split:split,n:n};if(!(ball.fly&&ball.fly.shot))shoot();},
+    reset:init};
+})();
+</script>
 <script>
 (function(){
   var t=document.getElementById('t'),b1=document.getElementById('b1'),b2=document.getElementById('b2'),b3=document.getElementById('b3'),
-      status=document.getElementById('status'),field=document.getElementById('field'),crowd=document.getElementById('crowd'),
-      gf=document.getElementById('gf'),sk=document.getElementById('sk'),last=document.getElementById('last');
-  // 관중석 — 붉은 악마 물결(좌→우로 번지도록 x에 따라 딜레이)
-  var seed=11;function rnd(){seed=(seed*9301+49297)%233280;return seed/233280;}
-  for(var i=0;i<56;i++){
-    var d=document.createElement('i'),x=rnd()*100,y=94+rnd()*138,r=rnd();
-    d.style.left=x.toFixed(1)+'%';d.style.top=y.toFixed(0)+'px';
-    if(r>0.86){d.style.background='#eef2f8';}        // 흰 옷
-    else if(r>0.78){d.style.background='#2a6bd4';}   // 파란 옷
-    d.style.opacity=(0.55+rnd()*0.4).toFixed(2);
-    if(rnd()>0.8){d.style.width=d.style.height='6px';}
-    d.style.animationDelay=(x/100*1.1).toFixed(2)+'s';
-    crowd.appendChild(d);
-  }
-  var run=false,st=0,acc=0,iv=null,score=0;
-  function el(){return acc+(run?performance.now()-st:0);}
-  function parts(ms){if(ms<0)ms=0;var c=Math.floor(ms/10),cc=c%100,s=Math.floor(c/100),ss=s%60,mm=Math.floor(s/60);return[mm,ss,cc];}
+      sk=document.getElementById('sk'),stT=document.getElementById('stT'),tick=document.getElementById('tick'),body=document.body;
+  var run=false,stt=0,acc=0,goals=[],last=0,lastFrame=0;
+  function el(){return acc+(run?performance.now()-stt:0);}
   function pad(n){return String(n).padStart(2,'0');}
-  function f(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1])+'<span class="cs">.'+pad(p[2])+'</span>';}
-  function fp(ms){var p=parts(ms);return pad(p[0])+':'+pad(p[1]);}
-  function draw(){t.innerHTML=f(el());}
-  function goal(){ // 골! — 한국 득점, 전광판 +1 + 함성 연출
-    if(!run)return;
-    score++;sk.textContent=score;last.textContent='직전 골 '+fp(el());
-    gf.classList.remove('show');void gf.offsetWidth;gf.classList.add('show');
-    sk.classList.remove('pop');void sk.offsetWidth;sk.classList.add('pop');
-    field.classList.add('goal');setTimeout(function(){field.classList.remove('goal');},700);
-  }
+  function plain(ms){if(ms<0)ms=0;var cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60);return pad(mm)+':'+pad(ss)+'.'+pad(cs);}
+  function frame(now){var dt=lastFrame?(now-lastFrame)/1000:0;lastFrame=now;
+    var ms=el(),cs=Math.floor(ms/10)%100,s=Math.floor(ms/1000),ss=s%60,mm=Math.floor(s/60),hh=Math.floor(mm/60);
+    t.innerHTML=(hh?pad(hh)+':'+pad(mm%60):pad(mm))+':'+pad(ss)+'<span class="cs">.'+pad(cs)+'</span>';
+    Match.tick(dt,run);requestAnimationFrame(frame);}
+  function drawTick(fresh){
+    if(!goals.length){tick.innerHTML='<b>⚽ 0</b><span>--:--.--</span><em>+--:--.--</em>';tick.classList.remove('new');return;}
+    var g=goals[goals.length-1],best=goals.length>1?Math.min.apply(null,goals.map(function(x){return x.d;})):-1,
+        prev=goals.length>1?goals[goals.length-2]:null;
+    tick.innerHTML='<b>⚽ '+goals.length+(g.d===best?' ★':'')+'</b><span>'+plain(g.t)+'</span><em>+'+plain(g.d)+'</em>'+
+      (prev?'<span class="prev">직전 '+plain(prev.t)+'</span>':'');
+    if(fresh){tick.classList.remove('new');void tick.offsetWidth;tick.classList.add('new');}}
 
   /* ── 접근성 공통 ──
      정지·초기화 결과를 스크린리더에 한 번씩 알린다. 시간 표시 자체는
@@ -184,12 +326,11 @@
   }
   var srWasRun=false, srLast=0;
   function ui(){
-    b1.textContent=run?'정지':(el()>0?'후반전':'킥오프');b1.classList.toggle('run',run);
-    b2.disabled=!run;b3.disabled=run||el()===0;
-    if(run){status.textContent='경기 중 (LIVE)';status.className='status live';}
-    else if(el()>0){status.textContent='하프타임 (HALF TIME)';status.className='status half';}
-    else{status.textContent='킥오프 대기 (READY)';status.className='status';}
-  
+    body.classList.toggle('run',run);body.classList.toggle('half',!run&&el()>0);
+    stT.textContent=run?'LIVE':(el()>0?'HT':'READY');
+    b1.textContent=run?'정지':(el()>0?'후반전':'킥오프');
+    b2.disabled=!run; b3.disabled=run||el()===0;
+
     /* 정지와 초기화를 알리고, 방금 누른 버튼이 잠기면 포커스를 되돌린다 */
     var srE=el();
     if(srWasRun&&!run) srSay('정지. 경과 시간 '+srHuman(srE));
@@ -197,22 +338,25 @@
     srWasRun=run; srLast=srE;
     if(document.activeElement&&document.activeElement.disabled) b1.focus();
   }
-  function start(){run=true;st=performance.now();if(!iv)iv=setInterval(draw,31);field.classList.add('live');draw();ui();}
-  function stop(){if(!run)return;acc=el();run=false;clearInterval(iv);iv=null;field.classList.remove('live');draw();ui();}
-  function reset(){if(run)return; run=false;clearInterval(iv);iv=null;acc=0;st=0;score=0;sk.textContent='0';last.textContent='';
-    field.classList.remove('live','goal');draw();ui();}
-  b1.onclick=function(){run?stop():start();};b2.onclick=goal;b3.onclick=reset;
-  window.addEventListener('pagehide',function(){clearInterval(iv);iv=null;});
-  window.addEventListener('pageshow',function(){if(run&&!iv)iv=setInterval(draw,31);});
+  function start(){if(run)return;run=true;stt=performance.now();ui();}
+  function stop(){if(!run)return;acc=el();run=false;ui();}
+  function reset(){if(run)return;acc=0;stt=0;goals=[];last=0;sk.textContent='0';Match.reset();drawTick(false);ui();}
+  /* 골(랩): 점수와 기록을 바로 올리고, 화면에서는 슛이 골망을 흔든다 */
+  function goal(){if(!run)return;var e=el(),d=e-last;last=e;goals.push({t:e,d:d});
+    sk.textContent=goals.length;sk.classList.remove('pop');void sk.offsetWidth;sk.classList.add('pop');
+    drawTick(true);Match.goal(plain(d),goals.length);
+    srSay('골 '+goals.length+'. 구간 '+srHuman(d));}
+  b1.addEventListener('click',function(){run?stop():start();});
+  b2.addEventListener('click',goal);
+  b3.addEventListener('click',reset);
   document.addEventListener('keydown',function(e){
     if(e.metaKey||e.ctrlKey||e.altKey||e.repeat)return;
-    if(e.target&&e.target.tagName==='BUTTON'&&(e.key===' '||e.code==='Space'))return;
+    if(e.target&&e.target.tagName==='BUTTON'&&e.key===' ')return;
     if(e.key===' '){e.preventDefault();run?stop():start();}
     else if(e.key==='l'||e.key==='L'){goal();}
     else if(e.key==='r'||e.key==='R'){reset();}
   });
-  document.addEventListener('visibilitychange',function(){if(!document.hidden&&run)draw();});
-  draw();ui();
+  drawTick(false);ui();requestAnimationFrame(frame);
 })();
 </script>
 </body>
