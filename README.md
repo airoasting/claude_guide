@@ -130,10 +130,10 @@
 |--------|------|
 | [EDA 차트 갤러리 30](https://airoasting.com/eda-gallery.html) | 본격적인 분석에 앞서 분포와 이상치를 확인하는 차트 30가지 |
 | [전략 프레임워크 70](https://strategy.airoasting.com/) | SWOT, BCG 매트릭스, 5 Forces처럼 이름만 알면 바로 그려지는 전략 프레임워크 70가지(외부 사이트) |
+| [SVG 아이콘 300](https://airoasting.com/icon-gallery.html) | 버튼·카드에 바로 붙여 쓰는 라인 아이콘 300개, 누르면 SVG 코드 복사 |
 | [UI 디자인 트렌드 40](https://airoasting.com/ui-design.html) | 같은 스탑워치를 마흔 가지 스타일로 만들어 시대순으로 비교 |
 | [모션 디자인 30](https://airoasting.com/motion-design.html) | 코드만으로 그리는 20초 영상 스타일 30가지와 배경 음악 8가지, 조건을 고르면 완성되는 프롬프트 만들기 |
 | [UI 컴포넌트 갤러리 50](https://airoasting.com/component-gallery.html) | 이름만 지정하면 바로 만들어지는 UI 부품 50개 |
-| [SVG 아이콘 300](https://airoasting.com/icon-gallery.html) | 버튼·카드에 바로 붙여 쓰는 라인 아이콘 300개, 누르면 SVG 코드 복사 |
 
 ---
 
