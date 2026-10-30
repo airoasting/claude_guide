@@ -398,6 +398,16 @@
         }
         .chart-usage strong { color: #3A3530; }
 
+        /* "이럴 때" 상자 윗선을 같은 줄 카드끼리 맞춘다: 카드가 행 높이를 공유한다(subgrid) */
+        .chart-body { display: flex; flex-direction: column; }
+        .chart-usage { margin-top: auto; }
+        .chart-desc { margin-bottom: 10px; }
+        @supports (grid-template-rows: subgrid) {
+            .chart-card { display: grid; grid-row: span 4; grid-template-rows: subgrid; row-gap: 0; }
+            .chart-body { grid-row: span 3; display: grid; grid-template-rows: subgrid; row-gap: 0; }
+            .chart-usage { margin-top: 0; align-self: start; }
+        }
+
         /* ── CTA Card ── */
         .cta-card {
             background: linear-gradient(150deg, #B35535 0%, #A04828 35%, #7A2E15 100%);
@@ -476,16 +486,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Chart preview SVG: gentle entrance on card reveal */
-        .chart-card .chart-preview svg {
-            opacity: 0;
-            transform: scale(0.94);
-            transition: opacity 0.7s ease 0.15s, transform 0.7s cubic-bezier(.22,.61,.36,1) 0.15s;
-        }
-        .chart-card.is-visible .chart-preview svg {
-            opacity: 1;
-            transform: scale(1);
-        }
+        /* Chart preview SVG: 카드가 보이면 축 → 막대·점 → 선 → 글자 순서로 그린다(스크립트 CHART-DRAW) */
+        .chart-card .chart-preview svg { opacity: 0; transition: opacity 0.3s ease; }
+        .chart-card.is-visible .chart-preview svg { opacity: 1; }
 
         /* Card hover: lift a touch more, preview lifts too */
         .chart-card { transition: transform 0.3s cubic-bezier(.22,.61,.36,1), box-shadow 0.3s ease; }
@@ -2735,6 +2738,100 @@
             });
         }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
         targets.forEach(function(el) { io.observe(el); });
+    })();
+
+    // CHART-DRAW: 차트 미리보기 SVG를 요소별로 그린다
+    (function() {
+        if (!('IntersectionObserver' in window) || !Element.prototype.animate) return;
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var EASE = 'cubic-bezier(.22,.61,.36,1)';
+        var AXIS = /^(#7a756e|#8a8178|#999|#aaa|#ccc|#bbb)$/i;
+
+        function hasTransform(el) {
+            for (var n = el; n && n.tagName && n.tagName.toLowerCase() !== 'svg'; n = n.parentNode) {
+                if (n.hasAttribute && n.hasAttribute('transform')) return true;
+            }
+            return false;
+        }
+        function noFill(el) {
+            var f = el.getAttribute('fill');
+            return f === 'none' || (!f && /^(line|polyline)$/.test(el.tagName.toLowerCase()));
+        }
+
+        function draw(svg, base) {
+            var els = [].slice.call(svg.querySelectorAll('line,polyline,path,rect,circle,ellipse,polygon,text'));
+            var shapes = [], strokes = [], axes = [], texts = [];
+            els.forEach(function(el) {
+                var tag = el.tagName.toLowerCase();
+                if (tag === 'text') { texts.push(el); return; }
+                var dashed = el.hasAttribute('stroke-dasharray');
+                if (noFill(el) && !dashed && el.getTotalLength) {
+                    (AXIS.test(el.getAttribute('stroke') || '') && tag === 'line' ? axes : strokes).push(el);
+                } else {
+                    shapes.push(el);
+                }
+            });
+
+            axes.forEach(function(el) { stroke(el, base, 320); });
+
+            // 막대와 점은 왼쪽부터 차례로
+            var n = shapes.length, span = Math.min(700, n * 45);
+            var boxes = shapes.map(function(el) { try { return el.getBBox(); } catch (e) { return { x: 0, y: 0, width: 0, height: 0 }; } });
+            var order = shapes.map(function(el, i) { return i; }).sort(function(a, b) { return boxes[a].x - boxes[b].x || boxes[a].y - boxes[b].y; });
+            order.forEach(function(idx, k) {
+                var el = shapes[idx], b = boxes[idx], tag = el.tagName.toLowerCase();
+                var delay = base + 200 + (n > 1 ? k * span / (n - 1) : 0);
+                if (hasTransform(el) || el.hasAttribute('stroke-dasharray')) {
+                    el.animate([{ opacity: 0 }, { opacity: getComputedStyle(el).opacity }], { duration: 500, delay: delay, easing: EASE, fill: 'backwards' });
+                    return;
+                }
+                el.style.transformBox = 'fill-box';
+                var kf;
+                if (tag === 'rect' && b.height >= b.width * 1.4) {
+                    el.style.transformOrigin = '50% 100%';
+                    kf = [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }];
+                } else if (tag === 'rect' && b.width >= b.height * 1.4) {
+                    el.style.transformOrigin = '0% 50%';
+                    kf = [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }];
+                } else if (tag === 'path' || tag === 'polygon') {
+                    el.style.transformOrigin = '50% 100%';
+                    kf = [{ transform: 'scaleY(0.2)', opacity: 0 }, { transform: 'scaleY(1)', opacity: getComputedStyle(el).opacity }];
+                } else {
+                    el.style.transformOrigin = '50% 50%';
+                    kf = [{ transform: 'scale(0)', opacity: 0 }, { transform: 'scale(1)', opacity: getComputedStyle(el).opacity }];
+                }
+                el.animate(kf, { duration: tag === 'rect' ? 560 : 420, delay: delay, easing: EASE, fill: 'backwards' });
+            });
+
+            var lineStart = base + 200 + span * 0.6;
+            strokes.forEach(function(el, i) { stroke(el, lineStart + i * 60, 800); });
+
+            var textStart = lineStart + 500;
+            texts.forEach(function(el, i) {
+                el.animate([{ opacity: 0 }, { opacity: getComputedStyle(el).opacity }], { duration: 400, delay: textStart + i * 30, easing: EASE, fill: 'backwards' });
+            });
+        }
+
+        function stroke(el, delay, dur) {
+            var len;
+            try { len = el.getTotalLength(); } catch (e) { return; }
+            if (!len || !isFinite(len)) return;
+            el.animate([{ strokeDasharray: len + ' ' + len, strokeDashoffset: len }, { strokeDasharray: len + ' ' + len, strokeDashoffset: 0 }],
+                { duration: dur, delay: delay, easing: EASE, fill: 'backwards' });
+        }
+
+        var io = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                var card = entry.target;
+                io.unobserve(card);
+                var svg = card.querySelector('.chart-preview svg');
+                if (!svg) return;
+                var i = parseInt(getComputedStyle(card).getPropertyValue('--i'), 10) || 0;
+                draw(svg, 150 + i * 90);
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.chart-card').forEach(function(card) { io.observe(card); });
     })();
 
     // Sub Menu Scroll Spy + Precise Click Scroll
