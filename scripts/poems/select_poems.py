@@ -22,6 +22,7 @@ SECTIONS = [
 ]
 assert sum(q for _, _, q in SECTIONS) == TOTAL
 
+# 옛 슬라이드(2026-10-31 삭제)가 인용하던 8편. 지금 50편을 다시 만들 수 있게 남겨 둔다. 다음 선정 때는 풀어도 된다.
 FIXED = ["처음 듣는 목소리", "서명란", "보고서_최종", "반사", "심사역", "수신 확인 1", "명단(名單)", "몰래"]
 
 CLUSTER_CAP = {"결론부터": 2, "한여름": 2}  # 나머지 겹침군은 1
@@ -31,9 +32,24 @@ AUTUMN = {"P01", "P02", "P03", "P04", "P05", "P06", "P07", "P09", "P11", "P12", 
           "P22", "P23", "P30", "P33", "P34", "P36", "P39", "P41", "P43", "P63"}
 AUTUMN_CAP = 12
 
-# 계절 묶음 안의 순서: 봄 → 여름 → 가을 → 겨울 → 사계절
-SEASON_ORDER = ["P55", "P56", "P57", "P58", "P59", "P60", "P61", "P62", "P22", "P39", "P09", "P63", "P02",
-                "P06", "P01", "P11", "P64", "P34", "P48", "P65"]
+# 계절 묶음 안의 순서: 봄 → 여름 → 가을 → 겨울 → 사계절 (반팔 정리는 여름 끝)
+SEASON_ORDER = ["P55", "P56", "P57", "P58", "P59", "P60", "P61", "P62", "P64", "P22", "P39", "P09", "P63", "P02",
+                "P06", "P01", "P11", "P34", "P48", "P65"]
+
+# 계절 다양성 (2026-10-31 사용자 지시 "10월 관련된 시가 너무 몰려 있어. 계절 다양성을 줘야 해").
+# AUTUMN은 선정 단계의 원본 기준이고, 아래는 고쳐 쓴 뒤 최종 본문 기준이다.
+# 점수 순 선정과 관점 하한을 마친 뒤 사람이 고른 교체를 적용한다. (뺄 시, 넣을 시, 이유)
+SEASON_SWAPS = [
+    ("P62", "P55", "여름 시 셋 가운데 최저점을 빼고 봄 시를 넣음"),
+    ("P01", "P48", "'시월'로 시작하는 가을 시 셋 가운데 하나를 빼고 겨울 시를 넣음"),
+]
+# 최종 본문에서 계절이 드러나는 시. 없는 시는 계절이 드러나지 않는다.
+SEASON = {"P55": "봄", "P56": "봄", "P03": "봄", "P93": "봄",
+          "P58": "여름", "P59": "여름", "P64": "여름",
+          "P63": "가을", "P11": "가을", "P05": "가을", "P30": "가을",
+          "P48": "겨울", "P13": "겨울"}
+SEASON_MIN = 2    # 네 계절 모두 이만큼은 싣는다
+OCTOBER_CAP = 3   # 제목이나 본문에 '시월'·'10월'이 나오는 시
 
 NONHUMAN = {"AI", "아이", "동물", "석상"}
 LEADER = {"임원", "컨설팅 임원", "심사역", "결재권자", "팀장", "부장이자 아빠"}
@@ -131,6 +147,21 @@ def main():
                 print(f"하한을 못 채움: {label}", file=sys.stderr)
                 break
 
+    for out, inn, why in SEASON_SWAPS:
+        assert out in chosen and inn not in chosen, (out, inn)
+        chosen = [inn if x == out else x for x in chosen]
+        why_out[out] = f"계절 다양성: {why} (「{poems[inn]['title']}」과 바꿈)"
+        why_out.pop(inn, None)
+        swaps.append(("계절 다양성", inn, out))
+    seasons = {k: [x for x in chosen if SEASON.get(x) == k] for k in ("봄", "여름", "가을", "겨울")}
+    october = [x for x in chosen if any(w in poems[x]["title"] + "".join(l for s in poems[x]["stanzas"] for l in s)
+                                        for w in ("시월", "10월"))]
+    for k, v in seasons.items():
+        if len(v) < SEASON_MIN:
+            print(f"계절 하한 미달: {k} {len(v)}편", file=sys.stderr)
+    if len(october) > OCTOBER_CAP:
+        print(f"시월 상한 초과: {len(october)}편", file=sys.stderr)
+
     assert len(chosen) == TOTAL, len(chosen)
     for name, _, q in SECTIONS:
         assert sum(poems[x]["묶음"] == name for x in chosen) == q, name
@@ -155,8 +186,12 @@ def main():
     L += ["## 관점 하한 확인", "", "| 관점 | 하한 | 실은 수 |", "|---|---|---|"]
     for label, need, f in FLOORS:
         L.append(f"| {label} | {need} | {sum(f(poems[x]) for x in chosen)} |")
+    L += ["", "## 계절 확인 (최종 본문 기준)", "", "| 계절 | 실은 수 | 시 |", "|---|---|---|"]
+    for k, v in seasons.items():
+        L.append(f"| {k} | {len(v)} (하한 {SEASON_MIN}) | {', '.join('「' + poems[x]['title'] + '」' for x in v)} |")
+    L.append(f"| '시월'·'10월'이 나오는 시 | {len(october)} (상한 {OCTOBER_CAP}) | {', '.join('「' + poems[x]['title'] + '」' for x in october)} |")
     if swaps:
-        L += ["", "하한 때문에 바꾼 시:", ""]
+        L += ["", "하한과 계절 다양성 때문에 바꾼 시:", ""]
         L += [f"- {lab}: 「{poems[c]['title']}」({poems[c]['score']}) 넣고 「{poems[o]['title']}」({poems[o]['score']}) 뺌" for lab, c, o in swaps]
     split = [i for i in poems if abs(poems[i]["silver"] - poems[i]["gold"]) >= 2.5]
     if split:

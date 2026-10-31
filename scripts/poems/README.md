@@ -58,5 +58,5 @@ python3 -I roast.py apply N         # 고친 원고 반영(행 수, 고정 행, 
 ## 지킬 것
 
 - 페이지의 `<!-- POEMS START -->`부터 `END`까지는 손으로 고치지 않는다. 시를 고칠 때는 `poems-all.json`을 고치고 다시 그린다.
-- 슬라이드가 인용하는 8편은 `select_poems.py`의 `FIXED`에 있다. 슬라이드를 고치면 이 목록도 고친다.
-- 편수(50편, 쉰 편)는 메타 설명, 헤더, 마지막 슬라이드 띠, CTA, `index.html`, README에도 적혀 있다. 50을 바꾸면 함께 고친다.
+- `select_poems.py`의 `FIXED` 8편과 `roasting/roast.py`의 `LOCKED` 행은 옛 슬라이드(2026-10-31 삭제)가 인용하던 것이다. 지금은 지킬 이유가 없으니 다음 선정이나 고쳐 쓰기 때 풀어도 된다.
+- 편수(50편, 쉰 편)는 메타 설명, 헤더, CTA, `index.html`, README에도 적혀 있다. 50을 바꾸면 함께 고친다.
