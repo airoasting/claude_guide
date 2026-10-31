@@ -478,7 +478,7 @@
                     </div>
                     <div class="ab-rule" aria-hidden="true"></div>
                     <div class="ab-intro">
-                        <p>시중에 나와 있는 Claude 자료는 대부분 개발자를 대상으로 합니다. 그래서 이 가이드는 <strong>코드를 쓰지 않는 사람이 기획과 보고, 분석과 자동화에 바로 활용할 수 있도록</strong> 같은 도구를 실무 관점으로 다시 정리한 자료입니다.</p>
+                        <p>시중에 나와 있는 Claude나 ChatGPT 자료는 대부분 개발자를 대상으로 합니다. 그래서 이 가이드는 <strong>코드를 쓰지 않는 사람이 기획과 보고, 분석과 자동화에 바로 활용할 수 있도록</strong> 같은 도구를 실무 관점으로 다시 정리한 자료입니다.</p>
                         <p>코드를 한 줄도 모르는 사람도 진단부터 자동화까지 한 번에 따라올 수 있도록 전체 내용을 5단계로 구성했습니다.</p>
                     </div>
                 </div>
@@ -528,7 +528,7 @@
                         <p class="ab-maker-bio">전략 컨설팅과 글로벌 사업 현장을 거치며 쌓은 경험을 바탕으로, AI를 누구나 실무에 바로 쓸 수 있도록 매주 업데이트 하고 있습니다.</p>
                         <ul class="ab-cv">
                             <li><b>LINER</b><span class="ab-role">AI 전략 총괄</span></li>
-                            <li><b>국민경제자문회의</b><span class="ab-role">AI경제 정책자문단</span></li>
+                            <li><b>국민경제자문회의</b><span class="ab-role">AI경제 정책자문단 위원</span></li>
                             <li><span class="ab-past">전)</span><b>카카오엔터테인먼트</b><span class="ab-role">글로벌사업 본부장(VP)</span></li>
                             <li><span class="ab-past">전)</span><b>라인(LINE)</b><span class="ab-role">태국 사업 최고전략책임(CSO)</span></li>
                             <li><span class="ab-past">전)</span><b>Bain &amp; Company</b><span class="ab-role">이사</span></li>
@@ -541,9 +541,13 @@
                     <p class="ab-eyebrow ab-latin">Changelog</p>
                     <div class="ab-sec-head">
                         <h2 class="ab-sec-title">업데이트 내역</h2>
-                        <span class="ab-sec-note">최신순 · 전체 35건</span>
+                        <span class="ab-sec-note">최신순 · 전체 36건</span>
                     </div>
                     <div class="ab-log">
+                        <div class="ab-log-item">
+                            <div class="ab-log-meta"><span class="ab-ver">v3.15</span><span class="ab-date">2026-11-01</span></div>
+                            <div><p class="ab-log-title">모션 디자인 갤러리 신설과 시로 쓴 자화상 50편</p><p class="ab-log-desc">갤러리에 코드로 그리는 30초 영상 스타일 30종을 모은 모션 디자인 페이지를 새로 만들고, 바이브 코딩 실전 과제에 배경 음악이 있는 30초 영상 만들기를 추가했습니다. 시로 쓴 자화상은 Padlet 시를 추가해 50편을 고르고 Roasting으로 고쳐 썼습니다. EDA 차트 갤러리와 GitHub 가이드, 파일 형식 페이지의 슬라이드를 다시 구성하고, 표지 최신 모델에 GPT-6.1 Terra를 반영했습니다.</p></div>
+                        </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.14</span><span class="ab-date">2026-10-25</span></div>
                             <div><p class="ab-log-title">멀티 에이전트와 루프 역할 분리, 오리엔테이션 재무 비교 신설</p><p class="ab-log-desc">/goal 설명을 5단계 루프 엔지니어링으로 옮기고, 4단계 멀티 에이전트 소환은 다이내믹 워크플로우 중심으로 다시 썼습니다. 오리엔테이션에는 OpenAI와 Anthropic의 기업 가치·매출 비교 섹션을 새로 만들고, 가격표와 벤치마크 표를 최신 모델로 갱신했습니다. 하네스, 멀티 페르소나, 나만의 Skill 등 여러 페이지의 슬라이드도 다시 구성했습니다.</p></div>
@@ -564,12 +568,12 @@
                             <div class="ab-log-meta"><span class="ab-ver">v3.10</span><span class="ab-date">2026-09-20</span></div>
                             <div><p class="ab-log-title">컴퍼니 브레인 개편과 헤르메스 사용 사례 신설</p><p class="ab-log-desc">컴퍼니 브레인은 세 가지 구성 요소와 DATA 통과 조건 섹션을 새로 만들고, LLM 위키 도식에서 Semantic Layer를 지식 베이스 위로 올렸습니다. 슬랙에서 활동하는 헤르메스 에이전트가 실제로 한 일 여덟 가지와 여섯 가지 교훈을 정리한 사용 사례 페이지를 새로 만들었습니다. 헤르메스 에이전트 페이지는 5단계에서 부록으로 옮겨 사용 사례 페이지와 한 섹션에 모았습니다.</p></div>
                         </div>
-                        <div class="ab-log-item">
-                            <div class="ab-log-meta"><span class="ab-ver">v3.9</span><span class="ab-date">2026-09-13</span></div>
-                            <div><p class="ab-log-title">1단계 기본기 개편</p><p class="ab-log-desc">1단계 기본기를 프롬프트 잘 쓰는 법, 멀티 페르소나 토론, 프로젝트 만들기 순서로 다시 묶었습니다. 멀티 페르소나는 흩어져 있던 실습을 하나로 합치고 요청문을 짧게 줄여 처음 쓰는 사람도 따라올 수 있게 했습니다. AI 활용 능력 페이지는 기본 작성법을 앞에 두고 여러 단계로 이어지는 일을 맡기는 방법을 뒤에 놓았으며, 겹치던 설명은 덜어냈습니다.</p></div>
-                        </div>
                                                 <details class="ab-more">
-                            <summary>이전 기록 29건 더 보기</summary>
+                            <summary>이전 기록 30건 더 보기</summary>
+                            <div class="ab-log-item">
+                                <div class="ab-log-meta"><span class="ab-ver">v3.9</span><span class="ab-date">2026-09-13</span></div>
+                                <div><p class="ab-log-title">1단계 기본기 개편</p><p class="ab-log-desc">1단계 기본기를 프롬프트 잘 쓰는 법, 멀티 페르소나 토론, 프로젝트 만들기 순서로 다시 묶었습니다. 멀티 페르소나는 흩어져 있던 실습을 하나로 합치고 요청문을 짧게 줄여 처음 쓰는 사람도 따라올 수 있게 했습니다. AI 활용 능력 페이지는 기본 작성법을 앞에 두고 여러 단계로 이어지는 일을 맡기는 방법을 뒤에 놓았으며, 겹치던 설명은 덜어냈습니다.</p></div>
+                            </div>
                             <div class="ab-log-item">
                                 <div class="ab-log-meta"><span class="ab-ver">v3.8</span><span class="ab-date">2026-09-06</span></div>
                                 <div><p class="ab-log-title">최신 모델 반영과 LLM Wiki 실습 개편</p><p class="ab-log-desc">9월 첫 주에 잇달아 출시된 Claude Fable 5.1(1일), Gemini 3.8 Flash(2일), GPT-6 Astra(3일)를 반영해 성능 벤치마크 표, 가격표, 모델 타임라인, 체크리스트와 활용 수준 진단의 모델 설명을 갱신했습니다. 컴퍼니 브레인 실습 편은 공개된 LLM 위키 스킬을 Claude 데스크톱 앱에 설치해 샘플 문서 8개로 바로 실행해 볼 수 있게 했습니다.</p></div>

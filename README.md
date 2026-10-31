@@ -6,7 +6,7 @@
 
 # AI ROASTING · AI 에이전트를 고용하라
 
-![Version](https://img.shields.io/badge/Version-3.14-4CAF50)
+![Version](https://img.shields.io/badge/Version-3.15-4CAF50)
 ![License](https://img.shields.io/badge/License-©%20AI%20ROASTING-D97757)
 ![Pages](https://img.shields.io/badge/Pages-44-8A4FE0)
 ![Curriculum](https://img.shields.io/badge/Curriculum-5%EB%8B%A8%EA%B3%84-E07820)
@@ -187,7 +187,7 @@
 
 ---
 
-## 모델 기준 (2026-10-24)
+## 모델 기준 (2026-11-01)
 
 가이드 전체의 모델 표기는 [5분 오리엔테이션](https://airoasting.com/orientation.html)의 가격표와 출시 타임라인을 정본으로 씁니다. 요금제별 기본 모델과 `/model`·`/effort` 사용법은 [20단계 체크리스트](https://airoasting.com/checklist.html)에 있습니다.
 
@@ -198,7 +198,7 @@
 | Claude Sonnet 5.5 | 2026-09-28 | 실무 표준. GPT-6.1 Sol과 같은 단가 | $2 / $10 |
 | Claude Haiku 5.5 | 2026-10-07 | 단순 반복 작업과 멀티 에이전트 보조. 프롬프트 10만 토큰 초과 시 $0.50 / $2.50 | $0.10 / $0.50 |
 
-같은 시기 OpenAI는 GPT-6 Astra(2026-09-03, $10/$50), GPT-6 Sol·Luna(2026-09-22, Luna $0.10/$0.50), GPT-6.1 Sol(2026-09-29, $2/$10)을 냈고, 표준 라인에는 GPT-5.6 Terra(2026-07-09, $2/$12)가 있습니다. 모델 교체가 있을 때 함께 손봐야 하는 곳은 네 군데입니다. `orientation.html`의 벤치마크 표·가격 표·모델 타임라인, `checklist.html`의 `/model`·`/effort` 항목, `ai-levels.html`의 모델 카드, `index.html` 히어로의 최신 모델 표기입니다.
+같은 시기 OpenAI는 GPT-6 Astra(2026-09-03, $10/$50), GPT-6 Sol·Luna(2026-09-22, Luna $0.10/$0.50), GPT-6.1 Sol(2026-09-29, $2/$10), GPT-6.1 Terra(2026-10-26, $1/$5)를 냈습니다. 표지의 최신 모델 표기는 두 회사 모두 플래그십·고난도·표준 세 단계(Claude Fable 5.1·Opus 5.5·Sonnet 5.5, ChatGPT 6 Astra·6.1 Sol·6.1 Terra)로 맞추고, 저단가 모델(Haiku 5.5, GPT-6 Luna)은 넣지 않습니다. 모델 교체가 있을 때 함께 손봐야 하는 곳은 네 군데입니다. `orientation.html`의 벤치마크 표·가격 표·모델 타임라인, `checklist.html`의 `/model`·`/effort` 항목, `ai-levels.html`의 모델 카드, `index.html` 히어로의 최신 모델 표기입니다.
 
 ---
 
@@ -216,6 +216,8 @@
 
 GitHub 첫 커밋은 2026년 2월 24일에 올렸습니다(v1.0). 그 뒤로는 한 주 작업을 정리해 매주 업데이트하고 있습니다.
 
+- **v3.15 · 2026-11-01: 모션 디자인 갤러리 신설과 시로 쓴 자화상 50편**
+  갤러리에 코드로 그리는 30초 영상 스타일 30종을 모은 모션 디자인 페이지를 새로 만들고, 바이브 코딩 실전 과제에 배경 음악이 있는 30초 영상 만들기를 추가했습니다. 시로 쓴 자화상은 Padlet 시를 추가해 50편을 고르고 Roasting으로 고쳐 썼습니다. EDA 차트 갤러리와 GitHub 가이드, 파일 형식 페이지의 슬라이드를 다시 구성하고, 표지 최신 모델에 GPT-6.1 Terra를 반영했습니다.
 - **v3.14 · 2026-10-25: 멀티 에이전트와 루프 역할 분리, 오리엔테이션 재무 비교 신설**
   `/goal` 설명을 5단계 루프 엔지니어링으로 옮기고, 4단계 멀티 에이전트 소환은 다이내믹 워크플로우 중심으로 다시 썼습니다. 오리엔테이션에는 OpenAI와 Anthropic의 기업 가치·매출 비교 섹션을 새로 만들고, 가격표와 벤치마크 표를 최신 모델로 갱신했습니다. 하네스, 멀티 페르소나, 나만의 Skill 등 여러 페이지의 슬라이드도 다시 구성했습니다.
 - **v3.13 · 2026-10-19: MCP 연결 실전 개편과 최신 모델·도입률 반영**
