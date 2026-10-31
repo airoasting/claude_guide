@@ -546,7 +546,7 @@
                     <div class="ab-log">
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.15</span><span class="ab-date">2026-11-01</span></div>
-                            <div><p class="ab-log-title">모션 디자인 갤러리 신설과 시로 쓴 자화상 50편</p><p class="ab-log-desc">갤러리에 코드로 그리는 30초 영상 스타일 30종을 모은 모션 디자인 페이지를 새로 만들고, 바이브 코딩 실전 과제에 배경 음악이 있는 30초 영상 만들기를 추가했습니다. 시로 쓴 자화상은 Padlet 시를 추가해 50편을 고르고 Roasting으로 고쳐 썼습니다. EDA 차트 갤러리와 GitHub 가이드, 파일 형식 페이지의 슬라이드를 다시 구성하고, 표지 최신 모델에 GPT-6.1 Terra를 반영했습니다.</p></div>
+                            <div><p class="ab-log-title">모션 디자인 갤러리 신설</p><p class="ab-log-desc">갤러리에 코드로 그리는 30초 영상 스타일 30종을 모은 모션 디자인 페이지를 새로 만들고, 바이브 코딩 실전 과제에 배경 음악이 있는 30초 영상 만들기를 추가했습니다. EDA 차트 갤러리와 GitHub 가이드, 파일 형식 페이지의 슬라이드를 다시 구성하고, 표지 최신 모델에 GPT-6.1 Terra를 반영했습니다.</p></div>
                         </div>
                         <div class="ab-log-item">
                             <div class="ab-log-meta"><span class="ab-ver">v3.14</span><span class="ab-date">2026-10-25</span></div>
